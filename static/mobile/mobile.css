@@ -1,0 +1,253 @@
+/* the front page (Map page) doesn't need padding; it interferes with the splash screen */
+
+#page-map > .ui-content {
+    padding:0;
+}
+
+
+/* global font stuff */
+
+.ui-header {
+    font-family: Montserrat;
+}
+
+
+/* jQuery Mobile style overrides */
+
+.ui-bar-a {
+    background: none repeat scroll 0 0 #0D6B51;
+    border: 1px solid #0D6B51;
+}
+
+.ui-btn-up-a {
+    background: #0C5A40;
+    border: 1px solid #111111;
+    color: #FFFFFF;
+    font-weight: bold;
+    text-shadow: none;
+}
+
+.ui-body-c, .ui-overlay-c {
+    background: #ECE4CF;
+}
+
+
+/* Page elements */
+
+#map_canvas {
+    position:absolute; top:0; left:0;
+    margin:0; padding:0;
+    width:100%; height:100%;
+}
+
+#splashscreen {
+    background-color:#0D6B51;
+    opacity:0.75;
+    z-index:1000;
+
+    width:100%; height:100%;
+    text-align:center;
+    vertical-align:middle;
+}
+
+#splashscreen > div {
+    text-align:center;
+
+    /* the margin-left and margin-top should be set to 1/2 of the combined height and 1/2 the max width of the two logos */
+    position:fixed; left:50%; top:50%;
+    margin-left:-125px;
+    margin-top:-140px;
+}
+
+#toolbar {
+    position:absolute; left:0; bottom:0;
+    height:46px;
+    width:100%;
+    background-color:black;
+
+    text-align:center;
+
+    display:none;
+}
+
+#toolbar table {
+    width:100%;
+    border-collapse:collapse;
+}
+
+#toolbar table td {
+    border-right:1px solid silver;
+    border-left:1px solid silver;
+}
+#toolbar table td:first-child {
+    border-left:0 none transparent;
+}
+#toolbar table td:last-child {
+    border-right:0 none transparent;
+}
+
+#alerts .zoom_distance {
+    text-align:right;
+    min-width:50px;
+}
+
+.ui-li-has-count .ui-li-count {
+    top:85%;
+}
+
+.ui-li-divider .ui-li-count, .ui-li-static .ui-li-count {
+    right: 0;
+}
+
+#change_directions_target {
+    float:right;
+    text-align:right;
+    font-size:8pt;
+}
+
+#directions_target_title {
+    text-align:center;
+    font-size:110%;
+    font-weight:bold;
+}
+
+#directions_getgps {
+    float:right;
+    text-align:right;
+    font-size:8pt;
+    margin-top:10px;
+}
+
+.leaflet-popup .fakelink {
+    font-size:12pt;
+}
+
+#getdirections_disabled {
+    text-align:center;
+    font-size:12pt;
+}
+
+#info-content {
+    min-height:3em;
+}
+
+
+/* input widgets inherit the background color, making them nearly invisible! */
+
+.ui-content input[type="text"] {
+    background:none repeat scroll 0 0 #F9F9F9;
+}
+
+.ui-content input[type="password"] {
+    background:none repeat scroll 0 0 #F9F9F9;
+}
+
+.ui-content textarea {
+    background:none repeat scroll 0 0 #F9F9F9;
+}
+
+.ui-content select {
+    background:none repeat scroll 0 0 #F9F9F9;
+}
+
+/* speed up those transitions a little */
+
+.fade.out {
+    opacity: 0;
+    -webkit-animation-duration: 100ms;
+    -moz-animation-duration: 100ms;
+}
+.fade.in {
+    opacity: 1;
+    -webkit-animation-duration: 100ms;
+    -moz-animation-duration: 100ms;
+}
+
+
+
+/* jQuery Mobile sliders have that text field; hide them */
+input.ui-slider-input, .ui-field-contain input.ui-slider-input {
+    display: none;
+}
+div.ui-slider {
+    height:25px;
+}
+.ui-field-contain div.ui-slider {
+    width: 75%;
+}
+
+
+
+/* the scalebar needs to clear the toolbar */
+
+.leaflet-bottom .leaflet-control-scale {
+    margin-bottom: 55px;
+}
+
+
+/* Leaflet popups which are large enough to induce scrolling, can't really scroll */
+.leaflet-popup-scrolled .leaflet-popup-content {
+    overflow:hidden;
+}
+
+
+
+
+/* inside a a textnowrap do not force text inputs to wrap lines */
+
+.textnowrap input.ui-input-text,textarea.ui-input-text {
+    display:inline;
+}
+
+.textnowrap td {
+    vertical-align:middle;
+}
+
+
+/* the Share panel and the Settings panel, have panels which need to LOOK like read-only text boxes
+  but which are really DIVs, cuz iOS forgot to add a select and copy function!
+*/
+
+div.fakeinput {
+    text-align: left;
+    background: none repeat scroll 0 0 #F9F9F9;
+    font-size: 16px;
+    line-height: 1.4;
+    width: 99%;
+    padding: 0.4em;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) inset;
+    border: 1px solid #AAAAAA;
+    color: #333333;
+    text-shadow: 0 1px 0 #FFFFFF;
+    border-radius: 0.6em 0.6em 0.6em 0.6em;
+    height:1.4em;
+}
+
+
+/* the buttons in the top Header bar, on each page; Cleveland asked for a tan brown color */
+
+.ui-btn-up-a {
+    background: none repeat scroll 0 0 #AB8E5A;
+    color: #333333;
+}
+
+
+/* in the Directions panel, the buttons to finally get directions */
+
+#directions_button_wrapper .ui-btn-inner {
+    background: none repeat scroll 0 0 #AB8E5A;
+    color:#333333;
+    text-shadow:0 1px 0 #CCCCCC;
+}
+
+
+/* toggle for sorting alphabetically or by distance, hidden by default but added as searches happen */
+
+.sortpicker {
+    display:none;
+    text-align:center;
+}
+
+#page-browse-results .sortpicker {
+    display:block;
+}
