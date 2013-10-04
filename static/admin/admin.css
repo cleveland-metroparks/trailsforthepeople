@@ -1,0 +1,26 @@
+body {
+    background-color:#EEEEEE;
+    margin:0; padding:0;
+}
+
+#navbar {
+    text-align:center;
+    width:100%;
+    background-color:silver;
+}
+
+#navbar a {
+    color:blue; text-decoration:none;
+    margin: 0 2em 0 2em;
+}
+
+#navbar a:visited {
+    color:blue; text-decoration:none;
+}
+
+.fakelink {
+    color:blue;
+    text-decoration:underline;
+    cursor:pointer;
+}
+
