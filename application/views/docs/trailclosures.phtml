@@ -1,0 +1,48 @@
+<?php $this->load->view('docs/header.phtml') ?>
+
+<h1>THE TRAIL CLOSURES PANEL</h1>
+<div class="indent bottom">
+
+The Contributors Panel has a subsystem allowing trail segments to be marked for Closure. Segments marked as closed are affected in several ways, which are described below.
+
+<h2>CLOSING AND OPENING TRAIL SEGMENTS</h2>
+<div class="indent bottom">
+
+<p>The interface is in the <a target="_blank" href="<?= ssl_url('contributors') ?>">Contributors Panel, under Closures</a></p>
+
+<p>To tag a trail segment as Closed:</p>
+
+<ul>
+<li>Click the map to query it as usual.</li>
+<li>If the popup shows info for a trail segment, there will also be a link to tag the segment as Closed.</li>
+<li>When you click that link, it will appear on the right-hand side. You may edit the title and description. <b>This content will be publicly visible in a popup bubble</b> and may include information about why it is closed and when it will reopen.</li>
+<li>Note that some trails are comprised of many segments, and you may need to select multiple segments if a longer stretch is Closed.</li>
+<li>When you are done, click Save Changes to commit the list of closures.</li>
+</ul>
+
+<p>To remove a trail Closure (re-open a segment):</p>
+
+<ul>
+<li>On the right-hand side is the list of closures. Find the one you want to re-open. If there are several segments with the same name, use the <i>Go</i> link to zoom in and verify which segment is which.</li>
+<li>Click its X to remove it from the list. The map should refresh too.</li>
+<li>When you are done, click Save Changes to commit the list of closures.</li>
+</ul>
+
+</div>
+
+
+
+<h2>THE EFFECT OF CLOSED TRAIL SEGMENTS</h2>
+<div class="indent bottom">
+
+<p>When you save the list of closures, a calculation is done as to which Loops and which whole Trails intersect the closures. Those Loops and Trails are then tagged to indicate that there is a Closure.</p>
+
+<p>On the front-facing site, when a user views information about a Trail or a Loop, they will see a note indicating a partial closure, and urging them to check the route on the map for more information.</p>
+
+<p>Trail Closures are queryable on the front-facing map. That is, they can be clicked to make a popup with the title and description you entered. This is approopriate to make a more verbose title, to describe the reason for the closure, and to indicate when the trail segment will reopen.</p>
+
+</div>
+
+
+
+<?php $this->load->view('docs/footer.phtml') ?>

@@ -1,0 +1,54 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title><?= htmlspecialchars($this->config->item('title')) ?> :: Administration</title>
+
+    <!-- jQuery et al -->
+    <script type="text/javascript" src="<?= ssl_url('static/common/jquery-1.7.2.min.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/common/jquery-ui-1.8.21.custom.min.js'); ?>"></script>
+    <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/common/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" />
+
+    <!-- Tablesorter -->
+    <script type="text/javascript" src="<?= ssl_url('static/common/tablesorter/jquery.tablesorter.js'); ?>"></script>
+    <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/common/tablesorter/themes/blue/style.css'); ?>" />
+
+    <!-- Leaflet map interface -->
+    <link rel="stylesheet" type="text/css" href="<?= ssl_url('static/common/leaflet3/dist/leaflet.css'); ?>" />
+    <!--[if lte IE 8]><link rel="stylesheet" href="<?= ssl_url('static/common/leaflet3/dist/leaflet.ie.css'); ?>" /><![endif]-->
+    <script type="text/javascript" src="<?= ssl_url('static/common/leaflet3/dist/leaflet-src.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/common/leaflet-bing.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/common/leaflet-scalebar.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/common/leaflet-wkt.js'); ?>"></script>
+
+    <!-- TinyMCE, the HTML editor -->
+    <script type="text/javascript" src="<?= ssl_url('static/tinymce/jscripts/tiny_mce/jquery.tinymce.js'); ?>"></script>
+
+    <!-- our own local javaScript and CSS -->
+    <script type="text/javascript" src="<?= ssl_url('static/common/constants.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/contributors/contributors.js'); ?>"></script>
+    <link rel="stylesheet" type="text/css" href="<?= ssl_url('static/contributors/contributors.css'); ?>" />
+</head>
+<body>
+
+<div id="navbar">
+    <a href="<?= ssl_url('contributors/') ?>">Main Menu</a>
+    <? if ($this->loggedin['allow_markers']) { ?>
+    <a href="<?= ssl_url('contributors/markers/') ?>">Markers</a>
+    <a href="<?= ssl_url('contributors/markers/?expired=1') ?>">Expired Markers</a>
+    <?php } ?>
+    <? if ($this->loggedin['allow_loops']) { ?>
+    <a href="<?= ssl_url('contributors/loops/') ?>">Loops</a>
+    <?php } ?>
+    <? if ($this->loggedin['allow_closures']) { ?>
+    <a href="<?= ssl_url('contributors/trailclosures/') ?>">Closures</a>
+    <?php } ?>
+    <? if ($this->loggedin['allow_twitter']) { ?>
+    <a href="<?= ssl_url('contributors/twitter/') ?>">Twitter</a>
+    <?php } ?>
+    <a href="<?= ssl_url('contributors/password/') ?>">Password</a>
+    <a href="<?= ssl_url('contributors/logout/') ?>">Log Out</a>
+    <a href="https://twitter.com/intent/tweet?button_hashtag=clevemetroparks" class="twitter-hashtag-button" data-related="clevemetroparks">Tweet #CleveMetroParks</a>
+</div>
+
+<!-- activate that tweet link -->
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>

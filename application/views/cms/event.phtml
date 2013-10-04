@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><?= htmlspecialchars($this->config->item('title')) ?></title>
+    <meta charset="utf-8" />
+
+    <!-- the Montserrat font, matches the master website -->
+    <link href="http://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css" />
+
+    <!-- jQuery et al -->
+    <script type="text/javascript" src="<?= site_url('static/common/jquery-1.7.2.min.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/jquery-ui-1.8.21.custom.min.js'); ?>"></script>
+    <link type="text/css" rel="stylesheet" href="<?= site_url('static/common/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" />
+    <script type="text/javascript" src="<?= site_url('static/common/purl.js'); ?>"></script>
+
+    <!-- Leaflet map interface plus some tricks of my own -->
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/leaflet3/dist/leaflet.css'); ?>" />
+    <!--[if lte IE 8]><link rel="stylesheet" href="<?= site_url('static/common/leaflet3/dist/leaflet.ie.css'); ?>" /><![endif]-->
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet3/dist/leaflet-src.js'); ?>"></script>
+
+    <!-- our own local javaScript and CSS -->
+    <!-- <script type="text/javascript" src="<?= site_url('static/cms/cms.js'); ?>"></script> -->
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/cms/cms.css'); ?>" />
+</head>
+<body>
+
+
+<h2 id="title">
+    <?= htmlspecialchars($event->title) ?>
+</h2>
+
+<h3>
+    <?= htmlspecialchars($event->textdate) ?>
+    <br/>
+    <?= htmlspecialchars($event->time) ?>
+</h3>
+
+<div id="rightmargin">
+    <?php if ($event->imageurl) { ?>
+    <p>
+    <img id="image" src="<?= $event->imageurl ?>" />
+    </p>
+    <?php } ?>
+
+    <p class="subheading">Events &amp; Programs</p>
+    <ul id="eventlist">
+    <?php foreach ($events as $e) { ?>
+    <li>
+        <a href="<?= site_url("cms/event/{$e->id}") ?>"><?= htmlspecialchars($e->title) ?></a>
+        <br/>
+        <?= htmlspecialchars($e->textdate) ?>
+    </li>
+    <?php } ?>
+    </ul>
+    <a id="events_seeall" target="_blank" href="http://www.clemetparks.com/">See all &gt;</a>
+</div>
+
+<div id="textcontent">
+    <?= $event->content ?>
+</div>
+
+<div id="event_details">
+    <?php if ($event->category) { ?><p>Category: <?= htmlspecialchars($event->category) ?></p><?php } ?>
+    <?php if ($event->age) { ?><p>Ages: <?= htmlspecialchars($event->age) ?></p><?php } ?>
+    <?php if ($event->cost) { ?><p>Cost: <?= htmlspecialchars($event->cost) ?></p><?php } ?>
+</div>
+
+
+
+<!-- a little space at the bottom, to not run so starkly into the bottom -->
+<p>
+    <br/>
+</p>
+
+</body>
+</html>

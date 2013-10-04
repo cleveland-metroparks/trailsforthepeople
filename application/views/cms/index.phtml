@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><?= htmlspecialchars($this->config->item('title')) ?></title>
+    <meta charset="utf-8" />
+</head>
+<body>
+
+
+
+<p>No page was specified.</p>
+<p>Here is an index of pages.</p>
+
+<ul>
+<?php foreach ($pages as $page) { ?>
+<li><a target="_blank" href="<?= site_url("cms/page/{$page->feed}/{$page->urlkey}"); ?>"><?= htmlspecialchars($page->feed) ?> :: <?= htmlspecialchars($page->title) ?></a></li>
+<?php } ?>
+</ul>
+
+
+</body>
+</html>

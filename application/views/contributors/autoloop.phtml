@@ -1,0 +1,89 @@
+<?php $this->load->view('contributors/header.phtml') ?>
+
+<style type="text/css">
+th,td {
+    text-align:left;
+    vertical-align:top;
+}
+</style>
+
+
+<table>
+
+<tr>
+    <th>Base name for the loop:</th>
+    <th><input type="text" name="basename" value="Random" /></th>
+</tr>
+
+<tr>
+    <th>WP0 lat:</th>
+    <th><input type="text" name="lat" value="<?= $this->config->item('geo_lat') ?>" /></th>
+</tr>
+
+<tr>
+    <th>WP0 lon:</th>
+    <th><input type="text" name="lon" value="<?= $this->config->item('geo_lon') ?>" /></th>
+</tr>
+
+<tr>
+    <th>Desired route length:</th>
+    <th><select name="miles">
+    <option value="3">3 miles</option>
+    <option value="5">5 miles</option>
+    <option value="10">10 miles</option>
+    <option value="15">15 miles</option>
+    <option value="20">20 miles</option>
+    </select></th>
+</tr>
+
+<tr>
+    <th>Use type:</th>
+    <th><select name="usetype">
+    <option value="hike">Hiking trails</option>
+    <option value="bike">Bicycle trails</option>
+    <option value="bike_novice">Bicycle trails, novice</option>
+    <option value="bike_beginner">Bicycle trails &amp; roads, beginner</option>
+    <option value="bike_intermediate">Bicycle trails &amp; roads, intermediate</option>
+    <option value="bike_advanced">Bicycle trails &amp; roads, advanced</option>
+    <option value="bridle">Equestrian trails</option>
+    </select></th>
+</tr>
+
+<tr>
+    <th></th>
+    <th><input type="submit" value="Generate" id="go" /></th>
+</tr>
+
+</table>
+
+
+
+
+
+<script type="text/javascript">
+var MY_CONTRIBUTOR_ID = <?= $this->loggedin['id'] ?>;
+
+$(window).load(function () {
+    $('#go').click(function () {
+        var params = {
+            lat      : parseFloat($('input[name="lat"]').val()),
+            lon      : parseFloat($('input[name="lon"]').val()),
+            miles    : $('select[name="miles"]').val(),
+            usetype  : $('select[name="usetype"]').val(),
+            basename : $('input[name="basename"]').val(),
+            creatorid: MY_CONTRIBUTOR_ID
+        };
+        if (!params.lat || !params.lon || !params.miles || !params.usetype) return false;
+
+        $.get('../ajax/autoloop', params, function (reply) {
+            var loopid = parseInt(reply);
+            if (!loopid) return alert(reply);
+            document.location.href = '/contributors/loop/' + loopid;
+        });
+
+        return false;
+    });
+});
+</script>
+
+<?php $this->load->view('contributors/footer.phtml') ?>

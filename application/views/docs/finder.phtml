@@ -1,0 +1,31 @@
+<?php $this->load->view('docs/header.phtml') ?>
+
+<h1>THE FINDERS: AN EMBEDDABLE SET OF SEARCH SYSTEMS</h1>
+
+<p>The <i>/finder/</i> URLs comprise a subsystem of embeddable search systems. These mirror the functionality of the Find panels in the Desktop and Mobile app, but are designed for use in an IFRAME and embedded within a website.</p>
+
+<h2>TRAIL FINDER</h2>
+<div class="indent bottom">
+
+The <i>/finder/trail/</i> subsystem allows one to search for Trails. Each Trail's <i>url</i> attribute is used to populate
+
+<p>
+This page accepts URL params to set the state of the checkboxes and other elements:
+</p>
+<ul>
+<li><b>difficulty</b>--A comma-joined list of any of these values: <i>Novice</i>, <i>Beginner</i>, <i>Intermediate</i>, <i>Advanced</i>. For example, <i>Novice,Beginner</i> This sets the checkboxes for the acceptable levels of Difficulty.</li>
+<li><b>uses</b>--A comma-joined list of any of these values: <i>Hiking</i>, <i>Bicycle</i>, <i>Equestrian</i>. For example, <i>Hiking,Bicycle</i> This sets the checkboxes for the acceptable use types.</li>
+<li><b>paved</b>--A text value, any of: <i>Yes</i>, <i>No</i> This sets the Paved selector.</li>
+<li><b>reservation</b>--A text value, the name of any reservation, e.g. <i>Huntington Reservation</i> This sets the reservation selector. <b>This must exactly match the name of the reservation, including capitalization and spaces.</b></li>
+</ul>
+
+<p>
+Example:<br/>
+<code><a target="_blank" href="<?= site_url('finder/trail/?difficulty=Novice,Beginner&uses=Hiking,Bicycle&paved=Yes&reservation=Huntington%20Reservation'); ?>"><?= site_url('finder/trail/?difficulty=Novice,Beginner&uses=Hiking,Bicycle&paved=Yes&reservation=Huntington%20Reservation'); ?></a></code>
+</p>
+
+
+</div>
+
+
+<?php $this->load->view('docs/footer.phtml') ?>

@@ -1,0 +1,74 @@
+<?php $this->load->view('contributors/header.phtml') ?>
+
+<div style="float:right;">
+    <a href="<?= ssl_url('contributors/loops/?random=1') ?>">Random Loops</a>
+    <br/>
+    <a href="<?= ssl_url('contributors/loops/') ?>">Manual Loops</a>
+    <br/>
+    <br/>
+    <a href="<?= ssl_url('contributors/loop/0/') ?>">Create a new loop</a>
+    <br/>
+    <a href="<?= ssl_url('contributors/autoloop/') ?>">Autoloop&trade; manual</a>
+    <br/>
+    <a href="<?= ssl_url('contributors/autoloop_csv/') ?>">Autoloop&trade; CSV</a>
+</div>
+
+<table id="loops" style="width:75%;">
+<thead>
+<tr>
+    <th></th>
+    <th style="text-align:left;">Name</th>
+    <th style="text-align:left;">Editor</th>
+    <th style="text-align:right; padding-right:2em;">Status</th>
+    <th style="text-align:right; padding-right:2em;">Miles</th>
+    <th style="text-align:right; padding-right:2em;">Closed?</th>
+    <th style="text-align:right; padding-right:2em;">Hike?</th>
+    <th style="text-align:right; padding-right:2em;">Bike?</th>
+    <th style="text-align:right; padding-right:2em;">Bridle?</th>
+    <th></th>
+</tr>
+</thead>
+<tbody>
+<?php foreach ($loops as $loop) { ?>
+<tr>
+    <td>
+        <?php if ($this->loggedin['admin'] or $loop->creatorid == $this->loggedin['id']) { ?>
+            <a href="<?= ssl_url("contributors/loop/{$loop->id}") ?>">edit</a>
+        <?php } else { ?>
+            &nbsp;
+        <?php } ?>
+    </td>
+    <td style="text-align:left;"><?= htmlspecialchars($loop->name) ?></td>
+    <td style="text-align:left;"><?= htmlspecialchars($loop->editedby) ?></td>
+    <td style="text-align:right;"><?= $loop->status ?></td>
+    <td style="text-align:right;"><?= (float) $loop->distancetext ?></td>
+    <td style="text-align:right;"><?= $loop->closedloop == '1' ? 'Loop' : 'One-Way' ?></td>
+    <td style="text-align:right;"><?= $loop->hike ?></td>
+    <td style="text-align:right;"><?= $loop->bike ?></td>
+    <td style="text-align:right;"><?= $loop->bridle ?></td>
+    <td><a class="clone" href="<?= ssl_url("contributors/cloneloop/{$loop->id}") ?>">clone</a></td>
+</tr>
+<?php } ?>
+</tbody>
+</table>
+
+
+
+
+<script type="text/javascript">
+$(window).load(function() { 
+    // sort the table
+    $('#loops').tablesorter({ 
+        sortList: [[3,0],[1,0]]
+    });
+    $('#loops').addClass('tablesorter');
+
+    // the clone links are simple links, but do ask for confirmation first
+    $('a.clone').click(function () {
+        if (! confirm("This will make a copy of the Loop, for your own editing and experimentation.\nClick OK to continue, or Cancel to cancel.") ) return false;
+        return true;
+    });
+}); 
+</script>
+
+<?php $this->load->view('contributors/footer.phtml') ?>

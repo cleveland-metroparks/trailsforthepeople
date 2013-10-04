@@ -1,0 +1,293 @@
+<?php $this->load->view('contributors/header.phtml') ?>
+
+<style type="text/css">
+input[type="text"]   { width:2in; }
+
+#map_canvas {
+    height:7in;
+    width:50%;
+    border:2px solid black;
+}
+
+#savebuttondiv {
+    text-align:center;
+    width:50%;
+}
+
+#closure_details {
+    float:right;
+    width:45%;
+}
+
+#closure_details li {
+    list-style-type:none;
+    margin-top:1em;
+}
+
+#closure_details li input,textarea {
+    width:100%;
+    border-color:black;
+}
+
+#closure_details li textarea {
+    height:0.50in;
+}
+</style>
+
+
+
+<form method="post" action="<?= ssl_current_url() ?>">
+    <ul id="closure_details">
+    </ul>
+
+    <div id="map_wrap">
+        <div id="map_canvas"></div>
+
+        <h2>Close a trail by name...</h2>
+        <div>
+            <input type="text" id="close_trail_text" /> <input type="button" id="close_trail_button" value="Search &gt;" />
+            <br/>
+        </div>
+
+        <h2>Re-open a trail by name...</h2>
+        <div>
+            <input type="text" id="open_trail_text" /> <input type="button" id="open_trail_button" value="Search &gt;" />
+            <br/>
+        </div>
+
+        <h2>Zoom to...</h2>
+        <div>
+            Click the map to get info. Click the resulting popup to mark a trail section as closed.
+            <br/>
+            The names and descriptions on the right will be publicly visible.
+            <br/>
+            <br/>
+            Your current GPS location:<br/>
+                <input type="button" id="gps_button" value="Go &gt;" />
+                <br/>
+            Search:<br/>
+                <input type="text" id="cleocode_address" />
+                <input type="button" id="cleocode_button" value="Go &gt;" />
+                <br/>
+            <ul id="results"></ul>
+        </div>
+    </div>
+
+    <div id="savebuttondiv">
+        <input type="submit" name="save" value="Save Changes" />
+    </div>
+</form>
+
+
+
+<script type="text/javascript">
+var CLOSURE_VECTORS = {};
+var CLOSURE_STYLE = { color:"#FF0000", weight:5, opacity:1.00, clickable:false };
+
+$(window).load(function () {
+    initContributorMap();
+
+    // our version of a WMS GetFeatureInfo control: a map click calls query.php to get JSON info, and we construct a bubble
+    MAP.on('click', function (event) {
+        var data = {};
+
+        // buffer the click point a little to make a box
+        var sw = MAP.layerPointToLatLng(new L.Point(event.layerPoint.x - 10 , event.layerPoint.y - 10));
+        var ne = MAP.layerPointToLatLng(new L.Point(event.layerPoint.x + 10 , event.layerPoint.y + 10));
+        data.w = sw.lng;
+        data.s = sw.lat;
+        data.e = ne.lng;
+        data.n = ne.lat;
+        var anchor = new L.LatLng(event.latlng.lat,event.latlng.lng);
+
+        // add the list of layers
+        data.layers = [];
+        for (var i=0, l=OVERLAYS.length; i<l; i++) {
+            if (OVERLAYS[i].options.visibility) data.layers[data.layers.length] = i;
+        }
+
+        // request the WKT with our query
+        data.wkt = 1;
+
+        // do the AJAX thing
+        $.get('../../ajax/adminquery', data, function (html) {
+            if (!html) return;
+
+            // make a popup of that HTML
+            var popup = new L.Popup();
+            popup.setLatLng(anchor);
+            popup.setContent(html);
+            MAP.openPopup(popup);
+
+            // convert the HTML into a jQuery so we can analyze it for tags and add stuff to the already-loaded HTML in .leaflet-popup-content
+            html = $(html);
+            var zoomer = html.find('.queryinfo').eq(0);
+            if (zoomer && zoomer.hasClass('queryinfo_trail')) {
+                // add a link to the popup, and copy in the info we need to tag a trail closure
+                var link = $('<span></span>').addClass('fakelink').text('Mark as closed');
+                link.attr('name', zoomer.attr('title')  );
+                link.attr('boxw', zoomer.attr('boxw') );
+                link.attr('boxs', zoomer.attr('boxs') );
+                link.attr('boxe', zoomer.attr('boxe') );
+                link.attr('boxn', zoomer.attr('boxn') );
+                link.attr('wkt',  zoomer.attr('wkt')  );
+                link.click(function () {
+                    closeTrail( $(this) );
+                });
+                $('.leaflet-popup-content').append(link);
+            }
+        }, 'html');
+    });
+});
+
+
+
+$(window).load(function () {
+    // search for a trail by name, all segments it contains will be tagged as Closed
+    $('#close_trail_button').click(function () {
+        var trailname = $('#close_trail_text').val();
+        $.get('../../ajax/trail_segments_by_trail_name', { trailname:trailname }, function (reply) {
+            //console.log(reply);
+            if (! reply.boxw) return alert("Not found.\nTrail name searches must be exact.\nUse the Cleveland Metroparks search below to find exact trail names.");
+
+            // zoom to the represented area
+            var bbox = new L.LatLngBounds(new L.LatLng(reply.boxs,reply.boxw),new L.LatLng(reply.boxn,reply.boxe));
+            MAP.fitBounds(bbox);
+
+            // go over the segments, create an element and send them to the closing interface
+            for (var i=0, l=reply.segments.length; i<l; i++) {
+                var replysegment = reply.segments[i];
+
+                var segment = $('<span></span>').attr('closure_id', replysegment.gid);
+                segment.attr('description',"Closed");
+                segment.attr('name', replysegment.title);
+                segment.attr('boxw', replysegment.boxw);
+                segment.attr('boxs', replysegment.boxs);
+                segment.attr('boxe', replysegment.boxe);
+                segment.attr('boxn', replysegment.boxn);
+                segment.attr('wkt', replysegment.wkt);
+                closeTrail(segment);
+            }
+        }, 'json');
+    });
+});
+
+
+
+$(window).load(function () {
+    // search for an existing Closure whose title matches the given string, case-insensitive but also enforcing the & convention to match whole trail names
+    $('#open_trail_button').click(function () {
+        var trailname = $('#open_trail_text').val().toLowerCase();
+
+        var found = 0;
+        $('#closure_details li').each(function () {
+            var namefield = $(this).find('input[name="closure_names[]"]');
+            var thissegmentname = namefield.val().toLowerCase();
+
+            // make sure that the trail name matches this closure's name, following the & convention
+            var match = false;
+            if (thissegmentname == trailname) match = true;
+            if (thissegmentname.indexOf(' & ' + trailname) !== -1) match = true;
+            if (thissegmentname.indexOf(trailname + ' & ') !== -1) match = true;
+            if (! match) return;
+            console.log([ 'match', thissegmentname, trailname ]);
+
+            // if we got here, it matched: click the reopen button and increment the found count
+            found++;
+            var button = $(this).find('.trail_reopen_button');
+            button.click();
+        });
+
+        // after all that, if we didn't find any segments, they should know that
+        if (! found) alert("No matching closures were found.\nPlease check the list on the right, and be sure to spell trail names exactly.");
+    });
+});
+
+
+$(window).load(function () {
+    // go over the list of closures, and generate a fake element so we can call closeTrail() and add it to the list
+    <?php foreach ($closures as $c) { ?>
+    var segment = $('<span></span>').attr('closure_id', '<?= $c->id ?>');
+    segment.attr('description',"<?= $c->description ?>");
+    segment.attr('name',"<?= $c->name ?>");
+    segment.attr('wkt',"<?= $c->wkt ?>");
+    segment.attr('boxw',"<?= $c->boxw ?>");
+    segment.attr('boxs',"<?= $c->boxs ?>");
+    segment.attr('boxe',"<?= $c->boxe ?>");
+    segment.attr('boxn',"<?= $c->boxn ?>");
+    closeTrail(segment);
+    <?php } ?>
+});
+
+
+function closeTrail(element) {
+    var name  = element.attr('name');
+    var descr = element.attr('description');
+    var wkt   = element.attr('wkt');
+    var boxw  = element.attr('boxw');
+    var boxs  = element.attr('boxs');
+    var boxe  = element.attr('boxe');
+    var boxn  = element.attr('boxn');
+    if (! descr) descr = "Closed until further notice";
+    var id = Math.random();
+
+    // compose a LI which contains a button to un-Close this segment, a title and description, and identifying info for the segment
+    var li = $('<li></li>').attr('closure_id',id);
+    li.attr('boxw', boxw);
+    li.attr('boxs', boxs);
+    li.attr('boxe', boxe);
+    li.attr('boxn', boxn);
+
+    var zoombutton = $('<span></span>').addClass('fakelink').addClass('trail_zoom_button').text('go');
+    zoombutton.click(function () {
+        zoomToTrail( $(this).parent() );
+    });
+    li.append(zoombutton);
+
+    li.append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+
+    var rmbutton = $('<span></span>').addClass('fakelink').addClass('trail_reopen_button').text('X');
+    rmbutton.click(function () {
+        openTrail( $(this).parent() );
+    });
+    li.append(rmbutton);
+
+    li.append( $('<br></br>') );
+    li.append( $('<input></input>').prop('type','text').prop('name','closure_names[]').attr('maxlength',150).val(name) );
+    li.append( $('<br></br>') );
+    li.append( $('<textarea></textarea>').prop('name','closure_texts[]').val(descr) );
+    li.append( $('<input></input>').prop('type','hidden').prop('name','closure_geoms[]').val(wkt) );
+
+    $('#closure_details').append(li);
+
+    // create a Vector feature and add it to the map
+    CLOSURE_VECTORS[id] = L.WKTtoFeature(wkt,CLOSURE_STYLE);
+    MAP.addLayer(CLOSURE_VECTORS[id]);
+}
+
+
+function openTrail(element) {
+    var id = element.attr('closure_id');
+
+    // remove the vector feature
+    MAP.removeLayer(CLOSURE_VECTORS[id]);
+    delete(CLOSURE_VECTORS[id]);
+
+    // remove the textarea etc from the right-hand side
+    var box = $('#closure_details li[closure_id="'+id+'"]');
+    box.remove();
+}
+
+
+function zoomToTrail(element) {
+    var boxw = element.attr('boxw');
+    var boxs = element.attr('boxs');
+    var boxe = element.attr('boxe');
+    var boxn = element.attr('boxn');
+    MAP.fitBounds( new L.LatLngBounds( new L.LatLng(boxs,boxw) , new L.LatLng(boxn,boxe) ) );
+}
+</script>
+
+
+
+<?php $this->load->view('contributors/footer.phtml') ?>

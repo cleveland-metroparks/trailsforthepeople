@@ -1,0 +1,45 @@
+<style type="text/css">
+#moreinfo_table {
+    width:100%;
+}
+</style>
+
+<h2><?= htmlspecialchars($feature->name) ?></h2>
+
+<?php if ($feature->closed) { ?>
+<p class="alert">Some portions may be closed to access. Please check the map for more details.</p>
+<?php } ?>
+
+<table id="moreinfo_table">
+<?php if ($feature->reservation) { ?>
+<tr>
+    <th>Location</th>
+    <td><?= htmlspecialchars($feature->reservation) ?></td>
+</tr>
+<?php } ?>
+<tr>
+    <th>Paved</th>
+    <td><?= htmlspecialchars($feature->paved) ?></td>
+</tr>
+<tr>
+    <th>Uses</th>
+    <td>
+        <?= $feature->pri_use ?>
+        <br/>
+        <?= $feature->uses ?>
+    </td>
+</tr>
+</table>
+
+<div style="margin-top:1em;">
+    <?= $feature->description ?>
+</div>
+
+<?php if( $feature->link) { ?><p><a target="_blank" href="<?= $feature->link ?>">More Info</a></p><?php } ?>
+
+
+<?php if ($feature->closed) { ?>
+<p class="alert">Some portions may be closed to access. Please check the map for more details.</p>
+<?php } ?>
+
+<div class="wkt" style="display:none;"><?= $feature->wkt ?></div>

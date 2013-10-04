@@ -1,0 +1,111 @@
+<?php $this->load->view('administration/header.phtml') ?>
+
+<style type="text/css">
+input[type="text"]   { width:2in; }
+input[type="submit"] { width:2in; }
+
+#map_wrap {
+    float:right;
+}
+
+#map_canvas {
+    width:4in; height:4in;
+    border:2px solid black;
+}
+</style>
+
+
+
+<div id="map_wrap">
+    <div id="map_canvas"></div>
+    <br/>
+    Lat: <?= $marker->lat ?>
+    <br/>
+    Lon: <?= $marker->lng ?>
+</div>
+
+
+<table>
+<tr>
+    <td>Created by</td>
+    <td><a target="_blank" href="<?= ssl_url("administration/contributor/{$marker->creatorid}") ?>"><?= htmlspecialchars($marker->creator) ?></a></td>
+</tr>
+<tr>
+    <td>Created on</td>
+    <td><?= $marker->created ?></td>
+</tr>
+<?php if ($marker->expires) { ?>
+<tr>
+    <td>Expires</td>
+    <td><?= $marker->expires ?></td>
+</tr>
+<?php } ?>
+<tr>
+    <td>Title</td>
+    <td><?= htmlspecialchars($marker->title) ?></td>
+</tr>
+<tr>
+    <td>Content</td>
+    <td><?= htmlspecialchars($marker->content) ?></td>
+</tr>
+</table>
+
+
+
+
+<script type="text/javascript">
+var MARKER;
+
+$(window).load(function () {
+    initAdminMap();
+
+    // center the map
+    var lat = <?= $marker->lat ?>;
+    var lng = <?= $marker->lng ?>;
+    var zum = 15;
+    MAP.setView(new L.LatLng(lat,lng),zum);
+
+    // add the marker
+    MARKER = new L.Marker(new L.LatLng(lat,lng), { clickable:false });
+    MAP.addLayer(MARKER);
+
+    // our version of a WMS GetFeatureInfo control: a map click calls query.php to get JSON info, and we construct a bubble
+    MAP.on('contextmenu', function (event) {
+        var data = {};
+
+        // buffer the click point a little to make a box
+        var sw = MAP.layerPointToLatLng(new L.Point(event.layerPoint.x - 10 , event.layerPoint.y - 10));
+        var ne = MAP.layerPointToLatLng(new L.Point(event.layerPoint.x + 10 , event.layerPoint.y + 10));
+        data.w = sw.lng;
+        data.s = sw.lat;
+        data.e = ne.lng;
+        data.n = ne.lat;
+        var anchor = new L.LatLng(event.latlng.lat,event.latlng.lng);
+
+        // add the list of layers
+        data.layers = [];
+        for (var i=0, l=OVERLAYS.length; i<l; i++) {
+            if (OVERLAYS[i].options.visibility) data.layers[data.layers.length] = i;
+        }
+
+        // do the AJAX thing
+        $.get('../../ajax/adminquery', data, function (html) {
+            if (!html) return;
+            var popup = new L.Popup();
+            popup.setLatLng(anchor);
+            popup.setContent(html);
+            MAP.openPopup(popup);
+        }, 'html');
+    });
+
+});
+</script>
+
+
+
+<form style="margin-top:1in;" method="post" action="<?= ssl_url("administration/deletemarker/") ?>" onSubmit="return confirm('Really delete this marker?');">
+<input type="hidden" name="id" value="<?= $marker->id ?>" />
+<input type="submit" value="Delete" />
+</form>
+
+<?php $this->load->view('administration/footer.phtml') ?>

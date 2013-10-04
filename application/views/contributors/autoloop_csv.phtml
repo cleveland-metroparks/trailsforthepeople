@@ -1,0 +1,40 @@
+<?php $this->load->view('contributors/header.phtml') ?>
+
+<form method="POST" action="<?= ssl_current_url() ?>" enctype="multipart/form-data" id="upload">
+
+<p>
+    Upload a CSV file containing the coordinates of trailheads, and let Autoloop generate loops for you. For each point listed, loops will be generated at various (approximated) lengths and for each trail use type (hike, bridle, advanced bike).
+</p>
+
+<ul>
+    <li>The CSV file must have 3 columns, and they must be in this order: Name, Lat, Lon.</li>
+    <li>There must be no header/title row. The very first row is a name & coordinates line.</li>
+</ul>
+
+
+<p>
+    <input type="file" name="csv" size="75"/>
+</p>
+
+<p>
+    <input type="submit" value="Upload" />
+</p>
+
+</form>
+
+
+<script type="text/javascript">
+$(window).load(function () {
+    $('#upload').submit(function () {
+        var error = null;
+        if (! $('input[type="file"][name="csv"]').val() ) error = "Select a CSV file to upload.";
+        if (error) {
+            alert(error);
+            return false;
+        }
+        return true;
+    });
+});
+</script>
+
+<?php $this->load->view('contributors/footer.phtml') ?>

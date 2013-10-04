@@ -1,0 +1,73 @@
+<?php $this->load->view('contributors/header.phtml') ?>
+
+
+<a style="float:right;" href="<?= ssl_url('administration/twitterbans') ?>">Ban list</a>
+
+
+<table id="tweets" style="width:75%;">
+<thead>
+<tr>
+    <th style="text-align:left;">Posted</th>
+    <th style="text-align:right; padding-right:2em;">Username</th>
+    <th style="text-align:left; padding-right:2em;">Content</th>
+    <th></th>
+</tr>
+</thead>
+<tbody>
+<?php foreach ($tweets as $tweet) { ?>
+<tr username="<?= htmlspecialchars($tweet->username) ?>">
+    <td style="text-align:left;"><?= $tweet->posted ?></td>
+    <td style="text-align:left;"><?= htmlspecialchars($tweet->username) ?></td>
+    <td style="text-align:left;"><?= htmlspecialchars(strip_tags($tweet->content)) ?></td>
+    <td>
+        <span class="fakelink delete" value="<?= $tweet->id ?>">Delete posting</span>
+        <br/>
+        <span class="fakelink ban" value="<?= $tweet->id ?>">Ban this user</span>
+    </td>
+</tr>
+<?php } ?>
+</tbody>
+</table>
+
+
+
+
+<script type="text/javascript">
+$(window).load(function() { 
+    // add Tablesorter to the table, for sorting the table
+    $('#tweets').tablesorter({ 
+        sortList: [[0,0]]
+    });
+    $('#tweets').addClass('tablesorter');
+
+    // click handlers for the .delete buttons
+    $('.delete').click(function () {
+        if (! confirm("Delete this posting?") ) return false;
+
+        var id  = $(this).attr('value');
+        var row = $(this).closest('tr');
+
+        var params = { id : id };
+        $.post('twitter_delete', params, function (reply) {
+            if (reply != 'ok') return alert(reply);
+            row.hide('fast');
+        });
+    });
+
+    // click handlers for the .ban buttons
+    $('.ban').click(function () {
+        if (! confirm("Are you sure you want to ban this user?\nThis will delete their past tweets,\nand prevent their future tweets from appearing on the website.") ) return false;
+
+        var params = { id : $(this).attr('value') };
+        var username = $(this).closest('tr').attr('username');
+
+        $.post('twitter_ban', params, function (reply) {
+            if (reply != 'ok') return alert(reply);
+            $('#tweets tr[username="'+username+'"]').hide('fast');
+        });
+    });
+
+}); 
+</script>
+
+<?php $this->load->view('contributors/footer.phtml') ?>

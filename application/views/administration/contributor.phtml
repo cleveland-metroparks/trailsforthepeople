@@ -1,0 +1,107 @@
+<?php $this->load->view('administration/header.phtml') ?>
+
+<style type="text/css">
+input[type="text"]   { width:2in; }
+input[type="submit"] { width:2in; }
+</style>
+
+
+<form method="POST" action="<?= ssl_current_url() ?>" id="edit">
+<table>
+<tr>
+    <td>E-mail:</td>
+    <td><input type="text" name="email" maxlength="100" value="<?= htmlspecialchars($contributor->email) ?>" /></td>
+</tr>
+<tr>
+    <td>Real name &amp; Organization:</td>
+    <td><input type="text" name="realname" maxlength="100" value="<?= htmlspecialchars($contributor->realname) ?>" /></td>
+</tr>
+<tr>
+    <td>Password:<br/><span style="font-size:50%;">only if you want to change it</span></td>
+    <td><input type="text" name="password" value="" /></td>
+</tr>
+<tr>
+    <td>Admin?</td>
+    <td>
+        <select name="admin">
+        <option value="f" <?= $contributor->admin == 'f' ? 'selected="true"' : '' ?> >No</option>
+        <option value="t" <?= $contributor->admin == 't' ? 'selected="true"' : '' ?> >Yes</option>
+        </select>
+    </td>
+</tr>
+<tr>
+    <td>SWGH?</td>
+    <td>
+        <select name="allow_swgh">
+        <option value="f" <?= $contributor->allow_swgh == 'f' ? 'selected="true"' : '' ?> >No</option>
+        <option value="t" <?= $contributor->allow_swgh == 't' ? 'selected="true"' : '' ?> >Yes</option>
+        </select>
+    </td>
+</tr>
+<tr>
+    <td>Markers?</td>
+    <td>
+        <select name="allow_markers">
+        <option value="f" <?= $contributor->allow_markers == 'f' ? 'selected="true"' : '' ?> >No</option>
+        <option value="t" <?= $contributor->allow_markers == 't' ? 'selected="true"' : '' ?> >Yes</option>
+        </select>
+    </td>
+</tr>
+<tr>
+    <td>Loops?</td>
+    <td>
+        <select name="allow_loops">
+        <option value="f" <?= $contributor->allow_loops == 'f' ? 'selected="true"' : '' ?> >No</option>
+        <option value="t" <?= $contributor->allow_loops == 't' ? 'selected="true"' : '' ?> >Yes</option>
+        </select>
+    </td>
+</tr>
+<tr>
+    <td>Closures?</td>
+    <td>
+        <select name="allow_closures">
+        <option value="f" <?= $contributor->allow_closures == 'f' ? 'selected="true"' : '' ?> >No</option>
+        <option value="t" <?= $contributor->allow_closures == 't' ? 'selected="true"' : '' ?> >Yes</option>
+        </select>
+    </td>
+</tr>
+<tr>
+    <td>Twitter?</td>
+    <td>
+        <select name="allow_twitter">
+        <option value="f" <?= $contributor->allow_twitter == 'f' ? 'selected="true"' : '' ?> >No</option>
+        <option value="t" <?= $contributor->allow_twitter == 't' ? 'selected="true"' : '' ?> >Yes</option>
+        </select>
+    </td>
+</tr>
+<tr>
+    <td></td>
+    <td><input type="submit" value="Save Changes" /></td>
+</tr>
+</table>
+</form>
+
+
+<script type="text/javascript">
+$(window).load(function () {
+    $('#edit').submit(function () {
+        var error = null;
+        if (! $('input[name="realname"]').val() ) error = "The contributor's name or organiztaion is required.";
+        if (! $('input[name="email"]').val() ) error = "The contributor's e-mail address is required.";
+        if (error) {
+            alert(error);
+            return false;
+        }
+        return true;
+    });
+});
+</script>
+
+
+
+<form style="margin-top:1in;" method="post" action="<?= ssl_url("administration/deletecontributor/") ?>" onSubmit="return confirm('Really delete this contributor? This will NOT delete any markers.');">
+<input type="hidden" name="id" value="<?= $contributor->id ?>" />
+<input type="submit" value="Delete" />
+</form>
+
+<?php $this->load->view('administration/footer.phtml') ?>

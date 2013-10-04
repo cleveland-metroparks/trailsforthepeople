@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><?= htmlspecialchars($this->config->item('title')) ?></title>
+    <meta charset="utf-8" />
+
+    <!-- the Montserrat font, matches the master website -->
+    <link href="http://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css" />
+
+    <!-- jQuery et al -->
+    <script type="text/javascript" src="<?= site_url('static/common/jquery-1.7.2.min.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/jquery.sort.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/purl.js'); ?>"></script>
+
+    <!-- Leaflet, so we can do distance calculation, and jQuery Sort so we can sort by distance -->
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet3/dist/leaflet-src.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/jquery.sort.js'); ?>"></script>
+
+    <!-- our own local javaScript and CSS: the common stuff then our own overrides -->
+    <!--
+    <script type="text/javascript" src="<?= site_url('static/mobile/mobile.js'); ?>"></script>
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/mobile/mobile.css'); ?>" />
+    -->
+</head>
+<body>
+
+
+
+<style type="text/css">
+body {
+    width:295px;
+}
+
+label {
+    cursor:pointer;
+}
+
+#trailfinder_results {
+    list-style-type:none;
+}
+
+#trailfinder_results .result {
+    margin-left:0.25in;
+}
+
+#trailfinder_results .distance {
+    margin-left:-0.50in;
+    font-weight:bold;
+}
+
+#trailfinder_results .title {
+    font-weight:bold;
+    font-size:11pt;
+
+    text-decoration:underline;
+    cursor:pointer;
+}
+
+#trailfinder_results .description {
+    margin-left:0.50in;
+    font-size:9pt;
+}
+</style>
+
+
+<script type="text/javascript">
+// for browsers which lack array.indexOf() (IE8) this supplies it
+if (!Array.prototype.indexOf) {
+    Array.prototype.indexOf = function(elt /*, from*/) {
+        var len = this.length >>> 0;
+
+        var from = Number(arguments[1]) || 0;
+        from = (from < 0) ? Math.ceil(from) : Math.floor(from);
+        if (from < 0) from += len;
+
+        for (; from < len; from++) {
+            if (from in this && this[from] === elt) return from;
+        }
+        return -1;
+    };
+}
+
+
+$(window).load(function () {
+    ///// read any URL params and set the checkboxes and selectors accordingly
+    ///// these are URL-joined lists (for any multiple-option checkboxes) or simple strings for exact match (for single selectors)
+    var url = $.url();
+    if (url.param('uses')) {
+        var values = url.param('uses').split(",");
+        $('input[type="checkbox"][name="trailfinder_uses"]').each(function () {
+            var value = $(this).attr('value');
+            var checked = values.indexOf(value) != -1;
+            $(this).prop('checked',checked);
+        });
+    }
+    if (url.param('paved')) {
+        $('select[name="trailfinder_paved"]').val( url.param('paved') );
+    }
+    if (url.param('reservation')) {
+        $('select[name="trailfinder_reservation"]').val( url.param('reservation') );
+    }
+
+    ///// enable the GO button
+    $('#trailfinder_go').click(function () {
+        // compile the params from the form for passing to searchTrails()
+        var params = {};
+        params.reservation = $('select[name="trailfinder_reservation"]').val();
+        params.paved       = $('select[name="trailfinder_paved"]').val();
+        params.uses = [];
+        $('input[name="trailfinder_uses"]:checked').each(function () {
+            params.uses[params.uses.length] = $(this).val();
+        });
+        params.uses = params.uses.join(",");
+
+        // now empty the results, disable the button, submit the search
+        var target = $('#trailfinder_results');
+        target.empty();
+        var button = $('#trailfinder_go');
+        button.prop('disabled',true);
+        button.val( button.attr('value0') );
+        $.get('../../ajax/search_trails', params, function (results) {
+            // re-enable the submit button
+            button.prop('disabled',false);
+            button.val( button.attr('value1') );
+
+            // iterate over the results and add them to the output
+            if (results.length) {
+                for (var i=0, l=results.length; i<l; i++) {
+                    // initialize the result's LI entry; a whole lot of attributes to set pertaining to click handling
+                    var result = results[i];
+                    var li = $('<li></li>');
+                    li.attr('title', result.name );
+                    li.attr('gid',result.gid).attr('type',result.type).attr('w',result.w).attr('s',result.s).attr('e',result.e).attr('n',result.n).attr('lat',result.lat).attr('lng',result.lng);
+
+                    // add the various fields, styled up
+                    var div = $('<div></div>').addClass('result');
+                    if (result.url) div.append( $('<a></a>').addClass('title').attr('target','_top').attr('href',result.url).text(result.name) );
+                    else            div.append( $('<span></span>').addClass('title').text(result.name) );
+                    if (result.note) {
+                        div.append( $('<div></div>').addClass('description').html(result.note) );
+                    }
+
+                   // the click handler is to call zoomElementClick(element), which will center the map, load More Info content, etc.
+                    li.click(function () {
+                        zoomToResult( $(this) );
+                    });
+
+                    // tag the element with its LatLng
+                    li.attr('lat', result.lat);
+                    li.attr('lng', result.lng);
+
+                    // ready, add it to the list!
+                    li.append(div);
+                    target.append(li);
+                }
+
+                // now that we have loaded the list, do a one-shot geolocation
+                // use the location to determine our distance to each of those LIs (based on lat & lng) and sort the list
+                navigator.geolocation.getCurrentPosition(function (location) {
+                    var mylatlng = new L.LatLng(location.coords.latitude, location.coords.longitude);
+                    //console.log(mylatlng);
+                    $('#trailfinder_results li').each(function () {
+                        var thislatlng = new L.LatLng( $(this).attr('lat') , $(this).attr('lng') );
+                        var miles = (mylatlng.distanceTo(thislatlng) * 0.000621371).toFixed(1);
+
+                        // tag the LI with the distance, both internally as a number and also with a human-readable string
+                        $(this).attr('distance', miles);
+                        $(this).find('div.description').prepend( $('<div></div>').text(miles + ' miles away').addClass('distance') );
+                    });
+
+                    // now that each LI has a distance, sort them
+                    $('#trailfinder_results li').sort(function (p,q) { return $(p).attr('distance') < $(q).attr('distance') ? -1 : 1; });
+                }, { enableHighAccuracy:true });
+            } else {
+                target.append($('<li></li>').text("No results."));
+            }
+        }, 'json');
+    });
+});
+
+
+function zoomToResult(element) {
+    console.log(element);
+}
+</script>
+
+
+
+
+<div>
+    <b>Activities</b><br/>
+    <fieldset>
+        <label><input type="checkbox" name="trailfinder_uses" checked="true" value="Hiking & Walking" /> Hiking &amp Walking</label>
+        <br/>
+        <label><input type="checkbox" name="trailfinder_uses" checked="true" value="Biking" /> Biking</label>
+        <br/>
+        <label><input type="checkbox" name="trailfinder_uses" checked="true" value="Horseback Riding" /> Horseback Riding</label>
+        <br/>
+        <label><input type="checkbox" name="trailfinder_uses" checked="true" value="Exercising" /> Exercising</label>
+        <br/>
+        <label><input type="checkbox" name="trailfinder_uses" checked="true" value="Snowshoeing" /> Snowshoeing</label>
+        <br/>
+        <label><input type="checkbox" name="trailfinder_uses" checked="true" value="Cross-Country Skiing" /> Cross-Country Skiing</label>
+        <br/>
+    </fieldset>
+
+    <b>Pavement:</b><br/>
+    <fieldset>
+        <select name="trailfinder_paved">
+            <option value="">No preference</option>
+            <option value="Yes">Paved</option>
+            <option value="No">Unpaved</option>
+        </select>
+    </fieldset>
+
+    <b>Reservation:</b><br/>
+    <fieldset>
+        <select name="trailfinder_reservation">
+            <option value="">All</option>
+            <?php foreach ($reservations as $res) { ?>
+            <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
+            <?php } ?>
+        </select>
+    </fieldset>
+
+    <br/>
+    <input type="button" id="trailfinder_go" value="Search" value0="Searching..." value1="Search" />
+</div>
+
+<ul id="trailfinder_results">
+</ul>
+
+
+</body>
+</html>

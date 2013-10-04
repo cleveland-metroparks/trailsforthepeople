@@ -1,0 +1,47 @@
+<?php $this->load->view('docs/header.phtml') ?>
+
+<h1>CMS</h1>
+
+<p>Aside from the Desktop and Mobile maps, the system supports the automated generation of informational pages about some of the features in the database such as Trails, Reservations, and Use Area POIs.</p>
+<p>These information pages have points associated to them, as matched from the database. A Trail's page will have the location of the Trail, a Reservation will have the location of the Reservation, and Activities will have a list of points of Use Areas where that activity is available.</p>
+<p>This is collectively called the CMS (though it's not really meant for human management of content), and is expressed by the cms_pages table and the CMSPage model.</p>
+
+<p>All URLs under <i>/cms/</i> are the automated Content Management System (CMS) for creating embeddable web pages. You can view a list of all CMS Pages by visiting this URL: <a target="_blank" href="<?= site_url('cms') ?>"><?= site_url('cms') ?></a></p>
+
+
+
+<h2>FEEDS</h2>
+<div class="indent bottom">
+
+<p>There are multiple types of CMS Page: Reservations, Trails, Use Areas, Facilities, and Activities. Each type is called a &quot;feed&quot; and is expressed by the <i>feed</i> attribute of a CMSPage.</p>
+
+<ul>
+<li><b>Trails</b> -- The Aggregate_Trails.php process (described in the Updating Data documentation) populates this, giving each Trail page the single point location of that Trail.</li>
+<li><b>Use Areas</b> -- The Use_Areas_Descriptions.php process (described in the Updating Data documentation) populates this, giving each Use Area page the single point location of that Use Area.</li>
+<li><b>Reservations</b> -- This is loaded from a CSV file on the CMP webserver. The CSV supplies the URL of a picture, and the text content, to describe a Reservation. The resulting CMS page will have one point location, of the Reservation, as determined from the database by matching the Reservation's name.</li>
+<li><b>Facilities</b> -- This is loaded from a CSV file on the CMP webserver. The CSV supplies the URL of a picture, and the text content, to describe a Building. The resulting CMS page will have one point location, of the Building, as determined by matching the Building's name.</li>
+<li><b>Activities</b> -- This is loaded from a CSV file on the CMP webserver. The CSV supplies the URL of a picture, and the text content, to describe an activity. The resulting CMS page will have zero or more point locations, those being Use Areas where thsat activity is found in the &quot;activity&quot; field.</li>
+</ul>
+
+<p>Some of the feeds are populated by activities which you will already be running as part of updating a dataset, e.g. Use Areas and Trails.</p>
+
+<p>The CSV-based feeds are loaded from the Cleveland Metroparks website, via these URLs. Despite their name (cronjobs) they are not automatically called by cron, and it is safe to access them and trigger an update, any time that the CSV feeds have been updated and you wish the new content loaded.</p>
+<ul>
+<li><a target="_blank" href="<?= site_url('cronjobs/cms_load_reservations') ?>"><?= site_url('cronjobs/cms_load_reservations') ?></a></li>
+<li><a target="_blank" href="<?= site_url('cronjobs/cms_load_facilities') ?>"><?= site_url('cronjobs/cms_load_facilities') ?></a></li>
+<li><a target="_blank" href="<?= site_url('cronjobs/cms_load_activities') ?>"><?= site_url('cronjobs/cms_load_activities') ?></a></li>
+</ul>
+
+
+
+<h2>EVENTS</h2>
+
+<p>Separate from the feeds described above, which generate CMS Pages, there is a daily cronjob which downloads a CSV feed of Events from the CMS website. These events do not get their own page and do not have map information. They are listed on the CMS Pages, so there can be a list of events along with the oth3er embedded content.</p>
+
+<p>This is run daily by the cronjob <i>/etc/cron.daily/cms_points</i>, which itself calls a web-based cronjob at <a target="_blank" href="<?= site_url('cronjobs/cms_load_events') ?>"><?= site_url('cronjobs/cms_load_events') ?></a> This is defined in <i>controllers/cronjobs.php</i></p>
+
+<p>It is safe to run this cronjob manually, if there has been a very recent change of events and youi don't want to wait until tomorrow for the CMS Pages to be updated.</p>
+
+</div>
+
+<?php $this->load->view('docs/footer.phtml') ?>

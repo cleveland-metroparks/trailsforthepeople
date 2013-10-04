@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><?= htmlspecialchars($this->config->item('title')) ?></title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <!-- a library for encoding and decoding JSON. necessary for IE8 and earlier Firefox to do printing
+    at any rate, known to be consistent between browsers; I doubt the ECMA standard will be so lucky, ha ha -->
+<!--
+    <script type="text/javascript" src="<?= site_url('static/common/json.js'); ?>"></script>
+-->
+
+    <!-- the Montserrat font, matches the master website -->
+    <link href="http://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css" />
+
+    <!-- Google Analytics -->
+<!--
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-42809637-1', 'clemetparks.com');
+      ga('send', 'pageview');
+
+    </script>
+-->
+    <!-- weinre debugging for development; replace with your own IP address and your own weinre server -->
+    <!--
+    <script src="http://weinre.greeninfo.org:8080/target/target-script-min.js#clemet"></script>
+    -->
+
+    <!-- jQuery et al -->
+    <script type="text/javascript" src="<?= site_url('static/common/jquery-1.7.2.min.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/jquery.mobile-1.1.0/jquery.mobile-1.1.0.min.js'); ?>"></script>
+    <link type="text/css" rel="stylesheet" href="<?= site_url('static/common/jquery.mobile-1.1.0/jquery.mobile-1.1.0.css'); ?>" />
+    <script type="text/javascript" src="<?= site_url('static/common/jquery.sort.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/purl.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/purl.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/mobile/jqm.autoComplete-1.5.1-min.js'); ?>"></script>
+
+    <!-- add2home, to prompt the user to add this page to their home screen as a bookmark -->
+    <link rel="stylesheet" href="<?= site_url('static/mobile/add2home/style/add2home.css'); ?>">
+    <script type="application/javascript" src="<?= site_url('static/mobile/add2home/src/add2home.js'); ?>"></script>
+    <link rel="apple-touch-icon-precomposed" href="<?= site_url('static/common/metroparks_icon.png'); ?>" />
+
+    <!-- proj4js, reprojection support for Leaflet -->
+<!--
+    <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/proj4js-compressed.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/projCode/utm.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/projCode/merc.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/defs/EPSG4326.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/defs/EPSG3734.js'); ?>"></script>
+-->
+
+    <!-- Leaflet map interface plus some tricks of my own -->
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/leaflet3/dist/leaflet.css'); ?>" />
+    <!--[if lte IE 8]><link rel="stylesheet" href="<?= site_url('static/common/leaflet3/dist/leaflet.ie.css'); ?>" /><![endif]-->
+    <!--
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet3/dist/leaflet-src.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet-scalebar.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet-wkt.js'); ?>"></script>
+    -->
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet3/dist/leaflet-src.jscompress.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet-scalebar.jscompress.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet-wkt.jscompress.js'); ?>"></script>
+
+    <!-- JavaScript for handling cookies -->
+    <script type="text/javascript" src="<?= site_url('static/common/cookie.js'); ?>"></script>
+
+    <!-- our own local javaScript and CSS: the common stuff then our own overrides -->
+    <script type="text/javascript" src="<?= site_url('static/common/constants.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/common.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/mobile/mobile.js'); ?>"></script>
+    <!--
+    <script type="text/javascript" src="<?= site_url('static/common/constants.jscompress.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/common.jscompress.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/mobile/mobile.jscompress.js'); ?>"></script>
+    -->
+
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/common.css'); ?>" />
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/mobile/mobile.css'); ?>" />
+</head>
+<body>
+
+
+<div data-role="page" id="page-map">
+    <div data-role="content">
+
+        <div id="map_canvas"></div>
+
+        <div id="toolbar" class="above_map">
+            <table>
+            <tr>
+                <td><a class="button" id="button_find" href="#page-find"><img src="<?= site_url('static/mobile/button_find.png') ?>" /></a></td>
+                <td><a class="button" id="button_radar" href="#page-radar"><img src="<?= site_url('static/mobile/button_radar.png') ?>" /></a></td>
+                <td><a class="button" id="button_twitter" href="#page-twitter"><img src="<?= site_url('static/mobile/button_twitter.png') ?>" /></a></td>
+                <td><a class="button" id="button_directions" href="#page-getdirections"><img src="<?= site_url('static/mobile/button_directions.png') ?>" /></a></td>
+                <td><a class="button" id="button_settings" href="#page-settings"><img src="<?= site_url('static/mobile/button_settings.png') ?>" /></a></td>
+                <td><a class="button" id="button_gps" href="#page-gps"><img src="<?= site_url('static/mobile/button_gps.png') ?>" /></a></td>
+            </tr>
+            </table>
+        </div>
+
+        <div id="splashscreen">
+            <div>
+                <img src="<?= site_url('static/mobile/splash_cmp.png') ?>" />
+                <br/>
+                <br/>
+                <img src="<?= site_url('static/mobile/splash_swgh.png') ?>" />
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-welcome">
+    <div data-role="header">
+        <a href="#page-map">Close</a>
+        <h1>Welcome</h1>
+    </div>
+    <div data-role="content">
+
+        <p>Welcome to the Cleveland Metroparks Mobile Trail App.</p>
+        <ul>
+        <li><b>Find</b> trails, parks, and park amenities!</li>
+        <li>Get <b>directions</b> to parks and amenities via Cleveland's extensive network of trails, or by driving or public transit.</li>
+        <li>Listen to local chat on <b>Twitter</b></li>
+        </ul>
+
+        <p class="disclaimer">
+        <b>Disclaimer:</b><br/>
+        This information is for display purposes only. Cleveland Metroparks makes
+        no warranties, expressed or implied, with respect to the accuracy of and
+        the use of this map and mapping application for any specific purpose.
+        Cleveland Metroparks expressly disclaims any liability that may result
+        from the use of this map or mapping application. For more information,
+        please contact: Stephen Mather, GIS Manager, 4101 Fulton Pkwy, Cleveland, Ohio 44144 (216) 635-3243
+        </p>
+
+        <div>
+            <label><input type="checkbox" id="show_welcome" /> Show this in the future</label>
+        </div>
+
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-find">
+    <div data-role="header">
+        <a href="#page-map">Back</a>
+        <h1>Find</h1>
+        <a href="#page-map">Map</a>
+    </div>
+    <div data-role="content">
+
+        <ul data-role="listview" data-inset="true">
+            <li><a href="#page-browse">Browse by category</a></li>
+            <li><a href="#page-keyword">Search by keyword</a></li>
+            <li><a href="javascript:void(0);" id="gps_center">Zoom to your current location</a></li>
+            <li><a href="#page-lonlat">Enter longitude &amp; latitude</a></li>
+        </ul>
+
+    </div>
+</div>
+
+
+
+
+
+<div data-role="page" id="page-lonlat">
+    <div data-role="header">
+        <a href="#page-find">Back</a>
+        <h1>Coordinates</h1>
+        <a href="#page-map">Map</a>
+    </div>
+    <div data-role="content">
+
+        <fieldset data=role="controlgroup">
+            <div class="textnowrap">
+            <b>Degrees &amp; Minutes</b>
+            <br/>
+            <table>
+            <tr>
+                <td>
+                    <input type="text" readonly="readonly" data-mini="true" value="N" style="width:1.25em;" />
+                    <input type="text" id="dm_lat_deg" data-mini="true" style="width:3em;" maxlength="2" />&deg;
+                    <input type="text" id="dm_lat_min" data-mini="true" style="width:2em;" maxlength="2" />.<input type="text" id="dm_lat_dmin" data-mini="true" style="width:3em;" maxlength="3" />
+                </td>
+                <td><input type="button" data-mini="true" id="lonlat_dm_load_button" value="Load from GPS" style="width:10em;" /></td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="text" readonly="readonly" data-mini="true" value="W" style="width:1.25em;" />
+                    <input type="text" id="dm_lng_deg" data-mini="true" style="width:3em;" maxlength="3" />&deg;
+                    <input type="text" id="dm_lng_min" data-mini="true" style="width:2em;" maxlength="2" />.<input type="text" id="dm_lng_dmin" data-mini="true" style="width:3em;" maxlength="3" />
+                </td>
+                <td><input type="button" data-mini="true" id="lonlat_dm_button" value="Show on map &gt;&gt;" style="width:10em;" /></td>
+            </tr>
+            </table>
+            </div>
+        </fieldset>
+
+        <br/>
+
+        <fieldset data=role="controlgroup">
+            <div class="textnowrap">
+            <b>Decimal degrees</b>
+            <br/>
+            <table>
+            <tr>
+                <td>Latitude:</td>
+                <td><input type="text" id="dd_lat" data-mini="true" style="width:10em;" maxlength="15" /></td>
+                <td><input type="button" data-mini="true" id="lonlat_dd_load_button" value="Load from GPS" style="width:10em;" /></td>
+            </tr>
+            <tr>
+                <td>Longitude:</td>
+                <td><input type="text" id="dd_lng" data-mini="true" style="width:10em;" maxlength="15" /></td>
+                <td><input type="button" data-mini="true" id="lonlat_dd_button" value="Show on map &gt;&gt;" style="width:10em;" /></td>
+            </tr>
+            </table>
+            </div>
+        </fieldset>
+
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-radar">
+    <div data-role="header">
+        <a href="#page-map">Back</a>
+        <h1>Near You</h1>
+    </div>
+    <div data-role="content">
+        <label><input type="checkbox" id="radar_enabled" /> Enable alerts</label>
+        <br/>
+        <div id="radar_config" style="display:none;">
+            <strong>Alert me when I am within:</strong>
+            <select id="radar_radius" data-mini="true">
+            <option value="6.10">20 feet</option>
+            <option value="15.24">50 feet</option>
+            <option value="30.48">100 feet</option>
+            <option value="76.2">250 feet</option>
+            <option value="152.4" selected="true">500 feet</option>
+            <option value="402.336">&frac14; mile</option>
+            <option value="804.672">&frac12; mile</option>
+            <option value="1207.08">&frac34; mile</option>
+            <option value="1609.344">1 mile</option>
+            </select>
+            <br/>
+            <strong>Watch for these types of features:</strong>
+            <fieldset data-role="controlgroup">
+            <label><input type="checkbox" name="radar_category" value="Health Tips" checked="checked">Health Tips</label>
+            <?php foreach ($poicategories as $category) { ?>
+            <label><input type="checkbox" name="radar_category" value="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($category) ?></label>
+            <?php } ?>
+            </fieldset>
+        </div>
+
+        <br/>
+
+        <ul id="alerts" data-role="listview">
+        </ul>
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-keyword">
+    <div data-role="header">
+        <a href="#page-find">Back</a>
+        <h1>Find</h1>
+        <a href="#page-map">Map</a>
+    </div>
+    <div data-role="content">
+
+        <fieldset data=role="controlgroup">
+            <b>Keyword search:</b>
+            <input type="text" data-mini="true" id="browse_keyword" />
+            <ul id="browse_keyword_autocomplete" data-role="listview" data-inset="true"></ul>
+            <input type="button" data-mini="true" id="browse_keyword_button" value="Search &gt;&gt;" />
+        </fieldset>
+
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-browse">
+    <div data-role="header">
+        <a href="#page-find">Back</a>
+        <h1>Find</h1>
+        <a href="#page-map">Map</a>
+    </div>
+    <div data-role="content">
+
+        <ul data-role="listview" data-inset="true">
+        <li><a href="#browse-items?category=reservations">Parks &amp; Reservations</a></li>
+        <li><a href="#page-browse-pois-activity">Points of Interest, By activity</a></li>
+        <li><a href="#page-browse-pois-reservation">Points of Interest, By reservation</a></li>
+        <li><a href="#page-trailfinder">Trail Finder</a></li>
+        <li><a href="#page-loops-search">Featured Hikes and Routes</a></li>
+        </ul>
+
+    </div>
+</div>
+
+
+
+
+<div data-role="page" id="page-trailfinder">
+    <div data-role="header">
+        <a href="#page-browse">Back</a>
+        <h1>Trail Finder</h1>
+        <a href="#page-map">Map</a>
+    </div>
+    <div data-role="content">
+
+        <div>
+            <b>Activities</b><br/>
+            <fieldset data-role="controlgroup">
+                <label><input type="checkbox" data-mini="true" name="trailfinder_uses" checked="true" value="Hiking & Walking" /> Hiking &amp Walking</label>
+                <label><input type="checkbox" data-mini="true" name="trailfinder_uses" value="Biking" /> Biking</label>
+                <label><input type="checkbox" data-mini="true" name="trailfinder_uses" value="Horseback Riding" /> Horseback Riding</label>
+                <label><input type="checkbox" data-mini="true" name="trailfinder_uses" value="Exercising" /> Exercising</label>
+                <label><input type="checkbox" data-mini="true" name="trailfinder_uses" value="Snowshoeing" /> Snowshoeing</label>
+                <label><input type="checkbox" data-mini="true" name="trailfinder_uses" value="Cross-Country Skiing" /> Cross-Country Skiing</label>
+            </fieldset>
+
+            <b>Pavement:</b><br/>
+            <fieldset data=role="controlgroup">
+                <select name="trailfinder_paved" data-mini="true">
+                    <option value="">No preference</option>
+                    <option value="Yes">Paved</option>
+                    <option value="No">Unpaved</option>
+                </select>
+            </fieldset>
+
+            <b>Reservation:</b><br/>
+            <select name="trailfinder_reservation" data-mini="true">
+            <option value="">All</option>
+            <?php foreach ($reservations as $res) { ?>
+            <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
+            <?php } ?>
+            </select>
+
+            <br/>
+            <input type="button" id="trailfinder_go" value="Search" value0="Searching..." value1="Search" />
+        </div>
+
+        <div class="sortpicker">
+            <br/>
+            <span class="fakelink" value="distance">Sort by distance</span>
+            &bull;
+            <span class="fakelink" value="alphabetical">Sort alphabetically</span>
+        </div>
+
+        <ul id="trailfinder_results" data-role="listview" data-inset="true">
+        </ul>
+
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-browse-pois-activity">
+    <div data-role="header">
+        <a href="#page-browse">Back</a>
+        <h1>Find POIs</h1>
+        <a href="#page-map">Map</a>
+    </div>
+    <div data-role="content">
+
+        <ul data-role="listview" data-inset="true">
+            <?php foreach ($poicategories as $category) { ?>
+            <li><a href="#browse-items?category=pois_usetype_<?= urlencode($category) ?>"><?= htmlspecialchars($category) ?></a></li>
+            <?php } ?>
+        </ul>
+
+    </div>
+</div>
+
+
+<div data-role="page" id="page-browse-pois-reservation">
+    <div data-role="header">
+        <a href="#page-browse">Back</a>
+        <h1>Find POIs</h1>
+        <a href="#page-map">Map</a>
+    </div>
+    <div data-role="content">
+
+        <ul data-role="listview" data-inset="true">
+            <?php foreach ($reservations as $res) { ?>
+            <li><a href="#browse-items?category=pois_reservation_<?= urlencode($res->res) ?>"><?= htmlspecialchars($res->res) ?></a></li>
+            <?php } ?>
+        </ul>
+
+    </div>
+</div>
+
+
+<div data-role="page" id="page-browse-results">
+    <div data-role="header">
+        <a href="#page-browse">Back</a>
+        <h1>Find</h1>
+        <a href="#page-map">Map</a>
+    </div>
+    <div data-role="content">
+
+        <div class="sortpicker">
+            <span class="fakelink" value="distance">Sort by distance</span>
+            &bull;
+            <span class="fakelink" value="alphabetical">Sort alphabetically</span>
+        </div>
+
+        <ul id="browse_results" data-role="listview" data-inset="true" class="distance_sortable">
+        </ul>
+
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-search">
+    <div data-role="header">
+        <a href="#page-keyword">Back</a>
+        <h1>Search</h1>
+        <a href="#page-map">Map</a>
+    </div>
+    <div data-role="content">
+
+        <fieldset data-role="controlgroup">
+            <h3>Keyword or name:</h3>
+            <input type="text" data-mini="true" id="search_keyword" />
+            <ul id="search_keyword_autocomplete" data-role="listview" data-inset="true"></ul>
+            <input type="button" data-mini="true" id="search_keyword_button" value="Search &gt;&gt;" value0="Loading" value1="Search &gt;&gt;" />
+        </fieldset>
+
+        <br/>
+
+        <div class="sortpicker">
+            <span class="fakelink" value="distance">Sort by distance</span>
+            &bull;
+            <span class="fakelink" value="alphabetical">Sort alphabetically</span>
+            <br/>
+            <br/>
+        </div>
+
+        <ul id="keyword_results" data-role="listview" class="distance_sortable">
+        </ul>
+
+    </div>
+</div>
+
+
+
+
+<div data-role="page" id="page-photo">
+    <div data-role="header">
+        <a href="#page-info">Back</a>
+        <h1>Photo</h1>
+    </div>
+    <div data-role="content">
+
+        <div style="text-align:center;">
+           <img id="photo" src="about:blank" />
+        </div>
+
+    </div>
+</div>
+
+
+
+
+<div data-role="page" id="page-elevationprofile">
+    <div data-role="header">
+        <a href="#page-getdirections">Back</a>
+        <h1>Elevation</h1>
+    </div>
+    <div data-role="content">
+
+        <div style="text-align:center;">
+           <img id="elevation" src="about:blank" />
+        </div>
+
+    </div>
+</div>
+
+
+
+
+<div data-role="page" id="page-info">
+    <div data-role="header">
+        <a href="#page-map">Back</a>
+        <h1>Details</h1>
+        <a href="#page-map">Map</a>
+    </div>
+    <div data-role="content">
+
+        <div style="float:right; clear:both; text-align:center;">
+            <b>Directions:</b><br/>
+            <img src="<?= site_url('static/mobile/directions_hike.png') ?>"   class="moreinfo_directions_button" id="directions_hike" title="Get directions via hiking trails" />
+            <img src="<?= site_url('static/mobile/directions_bike.png') ?>"   class="moreinfo_directions_button" id="directions_bike" title="Get directions via bicycle trails" />
+            <img src="<?= site_url('static/mobile/directions_bridle.png') ?>" class="moreinfo_directions_button" id="directions_bridle" title="Get directions via equestrian trails" />
+            <img src="<?= site_url('static/mobile/directions_car.png') ?>"    class="moreinfo_directions_button" id="directions_car" title="Get driving directions" />
+            <img src="<?= site_url('static/mobile/directions_bus.png') ?>"    class="moreinfo_directions_button" id="directions_bus" title="Get directions via public transit" />
+        </div>
+
+        <div id="info-content"></div>
+
+        <input type="button" data-mini="true" id="show_on_map" value="Show on Map" />
+
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-share">
+    <div data-role="header">
+        <a href="#page-settings">Back</a>
+        <h1>Share your map</h1>
+    </div>
+    <div data-role="content">
+
+    <div id="share_url" class="fakeinput" /></div>
+
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-settings">
+    <div data-role="header">
+        <a href="#page-map">Apply</a>
+        <h1>Map Settings</h1>
+    </div>
+    <div data-role="content">
+
+        <h3>Map Type</h3>
+        <fieldset data-role="controlgroup">
+        <label><input type="radio" name="basemap" value="map" checked="true" /> Map </label>
+        <label><input type="radio" name="basemap" value="photo" /> Satellite </label>
+        </fieldset>
+
+        <h3>Legend</h3>
+        <fieldset data-role="controlgroup" style="margin-left:25px;">
+            <b>Trails</b><br/>
+            <img class="legend" value="trails" style="display:block;" src="<?= site_url('static/common/legend_trails.png') ?>" />
+
+            <b>Reservations</b><br/>
+            <img class="legend" value="reservations" style="display:block;" src="<?= site_url('static/common/legend_parks.png') ?>" />
+
+            <b>Trail Tips</b><br/>
+            <img class="legend" value="markers_swgh" style="display:block;" src="<?= site_url('static/common/legend_markers.png') ?>" />
+
+            <b>POIs / Use Areas</b><br/>
+            <img class="legend" value="useareapois" style="display:block;" src="<?= site_url('static/common/legend_useareapois.png') ?>" />
+        </fieldset>
+
+        <h3>Other Settings</h3>
+        <label><input type="checkbox" id="settings_show_welcome" /> Show the Welcome panel</label><br/>
+
+        <div style="text-align:center;">
+            <br/>
+            <a href="#page-share">Share your map</a>
+            <br/>
+            <a href="#page-credits">About this app</a>
+        </div>
+
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-gps">
+    <div data-role="header">
+        <a href="#page-map">Apply</a>
+        <h1>GPS</h1>
+    </div>
+    <div data-role="content">
+
+        <h3>GPS</h3>
+        <fieldset data=role="controlgroup">
+            <div class="fakeinput" id="gps_location" style="text-align:center;">N 00 00.000 W 000 00.000</div>
+            <br/>
+            <select id="gps_autocenter" data-mini="true">
+            <option value="0">GPS Mode disabled</option>
+            <option value="1">GPS Mode enabled</option>
+            </select>
+        </fieldset>
+
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-getdirections">
+    <div data-role="header">
+        <a href="#page-map">Back</a>
+        <h1>Get Directions</h1>
+        <a href="#page-map">Map</a>
+    </div>
+    <div data-role="content">
+        <input type="hidden" id="directions_source_lat" value="" />
+        <input type="hidden" id="directions_source_lng" value="" />
+        <input type="hidden" id="directions_source_type" value="" />
+        <input type="hidden" id="directions_source_gid"  value="" />
+        <input type="hidden" id="directions_target_lat" value="" />
+        <input type="hidden" id="directions_target_lng" value="" />
+        <input type="hidden" id="directions_target_type" value="" />
+        <input type="hidden" id="directions_target_gid"  value="" />
+
+        <div id="getdirections_disabled">
+            Please select a destination.
+            <br/>
+            <input type="button" id="change_directions_target2" value="Select a destination" />
+        </div>
+        <div id="getdirections_enabled" style="display:none;">
+            <div id="change_directions_target">
+                <a href="#page-find">change<br/>destination</a>
+            </div>
+
+            <fieldset data=role="controlgroup">
+                <select id="directions_reverse" data-mini="true">
+                <option value="to">Get directions to</option>
+                <option value="from">Get directions from</option>
+                </select>
+                <br/>
+
+                <div id="directions_target_title"></div>
+                <br/>
+
+                <select id="directions_type" data-mini="true">
+                <option value="gps">from your current location</option>
+                <option value="geocode">from a street address</option>
+                <option value="features">from a park feature or point of interest</option>
+                </select>
+
+                <div id="directions_type_geocode_wrap" style="display:none;">
+                    <input type="text" data-mini="true" id="directions_address" placeholder="enter address or place name" />
+                </div>
+
+                <select id="directions_via" data-mini="true"><!-- if the default changes, may need to change the via supplements below -->
+                <option value="bike">By bicycle</option>
+                <option value="car" selected="true">By car</option>
+                <option value="hike">By foot</option>
+                <option value="bridle">By horse</option>
+                <option value="bus">By public transportation</option>
+                </select>
+
+                <span id="directions_via_hike_wrap" style="display:none;"><!-- hide because Car is default -->
+                    <select id="directions_via_hike" data-mini="true">
+                    <option value="hike">Both paved and unpaved</option>
+                    <option value="hike_paved">Paved</option>
+                    <option value="hike_unpaved">Unpaved</option>
+                    </select>
+                </span>
+                <span id="directions_via_bike_wrap" style="display:none;"><!-- hide because Car is default -->
+                    <select id="directions_via_bike_1" data-mini="true">
+                    <option value="bike_novice">Novice</option>
+                    <option value="bike_beginner">Beginner</option>
+                    <option value="bike_intermediate">Intermediate</option>
+                    <option value="bike_advanced">Advanced</option>
+                    </select>
+                    <select id="directions_via_bike_2" data-mini="true">
+                    <option value="">Both paved and unpaved</option>
+                    <option value="_paved">Paved</option>
+                    <option value="_unpaved">Unpaved</option>
+                    </select>
+                </span>
+
+            <select id="directions_prefer" data-mini="true">
+                <option value="recommended" selected="true">Recommended route</option>
+                <option value="shortest">Shortest route</option>
+                <option value="fastest">Fastest route</option>
+            </select>
+
+            <span id="directions_button_wrapper">
+                <input type="button" data-mini="true" id="directions_button" value="Get directions" value0="Loading" value1="Get directions" />
+            </span>
+            </fieldset>
+        <br/>
+
+        <ul id="directions_steps" data-role="listview"></ul>
+    </div>
+
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-loops-search">
+    <div data-role="header">
+        <a href="#page-browse">Back</a>
+        <h1>Loops &amp; Routes</h1>
+        <a href="#page-map">Map</a>
+    </div>
+    <div data-role="content">
+        <fieldset data=role="controlgroup">
+
+        <select id="loops_filter_type" data-mini="true">
+        <!-- <option value="">All trail types</option> -->
+        <option value="hike">Hiking / Walking</option>
+        <option value="bike_Novice">Bicycle, Novice</option>
+        <option value="bike_Beginner">Bicycle, Beginner</option>
+        <option value="bike_Intermediate">Bicycle, Intermediate</option>
+        <option value="bike_Advanced">Bicycle, Advanced</option>
+        <option value="bridle">Equestrian</option>
+        </select>
+
+        <br/>
+        <select id="loops_filter_paved" data-mini="true">
+        <option value="">Paved or unpaved</option>
+        <option value="Yes">Paved</option>
+        <option value="No">Unpaved</option>
+        </select>
+
+        <br/>
+        <select id="loops_filter_reservation" data-mini="true">
+        <option value="">(any reservation)</option>
+        <?php foreach ($reservations as $res) { ?>
+        <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
+        <?php } ?>
+        </select>
+
+        </fieldset>
+
+        <div data-role="fieldcontain">
+            <b>Length</b>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <span id="loops_filter_distance_min_text"></span> - <span id="loops_filter_distance_max_text"></span>
+            <br/>
+            Min: <input type="range" id="loops_filter_distance_min" min="0" max="50" value="0" />
+            <br/>
+            Max: <input type="range" id="loops_filter_distance_max" min="0" max="50" value="50" />
+        </div>
+
+        <div data-role="fieldcontain" id="loops_filter_duration" style="display:none;">
+            <b>Duration</b>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <span id="loops_filter_duration_min_text"></span> - <span id="loops_filter_duration_max_text"></span>
+            <br/>
+            Min: <input type="range" id="loops_filter_duration_min" min="0" max="300" value="0" />
+            <br/>
+            Max: <input type="range" id="loops_filter_duration_max" min="0" max="300" value="300" />
+        </div>
+
+        <br/>
+        <input type="button" id="loops_filter_button" value="Search" value0="Searching..." value1="Search" />
+
+        <br/>
+
+        <div class="sortpicker">
+            <span class="fakelink" value="distance">Sort by distance</span>
+            &bull;
+            <span class="fakelink" value="alphabetical">Sort alphabetically</span>
+            <br/>
+        </div>
+
+        <ul id="loops_list" data-role="listview" data-inset="true" class="distance_sortable">
+        </ul>
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-credits">
+    <div data-role="header">
+        <a href="#page-map">Back</a>
+        <h1>Credits</h1>
+    </div>
+    <div data-role="content">
+
+        <p>Parks and facilities data by <a target="_blank" href="http://www.clemetparks.com/">Cleveland Metroparks</a></p>
+        <p>Some base map data &copy; <a target="_blank" href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a></p>
+        <p>Driving and transit directions courtesy of <a target="_blank" href="http://www.bing.com/maps/">Bing Maps</a></p>
+        <p>Map interface programmed by <a target="_blank" href="http://www.greeninfo.org/">GreenInfo Network</a></p>
+        <p>Funding provided by <a target="_blank" href="http://www.swgeneral.com/">Southwest General Health Center</a></p>
+
+        <p class="disclaimer">
+        <b>Disclaimer:</b><br/>
+        This information is for display purposes only. Cleveland Metroparks makes
+        no warranties, expressed or implied, with respect to the accuracy of and
+        the use of this map and mapping application for any specific purpose.
+        Cleveland Metroparks expressly disclaims any liability that may result
+        from the use of this map or mapping application. For more information,
+        please contact: Stephen Mather, GIS Manager, 4101 Fulton Pkwy, Cleveland, Ohio 44144 (216) 635-3243
+        </p>
+
+    </div>
+</div>
+
+
+
+<div data-role="page" id="page-twitter">
+    <div data-role="header">
+        <a href="#page-map">Back</a>
+        <h1>Chat via Twitter</h1>
+    </div>
+    <div data-role="content">
+
+    <div style="text-align:right;">
+    <a href="https://twitter.com/intent/tweet?button_hashtag=clevemetroparks" class="twitter-hashtag-button" data-related="clevemetroparks">Tweet #CleveMetroParks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    </div>
+
+    <table id="tweets">
+    </table>
+
+
+    </div>
+</div>
+
+
+
+<!--
+<div data-role="page" id="page-print">
+    <div data-role="header">
+        <a href="#page-map">Back</a>
+        <h1>Save as PDF</h1>
+    </div>
+    <div data-role="content">
+
+        <fieldset data=role="controlgroup">
+            <b>Comment or note:</b>
+            <input type="text" data-mini="true" id="print_comment" value="A title for your map" maxlength="100" />
+
+            <b>Paper size:</b>
+            <select id="print_paper" data-mini="true">
+            <option value="Letter portrait">8&frac12;x11 Portrait</option>
+            <option value="Letter landscape">8&frac12;x11 Landscape</option>
+            <option value="Ledger portrait">11x17 Portrait</option>
+            <option value="Ledger landscape">11x17 Landscape</option>
+            </select>
+
+            <input type="button" id="print_button" value="Create PDF" onClick="printMap();" />
+    </fieldset>
+
+    <div id="print_waiting">
+        <img src="<?= site_url('static/common/spinner.gif') ?>" />
+        <br/>
+        One moment please
+    </div>
+
+    <div id="print_ready">
+        Your map is ready.
+        <br/>
+        <a id="print_link" target="_blank" href="">Click here to download</a>
+    </div>
+
+    </div>
+</div>
+-->
+
+
+<audio autoboffer id="alert_beep">
+    <source src="<?= site_url('static/mobile/alert.ogg'); ?>" />
+    <source src="<?= site_url('static/mobile/alert.mp3'); ?>" />
+</audio>
+
+<noscript>
+    Your browser appears to have JavaScript disabled.<br/>
+    Please check your browser's security settings, and reload this page.
+</noscript>
+
+</body>
+</html>

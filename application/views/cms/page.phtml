@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><?= htmlspecialchars($this->config->item('title')) ?></title>
+    <meta charset="utf-8" />
+
+    <!-- the Montserrat font, matches the master website -->
+    <link href="http://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css" />
+
+    <!-- jQuery et al -->
+    <script type="text/javascript" src="<?= site_url('static/common/jquery-1.7.2.min.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/jquery-ui-1.8.21.custom.min.js'); ?>"></script>
+    <link type="text/css" rel="stylesheet" href="<?= site_url('static/common/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" />
+    <script type="text/javascript" src="<?= site_url('static/common/purl.js'); ?>"></script>
+
+    <!-- Leaflet map interface plus some tricks of my own -->
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/leaflet3/dist/leaflet.css'); ?>" />
+    <!--[if lte IE 8]><link rel="stylesheet" href="<?= site_url('static/common/leaflet3/dist/leaflet.ie.css'); ?>" /><![endif]-->
+    <!--
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet3/dist/leaflet-src.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet-wkt.js'); ?>"></script>
+    -->
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet3/dist/leaflet-src.jscompress.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet-wkt.jscompress.js'); ?>"></script>
+
+    <!--
+    <script type="text/javascript" src="<?= site_url('static/cms/page.js'); ?>"></script>
+    -->
+    <script type="text/javascript" src="<?= site_url('static/cms/page.jscompress.js'); ?>"></script>
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/cms/page.css'); ?>" />
+
+    <!-- some overrides to page.css, in case we received a flag to shrink the output -->
+    <?php if ($narrow) { ?>
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/cms/page_narrow.css'); ?>" />
+    <?php } ?>
+    <?php if ($bare) { ?>
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/cms/page_bare.css'); ?>" />
+    <?php } ?>
+</head>
+<body>
+
+
+<h2 id="title">
+<?= htmlspecialchars($page_title) ?>
+</h2>
+
+<div id="rightmargin">
+    <?php if (! $map_only) { ?>
+    <?php if ($page->imageurl) { ?>
+    <p>
+    <img id="image" src="<?= $page->imageurl ?>" />
+    </p>
+    <?php } ?>
+    <?php } ?>
+
+    <?php if ($calendarurl) { ?>
+    <p id="calendarlink">
+        <a target="_top" href="<?= $calendarurl ?>">Availability Calendar</a>
+    </p>
+    <?php } ?>
+
+    <?php if ($page->externalurl) { ?>
+    <div class="dialog" id="dialog_embed">
+        <p>To email a link to this page,<br/>copy and paste this URL into an email.</p>
+        <textarea id="textbox_url"></textarea>
+        <p>To embed this map onto your website,<br/>copy and paste this HTML into your website.</p>
+        <textarea id="textbox_embed"></textarea>
+    </div>
+    <?php } ?>
+
+<!-- events removed October 2012
+    <p class="subheading">Events &amp; Programs</p>
+    <ul id="eventlist">
+    <?php if (false) { ?>
+    <?php foreach ($events as $event) { ?>
+    <li><a target="_blank" href="http://www.clemetparks.com/"><?= htmlspecialchars($event->title) ?></a></li>
+    <?php } ?>
+    <?php } ?>
+    </ul>
+    <a id="events_seeall" target="_blank" href="http://www.clemetparks.com/">See all &gt;</a>
+-->
+</div>
+
+
+
+<?php if (! $map_only) { ?>
+<div id="textcontent">
+        <?= $page->content ?>
+</div>
+<?php } ?>
+
+
+
+<!--
+This next section is only if there are any markers defined
+* a selector for Search By Name
+* a JavaScript list of marker data
+* an embedded map
+* social media links
+-->
+<?php if (sizeof($markers)) { ?>
+
+    <?php if ($locationnames) { ?>
+        <select id="searchbyname">
+        <option value="">Search By Name</option>
+        <?php foreach ($locationnames as $loc) printf('<option value="%f,%f,%f,%f">%s</option>', $loc['boxw'], $loc['boxs'], $loc['boxe'], $loc['boxn'], $loc['title'] ); ?>
+        </select>
+    <?php } ?>
+
+    <script type="text/javascript">
+    // and now the markers information, supplied here in PHP
+    var MARKERS = <?= json_encode($markers) ?>;
+    </script>
+
+    <div id="map_wrapper">
+        <div id="map_topbar">
+            INTERACTIVE MAP
+
+            <?php if ($enable_directions) { ?>
+            <img id="directions_button" src="<?= site_url('static/cms/directions.png'); ?>" alt="Get driving directions" />
+            <?php } ?>
+
+            <?php if ($page->externalurl) { ?>
+            <div id="social" shareurl="<?= $page->shareurl ?>" sharetitle="<?= htmlspecialchars($page->title) ?>">
+                <img id="share_embed" src="<?= site_url('static/cms/share_embed.png'); ?>" alt="Link to this map" />
+                <img id="share_twitter" src="<?= site_url('static/cms/share_twitter.png'); ?>" alt="Share this map on Twitter" />
+                <img id="share_facebook" src="<?= site_url('static/cms/share_facebook.png'); ?>" alt="Share this map on Facebook" />
+            </div>
+            <?php } ?>
+        </div>
+        <div id="map_canvas"></div>
+    </div>
+
+    <?php if ($page->externalurl) { ?>
+    <div class="dialog" id="dialog_embed">
+        <p>To email a link to this page,<br/>copy and paste this URL into an email.</p>
+        <textarea id="textbox_url"></textarea>
+        <p>To embed this map onto your website,<br/>copy and paste this HTML into your website.</p>
+        <textarea id="textbox_embed"></textarea>
+    </div>
+    <?php } ?>
+
+    <?php if ($enable_directions) { ?>
+    <div class="dialog" id="dialog_directions">
+        <input type="text" id="directions_address" placeholder="enter address or place name" style="width:100%;" />
+        <br/>
+        <ul id="directions_steps" style="list-style-type:none; margin-left:-2.5em;"></ul>
+    </div>
+    <?php } ?>
+
+    <?php if ($maplinkquerystring) { ?>
+    <div id="linkfooter">
+    <a target="_blank" href="<?= site_url("desktop/map?$maplinkquerystring") ?>">View on full map</a>
+    <a target="_blank" href="<?= site_url("mobile/map?$maplinkquerystring") ?>">(mobile)</a>
+    </div>
+    <?php } ?>
+
+    <div class="dialog" id="dialog_marker_directions">
+        <input type="text" id="marker_directions_address" placeholder="enter address or place name" style="width:100%;" />
+        <br/>
+        <ul id="marker_directions_steps" style="list-style-type:none; margin-left:-2.5em;"></ul>
+    </div>
+    <div class="dialog" id="dialog_wait" style="text-align:center;">
+        <br/>
+        <br/>
+        One moment please
+        <br/>
+    </div>
+<?php } ?>
+
+
+<!-- a little space at the bottom, to not run so starkly into the bottom -->
+<p id="bottompad">
+    <br/>
+</p>
+
+</body>
+</html>

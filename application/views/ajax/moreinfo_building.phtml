@@ -1,0 +1,56 @@
+<style type="text/css">
+#moreinfo_table .paddme {
+    margin-right:2em;
+}
+</style>
+
+<h2><?= htmlspecialchars($feature->name) ?></h2>
+
+<table id="moreinfo_table">
+    <?php if ($feature->site_location) { ?>
+    <tr>
+        <th>Site Location</th>
+        <td><?= htmlspecialchars($feature->site_location) ?></td>
+    </tr>
+    <?php } ?>
+
+    <?php if ($feature->street_address) { ?>
+    <tr>
+        <th>Street Address</th>
+        <td><?= htmlspecialchars($feature->street_address) ?></td>
+    </tr>
+    <?php } ?>
+
+    <?php if ($feature->square_footage) { ?>
+    <tr>
+        <th>Square Footage</th>
+        <td><?= htmlspecialchars($feature->square_footage) ?> ft<sup>2</sup></td>
+    </tr>
+    <?php } ?>
+
+    <?php if ($feature->capacity) { ?>
+    <tr>
+        <th>Capacity</th>
+        <td><?= htmlspecialchars($feature->capacity) ?></td>
+    </tr>
+    <?php } ?>
+
+    <tr>
+        <th></th>
+        <td>
+            <?php if ($feature->vs_link) { ?>
+            <a class="paddme" target="_blank" href="http://www.clemetparks.com/<?= $feature->vs_link ?>" />More Info</a>
+            <?php } ?>
+            <?php if ($feature->link) { ?>
+            <span class="fakelink paddme" onClick="showPhoto('<?= site_url("/static/photos/buildings/{$feature->link}.png") ?>');">Photo</span>
+            <?php } ?>
+        </td>
+    </tr>
+</table>
+
+<p>
+    GPS coordinates:<br/>
+    <?= $feature->lat_dms ?><br/>
+    <?= $feature->lng_dms ?>
+</p>
+

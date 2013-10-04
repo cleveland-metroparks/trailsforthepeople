@@ -1,0 +1,51 @@
+<?php $this->load->view('administration/header.phtml') ?>
+
+<div style="float:right;">
+    <a href="<?= ssl_url('administration/contributor/0/') ?>">New contributor</a>
+</div>
+
+<table id="contributors" style="width:75%;">
+<thead>
+<tr>
+    <th></th>
+    <th style="text-align:left;">Name &amp; Organization</th>
+    <th style="text-align:left; padding-right:2em;">E-mail</th>
+    <th>ADMIN?</th>
+    <th>SWGH?</th>
+    <th>Markers?</th>
+    <th>Loops?</th>
+    <th>Closures?</th>
+    <th>Twitter?</th>
+</tr>
+</thead>
+<tbody>
+<?php foreach ($contributors as $contributor) { ?>
+<tr>
+    <td><a href="<?= ssl_url("administration/contributor/{$contributor->id}") ?>">edit</a></td>
+    <td><?= htmlspecialchars($contributor->realname) ?></td>
+    <td><?= htmlspecialchars($contributor->email) ?></td>
+    <td><?= $contributor->admin          == 'f' ? 'no' : 'yes' ?></td>
+    <td><?= $contributor->allow_swgh     == 'f' ? 'no' : 'yes' ?></td>
+    <td><?= $contributor->allow_markers  == 'f' ? 'no' : 'yes' ?></td>
+    <td><?= $contributor->allow_loops    == 'f' ? 'no' : 'yes' ?></td>
+    <td><?= $contributor->allow_closures == 'f' ? 'no' : 'yes' ?></td>
+    <td><?= $contributor->allow_twitter  == 'f' ? 'no' : 'yes' ?></td>
+</tr>
+<?php } ?>
+</tbody>
+</table>
+
+
+
+
+<script type="text/javascript">
+$(window).load(function() { 
+    $('#contributors').tablesorter({ 
+        sortList: [[0,0]]
+    });
+    $('#contributors').addClass('tablesorter');
+}); 
+</script>
+
+
+<?php $this->load->view('administration/footer.phtml') ?>

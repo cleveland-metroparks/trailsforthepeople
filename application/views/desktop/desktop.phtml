@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><?= htmlspecialchars($this->config->item('title')) ?></title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+
+    <!-- a library for encoding and decoding JSON. necessary for IE8 and earlier Firefox to do printing
+    at any rate, known to be consistent between browsers; I doubt the ECMA standard will be so lucky, ha ha -->
+    <script type="text/javascript" src="<?= site_url('static/common/json.js'); ?>"></script>
+
+    <!-- Google API, for geocoding and directions -->
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+
+    <!-- the Montserrat font, matches the master website -->
+    <link href="http://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css" />
+<!--
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-42809637-1', 'clemetparks.com');
+      ga('send', 'pageview');
+
+    </script>
+-->
+    <!-- jQuery et al -->
+    <script type="text/javascript" src="<?= site_url('static/common/jquery-1.7.2.min.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/jquery-ui-1.8.21.custom.min.js'); ?>"></script>
+    <link type="text/css" rel="stylesheet" href="<?= site_url('static/common/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" />
+    <script type="text/javascript" src="<?= site_url('static/common/purl.js'); ?>"></script>
+
+    <!-- proj4js, reprojection support for Leaflet -->
+    <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/proj4js-compressed.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/projCode/utm.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/projCode/merc.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/defs/EPSG4326.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/defs/EPSG3734.js'); ?>"></script>
+
+    <!-- Leaflet map interface plus some tricks of my own -->
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/leaflet3/dist/leaflet.css'); ?>" />
+    <!--[if lte IE 8]><link rel="stylesheet" href="<?= site_url('static/common/leaflet3/dist/leaflet.ie.css'); ?>" /><![endif]-->
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet3/dist/leaflet-src.jscompress.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet-scalebar.jscompress.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet-wkt.jscompress.js'); ?>"></script>
+    <!--
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet3/dist/leaflet-src.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet-scalebar.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet-wkt.js'); ?>"></script>
+    -->
+
+    <!-- JavaScript for handling cookies -->
+    <script type="text/javascript" src="<?= site_url('static/common/cookie.js'); ?>"></script>
+
+    <!-- our own local javaScript and CSS: the common stuff then our own overrides -->
+    <script type="text/javascript" src="<?= site_url('static/common/constants.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/common.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/desktop/desktop.js'); ?>"></script>
+    <!--
+    <script type="text/javascript" src="<?= site_url('static/common/constants.jscompress.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/common.jscompress.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/desktop/desktop.jscompress.js'); ?>"></script>
+    -->
+
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/common.css'); ?>" />
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/desktop/desktop.css'); ?>" />
+</head>
+<body>
+
+
+
+
+<div id="map_canvas"></div>
+
+
+<div id="image_preload" style="display:none;">
+    <img src="<?= site_url('static/desktop/button_active_find.png') ?>" />
+    <img src="<?= site_url('static/desktop/button_active_directions.png') ?>" />
+    <img src="<?= site_url('static/desktop/button_active_measure.png') ?>" />
+    <img src="<?= site_url('static/desktop/button_active_twitter.png') ?>" />
+    <img src="<?= site_url('static/desktop/button_active_layers.png') ?>" />
+    <img src="<?= site_url('static/desktop/button_active_print.png') ?>" />
+    <img src="<?= site_url('static/desktop/button_active_share.png') ?>" />
+    <img src="<?= site_url('static/desktop/button_active_fullscreen.png') ?>" />
+</div>
+
+<div class="above_map" id="toolbar">
+    <img src="<?= site_url('static/desktop/logo_metroparks.png') ?>"  class="logo" />
+
+    <a id="switch_to_mobile" href="<?= site_url('mobile/map') ?>" target="_top"><img src="<?= site_url('static/desktop/mobile.png') ?>" alt="Switch to Mobile version" title="Switch to Mobile version" /></a>
+
+    <img src="<?= site_url('static/desktop/button_find.png') ?>" id="button_find" target="browse" class="button" title="Search for trails and facilities" />
+    <img src="<?= site_url('static/desktop/button_directions.png') ?>" target="directions" class="button" id="button_directions" title="Get directions" />
+    <img src="<?= site_url('static/desktop/button_measure.png') ?>" target="measure" class="button" id="button_measure" title="Measure the distance between two places" />
+    <img src="<?= site_url('static/desktop/button_twitter.png') ?>" target="twitter" class="button" title="Chat about Cleveland's parks" />
+    <img src="<?= site_url('static/desktop/button_settings.png') ?>" target="settings" class="button" title="Settings, sharing, and more" />
+    <img src="<?= site_url('static/desktop/button_print.png') ?>" id="button_print" target="print" class="button" title="Print this map" />
+    <img src="<?= site_url('static/desktop/button_share.png') ?>" id="button_share" target="share" class="button" title="Share this map with others" />
+    <a href="<?= site_url('desktop/map') ?>" target="_top"><img src="<?= site_url('static/desktop/button_fullscreen.png') ?>" id="button_fullscreen" title="Open this map in a new window" /></a>
+</div>
+
+
+<div class="above_map" id="creditlogos">
+    <a target="_blank" href="http://www.swgeneral.com/"><img src="<?= site_url('static/common/SWGH_logo_mini.png') ?>" style="height:36px; width:36px;" title="Funding by Southwest General Heath Center" /></a>
+    <a target="_blank" href="http://www.greeninfo.org/"><img src="<?= site_url('static/common/greeninfo.png') ?>" style="height:36px; width:36px;" title="Map programmed by GreenInfo Network" /></a>
+</div>
+
+
+
+
+
+<div class="dialog" id="print">
+    <table>
+    <tr><th>Comment or note</th><td><input type="text" id="print_comment" value="A title for your map" maxlength="50" /></td></tr>
+    <tr><th>Paper size</th><td>
+        <select id="print_paper">
+        <option value="Letter portrait">8&frac12;x11 Portrait</option>
+        <option value="Letter landscape">8&frac12;x11 Landscape</option>
+        <option value="Ledger portrait">11x17 Portrait</option>
+        <option value="Ledger landscape">11x17 Landscape</option>
+        </select>
+    </td></tr>
+    </table>
+
+    <div id="print_waiting">
+        <img src="<?= site_url('static/common/spinner.gif') ?>" />
+        <br/>
+        One moment please
+    </div>
+
+    <div id="print_ready">
+        Your map is ready.
+        <br/>
+        <a id="print_link" target="_blank" href="">Click here to download</a>
+    </div>
+</div>
+
+
+
+
+<div class="dialog" id="browse">
+    <div>
+        <h3 class="noblock">Keyword search:</h3>
+        <input type="text" id="browse_keyword" /> <input type="button" id="browse_keyword_button" value="Go!" />
+    </div>
+    <ul style="margin-left:-3.5em;">
+        <li><div class="head">Parks &amp; Reservations</div><ul>
+            <?php foreach ($reservations as $res) { ?>
+                <li class="zoom" type="reservation" title="<?= htmlspecialchars($res->res) ?>" gid="<?= $res->gid ?>" w="<?= $res->boxw ?>" s="<?= $res->boxs ?>" e="<?= $res->boxe ?>" n="<?= $res->boxn ?>" lat="<?= $res->lat ?>" lng="<?= $res->lng ?>">
+                    <?= htmlspecialchars($res->res) ?>
+                </li>
+            <?php } ?>
+        </ul></li>
+
+        <li><div class="head">Points of Interest, By activity</div><ul id="activitypois">
+        </ul></li>
+
+        <li><div class="head">Points of Interest, By reservation</div><ul id="reservationpois">
+        </ul></li>
+
+        <li><div class="head" id="trailfinder_button">Trail Finder</div></li>
+
+        <li><div class="head" id="loops_button">Featured Hikes and Routes</div></li>
+
+    </ul> <!-- end of the master UL -->
+</div>
+
+
+
+
+<div class="dialog" id="search">
+    <table>
+    <tr>
+        <td>Keyword or name:</td>
+        <td><input type="text" id="search_keyword" /></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><input type="button" id="search_keyword_button" value="Search &gt;&gt;" value0="Loading" value1="Go!" /></td>
+    </tr>
+    </table>
+
+    <ul id="keyword_results">
+    </ul>
+
+</div>
+
+
+
+
+
+<div class="dialog" id="gallery">
+    <img id="photo" src="about:blank" />
+</div>
+
+
+
+
+
+<div class="dialog" id="elevationprofile">
+    <img id="elevation" src="about:blank" />
+</div>
+
+
+
+
+
+
+<div class="dialog" id="getdirections">
+    <input type="hidden" id="directions_source_lat" value="" />
+    <input type="hidden" id="directions_source_lng" value="" />
+    <input type="hidden" id="directions_source_type" value="" />
+    <input type="hidden" id="directions_source_gid"  value="" />
+    <input type="hidden" id="directions_target_lat" value="" />
+    <input type="hidden" id="directions_target_lng" value="" />
+    <input type="hidden" id="directions_target_type" value="" />
+    <input type="hidden" id="directions_target_gid"  value="" />
+
+    <div id="getdirections_disabled">
+        <h3>Please select a destination.</h3>
+        <input type="button" id="change_directions_target2" value="Select a destination" />
+    </div>
+    <div id="getdirections_enabled" style="display:none;">
+        <img class="fakelink" style="float:right; text-align:right;" id="getdirections_clear" src="<?= site_url('static/common/clear.png') ?>" alt="Clear" />
+
+        <select id="directions_reverse" style="width:3in;">
+        <option value="to">Get directions to</option>
+        <option value="from">Get directions from</option>
+        </select>
+        <br/>
+        <h3 id="directions_target_title"></h3>
+        <select id="directions_type" style="width:3in;">
+        <option value="geocode">from a street address</option>
+        <option value="features">from a park feature or point of interest</option>
+        </select>
+        <br/>
+        <span id="directions_address_wrap">
+            <input type="text" id="directions_address" style="width:2.95in;" placeholder="enter address or place name" /><br/>
+        </span>
+        <select id="directions_via" style="width:3in;"><!-- if the default changes, may need to change the via supplements below -->
+            <option value="bike">By bicycle</option>
+            <option value="car" selected="true">By car</option>
+            <option value="hike">By foot</option>
+            <option value="bridle">By horse</option>
+            <option value="bus">By public transportation</option>
+        </select>
+        <span id="directions_via_hike_wrap" style="display:none;"><!-- hide because Car is default -->
+            <select id="directions_via_hike" style="width:3in;">
+                <option value="hike">Both paved and unpaved</option>
+                <option value="hike_paved">Paved</option>
+                <option value="hike_unpaved">Unpaved</option>
+            </select>
+        </span>
+        <span id="directions_via_bike_wrap" style="display:none;"><!-- hide because Car is default -->
+            <select id="directions_via_bike_1" style="width:3in;">
+                <option value="bike_novice">Novice</option>
+                <option value="bike_beginner">Beginner</option>
+                <option value="bike_intermediate">Intermediate</option>
+                <option value="bike_advanced">Advanced</option>
+            </select>
+            <select id="directions_via_bike_2" style="width:3in;">
+                <option value="">Both paved and unpaved</option>
+                <option value="_paved">Paved</option>
+                <option value="_unpaved">Unpaved</option>
+            </select>
+        </span>
+        <select id="directions_prefer" style="width:3in;">
+            <option value="recommended" selected="true">Recommended route</option>
+            <option value="shortest">Shortest route</option>
+            <option value="fastest">Fastest route</option>
+        </select>
+        <br/>
+
+        <input type="button" id="directions_button" value="Get directions" value0="Loading" value1="Get directions" style="width:3in;" />
+    </div>
+
+    <ul id="directions_steps" style="list-style-type:none; margin-left:-2.5em;"></ul>
+</div>
+
+
+
+
+
+<div class="dialog" id="info">
+    <table style="float:right;">
+    <tr>
+        <td style="text-align:right;">
+            <h3>Directions:</h3>
+            <img style="cursor:pointer;" src="<?= site_url('static/desktop/directions_hike.png') ?>" id="directions_hike" title="Get directions via hiking trails" />
+            <img style="cursor:pointer;" src="<?= site_url('static/desktop/directions_bike.png') ?>" id="directions_bike" title="Get directions via bicycle trails" />
+            <img style="cursor:pointer;" src="<?= site_url('static/desktop/directions_bridle.png') ?>" id="directions_bridle" title="Get directions via equestrian trails" />
+            <img style="cursor:pointer;" src="<?= site_url('static/desktop/directions_car.png') ?>" id="directions_car" title="Get driving directions" />
+            <img style="cursor:pointer;" src="<?= site_url('static/desktop/directions_bus.png') ?>" id="directions_bus" title="Get directions via public transit" />
+        </td>
+    </tr>
+    </table>
+
+    <div id="info-content"></div>
+
+    <input type="button" id="show_on_map" value="Show on Map" style="width:100%;" />
+    <br/>
+    <input type="button" id="share_feature" value="Share Map" style="width:100%;" />
+</div>
+
+
+
+<div class="dialog" id="share">
+    <input type="text" readonly="true" id="share_url" style="width:100%;" />
+</div>
+
+
+
+
+<div class="dialog" id="settings">
+    <h3>Map Type</h3>
+    <label><input type="radio" name="basemap" value="map" checked="true" /> Map </label><br/>
+    <label><input type="radio" name="basemap" value="photo" /> Satellite </label><br/>
+
+    <br/>
+
+    <h3>Legend</h3>
+    <div style="margin-left:25px;">
+        <b>Trails</b><br/>
+        <img class="legend" value="trails" style="display:block;" src="<?= site_url('static/common/legend_trails.png') ?>" />
+
+        <b>Reservations</b><br/>
+        <img class="legend" value="reservations" style="display:block;" src="<?= site_url('static/common/legend_parks.png') ?>" />
+
+        <b>Trail Tips</b><br/>
+        <img class="legend" value="markers_swgh" style="display:block;" src="<?= site_url('static/common/legend_markers.png') ?>" />
+
+        <b>POIs / Use Areas</b><br/>
+        <img class="legend" value="useareapois" style="display:block;" src="<?= site_url('static/common/legend_useareapois.png') ?>" />
+    </div>
+    <br/>
+
+    <h3>Other Settings</h3>
+    <label><input type="checkbox" id="settings_show_welcome" /> Show the Welcome panel</label><br/>
+
+    <br/>
+
+    <p>
+    <span class="button fakelink" target="credits">About this app</span>
+    </p>
+</div>
+
+
+
+<div class="dialog" id="loops">
+    <div>
+    Filter by use and type:<br/>
+    <select id="loops_filter_type">
+    <option value="">Show All</option>
+    <option value="hike">Hiking / Walking</option>
+    <option value="bike_Novice">Bicycle, Novice</option>
+    <option value="bike_Beginner">Bicycle, Beginner</option>
+    <option value="bike_Intermediate">Bicycle, Intermediate</option>
+    <option value="bike_Advanced">Bicycle, Advanced</option>
+    <option value="bridle">Equestrian</option>
+    </select>
+    </div>
+
+    <div>
+    Filter by surface type:<br/>
+    <select id="loops_filter_paved">
+    <option value="">Paved or unpaved</option>
+    <option value="Yes">Paved</option>
+    <option value="No">Unpaved</option>
+    </select>
+    </div>
+
+    <div>
+    Filter by location:<br/>
+    <select id="loops_filter_reservation">
+    <option value="">(any)</option>
+    <?php foreach ($reservations as $res) { ?>
+    <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
+    <?php } ?>
+    </select>
+    </div>
+
+    <div id="loops_filter_distance_div">
+    Length between <span id="loops_filter_distance_min">1</span> and <span id="loops_filter_distance_max">50</span> miles.
+    <br/>
+    <div id="loops_filter_distance_slider"></div>
+    </div>
+
+    <div id="loops_filter_time_div" style="display:none;">
+    Time between <span id="loops_filter_time_min">15 minutes</span> and <span id="loops_filter_time_max">1 hour 15 minutes</span>.
+    <br/>
+    <div id="loops_filter_time_slider"></div>
+    </div>
+
+    <div>
+    <br/>
+    <input type="button" id="loops_filter_button" value="Update listing" />
+    </div>
+
+    <br/>
+
+    <ul id="loops_list" style="list-style-type: none; margin-left: -35px;">
+    </ul>
+</div>
+
+
+
+
+<div class="dialog" id="trailfinder">
+
+            Activities:<br/>
+            <label><input type="checkbox" name="trailfinder_uses" checked="true" value="Hiking & Walking" /> Hiking &amp; Walking</label>
+            <br/>
+            <label><input type="checkbox" name="trailfinder_uses" value="Biking" /> Biking</label>
+            <br/>
+            <label><input type="checkbox" name="trailfinder_uses" value="Horseback Riding" /> Horseback Riding</label>
+            <br/>
+            <label><input type="checkbox" name="trailfinder_uses" value="Exercising" /> Exercising</label>
+            <br/>
+            <label><input type="checkbox" name="trailfinder_uses" value="Snowshoeing" /> Snowshoeing</label>
+            <br/>
+            <label><input type="checkbox" name="trailfinder_uses" value="Cross-Country Skiing" /> Cross-Country Skiing</label>
+            <br/>
+            <br/>
+
+            Pavement:<br/>
+            <select name="trailfinder_paved">
+                <option value="">No preference</option>
+                <option value="Yes">Paved</option>
+                <option value="No">Unpaved</option>
+            </select>
+            <br/>
+            <br/>
+
+            Reservation:<br/>
+            <select name="trailfinder_reservation">
+            <option value="">All</option>
+            <?php foreach ($reservations as $res) { ?>
+            <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
+            <?php } ?>
+            </select>
+            <br/>
+            <br/>
+
+            <input type="button" id="trailfinder_go" value="Search" value0="Searching..." value1="Search" style="width:100%;"/>
+
+    <ul id="trailfinder_results"></ul>
+
+</div>
+
+<div class="dialog" id="twitter">
+    <div style="text-align:right;">
+    <a href="https://twitter.com/intent/tweet?button_hashtag=clevemetroparks" class="twitter-hashtag-button" data-related="clevemetroparks">Tweet #CleveMetroParks</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    </div>
+
+    <table id="tweets">
+    </table>
+</div>
+
+
+
+
+<div class="dialog" id="measure">
+    <p>
+        Move the red marker to your starting location and the green marker to your destination. Then, select your preferred travel method, then click the Measure button below. This will find the route between the two locations, and tell you the travel time and distance.
+    </p>
+
+    <form id="measure_form">
+        <select id="measure_via" style="width:3in;">
+            <option value="trail">by trail</option>
+            <option value="car">by car</option>
+            <option value="bus">by public transit</option>
+        </select>
+
+        &nbsp;
+        <img id="measure_clear" alt="Clear" src="<?= site_url('/static/common/clear.png') ?>" class="fakelink" style="float:right;" />
+        <input type="button" id="measure_button" value="Measure" value0="Calculating..." value1="Measure" />
+
+        <br/>
+
+        <select id="measure_via_trail" style="width:3in;">
+            <option value="hike">via all trails and sidewalks</option>
+            <option value="hike_paved">via all trails and sidewalks, paved</option>
+            <option value="hike_unpaved">via trails, unpaved</option>
+            <option value="bike_novice">via bicycle trails (novice)</option>
+            <option value="bike_beginner">via bicycle trails & bikeable roads, beginner</option>
+            <option value="bike_intermediate">via bicycle trails & bikeable roads, intermediate</option>
+            <option value="bike_advanced">via bicycle trails & bikeable roads, advanced</option>
+            <option value="bridle">via equestrian trails</option>
+            <option value="bridle_paved">via equestrian trails, paved</option>
+            <option value="bridle_unpaved">via equestrian trails, unpaved</option>
+        </select>
+
+    </form>
+
+    <ul id="measure_steps" style="list-style-type:none; margin-left:-2.5em;"></ul>
+</div>
+
+
+
+<div class="dialog" id="welcome">
+    <p>Welcome to the Cleveland Metroparks Desktop Trail Application.</p>
+    <ul>
+        <li><b>Find</b> trails, parks, and park amenities!</li>
+        <li>Get <b>directions</b> to parks and amenities via Cleveland's extensive network of trails, or by driving or public transit.</li>
+        <li>Listen to local chat on <b>Twitter</b></li>
+    </ul>
+
+    <p class="disclaimer">
+    <b>Disclaimer:</b><br/>
+    This information is for display purposes only. Cleveland Metroparks makes
+    no warranties, expressed or implied, with respect to the accuracy of and
+    the use of this map and mapping application for any specific purpose.
+    Cleveland Metroparks expressly disclaims any liability that may result
+    from the use of this map or mapping application. For more information,
+    please contact: Stephen Mather, GIS Manager, 4101 Fulton Pkwy, Cleveland, Ohio 44144 (216) 635-3243
+    </p>
+
+    <div id="welcome_notagain_wrapper">
+        <label><input type="checkbox" id="show_welcome" /> Show this in the future</label>
+    </div>
+</div>
+
+
+
+<div class="dialog" id="credits">
+    <p>Parks and facilities data by <a target="_blank" href="http://www.clemetparks.com/">Cleveland Metroparks</a></p>
+    <p>Some base map data &copy; <a target="_blank" href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a></p>
+    <p>Driving and transit directions courtesy of <a target="_blank" href="http://www.bing.com/maps/">Bing Maps</a></p>
+    <p>Map interface programmed by <a target="_blank" href="http://www.greeninfo.org/">GreenInfo Network</a></p>
+    <p>Funding provided by <a target="_blank" href="http://www.swgeneral.com/">Southwest General Health Center</a></p>
+
+    <p class="disclaimer">
+    <b>Disclaimer:</b><br/>
+    This information is for display purposes only. Cleveland Metroparks makes
+    no warranties, expressed or implied, with respect to the accuracy of and
+    the use of this map and mapping application for any specific purpose.
+    Cleveland Metroparks expressly disclaims any liability that may result
+    from the use of this map or mapping application. For more information,
+    please contact: Stephen Mather, GIS Manager, 4101 Fulton Pkwy, Cleveland, Ohio 44144 (216) 635-3243
+    </p>
+</div>
+
+
+<noscript>
+    Your browser appears to have JavaScript disabled.<br/>
+    Please check your browser's security settings, and reload this page.
+</noscript>
+
+
+</body>
+</html>

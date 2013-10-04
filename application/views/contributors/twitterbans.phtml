@@ -1,0 +1,54 @@
+<?php $this->load->view('contributors/header.phtml') ?>
+
+
+<?php if (! sizeof($twits) ) { ?>
+    <p>No twitter accounts are banned.</p>
+<?php } else { ?>
+    <table id="twits" style="width:25%; margin:0 auto 0 auto;">
+    <thead>
+    <tr>
+        <th style="text-align:right; padding-right:2em;">Username</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($twits as $twit) { ?>
+    <tr username="<?= htmlspecialchars($twit) ?>">
+        <td style="text-align:left;"><?= htmlspecialchars($twit) ?></td>
+        <td>
+            <span class="fakelink unban" value="<?= $twit ?>">Reinstate this user</span>
+        </td>
+    </tr>
+    <?php } ?>
+    </tbody>
+    </table>
+<?php } ?>
+
+
+
+
+<script type="text/javascript">
+$(window).load(function() { 
+    // add Tablesorter to the table, for sorting the table
+    $('#twits').tablesorter({ 
+        sortList: [[0,0]]
+    });
+    $('#twits').addClass('tablesorter');
+
+    // click handler: clicking the unban link does some AJAX to unban them, and deletes the row from sight
+    $('.unban').click(function () {
+        if (! confirm("Are you sure you want to reinstate this user?\nThis will not enable any of their past tweets, but will allow them to post tweets in the future.") ) return false;
+
+        var params = { username : $(this).attr('value') };
+        var row    = $(this).closest('tr');
+
+        $.post('twitter_unban', params, function (reply) {
+            if (reply != 'ok') return alert(reply);
+            row.hide('fast');
+        });
+    });
+
+}); 
+</script>
+
+<?php $this->load->view('contributors/footer.phtml') ?>
