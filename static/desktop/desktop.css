@@ -1,0 +1,322 @@
+#map_canvas {
+    position:absolute; top:0; left:0;
+    margin:0; padding:0;
+    width:100%; height:100%;
+}
+
+h1 {
+    font-size: 24px;
+    margin:0;
+    font-family: Montserrat;
+}
+
+h2 {
+    font-size: 20px;
+    margin:0;
+    font-family: Montserrat;
+}
+
+h3 {
+    font-size: 16px;
+    margin:0;
+    font-family: Montserrat;
+}
+
+h4 {
+    font-size: 12px;
+    margin:0;
+    font-family: Montserrat;
+}
+
+.noblock {
+    display: inline;
+}
+
+input[type="text"] {
+    font-size:16px;
+}
+
+select {
+    font-size:16px !important;
+}
+
+.dialog {
+    display:none;
+}
+
+label,input[type="checkbox"],input[type="radio"] {
+    cursor:pointer;
+}
+
+#creditlogos {
+    position:absolute; right:0; bottom:0;
+}
+
+#creditlogos a {
+    text-decoration:none;
+}
+
+#creditlogos img {
+    border:0 none transparent;
+}
+
+#toolbar {
+    position:absolute; right:0; top:0;
+    background-color:#0D6B51;
+    background-image:url(gradient_top.png);
+
+    width:100%;
+    height:54px;
+    padding-top:2px;
+
+    text-align:right;
+}
+
+#toolbar img {
+    cursor:pointer;
+    border:0 none transparent;
+}
+
+#toolbar img.logo {
+    float:left;
+    margin:2px 15px 0 5px;
+}
+
+#switch_to_mobile {
+    float:left;
+    margin:3px 0 0 10px;
+    text-decoration:none;
+}
+
+#geocode input[type="text"] {
+    width:3in;
+}
+
+#geocode input[type="submit"] {
+    width:0.75in;
+}
+
+#browse ul {
+    list-style-type: none;
+    white-space:nowrap;
+}
+
+#browse > ul > li {
+    cursor:pointer;
+    border:1px solid #b9bba8;
+
+    background-image: url(list_arrow_right.png);
+    background-repeat:no-repeat;
+    background-position: 100% 2px;
+
+    line-height: 25px;
+
+    padding-left: 5px;
+}
+
+#browse > ul > li:first-child {
+    -moz-border-radius-topleft: 10px; -webkit-border-top-left-radius: 10px; -khtml-border-top-left-radius: 10px; border-top-left-radius: 10px;
+    -moz-border-radius-topright: 10px; -webkit-border-top-right-radius: 10px; -khtml-border-top-right-radius: 10px; border-top-right-radius: 10px;
+}
+
+#browse > ul > li:last-child {
+    -moz-border-radius-bottomleft: 10px; -webkit-border-bottom-left-radius: 10px; -khtml-border-bottom-left-radius: 10px; border-bottom-left-radius: 10px;
+    -moz-border-radius-bottomright: 10px; -webkit-border-bottom-right-radius: 10px; -khtml-border-bottom-right-radius: 10px; border-bottom-right-radius: 10px;
+}
+
+#browse > ul > li > ul > li {
+    background-image: url(list_arrow_right.png);
+    background-repeat:no-repeat;
+    background-position: 100% -3px;
+}
+
+#browse li.zoom {
+    background-image: url("list_arrow_right.png");
+    background-position: 100% 50%;
+    background-repeat: no-repeat;
+    background-color: #F6F6F6;
+
+    border: 1px solid #b9bba8;
+    border-radius: 5px 5px 5px 5px;
+
+    margin-left:-2.5em;
+    padding-left:5px;
+
+    white-space:normal;
+}
+
+#search table {
+    border-collapse:collapse;
+}
+
+#search td {
+    white-space:nowrap;
+}
+
+li .head {
+    font-weight:bold;
+}
+
+.ui-li-heading {
+    font-weight:bold;
+    font-size:12px;
+    display:block;
+    margin-bottom:0;
+}
+
+.ui-widget-content {
+    background-color: #0D6B51;
+    border: 1px solid #0D6B51;
+}
+
+.ui-dialog .ui-dialog-content {
+    background-color: #ECE4CF;
+}
+
+.ui-li-desc {
+    font-size:11px;
+    font-style:italic;
+}
+
+.ui-widget {
+    font-size:11px;
+}
+
+li.zoom {
+    cursor:pointer;
+}
+
+#getdirections_disabled {
+    text-align:center;
+}
+
+#getdirections_enabled {
+    line-height:30px;
+}
+
+#directions_steps li {
+    margin-top: 1em;
+}
+
+.ui-dialog .ui-resizable-se {
+    position: absolute; /* fixes the resize handle being on the wrong side */
+}
+
+.leaflet-top .leaflet-control {
+    margin-top: 70px;
+}
+
+.ui-dialog .ui-dialog-title {
+    font-size: 20px;
+    font-family: Montserrat;
+}
+
+.ui-dialog .ui-dialog-buttonpane button {
+    background-color:#C18B5A;
+    background-image:url(gradient_button.png);
+    height:30px;
+
+    color:#000000;
+    font-size: 16px;
+
+    border-radius:10px;
+    border: 0 none  transparent;
+}
+
+input[type="button"] {
+    background-color:#C18B5A;
+    background-image:url(gradient_button.png);
+    height:30px;
+
+    color:#000000;
+    font-weight:bold;
+    font-size: 16px;
+
+    border-radius:10px;
+    border: 0 none  transparent;
+
+    cursor:pointer;
+}
+
+
+
+/* the Print panel, rather the Please Wait and Ready DIVs */
+
+#print_ready,#print_waiting {
+    font-size:20px;
+    font-weight:bold;
+    text-align:center;
+    display:none;
+}
+
+#print input[type="text"] {
+    width:4in;
+}
+#print select {
+    width:4in;
+}
+#print textarea {
+    width:4in;
+    height:0.5in;
+}
+
+
+/* the Welcome panel and the Don't Show Again checkbox */
+
+#welcome_notagain_wrapper {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+
+    padding: 3px;
+}
+
+#welcome_notagain_wrapper input[type="checkbox"] {
+    vertical-align: sub;
+}
+
+
+/* for the Trails Advanced Search panel, some padding on those time estimates */
+
+.time_estimate {
+    padding-right: 1em;
+}
+
+#loops_list li {
+    margin-bottom:1em;
+}
+
+#loops select {
+    width:50%;
+}
+
+
+
+/* for the Keyword Search autocomplete popup */
+.ui-autocomplete {
+    width:1em;
+    white-space:nowrap;
+
+    background-color: #d7d9c5;
+    list-style-type: none;
+
+    max-height:400px;
+    overflow:auto;
+
+    font-size:11pt;
+}
+.ui-autocomplete li {
+    margin-left:-35px;
+    cursor:pointer;
+}
+.ui-autocomplete li a {
+    /* effectively make the A 100% width so the whole LI can be clicked */
+    cursor:pointer;
+    display: inline-block;
+    width: 97%;
+}
+.ui-autocomplete a.ui-state-hover {
+    background:none no-repeat scroll 0 0 #005F51;
+    color:white:
+    border:1px solid #005F51;
+}
