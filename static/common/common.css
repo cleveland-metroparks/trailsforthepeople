@@ -1,0 +1,131 @@
+body,.ui-widget {
+    font-family: Verdana,Arial,sans-serif;
+}
+
+.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
+    font-family: Verdana,Arial,sans-serif;
+}
+
+.above_map {
+    z-index:500;
+}
+
+.fakelink {
+    color:blue;
+    text-decoration:underline;
+    cursor:pointer;
+}
+
+.popup_title {
+    font-size:10pt; font-weight:bold;
+    margin-bottom:0.25em;
+}
+
+.popup_line {
+    clear:both;
+    margin:0;
+}
+
+.alert {
+    background-color:yellow;
+    color:red;
+}
+
+td,th {
+    vertical-align:top;
+}
+
+div.wkt {
+    display:none;
+}
+
+div.lat_driving {
+    display:none;
+}
+
+div.lng_driving {
+    display:none;
+}
+
+#info h2 {
+    margin-top:0;
+}
+
+#info input[type="button"] {
+    margin-top:10px;
+}
+
+#info-content {
+    margin-bottom:20px;
+}
+
+/* the legend swatches in the Layers panel */
+
+.legend {
+    display:none;
+    margin-left:30px;
+}
+
+
+/* the Twitter panel */
+
+#tweets td {
+}
+
+.twitter_lhs {
+    text-align:center;
+    vertical-align:top;
+    font-size:8pt;
+}
+
+.twitter_lhs img {
+    width:32px; height:32px;
+}
+
+.twitter_rhs {
+    text-align:left;
+    vertical-align:top;
+    font-size:9pt;
+}
+
+
+
+/* Leaflet Zoom panel, allow buttons to be disabled */
+
+.leaflet-control-zoom a.disabled {
+    display:none;
+}
+
+.leaflet-control-zoom a.only {
+    margin:0;
+}
+
+
+
+/* for Directions, the last line has links to the Elevation profile, etc. */
+
+li.directions_functions {
+    margin-top:1em;
+    font-weight:bold;
+    font-size:10pt;
+}
+
+
+
+/* for the Gallery popup */
+
+#gallery {
+    text-align:center;
+}
+
+
+
+/* for the Welcome panel and the About This App panel */
+
+.disclaimer {
+    font-size:8pt;
+}
+
+.disclaimer b {
+    font-size:10pt;
+}
