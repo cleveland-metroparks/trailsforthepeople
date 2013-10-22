@@ -116,7 +116,7 @@ function query() {
         $result = $result->getByBBOX($_GET['w'],$_GET['s'],$_GET['e'],$_GET['n']);
         $template = 'ajax/query_marker.phtml';
     }
-    if (! $result and $zoom >= 17) {
+    if (! $result and $zoom >= 15) {
         $result = new Usearea();
         $result = $result->getByBBOX($_GET['w'],$_GET['s'],$_GET['e'],$_GET['n']);
         $template = 'ajax/query_usearea.phtml';
