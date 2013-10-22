@@ -111,27 +111,27 @@ function query() {
     // e.g. to query a Building or Use Area, must be in close enough that you can see them (14+)
     $zoom = @$_GET['zoom'] ? $_GET['zoom'] : 18;
 
-    if (! $result and $zoom >= 14) {
+    if (! $result and $zoom >= 15) {
         $result = new Marker();
         $result = $result->getByBBOX($_GET['w'],$_GET['s'],$_GET['e'],$_GET['n']);
         $template = 'ajax/query_marker.phtml';
     }
-    if (! $result and $zoom >= 14) {
+    if (! $result and $zoom >= 17) {
         $result = new Usearea();
         $result = $result->getByBBOX($_GET['w'],$_GET['s'],$_GET['e'],$_GET['n']);
         $template = 'ajax/query_usearea.phtml';
     }
-    if (! $result and $zoom >= 14) {
+    if (! $result and $zoom >= 17) {
         $result = new Building();
         $result = $result->getByBBOX($_GET['w'],$_GET['s'],$_GET['e'],$_GET['n']);
         $template = 'ajax/query_building.phtml';
     }
-    if (! $result and $zoom >= 14) {
+    if (! $result and $zoom >= 17) {
         $result = new Trailclosure();
         $result = $result->getByBBOX($_GET['w'],$_GET['s'],$_GET['e'],$_GET['n']);
         $template = 'ajax/query_trailclosure.phtml';
     }
-    if (! $result and $zoom >= 14) {
+    if (! $result and $zoom >= 17) {
         // this one is more complicated: the Trailpiece may have named trails associated with it, in which case we use them instead of reporting the segment actually clicked
         $result = new Trailpiece();
         $result = $result->getByBBOX($_GET['w'],$_GET['s'],$_GET['e'],$_GET['n']);
