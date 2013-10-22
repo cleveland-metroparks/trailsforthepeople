@@ -149,7 +149,7 @@ function query() {
             $result->wkt = @$_GET['wkt'] ? Trailpiece::getWKT($result) : '';
         }
     }
-    if (! $result) {
+    if (! $result and $zoom >= 18) { //avoid Reservation pop-up
         $result = new Park();
         $result = $result->getByBBOX($_GET['w'],$_GET['s'],$_GET['e'],$_GET['n']);
         $template = 'ajax/query_reservation.phtml';
