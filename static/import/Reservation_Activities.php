@@ -3,6 +3,10 @@
 ///// Reservation a list of all activities taking place within all Use Areas within
 ///// Thus, reservations can also have a list of activities
 
+// define BASEPATH so we can properly include config files
+// the value isn't used since we're only including config and not launching CodeIgniter
+define('BASEPATH', getcwd() );
+
 // load up PHPExcel so we can read the spreadsheet
 require 'PHPExcel/Classes/PHPExcel.php';
 

@@ -1,6 +1,10 @@
 <?php
 ///// go through a database of use areas metadata, and add descriptions to the database
 
+// define BASEPATH so we can properly include config files
+// the value isn't used since we're only including config and not launching CodeIgniter
+define('BASEPATH', getcwd() );
+
 // load up PHPExcel so we can read the spreadsheet
 require 'PHPExcel/Classes/PHPExcel.php';
 

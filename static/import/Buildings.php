@@ -5,6 +5,10 @@
 ///// - Using the DEST_ID to look up the latlng in driving_destinations,
 ///// and copying that latlng into cm_buildings  as lat_driving and lng_driving
 
+// define BASEPATH so we can properly include config files
+// the value isn't used since we're only including config and not launching CodeIgniter
+define('BASEPATH', getcwd() );
+
 // load up PHPExcel so we can read the spreadsheet
 require 'PHPExcel/Classes/PHPExcel.php';
 

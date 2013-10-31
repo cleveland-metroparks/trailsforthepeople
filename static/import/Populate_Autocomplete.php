@@ -8,6 +8,10 @@
 ///// using the titles, names, and activities found in the various tables
 ///// reservations, buildings, Use Area POIs, ...
 
+// define BASEPATH so we can properly include config files
+// the value isn't used since we're only including config and not launching CodeIgniter
+define('BASEPATH', getcwd() );
+
 // connect to the database
 require '/var/www/application/config/database.php';
 $DB_USER = $db['default']['username'];

@@ -1,6 +1,10 @@
 <?php
 ///// go through the trail segments in cm_trails and aggregate them per the Aggregate_Trails.xlsx spreadsheet
 
+// define BASEPATH so we can properly include config files
+// the value isn't used since we're only including config and not launching CodeIgniter
+define('BASEPATH', getcwd() );
+
 // load up PHPExcel so we can read the spreadsheet
 require 'PHPExcel/Classes/PHPExcel.php';
 
