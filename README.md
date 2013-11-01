@@ -1,3 +1,5 @@
+![trailsforthepeople](https://raw.github.com/cleveland-metroparks/trailsforthepeople/master/T4tP.png)
+
 trailsforthepeople
 ==================
 
