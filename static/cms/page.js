@@ -172,7 +172,7 @@ function getMarkerDirections() {
     params.bbox     = GEOCODE_BIAS_BOX;
 
     $('#dialog_wait').dialog('open');
-    $.get('../../../ajax/geocode', params, function (result) {
+    $.get('/ajax/geocode', params, function (result) {
         $('#dialog_wait').dialog('close');
         if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
         var sourcelat = result.lat;
@@ -187,7 +187,7 @@ function getMarkerDirections() {
         params.lat  = sourcelat;
         params.lng  = sourcelng;
         params.via  = 'car';
-        $.get('../../../ajax/geocode_for_directions', params, function (result) {
+        $.get('/ajax/geocode_for_directions', params, function (result) {
             // we know the sourcelat and sourcelng, and now we have the targetlat and targetlng
             var targetlat = result.lat;
             var targetlng = result.lng;
@@ -217,7 +217,7 @@ function getMarkerDirections() {
                 targetlat:targetlat, targetlng:targetlng,
                 tofrom:'to', via:'car'
             };
-            $.get('../../../ajax/directions', directions_params, function (directions) {
+            $.get('/ajax/directions', directions_params, function (directions) {
                 if (! directions || ! directions.wkt) return alert("Could not find directions.");
                 clearDirections();
 
@@ -372,7 +372,7 @@ function getDrivingDirections() {
     params.bing_key = BING_API_KEY;
     params.bbox     = GEOCODE_BIAS_BOX;
 
-    $.get('../../../ajax/geocode', params, function (result) {
+    $.get('/ajax/geocode', params, function (result) {
         if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
         var sourcelat = result.lat;
         var sourcelng = result.lng;
@@ -397,7 +397,7 @@ function getDrivingDirections() {
         // we use our own server here so we can get a known-good structure for plotting onto the map
         var directions_params = { bing_key:BING_API_KEY, sourcelat:sourcelat, sourcelng:sourcelng, targetlat:targetlat, targetlng:targetlng, tofrom:'to', via:'car' };
         //console.log(params);
-        $.get('../../../ajax/directions', directions_params, function (directions) {
+        $.get('/ajax/directions', directions_params, function (directions) {
             if (! directions || ! directions.wkt) return alert("Could not find directions.");
             clearDirections();
 
