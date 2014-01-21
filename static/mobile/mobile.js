@@ -140,12 +140,29 @@ $(document).bind('pagebeforechange', function(e,data) {
 
 
 // mobile-specific: listen for page changes to #page-share and request a new short URL for the current map state
+// also, enable the Share Facebook and Share Twitter links
 $(document).bind('pagebeforechange', function(e,data) {
     if ( typeof data.toPage != "string" ) return; // no hash given
     var url = $.mobile.path.parseUrl(data.toPage);
     if ( url.hash != '#page-share') return; // not the URL that we want to handle
 
     populateShareBox();
+});
+$(document).ready(function () {
+    // Twitter and Facebook are plain ol' hyperlinks,
+    // but when we click them we update their URL before we allow them to trigger
+    $('#share_facebook').tap(function () {
+        var url = $('#share_url').val();
+            url = 'http://www.facebook.com/share.php?u=' + encodeURIComponent(url);
+        $('#share_facebook').prop('href',url);
+        return true;
+    });
+    $('#share_twitter').tap(function () {
+        var url = $('#share_url').val();
+            url = 'http://twitter.com/home?status=' + encodeURIComponent(url);
+        $('#share_twitter').prop('href',url);
+        return true;
+    });
 });
 
 

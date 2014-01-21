@@ -251,3 +251,26 @@ div.fakeinput {
 #page-browse-results .sortpicker {
     display:block;
 }
+
+
+
+/* Elevation profile wrapper */
+div.elevationprofileimage {
+}
+
+div.elevationprofileimage img {
+}
+
+
+
+/* Share on Facebook and Twitter */
+div.share_button {
+    line-height:24px;
+    margin-bottom:1em;
+}
+div.share_button a {
+    text-decoration:none;
+}
+div.share_button img {
+    vertical-align:middle;
+}

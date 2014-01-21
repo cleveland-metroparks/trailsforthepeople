@@ -6,6 +6,12 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
     <meta name="apple-mobile-web-app-capable" content="yes">
 
+    <!-- for sharing on Facebook -->
+    <meta property="og:url" content="http://www.clevelandmetroparks.com/" />
+    <meta property="og:title" content="Cleveland Metroparks" />
+    <meta property="og:description" content="Cleveland Metroparks" />
+    <meta property="og:image" content="http://www.clevelandmetroparks.com/Uploads/Images/logo.png" />
+
     <!-- a library for encoding and decoding JSON. necessary for IE8 and earlier Firefox to do printing
     at any rate, known to be consistent between browsers; I doubt the ECMA standard will be so lucky, ha ha -->
 <!--
@@ -461,7 +467,7 @@
     </div>
     <div data-role="content">
 
-        <div style="text-align:center;">
+        <div class="elevationprofileimage" style="text-align:center;">
            <img id="elevation" src="about:blank" />
         </div>
 
@@ -504,10 +510,16 @@
     </div>
     <div data-role="content">
 
-<!--
-    <div id="share_url" class="fakeinput" /></div>
--->
-    <input type="text" readonly="true" id="share_url" />
+    <div>
+        <input type="text" readonly="true" id="share_url" />
+    </div>
+
+    <div class="share_button">
+        <a target="_blank" href="javascript:void(0);" id="share_facebook"><img src="<?= site_url('static/mobile/share_facebook.png') ?>" /> Share on Facebook</a>
+    </div>
+    <div class="share_button">
+        <a target="_blank" href="javascript:void(0);" id="share_twitter"><img src="<?= site_url('static/mobile/share_twitter.png') ?>" /> Share on Twitter</a>
+    </div>
 
     </div>
 </div>
