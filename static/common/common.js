@@ -1,20 +1,37 @@
 var MOBILE; // set in desktop.js and mobile.js, so we can work around some things in shared code
 
-var ICON_TARGET    = L.Icon.extend({ iconUrl:'http://maps.clemetparks.com/static/common/marker-target.png' });
-var ICON_GPS       = L.Icon.extend({ iconUrl:'http://maps.clemetparks.com/static/common/marker-gps.png' });
-var MARKER_TARGET  = new L.Marker(new L.LatLng(0,0), { clickable:false, draggable:false, icon:new ICON_TARGET() });
-var MARKER_GPS     = new L.Marker(new L.LatLng(0,0), { clickable:false, draggable:false, icon:new ICON_GPS() });
+var ICON_TARGET = L.icon({
+    iconUrl: 'http://maps.clemetparks.com/static/common/marker-target.png',
+    iconSize: [ 25, 41 ],
+    iconAnchor: [ 13, 41 ]
+});
+var MARKER_TARGET = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_TARGET });
 
-var ICON_FROM    = L.Icon.extend({ iconUrl:'http://maps.clemetparks.com/static/desktop/measure1.png' });
-var ICON_TO      = L.Icon.extend({ iconUrl:'http://maps.clemetparks.com/static/desktop/measure2.png' });
-var MARKER_FROM  = new L.Marker(new L.LatLng(0,0), { clickable:true, draggable:true, icon:new ICON_FROM() });
-var MARKER_TO    = new L.Marker(new L.LatLng(0,0), { clickable:true, draggable:true, icon:new ICON_TO() });
+var ICON_GPS = L.icon({
+    iconUrl: 'http://maps.clemetparks.com/static/common/marker-gps.png',
+    iconSize: [ 25, 41 ],
+    iconAnchor: [ 13, 41 ]
+});
+var MARKER_GPS     = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_GPS });
 
-var CIRCLE         = new L.Circle(new L.LatLng(0,0), 1);
+var ICON_FROM = L.icon({
+    iconUrl: 'http://maps.clemetparks.com/static/desktop/measure1.png',
+    iconSize: [ 20, 34 ],
+    iconAnchor: [ 10, 34 ]
+});
+var ICON_TO = L.icon({
+    iconUrl: 'http://maps.clemetparks.com/static/desktop/measure2.png',
+    iconSize: [ 20, 34 ],
+    iconAnchor: [ 10, 34 ]
+});
+var MARKER_FROM  = L.marker(L.latLng(0,0), { clickable:true, draggable:true, icon:ICON_FROM });
+var MARKER_TO    = L.marker(L.latLng(0,0), { clickable:true, draggable:true, icon:ICON_TO });
+
+var CIRCLE         = new L.Circle(L.latLng(0,0), 1);
 
 var ELEVATION_PROFILE     = null;
 
-var DIRECTIONS_TARGET     = new L.LatLng(0,0);
+var DIRECTIONS_TARGET     = L.latLng(0,0);
 
 var DIRECTIONS_LINE       = null;
 var DIRECTIONS_LINE_STYLE = { color:"#0000FF", weight:5, opacity:1.00, clickable:false, smoothFactor:0.25 };
@@ -30,6 +47,39 @@ var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; o
 var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
 
 ///// JavaScript code common to both Mobile and Desktop maps
+
+
+// extend Leaflet: add to LatLng the ability to calculate the bearing to another LatLng
+L.LatLng.prototype.bearingTo= function(other) {
+    var d2r  = L.LatLng.DEG_TO_RAD;
+    var r2d  = L.LatLng.RAD_TO_DEG;
+    var lat1 = this.lat * d2r;
+    var lat2 = other.lat * d2r;
+    var dLon = (other.lng-this.lng) * d2r;
+    var y    = Math.sin(dLon) * Math.cos(lat2);
+    var x    = Math.cos(lat1)*Math.sin(lat2) - Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLon);
+    var brng = Math.atan2(y, x);
+    brng = parseInt( brng * r2d );
+    brng = (brng + 360) % 360;
+    return brng;
+};
+L.LatLng.prototype.bearingWordTo = function(other) {
+    var bearing = this.bearingTo(other);
+    var bearingword = '';
+     if (bearing >= 22  && bearing <= 67)  bearingword = 'NE';
+    else if (bearing >= 67 && bearing <= 112)  bearingword = 'E';
+    else if (bearing >= 112 && bearing <= 157) bearingword = 'SE';
+    else if (bearing >= 157 && bearing <= 202) bearingword = 'S';
+    else if (bearing >= 202 && bearing <= 247) bearingword = 'SW';
+    else if (bearing >= 247 && bearing <= 292) bearingword = 'W';
+    else if (bearing >= 292 && bearing <= 337) bearingword = 'NW';
+    else if (bearing >= 337 || bearing <= 22)  bearingword = 'N';
+    return bearingword;
+};
+
+
+
+
 
 // compatibility: make click and tap events equivalent so we don't have to "if mobile tap, else click"
 // While jQM has a .click() handler, it specifically has a half-second delay built in, which makes the app feel slow.
@@ -59,24 +109,33 @@ function initMap () {
     }
 
     // start the map, only the basemap for starters
-    MAP = new L.Map('map_canvas', {
+    // do some detection of browser to find Android 4+ and override the animation settings, hoping to enable pinch-zoom without breaking the app entirely
+    // this is specifically contraindicated by Leaflet's own feature detection
+    var options = {
         attributionControl: false, zoomControl: true, dragging: true,
         closePopupOnClick: false,
         crs: L.CRS.EPSG3857,
         minZoom: MIN_ZOOM, maxZoom: MAX_ZOOM,
-        zoomAnimation:false, markerZoomAnimation:false, fadeAnimation:false,
         layers : [ basemap ]
-    });
+    };
+    // gda these break apps, testing Jan 2014
+    var android4 = navigator.userAgent.match(/Android (4|5)/);
+    if (android4) {
+        options.fadeAnimation       = true;
+        options.zoomAnimation       = true;
+        options.markerZoomAnimation = true;
+    }
+    MAP = new L.Map('map_canvas', options);
 
     // zoom to the XYZ given in the URL, or else to the max extent
     if (URL_PARAMS.param('x') && URL_PARAMS.param('y') && URL_PARAMS.param('z')) {
         var x = parseFloat( URL_PARAMS.param('x') );
         var y = parseFloat( URL_PARAMS.param('y') );
         var z = parseInt( URL_PARAMS.param('z') );
-        MAP.setView( new L.LatLng(y,x),z);
+        MAP.setView( L.latLng(y,x),z);
 
         MAP.addLayer(MARKER_TARGET);
-        MARKER_TARGET.setLatLng(new L.LatLng(y,x));
+        MARKER_TARGET.setLatLng(L.latLng(y,x));
     } else {
         MAP.fitBounds(MAX_BOUNDS);
     }
@@ -87,7 +146,7 @@ function initMap () {
     }
 
     // additional Controls
-    MAP.addControl( new L.Control.ScaleBar() );
+    L.control.scale().addTo(MAP);
 
     // debugging: when the viewport changes, log the current bbox and zoom
     function debugBoundsOutput() {
@@ -102,8 +161,8 @@ function initMap () {
         var sw       = MAP.getBounds().getSouthWest();
         var ne       = MAP.getBounds().getNorthEast();
         var halflng   = ( sw.lng + ne.lng ) / 2.0;
-        var midBottom = new L.LatLng(sw.lat,halflng);
-        var midTop    = new L.LatLng(ne.lat,halflng);
+        var midBottom = L.latLng(sw.lat,halflng);
+        var midTop    = L.latLng(ne.lat,halflng);
         var mheight   = midTop.distanceTo(midBottom);
         var pxheight  = MAP.getSize().x;
         var kmperpx   = mheight / pxheight / 1000.0;
@@ -143,7 +202,7 @@ function initMap () {
             if (!reply || ! reply.s || ! reply.w || ! reply.n || ! reply.e) return alert("Cound not find that feature.");
 
             // zoom to the location
-            var box = new L.LatLngBounds( new L.LatLng(reply.s,reply.w) , new L.LatLng(reply.n,reply.e) );
+            var box = L.latLngBounds( L.latLng(reply.s,reply.w) , L.latLng(reply.n,reply.e) );
             MAP.fitBounds(box);
 
             // lay down the WKT or a marker to highlight it
@@ -151,7 +210,7 @@ function initMap () {
                 placeTargetMarker(reply.lat,reply.lng);
             }
             else if (reply.wkt) {
-                HIGHLIGHT_LINE = L.WKTtoFeature(reply.wkt, HIGHLIGHT_LINE_STYLE);
+                HIGHLIGHT_LINE = lineWKTtoFeature(reply.wkt, HIGHLIGHT_LINE_STYLE);
                 MAP.addLayer(HIGHLIGHT_LINE);
             }
         }, 'json');
@@ -186,9 +245,7 @@ function initMap () {
         $('#directions_via').trigger('change');
         $('#directions_address').val( URL_PARAMS.param('fromaddr') );
         $('#directions_reverse').val( URL_PARAMS.param('whichway') );
-        $('#directions_via_hike').val( URL_PARAMS.param('routevia_hike') );
-        $('#directions_via_bike_1').val( URL_PARAMS.param('routevia_bike_1') );
-        $('#directions_via_bike_2').val( URL_PARAMS.param('routevia_bike_2') );
+        $('#directions_via_bike').val( URL_PARAMS.param('routevia_bike') );
 
         setTimeout(function () {
             $('#directions_reverse').trigger('change');
@@ -213,15 +270,31 @@ function initMap () {
 
 
 
+
+// decode a WKT geometry into a feature, e.g. LINESTRING(12 34, 56 78) to L.Polyline instance
+// params are the WKT string, and the other options to pass to the constructor (e.g. color style and other Path options)
+function lineWKTtoFeature(wkt,style) {
+    var parser = new Wkt.Wkt();
+    parser.read(wkt);
+    return parser.toObject(style);
+}
+
+// given a WSEN set of ordinates, construct a L.LatLngBounds
+function WSENtoBounds(west,south,east,north) {
+    return L.latLngBounds([ [south,west] , [north,east] ]);
+}
+
 function selectBasemap(which) {
     switch (which) {
         case 'photo':
             if (MAP.hasLayer(MAPBASE)) MAP.removeLayer(MAPBASE);
             if (! MAP.hasLayer(PHOTOBASE)) MAP.addLayer(PHOTOBASE,true);
+            PHOTOBASE.bringToBack();
             break;
         case 'map':
             if (MAP.hasLayer(PHOTOBASE)) MAP.removeLayer(PHOTOBASE);
             if (! MAP.hasLayer(MAPBASE)) MAP.addLayer(MAPBASE,true);
+            MAPBASE.bringToBack();
             break;
     }
 }
@@ -231,7 +304,7 @@ function selectBasemap(which) {
 
 function placeTargetMarker(lat,lon) {
     MAP.addLayer(MARKER_TARGET);
-    MARKER_TARGET.setLatLng(new L.LatLng(lat,lon));
+    MARKER_TARGET.setLatLng(L.latLng(lat,lon));
 }
 function clearTargetMarker() {
     MAP.removeLayer(MARKER_TARGET);
@@ -239,7 +312,7 @@ function clearTargetMarker() {
 
 function placeGPSMarker(lat,lon) {
     MAP.addLayer(MARKER_GPS);
-    MARKER_GPS.setLatLng(new L.LatLng(lat,lon));
+    MARKER_GPS.setLatLng(L.latLng(lat,lon));
 }
 function clearGPSMarker() {
     MAP.removeLayer(MARKER_GPS);
@@ -247,12 +320,12 @@ function clearGPSMarker() {
 
 function placeCircle(lat,lon,meters) {
     MAP.removeLayer(CIRCLE);
-    CIRCLE.setLatLng(new L.LatLng(lat,lon));
+    CIRCLE.setLatLng(L.latLng(lat,lon));
     CIRCLE.setRadius(meters);
     MAP.addLayer(CIRCLE);
 }
 function clearCircle() {
-    CIRCLE.setLatLng(new L.LatLng(0,0));
+    CIRCLE.setLatLng(L.latLng(0,0));
     CIRCLE.setRadius(1);
     MAP.removeLayer(CIRCLE);
 }
@@ -273,7 +346,7 @@ function zoomToAddress(searchtext) {
         if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
 
         // zoom the point location, nice and close, and add a marker
-        var latlng = new L.LatLng(result.lat,result.lng);
+        var latlng = L.latLng(result.lat,result.lng);
         switchToMap(function () {
             MAP.setView(latlng,16);
             placeTargetMarker(result.lat,result.lng);
@@ -382,7 +455,7 @@ $(window).load(function () {
             var wkt  = $(this).data('wkt');
             switchToMap(function () {
                 // zoom the map into the stated bbox
-                var bounds = new L.LatLngBounds( new L.LatLng(s,w) , new L.LatLng(n,e) );
+                var bounds = L.latLngBounds( L.latLng(s,w) , L.latLng(n,e) );
                 bounds = bounds.pad(0.15);
                 MAP.fitBounds(bounds);
 
@@ -392,7 +465,7 @@ $(window).load(function () {
                 // draw the line geometry onto the map, if this is a point feature
                 if (wkt) {
                     if (HIGHLIGHT_LINE) { MAP.removeLayer(HIGHLIGHT_LINE); HIGHLIGHT_LINE = null; }
-                    HIGHLIGHT_LINE = L.WKTtoFeature(wkt, HIGHLIGHT_LINE_STYLE);
+                    HIGHLIGHT_LINE = lineWKTtoFeature(wkt, HIGHLIGHT_LINE_STYLE);
                     MAP.addLayer(HIGHLIGHT_LINE);
                 }
             });
@@ -427,17 +500,17 @@ $(window).load(function () {
     // selecting By Trail, By Car, etc. shows & hides the second filter, e.g. paved/unpaved for "By foot" only
     $('#directions_via').change(function () {
         // hide all secondaries
-        $('#directions_via_hike_wrap').hide();
         $('#directions_via_bike_wrap').hide();
 
-        // now show the appropriate one
+        // now show the appropriate one (if any, only for Bike: basic/advanced; formerly Hike had paved status as a picker)
         var which = $(this).val();
         switch (which) {
             case 'bike':
                 $('#directions_via_bike_wrap').show();
                 break;
             case 'hike':
-                $('#directions_via_hike_wrap').show();
+                break;
+            case 'car':
                 break;
             default:
                 break;
@@ -450,16 +523,16 @@ $(window).load(function () {
 // then calls either getDirections() et al
 function processGetDirectionsForm() {
     // which transportation mode?
-    // if via is hike or bike, then load the secondary selector instead, e.g. hike_paved
+    // separated into a switch so we can fuss with them separately, e.g. originally hike and bike had a secondary selector for paved/unpaved status
     var tofrom    = $('#directions_reverse').val();
     var via       = $('#directions_via').val();
     switch (via) {
         case 'hike':
-            via = $('#directions_via_hike').val();
+            via = 'hike';
+            //via = $('#directions_via_hike').val();
             break;
         case 'bike':
-            // bike has 2 selectors, simply concatenate them:  bike_novice + _paved
-            via = $('#directions_via_bike_1').val() + $('#directions_via_bike_2').val()
+            via = $('#directions_via_bike').val();
             break;
     }
 
@@ -505,7 +578,7 @@ function processGetDirectionsForm() {
                     // if the address is outside of our max bounds, then we can't possibly do a Trails
                     // search, and driving routing would still be goofy since it would traverse area well off the map
                     // in this case, warn them that they should use Bing Maps, and send them there
-                    if (! MAX_BOUNDS.contains(new L.LatLng(sourcelat,sourcelng)) ) {
+                    if (! MAX_BOUNDS.contains(L.latLng(sourcelat,sourcelng)) ) {
                         var from = 'adr.' + address;
                         var to   = 'pos.' + targetlat + '_' + targetlng;
                         var params = {
@@ -715,14 +788,14 @@ function renderDirectionsStructure(directions,target,options) {
 
     // phase 1: remove any old route line, draw the route on the map
     clearDirectionsLine();
-    var polyline   = L.WKTtoFeature(directions.wkt, DIRECTIONS_LINE_STYLE);
-    var startpoint = new L.LatLng(directions.start.lat,directions.start.lng);
-    var endpoint   = new L.LatLng(directions.end.lat,directions.end.lng);
+    var polyline   = lineWKTtoFeature(directions.wkt, DIRECTIONS_LINE_STYLE);
+    var startpoint = L.latLng(directions.start.lat,directions.start.lng);
+    var endpoint   = L.latLng(directions.end.lat,directions.end.lng);
     placeDirectionsLine(polyline, startpoint, endpoint);
 
     // for the bounding box, we save the bbox LatLngBounds into DIRECTIONS_LINE
     // because on Mobile, zooming the map now is an error and the map must be zoomed later, using the DIRECTIONS_LINE global
-    DIRECTIONS_LINE.extent = L.WSENtoBounds(directions.bounds.west,directions.bounds.south,directions.bounds.east,directions.bounds.north);
+    DIRECTIONS_LINE.extent = WSENtoBounds(directions.bounds.west,directions.bounds.south,directions.bounds.east,directions.bounds.north);
     if (! MOBILE || $.mobile.activePage.prop('id') == 'page-map') {
         var bbox = DIRECTIONS_LINE.extent.pad(0.15);
         MAP.fitBounds(bbox);
@@ -821,11 +894,11 @@ function clearDirectionsLine() {
     }
     // the markers get set to 0,0 and removed from the map
     if (MAP.hasLayer(MARKER_FROM)) {
-        MARKER_FROM.setLatLng( new L.LatLng(0,0) );
+        MARKER_FROM.setLatLng( L.latLng(0,0) );
         MAP.removeLayer(MARKER_FROM);
     }
     if (MAP.hasLayer(MARKER_TO)) {
-        MARKER_TO.setLatLng( new L.LatLng(0,0) );
+        MARKER_TO.setLatLng( L.latLng(0,0) );
         MAP.removeLayer(MARKER_TO);
     }
 
@@ -972,51 +1045,29 @@ function printMap() {
         layers[layers.length] = { baseURL:"http://maps.clemetparks.com/gwms", opacity:1, singleTile:true, type:"WMS", layers:["group_basemap"], format:"image/jpeg", styles:[""], customParams:wmsparams };
     }
     for (var i=0, l=OVERLAYS.length; i<l; i++) {
-        var layer = OVERLAYS[i];
+        var layer      = OVERLAYS[i];
         var layernames = layer.options.layers.split(",");
-        var opacity = 1.0;
-        var baseurl = "http://maps.clemetparks.com/wms";
-        // if it's a Markers layer, change the layer name to trick GeoServer into using the "printable" version with alternately-scaled icons
-        if (layer.options.id.indexOf('markers_') == 0) {
-            layernames[0] += '_printdpi';
-        }
-        // if it's the Use Area POIs layer, it's also markers that need scaling
-        if (layer.options.id == 'useareapois') {
-            layernames[0] += '_printdpi';
-        }
-        // if it's the Canopy layer, it's also markers that need scaling
-        if (layer.options.id == 'canopy') {
-            layernames[0] += '_printdpi';
-        }
+        var opacity    = 1.0;
+        var baseurl    = "http://maps.clemetparks.com/wms";
+
         // if it's the labels layer, we can't use WMS but the special group WMS (GeoServer is so weird)
         if (layer.options.id == 'labels') {
             baseurl = "http://maps.clemetparks.com/gwms";
         }
+
         layers[layers.length] = { baseURL:baseurl, opacity:opacity, singleTile:true, type:"WMS", layers:layernames, format:"image/png", styles:[""], customParams:wmsparams };
     }
     if (DIRECTIONS_LINE && MAP.hasLayer(DIRECTIONS_LINE) ) {
-        // the directions line, using either a single Polyline (everything except Google) or a MultiPolyline (Google)
         // Construct a list-of-lists multilinestring. Remember that OpenLayers and MFP do lng,lat instead of lat,lng
-        var vertices = [];
-        if (DIRECTIONS_LINE.getLatLngs) {
-            // a single Polyline
-            // collect the coordinates into a list, then make that list the only list within "vertices" (a multilinestring with 1 linestring component)
-            var vx = DIRECTIONS_LINE.getLatLngs();
-            for (var i=0, l=vx.length; i<l; i++) {
-                vertices[vertices.length] = wgsToLocalSRS([ vx[i].lng, vx[i].lat ]);
-            }
-            vertices = [ vertices ];
-        } else {
-            // a MultiPolyline
             // use non-API methods to iterate over the line components, collecting them into "vertices" to form a list of lists
-            for (var li in DIRECTIONS_LINE._layers) {
-                var subline = DIRECTIONS_LINE._layers[li];
-                var subverts = [];
-                for (var i=0, l=subline._latlngs.length; i<l; i++) {
-                    subverts[subverts.length] = wgsToLocalSRS([ subline._latlngs[i].lng, subline._latlngs[i].lat ]);
-                }
-                vertices[vertices.length] = subverts;
+        var vertices = [];
+        for (var li in DIRECTIONS_LINE._layers) {
+            var subline = DIRECTIONS_LINE._layers[li];
+            var subverts = [];
+            for (var i=0, l=subline._latlngs.length; i<l; i++) {
+                subverts[subverts.length] = wgsToLocalSRS([ subline._latlngs[i].lng, subline._latlngs[i].lat ]);
             }
+            vertices[vertices.length] = subverts;
         }
 
         // the styling is simply pulled from the styling constant
@@ -1039,7 +1090,7 @@ function printMap() {
         };
 
         // now the Start marker, which will always be present if there's a line
-        var iconurl  = ICON_FROM.prototype.iconUrl;
+        var iconurl  = ICON_FROM.options.iconUrl;
         var projdot  = wgsToLocalSRS(MARKER_FROM.getLatLng());
         var iconxoff = -10; // offset to place the marker; MFP drifts it for some reason
         var iconyoff = 0; // offset to place the marker; MFP drifts it for some reason
@@ -1060,7 +1111,7 @@ function printMap() {
         };
 
         // and the End marker, which will always be present if there's a line; copied from the Start marker above
-        var iconurl  = ICON_TO.prototype.iconUrl;
+        var iconurl  = ICON_TO.options.iconUrl
         var projdot  = wgsToLocalSRS(MARKER_TO.getLatLng());
         var iconxoff = -10; // offset to place the marker; MFP drifts it for some reason
         var iconyoff = 0; // offset to place the marker; MFP drifts it for some reason
@@ -1211,7 +1262,7 @@ function printMap() {
         }
     }
     if (MARKER_TARGET && MAP.hasLayer(MARKER_TARGET) ) {
-        var iconurl  = ICON_TARGET.prototype.iconUrl;
+        var iconurl  = ICON_TARGET.options.iconUrl;
         var projdot  = wgsToLocalSRS(MARKER_TARGET.getLatLng());
         var iconxoff = -10; // offset to place the marker; MFP drifts it for some reason
         var iconyoff = 0; // offset to place the marker; MFP drifts it for some reason
@@ -1438,11 +1489,16 @@ function populateShareBox() {
     $.get('../ajax/make_shorturl', params, function (shortstring) {
         if (! shortstring) return alert("Unable to fetch a short URL.\nPlease try again.");
         var url = URL_PARAMS.attr('protocol') + '://' + URL_PARAMS.attr('host') + '/url/' + shortstring;
+
+        // Jan 2014: mobile also uses a text input; I'm sure there was a good reason for using a div.fakeinput but I forget...
+        $('#share_url').val(url);
+        /*
         if (MOBILE) {
             $('#share_url').text(url);
         } else {
             $('#share_url').val(url);
         }
+        */
     });
 }
 
@@ -1479,9 +1535,7 @@ function updateShareUrlByDirections() {
     // compose the params to bring up this route at page load: route title, to and from coordinates, via type, etc
     var params = {};
     params.routevia        = $('#directions_via').val();
-    params.routevia_hike   = $('#directions_via_hike').val();
-    params.routevia_bike_1 = $('#directions_via_bike_1').val();
-    params.routevia_bike_2 = $('#directions_via_bike_2').val();
+    params.routevia_bike   = $('#directions_via_bike').val();
     params.routefrom       = $('#directions_source_lat').val() + ',' + $('#directions_source_lng').val();
     params.routeto         = $('#directions_target_lat').val() + ',' + $('#directions_target_lng').val();
     params.routetitle      = $('#directions_target_title').text();

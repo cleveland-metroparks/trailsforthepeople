@@ -43,7 +43,7 @@ function useTypesString($loop) {
 
 // given a string of keywords, run a fulltext search and return a list of results
 // if no matches, returns an array with nothing in it
-function searchByKeywords($keywordstring) {
+function searchByKeywords($keywordstring,$unpublished=FALSE) {
     // first off, standardize the $keywordstring into a TSVector expression without wierd characters
     $tsvector = preg_replace('/[^\w\s]/', '', trim($keywordstring) );
     $tsvector = preg_split('/\s+/', $tsvector);
@@ -52,10 +52,13 @@ function searchByKeywords($keywordstring) {
     // the tsvector normalization flag: 12 = 8 (divide by number of words) + 4 (closeness of words)
     $tsvector_norm_flag = 12;
 
+    // extra filtering flags
+    if (!$unpublished) $pubclause = "AND status='Published'";
+
     // run the tsvector DB query to generate a list of results
     $results = array();
     $table   = "loops";
-    $rows    = $this->db->query("SELECT *,ts_rank_cd(search,to_tsquery(?),$tsvector_norm_flag) AS rank FROM $table WHERE search @@ to_tsquery(?)", array($tsvector,$tsvector) );
+    $rows    = $this->db->query("SELECT *,ts_rank_cd(search,to_tsquery(?),$tsvector_norm_flag) AS rank FROM $table WHERE search @@ to_tsquery(?) $pubclause", array($tsvector,$tsvector) );
     foreach ($rows->result() as $r) $results[] = $r;
 
     // done

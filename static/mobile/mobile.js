@@ -7,7 +7,7 @@ var ALL_POIS = [];
 
 // other stuff pertaining to our last known location and auto-centering
 var MOBILE = true;
-var LAST_KNOWN_LOCATION = new L.LatLng(41.3953,-81.6730);
+var LAST_KNOWN_LOCATION = L.latLng(41.3953,-81.6730);
 var AUTO_CENTER_ON_LOCATION = false;
 
 // sorting by distance, isn't always by distance
@@ -417,7 +417,7 @@ $(window).load(function () {
     function zoomToLatLonAsStated(lat,lng) {
         // make sure the numbers are numbers, and that the location is valid
         try {
-            var latlng = new L.LatLng(lat,lng);
+            var latlng = L.latLng(lat,lng);
         } catch (err) {
             return alert("The coordinates are valid.");
         }
@@ -477,7 +477,7 @@ function updateNearYouNow() {
     // this is instrumental in sorting by distance and picking the nearest
     for (var i=0, l=ALL_POIS.length; i<l; i++) {
         var poi       = ALL_POIS[i];
-        var destpoint = new L.LatLng(poi.lat,poi.lng);
+        var destpoint = L.latLng(poi.lat,poi.lng);
         poi.meters    = LAST_KNOWN_LOCATION.distanceTo(destpoint);
         poi.miles     = poi.meters / 1609.344;
         poi.feet      = poi.meters * 3.2808399;
@@ -530,7 +530,7 @@ function checkRadar(latlng,maxmeters,categories) {
     var alerts = [];
     for (var i=0, l=ALL_POIS.length; i<l; i++) {
         var poi = ALL_POIS[i];
-        var meters = latlng.distanceTo( new L.LatLng(poi.lat,poi.lng) );
+        var meters = latlng.distanceTo( L.latLng(poi.lat,poi.lng) );
 
         // filter: distance
         if (meters > maxmeters) continue;
@@ -1111,7 +1111,7 @@ function sortLists(target) {
     // this listing or received a location change event, so the best time to at least make sure the distances are accurate
     target.find('.zoom_distance').each(function () {
         var element   = $(this).parent().parent();
-        var destpoint = new L.LatLng(element.attr('lat'),element.attr('lng'));
+        var destpoint = L.latLng(element.attr('lat'),element.attr('lng'));
         var meters    = LAST_KNOWN_LOCATION.distanceTo(destpoint);
         var bearing   = LAST_KNOWN_LOCATION.bearingWordTo(destpoint);
 

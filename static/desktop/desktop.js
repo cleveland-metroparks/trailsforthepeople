@@ -1,6 +1,6 @@
 var MOBILE = false;
 
-var LAST_KNOWN_LOCATION = new L.LatLng(0,0);
+var LAST_KNOWN_LOCATION = L.latLng(0,0);
 
 // if we're using embed mode (the &embed=1 param was given) we have to downsize some dialogs
 // this is the max size to fit the iframe at Cleveland Metroparks' website
@@ -1070,8 +1070,8 @@ $(window).load(function () {
 
 function stopMeasure() {
     // reset and remove the markers
-    MARKER_FROM.setLatLng( new L.LatLng(0,0) );
-    MARKER_TO.setLatLng( new L.LatLng(0,0) );
+    MARKER_FROM.setLatLng( L.latLng(0,0) );
+    MARKER_TO.setLatLng( L.latLng(0,0) );
     MAP.removeLayer(MARKER_FROM);
     MAP.removeLayer(MARKER_TO);
 
@@ -1095,8 +1095,8 @@ function startMeasure() {
     var ne       = MAP.getBounds().getNorthEast();
     var halflat  = ( sw.lat + ne.lat ) / 2.0;
     var notch    = (ne.lng - sw.lng) * 0.25;
-    var ll1      = new L.LatLng(halflat , sw.lng + notch );
-    var ll2      = new L.LatLng(halflat , ne.lng - notch );
+    var ll1      = L.latLng(halflat , sw.lng + notch );
+    var ll2      = L.latLng(halflat , ne.lng - notch );
     MARKER_FROM.setLatLng(ll1);
     MARKER_TO.setLatLng(ll2);
     MAP.addLayer(MARKER_FROM);

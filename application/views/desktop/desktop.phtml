@@ -14,58 +14,33 @@
 
     <!-- the Montserrat font, matches the master website -->
     <link href="http://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css" />
-<!--
-    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-      ga('create', 'UA-42809637-1', 'clemetparks.com');
-      ga('send', 'pageview');
-
-    </script>
--->
     <!-- jQuery et al -->
     <script type="text/javascript" src="<?= site_url('static/common/jquery-1.7.2.min.js'); ?>"></script>
     <script type="text/javascript" src="<?= site_url('static/common/jquery-ui-1.8.21.custom.min.js'); ?>"></script>
     <link type="text/css" rel="stylesheet" href="<?= site_url('static/common/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" />
     <script type="text/javascript" src="<?= site_url('static/common/purl.js'); ?>"></script>
 
-    <!-- proj4js, reprojection support for Leaflet -->
+    <!-- proj4js, reproject points    see wgsToLocalSRS()    used for printing, which is desktop only -->
     <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/proj4js-compressed.js'); ?>"></script>
     <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/projCode/utm.js'); ?>"></script>
     <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/projCode/merc.js'); ?>"></script>
     <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/defs/EPSG4326.js'); ?>"></script>
     <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/defs/EPSG3734.js'); ?>"></script>
 
-    <!-- Leaflet map interface plus some tricks of my own -->
-    <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/leaflet3/dist/leaflet.css'); ?>" />
-    <!--[if lte IE 8]><link rel="stylesheet" href="<?= site_url('static/common/leaflet3/dist/leaflet.ie.css'); ?>" /><![endif]-->
-    <script type="text/javascript" src="<?= site_url('static/common/leaflet3/dist/leaflet-src.jscompress.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/common/leaflet-scalebar.jscompress.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/common/leaflet-wkt.jscompress.js'); ?>"></script>
-    <!--
-    <script type="text/javascript" src="<?= site_url('static/common/leaflet3/dist/leaflet-src.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/common/leaflet-scalebar.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/common/leaflet-wkt.js'); ?>"></script>
-    -->
+    <!-- Leaflet map API and Wicket plugin for parsing WKT -->
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/leaflet-0.7.1/leaflet.css'); ?>" />
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet-0.7.1/leaflet.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/wicket/wicket.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/wicket/wicket-leaflet.js'); ?>"></script>
 
     <!-- JavaScript for handling cookies -->
     <script type="text/javascript" src="<?= site_url('static/common/cookie.js'); ?>"></script>
 
     <!-- our own local javaScript and CSS: the common stuff then our own overrides -->
-
-    <!--
-    <script type="text/javascript" src="<?= site_url('static/common/constants.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/common/common.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/desktop/desktop.js'); ?>"></script>
-    -->
     <script type="text/javascript" src="<?= site_url('static/common/constants.jscompress.js'); ?>"></script>
     <script type="text/javascript" src="<?= site_url('static/common/common.jscompress.js'); ?>"></script>
     <script type="text/javascript" src="<?= site_url('static/desktop/desktop.jscompress.js'); ?>"></script>
-
-
     <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/common.css'); ?>" />
     <link rel="stylesheet" type="text/css" href="<?= site_url('static/desktop/desktop.css'); ?>" />
 </head>
@@ -248,30 +223,18 @@
             <option value="bridle">By horse</option>
             <option value="bus">By public transportation</option>
         </select>
-        <span id="directions_via_hike_wrap" style="display:none;"><!-- hide because Car is default -->
-            <select id="directions_via_hike" style="width:3in;">
-                <option value="hike">Both paved and unpaved</option>
-                <option value="hike_paved">Paved</option>
-                <option value="hike_unpaved">Unpaved</option>
-            </select>
-        </span>
         <span id="directions_via_bike_wrap" style="display:none;"><!-- hide because Car is default -->
-            <select id="directions_via_bike_1" style="width:3in;">
+            <select id="directions_via_bike" style="width:3in;">
                 <option value="bike_advanced">Advanced</option>
                 <option value="bike_intermediate">Intermediate</option>
                 <option value="bike_beginner">Beginner</option>
                 <option value="bike_novice">Novice</option>
             </select>
-            <select id="directions_via_bike_2" style="width:3in;">
-                <option value="">Both paved and unpaved</option>
-                <option value="_paved">Paved</option>
-                <option value="_unpaved">Unpaved</option>
-            </select>
         </span>
         <select id="directions_prefer" style="width:3in;">
             <option value="recommended" selected="true">Recommended route</option>
             <option value="shortest">Shortest route</option>
-            <option value="fastest">Fastest route</option>
+            <!--<option value="fastest">Fastest route</option>-->
         </select>
         <br/>
 

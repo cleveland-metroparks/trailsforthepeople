@@ -393,7 +393,7 @@ function directions() {
             $directions = $this->_directions_bing_transit($_GET);
             break;
         default:
-                $directions = $this->_directions_via_trails($_GET);
+            $directions = $this->_directions_via_trails($_GET);
             break;
     }
 
@@ -743,6 +743,7 @@ function _directions_via_trails($params) {
             $cost_column     = "cost_hike";
             $oneway = false;
             break;
+        /*
         case 'hike_paved':
             $route_table     = "routing_trails_hike_paved";
             $duration_column = "duration_hike";
@@ -755,12 +756,14 @@ function _directions_via_trails($params) {
             $cost_column     = "cost_hike";
             $oneway = false;
             break;
+        */
         case 'bridle':
             $route_table     = "routing_trails_bridle";
             $duration_column = "duration_bridle";
             $cost_column     = "cost_bridle";
             $oneway = false;
             break;
+        /*
         case 'bridle_paved':
             $route_table     = "routing_trails_bridle_paved";
             $duration_column = "duration_bridle";
@@ -773,6 +776,7 @@ function _directions_via_trails($params) {
             $cost_column     = "cost_bridle";
             $oneway = false;
             break;
+        */
         case 'bike':
             $route_table     = "routing_trails_bike";
             $duration_column = "duration_bike";
@@ -803,6 +807,7 @@ function _directions_via_trails($params) {
             $cost_column     = "cost_bike";
             $oneway = true;
             break;
+        /*
         case 'bike_beginner_paved':
             $route_table     = "routing_trails_bike_beginner_paved";
             $duration_column = "duration_bike";
@@ -839,6 +844,7 @@ function _directions_via_trails($params) {
             $cost_column     = "cost_bike";
             $oneway = true;
             break;
+        */
         default:
             $route_table     = null;
             $duration_column = null;
