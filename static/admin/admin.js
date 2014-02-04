@@ -24,7 +24,7 @@ function initAdminMap() {
         layers : [ MAPBASE ]
     });
     MAP.fitBounds(MAX_BOUNDS);
-    MAP.addControl( new L.Control.ScaleBar() );
+    L.control.scale().addTo(MAP);
 
     // add the overlay layers
     for (var i=0, l=OVERLAYS.length; i<l; i++) {

@@ -118,7 +118,6 @@ function initMap () {
         minZoom: MIN_ZOOM, maxZoom: MAX_ZOOM,
         layers : [ basemap ]
     };
-    // gda these break apps, testing Jan 2014
     var android4 = navigator.userAgent.match(/Android (4|5)/);
     if (android4) {
         options.fadeAnimation       = true;

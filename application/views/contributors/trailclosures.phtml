@@ -260,8 +260,10 @@ function closeTrail(element) {
 
     $('#closure_details').append(li);
 
-    // create a Vector feature and add it to the map
-    CLOSURE_VECTORS[id] = L.WKTtoFeature(wkt,CLOSURE_STYLE);
+    // create a Vector feature from the WKT, and add it to the map and to the registry
+    var parser = new Wkt.Wkt();
+    parser.read(wkt);
+    CLOSURE_VECTORS[id] = parser.toObject(CLOSURE_STYLE);
     MAP.addLayer(CLOSURE_VECTORS[id]);
 }
 

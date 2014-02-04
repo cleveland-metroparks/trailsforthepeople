@@ -12,13 +12,11 @@
     <script type="text/javascript" src="<?= ssl_url('static/common/tablesorter/jquery.tablesorter.js'); ?>"></script>
     <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/common/tablesorter/themes/blue/style.css'); ?>" />
 
-    <!-- Leaflet map interface -->
-    <link rel="stylesheet" type="text/css" href="<?= ssl_url('static/common/leaflet3/dist/leaflet.css'); ?>" />
-    <!--[if lte IE 8]><link rel="stylesheet" href="<?= ssl_url('static/common/leaflet3/dist/leaflet.ie.css'); ?>" /><![endif]-->
-    <script type="text/javascript" src="<?= ssl_url('static/common/leaflet3/dist/leaflet-src.js'); ?>"></script>
-    <script type="text/javascript" src="<?= ssl_url('static/common/leaflet-bing.js'); ?>"></script>
-    <script type="text/javascript" src="<?= ssl_url('static/common/leaflet-scalebar.js'); ?>"></script>
-    <script type="text/javascript" src="<?= ssl_url('static/common/leaflet-wkt.js'); ?>"></script>
+    <!-- Leaflet map API and Wicket plugin for parsing WKT -->
+    <link rel="stylesheet" type="text/css" href="<?= ssl_url('static/common/leaflet-0.7.1/leaflet.css'); ?>" />
+    <script type="text/javascript" src="<?= ssl_url('static/common/leaflet-0.7.1/leaflet.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/common/wicket/wicket.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/common/wicket/wicket-leaflet.js'); ?>"></script>
 
     <!-- TinyMCE, the HTML editor -->
     <script type="text/javascript" src="<?= ssl_url('static/tinymce/jscripts/tiny_mce/jquery.tinymce.js'); ?>"></script>

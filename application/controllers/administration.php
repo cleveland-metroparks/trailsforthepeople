@@ -14,9 +14,9 @@ function login() {
     $this->load->helper('recaptchalib');
 
     // check the CAPTCHA
-//     $captcha_ok = recaptcha_check_answer($this->config->item('recaptcha_private_key'), $_SERVER["REMOTE_ADDR"], @$_POST['recaptcha_challenge_field'], @$_POST['recaptcha_response_field']);
-//     $captcha_ok = $captcha_ok->is_valid;
-       $captcha_ok = 'True';
+    $captcha_ok = recaptcha_check_answer($this->config->item('recaptcha_private_key'), $_SERVER["REMOTE_ADDR"], @$_POST['recaptcha_challenge_field'], @$_POST['recaptcha_response_field']);
+    $captcha_ok = $captcha_ok->is_valid;
+    //$captcha_ok = 'True';
     // check their username & password, which are simple static configs
     $login_ok = (@$_POST['username'] and $_POST['username']==$this->config->item('admin_user') and @$_POST['password'] and $_POST['password']==$this->config->item('admin_pass'));
 

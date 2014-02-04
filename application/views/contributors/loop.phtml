@@ -75,16 +75,16 @@ var ROUGHCUT_LINE_STYLE   = { color: "#FFFFFF", weight:5, opacity:0.5, clickable
 
 var MARKERS = { 'wp0':null, 'wp1':null, 'wp2':null, 'wp3':null, 'wp4':null, 'wp5':null, 'wp6':null, 'wp7':null, 'wp8':null, 'wp9':null };
 var ICONS = {
-    'wp0' : L.Icon.extend({ iconUrl: '<?= ssl_url("static/contributors/wp0.png") ?>', shadowUrl:null, iconSize: new L.Point(20, 34), iconAnchor: new L.Point(10, 34) }),
-    'wp1' : L.Icon.extend({ iconUrl: '<?= ssl_url("static/contributors/wp1.png") ?>', shadowUrl:null, iconSize: new L.Point(20, 34), iconAnchor: new L.Point(10, 34) }),
-    'wp2' : L.Icon.extend({ iconUrl: '<?= ssl_url("static/contributors/wp2.png") ?>', shadowUrl:null, iconSize: new L.Point(20, 34), iconAnchor: new L.Point(10, 34) }),
-    'wp3' : L.Icon.extend({ iconUrl: '<?= ssl_url("static/contributors/wp3.png") ?>', shadowUrl:null, iconSize: new L.Point(20, 34), iconAnchor: new L.Point(10, 34) }),
-    'wp4' : L.Icon.extend({ iconUrl: '<?= ssl_url("static/contributors/wp4.png") ?>', shadowUrl:null, iconSize: new L.Point(20, 34), iconAnchor: new L.Point(10, 34) }),
-    'wp5' : L.Icon.extend({ iconUrl: '<?= ssl_url("static/contributors/wp5.png") ?>', shadowUrl:null, iconSize: new L.Point(20, 34), iconAnchor: new L.Point(10, 34) }),
-    'wp6' : L.Icon.extend({ iconUrl: '<?= ssl_url("static/contributors/wp6.png") ?>', shadowUrl:null, iconSize: new L.Point(20, 34), iconAnchor: new L.Point(10, 34) }),
-    'wp7' : L.Icon.extend({ iconUrl: '<?= ssl_url("static/contributors/wp7.png") ?>', shadowUrl:null, iconSize: new L.Point(20, 34), iconAnchor: new L.Point(10, 34) }),
-    'wp8' : L.Icon.extend({ iconUrl: '<?= ssl_url("static/contributors/wp8.png") ?>', shadowUrl:null, iconSize: new L.Point(20, 34), iconAnchor: new L.Point(10, 34) }),
-    'wp9' : L.Icon.extend({ iconUrl: '<?= ssl_url("static/contributors/wp9.png") ?>', shadowUrl:null, iconSize: new L.Point(20, 34), iconAnchor: new L.Point(10, 34) })
+    'wp0' : L.icon({ iconUrl: '<?= ssl_url("static/contributors/wp0.png") ?>', iconSize:[20,34], iconAnchor:[10,34] }),
+    'wp1' : L.icon({ iconUrl: '<?= ssl_url("static/contributors/wp1.png") ?>', iconSize:[20,34], iconAnchor:[10,34] }),
+    'wp2' : L.icon({ iconUrl: '<?= ssl_url("static/contributors/wp2.png") ?>', iconSize:[20,34], iconAnchor:[10,34] }),
+    'wp3' : L.icon({ iconUrl: '<?= ssl_url("static/contributors/wp3.png") ?>', iconSize:[20,34], iconAnchor:[10,34] }),
+    'wp4' : L.icon({ iconUrl: '<?= ssl_url("static/contributors/wp4.png") ?>', iconSize:[20,34], iconAnchor:[10,34] }),
+    'wp5' : L.icon({ iconUrl: '<?= ssl_url("static/contributors/wp5.png") ?>', iconSize:[20,34], iconAnchor:[10,34] }),
+    'wp6' : L.icon({ iconUrl: '<?= ssl_url("static/contributors/wp6.png") ?>', iconSize:[20,34], iconAnchor:[10,34] }),
+    'wp7' : L.icon({ iconUrl: '<?= ssl_url("static/contributors/wp7.png") ?>', iconSize:[20,34], iconAnchor:[10,34] }),
+    'wp8' : L.icon({ iconUrl: '<?= ssl_url("static/contributors/wp8.png") ?>', iconSize:[20,34], iconAnchor:[10,34] }),
+    'wp9' : L.icon({ iconUrl: '<?= ssl_url("static/contributors/wp9.png") ?>', iconSize:[20,34], iconAnchor:[10,34] })
 };
 
 
@@ -213,7 +213,7 @@ $('.wpadd').click(function () {
         var lat    = parseFloat( row.find('input.lat').val() );
         var lng    = parseFloat( row.find('input.lng').val() );
         var center = new L.LatLng(lat,lng);
-        var icon   = new ICONS[wpid]();
+        var icon   = ICONS[wpid];
 
         MARKERS[wpid] = new L.Marker(center, { clickable:false, draggable:true, icon:icon });
         MARKERS[wpid].wpid = wpid;
@@ -444,7 +444,7 @@ function renderRoute(routestruct) {
     $('input[name="paved"]').val(routestruct.paved);
 
     // parse the bbox and zoom to it
-    var bbox = L.WSENtoBounds(routestruct.bounds.west,routestruct.bounds.south,routestruct.bounds.east,routestruct.bounds.north);
+    var bbox = WSENtoBounds(routestruct.bounds.west,routestruct.bounds.south,routestruct.bounds.east,routestruct.bounds.north);
     MAP.fitBounds(bbox);
 
     // save the WKT to the hidden textarea, then render the represented geometry to map
@@ -471,7 +471,9 @@ function renderWKTtoMap(wkt) {
     if (DIRECTIONS_LINE) { MAP.removeLayer(DIRECTIONS_LINE); DIRECTIONS_LINE = null; }
 
     // parse the WKT to get a new line, add the new line to the map
-    DIRECTIONS_LINE = L.WKTtoFeature(wkt, DIRECTIONS_LINE_STYLE);
+    var parser = new Wkt.Wkt();
+    parser.read(wkt);
+    DIRECTIONS_LINE = parser.toObject(DIRECTIONS_LINE_STYLE);
     MAP.addLayer(DIRECTIONS_LINE);
 }
 

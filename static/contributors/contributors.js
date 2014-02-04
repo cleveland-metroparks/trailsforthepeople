@@ -33,7 +33,7 @@ function initContributorMap() {
         layers : [ MAPBASE ]
     });
     MAP.fitBounds(MAX_BOUNDS);
-    MAP.addControl( new L.Control.ScaleBar() );
+    L.control.scale().addTo(MAP);
 
     // add the overlay layers
     for (var i=0, l=OVERLAYS.length; i<l; i++) {
@@ -177,4 +177,11 @@ function geocodeParkFeature(keyword,targetdiv) {
             targetdiv.append(li);
         }
     }, 'json');
+}
+
+
+
+// utility functions: given a WSEN bounds, construct a real LatLngBounds from it so we can zoom
+function WSENtoBounds(west,south,east,north) {
+    return L.latLngBounds([ [south,west] , [north,east] ]);
 }
