@@ -1700,6 +1700,12 @@ function randomwaypoints_radiusbased($context=null) {
 
 
 function elevationprofilebysegments($context=null) {
+    // check permission on the target directory where we save chart images
+    // if it doesn't work, there's no point in making the chart: bail with an error message
+    // intended callers for this endpoint, should expect to either get an URL or else an error message
+    $directory = "static/tmp";
+    if (! is_dir($directory) or ! is_writable($directory) ) return print "Can't write elevation profile chart  to disk. Check permissions on $directory";
+
     require "static/jpgraph-3.5.0b1/src/jpgraph.php";
     require "static/jpgraph-3.5.0b1/src/jpgraph_line.php";
     require "static/jpgraph-3.5.0b1/src/jpgraph_date.php";
@@ -1766,9 +1772,9 @@ function elevationprofilebysegments($context=null) {
     #$plot->mark->SetColor("#000000");
 
     $random   = md5(microtime() . mt_rand());
-    $tempfile = "static/tmp/$random.jpg";
+    $tempfile = "$directory/$random.jpg";
     $tempurl  = site_url($tempfile);
-    $graph = $graph->Stroke($tempfile);
+    $graph = $graph->Stroke($tempfile); // permissions issues aren't impossible
     //header("Content-type: image/jpeg"); readfile($tempfile); return;
     if ($context) return $tempurl;
     print $tempurl;
