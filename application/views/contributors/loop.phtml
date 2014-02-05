@@ -109,16 +109,11 @@ MAP.on('contextmenu', function (event) {
     data.s = sw.lat;
     data.e = ne.lng;
     data.n = ne.lat;
+    data.zoom = MAP.getZoom();
     var anchor = new L.LatLng(event.latlng.lat,event.latlng.lng);
 
-    // add the list of layers
-    data.layers = [];
-    for (var i=0, l=OVERLAYS.length; i<l; i++) {
-        if (OVERLAYS[i].options.visibility) data.layers[data.layers.length] = i;
-    }
-
     // do the AJAX thing
-    $.get('../../ajax/adminquery', data, function (html) {
+    $.get('../../ajax/query', data, function (html) {
         if (!html) return;
         var popup = new L.Popup();
         popup.setLatLng(anchor);
@@ -215,7 +210,7 @@ $('.wpadd').click(function () {
         var center = new L.LatLng(lat,lng);
         var icon   = ICONS[wpid];
 
-        MARKERS[wpid] = new L.Marker(center, { clickable:false, draggable:true, icon:icon });
+        MARKERS[wpid] = new L.Marker(center, { clickable:true, draggable:true, icon:icon });
         MARKERS[wpid].wpid = wpid;
         MAP.addLayer(MARKERS[wpid]);
 
