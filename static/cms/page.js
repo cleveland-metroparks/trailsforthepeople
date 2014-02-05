@@ -10,7 +10,7 @@ var SUBDOMAINS = [ '1', '2', '3' ];
 var BASEMAP = new L.TileLayer("http://maps{s}.clemetparks.com/tilestache/tilestache.cgi/basemap/{z}/{x}/{y}.jpg", { subdomains:SUBDOMAINS });
 var LABELS  = new L.TileLayer.WMS("http://maps{s}.clemetparks.com/gwc", { layers:'group_overlays', format:'image/png', transparent:'TRUE', subdomains:SUBDOMAINS });
 
-var MARKER_ICON = L.Icon.extend({ iconUrl:'/static/cms/marker.png', iconSize:new L.Point(30,34) });
+var MARKER_ICON = L.icon({ iconUrl:'/static/cms/marker.png', iconSize:[30,34] });
 
 var HIGHLIGHT_LINE       = null;
 var HIGHLIGHT_LINE_STYLE = { color:"#006600", weight:2, opacity:0.5000, clickable:false, fill:false };
@@ -45,7 +45,7 @@ $(window).load(function () {
     for (var i=0, l=MARKERS.length; i<l; i++) {
         // generate the Marker onto the map, and store a copy of the raw data into the marker as well, for later display
         var m      = MARKERS[i];
-        var icon   = new MARKER_ICON();
+        var icon   = MARKER_ICON;
         var latlng = new L.LatLng(m.lat,m.lng);
         var marker = new L.Marker(latlng, { clickable:true, icon:icon });
         MAP.addLayer(marker);
@@ -88,7 +88,7 @@ $(window).load(function () {
     // yeah, a bit redundant with the marker but this is a rarecase and that many ifs in one place gets unreadable
     if (MARKERS.length == 1 && MARKERS[0].wkt) {
         var only_marker = MARKERS[0];
-        HIGHLIGHT_LINE = L.WKTtoFeature(only_marker.wkt, HIGHLIGHT_LINE_STYLE);
+        HIGHLIGHT_LINE = lineWKTtoFeature(only_marker.wkt, HIGHLIGHT_LINE_STYLE);
 
         MAP.addLayer(HIGHLIGHT_LINE);
         LABELS.bringToFront();
@@ -517,3 +517,11 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
     }, 'html');
 }
 
+
+// decode a WKT geometry into a feature, e.g. LINESTRING(12 34, 56 78) to L.Polyline instance
+// params are the WKT string, and the other options to pass to the constructor (e.g. color style and other Path options)
+function lineWKTtoFeature(wkt,style) {
+    var parser = new Wkt.Wkt();
+    parser.read(wkt);
+    return parser.toObject(style);
+}
