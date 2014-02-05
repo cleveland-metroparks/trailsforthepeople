@@ -1,204 +1,3 @@
-<?php $this->load->view('docs/header.phtml') ?>
-
-<p>
-Unlike the other documents, this one is largely intended as copy-and-paste database code for PostgreSQL. As such, narrative will usually be in the form of double-dash comments so as not to interrupt the flow of SQL.
-</p>
-
-<h1>INITIAL SETUP: POSTGIS, PGROUTING, SOME STORED PROCEDURES</h1>
-
-<p>These steps won't be necessary again, but are worth recording for future projects, especially where they pertain to PostGIS 2 compatibility or pgRouting bugs.</p>
-
-<pre>
--- PostgreSQL 9 has tighter default permissions, not even allowing SELECT unless you explicitly GRANT it
--- So let's explicitly hand out SELECT access to everybody, cuz we know that won't go wrong for us
-
-ALTER DEFAULT PRIVILEGES IN SCHEMA public
-    GRANT SELECT ON TABLES
-    TO public;
-
-ALTER DEFAULT PRIVILEGES IN SCHEMA public
-    GRANT SELECT ON SEQUENCES
-    TO public;
-
-
--- Install PostGIS and PgRouting
--- For the most part PgRouting works fine with PostGIS 2.0 but I did need to fix some function names as noted below.
---
--- Changes to routing_core_wrappers.sql
--- * replace &quot;length::double precision as cost&quot; with &quot;cost&quot;; the cost field is now required but we can weight routes by something other than length
--- * fixed numerous references to X() and Y() and SRID() and SETSRID() and STARTPOINT() and ENDPOINT() to use the ST_* versions
--- Changes to routing_topology.sql
--- * assign_vertex_id() call to addGeometryColumn() now uses 3 dimensions instead of 2
-
-\i /usr/share/postgresql/9.1/contrib/postgis-2.0/postgis.sql
-\i /usr/share/postgresql/9.1/contrib/postgis-2.0/spatial_ref_sys.sql
-\i /usr/share/postlbs/routing_core.sql
-\i /usr/share/postlbs/routing_core_wrappers.sql
-\i /usr/share/postlbs/routing_tsp.sql
-\i /usr/share/postlbs/routing_tsp_wrappers.sql
-\i /usr/share/postlbs/routing_dd.sql
-\i /usr/share/postlbs/routing_dd_wrappers.sql
-\i /usr/share/postlbs/routing_topology.sql
-
-
-
--- Two functions to update the Loops table's &quot;reservations&quot; field
--- update_loop_reservations(int4) takes a 'id' integer, and recalculates the reservations for that one Loop record
--- update_loops_reservations() iterates over the whole Loops table and runs update_loop_reservations(int4) for each record.
--- The single form is used in the admin UI after saving a Loop. The full-table version may be used manually after some large-scale bulk updates.
-DROP FUNCTION IF EXISTS update_loop_reservations(int4);
-CREATE OR REPLACE FUNCTION update_loop_reservations(int4)
-RETURNS text AS $$
-DECLARE
-    targetid ALIAS FOR $1;
-    thisloop record;
-    thisres  record;
-    reslist text;
-BEGIN
-    -- fetch the loop or bail
-    SELECT INTO thisloop * FROM loops WHERE id=targetid;
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'Record not found';
-    END IF;
-
-    -- delete the old list
-    DELETE FROM loops_reservations WHERE loopid=targetid;
-
-    -- go over the reservation records which intersect this geometry, insert a reservation entry for each
-    reslist = '';
-    FOR thisres IN
-        SELECT res FROM reservation_boundaries_public_private_cm_dissolved WHERE ST_INTERSECTS(geom, thisloop.geom)
-    LOOP
-        INSERT INTO loops_reservations (loopid,reservation) VALUES (thisloop.id,thisres.res);
-    END LOOP;
-
-    RETURN 'Done';
-END;
-$$ LANGUAGE plpgsql;
-
-
-DROP FUNCTION IF EXISTS update_loops_reservations();
-CREATE OR REPLACE FUNCTION update_loops_reservations()
-RETURNS text AS $$
-DECLARE
-    thisloop record;
-    thisres  record;
-    current integer;
-    howmany integer;
-    reslist text;
-BEGIN
-    howmany = (SELECT COUNT(*) AS howmany FROM loops);
-    current = 0;
-
-    FOR thisloop IN
-        SELECT * FROM loops
-    LOOP
-        current = current + 1;
-        RAISE NOTICE '[% / %] %', current, howmany, thisloop.name;
-
-        PERFORM update_loop_reservations(thisloop.id);
-
-    END LOOP;
-
-    RETURN 'DONE';
-END;
-$$ LANGUAGE plpgsql;
-
-
--- This stored procedure examines the routing_trails table and populates the "links" field
--- This is used for route debugging, allowing us to find segments (edges) which do not have an expected number of connections
--- 0 would indicate a completely isolated segment, 1 indicates a segment that is a dead end, 2 is a segment within a straight line route, ...
-DROP FUNCTION IF EXISTS update_routing_trails_link_count();
-CREATE OR REPLACE FUNCTION update_routing_trails_link_count()
-RETURNS text AS $$
-DECLARE
-    row record;
-    current integer;
-    howmany integer;
-BEGIN
-    RAISE NOTICE 'Zeroing out existing records. This takes a moment.';
-    UPDATE routing_trails SET links=0;
-
-    howmany = (SELECT max(gid) FROM routing_trails);
-    current = 0;
-    FOR row IN
-        SELECT source FROM routing_trails
-    LOOP
-        current = current + 1;
-        IF current % 1000 = 0 THEN
-            RAISE NOTICE 'Progress: % of %', current, howmany;
-        END IF;
-        UPDATE routing_trails SET links=links+1 WHERE source=row.source OR target=row.source;
-    END LOOP; 
-
-    RETURN 'Updated ' || current || ' records';
-END;
-$$ LANGUAGE plpgsql;
-
-
-
-
--- This set of stored procedures will examine the Loops (loops), Trails (trails_fixed), and Routing (routing_trails) tables
--- and tag them as closed=true if they intersect any of the Trailclosures (trail_closures) line features
--- update_trail_closures() runs this for all of those tables, and is simply a wrapper over the individual procedures which are appropriately named
-DROP FUNCTION IF EXISTS update_trail_closures();
-CREATE OR REPLACE FUNCTION update_trail_closures()
-RETURNS text AS $$
-DECLARE
-    row record;
-    num_rows integer default 0;
-BEGIN
-    RAISE NOTICE 'Re-opening Trails.';
-    UPDATE trails_fixed SET closed=NULL WHERE closed IS NOT NULL;
-    RAISE NOTICE 'Re-opening Loops.';
-    UPDATE loops SET closed=NULL WHERE closed IS NOT NULL;
-    RAISE NOTICE 'Re-opening Routing.';
-    UPDATE routing_trails SET closed=NULL WHERE closed IS NOT NULL;
-
-    FOR row IN
-        SELECT name, geom AS closed_geom FROM trail_closures
-    LOOP
-        RAISE NOTICE '%', row.name;
-
-        UPDATE trails_fixed SET closed=true WHERE ST_DWITHIN(geom,row.closed_geom,10);
-        GET DIAGNOSTICS num_rows = ROW_COUNT;
-        RAISE NOTICE '    Tagged % Trails.', num_rows;
-
-        UPDATE loops SET closed=true WHERE ST_DWITHIN(geom,row.closed_geom,10);
-        GET DIAGNOSTICS num_rows = ROW_COUNT;
-        RAISE NOTICE '    Tagged % Loops.', num_rows;
-
-        UPDATE routing_trails SET closed=true WHERE ST_DWITHIN(the_geom,row.closed_geom,10);
-        GET DIAGNOSTICS num_rows = ROW_COUNT;
-        RAISE NOTICE '    Tagged % routing segments.', num_rows;
-    END LOOP; 
-
-    RETURN 'Done';
-END;
-$$ LANGUAGE plpgsql;
-</pre>
-
-
-
-<h1>LOADING DATA</h1>
-
-<p>
-Importing data is done via shp2pgsql, like the examples below. For the trails data ONLY, use the -t flag to indicate that this is a 3D dataset.
-<br/>
-<code>shp2pgsql -W LATIN1 -d -i -s 3734 cm_use_areas.shp cm_use_areas | psql -U postgres path</code><br/>
-<code>shp2pgsql -W LATIN1 -d -i -s 3734 cm_dem_10_too_steep_Intersec.shp routing_barriers | psql -U postgres path</code><br/>
-<code>shp2pgsql -W LATIN1 -d -i -s 3734 -t 3DZ cm_trails.shp cm_trails | psql -U postgres path</code><br/>
-<code>shp2pgsql -W LATIN1 -d -i -s 3734 reservations.shp reservation_boundaries_public_private_cm_dissolved | psql -U postgres path</code><br/>
-<code>shp2pgsql -W LATIN1 -d -i -s 3734 cm_destination_pts.shp driving_destinations | psql -U postgres path</code><br/>
-</p>
-
-<p>The database password can be found in <code>application/config/database.php</code></p>
-
-
-
-<h1>POSTPROCESSING A DATA LOAD</h1>
-
-<pre>
 -- After the datasets are uploaded, add the Lat/Lng of its centroid, and its W/S/E/N bounding box, in WGS84.
 -- This is used extensively for zooming the map, and for client-side distance calculation.
 -- For cm_trails, also add the geometry's length, which is used later for calculating a human-readable length.
@@ -230,6 +29,10 @@ alter table cm_buildings add column boxw float;
 alter table cm_buildings add column boxs float;
 alter table cm_buildings add column boxe float;
 alter table cm_buildings add column boxn float;
+
+alter table cm_buildings rename column site_locat to site_location;
+alter table cm_buildings rename column square_foo to square_footage;
+alter table cm_buildings rename column street_add to street_address;
 
 update cm_buildings set lat=ST_Y(ST_TRANSFORM(ST_PointOnSurface(geom),4326));
 update cm_buildings set lng=ST_X(ST_TRANSFORM(ST_PointOnSurface(geom),4326));
@@ -371,39 +174,50 @@ ALTER TABLE cm_use_areas ADD COLUMN dest_id INTEGER;
 -- The Use Areas table (cm_use_areas) needs the various combinations of activities distilled into
 -- a choice of icons. There may be combinations and surprises, but that's why we have the NULL check at the end.
 ALTER TABLE cm_use_areas ADD COLUMN icon VARCHAR(50);
-UPDATE cm_use_areas SET icon='archery' WHERE activity='Archery';
-UPDATE cm_use_areas SET icon='archery' WHERE activity='Archery; Facilities';
-UPDATE cm_use_areas SET icon='boat' WHERE activity='Boating';
-UPDATE cm_use_areas SET icon='boat' WHERE activity='Boating; Facilities';
-UPDATE cm_use_areas SET icon='fish_boat' WHERE activity='Boating; Fishing & Ice Fishing; Swimming; Viewing Wildlife';
-UPDATE cm_use_areas SET icon='fish_boat' WHERE activity='Boating; Fishing & Ice Fishing; Viewing Wildlife';
-UPDATE cm_use_areas SET icon='fish_boat' WHERE activity='Boating; Fishing & Ice Fishing; Viewing Wildlife; Facilities';
-UPDATE cm_use_areas SET icon='history' WHERE activity='Exploring Culture & History';
-UPDATE cm_use_areas SET icon='history' WHERE activity='Exploring Culture & History; Facilities';
-UPDATE cm_use_areas SET icon='history' WHERE activity='Exploring Culture & History; Sledding & Tobogganing';
-UPDATE cm_use_areas SET icon='history' WHERE activity='Exploring Culture & History; Sledding & Tobogganing; Facilities';
-UPDATE cm_use_areas SET icon='history' WHERE activity='Exploring Culture & History; Viewing Wildlife';
-UPDATE cm_use_areas SET icon='history' WHERE activity='Exploring Culture & History; Viewing Wildlife; Facilities';
-UPDATE cm_use_areas SET icon='nature' WHERE activity='Exploring Nature';
-UPDATE cm_use_areas SET icon='nature_geology' WHERE activity='Exploring Nature; Geologic Feature';
-UPDATE cm_use_areas SET icon='fish' WHERE activity='Fishing & Ice Fishing';
-UPDATE cm_use_areas SET icon='fish' WHERE activity='Geologic Feature; Fishing & Ice Fishing';
-UPDATE cm_use_areas SET icon='fish' WHERE activity='Fishing & Ice Fishing; Viewing Wildlife';
-UPDATE cm_use_areas SET icon='geology' WHERE activity='Geologic Feature';
-UPDATE cm_use_areas SET icon='golf' WHERE activity='Golfing';
-UPDATE cm_use_areas SET icon='horse' WHERE activity='Horseback Riding';
-UPDATE cm_use_areas SET icon='horse' WHERE activity='Horseback Riding; Facilities';
-UPDATE cm_use_areas SET icon='picnic' WHERE activity='Picnicking';
-UPDATE cm_use_areas SET icon='picnic_play' WHERE activity='Picnicking; Play Area';
-UPDATE cm_use_areas SET icon='picnic_play' WHERE activity='Picnicking; Play Areas';
-UPDATE cm_use_areas SET icon='picnic_sled' WHERE activity='Picnicking; Sledding & Tobogganing';
-UPDATE cm_use_areas SET icon='play' WHERE activity='Play Area';
-UPDATE cm_use_areas SET icon='play' WHERE activity='Play Areas';
-UPDATE cm_use_areas SET icon='sled' WHERE activity='Sledding & Tobogganing';
-UPDATE cm_use_areas SET icon='swim' WHERE activity='Swimming';
-UPDATE cm_use_areas SET icon='wildlife' WHERE activity='Viewing Wildlife';
-UPDATE cm_use_areas SET icon='wildlife' WHERE activity='Picnicking; Viewing Wildlife';
-UPDATE cm_use_areas SET icon='restroom' WHERE activity='Restroom';
+UPDATE cm_use_areas SET icon='archery' WHERE activity='Archery' AND icon='1';
+UPDATE cm_use_areas SET icon='archery' WHERE activity='Archery; Facilities' AND icon='1';
+UPDATE cm_use_areas SET icon='beach' WHERE activity='Beach' AND icon='1';
+UPDATE cm_use_areas SET icon='swim' WHERE activity='Swimming; Beach' AND icon='1';
+UPDATE cm_use_areas SET icon='boat' WHERE activity='Boating' AND icon='1';
+UPDATE cm_use_areas SET icon='boat' WHERE activity='Boating; Facilities' AND icon='1';
+UPDATE cm_use_areas SET icon='fish_boat' WHERE activity='Boating; Fishing & Ice Fishing; Swimming; Viewing Wildlife' AND icon='1';
+UPDATE cm_use_areas SET icon='fish_boat' WHERE activity='Boating; Fishing & Ice Fishing; Viewing Wildlife' AND icon='1';
+UPDATE cm_use_areas SET icon='fish_boat' WHERE activity='Boating; Fishing & Ice Fishing; Viewing Wildlife; Facilities' AND icon='1';
+UPDATE cm_use_areas SET icon='history' WHERE activity='Exploring Culture & History' AND icon='1';
+UPDATE cm_use_areas SET icon='history' WHERE activity='Exploring Culture & History; Facilities' AND icon='1';
+UPDATE cm_use_areas SET icon='history' WHERE activity='Exploring Culture & History; Sledding & Tobogganing' AND icon='1';
+UPDATE cm_use_areas SET icon='history' WHERE activity='Exploring Culture & History; Sledding & Tobogganing; Facilities' AND icon='1';
+UPDATE cm_use_areas SET icon='history' WHERE activity='Exploring Culture & History; Viewing Wildlife' AND icon='1';
+UPDATE cm_use_areas SET icon='history' WHERE activity='Exploring Culture & History; Viewing Wildlife; Facilities' AND icon='1';
+UPDATE cm_use_areas SET icon='history' WHERE activity='Drinking Fountain' AND icon='1';
+UPDATE cm_use_areas SET icon='history' WHERE activity='Drinking Fountain; Exploring Culture & History' AND icon='1';
+UPDATE cm_use_areas SET icon='history' WHERE activity='Drinking Fountain; Exploring Culture & History; Facilities' AND icon='1';
+UPDATE cm_use_areas SET icon='history' WHERE activity='Exploring Culture & History; Drinking Fountain; Facilities; Viewing Wildlife' AND icon='1';
+UPDATE cm_use_areas SET icon='nature' WHERE activity='Exploring Nature' AND icon='1';
+UPDATE cm_use_areas SET icon='nature_geology' WHERE activity='Exploring Nature; Geologic Feature' AND icon='1';
+UPDATE cm_use_areas SET icon='fish' WHERE activity='Fishing & Ice Fishing' AND icon='1';
+UPDATE cm_use_areas SET icon='fish' WHERE activity='Geologic Feature; Fishing & Ice Fishing' AND icon='1';
+UPDATE cm_use_areas SET icon='fish' WHERE activity='Fishing & Ice Fishing; Viewing Wildlife' AND icon='1';
+UPDATE cm_use_areas SET icon='geology' WHERE activity='Geologic Feature' AND icon='1';
+UPDATE cm_use_areas SET icon='golf' WHERE activity='Golfing' AND icon='1';
+UPDATE cm_use_areas SET icon='horse' WHERE activity='Horseback Riding' AND icon='1';
+UPDATE cm_use_areas SET icon='horse' WHERE activity='Horseback Riding; Facilities' AND icon='1';
+UPDATE cm_use_areas SET icon='horse' WHERE activity='Drinking Fountain; Horseback Riding; Facilities' AND icon='1';
+UPDATE cm_use_areas SET icon='kayak' WHERE activity='Kayaking' AND icon='1';
+UPDATE cm_use_areas SET icon='picnic' WHERE activity='Picnicking' AND icon='1';
+UPDATE cm_use_areas SET icon='picnic' WHERE activity='Drinking Fountain; Picnicking' AND icon='1';
+UPDATE cm_use_areas SET icon='picnic' WHERE activity='Drinking Fountain; Picnicking; Play Areas'AND icon='1';
+UPDATE cm_use_areas SET icon='picnic_play' WHERE activity='Picnicking; Play Area' AND icon='1';
+UPDATE cm_use_areas SET icon='picnic_play' WHERE activity='Picnicking; Play Areas' AND icon='1';
+UPDATE cm_use_areas SET icon='picnic_sled' WHERE activity='Picnicking; Sledding & Tobogganing' AND icon='1';
+UPDATE cm_use_areas SET icon='play' WHERE activity='Play Area' AND icon='1';
+UPDATE cm_use_areas SET icon='play' WHERE activity='Play Areas' AND icon='1';
+UPDATE cm_use_areas SET icon='sled' WHERE activity='Sledding & Tobogganing' AND icon='1';
+UPDATE cm_use_areas SET icon='swim' WHERE activity='Swimming' AND icon='1';
+UPDATE cm_use_areas SET icon='wildlife' WHERE activity='Viewing Wildlife' AND icon='1';
+UPDATE cm_use_areas SET icon='wildlife' WHERE activity='Picnicking; Viewing Wildlife' AND icon='1';
+UPDATE cm_use_areas SET icon='restroom' WHERE activity='Restroom' AND icon='1';
+UPDATE cm_use_areas SET icon='restroom' WHERE activity='Drinking Fountain; Restroom' AND icon='1';
 SELECT DISTINCT activity FROM cm_use_areas WHERE icon IS NULL ORDER BY activity;
 
 -- load the descriptions into cm_use_areas
@@ -416,10 +230,6 @@ ALTER TABLE cm_buildings ADD COLUMN name varchar(100);
 UPDATE cm_buildings SET name=TRIM(both FROM old_name);
 ALTER TABLE cm_buildings DROP COLUMN old_name;
 
--- The Buildings table needs this field so it can link to Driving Destinations
--- If you are reloading the cm_buildings table, you will also need to run the Driving Destination linker
--- http://maps.clemetparks.com/static/import/Buildings.php
-ALTER TABLE cm_buildings ADD COLUMN dest_id INTEGER;
 
 -- The Reservations table uses char() instead of varchar() fields and adds extra spaces
 -- These make text matching difficult, and adds hundreds of trim() calls
@@ -441,7 +251,7 @@ UPDATE cm_use_areas SET search=to_tsvector(coalesce(use_area,'') || ' ' || repla
 CREATE INDEX cm_use_areas_search ON cm_use_areas USING GIN (search);
 
 ALTER TABLE cm_buildings ADD COLUMN search tsvector;
-UPDATE cm_buildings SET search=to_tsvector(coalesce(name,'') || ' ' || replace(coalesce(name,''),'.',' ') || ' ' || replace(coalesce(name,''),'.','') || ' ' || replace(coalesce(name,''),'-',' ') || ' ' || replace(coalesce(name,''),'-','') || ' ' || coalesce(site_location,'') );
+UPDATE cm_buildings SET search=to_tsvector(coalesce(name,'') || ' ' || replace(coalesce(name,''),'.',' ') || ' ' || replace(coalesce(name,''),'.','') || ' ' || replace(coalesce(name,''),'-',' ') || ' ' || replace(coalesce(name,''),'-','') || ' ' || coalesce(site_location,'') )WHERE clickable = 'Yes';
 CREATE INDEX cm_buildings_search ON cm_buildings USING GIN (search);
 
 ALTER TABLE cm_trails ADD COLUMN search tsvector;
@@ -705,8 +515,3 @@ GRANT UPDATE ON trails_fixed TO trails;
 -- do the import at http://maps.clemetparks.com/static/import/Aggregate_Trails.php
 SELECT description FROM trails_fixed limit 3;
 
-</pre>
-
-<hr />
-
-<?php $this->load->view('docs/footer.phtml') ?>
