@@ -234,10 +234,9 @@ alter table cm_buildings add column boxs float;
 alter table cm_buildings add column boxe float;
 alter table cm_buildings add column boxn float;
 
---uncomment if information doesn't load in buildings pop-up content
---alter table cm_buildings rename column site_locat to site_location;
---alter table cm_buildings rename column square_foo to square_footage;
---alter table cm_buildings rename column street_add to street_address;
+alter table cm_buildings rename column site_locat to site_location;
+alter table cm_buildings rename column square_foo to square_footage;
+alter table cm_buildings rename column street_add to street_address;
 
 update cm_buildings set lat=ST_Y(ST_TRANSFORM(ST_PointOnSurface(geom),4326));
 update cm_buildings set lng=ST_X(ST_TRANSFORM(ST_PointOnSurface(geom),4326));
