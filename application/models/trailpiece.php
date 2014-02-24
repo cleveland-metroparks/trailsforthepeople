@@ -22,7 +22,7 @@ function getByBBOX($w,$s,$e,$n) {
         $e, $s,
         $w, $s
     );
-    $row = $this->db->query("SELECT * FROM {$this->table} WHERE geom && $geom LIMIT 1");
+    $row = $this->db->query("SELECT * FROM {$this->table} WHERE geom && $geom AND for_show='Yes' LIMIT 1");
     //$row = $this->db->query("SELECT * FROM {$this->table} WHERE ST_Intersects(geom,$geom) LIMIT 1");
     $row = $row->row();
     return $row;

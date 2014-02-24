@@ -30,7 +30,7 @@ function getByBBOX($w,$s,$e,$n) {
         $e, $s,
         $w, $s
     );
-    $row = $this->db->query("SELECT * FROM {$this->table} WHERE geom && $geom LIMIT 1");
+    $row = $this->db->query("SELECT * FROM {$this->table} WHERE geom && $geom AND clickable='Yes' LIMIT 1");
 
     $row = $row->row();
     return $row;
