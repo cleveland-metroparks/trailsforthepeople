@@ -17,10 +17,10 @@ var HIGHLIGHT_LINE_STYLE = { color:"#006600", weight:2, opacity:0.5000, clickabl
 
 var DIRECTIONS_LINE       = null;
 var DIRECTIONS_LINE_STYLE = { color:"#0000FF", weight:5, opacity:1.00, clickable:false };
-var ICON_FROM    = L.Icon.extend({ iconUrl:'/static/desktop/measure1.png' });
-var ICON_TO      = L.Icon.extend({ iconUrl:'/static/desktop/measure2.png' });
-var MARKER_START  = new L.Marker(new L.LatLng(0,0), { clickable:false, icon:new ICON_FROM() });
-var MARKER_END    = new L.Marker(new L.LatLng(0,0), { clickable:false, icon:new ICON_TO() });
+var ICON_FROM    = L.icon({ iconUrl:'/static/desktop/measure1.png', iconSize:[20,34] });
+var ICON_TO      = L.icon({ iconUrl:'/static/desktop/measure2.png', iconSize:[20,34] });
+var MARKER_START  = new L.Marker(new L.LatLng(0,0), { clickable:false, icon:ICON_FROM });
+var MARKER_END    = new L.Marker(new L.LatLng(0,0), { clickable:false, icon:ICON_TO });
 
 var MIN_ZOOM = 10;
 var MAX_ZOOM = 17;
@@ -222,7 +222,7 @@ function getMarkerDirections() {
                 clearDirections();
 
                 // lay down the line and the markers
-                DIRECTIONS_LINE = L.WKTtoFeature(directions.wkt, DIRECTIONS_LINE_STYLE);
+                DIRECTIONS_LINE = lineWKTtoFeature(directions.wkt, DIRECTIONS_LINE_STYLE);
                 MARKER_START.setLatLng( new L.LatLng(directions.start.lat,directions.start.lng) );
                 MARKER_END.setLatLng( new L.LatLng(directions.end.lat,directions.end.lng) );
                 MAP.addLayer(DIRECTIONS_LINE);
@@ -233,7 +233,7 @@ function getMarkerDirections() {
                 MAP.closePopup();
 
                 // zoom to the extent of the route
-                var bounds = L.WSENtoBounds(directions.bounds.west,directions.bounds.south,directions.bounds.east,directions.bounds.north);
+                var bounds = WSENtoBounds(directions.bounds.west,directions.bounds.south,directions.bounds.east,directions.bounds.north);
                 bounds = bounds.pad(0.25);
                 MAP.fitBounds(bounds);
 
@@ -402,7 +402,7 @@ function getDrivingDirections() {
             clearDirections();
 
             // lay down the line and the markers
-            DIRECTIONS_LINE = L.WKTtoFeature(directions.wkt, DIRECTIONS_LINE_STYLE);
+            DIRECTIONS_LINE = lineWKTtoFeature(directions.wkt, DIRECTIONS_LINE_STYLE);
             MARKER_START.setLatLng( new L.LatLng(directions.start.lat,directions.start.lng) );
             MARKER_END.setLatLng( new L.LatLng(directions.end.lat,directions.end.lng) );
             MAP.addLayer(DIRECTIONS_LINE);
@@ -410,7 +410,7 @@ function getDrivingDirections() {
             MAP.addLayer(MARKER_END);
 
             // zoom to the extent of the route
-            var bounds = L.WSENtoBounds(directions.bounds.west,directions.bounds.south,directions.bounds.east,directions.bounds.north);
+            var bounds = WSENtoBounds(directions.bounds.west,directions.bounds.south,directions.bounds.east,directions.bounds.north);
             bounds = bounds.pad(0.25);
             MAP.fitBounds(bounds);
 
@@ -520,6 +520,9 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
 
 // decode a WKT geometry into a feature, e.g. LINESTRING(12 34, 56 78) to L.Polyline instance
 // params are the WKT string, and the other options to pass to the constructor (e.g. color style and other Path options)
+function WSENtoBounds(west,south,east,north) {
+    return L.latLngBounds([ [south,west] , [north,east] ]);
+}
 function lineWKTtoFeature(wkt,style) {
     var parser = new Wkt.Wkt();
     parser.read(wkt);
