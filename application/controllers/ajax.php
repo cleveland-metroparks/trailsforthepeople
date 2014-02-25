@@ -724,7 +724,8 @@ function _directions_via_trails($params) {
     if (! @$_GET['targetlat']) return print "Missing params";
     if (! @$_GET['tofrom'])    return print "Missing params";
     if (! @$_GET['via'])       return print "Missing params";
-    if (! @$_GET['prefer'])    return print "Missing params";
+
+    $_GET['prefer'] = 'shortest'; // hardcode this since there's no picker anymore
 
     // generate WKT for fetching the start & end location; if they're routing From then swap 'em
     $source = sprintf("ST_Transform(ST_GeometryFromText('POINT(%f %f)',4326),3734)", $_GET['sourcelng'], $_GET['sourcelat'] );

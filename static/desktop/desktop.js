@@ -1091,16 +1091,15 @@ function startMeasure() {
     if (MARKER_FROM.getLatLng().lat && MARKER_TO.getLatLng().lat) return;
 
     // lay down the two markers: along the vertical midline, at 1/4 and 3/4 horizontal spacing
+    // they're draggable so this is intended to give them "a good spread" for a starting position
     var sw       = MAP.getBounds().getSouthWest();
     var ne       = MAP.getBounds().getNorthEast();
     var halflat  = ( sw.lat + ne.lat ) / 2.0;
     var notch    = (ne.lng - sw.lng) * 0.25;
     var ll1      = L.latLng(halflat , sw.lng + notch );
     var ll2      = L.latLng(halflat , ne.lng - notch );
-    MARKER_FROM.setLatLng(ll1);
-    MARKER_TO.setLatLng(ll2);
-    MAP.addLayer(MARKER_FROM);
-    MAP.addLayer(MARKER_TO);
+    MARKER_FROM.setLatLng(ll1).addTo(MAP);
+    MARKER_TO.setLatLng(ll2).addTo(MAP);
 
     // set the markers to allow dragging
     MARKER_FROM.dragging.enable();
