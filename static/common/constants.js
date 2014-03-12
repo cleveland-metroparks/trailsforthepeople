@@ -13,7 +13,7 @@ var MAX_BOUNDS     = L.latLngBounds(BBOX_SOUTHWEST,BBOX_NORTHEAST);
 // the min and max zoom level: min (low) is further out and max (high) is further in
 // level 11 covers the Cleveland region at full desktop size, level 18 is street level
 var MIN_ZOOM = 11;
-var MAX_ZOOM = 17;
+var MAX_ZOOM = 18;
 
 // for focusing Bing's geocoder, so we don't find so we don't find Cleveland, Oregon
 var GEOCODE_BIAS_BOX = "41.202048178648,-81.9627793163304,41.5885467839419,-81.386224018357";
