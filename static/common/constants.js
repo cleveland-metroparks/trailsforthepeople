@@ -49,7 +49,7 @@ var MAPBASE   = new L.TileLayer("http://maps{s}.clemetparks.com/tilestache/tiles
 var OVERLAYS  = [];
 OVERLAYS[OVERLAYS.length] = L.tileLayer.wms("http://maps{s}.clemetparks.com/gwms", { id:'closures', layers:'cm:closures,cm:markers_other,cm:markers_swgh', format:'image/png', transparent:'TRUE', subdomains:'123' });
 OVERLAYS[OVERLAYS.length] = L.tileLayer.wms("http://maps{s}.clemetparks.com/gwc", { id:'labels', layers:'group_overlays', format:'image/png', transparent:'TRUE', subdomains:'123' });
-
+OVERLAYS[OVERLAYS.length] = L.TileLayer("http://{s}.sm.mapstack.stamen.com/(terrain-labels,$e7e7e5%5Bhsl-color%5D)/{z}/{x}/{y}.png", {subdomains:'123' });
 
 /* OLD VERSION, separate layers for each type of marker, for labels, use areas, etc.
 var OVERLAYS  = [];
