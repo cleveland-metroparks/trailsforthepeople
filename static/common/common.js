@@ -1605,6 +1605,3 @@ $(window).load(function () {
         if (! MOBILE) $('#share').dialog('open');
     });
 });
-
-// add location hash
-var hash = new L.Hash(map);
