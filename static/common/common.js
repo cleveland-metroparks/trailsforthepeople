@@ -1606,4 +1606,5 @@ $(window).load(function () {
     });
 });
 
-
+// add location hash
+var hash = new L.Hash(map);
