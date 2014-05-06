@@ -43,11 +43,9 @@
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-    
       ga('create', 'UA-42809637-1', 'clemetparks.com');
       ga('send', 'pageview');
-    
-    </script>    
+    </script>
 
     <!-- our own local javaScript and CSS: the common stuff then our own overrides -->
     <script type="text/javascript" src="<?= site_url('static/common/constants.jscompress.js'); ?>"></script>
@@ -68,7 +66,9 @@
     <img src="<?= site_url('static/desktop/button_active_find.png') ?>" />
     <img src="<?= site_url('static/desktop/button_active_directions.png') ?>" />
     <img src="<?= site_url('static/desktop/button_active_measure.png') ?>" />
+    <!--
     <img src="<?= site_url('static/desktop/button_active_twitter.png') ?>" />
+    -->
     <img src="<?= site_url('static/desktop/button_active_layers.png') ?>" />
     <img src="<?= site_url('static/desktop/button_active_print.png') ?>" />
     <img src="<?= site_url('static/desktop/button_active_share.png') ?>" />
@@ -83,7 +83,9 @@
     <img src="<?= site_url('static/desktop/button_find.png') ?>" id="button_find" target="browse" class="button" title="Search for trails and facilities" />
     <img src="<?= site_url('static/desktop/button_directions.png') ?>" target="directions" class="button" id="button_directions" title="Get directions" />
     <img src="<?= site_url('static/desktop/button_measure.png') ?>" target="measure" class="button" id="button_measure" title="Measure the distance between two places" />
+    <!--
     <img src="<?= site_url('static/desktop/button_twitter.png') ?>" target="twitter" class="button" title="Chat about Cleveland's parks" />
+    -->
     <img src="<?= site_url('static/desktop/button_settings.png') ?>" target="settings" class="button" title="Settings, sharing, and more" />
     <img src="<?= site_url('static/desktop/button_print.png') ?>" id="button_print" target="print" class="button" title="Print this map" />
     <img src="<?= site_url('static/desktop/button_share.png') ?>" id="button_share" target="share" class="button" title="Share this map with others" />
@@ -131,27 +133,23 @@
 
 <div class="dialog" id="browse">
     <div>
-        <h3 class="noblock">Keyword search:</h3>
-        <input type="text" id="browse_keyword" /> <input type="button" id="browse_keyword_button" value="Go!" />
+        <input type="text" id="browse_keyword" placeholder="keyword or address" style="width:100%;" />
+        <br/>
+        <input type="button" id="browse_keyword_button" value="Search" style="width:100%;" />
     </div>
     <ul style="margin-left:-3.5em;">
-        <li><div class="head">Parks &amp; Reservations</div><ul>
-            <?php foreach ($reservations as $res) { ?>
-                <li class="zoom" type="reservation" title="<?= htmlspecialchars($res->res) ?>" gid="<?= $res->gid ?>" w="<?= $res->boxw ?>" s="<?= $res->boxs ?>" e="<?= $res->boxe ?>" n="<?= $res->boxn ?>" lat="<?= $res->lat ?>" lng="<?= $res->lng ?>">
-                    <?= htmlspecialchars($res->res) ?>
-                </li>
-            <?php } ?>
-        </ul></li>
+        <li>
+            <div class="head"><img src="<?= site_url('static/desktop/menu_pois.png') ?>" /> Points of Interest</div>
+            <ul id="activitypois"></ul>
+        </li>
 
-        <li><div class="head">Points of Interest, By activity</div><ul id="activitypois">
-        </ul></li>
+        <li>
+            <div class="head" id="trailfinder_button"><img src="<?= site_url('static/desktop/menu_trailfinder.png') ?>" /> Trail Finder</div>
+        </li>
 
-        <li><div class="head">Points of Interest, By reservation</div><ul id="reservationpois">
-        </ul></li>
-
-        <li><div class="head" id="trailfinder_button">Trail Finder</div></li>
-
-        <li><div class="head" id="loops_button">Featured Hikes and Routes</div></li>
+        <li>
+            <div class="head" id="loops_button"><img src="<?= site_url('static/desktop/menu_loops.png') ?>" /> Featured Routes</div>
+        </li>
 
     </ul> <!-- end of the master UL -->
 </div>
@@ -324,7 +322,7 @@
 
 
 <div class="dialog" id="loops">
-    <div>
+    <div style="display:none;"><!-- see the set of icons below; click handlers set this SELECT element -->
     Filter by use and type:<br/>
     <select id="loops_filter_type">
     <option value="">Show All</option>
@@ -334,49 +332,64 @@
     <option value="bike_Intermediate">Bicycle, Intermediate</option>
     <option value="bike_Advanced">Bicycle, Advanced</option>
     <option value="bridle">Equestrian</option>
+    <option value="exercise">Exercise Trail</option>
+    <option value="mountainbike">Mountain Biking Trail</option>
     </select>
+    </div>
+    <div id="loops_typeicons">
+        <img data-value="hike" src="<?= site_url('static/desktop/trailfinder_hike_off.png') ?>" />
+        <img data-value="bike_Advanced" src="<?= site_url('static/desktop/trailfinder_bike_off.png') ?>" />
+        <img data-value="bridle" src="<?= site_url('static/desktop/trailfinder_horse_off.png') ?>" />
+        <img data-value="exercise" src="<?= site_url('static/desktop/trailfinder_exercise_off.png') ?>" />
+        <img data-value="mountainbike" src="<?= site_url('static/desktop/trailfinder_mtnbike_off.png') ?>" />
+    </div>
+
+    <div style="display:none;"><!-- May 2014, this is invisible but it IS still used for searching! -->
+        Filter by surface type:<br/>
+        <select id="loops_filter_paved">
+        <option value="">Paved or unpaved</option>
+        <option value="Yes">Paved</option>
+        <option value="No">Unpaved</option>
+        </select>
     </div>
 
     <div>
-    Filter by surface type:<br/>
-    <select id="loops_filter_paved">
-    <option value="">Paved or unpaved</option>
-    <option value="Yes">Paved</option>
-    <option value="No">Unpaved</option>
-    </select>
+        <select id="loops_filter_reservation" style="width:100%; text-align:center;">
+        <option value="">(any reservation)</option>
+        <?php foreach ($reservations as $res) { ?>
+        <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
+        <?php } ?>
+        </select>
     </div>
 
-    <div>
-    Filter by location:<br/>
-    <select id="loops_filter_reservation">
-    <option value="">(any)</option>
-    <?php foreach ($reservations as $res) { ?>
-    <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
-    <?php } ?>
-    </select>
+    <div id="loops_filter_distance_div" style="display:none;"><!-- May 2014, they want to replace this with a set of buttons and fixed options; the buttons simply set the #loops_filter_distance_slider values -->
+        Length between <span id="loops_filter_distance_min">1</span> and <span id="loops_filter_distance_max">100</span> miles.
+        <br/>
+        <div id="loops_filter_distance_slider"></div>
     </div>
-
-    <div id="loops_filter_distance_div">
-    Length between <span id="loops_filter_distance_min">1</span> and <span id="loops_filter_distance_max">50</span> miles.
-    <br/>
-    <div id="loops_filter_distance_slider"></div>
+    <div id="loops_filter_distancepicker">
+        <img data-min="0" data-max="2" src="<?= site_url('static/desktop/trailfinder_distance1_off.png') ?>" />
+        <img data-min="2" data-max="5" src="<?= site_url('static/desktop/trailfinder_distance2_off.png') ?>" />
+        <img data-min="5" data-max="10" src="<?= site_url('static/desktop/trailfinder_distance3_off.png') ?>" />
+        <img data-min="10" data-max="100" src="<?= site_url('static/desktop/trailfinder_distance4_off.png') ?>" />
     </div>
 
     <div id="loops_filter_time_div" style="display:none;">
-    Time between <span id="loops_filter_time_min">15 minutes</span> and <span id="loops_filter_time_max">1 hour 15 minutes</span>.
-    <br/>
-    <div id="loops_filter_time_slider"></div>
+        Time between <span id="loops_filter_time_min">15 minutes</span> and <span id="loops_filter_time_max">1 hour 15 minutes</span>.
+        <br/>
+        <div id="loops_filter_time_slider"></div>
     </div>
 
     <div>
-    <br/>
-    <input type="button" id="loops_filter_button" value="Update listing" />
+        <br/>
+        <input type="button" id="loops_filter_button" value="Search" style="width:100%;" />
     </div>
 
     <br/>
 
-    <ul id="loops_list" style="list-style-type: none; margin-left: -35px;">
-    </ul>
+    <ul id="loops_list" style="list-style-type: none; margin-left: -35px;"></ul>
+
+    <p id="loops_nomatches">&bull; No matches.</p>
 </div>
 
 
@@ -384,46 +397,48 @@
 
 <div class="dialog" id="trailfinder">
 
-            Activities:<br/>
-            <label><input type="checkbox" name="trailfinder_uses" checked="true" value="Hiking & Walking" /> Hiking &amp; Walking</label>
-            <br/>
-            <label><input type="checkbox" name="trailfinder_uses" value="Biking" /> Biking</label>
-            <br/>
-            <label><input type="checkbox" name="trailfinder_uses" value="Horseback Riding" /> Horseback Riding</label>
-            <br/>
-            <label><input type="checkbox" name="trailfinder_uses" value="Exercising" /> Exercising</label>
-            <br/>
-            <label><input type="checkbox" name="trailfinder_uses" value="Snowshoeing" /> Snowshoeing</label>
-            <br/>
-            <label><input type="checkbox" name="trailfinder_uses" value="Cross-Country Skiing" /> Cross-Country Skiing</label>
-            <br/>
-            <br/>
+    Activities:<br/>
+    <label style="display:none;"><input type="checkbox" name="trailfinder_uses" checked="true" value="Hiking & Walking" /> Hiking &amp; Walking</label>
+    <label style="display:none;"><input type="checkbox" name="trailfinder_uses" value="Biking" /> Biking</label>
+    <label style="display:none;"><input type="checkbox" name="trailfinder_uses" value="Horseback Riding" /> Horseback Riding</label>
+    <label style="display:none;"><input type="checkbox" name="trailfinder_uses" value="Exercising" /> Exercising</label>
+    <label style="display:none;"><input type="checkbox" name="trailfinder_uses" value="Mountain Biking" /> Mountain Biking</label>
+    <div id="trailfinder_typeicons">
+        <img data-value="Hiking & Walking" src="<?= site_url('static/desktop/trailfinder_hike_off.png') ?>" />
+        <img data-value="Biking" src="<?= site_url('static/desktop/trailfinder_bike_off.png') ?>" />
+        <img data-value="Horseback Riding" src="<?= site_url('static/desktop/trailfinder_horse_off.png') ?>" />
+        <img data-value="Exercising" src="<?= site_url('static/desktop/trailfinder_exercise_off.png') ?>" />
+        <img data-value="Mountain Biking" src="<?= site_url('static/desktop/trailfinder_mtnbike_off.png') ?>" />
+    </div>
+    <br/>
 
-            Pavement:<br/>
-            <select name="trailfinder_paved">
-                <option value="">No preference</option>
-                <option value="Yes">Paved</option>
-                <option value="No">Unpaved</option>
-            </select>
-            <br/>
-            <br/>
+    <span style="display:none;"><!-- May 2014 they want this not showing, but it IS used and they're likely to want it back -->
+    Pavement:<br/>
+    <select name="trailfinder_paved">
+        <option value="">No preference</option>
+        <option value="Yes">Paved</option>
+        <option value="No">Unpaved</option>
+    </select>
+    <br/>
+    <br/>
+    </span>
 
-            Reservation:<br/>
-            <select name="trailfinder_reservation">
-            <option value="">All</option>
-            <?php foreach ($reservations as $res) { ?>
-            <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
-            <?php } ?>
-            </select>
-            <br/>
-            <br/>
+    <select name="trailfinder_reservation" style="width:100%; text-align:center;">
+    <option value="">(any reservation)</option>
+    <?php foreach ($reservations as $res) { ?>
+    <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
+    <?php } ?>
+    </select>
+    <br/>
+    <br/>
 
-            <input type="button" id="trailfinder_go" value="Search" value0="Searching..." value1="Search" style="width:100%;"/>
+    <input type="button" id="trailfinder_go" value="Search" value0="Searching..." value1="Search" style="width:100%;"/>
 
     <ul id="trailfinder_results"></ul>
 
 </div>
 
+<!--
 <div class="dialog" id="twitter">
     <div style="text-align:right;">
     <a href="https://twitter.com/intent/tweet?button_hashtag=clevemetroparks" class="twitter-hashtag-button" data-related="clevemetroparks">Tweet #CleveMetroParks</a>
@@ -433,7 +448,7 @@
     <table id="tweets">
     </table>
 </div>
-
+-->
 
 
 
@@ -480,7 +495,7 @@
     <ul>
         <li><b>Find</b> trails, parks, and park amenities!</li>
         <li>Get <b>directions</b> to parks and amenities via Cleveland's extensive network of trails, or by driving or public transit.</li>
-        <li>Listen to local chat on <b>Twitter</b></li>
+        <!--<li>Listen to local chat on <b>Twitter</b></li>-->
     </ul>
 
     <p class="disclaimer">

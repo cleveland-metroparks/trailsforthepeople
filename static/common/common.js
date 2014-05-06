@@ -1371,9 +1371,33 @@ function loadTwitter() {
 
 /////
 ///// on page load: event handlers for Trail Finder
+///// these used to be identical but then they diverged so desktop has these clicky icons, while mobile is still a selector (for now)
 /////
 $(window).load(function () {
     if (MOBILE) $('#page-trailfinder').page();
+
+    // the icons for the trail type, trigger the underlying checkboxes so we're still using real form elements
+    $('#trailfinder_typeicons img').tap(function () {
+        // uncheck all of the invisible checkboxes, then check the one corresponding to this image
+        var $this = $(this);
+        var value = $this.attr('data-value');
+        $('input[name="trailfinder_uses"]').removeAttr('checked').filter('[value="'+value+'"]').attr('checked','checked');
+
+        // adjust the images: change the SRC to the _off version, except this one which gets the _on version
+        $('#trailfinder_typeicons img').each(function () {
+            var src = $(this).prop('src');
+
+            if ( $(this).is($this) ) {
+                src  = src.replace('_off.png', '_on.png');
+            } else {
+                src  = src.replace('_on.png', '_off.png');
+            }
+            $(this).prop('src', src);
+        });
+
+        // then click the GO button to submit the search for them
+        $('#trailfinder_go').click();
+    }).first().tap();
 
     $('#trailfinder_go').click(function () {
         // compile the params from the form for passing to searchTrails()
@@ -1381,6 +1405,8 @@ $(window).load(function () {
         var params = {};
         params.reservation = $('select[name="trailfinder_reservation"]').val();
         params.paved       = $('select[name="trailfinder_paved"]').val();
+
+        // this is a list of selected trail uses, now only 1 will be checked but it was made to accept a list and that will likely become the case again in the future
         params.uses = [];
         $('input[name="trailfinder_uses"]:checked').each(function () {
             params.uses[params.uses.length] = $(this).val();
@@ -1390,6 +1416,10 @@ $(window).load(function () {
         // pass it to the search called
         searchTrails(params);
     });
+
+    // when the selectors change, click the GO button so they don't have to
+    $('select[name="trailfinder_reservation"]').change(function () { $('#trailfinder_go').click(); });
+    $('select[name="trailfinder_paved"]').change(function () { $('#trailfinder_go').click(); });
 });
 
 function searchTrails(params) {

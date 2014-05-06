@@ -25,6 +25,8 @@
     <th style="text-align:right; padding-right:2em;">Hike?</th>
     <th style="text-align:right; padding-right:2em;">Bike?</th>
     <th style="text-align:right; padding-right:2em;">Bridle?</th>
+    <th style="text-align:right; padding-right:2em;">MtnBike?</th>
+    <th style="text-align:right; padding-right:2em;">Exercise?</th>
     <th></th>
 </tr>
 </thead>
@@ -46,6 +48,8 @@
     <td style="text-align:right;"><?= $loop->hike ?></td>
     <td style="text-align:right;"><?= $loop->bike ?></td>
     <td style="text-align:right;"><?= $loop->bridle ?></td>
+    <td style="text-align:right;"><?= $loop->mountainbike ?></td>
+    <td style="text-align:right;"><?= $loop->exercise ?></td>
     <td><a class="clone" href="<?= ssl_url("contributors/cloneloop/{$loop->id}") ?>">clone</a></td>
 </tr>
 <?php } ?>

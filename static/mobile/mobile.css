@@ -191,6 +191,30 @@ div.ui-slider {
 }
 
 
+/* these buttons go over the map, and the Scale control is hidden (it's added in common, so can't disable it only in mobile) */
+
+#mapbutton_settings {
+    position:absolute;
+    bottom:52px;
+    left:5px;
+
+    cursor:pointer;
+
+    z-index:200;
+}
+#mapbutton_gps {
+    position:absolute;
+    bottom:52px;
+    right:5px;
+
+    cursor:pointer;
+
+    z-index:200;
+}
+
+.leaflet-control-scale {
+    display:none;
+}
 
 
 /* inside a a textnowrap do not force text inputs to wrap lines */
@@ -274,4 +298,32 @@ div.share_button a {
 div.share_button img {
     vertical-align:middle;
     margin-right:10px;
+}
+
+
+
+/* TRAIL FINDER and FEATURED LOOPS */
+
+#trailfinder_typeicons {
+    text-align:center;
+
+    margin-bottom:1em;
+}
+#trailfinder_typeicons img {
+    cursor:pointer;
+}
+
+#loops_typeicons {
+    text-align:center;
+}
+#loops_typeicons img {
+    cursor:pointer;
+}
+
+#loops_filter_distancepicker {
+    text-align:center;
+    margin-top:5px;
+}
+#loops_filter_distancepicker img {
+    cursor:pointer;
 }

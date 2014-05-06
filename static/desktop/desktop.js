@@ -295,6 +295,7 @@ $(window).load(function () {
         }
     });
 
+    /*
     $('#twitter').dialog({
         modal:false, closeOnEscape: true, resizable:true,
         autoOpen:false,
@@ -314,6 +315,7 @@ $(window).load(function () {
             highlightToolbarButton(null);
         }
     });
+    */
 
     $('#measure').dialog({
         modal:false, closeOnEscape: true, resizable:true,
@@ -417,17 +419,42 @@ $(window).load(function () {
         }
     }
 
+    // the mapping of category names onto icon PNGs, since these now have icons
+    var category_icons = {
+        'Archery' : 'archery.png',
+        'Beach' : 'beach.png',
+        'Boating' : 'boat.png',
+        'Drinking Fountain' : 'drinkingfountain.png',
+        'Exploring Culture & History' : 'history.png',
+        'Exploring Nature' : 'nature.png',
+        'Facilities' : 'reservable.png',
+        'Fishing & Ice Fishing' : 'fish.png',
+        'Food' : 'food.png',
+        'Geologic Feature' : 'geology.png',
+        'Golfing' : 'golf.png',
+        'Horseback Riding' : 'horse.png',
+        'Kayaking' : 'kayak.png',
+        'Picnicking' : 'picnic.png',
+        'Play Areas' : 'play.png',
+        'Restroom' : 'restroom.png',
+        'Sledding & Tobogganing' : 'sled.png',
+        'Swimming' : 'swim.png',
+        'Viewing Wildlife' : 'wildlife.png',
+    };
+
     $.get('../desktop/fetch_activitypois', {}, function (structure) {
         var target = $('#activitypois');
         for (var category in structure) {
             // set up the LI that houses this category within the target UL
             // add the .head click handler to expand its child, and hide the UL that we're creating until clickHead shows it
             var catli = $('<li></li>').appendTo(target);
-            $('<div></div>').addClass('head').text(category).appendTo(catli).click(clickHead);
-            var poisul = $('<ul></ul>').appendTo(catli);
-            poisul.hide();
+            var icon  = '/static/wms/pois/' + category_icons[category];
+            var img   = $('<img></img>').prop('src',icon);
 
-            // iterate over POIs and populate that nested UL of POIs
+            $('<div></div>').addClass('head').text(category).prepend(img).appendTo(catli).click(clickHead);
+            var poisul = $('<ul></ul>').appendTo(catli).hide();
+
+            // iterate over POIs and populate that nested UL of POIs  (poisul)
             var pois = structure[category];
             for (var i=0, l=pois.length; i<l; i++) {
                 var poili = $('<li></li>').appendTo(poisul).text(pois[i].use_area).addClass('zoom');
@@ -448,39 +475,6 @@ $(window).load(function () {
             }
         }
     }, 'json');
-
-    $.get('../desktop/fetch_reservationpois', {}, function (structure) {
-        var target = $('#reservationpois');
-        for (var reservation in structure) {
-            // set up the LI that houses this category within the target UL
-            // add the .head click handler to expand its child, and hide the UL that we're creating until clickHead shows it
-            var catli = $('<li></li>').appendTo(target);
-            $('<div></div>').addClass('head').text(reservation).appendTo(catli).click(clickHead);
-            var poisul = $('<ul></ul>').appendTo(catli);
-            poisul.hide();
-
-            // iterate over POIs and populate that nested UL of POIs
-            var pois = structure[reservation];
-            for (var i=0, l=pois.length; i<l; i++) {
-                var poili = $('<li></li>').appendTo(poisul).text(pois[i].use_area).addClass('zoom');
-                poili.attr('type','poi');
-                poili.attr('title', pois[i].use_area );
-                poili.attr('gid', pois[i].gid );
-                poili.attr('lat', pois[i].lat );
-                poili.attr('lng', pois[i].lng );
-                poili.attr('w', pois[i].boxw );
-                poili.attr('s', pois[i].boxs );
-                poili.attr('e', pois[i].boxe );
-                poili.attr('n', pois[i].boxn );
-
-                // and finally, the big Click For More Info handler
-                poili.click(function () {
-                    zoomElementClick( $(this) );
-                });
-            }
-        }
-    }, 'json');
-
 
     $.get('../desktop/fetch_loops', {}, function (loops) {
         var target = $('#loops_list');
@@ -853,7 +847,7 @@ $(window).load(function () {
 
 
 ///// on page load
-///// event handlers for the Loops listing and filtering
+///// event handlers for the Loops listing and filtering (aka Featured Loops and Routes)
 ///// See also filterLoops() below
 $(window).load(function () {
     // the time & distance sliders vary between Mobile and Desktop mode
@@ -862,7 +856,7 @@ $(window).load(function () {
     // the time & distance sliders update some text
     // their values are used later in filterLoops()
     $('#loops_filter_distance_slider').slider({
-        range: true, min: 0.0, max: 50, step: 0.25, values: [ 0, 50 ],
+        range: true, min: 0.0, max: 100, step: 1, values: [ 0, 100 ],
         slide: function(event,ui) {
             var min = ui.values[0];
             var max = ui.values[1];
@@ -894,8 +888,10 @@ $(window).load(function () {
         var type = $(this).val();
 
         // show/hide the time filter slider
+        /* May 2014, they don't want this displayed but may want it back so we keep it
         var timeslider = $('#loops_filter_time_div');
         type ? timeslider.show() : timeslider.hide();
+        */
 
         // show only .time_estimate entries matching this 'type'
         switch (type) {
@@ -941,8 +937,55 @@ $(window).load(function () {
             }
     });
 
-    // the filter button, calls filterLoops()
+    // if desktop, then #loops_filter_type is invisible and there's a set of icons; clicking them sets #loops_filter_type
+    $('#loops_typeicons img').click(function () {
+        // uncheck all of the invisible checkboxes, then check the one corresponding to this image
+        var $this = $(this);
+        var value = $this.attr('data-value');
+        $('#loops_filter_type').val(value).trigger('change');
+
+        // adjust the images: change the SRC to the _off version, except this one which gets the _on version
+        $('#loops_typeicons img').each(function () {
+            var src = $(this).prop('src');
+
+            if ( $(this).is($this) ) {
+                src  = src.replace('_off.png', '_on.png');
+            } else {
+                src  = src.replace('_on.png', '_off.png');
+            }
+            $(this).prop('src', src);
+        });
+    }).first().click();
+
+    // also if desktop, then #loops_filter_distance_slider is invisible and we have a set of 4 images to form "presets" for this slider
+    $('#loops_filter_distancepicker img').click(function () {
+        // set the min & max in the slider
+        var $this = $(this);
+        var minmi = $this.attr('data-min');
+        var maxmi = $this.attr('data-max');
+        $('#loops_filter_distance_slider').slider('values', [ minmi,maxmi ]);
+
+        // unhighlight these buttons and highlight this one, by swapping the IMG SRC
+        $('#loops_filter_distancepicker img').each(function () {
+            var src = $(this).prop('src');
+
+            if ( $(this).is($this) ) {
+                src  = src.replace('_off.png', '_on.png');
+            } else {
+                src  = src.replace('_on.png', '_off.png');
+            }
+            $(this).prop('src', src);
+        });
+
+        // ready, now trigger a search
+        $('#loops_filter_button').click();
+    }).first().click();
+
+    // the filter button, calls filterLoops()  and then changing selectors or buttons does this as well, saving them a click
     $('#loops_filter_button').click(filterLoops);
+    $('#loops_filter_reservation').change(filterLoops);
+    $('#loops_filter_paved').change(filterLoops);
+    $('#loops_filter_type').change(filterLoops);
 });
 
 function filterLoops() {
@@ -956,10 +999,14 @@ function filterLoops() {
     var maxfeet      = 5280 * parseFloat( $('#loops_filter_distance_slider').slider('values', 1) );
     var reservation  = $('#loops_filter_reservation').val();
 
+    var matches = 0;
+
     $('#loops_list li').each(function () {
-        var hike   = $(this).attr('hike') == 'Yes';
-        var bike   = $(this).attr('bike') == 'Yes';
-        var bridle = $(this).attr('bridle') == 'Yes';
+        var hike          = $(this).attr('hike') == 'Yes';
+        var bike          = $(this).attr('bike') == 'Yes';
+        var bridle        = $(this).attr('bridle') == 'Yes';
+        var exercise      = $(this).attr('exercise') == 'Yes';
+        var mountainbike  = $(this).attr('mountainbike') == 'Yes';
         var paved      = $(this).attr('paved');
         var difficulty = $(this).attr('difficulty');
         var length_feet      = $(this).attr('length_feet');
@@ -1016,6 +1063,18 @@ function filterLoops() {
                         if (!bike) match = false;
                         duration = duration_bike;
                         break;
+                    case 'mountainbike':
+                        if (!mountainbike) match = false;
+                        duration = duration_bike;
+                        break;
+                    case 'exercise':
+                        if (!exercise) match = false;
+                        duration = duration_hike;
+                        break;
+                    default:
+                        // some invalid filter, and that's not good; let's match nothing so the programmer notices
+                        match = false;
+                        break;
                 }
             }
         }
@@ -1036,8 +1095,20 @@ function filterLoops() {
         }
 
         // done checking for reasons not to match; hide it if we failed to match
-        if (! match) $(this).hide();
+        if (match) {
+            matches++;
+        } else {
+            $(this).hide();
+        }
     });
+
+    // afterthought: if there are 0 matches, say so
+    if (matches) {
+        $('#loops_nomatches').hide();
+    } else {
+        $('#loops_nomatches').show();
+    }
+
 }
 
 

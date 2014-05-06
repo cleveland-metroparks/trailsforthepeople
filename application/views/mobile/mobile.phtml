@@ -90,17 +90,19 @@
 <div data-role="page" id="page-map">
     <div data-role="content">
 
-        <div id="map_canvas"></div>
+        <div id="map_canvas">
+                <a id="mapbutton_settings" href="javascript:void(0);" onClick="$.mobile.changePage('#page-settings'); return false;"><img src="<?= site_url('static/mobile/mapbutton_settings.png') ?>" /></a>
+                <a id="mapbutton_gps" href="javascript:void(0);" onClick="toggleGPS(); return false;"><img src="<?= site_url('static/mobile/mapbutton_gps_off.png') ?>" /></a>
+        </div>
 
         <div id="toolbar" class="above_map">
             <table>
             <tr>
                 <td><a class="button" id="button_find" href="#page-find"><img src="<?= site_url('static/mobile/button_find.png') ?>" /></a></td>
                 <td><a class="button" id="button_radar" href="#page-radar"><img src="<?= site_url('static/mobile/button_radar.png') ?>" /></a></td>
-                <td><a class="button" id="button_twitter" href="#page-twitter"><img src="<?= site_url('static/mobile/button_twitter.png') ?>" /></a></td>
+                <!--<td><a class="button" id="button_twitter" href="#page-twitter"><img src="<?= site_url('static/mobile/button_twitter.png') ?>" /></a></td>-->
                 <td><a class="button" id="button_directions" href="#page-getdirections"><img src="<?= site_url('static/mobile/button_directions.png') ?>" /></a></td>
-                <td><a class="button" id="button_settings" href="#page-settings"><img src="<?= site_url('static/mobile/button_settings.png') ?>" /></a></td>
-                <td><a class="button" id="button_gps" href="#page-gps"><img src="<?= site_url('static/mobile/button_gps.png') ?>" /></a></td>
+                <td><a class="button" id="button_share" href="#page-share"><img src="<?= site_url('static/mobile/button_share.png') ?>" /></a></td>
             </tr>
             </table>
         </div>
@@ -130,7 +132,7 @@
         <ul>
         <li><b>Find</b> trails, parks, and park amenities!</li>
         <li>Get <b>directions</b> to parks and amenities via Cleveland's extensive network of trails, or by driving or public transit.</li>
-        <li>Listen to local chat on <b>Twitter</b></li>
+        <!--<li>Listen to local chat on <b>Twitter</b></li>-->
         </ul>
 
         <p class="disclaimer">
@@ -302,9 +304,7 @@
     <div data-role="content">
 
         <ul data-role="listview" data-inset="true">
-        <li><a href="#browse-items?category=reservations">Parks &amp; Reservations</a></li>
-        <li><a href="#page-browse-pois-activity">Points of Interest, By activity</a></li>
-        <li><a href="#page-browse-pois-reservation">Points of Interest, By reservation</a></li>
+        <li><a href="#page-browse-pois-activity">Points of Interest</a></li>
         <li><a href="#page-trailfinder">Trail Finder</a></li>
         <li><a href="#page-loops-search">Featured Hikes and Routes</a></li>
         </ul>
@@ -324,16 +324,25 @@
     <div data-role="content">
 
         <div>
+<div style="display:none;"><!-- May 2014, they don't want to see this but we need the form controls internally; and coluld change back at any time... -->
             <b>Activities</b><br/>
             <fieldset data-role="controlgroup">
                 <label><input type="checkbox" data-mini="true" name="trailfinder_uses" checked="true" value="Hiking & Walking" /> Hiking &amp Walking</label>
                 <label><input type="checkbox" data-mini="true" name="trailfinder_uses" value="Biking" /> Biking</label>
                 <label><input type="checkbox" data-mini="true" name="trailfinder_uses" value="Horseback Riding" /> Horseback Riding</label>
                 <label><input type="checkbox" data-mini="true" name="trailfinder_uses" value="Exercising" /> Exercising</label>
-                <label><input type="checkbox" data-mini="true" name="trailfinder_uses" value="Snowshoeing" /> Snowshoeing</label>
-                <label><input type="checkbox" data-mini="true" name="trailfinder_uses" value="Cross-Country Skiing" /> Cross-Country Skiing</label>
+                <label><input type="checkbox" data-mini="true" name="trailfinder_uses" value="Mountain Biking" /> Mountain Biking</label>
             </fieldset>
+</div>
+    <div id="trailfinder_typeicons">
+        <img data-value="Hiking & Walking" src="<?= site_url('static/desktop/trailfinder_hike_off.png') ?>" />
+        <img data-value="Biking" src="<?= site_url('static/desktop/trailfinder_bike_off.png') ?>" />
+        <img data-value="Horseback Riding" src="<?= site_url('static/desktop/trailfinder_horse_off.png') ?>" />
+        <img data-value="Exercising" src="<?= site_url('static/desktop/trailfinder_exercise_off.png') ?>" />
+        <img data-value="Mountain Biking" src="<?= site_url('static/desktop/trailfinder_mtnbike_off.png') ?>" />
+    </div>
 
+    <div style="display:none;">
             <b>Pavement:</b><br/>
             <fieldset data=role="controlgroup">
                 <select name="trailfinder_paved" data-mini="true">
@@ -342,10 +351,10 @@
                     <option value="No">Unpaved</option>
                 </select>
             </fieldset>
+    </div>
 
-            <b>Reservation:</b><br/>
             <select name="trailfinder_reservation" data-mini="true">
-            <option value="">All</option>
+            <option value="">(any reservation)</option>
             <?php foreach ($reservations as $res) { ?>
             <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
             <?php } ?>
@@ -380,25 +389,7 @@
 
         <ul data-role="listview" data-inset="true">
             <?php foreach ($poicategories as $category) { ?>
-            <li><a href="#browse-items?category=pois_usetype_<?= urlencode($category) ?>"><?= htmlspecialchars($category) ?></a></li>
-            <?php } ?>
-        </ul>
-
-    </div>
-</div>
-
-
-<div data-role="page" id="page-browse-pois-reservation">
-    <div data-role="header">
-        <a href="#page-browse">Back</a>
-        <h1>Find POIs</h1>
-        <a href="#page-map">Map</a>
-    </div>
-    <div data-role="content">
-
-        <ul data-role="listview" data-inset="true">
-            <?php foreach ($reservations as $res) { ?>
-            <li><a href="#browse-items?category=pois_reservation_<?= urlencode($res->res) ?>"><?= htmlspecialchars($res->res) ?></a></li>
+            <li><a href="#browse-items?category=pois_usetype_<?= urlencode($category) ?>"><img class="ui-li-icon" style="width:16px; height:16px;" src="<?= site_url("/static/wms/pois/{$poicategory_icons[$category]}") ?>" /> <?= htmlspecialchars($category) ?></a></li>
             <?php } ?>
         </ul>
 
@@ -524,7 +515,7 @@
 
 <div data-role="page" id="page-share">
     <div data-role="header">
-        <a href="#page-settings">Back</a>
+        <a href="#page-map">Back</a>
         <h1>Share your map</h1>
     </div>
     <div data-role="content">
@@ -574,12 +565,14 @@
 
         </fieldset>
 
+
+        <h3>GPS Location</h3>
+        <div class="fakeinput" id="gps_location" style="text-align:center;">N 00 00.000 W 000 00.000</div>
+
         <h3>Other Settings</h3>
         <label><input type="checkbox" id="settings_show_welcome" /> Show the Welcome panel</label><br/>
 
         <div style="text-align:center;">
-            <br/>
-            <a href="#page-share">Share your map</a>
             <br/>
             <a href="#page-credits">About this app</a>
         </div>
@@ -587,27 +580,6 @@
     </div>
 </div>
 
-
-
-<div data-role="page" id="page-gps">
-    <div data-role="header">
-        <a href="#page-map">Apply</a>
-        <h1>GPS</h1>
-    </div>
-    <div data-role="content">
-
-        <h3>GPS</h3>
-        <fieldset data=role="controlgroup">
-            <div class="fakeinput" id="gps_location" style="text-align:center;">N 00 00.000 W 000 00.000</div>
-            <br/>
-            <select id="gps_autocenter" data-mini="true">
-            <option value="0">GPS Mode disabled</option>
-            <option value="1">GPS Mode enabled</option>
-            </select>
-        </fieldset>
-
-    </div>
-</div>
 
 
 
@@ -703,6 +675,7 @@
     <div data-role="content">
         <fieldset data=role="controlgroup">
 
+    <div style="display:none;"><!-- May 2014, they don't want this anymore but want clicky icons, but internally we still need the form controls... -->
         <select id="loops_filter_type" data-mini="true">
         <!-- <option value="">All trail types</option> -->
         <option value="hike">Hiking / Walking</option>
@@ -711,14 +684,25 @@
         <option value="bike_Intermediate">Bicycle, Intermediate</option>
         <option value="bike_Advanced">Bicycle, Advanced</option>
         <option value="bridle">Equestrian</option>
+        <option value="exercise">Exercise Trail</option>
+        <option value="mountainbike">Mountain Biking Trail</option>
         </select>
+    </div>
+    <div id="loops_typeicons">
+        <img data-value="hike" src="<?= site_url('static/desktop/trailfinder_hike_off.png') ?>" />
+        <img data-value="bike_Advanced" src="<?= site_url('static/desktop/trailfinder_bike_off.png') ?>" />
+        <img data-value="bridle" src="<?= site_url('static/desktop/trailfinder_horse_off.png') ?>" />
+        <img data-value="exercise" src="<?= site_url('static/desktop/trailfinder_exercise_off.png') ?>" />
+        <img data-value="mountainbike" src="<?= site_url('static/desktop/trailfinder_mtnbike_off.png') ?>" />
+    </div>
 
-        <br/>
+    <div style="display:none;">
         <select id="loops_filter_paved" data-mini="true">
         <option value="">Paved or unpaved</option>
         <option value="Yes">Paved</option>
         <option value="No">Unpaved</option>
         </select>
+    </div>
 
         <br/>
         <select id="loops_filter_reservation" data-mini="true">
@@ -730,14 +714,20 @@
 
         </fieldset>
 
-        <div data-role="fieldcontain">
+        <div data-role="fieldcontain" style="display:none;"><!-- May 2014, they want this hidden in favor of icons below, but still need the form controls internally -->
             <b>Length</b>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <span id="loops_filter_distance_min_text"></span> - <span id="loops_filter_distance_max_text"></span>
             <br/>
-            Min: <input type="range" id="loops_filter_distance_min" min="0" max="50" value="0" />
+            Min: <input type="range" id="loops_filter_distance_min" min="0" max="100" value="0" />
             <br/>
             Max: <input type="range" id="loops_filter_distance_max" min="0" max="50" value="50" />
+        </div>
+        <div id="loops_filter_distancepicker">
+            <img data-min="0" data-max="2" src="<?= site_url('static/desktop/trailfinder_distance1_off.png') ?>" />
+            <img data-min="2" data-max="5" src="<?= site_url('static/desktop/trailfinder_distance2_off.png') ?>" />
+            <img data-min="5" data-max="10" src="<?= site_url('static/desktop/trailfinder_distance3_off.png') ?>" />
+            <img data-min="10" data-max="100" src="<?= site_url('static/desktop/trailfinder_distance4_off.png') ?>" />
         </div>
 
         <div data-role="fieldcontain" id="loops_filter_duration" style="display:none;">
@@ -797,6 +787,7 @@
 
 
 
+<!--
 <div data-role="page" id="page-twitter">
     <div data-role="header">
         <a href="#page-map">Back</a>
@@ -815,7 +806,7 @@
 
     </div>
 </div>
-
+-->
 
 
 <!--

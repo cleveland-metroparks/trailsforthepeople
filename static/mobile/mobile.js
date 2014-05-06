@@ -129,6 +129,7 @@ $(document).bind('pagebeforechange', function(e,data) {
 
 
 // mobile-specific: listen for page changes to #page-twitter and reload tweets
+/*
 $(document).bind('pagebeforechange', function(e,data) {
     if ( typeof data.toPage != "string" ) return; // no hash given
     var url = $.mobile.path.parseUrl(data.toPage);
@@ -136,7 +137,7 @@ $(document).bind('pagebeforechange', function(e,data) {
 
     loadTwitter();
 });
-
+*/
 
 
 // mobile-specific: listen for page changes to #page-share and request a new short URL for the current map state
@@ -347,7 +348,6 @@ $(window).load(function () {
     });
     */
 });
-
 
 
 
@@ -912,12 +912,6 @@ $(window).load(function () {
         // set this flag, which will cause zoomElementClick() to skip showing the info and skip to directions
         SKIP_TO_DIRECTIONS = true;
     });
-
-    // these buttons toggle whether AUTO_CENTER_ON_LOCATION is set, and thus whether the map will automatically recenter to follow the GPS
-    $('#gps_autocenter').change(function () {
-        AUTO_CENTER_ON_LOCATION = parseInt( $(this).val() );
-    });
-
 });
 
 
@@ -931,54 +925,50 @@ $(window).load(function () {
     // so trigger a DOM rendering of the page now so the elements exist
     $('#page-loops-search').page();
 
-    $('#loops_filter_distance_min').change(function () {
-        var value     = parseInt( $(this).val() );
-        var milestext = value > 1 ? 'miles' : 'mile';
-        var text      = value + ' miles';
-        $('#loops_filter_distance_min_text').text(text);
+    // the #loops_filter_type selector is invisible, and we have a set of icons to set its value when they're clicked
+    $('#loops_typeicons img').tap(function () {
+        // uncheck all of the invisible checkboxes, then check the one corresponding to this image
+        var $this = $(this);
+        var value = $this.attr('data-value');
+        $('#loops_filter_type').val(value).trigger('change');
 
-        // if this value is > the selected max value, set the max value
-        var max = parseInt( $('#loops_filter_distance_max').val() );
-        if (value > max) $('#loops_filter_distance_max').val(value+1).slider("refresh");
-    });
-    $('#loops_filter_distance_max').change(function () {
-        var value     = parseInt( $(this).val() );
-        var milestext = value > 1 ? 'miles' : 'mile';
-        var text      = value + ' ' + milestext;
-        $('#loops_filter_distance_max_text').text(text);
+        // adjust the images: change the SRC to the _off version, except this one which gets the _on version
+        $('#loops_typeicons img').each(function () {
+            var src = $(this).prop('src');
 
-        // if this value is < the selected min value, set the max value
-        var min = parseInt( $('#loops_filter_distance_min').val() );
-        if (value < min) $('#loops_filter_distance_min').val(value-1).slider("refresh");
-    });
-    $('#loops_filter_duration_min').change(function () {
-        var minutes = parseInt( $(this).val() );
-        var text    = minutes + ' min';
-        if (minutes >= 60) {
-            var hours = Math.floor(minutes / 60);
-            var hrs = hours > 1 ? 'hrs' : 'hr';
-            text = hours + ' ' + hrs + ' ' + (minutes % 60) + ' min';
-        }
-        $('#loops_filter_duration_min_text').text(text);
+            if ( $(this).is($this) ) {
+                src  = src.replace('_off.png', '_on.png');
+            } else {
+                src  = src.replace('_on.png', '_off.png');
+            }
+            $(this).prop('src', src);
+        });
+    }).first().tap();
 
-        // if this value is > the selected max value, set the max value
-        var max = parseInt( $('#loops_filter_duration_max').val() );
-        if (minutes > max) $('#loops_filter_duration_max').val(minutes+1).slider("refresh");
-    });
-    $('#loops_filter_duration_max').change(function () {
-        var minutes = parseInt( $(this).val() );
-        var text    = minutes + ' minutes';
-        if (minutes >= 60) {
-            var hours = Math.floor(minutes / 60);
-            var hrs = hours > 1 ? 'hrs' : 'hr';
-            text = hours + ' ' + hrs + ' ' + (minutes % 60) + ' min';
-        }
-        $('#loops_filter_duration_max_text').text(text);
+    // #loops_filter_distance_slider is invisible and we have a set of 4 images to form "presets" for this slider
+    $('#loops_filter_distancepicker img').tap(function () {
+        // set the min & max in the inputs
+        var $this = $(this);
+        var minmi = $this.attr('data-min');
+        var maxmi = $this.attr('data-max');
+        $('#loops_filter_distance_min').val(minmi);
+        $('#loops_filter_distance_max').val(maxmi);
 
-        // if this value is < the selected min value, set the max value
-        var min = parseInt( $('#loops_filter_duration_min').val() );
-        if (minutes < min) $('#loops_filter_duration_min').val(minutes-1).slider("refresh");
-    });
+        // unhighlight these buttons and highlight this one, by swapping the IMG SRC
+        $('#loops_filter_distancepicker img').each(function () {
+            var src = $(this).prop('src');
+
+            if ( $(this).is($this) ) {
+                src  = src.replace('_off.png', '_on.png');
+            } else {
+                src  = src.replace('_on.png', '_off.png');
+            }
+            $(this).prop('src', src);
+        });
+
+        // ready, now trigger a search
+        filterLoops();
+    }).first().tap();
 
     // having set up the sliders 'change' handlers, trigger them now to set the displayed text
     $('#loops_filter_distance_min').change();
@@ -996,8 +986,10 @@ $(window).load(function () {
         var type = $(this).val();
 
         // show/hide the time filter slider
+        /* May 2014 we never show this
         var timeslider = $('#loops_filter_duration');
         type ? timeslider.show() : timeslider.hide();
+        */
 
         // show only .time_estimate entries matching this 'type'
         switch (type) {
@@ -1036,11 +1028,24 @@ $(window).load(function () {
                 $('.time_bike').show();
                 $('.time_estimate_prefix').hide();
                 break;
+            case 'mountainbike':
+                $('.time_estimate').hide();
+                $('.time_bike').show();
+                $('.time_estimate_prefix').hide();
+                break;
+            case 'exercise':
+                $('.time_estimate').hide();
+                $('.time_hike').show();
+                $('.time_estimate_prefix').hide();
+                break;
             default:
                 $('.time_estimate').show();
                 $('.time_estimate_prefix').show();
                 break;
-            }
+        }
+
+        // then trigger a search
+        filterLoops();
     });
 });
 
@@ -1156,3 +1161,15 @@ function sortLists(target) {
     }
 }
 
+
+function toggleGPS() {
+    AUTO_CENTER_ON_LOCATION ? toggleGPSOff() : toggleGPSOn();
+}
+function toggleGPSOn() {
+    AUTO_CENTER_ON_LOCATION = true;
+    $('#mapbutton_gps img').prop('src','/static/mobile/mapbutton_gps_on.png');
+}
+function toggleGPSOff() {
+    AUTO_CENTER_ON_LOCATION = false;
+    $('#mapbutton_gps img').prop('src','/static/mobile/mapbutton_gps_off.png');
+}

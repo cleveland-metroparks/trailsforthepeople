@@ -43,26 +43,6 @@ function fetch_activitypois() {
     print json_encode($output);
 }
 
-function fetch_reservationpois() {
-    $input = Usearea::getReservationListing();
-    $output= array();
-
-    foreach ($input as $res=>$pois) {
-        $output[$res] = array();
-        foreach ($pois as $poi) {
-            $output[$res][] = array(
-                'use_area' => $poi->use_area,
-                'gid' => $poi->gid,
-                'boxw' => $poi->boxw, 'boxs' => $poi->boxs, 'boxe' => $poi->boxe, 'boxn' => $poi->boxn,
-                'lat' => $poi->lat, 'lng' => $poi->lng,
-            );
-        }
-    }
-
-    print json_encode($output);
-}
-
-
 
 function fetch_loops() {
     $input = Loop::getPublicLoops();
@@ -77,6 +57,8 @@ function fetch_loops() {
             'hike' => $loop->hike,
             'bike' => $loop->bike,
             'bridle' => $loop->bridle,
+            'exercise' => $loop->exercise,
+            'mountainbike' => $loop->mountainbike,
             'difficulty' => $loop->difficulty,
             'paved' => $loop->paved,
             'length_feet' => $loop->distance_feet,

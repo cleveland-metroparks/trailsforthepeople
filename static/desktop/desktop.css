@@ -105,6 +105,7 @@ label,input[type="checkbox"],input[type="radio"] {
     cursor:pointer;
     border:1px solid #b9bba8;
 
+    background-color: #FFFFFF;
     background-image: url(list_arrow_right.png);
     background-repeat:no-repeat;
     background-position: 100% 2px;
@@ -155,6 +156,18 @@ label,input[type="checkbox"],input[type="radio"] {
 
 li .head {
     font-weight:bold;
+}
+
+
+li .head img {
+    vertical-align: -15%;
+}
+
+
+#activitypois li .head img {
+    vertical-align: middle;
+    width:20px;
+    margin-right:0.5em;
 }
 
 .ui-li-heading {
@@ -319,4 +332,29 @@ input[type="button"] {
     background:none no-repeat scroll 0 0 #005F51;
     color:white:
     border:1px solid #005F51;
+}
+
+
+/* TRAIL FINDER and FEATURED LOOPS */
+
+#trailfinder_typeicons {
+    text-align:center;
+}
+#trailfinder_typeicons img {
+    cursor:pointer;
+}
+
+#loops_typeicons {
+    text-align:center;
+}
+#loops_typeicons img {
+    cursor:pointer;
+}
+
+#loops_filter_distancepicker {
+    text-align:center;
+    margin-top:5px;
+}
+#loops_filter_distancepicker img {
+    cursor:pointer;
 }
