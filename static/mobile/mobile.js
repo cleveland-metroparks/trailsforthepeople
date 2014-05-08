@@ -204,11 +204,13 @@ $(document).bind('pagechange', function(e,data) {
 
 
 // mobile-specific: when the map canvas gets swiped, turn off GPS mode
+/*
 $(window).load(function () {
     $('#map_canvas').bind('swipe', function () {
         toggleGPSOff();
     });
 });
+*/
 
 
 // a method for changing over to the map "page" without having a hyperlink, e.g. from the geocoder callback
