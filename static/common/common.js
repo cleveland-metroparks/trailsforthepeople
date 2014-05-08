@@ -387,9 +387,15 @@ function zoomToAddress(searchtext) {
 
     $.get('../ajax/geocode', params, function (result) {
         if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
+        var latlng = L.latLng(result.lat,result.lng);
+
+        // if this point isn't even in the service area, complain and bail
+        // tip: "post office" finds Post Office, India
+        if (! MAX_BOUNDS.contains(latlng) ) {
+            return alert("The only results we could find are too far away to zoom the map there.");
+        }
 
         // zoom the point location, nice and close, and add a marker
-        var latlng = L.latLng(result.lat,result.lng);
         switchToMap(function () {
             MAP.setView(latlng,16);
             placeTargetMarker(result.lat,result.lng);

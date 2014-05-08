@@ -16,6 +16,7 @@ var MIN_ZOOM = 11;
 var MAX_ZOOM = 18;
 
 // for focusing Bing's geocoder, so we don't find so we don't find Cleveland, Oregon
+// tip: this doesn't in fact work; wishful thinking for when Bing does support it
 var GEOCODE_BIAS_BOX = "41.202048178648,-81.9627793163304,41.5885467839419,-81.386224018357";
 
 // the URL to the MapFish Print system
