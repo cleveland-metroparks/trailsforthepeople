@@ -80,7 +80,7 @@
     <!-- our own local javaScript and CSS: the common stuff then our own overrides -->
     <script type="text/javascript" src="<?= site_url('static/common/constants.jscompress.js'); ?>"></script>
     <script type="text/javascript" src="<?= site_url('static/common/common.jscompress.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/mobile/mobile.jscompress.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/mobile/mobile.js'); ?>"></script>
     <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/common.css'); ?>" />
     <link rel="stylesheet" type="text/css" href="<?= site_url('static/mobile/mobile.css'); ?>" />
 </head>
@@ -98,7 +98,7 @@
         <div id="toolbar" class="above_map">
             <table>
             <tr>
-                <td><a class="button" id="button_find" href="#page-find"><img src="<?= site_url('static/mobile/button_find.png') ?>" /></a></td>
+                <td><a class="button" id="button_find" href="#page-browse"><img src="<?= site_url('static/mobile/button_find.png') ?>" /></a></td>
                 <td><a class="button" id="button_radar" href="#page-radar"><img src="<?= site_url('static/mobile/button_radar.png') ?>" /></a></td>
                 <!--<td><a class="button" id="button_twitter" href="#page-twitter"><img src="<?= site_url('static/mobile/button_twitter.png') ?>" /></a></td>-->
                 <td><a class="button" id="button_directions" href="#page-getdirections"><img src="<?= site_url('static/mobile/button_directions.png') ?>" /></a></td>
@@ -154,87 +154,6 @@
 
 
 
-<div data-role="page" id="page-find">
-    <div data-role="header">
-        <a href="#page-map">Back</a>
-        <h1>Find</h1>
-        <a href="#page-map">Map</a>
-    </div>
-    <div data-role="content">
-
-        <ul data-role="listview" data-inset="true">
-            <li><a href="#page-browse">Browse by category</a></li>
-            <li><a href="#page-keyword">Search by keyword</a></li>
-            <li><a href="javascript:void(0);" id="gps_center">Zoom to your current location</a></li>
-            <li><a href="#page-lonlat">Enter longitude &amp; latitude</a></li>
-        </ul>
-
-    </div>
-</div>
-
-
-
-
-
-<div data-role="page" id="page-lonlat">
-    <div data-role="header">
-        <a href="#page-find">Back</a>
-        <h1>Coordinates</h1>
-        <a href="#page-map">Map</a>
-    </div>
-    <div data-role="content">
-
-        <fieldset data=role="controlgroup">
-            <div class="textnowrap">
-            <b>Degrees &amp; Minutes</b>
-            <br/>
-            <table>
-            <tr>
-                <td>
-                    <input type="text" readonly="readonly" data-mini="true" value="N" style="width:1.25em;" />
-                    <input type="text" id="dm_lat_deg" data-mini="true" style="width:3em;" maxlength="2" />&deg;
-                    <input type="text" id="dm_lat_min" data-mini="true" style="width:2em;" maxlength="2" />.<input type="text" id="dm_lat_dmin" data-mini="true" style="width:3em;" maxlength="3" />
-                </td>
-                <td><input type="button" data-mini="true" id="lonlat_dm_load_button" value="Load from GPS" style="width:10em;" /></td>
-            </tr>
-            <tr>
-                <td>
-                    <input type="text" readonly="readonly" data-mini="true" value="W" style="width:1.25em;" />
-                    <input type="text" id="dm_lng_deg" data-mini="true" style="width:3em;" maxlength="3" />&deg;
-                    <input type="text" id="dm_lng_min" data-mini="true" style="width:2em;" maxlength="2" />.<input type="text" id="dm_lng_dmin" data-mini="true" style="width:3em;" maxlength="3" />
-                </td>
-                <td><input type="button" data-mini="true" id="lonlat_dm_button" value="Show on map &gt;&gt;" style="width:10em;" /></td>
-            </tr>
-            </table>
-            </div>
-        </fieldset>
-
-        <br/>
-
-        <fieldset data=role="controlgroup">
-            <div class="textnowrap">
-            <b>Decimal degrees</b>
-            <br/>
-            <table>
-            <tr>
-                <td>Latitude:</td>
-                <td><input type="text" id="dd_lat" data-mini="true" style="width:10em;" maxlength="15" /></td>
-                <td><input type="button" data-mini="true" id="lonlat_dd_load_button" value="Load from GPS" style="width:10em;" /></td>
-            </tr>
-            <tr>
-                <td>Longitude:</td>
-                <td><input type="text" id="dd_lng" data-mini="true" style="width:10em;" maxlength="15" /></td>
-                <td><input type="button" data-mini="true" id="lonlat_dd_button" value="Show on map &gt;&gt;" style="width:10em;" /></td>
-            </tr>
-            </table>
-            </div>
-        </fieldset>
-
-    </div>
-</div>
-
-
-
 <div data-role="page" id="page-radar">
     <div data-role="header">
         <a href="#page-map">Back</a>
@@ -275,9 +194,11 @@
 
 
 
-<div data-role="page" id="page-keyword">
+
+
+<div data-role="page" id="page-browse">
     <div data-role="header">
-        <a href="#page-find">Back</a>
+        <a href="#page-map">Back</a>
         <h1>Find</h1>
         <a href="#page-map">Map</a>
     </div>
@@ -290,23 +211,10 @@
             <input type="button" data-mini="true" id="browse_keyword_button" value="Search &gt;&gt;" />
         </fieldset>
 
-    </div>
-</div>
-
-
-
-<div data-role="page" id="page-browse">
-    <div data-role="header">
-        <a href="#page-find">Back</a>
-        <h1>Find</h1>
-        <a href="#page-map">Map</a>
-    </div>
-    <div data-role="content">
-
         <ul data-role="listview" data-inset="true">
-        <li><a href="#page-browse-pois-activity">Points of Interest</a></li>
-        <li><a href="#page-trailfinder">Trail Finder</a></li>
-        <li><a href="#page-loops-search">Featured Hikes and Routes</a></li>
+            <li><a href="#page-browse-pois-activity"><img class="ui-li-icon" src="<?= site_url('static/desktop/menu_pois.png') ?>" /> Points of Interest</a></li>
+            <li><a href="#page-trailfinder"><img class="ui-li-icon" src="<?= site_url('static/desktop/menu_trailfinder.png') ?>" /> Trail Finder</a></li>
+            <li><a href="#page-loops-search"><img class="ui-li-icon" src="<?= site_url('static/desktop/menu_loops.png') ?>" /> Featured Hikes and Routes</a></li>
         </ul>
 
     </div>
@@ -421,7 +329,7 @@
 
 <div data-role="page" id="page-search">
     <div data-role="header">
-        <a href="#page-keyword">Back</a>
+        <a href="#page-browse">Back</a>
         <h1>Search</h1>
         <a href="#page-map">Map</a>
     </div>
@@ -606,7 +514,7 @@
         </div>
         <div id="getdirections_enabled" style="display:none;">
             <div id="change_directions_target">
-                <a href="#page-find">change<br/>destination</a>
+                <a href="#page-browse">change<br/>destination</a>
             </div>
 
             <fieldset data=role="controlgroup">
@@ -692,7 +600,7 @@
         <img data-value="hike" src="<?= site_url('static/desktop/trailfinder_hike_off.png') ?>" />
         <img data-value="bike_Advanced" src="<?= site_url('static/desktop/trailfinder_bike_off.png') ?>" />
         <img data-value="bridle" src="<?= site_url('static/desktop/trailfinder_horse_off.png') ?>" />
-        <img data-value="exercise" src="<?= site_url('static/desktop/trailfinder_exercise_off.png') ?>" />
+        <!--<img data-value="exercise" src="<?= site_url('static/desktop/trailfinder_exercise_off.png') ?>" />-->
         <img data-value="mountainbike" src="<?= site_url('static/desktop/trailfinder_mtnbike_off.png') ?>" />
     </div>
 

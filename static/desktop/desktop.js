@@ -615,6 +615,16 @@ function showElevation(url) {
 
 ///// a common interface at the AJAX level, but different CSS and sorting for Mobile vs Desktop
 function searchByKeyword(keyword) {
+    // surprise bypass
+    // if the search word "looks like coordinates" then zoom the map there
+    var latlng = strToLatLng(keyword);
+    if (latlng) {
+        MAP.setView(latlng,16);
+        placeTargetMarker(latlng.lat,latlng.lng);
+        return;
+    }
+
+    // guess we go ahead and do a text search
     var target = $('#keyword_results');
     target.empty();
 

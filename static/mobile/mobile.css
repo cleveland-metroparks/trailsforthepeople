@@ -301,6 +301,12 @@ div.share_button img {
 }
 
 
+/* icons in the Find menu */
+
+#page-browse ul[data-role="listview"] li img {
+    margin-top: -5px; /* hack to make the icons align to the text */
+}
+
 
 /* TRAIL FINDER and FEATURED LOOPS */
 

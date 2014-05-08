@@ -168,30 +168,6 @@ $(document).ready(function () {
 
 
 
-/*
-// mobile-specific: listen for page changes to #page-find and some others, and update the Find button to go to that page,
-// so the Find button really goes back to wherever they were in the Find/Info subsystem
-$(document).bind('pagebeforechange', function(e,data) {
-    if ( typeof data.toPage != "string" ) return; // no hash given
-    var hash = $.mobile.path.parseUrl(data.toPage).hash;
-
-    // figure out which page they were last using, or else default to Find
-    // sadly this is manually maintained, so future changes to the Find and subpanels will mean updating this. Sigh.
-    var url = null;
-    if ( hash.indexOf('#page-find') == 0) url = hash;
-    if ( hash.indexOf('#page-browse') == 0) url = hash;
-    if ( hash.indexOf('#page-keyword') == 0) url = hash;
-    if ( hash.indexOf('#page-search') == 0) url = hash;
-    if ( hash.indexOf('#page-loops') == 0) url = hash;
-    if ( hash.indexOf('#browse-items') == 0) url = hash;
-    if ( hash.indexOf('#page-info') == 0) url = hash;
-
-    // now go ahead and set the Find button's target, if we in fact found an alternate URL
-    if (url) $('#button_find').prop('href',url);
-});
-*/
-
-
 
 // mobile-specific: listen for page changes to #page-radar and update Near You Now content
 $(document).bind('pagebeforechange', function(e,data) {
@@ -226,6 +202,13 @@ $(document).bind('pagechange', function(e,data) {
 });
 
 
+
+// mobile-specific: when the map canvas gets swiped, turn off GPS mode
+$(window).load(function () {
+    $('#map_canvas').bind('swipe', function () {
+        toggleGPSOff();
+    });
+});
 
 
 // a method for changing over to the map "page" without having a hyperlink, e.g. from the geocoder callback
@@ -404,71 +387,6 @@ $(window).load(function () {
 
 
 
-///// on page load: enable some event handlers for the LatLon page subsystem
-$(window).load(function () {
-    // the Load From GPS button loads the boxes from LAST_KNOWN_LOCATION
-    function loadLastKnownCoordsToLatLonPage() {
-        var latlng = LAST_KNOWN_LOCATION;
-        var lat = latlng.lat;
-        var lng = latlng.lng;
-        var ns = lat < 0 ? 'S' : 'N';
-        var ew = lng < 0 ? 'W' : 'E';
-        var latdeg = Math.abs(parseInt(lat));
-        var lngdeg = Math.abs(parseInt(lng));
-        var latmin = ( 60 * (Math.abs(lat) - Math.abs(parseInt(lat))) ).toFixed(3);
-        var lngmin = ( 60 * (Math.abs(lng) - Math.abs(parseInt(lng))) ).toFixed(3);
-
-        $('#dd_lng').val(lng);
-        $('#dd_lat').val(lat);
-        $('#dm_lat_deg').val(latdeg);
-        $('#dm_lng_deg').val(lngdeg);
-        $('#dm_lat_min').val( parseInt(latmin) );
-        $('#dm_lng_min').val( parseInt(lngmin) );
-        $('#dm_lat_dmin').val( Math.round(1000*(latmin - parseInt(latmin))) );
-        $('#dm_lng_dmin').val( Math.round(1000*(lngmin - parseInt(lngmin))) );
-    }
-    $('#lonlat_dm_load_button').tap(loadLastKnownCoordsToLatLonPage);
-    $('#lonlat_dd_load_button').tap(loadLastKnownCoordsToLatLonPage);
-
-    // the "Go" button for Decimal Degree and Degrees Minutes
-    function zoomToLatLonAsStated(lat,lng) {
-        // make sure the numbers are numbers, and that the location is valid
-        try {
-            var latlng = L.latLng(lat,lng);
-        } catch (err) {
-            return alert("The coordinates are valid.");
-        }
-        if (! MAX_BOUNDS.contains(latlng) ) return alert("That location is outside of the mapping area.");
-
-        // zoom the point location, nice and close, and add a marker
-        switchToMap(function () {
-            MAP.setView(latlng,16);
-            placeTargetMarker(lat,lng);
-        });
-    }
-    $('#lonlat_dd_button').tap(function () {
-         var lat = parseFloat($('#dd_lat').val());
-         var lng = parseFloat($('#dd_lng').val());
-        zoomToLatLonAsStated(lat,lng);
-    });
-    $('#lonlat_dm_button').tap(function () {
-        var latdeg = parseInt($('#dm_lat_deg').val());
-        var latmin = parseInt($('#dm_lat_min').val());
-        var latdmn = parseInt($('#dm_lat_dmin').val());
-        var lat = latdeg + ((latmin + latdmn*0.001) / 60.0);
-
-        var lngdeg = parseInt($('#dm_lng_deg').val());
-        var lngmin = parseInt($('#dm_lng_min').val());
-        var lngdmn = parseInt($('#dm_lng_dmin').val());
-        var lng = lngdeg + ((lngmin + lngdmn*0.001) / 60.0);
-        lng = -lng;
-
-        zoomToLatLonAsStated(lat,lng);
-    });
-});
-
-
-
 ///// on page load: load all POIs (use areas) into memory from AJAX, but do not render them into DOM yet
 ///// Rendering to DOM is done later by updateNearYouNow() to do only the closest few POIs, so we don't overload
 $(window).load(function () {
@@ -618,12 +536,6 @@ $(window).load(function () {
             clearCircle();
         }
     });
-
-    $('#gps_center').tap(function () {
-        switchToMap(function () {
-            MAP.fire('locationfound', { latlng: LAST_KNOWN_LOCATION } );
-        });
-    });
 });
 
 
@@ -645,6 +557,16 @@ function showElevation(url) {
 
 ///// a common interface at the AJAX level, but different CSS and sorting for Mobile vs Desktop
 function searchByKeyword(keyword) {
+    // surprise bypass
+    // if the search word "looks like coordinates" then zoom the map there
+    var latlng = strToLatLng(keyword);
+    if (latlng) {
+        MAP.setView(latlng,16);
+        placeTargetMarker(latlng.lat,latlng.lng);
+        return;
+    }
+
+    // guess we go ahead and do a text search
     var target = $('#keyword_results');
     target.empty();
 
@@ -678,7 +600,7 @@ function searchByKeyword(keyword) {
             var distance = $('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text('0 mi');
             var div      = $('<div></div>').addClass('ui-btn-text').append(title).append(subtitle).append(distance);
             var li       = $('<li></li>').addClass('zoom').addClass('ui-li-has-count').append(div);
-            li.attr('backbutton','#page-keyword');
+            li.attr('backbutton','#page-browse');
             li.attr('w', result.w);
             li.attr('s', result.s);
             li.attr('e', result.e);
@@ -728,7 +650,7 @@ function zoomElementClick(element) {
 
     // correct the Back button to go to the URL specified in the element, or else to the map
     var backurl = element.attr('backbutton');
-    if (! backurl) backurl = '#page-find';
+    if (! backurl) backurl = '#page-browse';
     $('#page-info .ui-header .ui-btn-left').prop('href', backurl);
 
     // now that we have a location defined, enable the Get Directions
@@ -905,7 +827,7 @@ $(window).load(function () {
 
     // this button changes over to the Find subpage, so they can pick a destination
     $('#change_directions_target2').tap(function () {
-        $.mobile.changePage('#page-find');
+        $.mobile.changePage('#page-browse');
 
         // if they clicked this button, it means that they will be looking for a place,
         // with the specific purpose of getting Directions there

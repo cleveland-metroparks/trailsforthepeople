@@ -1176,8 +1176,8 @@ function routewaypoints($context=false) {
     $output['use_hike']         = 'Yes';
     $output['use_bike']         = 'Yes';
     $output['use_bridle']       = 'Yes';
-    $output['use_exercise']     = 'Yes';
-    $output['use_mountainbike'] = 'Yes';
+    $output['use_exercise']     = 'No';
+    $output['use_mountainbike'] = 'No';
     $output['paved']      = 0;
     $output['difficulty'] = 'Novice';
 
@@ -1306,14 +1306,6 @@ function routewaypoints($context=false) {
         if ($segment->hike   == 'No') $output['use_hike']   = 'No';
         if ($segment->bike   == 'No') $output['use_bike']   = 'No';
         if ($segment->bridle == 'No') $output['use_bridle'] = 'No';
-//GDA this needs to be revisited for logic
-        if ($output['use_exercise'] == 'Yes' or $output['use_mountainbike'] == 'Yes') {
-            $segtrail = $this->db->query("SELECT uses LIKE ('%Exercising%') AS exercise, uses LIKE ('%Mountain Biking%') AS mountainbike FROM trails_fixed WHERE gid in (SELECT trailgid FROM pieces_to_trails WHERE segmentgid=?)", array($segment->gid) );
-            foreach ($segtrail->result() as $st) {
-                if ($st->exercise     != 't') $output['use_exercise']     = 'No';
-                if ($st->mountainbike != 't') $output['use_mountainbike'] = 'No';
-            }
-        }
 
         // increment the pavement counter
         if ($segment->paved == 'Yes')  $output['paved']++;
