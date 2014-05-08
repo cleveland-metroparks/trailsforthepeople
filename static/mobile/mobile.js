@@ -570,17 +570,6 @@ function searchByKeyword(keyword) {
     var target = $('#keyword_results');
     target.empty();
 
-    var title    = $('<span></span>').addClass('ui-li-heading').text(' Run a Bing address search');
-    var subtitle = $('<span></span>').addClass('ui-li-desc').text('search as an address or landmark');
-    var li       = $('<li></li>').addClass('zoom').append(title).append(subtitle).appendTo(target);
-    li.data('address',keyword);
-    li.click(function () {
-        zoomToAddress( $(this).data('address') );
-    });
-    // for distance searching, Address Search is always "closest"
-    li.attr('title',' Address search');
-    li.data('meters', -1);
-
     disableKeywordButton();
     $('#page-search .sortpicker').hide();
 
@@ -589,7 +578,9 @@ function searchByKeyword(keyword) {
         $('#page-search .sortpicker').show();
 
         if (! reply.length) {
-            $('<li></li>').text('No Cleveland Metroparks results found.').appendTo(target);
+            // no matches, means we say so ... and that we pass on to an address search
+            $('<li></li>').text('No Cleveland Metroparks results found. Trying an address search.').appendTo(target);
+            zoomToAddress(keyword);
             return;
         }
         for (var i=0, l=reply.length; i<l; i++) {

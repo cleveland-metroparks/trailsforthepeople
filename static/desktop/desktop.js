@@ -628,20 +628,13 @@ function searchByKeyword(keyword) {
     var target = $('#keyword_results');
     target.empty();
 
-    var    title = $('<span></span>').addClass('ui-li-heading').text(' Address search');
-    var subtitle = $('<span></span>').addClass('ui-li-desc').text('search as an address or landmark');
-    var li       = $('<li></li>').css({'cursor':'pointer'}).append(title).append(subtitle);
-    target.append(li);
-    li.data('address',keyword);
-    li.click(function () {
-        zoomToAddress( $(this).data('address') );
-    });
-
     disableKeywordButton();
     $.get('../ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
         enableKeywordButton();
         if (! reply.length) {
-            $('<li></li>').text('No Cleveland Metroparks results found.').appendTo(target);
+            // no matches, means we say so ... and that we pass on to an address search
+            $('<li></li>').text('No Cleveland Metroparks results found. Trying an address search.').appendTo(target);
+            zoomToAddress(keyword);
             return;
         }
         for (var i=0, l=reply.length; i<l; i++) {
