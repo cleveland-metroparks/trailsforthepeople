@@ -80,7 +80,7 @@
     <!-- our own local javaScript and CSS: the common stuff then our own overrides -->
     <script type="text/javascript" src="<?= site_url('static/common/constants.jscompress.js'); ?>"></script>
     <script type="text/javascript" src="<?= site_url('static/common/common.jscompress.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/mobile/mobile.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/mobile/mobile.jscompress.js'); ?>"></script>
     <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/common.css'); ?>" />
     <link rel="stylesheet" type="text/css" href="<?= site_url('static/mobile/mobile.css'); ?>" />
 </head>
@@ -279,7 +279,7 @@
             <span class="fakelink" value="alphabetical">Sort alphabetically</span>
         </div>
 
-        <ul id="trailfinder_results" data-role="listview" data-inset="true">
+        <ul id="trailfinder_results" class="distance_sortable" data-role="listview" data-inset="true">
         </ul>
 
     </div>

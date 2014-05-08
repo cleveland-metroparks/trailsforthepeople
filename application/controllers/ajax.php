@@ -1176,8 +1176,7 @@ function routewaypoints($context=false) {
     $output['use_hike']         = 'Yes';
     $output['use_bike']         = 'Yes';
     $output['use_bridle']       = 'Yes';
-    $output['use_exercise']     = 'No';
-    $output['use_mountainbike'] = 'No';
+    $output['use_mountainbike'] = 'Yes';
     $output['paved']      = 0;
     $output['difficulty'] = 'Novice';
 
@@ -1218,8 +1217,8 @@ function routewaypoints($context=false) {
         $destination = sprintf("ST_Transform(ST_GeometryFromText('POINT(%f %f)',4326),3734)", $lngB, $latB );
         $onode = $this->db->query("SELECT gid, source, x, y FROM $route_table ORDER BY the_geom <-> $origin      LIMIT 1")->row();
         $dnode = $this->db->query("SELECT gid, target, x, y FROM $route_table ORDER BY the_geom <-> $destination LIMIT 1")->row();
-        $routesqlquery = "SELECT ST_AsText(ST_Transform(route.the_geom,4326)) AS wkt, ST_Length(route.the_geom) AS length, $route_table.gid, $route_table.duration_hike, $route_table.duration_bike, $route_table.duration_bridle, $route_table.elevation, $route_table.name, $route_table.hike, $route_table.bike, $route_table.bridle, $route_table.paved, $route_table.difficulty FROM $route_table, (SELECT gid, the_geom FROM astar_sp_delta('$route_table',?,?,5280)) as route WHERE $route_table.gid=route.gid";
-        //$routesqlquery = "SELECT ST_AsText(ST_Transform(route.the_geom,4326)) AS wkt, ST_Length(route.the_geom) AS length, $route_table.gid, $route_table.duration_hike, $route_table.duration_bike, $route_table.duration_bridle, $route_table.elevation, $route_table.name, $route_table.hike, $route_table.bike, $route_table.bridle, $route_table.paved, $route_table.difficulty FROM $route_table, (SELECT gid, the_geom FROM dijkstra_sp_delta('$route_table',?,?,5280)) as route WHERE $route_table.gid=route.gid";
+        $routesqlquery = "SELECT ST_AsText(ST_Transform(route.the_geom,4326)) AS wkt, ST_Length(route.the_geom) AS length, $route_table.gid, $route_table.duration_hike, $route_table.duration_bike, $route_table.duration_bridle, $route_table.elevation, $route_table.name, $route_table.hike, $route_table.bike, $route_table.bridle, $route_table.mtnbike, $route_table.paved, $route_table.difficulty FROM $route_table, (SELECT gid, the_geom FROM astar_sp_delta('$route_table',?,?,5280)) as route WHERE $route_table.gid=route.gid";
+        //$routesqlquery = "SELECT ST_AsText(ST_Transform(route.the_geom,4326)) AS wkt, ST_Length(route.the_geom) AS length, $route_table.gid, $route_table.duration_hike, $route_table.duration_bike, $route_table.duration_bridle, $route_table.elevation, $route_table.name, $route_table.hike, $route_table.bike, $route_table.bridle, $route_table.mtnbike, $route_table.paved, $route_table.difficulty FROM $route_table, (SELECT gid, the_geom FROM dijkstra_sp_delta('$route_table',?,?,5280)) as route WHERE $route_table.gid=route.gid";
         $routesqlparam = array($onode->source, $dnode->target);
         $route = $this->db->query($routesqlquery,$routesqlparam);
 
@@ -1303,9 +1302,10 @@ function routewaypoints($context=false) {
         // if this segment does not allow hike/bike/bridle/paved then tag the Loop as not allowing it
         // hike, bike, bridle -- these are endemic to the routing_trails segments, and are used as-is
         // exercise, mountainbike -- these are supplied in trails_fixed
-        if ($segment->hike   == 'No') $output['use_hike']   = 'No';
-        if ($segment->bike   == 'No') $output['use_bike']   = 'No';
-        if ($segment->bridle == 'No') $output['use_bridle'] = 'No';
+        if ($segment->hike    == 'No') $output['use_hike']         = 'No';
+        if ($segment->bike    == 'No') $output['use_bike']         = 'No';
+        if ($segment->bridle  == 'No') $output['use_bridle']       = 'No';
+        if ($segment->mtnbike == 'No') $output['use_mountainbike'] = 'No';
 
         // increment the pavement counter
         if ($segment->paved == 'Yes')  $output['paved']++;

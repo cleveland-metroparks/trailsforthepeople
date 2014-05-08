@@ -436,7 +436,6 @@ function renderRoute(routestruct) {
     $('input[name="bike"]').val(routestruct.use_bike);
     $('input[name="bridle"]').val(routestruct.use_bridle);
     $('input[name="mountainbike"]').val(routestruct.use_mountainbike);
-    $('input[name="exercise"]').val(routestruct.use_exercise);
     $('input[name="difficulty"]').val(routestruct.difficulty);
     $('input[name="paved"]').val(routestruct.paved);
 
@@ -595,10 +594,6 @@ function renderDirections(steps) {
         <tr>
             <td>Equestrian?</td>
             <td><input type="text" name="bridle" value="<?= $loop ? $loop->bridle : '' ?>" readonly="readonly" /></td>
-        </tr>
-        <tr>
-            <td>Exercise?</td>
-            <td><input type="text" name="exercise" value="<?= $loop ? $loop->exercise : '' ?>" readonly="readonly" /></td>
         </tr>
         <tr>
             <td>Mountain Biking?</td>

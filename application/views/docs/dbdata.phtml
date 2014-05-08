@@ -483,6 +483,18 @@ UPDATE cm_trails SET paved='Yes' WHERE pri_use IN ('All Purpose Trail','APT','Ro
 
 UPDATE cm_trails SET hike='Yes' where pri_use='Road' AND bike='Yes';
 
+-- Mountain Biking
+
+ALTER TABLE cm_trails ADD COLUMN mtnbike varchar(5);
+
+UPDATE cm_trails SET mtnbike='Yes' WHERE
+    ( for_show='Yes' AND res LIKE '%Mill Stream%' AND label_name LIKE '%Red%' )
+    OR
+    ( for_show='Yes' AND res  LIKE '%Mill Stream%' AND label_name LIKE '%Yellow%' )
+    OR
+    ( for_show='Yes' AND res ='Ohio & Erie Canal Reservation'AND label_name LIKE '%Ohio & Erie Canal Reservation Mountain Bike Trail%' )
+;
+
 -- Add elevation data to the cm_trails so it can be click-queried
 -- Less accurate than what's in the smaller chunks of the routing table, but it's what there is for click-queries
 ALTER TABLE cm_trails ADD COLUMN elevation integer;
@@ -520,6 +532,7 @@ CREATE TABLE routing_trails (
     bike       varchar(3),
     bridle     varchar(3),
     hike       varchar(3),
+    mtnbike    varchar(3),
     difficulty varchar(20),
     paved      varchar(3),
     pri_use    varchar(25),
@@ -533,20 +546,20 @@ CREATE INDEX routing_trails_the_geom ON routing_trails USING GIST (the_geom);
 
 GRANT update ON routing_trails TO trails;
 
-INSERT INTO routing_trails (name, bridge, difficulty, bike, bridle, hike, paved, pri_use, one_way, the_geom)
-    SELECT label_name AS name, bridge, skill_cm AS difficulty, bike, bridle, hike, paved, pri_use, one_way, ST_GeometryN(geom,1)
+INSERT INTO routing_trails (name, bridge, difficulty, bike, mtnbike, bridle, hike, paved, pri_use, one_way, the_geom)
+    SELECT label_name AS name, bridge, skill_cm AS difficulty, bike, mtnbike, bridle, hike, paved, pri_use, one_way, ST_GeometryN(geom,1)
     FROM cm_trails
     WHERE bridge IS NOT NULL;
 
-INSERT INTO routing_trails (name, bridge, difficulty, bike, bridle, hike, paved, pri_use, one_way, the_geom)
-    SELECT name, bridge, difficulty, bike, bridle, hike, paved, pri_use, one_way, 
+INSERT INTO routing_trails (name, bridge, difficulty, bike, mtnbike, bridle, hike, paved, pri_use, one_way, the_geom)
+    SELECT name, bridge, difficulty, bike, mtnbike, bridle, hike, paved, pri_use, one_way, 
         ST_Line_Substring(t.geometry, 100.0*n/length,
         CASE
         WHEN 100.0*(n+1) < length THEN 100.0*(n+1)/length
         ELSE 1
         END) AS geometry
 FROM
-   (SELECT label_name AS name, bridge, skill_cm AS difficulty, bike, bridle, hike, paved, pri_use, one_way, 
+   (SELECT label_name AS name, bridge, skill_cm AS difficulty, bike, mtnbike, bridle, hike, paved, pri_use, one_way, 
     length,
     ST_GeometryN(geom,1) AS geometry
     FROM cm_trails
