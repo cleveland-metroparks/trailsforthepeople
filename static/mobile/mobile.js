@@ -831,6 +831,15 @@ $(window).load(function () {
 
 
 
+///// on page load
+///// afterthought: iOS and non-iOS get different icpons for the GPS button so it's important to trigger this now
+///// so the right icon is chosen
+$(window).load(function () {
+    toggleGPSOff();
+});
+
+
+
 
 ///// on page load
 ///// event handlers for the Loops listing and filtering
@@ -1076,15 +1085,19 @@ function sortLists(target) {
     }
 }
 
-
+function is_ios() {
+    return /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
+}
 function toggleGPS() {
     AUTO_CENTER_ON_LOCATION ? toggleGPSOff() : toggleGPSOn();
 }
 function toggleGPSOn() {
     AUTO_CENTER_ON_LOCATION = true;
-    $('#mapbutton_gps img').prop('src','/static/mobile/mapbutton_gps_on.png');
+    var iconurl = is_ios() ? '/static/mobile/mapbutton_gps_ios_on.png' : '/static/mobile/mapbutton_gps_on.png';
+    $('#mapbutton_gps img').prop('src',iconurl);
 }
 function toggleGPSOff() {
     AUTO_CENTER_ON_LOCATION = false;
-    $('#mapbutton_gps img').prop('src','/static/mobile/mapbutton_gps_off.png');
+    var iconurl = is_ios() ? '/static/mobile/mapbutton_gps_ios_off.png' : '/static/mobile/mapbutton_gps_off.png';
+    $('#mapbutton_gps img').prop('src',iconurl);
 }
