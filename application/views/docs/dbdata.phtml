@@ -486,8 +486,9 @@ UPDATE cm_trails SET hike='Yes' where pri_use='Road' AND bike='Yes';
 -- Mountain Biking
 
 ALTER TABLE cm_trails ADD COLUMN mtnbike varchar(5);
+UPDATE cm_trails SET mtnbike='No';
 
-UPDATE cm_trails SET mtnbike='Yes' WHERE
+UPDATE cm_trails SET mtnbike='Yes', bike='No', one_way=NULL WHERE
     ( for_show='Yes' AND res LIKE '%Mill Stream%' AND label_name LIKE '%Red%' )
     OR
     ( for_show='Yes' AND res  LIKE '%Mill Stream%' AND label_name LIKE '%Yellow%' )

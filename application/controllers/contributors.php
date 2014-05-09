@@ -397,7 +397,7 @@ function loops() {
 
     // simply make a list of all loops in the system
     // note the select() clause below to fetch only the fields of interest: the WKT and geom fields are expensive!
-    $fields = 'id,name,creatorid,status,editedby,distancetext,closedloop,hike,bike,bridle';
+    $fields = 'id,name,creatorid,status,editedby,distancetext,closedloop,hike,bike,mountainbike,bridle';
     $data = array();
     $data['loops'] = new Loop();
     if (@$_GET['random'])$data['loops']->where('source', 'Random');
@@ -463,7 +463,7 @@ function saveloop() {
     // save the plain and simple fields to the database
     $asisfields = array(
         'name', 'description',
-        'bike', 'bridle', 'hike', 'difficulty', 'paved',
+        'bike', 'bridle', 'hike', 'mountainbike', 'difficulty', 'paved',
         'wp0lat', 'wp0lng','wp1lat', 'wp1lng', 'wp2lat', 'wp2lng', 'wp3lat', 'wp3lng', 'wp4lat', 'wp4lng', 'wp5lat', 'wp5lng', 'wp6lat', 'wp6lng', 'wp7lat', 'wp7lng', 'wp8lat', 'wp8lng', 'wp9lat', 'wp9lng', 
         'distance_feet', 'distancetext', 'duration_hike', 'durationtext_hike', 'duration_bike', 'durationtext_bike', 'duration_bridle', 'durationtext_bridle', 
         'wkt', 'elevation_profile', 'closedloop', 'terrain_filter', 
