@@ -1942,8 +1942,8 @@ function search_loops() {
         case "bike_Advanced":
             $shorttype = "bike";
             $matches->where('bike','Yes');
-            $matches->group_start();
             /*
+            $matches->group_start();
             $matches->or_where('difficulty','Novice');
             $matches->or_where('difficulty','Beginner');
             $matches->or_where('difficulty','Intermediate');
@@ -1952,12 +1952,15 @@ function search_loops() {
             */
             break;
         case "bridle":
+            $shorttype = "bridle";
             $matches->where('bridle','Yes');
             break;
         case "exercise":
+            $shorttype = "hike";
             $matches->where('exercise','Yes');
             break;
         case "mountainbike":
+            $shorttype = "bike";
             $matches->where('mountainbike','Yes');
             break;
         default:
