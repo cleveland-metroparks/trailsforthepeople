@@ -33,13 +33,14 @@ function fetch_activitypois() {
         foreach ($pois as $poi) {
             $output[$category][] = array(
                 'use_area' => $poi->use_area,
-                'gid' => $poi->gid,
-                'boxw' => $poi->boxw, 'boxs' => $poi->boxs, 'boxe' => $poi->boxe, 'boxn' => $poi->boxn,
-                'lat' => $poi->lat, 'lng' => $poi->lng,
+                'gid' => (integer) $poi->gid,
+                'boxw' => (float) $poi->boxw, 'boxs' => (float) $poi->boxs, 'boxe' => (float) $poi->boxe, 'boxn' => (float) $poi->boxn,
+                'lat' => (float) $poi->lat, 'lng' => (float) $poi->lng,
             );
         }
     }
 
+    header('Content-type: application/json');
     print json_encode($output);
 }
 
@@ -51,9 +52,9 @@ function fetch_loops() {
     foreach ($input as $loop) {
         $output[] = array(
             'name' => $loop->name,
-            'id' => $loop->id,
-            'boxw' => $loop->boxw, 'boxs' => $loop->boxs, 'boxe' => $loop->boxe, 'boxn' => $loop->boxn,
-            'lat' => $loop->lat, 'lng' => $loop->lng,
+            'id' => (integer) $loop->id,
+            'boxw' => (float) $loop->boxw, 'boxs' => (float) $loop->boxs, 'boxe' => (float) $loop->boxe, 'boxn' => (float) $loop->boxn,
+            'lat' => (float) $loop->lat, 'lng' => (float) $loop->lng,
             'hike' => $loop->hike,
             'bike' => $loop->bike,
             'bridle' => $loop->bridle,
@@ -73,6 +74,7 @@ function fetch_loops() {
         );
     }
 
+    header('Content-type: application/json');
     print json_encode($output);
 }
 
