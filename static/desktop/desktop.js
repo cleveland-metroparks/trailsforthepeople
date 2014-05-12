@@ -501,6 +501,7 @@ $(window).load(function () {
                 li.attr('hike', loops[i].hike );
                 li.attr('bike', loops[i].bike );
                 li.attr('bridle', loops[i].bridle );
+                li.attr('mountainbike', loops[i].mountainbike );
                 li.attr('difficulty', loops[i].difficulty );
                 li.attr('length_feet', loops[i].length_feet );
                 li.attr('duration_hike', loops[i].duration_hike );
@@ -933,6 +934,11 @@ $(window).load(function () {
                 $('.time_bike').show();
                 $('.time_estimate_prefix').hide();
                 break;
+            case 'mountainbike':
+                $('.time_estimate').hide();
+                $('.time_bike').show();
+                $('.time_estimate_prefix').hide();
+                break;
             default:
                 $('.time_estimate').show();
                 $('.time_estimate_prefix').show();
@@ -1207,6 +1213,3 @@ function performMeasure(ll1,ll2,via) {
         renderDirectionsStructure(reply, target, { noshare:true });
     }, 'json');
 }
-
-
-
