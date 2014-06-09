@@ -96,15 +96,22 @@ function initMap () {
     if (MOBILE) $('#page-settings').page();
 
     // URL param: the base map; defaults to the "map" basemap
-    var basemap = MAPBASE;
-    switch (URL_PARAMS.param('base')) {
+    var base = URL_PARAMS.param('base');
+    if (! base) base = 'map';
+    var basemap; // which L.TileLayer instance to use?
+    switch (base) {
         case 'photo':
-            var checkbox = $('input[name="basemap"][value="photo"]')
-            checkbox.prop('checked',true);
+            var checkbox = $('input[name="basemap"][value="photo"]').prop('checked',true);
             if (MOBILE) checkbox.checkboxradio('refresh');
             basemap = PHOTOBASE;
             break;
         case 'map':
+            var checkbox = $('input[name="basemap"][value="map"]').prop('checked',true);
+            if (MOBILE) checkbox.checkboxradio('refresh');
+            basemap = MAPBASE;
+            break;
+        default:
+            throw "Invalid basemap given?";
             break;
     }
 
@@ -709,6 +716,10 @@ function processGetDirectionsForm() {
         $.get('../ajax/geocode_for_directions', params, function (reply) {
             sourcelat = reply.lat;
             sourcelng = reply.lng;
+
+            // save them into the input fields too, so they'd get shared
+            $('#directions_source_lat').val(reply.lat);
+            $('#directions_source_lng').val(reply.lng);
         }, 'json');
     }
 
@@ -724,6 +735,10 @@ function processGetDirectionsForm() {
         $.get('../ajax/geocode_for_directions', params, function (reply) {
             targetlat = reply.lat;
             targetlng = reply.lng;
+
+            // save them into the input fields too, so they'd get shared
+            $('#directions_target_lat').val(reply.lat);
+            $('#directions_target_lng').val(reply.lng);
         }, 'json');
     }
 
@@ -1613,6 +1628,8 @@ function updateShareUrlByDirections() {
 
     // compose the params to bring up this route at page load: route title, to and from coordinates, via type, etc
     var params = {};
+    if (MAP.hasLayer(PHOTOBASE)) params.base = 'photo';
+    if (MAP.hasLayer(MAPBASE))   params.base = 'map';
     params.routevia        = $('#directions_via').val();
     params.routevia_bike   = $('#directions_via_bike').val();
     params.routefrom       = $('#directions_source_lat').val() + ',' + $('#directions_source_lng').val();
