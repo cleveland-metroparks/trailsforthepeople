@@ -1584,15 +1584,12 @@ function populateShareBox() {
         if (! shortstring) return alert("Unable to fetch a short URL.\nPlease try again.");
         var url = URL_PARAMS.attr('protocol') + '://' + URL_PARAMS.attr('host') + '/url/' + shortstring;
 
-        // Jan 2014: mobile also uses a text input; I'm sure there was a good reason for using a div.fakeinput but I forget...
-        $('#share_url').val(url);
-        /*
+        // mobile uses a div.fakeinput cuz iOS "copy" copies a whole lot more than your input field content (sigh)
         if (MOBILE) {
             $('#share_url').text(url);
         } else {
             $('#share_url').val(url);
         }
-        */
     });
 }
 

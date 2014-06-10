@@ -152,6 +152,10 @@ $(document).bind('pagebeforechange', function(e,data) {
 $(document).ready(function () {
     // Twitter and Facebook are plain ol' hyperlinks,
     // but when we click them we update their URL before we allow them to trigger
+
+    // mobile warning: on mobile #share_url is not a text input and val() won't work
+    // at this time the FB and T icons don't exist on Mobile, but FYI
+
     $('#share_facebook').tap(function () {
         var url = $('#share_url').val();
             url = 'http://www.facebook.com/share.php?u=' + encodeURIComponent(url);
