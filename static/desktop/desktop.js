@@ -427,7 +427,7 @@ $(window).load(function () {
         'Drinking Fountain' : 'drinkingfountain.png',
         'Exploring Culture & History' : 'history.png',
         'Exploring Nature' : 'nature.png',
-        'Facilities' : 'reservable.png',
+        'Facilities' : 'facility.png',
         'Fishing & Ice Fishing' : 'fish.png',
         'Food' : 'food.png',
         'Geologic Feature' : 'geology.png',
@@ -438,6 +438,7 @@ $(window).load(function () {
         'Play Areas' : 'play.png',
         'Restroom' : 'restroom.png',
         'Sledding & Tobogganing' : 'sled.png',
+        'Snowshoeing' : 'sled.png',
         'Swimming' : 'swim.png',
         'Viewing Wildlife' : 'wildlife.png',
     };
