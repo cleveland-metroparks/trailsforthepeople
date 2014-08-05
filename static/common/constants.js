@@ -48,7 +48,7 @@ var MAPBASE   = new L.TileLayer("http://maps{s}.clemetparks.com/tilestache/tiles
 // new list of layers: merged the 3 WMS layers into one.
 // This effectively disables the ability to toggle layers individually, but improves load times
 var OVERLAYS  = [];
-OVERLAYS[OVERLAYS.length] = L.tileLayer.wms("http://maps{s}.clemetparks.com/gwc", { id:'labels', layers:'group_overlays,cm:closures,cm:markers_other,cm:markers_swgh'', format:'image/png', transparent:'TRUE', subdomains:'123' });
+OVERLAYS[OVERLAYS.length] = L.tileLayer.wms("http://maps{s}.clemetparks.com/gwc", { id:'labels', layers:'group_overlays,cm:closures,cm:markers_other,cm:markers_swgh', format:'image/png', transparent:'TRUE', subdomains:'123' });
 //OVERLAYS[OVERLAYS.length] = L.tileLayer.wms("http://maps{s}.clemetparks.com/gwms", { id:'closures', layers:'cm:closures,cm:markers_other,cm:markers_swgh', format:'image/png', transparent:'TRUE', subdomains:'123' });
 //OVERLAYS[OVERLAYS.length] = L.TileLayer("http://{s}.sm.mapstack.stamen.com/(terrain-labels%2C%24e7e7e5%5Bhsl-color%5D)/{z}/{x}/{y}.png", {subdomains:'abcd' });
 
