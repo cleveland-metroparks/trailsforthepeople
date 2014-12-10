@@ -10,6 +10,24 @@ function __construct() {
 }
 
 
+// purge the tile cache for a given type of change, e.g. clear the Closures tiles
+// Dec 2014: the $changedfeauretype has no effect as Closures and Markers are both in the same tile layer (geoserver_features)
+//           but this is in place should they be teased apart again some day, or otherwise require special treatment
+private function _clearTileCache($changedfeauretype) {
+    $tiledirs = glob("/var/tilestache/tiles/geoserver_features/[1][0-9]");
+    foreach ($tiledirs as $tilesubdir) $this->delTree($tilesubdir);
+}
+private function delTree($dir) {
+    if (! $dir) throw new Exception("delTree called without a directory!");
+    $files = array_diff(scandir($dir), array('.','..'));
+    foreach ($files as $file) {
+      error_log("$dir/$file");
+      (is_dir("$dir/$file")) ? $this->delTree("$dir/$file") : unlink("$dir/$file");
+    }
+    return rmdir($dir);
+}
+
+
 function login() {
     // must be using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
@@ -198,6 +216,9 @@ function deletemarker() {
         $marker->delete();
     }
 
+    // purge the tile cache
+    $this->_clearTileCache('marker');
+
     // we're outta here
     redirect(ssl_url('contributors/markers'));
 }
@@ -245,6 +266,9 @@ function savemarker() {
     if ($marker->expires and $marker->expires < $today) $marker->enabled = 0;
     $marker->save();
 
+    // purge the tile cache
+    $this->_clearTileCache('marker');
+
     // done
     $email = $this->loggedin;
     $email = $email['email'];
@@ -291,6 +315,9 @@ function trailclosures() {
 
     // postprocessing: find any Trails which intersect any of these Closures, tag them
     $this->db->query('SELECT update_trail_closures()');
+
+    // purge the tile cache
+    $this->_clearTileCache('closure');
 
     // done, audit and send them on
     $email = $this->loggedin;
