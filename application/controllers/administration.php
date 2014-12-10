@@ -234,7 +234,7 @@ function purge_tilestache() {
     function rrmdir($path) {
         return is_file($path) ? @unlink($path): array_map('rrmdir',glob($path.'/*'))==@rmdir($path);
     }
-    foreach (glob(sprintf("%s/*/??", $this->config->item('tilestache_tiles_directory') )) as $dir) {
+    foreach (glob(sprintf("%s/*/[01][123456789]", $this->config->item('tilestache_tiles_directory') )) as $dir) {
         printf("%s<br/>\n", $dir);
         ob_flush();
         rrmdir($dir);
