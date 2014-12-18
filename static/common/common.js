@@ -146,11 +146,6 @@ function initMap () {
         MAP.fitBounds(MAX_BOUNDS);
     }
 
-    // add the overlay layers
-    for (var i=0, l=OVERLAYS.length; i<l; i++) {
-        MAP.addLayer( OVERLAYS[i] );
-    }
-
     // additional Controls
     L.control.scale().addTo(MAP);
 
@@ -1107,19 +1102,6 @@ function printMap() {
         // the basemap is a tile service from TileStache, but printing can't do tile services
         // so we use the GeoServer WMS version, which does lack a bit in the image quality but does get the job done
         layers[layers.length] = { baseURL:"http://maps.clemetparks.com/gwms", opacity:1, singleTile:true, type:"WMS", layers:["group_basemap"], format:"image/jpeg", styles:[""], customParams:wmsparams };
-    }
-    for (var i=0, l=OVERLAYS.length; i<l; i++) {
-        var layer      = OVERLAYS[i];
-        var layernames = layer.options.layers.split(",");
-        var opacity    = 1.0;
-        var baseurl    = "http://maps.clemetparks.com/wms";
-
-        // if it's the labels layer, we can't use WMS but the special group WMS (GeoServer is so weird)
-        if (layer.options.id == 'labels') {
-            baseurl = "http://maps.clemetparks.com/gwms";
-        }
-
-        layers[layers.length] = { baseURL:baseurl, opacity:opacity, singleTile:true, type:"WMS", layers:layernames, format:"image/png", styles:[""], customParams:wmsparams };
     }
     if (DIRECTIONS_LINE && MAP.hasLayer(DIRECTIONS_LINE) ) {
         // Construct a list-of-lists multilinestring. Remember that OpenLayers and MFP do lng,lat instead of lat,lng
