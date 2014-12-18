@@ -14,8 +14,11 @@ function __construct() {
 // Dec 2014: the $changedfeauretype has no effect as Closures and Markers are both in the same tile layer (geoserver_features)
 //           but this is in place should they be teased apart again some day, or otherwise require special treatment
 private function _clearTileCache($changedfeauretype) {
-    $tiledirs = glob("/var/tilestache/tiles/geoserver_features/[1][0-9]");
-    foreach ($tiledirs as $tilesubdir) $this->delTree($tilesubdir);
+    $layers = array('geoserver_features','geoserver_labels','satphoto_mobilestack','basemap_mobilestack');
+    foreach ($layers as $layer) {
+        $tiledirs = glob("/var/tilestache/tiles/$layer/[1][0-9]");
+        foreach ($tiledirs as $tilesubdir) $this->delTree($tilesubdir);
+    }
 }
 private function delTree($dir) {
     if (! $dir) throw new Exception("delTree called without a directory!");
