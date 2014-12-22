@@ -1852,14 +1852,13 @@ function browse_items() {
 
 
 
-//gda
 function search_nearby() {
     // validation: floats, radius too large, categories exist, ...
     $_POST['lat']    = (float) @$_POST['lat']   ; if (! $_POST['lat']   ) return print "Bad params";
     $_POST['lng']    = (float) @$_POST['lng']   ; if (! $_POST['lng']   ) return print "Bad params";
     $_POST['meters'] = (float) @$_POST['meters'];
     if (! $_POST['meters']) return print "Bad params";
-    if ( $_POST['meters'] > 3000) return print "Big radius";
+    if ( $_POST['meters'] > 5 * 1609) return print "Big radius";
     $_POST['categories'] = explode(';', @$_POST['categories']); if (! sizeof($_POST['categories']) ) return print "Bad categories";
 
     // do the search, massage the output structure
