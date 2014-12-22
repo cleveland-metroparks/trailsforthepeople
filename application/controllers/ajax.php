@@ -1852,6 +1852,28 @@ function browse_items() {
 
 
 
+//gda
+function search_nearby() {
+    // validation: floats, radius too large, categories exist, ...
+    $_POST['lat']    = (float) @$_POST['lat']   ; if (! $_POST['lat']   ) return print "Bad params";
+    $_POST['lng']    = (float) @$_POST['lng']   ; if (! $_POST['lng']   ) return print "Bad params";
+    $_POST['meters'] = (float) @$_POST['meters'];
+    if (! $_POST['meters']) return print "Bad params";
+    if ( $_POST['meters'] > 3000) return print "Big radius";
+    $_POST['categories'] = explode(';', @$_POST['categories']); if (! sizeof($_POST['categories']) ) return print "Bad categories";
+
+    // do the search, massage the output structure
+    $results = array();
+    $raws = new Usearea();
+    $raws = $raws->searchNearby($_POST['lat'],$_POST['lng'],$_POST['meters'],$_POST['categories']);
+    foreach ($raws as $result) {
+        $results[] = array('type'=>'poi', 'name'=>trim($result->use_area), 'gid'=>(integer) $result->gid, 'w'=>(float) $result->boxw, 's'=>(float) $result->boxs, 'e'=>(float) $result->boxe, 'n'=>(float) $result->boxn, 'lat'=>(float) $result->lat, 'lng'=>(float) $result->lng );
+    }
+
+    // done, send 'em out via JSON
+    print json_encode($results);
+}
+
 
 function search_trails() {
     $results = array();
