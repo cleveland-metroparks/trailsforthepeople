@@ -2020,7 +2020,7 @@ function search_loops() {
     $results = array();
     foreach ($matches as $loop) {
         $result = array(
-            'title' => $loop->name, 'gid' => (integer) $loop->id,
+            'title' => $loop->name, 'type'=>'loop', 'gid' => (integer) $loop->id,
             'w' => (float) $loop->boxw, 's' => (float) $loop->boxs, 'e' => (float) $loop->boxe, 'n' => (float) $loop->boxn, 'lat' => (float) $loop->lat, 'lng' => (float) $loop->lng,
             'distance' => $loop->distancetext, 'duration' => $loop->{"durationtext_{$shorttype}"},
         );
