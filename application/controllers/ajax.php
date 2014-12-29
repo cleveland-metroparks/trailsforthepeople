@@ -295,7 +295,7 @@ function keyword() {
 
 
 function moreinfo() {
-    switch($_GET['type']) {
+    switch(@$_GET['type']) {
         case 'trail':
             $result   = new Trail();
             $result->where('gid',$_GET['gid'])->get();
