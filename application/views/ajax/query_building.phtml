@@ -1,7 +1,9 @@
 <div class="query_building">
 <h3 class="popup_title"><?= htmlspecialchars(trim($feature->name)) ?></h3>
 
-    <span class="fakelink zoom" type="building" title="<?= htmlspecialchars(trim($feature->name)) ?>" gid="<?= $feature->gid ?>" lat="<?= $feature->lat ?>" lng="<?= $feature->lng ?>" lat_driving="<?= $feature->lat_driving ?>" lng_driving="<?= $feature->lng_driving ?>" w="<?= $feature->boxw ?>" s="<?= $feature->boxs ?>" e="<?= $feature->boxe ?>" n="<?= $feature->boxn ?>" onClick="SKIP_TO_DIRECTIONS=false; zoomElementClick( $(this) );">Details</span>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <span class="fakelink zoom" type="building" title="<?= htmlspecialchars(trim($feature->name)) ?>" gid="<?= $feature->gid ?>" lat="<?= $feature->lat ?>" lng="<?= $feature->lng ?>" lat_driving="<?= $feature->lat_driving ?>" lng_driving="<?= $feature->lng_driving ?>" w="<?= $feature->boxw ?>" s="<?= $feature->boxs ?>" e="<?= $feature->boxe ?>" n="<?= $feature->boxn ?>" onClick="SKIP_TO_DIRECTIONS=true; zoomElementClick( $(this) );">Directions</span>
+    <div class="links">
+        <span class="fakelink zoom" type="building" title="<?= htmlspecialchars(trim($feature->name)) ?>" gid="<?= $feature->gid ?>" lat="<?= $feature->lat ?>" lng="<?= $feature->lng ?>" lat_driving="<?= $feature->lat_driving ?>" lng_driving="<?= $feature->lng_driving ?>" w="<?= $feature->boxw ?>" s="<?= $feature->boxs ?>" e="<?= $feature->boxe ?>" n="<?= $feature->boxn ?>" onClick="SKIP_TO_DIRECTIONS=false; zoomElementClick( $(this) );">Details</span>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <span class="fakelink zoom" type="building" title="<?= htmlspecialchars(trim($feature->name)) ?>" gid="<?= $feature->gid ?>" lat="<?= $feature->lat ?>" lng="<?= $feature->lng ?>" lat_driving="<?= $feature->lat_driving ?>" lng_driving="<?= $feature->lng_driving ?>" w="<?= $feature->boxw ?>" s="<?= $feature->boxs ?>" e="<?= $feature->boxe ?>" n="<?= $feature->boxn ?>" onClick="SKIP_TO_DIRECTIONS=true; zoomElementClick( $(this) );">Directions</span>
+    </div>
 </div>

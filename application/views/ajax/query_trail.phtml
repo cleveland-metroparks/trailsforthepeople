@@ -22,7 +22,10 @@ It shows the segment's own name, then info on the parent Trails
         Paved: <?= $trail->paved ?><br/>
         Total length: <?= $trail->length_text ?>
         <br/>
-        <span class="fakelink zoom" type="trail" title="<?= htmlspecialchars($trail->name) ?>" gid="<?= $trail->gid ?>" lat="<?= $trail->lat ?>" lng="<?= $trail->lng ?>" lat_driving="<?= $trail->lat_driving ?>" lng_driving="<?= $trail->lng_driving ?>" w="<?= $trail->boxw ?>" s="<?= $trail->boxs ?>" e="<?= $trail->boxe ?>" n="<?= $trail->boxn ?>" onClick="zoomElementClick( $(this) );">More Info</span>
+
+        <div class="links">
+            <span class="fakelink zoom" type="trail" title="<?= htmlspecialchars($trail->name) ?>" gid="<?= $trail->gid ?>" lat="<?= $trail->lat ?>" lng="<?= $trail->lng ?>" lat_driving="<?= $trail->lat_driving ?>" lng_driving="<?= $trail->lng_driving ?>" w="<?= $trail->boxw ?>" s="<?= $trail->boxs ?>" e="<?= $trail->boxe ?>" n="<?= $trail->boxn ?>" onClick="zoomElementClick( $(this) );">More Info</span>
+        </div>
     </p>
 <?php } ?>
 

@@ -17,5 +17,7 @@ This template is called if the Trailpiece does not have any Trail objects associ
 <p style="color:#E0E0E0;">GID: <?= $feature->gid ?><br/></p>
 -->
 
-<span class="fakelink zoom" type="trailpiece" title="<?= htmlspecialchars(trim($feature->label_name)) ?>" lat="<?= $feature->lat ?>" lng="<?= $feature->lng ?>" w="<?= $feature->boxw ?>" s="<?= $feature->boxs ?>" e="<?= $feature->boxe ?>" n="<?= $feature->boxn ?>" wkt="<?= $feature->wkt ?>" onClick="zoomElementClick( $(this) );">Directions here</span>
+    <div class="links">
+        <span class="fakelink zoom" type="trailpiece" title="<?= htmlspecialchars(trim($feature->label_name)) ?>" lat="<?= $feature->lat ?>" lng="<?= $feature->lng ?>" w="<?= $feature->boxw ?>" s="<?= $feature->boxs ?>" e="<?= $feature->boxe ?>" n="<?= $feature->boxn ?>" wkt="<?= $feature->wkt ?>" onClick="zoomElementClick( $(this) );">Directions here</span>
+    </div>
 </div>
