@@ -6,10 +6,6 @@
 
 <h2><?= htmlspecialchars($feature->name) ?></h2>
 
-<?php if ($feature->closed) { ?>
-<p class="alert">Some portions may be closed to access. Please check the map for more details.</p>
-<?php } ?>
-
 <table id="moreinfo_table">
 <?php if ($feature->reservation) { ?>
 <tr>
