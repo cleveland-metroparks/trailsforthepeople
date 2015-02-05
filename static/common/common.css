@@ -27,8 +27,10 @@ body,.ui-widget {
 }
 
 .alert {
-    background-color:yellow;
-    color:red;
+    background-color:#CC9966;
+    color:black;
+    font-weight:bold;
+    text-align:center;
 }
 
 td,th {
