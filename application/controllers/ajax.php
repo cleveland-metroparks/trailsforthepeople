@@ -1897,8 +1897,9 @@ function search_trails() {
     // iterate and form the results
     foreach ($trails as $trail) {
         $notes = array();
-        if ($trail->uses) $notes[] = "Uses: " . $trail->uses;
-        $notes[] = "Paved: " . $trail->paved;
+        //if ($trail->uses) $notes[] = "Uses: " . $trail->uses;
+        //$notes[] = "Paved: " . $trail->paved;
+        $notes[] = sprintf("%.1f miles of trail", $trail->length_text );
         if ($trail->reservation and ! @$_GET['reservation']) $notes[] = "Location: " . $trail->reservation;
         $notes = implode("<br/>", $notes);
 
