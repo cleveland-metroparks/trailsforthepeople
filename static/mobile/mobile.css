@@ -84,6 +84,8 @@
 }
 #toolbar table td:last-child {
     border-right:0 none transparent;
+	
+
 }
 
 #alerts .zoom_distance {
@@ -333,3 +335,4 @@ div.share_button img {
 #loops_filter_distancepicker img {
     cursor:pointer;
 }
+	@import url('../../themes/CMP.css');
