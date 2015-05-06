@@ -10,13 +10,72 @@
 /* Swatches */
 
 @import "bignoodletitling/stylesheet.css";
+@import "antonio/stylesheet.css";
 
+#browse_results li {
+padding: 0;
+margin-left: 0;
+
+}
+
+.zoom_distance {
+height: 100%;
+line-height: 1.5em;
+text-align: center;
+vertical-align: middle;
+}
+
+#info-content {
+padding-left: 20px;
+}
+
+.ui-btn-hidden {
+text-transform: uppercase;
+}
+
+.ui-li-has-count .ui-li-count {
+    top: 0;
+	margin-top: 0;
+	margin-right: 15px;
+text-align: center;
+vertical-align: middle;
+	padding: 0 10px;
+	min-width: 90px;
+	font-size: 0.5em;
+	border-top: none;
+	border-bottom: none;
+
+}
+
+
+.ui-li-heading, .ui-li-desc {
+margin: 0 120px 0 0;
+padding-left: 10px;
+line-height: 1.5em;
+white-space:normal !important;
+}
+
+.ui-li-heading {
+
+}
 h1 {
 	
 	font-weight: normal;}
 
 .ui-content{ padding: 0;}
-.ui-header .ui-title, .ui-footer .ui-title { min-height: 1.25em; text-align: center; font-size: 1em; display: block; margin: 0;  padding: 0;  text-overflow: ellipsis; overflow: hidden; white-space: nowrap; outline: 0; }
+.ui-header .ui-title, .ui-footer .ui-title { 
+min-height: 1.25em; 
+text-align: center; 
+font-size: 1em; 
+display: block; 
+margin: 0;  
+padding: 0;  
+text-overflow: ellipsis; 
+overflow: hidden; 
+white-space: nowrap; 
+outline: 0; 
+font-family: 'bignoodletitlingregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
+}
 
 .ui-header .ui-btn-left,
 .ui-header .ui-btn-right,
@@ -43,17 +102,23 @@ h1 {
 			margin: 0;}
 	
 	
+		
 	.ui-btn-text {
+line-height: 2em;
 
-		line-height: 2em;
 		}
 
-.ui-li .ui-btn-inner a.ui-link-inherit, .ui-li-static.ui-li {
+.ui-li .ui-btn-inner a.ui-link-inherit {
 	padding: 0;
 	margin-left: 50px;
 	font-size: 2em;
-	line-height: 1.25em
+	line-height: 1.25em;
 	}
+	
+	.ui-li-static.ui-li {	padding: 0;
+	margin-left: 0;
+	font-size: 2em;
+	line-height: 1.25em;}
 	
 	#page-find ul[data-role="listview"] li img {
 		margin: auto;
@@ -63,15 +128,13 @@ h1 {
 		
 		}
 .ui-listview .ui-li-icon {
-	top: 2px;
+	top: 25%;
 	}
 
 #searchButton {
 	height: 40px;
 	width: 40px;
 	}
-	
-
 
 /* A
 -----------------------------------------------------------------------------------------------------------*/
@@ -115,7 +178,7 @@ h1 {
 .ui-bar-a select,
 .ui-bar-a textarea,
 .ui-bar-a button {
-	  font-family: 'bignoodletitlingregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
+	  font-family: 'antonioregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
 }
 .ui-body-a,
 .ui-overlay-a {
@@ -138,7 +201,7 @@ h1 {
 .ui-body-a input,
 .ui-body-a select,
 .ui-body-a textarea,
-.ui-body-a button {	  font-family: 'bignoodletitlingregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
+.ui-body-a button {	  font-family: 'antonioregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
 }
 .ui-body-a .ui-link-inherit {
 	color: #005743 /*{a-body-color}*/;
@@ -263,7 +326,7 @@ h1 {
 .ui-bar-b input,
 .ui-bar-b select,
 .ui-bar-b textarea,
-.ui-bar-b button {	  font-family: 'bignoodletitlingregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
+.ui-bar-b button {	  font-family: 'antonioregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
 }
 .ui-body-b,
 .ui-overlay-b {
@@ -286,7 +349,7 @@ h1 {
 .ui-body-b input,
 .ui-body-b select,
 .ui-body-b textarea,
-.ui-body-b button {	  font-family: 'bignoodletitlingregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
+.ui-body-b button {	  font-family: 'antonioregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
 }
 .ui-body-b .ui-link-inherit {
 	color: #333333 /*{b-body-color}*/;
@@ -364,7 +427,7 @@ h1 {
 }
 .ui-btn-up-b,
 .ui-btn-hover-b,
-.ui-btn-down-b {	  font-family: 'bignoodletitlingregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
+.ui-btn-down-b {	  font-family: 'antonioregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
 	text-decoration: none;
 }
 
@@ -413,7 +476,7 @@ h1 {
 .ui-bar-c select,
 .ui-bar-c textarea,
 .ui-bar-c button {
-	  font-family: 'bignoodletitlingregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
+	  font-family: 'antonioregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
 }
 .ui-body-c,
 .ui-overlay-c {
@@ -514,7 +577,7 @@ h1 {
 }
 .ui-btn-up-c,
 .ui-btn-hover-c,
-.ui-btn-down-c {	  font-family: 'bignoodletitlingregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
+.ui-btn-down-c {	  font-family: 'antonioregular',Helvetica, Arial, sans-serif /*{global-font-family}*/;
 	text-decoration: none;
 }
 
@@ -546,7 +609,7 @@ a.ui-link-inherit {
 	background-image:    -moz-linear-gradient( #005743 /*{global-active-background-start}*/, #005743 /*{global-active-background-end}*/); /* FF3.6 */
 	background-image:     -ms-linear-gradient( #005743 /*{global-active-background-start}*/, #005743 /*{global-active-background-end}*/); /* IE10 */
 	background-image:      -o-linear-gradient( #005743 /*{global-active-background-start}*/, #005743 /*{global-active-background-end}*/); /* Opera 11.10+ */
-	background-image:         linear-gradient( #005743 /*{global-active-background-start}*/, #005743 /*{global-active-background-end}*/);	  font-family: 'bignoodletitlingregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
+	background-image:         linear-gradient( #005743 /*{global-active-background-start}*/, #005743 /*{global-active-background-end}*/);	  font-family: 'antonioregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
 }
 .ui-btn-active:visited,
 .ui-btn-active:hover,
@@ -961,3 +1024,4 @@ a.ui-link-inherit {
 	outline-style: auto;
 }
 			
+
