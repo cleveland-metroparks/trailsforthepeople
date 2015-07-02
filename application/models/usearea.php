@@ -146,7 +146,7 @@ function searchByKeywords($keywordstring) {
 }
 
 
-function searchNearby($lat,$lng,$meters,$categories) {
+function searchNearby($lat,$lng,$meters,$categories=array()) {
     // build the distance query into the first pass, as it will eliminate the huge majority of points
     // and bypass the ORM so we can get some better performance
     $results = array();
@@ -159,8 +159,8 @@ function searchNearby($lat,$lng,$meters,$categories) {
     $table  = "cm_use_areas";
     $px = $this->db->query("SELECT * FROM $table WHERE ST_DISTANCE(geom,ST_TRANSFORM(ST_GEOMFROMTEXT('POINT($lng $lat)',4326),3734)) <= $meters");
     foreach ($px->result() as $poi) {
-        $matches = array_intersect( explode("; ",$poi->activity) , $categories );
-        if (! sizeof($matches) ) continue;
+        //$matches = array_intersect( explode("; ",$poi->activity) , $categories );
+        //if (! sizeof($matches) ) continue;
         $results[] = $poi;
     }
 
