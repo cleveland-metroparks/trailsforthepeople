@@ -1224,28 +1224,16 @@ function printMap() {
         page2text2 = page2text2.join("\n");
     }
     if (HIGHLIGHT_LINE && MAP.hasLayer(HIGHLIGHT_LINE) ) {
-        // the directions line, supporting both a single Polyline or a MultiPolyline, since it's subject to change
-        // Construct a list-of-lists multilinestring. Remember that OpenLayers and MFP do lng,lat instead of lat,lng
+        // the highlighting line, which we know to be a multilinestring
+        // Remember that OpenLayers and MFP do lng,lat instead of lat,lng
         var vertices = [];
-        if (HIGHLIGHT_LINE.getLatLngs) {
-            // a single Polyline
-            // collect the coordinates into a list, then make that list the only list within "vertices" (a multilinestring with 1 linestring component)
-            var vx = HIGHLIGHT_LINE.getLatLngs();
-            for (var i=0, l=vx.length; i<l; i++) {
-                vertices[vertices.length] = wgsToLocalSRS([ vx[i].lng, vx[i].lat ]);
+        var lines = HIGHLIGHT_LINE.getLatLngs();
+        for (var li=0, ll=lines.length; li<ll; li++) {
+            var thisline = [];
+            for (vi=0, vl=lines[li].length; vi<vl; vi++) {
+                thisline[thisline.length] = wgsToLocalSRS([ lines[li][vi].lng , lines[li][vi].lat ]);
             }
-            vertices = [ vertices ];
-        } else {
-            // a MultiPolyline
-            // use non-API methods to iterate over the line components, collecting them into "vertices" to form a list of lists
-            for (var li in HIGHLIGHT_LINE._layers) {
-                var subline = HIGHLIGHT_LINE._layers[li];
-                var subverts = [];
-                for (var i=0, l=subline._latlngs.length; i<l; i++) {
-                    subverts[subverts.length] = wgsToLocalSRS([ subline._latlngs[i].lng, subline._latlngs[i].lat ]);
-                }
-                vertices[vertices.length] = subverts;
-            }
+            vertices[vertices.length] = thisline;
         }
 
         // the styling is simply pulled from the styling constant

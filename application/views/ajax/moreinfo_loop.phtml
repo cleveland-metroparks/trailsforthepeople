@@ -28,10 +28,6 @@ Length: <?= $feature->distancetext ?><br/>
     <?= $feature->description ?>
 </p>
 
-<div class="elevationprofileimage" style="text-align:center;">
-    <img src="<?= site_url("static/photos/loops/{$feature->id}.jpg") ?>" />
-</div>
-
 <ul id="moreinfo_steps" data-role="listview" class="ui-listview">
 <?php foreach ($steps as $step) { ?>
     <li class="ui-li ui-li-static ui-body-c">
@@ -50,5 +46,9 @@ Length: <?= $feature->distancetext ?><br/>
 <?php if ($feature->closed) { ?>
 <p class="alert">Some portions may be closed to access. Please check the map for more details.</p>
 <?php } ?>
+
+<div class="elevationprofileimage" style="text-align:center;">
+    <img src="<?= site_url("static/photos/loops/{$feature->id}.jpg") ?>" />
+</div>
 
 <br/>

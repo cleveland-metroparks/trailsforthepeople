@@ -1854,17 +1854,18 @@ function browse_items() {
 
 function search_nearby() {
     // validation: floats, radius too large, categories exist, ...
-    $_POST['lat']    = (float) @$_POST['lat']   ; if (! $_POST['lat']   ) return print "Bad params";
-    $_POST['lng']    = (float) @$_POST['lng']   ; if (! $_POST['lng']   ) return print "Bad params";
-    $_POST['meters'] = (float) @$_POST['meters'];
-    if (! $_POST['meters']) return print "Bad params";
-    if ( $_POST['meters'] > 5 * 1609) return print "Big radius";
-    $_POST['categories'] = explode(';', @$_POST['categories']); if (! sizeof($_POST['categories']) ) return print "Bad categories";
+    $_GET['lat']    = (float) @$_GET['lat']   ; if (! $_GET['lat']   ) return print "Bad params";
+    $_GET['lng']    = (float) @$_GET['lng']   ; if (! $_GET['lng']   ) return print "Bad params";
+    $_GET['meters'] = (float) @$_GET['meters'];
+    if (! $_GET['meters']) return print "Bad params";
+    if ( $_GET['meters'] > 5 * 1609) return print "Big radius";
+    //$_POST['categories'] = explode(';', @$_POST['categories']); if (! sizeof($_POST['categories']) ) return print "Bad categories";
 
     // do the search, massage the output structure
     $results = array();
     $raws = new Usearea();
-    $raws = $raws->searchNearby($_POST['lat'],$_POST['lng'],$_POST['meters'],$_POST['categories']);
+    //$raws = $raws->searchNearby($_POST['lat'],$_POST['lng'],$_POST['meters'],$_POST['categories']);
+    $raws = $raws->searchNearby($_GET['lat'],$_GET['lng'],$_GET['meters']);
     foreach ($raws as $result) {
         $results[] = array('type'=>'poi', 'name'=>trim($result->use_area), 'gid'=>(integer) $result->gid, 'w'=>(float) $result->boxw, 's'=>(float) $result->boxs, 'e'=>(float) $result->boxe, 'n'=>(float) $result->boxn, 'lat'=>(float) $result->lat, 'lng'=>(float) $result->lng );
     }
