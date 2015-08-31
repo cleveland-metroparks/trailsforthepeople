@@ -261,14 +261,14 @@ function keyword() {
             );
         }
     }
-    if (!sizeof($types) or in_array('loop', $types)) {
+/*    if (!sizeof($types) or in_array('loop', $types)) {
         foreach ( Loop::searchByKeywords($keyword) as $r) {
             $results[] = array('name'=>$r->name, 'gid'=>$r->id, 'rank'=> (float) $r->rank,
                 'lat'=> (float) $r->lat, 'lng'=> (float) $r->lng, 'w'=> (float) $r->boxw, 's'=> (float) $r->boxs, 'e'=> (float) $r->boxe, 'n'=> (float) $r->boxn,
                 'description'=>'Featured Route', 'type'=>'loop'
             );
         }
-    }
+    } */
     if (!sizeof($types) or in_array('trail', $types)) {
         foreach ( Trail::searchByKeywords($keyword) as $r) {
             $results[] = array('name'=>$r->name, 'gid'=> (integer) $r->gid, 'rank'=> (float) $r->rank,
