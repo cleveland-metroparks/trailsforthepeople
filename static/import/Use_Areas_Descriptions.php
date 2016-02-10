@@ -51,7 +51,7 @@ for ($row=2; $row<=$numrows; $row++) {
     $imgurl  = $sheet->getCellByColumnAndRow( 6, $row)->getValue();
     $calurl  = $sheet->getCellByColumnAndRow( 7, $row)->getValue();
     $pageurl = $sheet->getCellByColumnAndRow( 4, $row)->getValue();
-    $driving = $sheet->getCellByColumnAndRow(11, $row)->getValue();
+   // $driving = $sheet->getCellByColumnAndRow(11, $row)->getValue();
     printf("%s: %s<br/>\n", $locid, $title );
 
     // data fix: the $imgurl is often multiple image URLs with commas in between, we only support one
@@ -65,7 +65,7 @@ for ($row=2; $row<=$numrows; $row++) {
     if ($imgurl)  pg_query_params($db, 'UPDATE cm_use_areas SET image_url=$1 WHERE loc_id=$2', array($imgurl,$locid) );
     if ($calurl)  pg_query_params($db, 'UPDATE cm_use_areas SET cal_link=$1 WHERE loc_id=$2', array($calurl,$locid) );
     if ($pageurl) pg_query_params($db, 'UPDATE cm_use_areas SET link=$1 WHERE loc_id=$2', array($pageurl,$locid) );
-    if ($driving) pg_query_params($db, 'UPDATE cm_use_areas SET dest_id=$1 WHERE loc_id=$2', array($driving,$locid) );
+    //if ($driving) pg_query_params($db, 'UPDATE cm_use_areas SET dest_id=$1 WHERE loc_id=$2', array($driving,$locid) );
 
     // and create the CMS Page and a single CMS Point
     if (! @$already[$locid]) {
