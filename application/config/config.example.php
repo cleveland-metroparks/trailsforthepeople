@@ -13,6 +13,11 @@
 | If this is not set then CodeIgniter will guess the protocol, domain and
 | path to your installation.
 |
+| Pro tip: This can self-configure both the server name and the http/https scheme,
+| if you use something similar to this:
+|     $config['base_url'] = sprintf('%s://%s/', @$_SERVER['HTTPS'] ? 'https' : 'http', $_SERVER['HTTP_HOST'] );
+|     $config['ssl_url']  = sprintf('https://%s/', $_SERVER['HTTP_HOST'] );
+|
 */
 $config['title']	= 'My uber duper special Map';
 $config['base_url']	= 'http://ururlhere.com/';
