@@ -1096,12 +1096,17 @@ function printMap() {
 
         // the photo base layer is a GeoServer cascade to a State of Ohio WMS service, but the Ohio WMS doesn't support large requests for printing
         // swap in the URL of a proxy service which fixes that
-        layers[layers.length] = { baseURL:"http://maps.clevelandmetroparks.com/proxy/ohioimagery", opacity:1, singleTile:false, type:"WMS", layers:["0"], format:"image/png", styles:[""]  };
+        //layers[layers.length] = { baseURL:"http://maps.clevelandmetroparks.com/proxy/ohioimagery", opacity:1, singleTile:false, type:"WMS", layers:["0"], format:"image/png", styles:[""]  };
+        layers[layers.length] = { baseURL:"http://10.0.0.23/proxy/ohioimagery", opacity:1, singleTile:false, type:"WMS", layers:["0"], format:"image/png", styles:[""]  };
     }
     if ( MAP.hasLayer(MAPBASE) ) {
         // the basemap is a tile service from TileStache, but printing can't do tile services
         // so we use the GeoServer WMS version, which does lack a bit in the image quality but does get the job done
-        layers[layers.length] = { baseURL:"http://maps.clevelandmetroparks.com/gwms", opacity:1, singleTile:true, type:"WMS", layers:["group_basemap"], format:"image/jpeg", styles:[""], customParams:wmsparams };
+        //layers[layers.length] = { baseURL:"http://maps.clevelandmetroparks.com/gwms", opacity:1, singleTile:true, type:"WMS", layers:["group_basemap"], format:"image/jpeg", styles:[""], customParams:wmsparams };
+        //layers[layers.length] = { baseURL:"http://10.0.0.23/gwms", opacity:1, singleTile:true, type:"WMS", layers:["group_basemap"], format:"image/jpeg", styles:[""], customParams:wmsparams };
+        layers[layers.length] = { baseURL:"http://localhost/gwms", opacity:1, singleTile:true, type:"WMS", layers:["cm:trails","cm:closures","cm:markers_other","cm:markers_swgh"], format:"image/png", styles:"", customParams:wmsparams };
+        //layers[layers.length] = { baseURL:"http://10.0.0.23/gwms", opacity:1, singleTile:true, type:"WMS", layers:["group_basemap","cm:closures","cm:markers_other","cm:markers_swgh"], format:"image/png", styles:[""], customParams:wmsparams };
+        //layers[layers.length] = { baseURL:"http://10.0.0.23/gwms", opacity:1, singleTile:true, type:"WMS", layers:["group_basemap","cm:closures","cm:markers_other","cm:markers_swgh"], format:"image/png", styles:[""], customParams:wmsparams };
     }
     if (DIRECTIONS_LINE && MAP.hasLayer(DIRECTIONS_LINE) ) {
         // Construct a list-of-lists multilinestring. Remember that OpenLayers and MFP do lng,lat instead of lat,lng
@@ -1136,7 +1141,8 @@ function printMap() {
         };
 
         // now the Start marker, which will always be present if there's a line
-        var iconurl  = ICON_FROM.options.iconUrl;
+        //var iconurl  = ICON_FROM.options.iconUrl;
+        var iconurl  = ICON_FROM.options.iconUrl.replace('maps.clevelandmetroparks.com','10.0.0.23').replace('https:','http:');
         var projdot  = wgsToLocalSRS(MARKER_FROM.getLatLng());
         var iconxoff = -10; // offset to place the marker; MFP drifts it for some reason
         var iconyoff = 0; // offset to place the marker; MFP drifts it for some reason
@@ -1157,7 +1163,8 @@ function printMap() {
         };
 
         // and the End marker, which will always be present if there's a line; copied from the Start marker above
-        var iconurl  = ICON_TO.options.iconUrl
+        //var iconurl  = ICON_TO.options.iconUrl;
+        var iconurl  = ICON_TO.options.iconUrl.replace('maps.clevelandmetroparks.com','10.0.0.23').replace('https:','http:');
         var projdot  = wgsToLocalSRS(MARKER_TO.getLatLng());
         var iconxoff = -10; // offset to place the marker; MFP drifts it for some reason
         var iconyoff = 0; // offset to place the marker; MFP drifts it for some reason
