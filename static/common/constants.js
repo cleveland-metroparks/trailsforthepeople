@@ -38,8 +38,8 @@ var PRINT_SIZES = {
 };
 
 // these basemaps are really basemaps WITH baked-in labels and features, so the map can function with only one overlay visible
-var PHOTOBASE = new L.TileLayer("http://maps{s}.clemetparks.com/tilestache/tilestache.cgi/satphoto_mobilestack/{z}/{x}/{y}.jpg", { name:'photo', subdomains:'123' });
-var MAPBASE   = new L.TileLayer("http://maps{s}.clemetparks.com/tilestache/tilestache.cgi/basemap_mobilestack/{z}/{x}/{y}.jpg", { name:'terrain', subdomains:'123' });
+var PHOTOBASE = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/satphoto_mobilestack/{z}/{x}/{y}.jpg", { name:'photo', subdomains:'123' });
+var MAPBASE   = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/basemap_mobilestack/{z}/{x}/{y}.jpg", { name:'terrain', subdomains:'123' });
 
 /* to add route debugging into the map as it is running, paste this into the JavaScript console */
 /*
