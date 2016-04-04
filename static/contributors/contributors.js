@@ -2,14 +2,14 @@
 ///// This is identical to the public-facing version, except that we must use SSL
 ///// because Chrome and IE can't cope with mixing HTTP and HTTPS on the same page
 
-var MAPBASE   = new L.TileLayer("https://maps1.clemetparks.com/tilestache/tilestache.cgi/basemap/{z}/{x}/{y}.jpg", { });
+var MAPBASE   = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/basemap/{z}/{x}/{y}.jpg", { });
 
 var OVERLAYS  = [];
-OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("https://maps2.clemetparks.com/wms", { id:'closures', visibility:true, layers:'cm:closures,cm:markers_other,cm:markers_swgh', format:'image/png', transparent:'TRUE' });
-OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("https://maps3.clemetparks.com/gwc", { id:'labels', visibility:true, layers:'group_overlays', format:'image/png', transparent:'TRUE' });
+OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("//maps.clevelandmetroparks.com/wms", { id:'closures', visibility:true, layers:'cm:closures,cm:markers_other,cm:markers_swgh', format:'image/png', transparent:'TRUE' });
+OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("//maps.clevelandmetroparks.com/gwc", { id:'labels', visibility:true, layers:'group_overlays', format:'image/png', transparent:'TRUE' });
 
 // almost identicval: we enable the Route Debugging layer for these maps
-OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("https://maps1.clemetparks.com/wms", { id:'routedebug', visibility:false, layers:'cm:routing_barriers,cm:routing_segments,cm:routing_nodes,cm:route_problem_intersections', format:'image/png', transparent:'TRUE' });
+OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("//maps.clevelandmetroparks.com/wms", { id:'routedebug', visibility:false, layers:'cm:routing_barriers,cm:routing_segments,cm:routing_nodes,cm:route_problem_intersections', format:'image/png', transparent:'TRUE' });
 
 
 
