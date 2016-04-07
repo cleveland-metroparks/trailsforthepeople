@@ -1101,8 +1101,8 @@ function printMap() {
     if ( MAP.hasLayer(MAPBASE) ) {
         // the basemap is a tile service from TileStache, but printing can't do tile services
         // so we use the GeoServer WMS version, which does lack a bit in the image quality but does get the job done
-        layers[layers.length] = { baseURL:"http://maps.clevelandmetroparks.com/gwms", opacity:1, singleTile:true, type:"WMS", layers:["group_basemap"], format:"image/jpeg", styles:[""], customParams:wmsparams };
-        layers[layers.length] = { baseURL:"http://maps.clevelandmetroparks.com/gwms", opacity:1, singleTile:true, type:"WMS", layers:["cm:trails","cm:closures","cm:markers_other","cm:markers_swgh"], format:"image/png", styles:"", customParams:wmsparams };
+        layers[layers.length] = { baseURL:"http://maps.clevelandmetroparks.com/gwms", opacity:1, singleTile:true, type:"WMS", layers:["cuva_bounds","basemap_reservations","contours_cropped","basemap_water_poly","basemap_water_line","bnasemap_lake_erie","basemap_smallroads","basemap_smallroadfills","basemap_majorroads","basemap_highways","basemap_parking","road_shields","labels_streets","cm_golf_poly","labels_cities","golf_fairways","buildings_2011","trails","buildings","boundary_label_small","res_labels","use_area_mask","use_area_labels"], format:"image/jpeg", styles:[""], customParams:wmsparams };
+//	layers[layers.length] = { baseURL:"http://maps.clevelandmetroparks.com/gwms", opacity:1, singleTile:true, type:"WMS", layers:["cm:cuva_bounds","basemap_reservations","contours_cropped","cm:road_shields","cm:labels_streets","cm:cm_golf_poly","labels_cities","cm:golf_fairways","cm:buildings_2011","cm:trails","cm:buildings","cm:boundary_label_small","res_labels","loop_line_labels","use_area_mask","use_area_labels","cm_use_areas_labels"], format:"image/png", styles:"", customParams:wmsparams };
     }
     if (DIRECTIONS_LINE && MAP.hasLayer(DIRECTIONS_LINE) ) {
         // Construct a list-of-lists multilinestring. Remember that OpenLayers and MFP do lng,lat instead of lat,lng
