@@ -2,7 +2,7 @@
 ///// This is identical to the public-facing version, except that we must use SSL
 ///// because Chrome and IE can't cope with mixing HTTP and HTTPS on the same page
 
-var MAPBASE   = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/basemap/{z}/{x}/{y}.jpg", { });
+var MAPBASE   = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/basemap_mobilestack/{z}/{x}/{y}.jpg", { });
 
 var OVERLAYS  = [];
 OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("//maps.clevelandmetroparks.com/wms", { id:'closures', visibility:true, layers:'cm:closures,cm:markers_other,cm:markers_swgh', format:'image/png', transparent:'TRUE' });
