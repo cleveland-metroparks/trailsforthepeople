@@ -28,6 +28,14 @@ function listCategories() {
             // activity exclusions: they added some bad 'activity' content and this is how we work around it, rather than cleaning up the data
             if ($activity == 'Mountain Biking') continue;
             if ($activity == 'Shelter')         continue;
+            if ($activity == 'Archery')         continue;
+            if ($activity == 'Boating')         continue;
+            if ($activity == 'Golf')         continue;
+            if ($activity == 'Play Areas')         continue;
+            if ($activity == 'Sledding & Tobogganing')         continue;
+            if ($activity == 'Geologic Feature')         continue;
+            if ($activity == 'Drinking Fountain')         continue;
+	    
 
             $activities[trim($activity)] = TRUE;
         }
