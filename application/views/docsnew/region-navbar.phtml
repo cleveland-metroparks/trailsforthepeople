@@ -1,0 +1,73 @@
+<?php
+  $menu = array(
+    array(
+      'url' => 'docsnew/index/home',
+      'title' => 'Home'
+    ),
+    array(
+      'url' => 'docsnew/index/content',
+      'title' => 'Content'
+    ),
+    array(
+      'url' => 'docsnew/index/admin',
+      'title' => 'Administration',
+      'submenu' => array(
+        array(
+          'url' => 'docsnew/index/users',
+          'title' => 'Manage Users',
+        ),
+        array(
+          'url' => 'docsnew/index/admin/data',
+          'title' => 'Manage Data',
+        ),
+      ),
+    ),
+    array(
+      'url' => 'docsnew/index/docs',
+      'title' => 'Docs'
+    ),
+    array(
+      'url' => 'docsnew/index/testing',
+      'title' => 'Testing'
+    ),
+  );
+?>
+
+
+<ul class="nav navbar-nav">
+  <?php
+    function print_menu($menu, $active_path='') {
+      foreach ($menu as $item) {
+
+        $classes = array();
+        if ($item['url'] == $active_path) {
+          $classes[] = 'active';
+        }
+        if (isset($item['submenu'])) {
+          $classes[] = 'dropdown';
+        }
+
+        $classes_str = ' class="';
+        $i=0;
+        foreach ($classes as $class) {
+          $classes_str .= ($i++ > 0) ? ' ' : '';
+          $classes_str .= $class;
+        }
+        $classes_str .= '"';
+
+        print '<li' . $classes_str . '>';
+
+        if (isset($item['submenu'])) {
+          print '<a href="' . ssl_url($item['url']) . '" role="button" aria-haspopup="true" aria-expanded="true">' . $item['title'] . ' <span class="caret"></span></a>';
+          print '<ul class="dropdown-menu">';
+          print_menu($item['submenu'], $active_path);
+          print '</ul>';
+        } else {
+          print '<a href="' . ssl_url($item['url']) . '">' . $item['title'] . '</a>';
+        }
+        print '</li>' . "\n";
+      }
+    }
+    print_menu($menu, $this->uri->uri_string);
+  ?>
+</ul>
