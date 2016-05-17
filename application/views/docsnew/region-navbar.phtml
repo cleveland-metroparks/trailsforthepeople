@@ -13,7 +13,7 @@
       'title' => 'Administration',
       'submenu' => array(
         array(
-          'url' => 'docsnew/index/users',
+          'url' => 'docsnew/index/admin/users',
           'title' => 'Manage Users',
         ),
         array(
@@ -24,7 +24,71 @@
     ),
     array(
       'url' => 'docsnew/index/docs',
-      'title' => 'Docs'
+      'title' => 'Docs',
+      'submenu' => array(
+        array(
+          'url' => 'docsnew/index/docs/content',
+          'title' => 'Content &amp; Contributors',
+          'submenu' => array(
+            array(
+              'url' => 'docsnew/index/docs/content/panel',
+              'title' => 'Content &amp; Contributors Panel',
+            ),
+          ),
+        ),
+        array(
+          'url' => 'docsnew/index/docs/admin',
+          'title' => 'Administration',
+          'submenu' => array(
+            array(
+              'url' => 'docsnew/index/docs/admin/panel',
+              'title' => 'Admin Panel',
+            ),
+            array(
+              'url' => 'docsnew/index/docs/admin/stack',
+              'title' => 'Programming Language, Frameworks, Techniques',
+            ),
+            array(
+              'url' => 'docsnew/index/docs/admin/js_compression',
+              'title' => 'Javascript Compression',
+            ),
+            array(
+              'url' => 'docsnew/index/docs/admin/mapfish_print',
+              'title' => 'MapFish Print',
+            ),
+            array(
+              'url' => 'docsnew/index/docs/admin/db_load',
+              'title' => 'Database Load',
+            ),
+            array(
+              'url' => 'docsnew/index/docs/admin/db_update',
+              'title' => 'Database Update',
+            ),
+            array(
+              'url' => 'docsnew/index/docs/admin/tilestache',
+              'title' => 'TileStache Basemap',
+            ),
+          ),
+        ),
+        array(
+          'url' => 'docsnew/index/docs/cms',
+          'title' => 'CMS &amp; Embedding',
+          'submenu' => array(
+            array(
+              'url' => 'docsnew/index/docs/cms/cms',
+              'title' => 'The CMS and embedded map pages',
+            ),
+            array(
+              'url' => 'docsnew/index/docs/cms/finder',
+              'title' => 'The Finders: embeddable search systems',
+            ),
+            array(
+              'url' => 'docsnew/index/docs/cms/url_params',
+              'title' => 'Controlling map start view',
+            ),
+          ),
+        ),
+      ),
     ),
     array(
       'url' => 'docsnew/index/testing',
