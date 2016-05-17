@@ -3,7 +3,6 @@ body {
 }
 .content {
   padding: 40px 15px;
-  text-align: center;
 }
 
 ul.nav li.dropdown:hover ul.dropdown-menu {
