@@ -31,7 +31,9 @@
           <a class="navbar-brand" href="#">CM-Trails Admin</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
-          <?php $this->load->view('docsnew/region-navbar.phtml') ?>
+          <ul class="nav navbar-nav">
+            <?= $mainmenu; ?>
+          </ul>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
