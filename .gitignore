@@ -1,3 +1,9 @@
 ROUTING_STEPS_FOR_DBDATAHTML.TXT
 TODO.TXT
 README.TXT
+
+# Mac OS X
+.DS_Store
+
+# Sublime Text
+sftp-config.json
