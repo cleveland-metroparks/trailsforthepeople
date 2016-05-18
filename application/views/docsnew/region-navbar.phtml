@@ -27,7 +27,7 @@
       'title' => 'Docs',
       'submenu' => array(
         array(
-          'url' => 'docsnew/index/docs/content',
+          'url' => 'docsnew/index/docs/content/panel',
           'title' => 'Content &amp; Contributors',
           'submenu' => array(
             array(
@@ -37,7 +37,7 @@
           ),
         ),
         array(
-          'url' => 'docsnew/index/docs/admin',
+          'url' => 'docsnew/index/docs/admin/panel',
           'title' => 'Administration',
           'submenu' => array(
             array(
@@ -71,7 +71,7 @@
           ),
         ),
         array(
-          'url' => 'docsnew/index/docs/cms',
+          'url' => 'docsnew/index/docs/cms/cms',
           'title' => 'CMS &amp; Embedding',
           'submenu' => array(
             array(
@@ -104,7 +104,7 @@
       foreach ($menu as $item) {
 
         $classes = array();
-        if ($item['url'] == $active_path) {
+        if (isset($item['url']) && $item['url'] == $active_path) {
           $classes[] = 'active';
         }
         if (isset($item['submenu'])) {
@@ -122,7 +122,12 @@
         print '<li' . $classes_str . '>';
 
         if (isset($item['submenu'])) {
-          print '<a href="' . ssl_url($item['url']) . '" role="button" aria-haspopup="true" aria-expanded="true">' . $item['title'] . ' <span class="caret"></span></a>';
+          if (isset($item['url'])) {
+            print '<a href="' . ssl_url($item['url']) . '" role="button" aria-haspopup="true" aria-expanded="true">' . $item['title'] . ' <span class="caret"></span></a>';
+          } else {
+            print '<a href="#" role="button" aria-haspopup="true" aria-expanded="true">' . $item['title'] . ' <span class="caret"></span></a>';
+            //print $item['title'] . ' <span class="caret"></span></a>';
+          }
           print '<ul class="dropdown-menu">';
           print_menu($item['submenu'], $active_path);
           print '</ul>';
