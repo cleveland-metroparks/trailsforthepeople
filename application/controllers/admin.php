@@ -13,7 +13,7 @@ function index($which=null) {
     //if (! is_ssl() ) return $this->load->view('admin/sslrequired.phtml');
     if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
 
-    $data['mainmenu'] = $this->generate_menu_markup($this->mainmenu_array(), $this->uri->uri_string);
+    $data['mainmenu'] = $this->_generate_menu_markup($this->_mainmenu_array(), $this->uri->uri_string);
 
     // Clean and assemble our path.
     // Each '/'-separated path element in the URL string will be passed as an argument to this function.
@@ -35,9 +35,9 @@ function index($which=null) {
 /*
  * From a menu array (simple custom data structure), generate markup to display it as a bootstrap menu.
  *
- * @see mainmenu_array()
+ * @see _mainmenu_array()
  */
-function generate_menu_markup($menu, $active_path='') {
+private function _generate_menu_markup($menu, $active_path='') {
   $markup = '';
   foreach ($menu as $item) {
 
@@ -67,7 +67,7 @@ function generate_menu_markup($menu, $active_path='') {
         //$markup .= $item['title'] . ' <span class="caret"></span></a>';
       }
       $markup .= '<ul class="dropdown-menu">';
-      $markup .= $this->generate_menu_markup($item['submenu'], $active_path);
+      $markup .= $this->_generate_menu_markup($item['submenu'], $active_path);
       $markup .= '</ul>';
     } else {
       $markup .= '<a href="' . ssl_url($item['url']) . '">' . $item['title'] . '</a>';
@@ -80,9 +80,9 @@ function generate_menu_markup($menu, $active_path='') {
 /*
  * Return our back-end navigation main menu (in a custom format).
  *
- * @see generate_menu_markup()
+ * @see _generate_menu_markup()
  */
-function mainmenu_array() {
+private function _mainmenu_array() {
   $mainmenu_array = array(
     array(
       'url' => 'admin/index/home',
