@@ -1,11 +1,9 @@
-<?php $this->load->view('admin/region-header.phtml') ?>
-
 <div class="content">
   <h1>Programing Language, Frameworks, Techniques</h1>
 
   <h2>Programing And Database Frameworks</h2>
   <ul>
-  <li><b>PHP</b>, <b>CodeIgniter</b>, <b>DataMapper ORM</b> -- CodeIgniter is one of the most popular programming frameworks for PHP, and   finding programming advice and howtos is very easy via Google. DataMapper ORM (not to be confused with DataMapper for Ruby) is an object  -relational mapper, allowing database records to be fetched and modified as objects.</li>
+  <li><b>PHP</b>, <b>CodeIgniter</b>, <b>DataMapper ORM</b> -- CodeIgniter (currently using version 2.1.0) is one of the most popular programming frameworks for PHP, and finding programming advice and howtos is very easy via Google. DataMapper ORM (not to be confused with DataMapper for Ruby) is an object  -relational mapper, allowing database records to be fetched and modified as objects.</li>
   <li><b>jQuery</b> and <b>jQuery Mobile</b> -- These javaScript libraries are used to program the front-end apps. Virtually every  function in the system uses jQuery extensively.</li>
   <li><b>Leaflet</b> -- This JavaScript library provides the mapping user interface.</li>
   <li><b>PostgreSQL</b>, <b>PostGIS</b>, and <b>PgRouting</b> -- The PostgreSQL database, with the PostGIS extension, is used to store  the geodata. PgRouting is an additional set of libraries and procedures, allowing one to find the shortest path between two locations  over a network of lines. In this case, the <code>routing_trails</code> table (and some filtering views) is used for routing over the   trails.</li>
@@ -137,5 +135,3 @@
   <p>Some of the output items could technically be done on the client side: the bounding box and the starting and ending locations.   However, Leaflet does not expose this information, so it's much easier to have the server calculate it. It turns out that these   calculations and their JSON payload are trivial compared to the WKT and the elevation profile.</p>
 
 </div>
-
-<?php $this->load->view('admin/region-footer.phtml') ?>
