@@ -27,7 +27,6 @@ function index($which=null) {
 
   // then load the appropriate page (with .phtml extension)
   if (!$which) $which = "home";
-  $this->pagename = $which;
   $this->load->view("admin/$which.phtml", $data);
 }
 
