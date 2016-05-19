@@ -1,13 +1,13 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 class admin extends CI_Controller {
 
-
 function __construct() {
     parent::__construct();
 }
 
-
-
+/*
+ *
+ */
 function index($which=null) {
   // must be logged in and using SSL to do this
   //if (! is_ssl() ) return $this->load->view('admin/sslrequired.phtml');
@@ -182,9 +182,9 @@ private function _mainmenu_array() {
 }
 
 /*
- * Manage Users administrative page
+ * Manage Contributors administrative page
  */
-function users() {
+function contributors() {
   // must be logged in and using SSL to do this
   //if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
   //if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
@@ -198,7 +198,7 @@ function users() {
   $data['contributors']->get();
 
   // and print it out
-  $this->load->view('admin/admin/users.phtml', $data);
+  $this->load->view('admin/admin/contributors.phtml', $data);
 }
 
 
