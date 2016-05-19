@@ -1,5 +1,5 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-class DocsNew extends CI_Controller {
+class admin extends CI_Controller {
 
 
 function __construct() {
@@ -10,7 +10,7 @@ function __construct() {
 
 function index($which=null) {
     // must be logged in and using SSL to do this
-    //if (! is_ssl() ) return $this->load->view('docsnew/sslrequired.phtml');
+    //if (! is_ssl() ) return $this->load->view('admin/sslrequired.phtml');
     if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
 
     $data['mainmenu'] = $this->generate_menu_markup($this->mainmenu_array(), $this->uri->uri_string);
@@ -29,7 +29,7 @@ function index($which=null) {
     if (! $which) $which = "home";
     $this->pagename = $which;
     //$this->get_main_menu() = get_main_menu();
-    $this->load->view("docsnew/$which.phtml", $data);
+    $this->load->view("admin/$which.phtml", $data);
 }
 
 /*
@@ -85,89 +85,89 @@ function generate_menu_markup($menu, $active_path='') {
 function mainmenu_array() {
   $mainmenu_array = array(
     array(
-      'url' => 'docsnew/index/home',
+      'url' => 'admin/index/home',
       'title' => 'Home'
     ),
     array(
-      'url' => 'docsnew/index/content',
+      'url' => 'admin/index/content',
       'title' => 'Content'
     ),
     array(
-      'url' => 'docsnew/index/admin',
+      'url' => 'admin/index/admin',
       'title' => 'Administration',
       'submenu' => array(
         array(
-          'url' => 'docsnew/index/admin/users',
+          'url' => 'admin/index/admin/users',
           'title' => 'Manage Users',
         ),
         array(
-          'url' => 'docsnew/index/admin/data',
+          'url' => 'admin/index/admin/data',
           'title' => 'Manage Data',
         ),
       ),
     ),
     array(
-      'url' => 'docsnew/index/docs',
+      'url' => 'admin/index/docs',
       'title' => 'Docs',
       'submenu' => array(
         array(
-          'url' => 'docsnew/index/docs/content/panel',
+          'url' => 'admin/index/docs/content/panel',
           'title' => 'Content &amp; Contributors',
           'submenu' => array(
             array(
-              'url' => 'docsnew/index/docs/content/panel',
+              'url' => 'admin/index/docs/content/panel',
               'title' => 'Content &amp; Contributors Panel',
             ),
           ),
         ),
         array(
-          'url' => 'docsnew/index/docs/admin/panel',
+          'url' => 'admin/index/docs/admin/panel',
           'title' => 'Administration',
           'submenu' => array(
             array(
-              'url' => 'docsnew/index/docs/admin/panel',
+              'url' => 'admin/index/docs/admin/panel',
               'title' => 'Admin Panel',
             ),
             array(
-              'url' => 'docsnew/index/docs/admin/stack',
+              'url' => 'admin/index/docs/admin/stack',
               'title' => 'Programming Language, Frameworks, Techniques',
             ),
             array(
-              'url' => 'docsnew/index/docs/admin/js_compression',
+              'url' => 'admin/index/docs/admin/js_compression',
               'title' => 'Javascript Compression',
             ),
             array(
-              'url' => 'docsnew/index/docs/admin/mapfish_print',
+              'url' => 'admin/index/docs/admin/mapfish_print',
               'title' => 'MapFish Print',
             ),
             array(
-              'url' => 'docsnew/index/docs/admin/db_load',
+              'url' => 'admin/index/docs/admin/db_load',
               'title' => 'Database Load',
             ),
             array(
-              'url' => 'docsnew/index/docs/admin/db_update',
+              'url' => 'admin/index/docs/admin/db_update',
               'title' => 'Database Update',
             ),
             array(
-              'url' => 'docsnew/index/docs/admin/tilestache',
+              'url' => 'admin/index/docs/admin/tilestache',
               'title' => 'TileStache Basemap',
             ),
           ),
         ),
         array(
-          'url' => 'docsnew/index/docs/cms/cms',
+          'url' => 'admin/index/docs/cms/cms',
           'title' => 'CMS &amp; Embedding',
           'submenu' => array(
             array(
-              'url' => 'docsnew/index/docs/cms/cms',
+              'url' => 'admin/index/docs/cms/cms',
               'title' => 'The CMS and embedded map pages',
             ),
             array(
-              'url' => 'docsnew/index/docs/cms/finder',
+              'url' => 'admin/index/docs/cms/finder',
               'title' => 'The Finders: embeddable search systems',
             ),
             array(
-              'url' => 'docsnew/index/docs/cms/url_params',
+              'url' => 'admin/index/docs/cms/url_params',
               'title' => 'Controlling map start view',
             ),
           ),
@@ -175,7 +175,7 @@ function mainmenu_array() {
       ),
     ),
     array(
-      'url' => 'docsnew/index/testing',
+      'url' => 'admin/index/testing',
       'title' => 'Testing'
     ),
   );
