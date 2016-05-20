@@ -1,3 +1,10 @@
+<?php
+  // We're setting $this->page_title in derivative page templates, which means
+  // that it's not yet available in MY_Controller::_output(), so we're checking
+  // it here for use below.
+  $page_title = !empty($this->page_title) ? $this->page_title : 'Administration';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -5,7 +12,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title><?= !empty($this->page_title) ? $this->page_title.' : ' : 'Admin : ' ?><?= htmlspecialchars($this->config->item('title')) ?></title>
+    <title><?= $page_title . ' : ' . htmlspecialchars($this->config->item('title')) ?></title>
 
     <!-- Bootstrap -->
     <link href="<?= ssl_url('static/admin/bootstrap/css/bootstrap.min.css'); ?>" rel="stylesheet">
@@ -39,7 +46,10 @@
     </nav>
 
     <div class="container">
-      <?= $content ?>
+      <div class="content">
+        <h1><?= $page_title ?></h1>
+        <?= $content ?>
+      </div><!-- /.content -->
     </div><!-- /.container -->
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
