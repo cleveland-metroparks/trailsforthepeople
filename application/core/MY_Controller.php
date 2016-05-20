@@ -70,28 +70,52 @@ private function _generate_menu_markup($menu, $active_path='') {
  */
 private function _mainmenu_array() {
   $mainmenu_array = array(
+    /*
+     * Home
+     */
     array(
       'url' => 'admin/index/home',
       'title' => 'Home'
     ),
+    /*
+     * Content
+     */
     array(
       'url' => 'admin/index/content',
       'title' => 'Content'
     ),
+    /*
+     * Administration
+     */
     array(
-      'url' => 'admin/index/admin',
+      'url' => 'administration',
       'title' => 'Administration',
       'submenu' => array(
         array(
-          'url' => 'admin/contributors',
+          'url' => 'administration/contributors',
           'title' => 'Manage Contributors',
         ),
         array(
-          'url' => 'admin/index/admin/data',
-          'title' => 'Manage Data',
+          'url' => 'administration/markers',
+          'title' => 'Markers',
+        ),
+        array(
+          'url' => 'administration/purge_tilestache',
+          'title' => 'Purge Tilestache',
+        ),
+        array(
+          'url' => 'administration/seed_tilestache',
+          'title' => 'Seed Tilestache',
+        ),
+        array(
+          'url' => 'administration/auditlog',
+          'title' => 'Log',
         ),
       ),
     ),
+    /*
+     * Docs
+     */
     array(
       'url' => 'admin/index/docs',
       'title' => 'Docs',
@@ -160,9 +184,19 @@ private function _mainmenu_array() {
         ),
       ),
     ),
+    /*
+     * Testing
+     */
     array(
       'url' => 'admin/index/testing',
       'title' => 'Testing'
+    ),
+    /*
+     * Log out
+     */
+    array(
+      'url' => 'administration/logout',
+      'title' => 'Log out'
     ),
   );
 
