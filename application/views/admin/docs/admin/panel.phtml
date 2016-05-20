@@ -1,32 +1,29 @@
-<div class="content">
-  <h1>Admin Panel</h1>
+<?php $this->page_title = 'Admin Panel'; ?>
 
-  <h2>Admin Panel</h2>
-  <p>The admin panel is at <a target="_blank" href="<?= ssl_url('administration') ?>"><?= ssl_url('administration') ?></a> The username &amp; password are in <code>application/config/config.php</code> in plain text (edit this to change the login &amp; password). In   addition to the username and password, Google Re-CAPTCHA is used to prevent automated login attempts.</p>
-  <p>The admin panel requires the use of SSL (the https portion, instead of http) and you will be bounced over to the SSL version if you  try to use the non-SSL URL.</p>
-  <p>The admin panel is for administering several aspects of the system:</p>
-  <ul>
-      <li><b>Contributors</b> -- People who are allowed to access the Contributors system and post Markers.</li>
-      <li><b>Markers</b> -- Markers (aka Health Tips) posted by Contributors. The admin panel allows viewing what markers exist, and  deleting them if their content is inappropriate. There is no interface for creating or editing markers via the admin panel; for  that, create yourself a Contributor account and use the Contributor panel as usual.</li>
-      <li><b>Twitter</b> -- A list of recent Tweets to the hashtag <b>#ClevelandParks</b>, allowing you to delete posts and ban abusive   posters.</li>
-      <li><b>Log</b> -- The activity audit log. Shows all use of admin and contributor privileges.</li>
-  </ul>
+<h2>Admin Panel</h2>
+<p>The admin panel is at <a target="_blank" href="<?= ssl_url('administration') ?>"><?= ssl_url('administration') ?></a> The username &amp; password are in <code>application/config/config.php</code> in plain text (edit this to change the login &amp; password). In   addition to the username and password, Google Re-CAPTCHA is used to prevent automated login attempts.</p>
+<p>The admin panel requires the use of SSL (the https portion, instead of http) and you will be bounced over to the SSL version if you  try to use the non-SSL URL.</p>
+<p>The admin panel is for administering several aspects of the system:</p>
+<ul>
+    <li><b>Contributors</b> -- People who are allowed to access the Contributors system and post Markers.</li>
+    <li><b>Markers</b> -- Markers (aka Health Tips) posted by Contributors. The admin panel allows viewing what markers exist, and  deleting them if their content is inappropriate. There is no interface for creating or editing markers via the admin panel; for  that, create yourself a Contributor account and use the Contributor panel as usual.</li>
+    <li><b>Twitter</b> -- A list of recent Tweets to the hashtag <b>#ClevelandParks</b>, allowing you to delete posts and ban abusive   posters.</li>
+    <li><b>Log</b> -- The activity audit log. Shows all use of admin and contributor privileges.</li>
+</ul>
 
-  <h2>Contributors &amp; Markers</h2>
-  <p>Contributor accounts are like assistant administrators. They can post Markers to the map, can tag trails as closed, and can manage   Loops. As such, it's important to limit who has access to these functions.</p>
-  <p>The <code>Contributors</code> sub-panel lists the existing Contributor accounts as well as what permissions they have. it also   provides self-explanatory options for creating, editing, and deleting Contributors.</p>
-  <p>The <code>Markers</code> sub-panel allows you to view what contributed Markers exist in the system, so you may check for   inappropriate content and delete the Marker if necessary. There is no option for editing the marker content, on the philosophy that   editing is the contributor's job while the admin's job is limited to preventing abuse. If you, the administrator, wish to create  Markers, you may create yourself a Contributors account and login to the Contributors system as usual.</p>
-  <p>
-  Contributors have the following yes/no permissions:<br/>
-  <ul>
-      <li><b>Markers</b> -- The Contributor is allowed to post Markers.</li>
-      <li><b>SWGH</b> -- In conjunction with Markers, they are allowed to post Markers with the category Health Tips.</li>
-      <li><b>Loops</b> -- The Contributor is allowed to manage Loops.</li>
-      <li><b>Closures</b> -- The Contributor is allowed to manage Trail Closures.</li>
-  </ul>
-  </p>
+<h2>Contributors &amp; Markers</h2>
+<p>Contributor accounts are like assistant administrators. They can post Markers to the map, can tag trails as closed, and can manage   Loops. As such, it's important to limit who has access to these functions.</p>
+<p>The <code>Contributors</code> sub-panel lists the existing Contributor accounts as well as what permissions they have. it also   provides self-explanatory options for creating, editing, and deleting Contributors.</p>
+<p>The <code>Markers</code> sub-panel allows you to view what contributed Markers exist in the system, so you may check for   inappropriate content and delete the Marker if necessary. There is no option for editing the marker content, on the philosophy that   editing is the contributor's job while the admin's job is limited to preventing abuse. If you, the administrator, wish to create  Markers, you may create yourself a Contributors account and login to the Contributors system as usual.</p>
+<p>
+Contributors have the following yes/no permissions:<br/>
+<ul>
+    <li><b>Markers</b> -- The Contributor is allowed to post Markers.</li>
+    <li><b>SWGH</b> -- In conjunction with Markers, they are allowed to post Markers with the category Health Tips.</li>
+    <li><b>Loops</b> -- The Contributor is allowed to manage Loops.</li>
+    <li><b>Closures</b> -- The Contributor is allowed to manage Trail Closures.</li>
+</ul>
+</p>
 
-  <h2>Audit Log</h2>
-  <p>This section is read-only. It lists what audit-worthy activites have taken place recently. This includes Contributors posting or   editing Markers, and the admin managing Contributor accounts.</p>
-
-</div>
+<h2>Audit Log</h2>
+<p>This section is read-only. It lists what audit-worthy activites have taken place recently. This includes Contributors posting or   editing Markers, and the admin managing Contributor accounts.</p>

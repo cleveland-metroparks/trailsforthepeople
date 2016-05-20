@@ -1,125 +1,123 @@
-<div class="content">
-  <h1>The Content/Contributors Panel</h1>
-  <p class="lead">A Guide for Contributors</p>
+<?php $this->page_title = 'The Content/Contributors Panel'; ?>
 
-  <h2>Contributors Panel</h2>
+<p class="lead">A Guide for Contributors</p>
 
-  <p>
-  Contributors are like assistant administrators. Depending on the permissions granted to a Contributor, they can post Markers to the   map, mark Trails for closure, and manage Featured Loops.
-  </p>
+<h2>Contributors Panel</h2>
 
-  <p>Contributor accounts are managed by the admin via the Administrator Panel. If you are a Contributor and you are not seeing the menus   you expect to see (described below), contact the admin to have your account upgraded.</p>
+<p>
+Contributors are like assistant administrators. Depending on the permissions granted to a Contributor, they can post Markers to the   map, mark Trails for closure, and manage Featured Loops.
+</p>
 
-  <p>To login to the Contributors system, visit <a href="<?= ssl_url('contributors') ?>" target="_blank"><?= ssl_url('contributors') ?></a  > You will need your username (commonly your email address) and password as assigned by the administrator, and you will also need to  enter the Re-CAPTCHA (the squiggly letters) as additional verification. The Re-CAPTCHA is annoying at times, but it prevent robots from  trying to login and post spam.</p>
+<p>Contributor accounts are managed by the admin via the Administrator Panel. If you are a Contributor and you are not seeing the menus   you expect to see (described below), contact the admin to have your account upgraded.</p>
 
-  <p>The Contributors system requires the use of SSL (the https portion, instead of http) and you will be bounced over to the SSL version   if you try to use the non-SSL URL.</p>
+<p>To login to the Contributors system, visit <a href="<?= ssl_url('contributors') ?>" target="_blank"><?= ssl_url('contributors') ?></a  > You will need your username (commonly your email address) and password as assigned by the administrator, and you will also need to  enter the Re-CAPTCHA (the squiggly letters) as additional verification. The Re-CAPTCHA is annoying at times, but it prevent robots from  trying to login and post spam.</p>
 
-  <h2>Markers</h2>
+<p>The Contributors system requires the use of SSL (the https portion, instead of http) and you will be bounced over to the SSL version   if you try to use the non-SSL URL.</p>
 
-  <ul>
-  <li>To view Markers which you have posted, go into the <code>Markers</code> menu.</li>
-  <li>To post a new Marker, go into the <code>Markers</code> menu and then click the &quot;Create a new Marker&quot; link.</li>
-  <li>To edit a Marker, go into the <code>Markers</code> menu. Find your Marker on the list, and click its edit link.</li>
-  <li>To delete a marker, go into the editing panrel as described above, and scroll down to find the <code>Delete</code> button.</li>
-  </ul>
+<h2>Markers</h2>
 
-  <h3>Some notes about posting markers:</h3>
+<ul>
+<li>To view Markers which you have posted, go into the <code>Markers</code> menu.</li>
+<li>To post a new Marker, go into the <code>Markers</code> menu and then click the &quot;Create a new Marker&quot; link.</li>
+<li>To edit a Marker, go into the <code>Markers</code> menu. Find your Marker on the list, and click its edit link.</li>
+<li>To delete a marker, go into the editing panrel as described above, and scroll down to find the <code>Delete</code> button.</li>
+</ul>
 
-  <ul>
-  <li>A marker may have an optional starting date and expiration date. This is useful for events, which are temporary and which should be   removed after their time has passed.</li>
-  <li>A marker with an expiration date, can also be tagged for automatic re-enabling each year. This is useful for temporary or seasonal  markers: seasonal closures of a trail, areas known to be icy in winter, or a patch of trillium.</li>
-  <li>When filling out the &quot;Popup content&quot;, be aware of the volume of the content. The content should be brief enough to fit  comfortably into a small popup bubble. A full page of text may not be appropriate content to show in a popup marker, as it may be  larger than the user's screeen, especially on mobile browsers.</li>
-  <li>The &quot;Popup content&quot; can contain HTML, and an HTML style editor is included in the Contributors interface. This also   allows you to embed videos and to hyperlink to other documents.</li>
-  </ul>
+<h3>Some notes about posting markers:</h3>
 
-  <h2>Trail Closures</h2>
+<ul>
+<li>A marker may have an optional starting date and expiration date. This is useful for events, which are temporary and which should be   removed after their time has passed.</li>
+<li>A marker with an expiration date, can also be tagged for automatic re-enabling each year. This is useful for temporary or seasonal  markers: seasonal closures of a trail, areas known to be icy in winter, or a patch of trillium.</li>
+<li>When filling out the &quot;Popup content&quot;, be aware of the volume of the content. The content should be brief enough to fit  comfortably into a small popup bubble. A full page of text may not be appropriate content to show in a popup marker, as it may be  larger than the user's screeen, especially on mobile browsers.</li>
+<li>The &quot;Popup content&quot; can contain HTML, and an HTML style editor is included in the Contributors interface. This also   allows you to embed videos and to hyperlink to other documents.</li>
+</ul>
 
-  <p>
-  The Contributors Panel has a subsystem allowing trail segments to be marked for Closure. Segments marked as closed are affected in  several ways, which are described below.
-  </p>
+<h2>Trail Closures</h2>
 
-  <p>To tag a trail segment as Closed:</p>
-  <ul>
-  <li>Click the map to query it as usual.</li>
-  <li>If the popup shows info for a trail segment, there will also be a link to tag the segment as Closed.</li>
-  <li>When you click that link, it will appear on the right-hand side. You may edit the title and description. <b>This content will be  publicly visible in a popup bubble</b> and may include information about why it is closed and when it will reopen.</li>
-  <li>Note that some trails are comprised of many segments, and you may need to select multiple segments if a longer stretch is Closed.</ li>
-  <li>When you are done, click Save Changes to commit the list of closures.</li>
-  </ul>
+<p>
+The Contributors Panel has a subsystem allowing trail segments to be marked for Closure. Segments marked as closed are affected in  several ways, which are described below.
+</p>
 
-  <p>To remove a trail Closure (re-open a segment):</p>
-  <ul>
-  <li>On the right-hand side is the list of closures. Find the one you want to re-open. If there are several segments with the same name,   use the <i>Go</i> link to zoom in and verify which segment is which.</li>
-  <li>Click its X to remove it from the list. The map should refresh too.</li>
-  <li>When you are done, click Save Changes to commit the list of closures.</li>
-  </ul>
+<p>To tag a trail segment as Closed:</p>
+<ul>
+<li>Click the map to query it as usual.</li>
+<li>If the popup shows info for a trail segment, there will also be a link to tag the segment as Closed.</li>
+<li>When you click that link, it will appear on the right-hand side. You may edit the title and description. <b>This content will be  publicly visible in a popup bubble</b> and may include information about why it is closed and when it will reopen.</li>
+<li>Note that some trails are comprised of many segments, and you may need to select multiple segments if a longer stretch is Closed.</ li>
+<li>When you are done, click Save Changes to commit the list of closures.</li>
+</ul>
 
-  <p>What happens when a segment is marked as Closed:</p>
-  <ul>
-  <li>When you save the list of closures, a calculation is done as to which Loops and which whole Trails intersect the closures. Those  Loops and Trails are then tagged to indicate that there is a Closure.</li>
-  <li>On the front-facing site, when a user views information about a Trail or a Loop, they will see a note indicating a partial closure,   and urging them to check the route on the map for more information.</li>
-  <li>Trail Closures are queryable on the front-facing map. That is, they can be clicked to make a popup with the title and description   you entered. This is approopriate to make a more verbose title, to describe the reason for the closure, and to indicate when the trail  segment will reopen.</li>
-  </ul>
+<p>To remove a trail Closure (re-open a segment):</p>
+<ul>
+<li>On the right-hand side is the list of closures. Find the one you want to re-open. If there are several segments with the same name,   use the <i>Go</i> link to zoom in and verify which segment is which.</li>
+<li>Click its X to remove it from the list. The map should refresh too.</li>
+<li>When you are done, click Save Changes to commit the list of closures.</li>
+</ul>
 
-  <h2>Featured Loops</h2>
+<p>What happens when a segment is marked as Closed:</p>
+<ul>
+<li>When you save the list of closures, a calculation is done as to which Loops and which whole Trails intersect the closures. Those  Loops and Trails are then tagged to indicate that there is a Closure.</li>
+<li>On the front-facing site, when a user views information about a Trail or a Loop, they will see a note indicating a partial closure,   and urging them to check the route on the map for more information.</li>
+<li>Trail Closures are queryable on the front-facing map. That is, they can be clicked to make a popup with the title and description   you entered. This is approopriate to make a more verbose title, to describe the reason for the closure, and to indicate when the trail  segment will reopen.</li>
+</ul>
 
-  <p>Featured Loops and Routes (or Loops for short) are managed by Contributors. These Loops appear on the front-facing map so people can   see laid-out pre-planned trail loops that are particularly interesting.</p>
+<h2>Featured Loops</h2>
 
-  <p>Loops differ from Trails in numerous key ways.</p>
-  <ul>
-  <li>A Loop has a specifically-chosen starting point and path, while a Trail may or may not be loop-shaped, and is effectively just  aggregated from trail segments which happen to have similar names.</li>
-  <li>A Loop, since it has a start and an end, has an Elevation profile. For a Trail, segments have elevation but there is no given start   and end to make a sensible graph.</li>
-  <li>Trails cannot have directions and Loops can, again because of a known starting and ending location.</li>
-  <li>In short, a Loop is really a set of directions to route to a certain location via waypoints.</li>
-  </ul>
+<p>Featured Loops and Routes (or Loops for short) are managed by Contributors. These Loops appear on the front-facing map so people can   see laid-out pre-planned trail loops that are particularly interesting.</p>
 
-  <p>A Loop consists of several components:</p>
-  <ul>
-  <li><b>Status</b> -- In the front-facing app, when a user searches for Features Routes and Loops, only Loops whose status is <i>  Published</i> will be shown. This allows the admin to disable loops which are still being thought out.</li>
-  <li>A name and description, paved and use type -- These are filled in by the admin, and are purely descriptive.</li>
-  <li>Paved status, and use types -- These are filled in by the computer, based on its analysis of the trail segments it crosses.</li>
-  <li>Source and Edited By -- These indicate who is responsible for the Loop. A common value for Source is &quot;Random&quot; indicating  that it was randomly generated from a starting point. Once it has been vetted, it may make sense to change the Source to something else  so the Loop doesn't show up on the Random list anymore.</li>
-  <li>Directions and the time/distance summary -- These are automatically filled in as part of the Recalculate process.</li>
-  <li>An elevation profile -- This is a graphical representation of the elevation as one follows the route. Internally, the elevation   profile is identical to that described in the directions API on the programming documentation page.</li>
-  <li>Waypoints -- Waypoint 0 is the starting location. Additional waypoints can be laid down to help shape the generated Loop. <i>Note   that your waypoints may not fall exactly onto the generated path.</i></li>
-  <li>WKT -- The plotted route on the map, is stored in OGC WKT so it can be rendered to browsers in the future.</li>
-  <li>Loop? -- This dictates whether the generated route is a Loop or a one-way path.</li>
-  <li>Filter -- This determines which trails view will be used for finding a route: hiking, bicycle, et cetera. <i>There are situations   where a Loop cannot be made with a given trail use type, e.g. specifying equestrian trails in an area with few/no equestrian trails,  may not result in a usable Loop.</i></li>
-  <li>Trim? -- This affects whether backtracking segments should be removed from the route, such as where a waypoint would have you walk  down a path then do a U-turn. <i>This has known side effects on trailhead segments, and for some complex manually-generated routes may   remove whole legs of the trip.</i></li>
-  </ul>
+<p>Loops differ from Trails in numerous key ways.</p>
+<ul>
+<li>A Loop has a specifically-chosen starting point and path, while a Trail may or may not be loop-shaped, and is effectively just  aggregated from trail segments which happen to have similar names.</li>
+<li>A Loop, since it has a start and an end, has an Elevation profile. For a Trail, segments have elevation but there is no given start   and end to make a sensible graph.</li>
+<li>Trails cannot have directions and Loops can, again because of a known starting and ending location.</li>
+<li>In short, a Loop is really a set of directions to route to a certain location via waypoints.</li>
+</ul>
 
-  <p>Some other concepts:</p>
-  <ul>
-  <li><b>Random Loops</b> vs <b>Manual Loops</b> -- A loop whose <code>source</code> field is &quot;Random&quot; will be shown under the  Random Loops page; all others are shown on the Manual Loops page. This provides a separation from those Loops which were generated by  an admin, versus those generated randomly. (more on that topic later)</li>
-  <li><b>Autoloop</b> -- This is used to manually generate a random loop from a given Lat/Lon (Manual) or from a CSV file of Lat/Lon  pairs (CSV). (more on this later)</li>
-  </ul>
+<p>A Loop consists of several components:</p>
+<ul>
+<li><b>Status</b> -- In the front-facing app, when a user searches for Features Routes and Loops, only Loops whose status is <i>  Published</i> will be shown. This allows the admin to disable loops which are still being thought out.</li>
+<li>A name and description, paved and use type -- These are filled in by the admin, and are purely descriptive.</li>
+<li>Paved status, and use types -- These are filled in by the computer, based on its analysis of the trail segments it crosses.</li>
+<li>Source and Edited By -- These indicate who is responsible for the Loop. A common value for Source is &quot;Random&quot; indicating  that it was randomly generated from a starting point. Once it has been vetted, it may make sense to change the Source to something else  so the Loop doesn't show up on the Random list anymore.</li>
+<li>Directions and the time/distance summary -- These are automatically filled in as part of the Recalculate process.</li>
+<li>An elevation profile -- This is a graphical representation of the elevation as one follows the route. Internally, the elevation   profile is identical to that described in the directions API on the programming documentation page.</li>
+<li>Waypoints -- Waypoint 0 is the starting location. Additional waypoints can be laid down to help shape the generated Loop. <i>Note   that your waypoints may not fall exactly onto the generated path.</i></li>
+<li>WKT -- The plotted route on the map, is stored in OGC WKT so it can be rendered to browsers in the future.</li>
+<li>Loop? -- This dictates whether the generated route is a Loop or a one-way path.</li>
+<li>Filter -- This determines which trails view will be used for finding a route: hiking, bicycle, et cetera. <i>There are situations   where a Loop cannot be made with a given trail use type, e.g. specifying equestrian trails in an area with few/no equestrian trails,  may not result in a usable Loop.</i></li>
+<li>Trim? -- This affects whether backtracking segments should be removed from the route, such as where a waypoint would have you walk  down a path then do a U-turn. <i>This has known side effects on trailhead segments, and for some complex manually-generated routes may   remove whole legs of the trip.</i></li>
+</ul>
 
-  <h3>Generating a Loop</h3>
-  <ul>
-  <li>Go into the Administration panel and into Loops.</li>
-  <li>Select &quot;Create a new loop&quot;</li>
-  <li>Pan and center your map until you find the location for your desired trailhead. You may use the geocoder to search for an address   or landmark via Google.</li>
-  <li>Click on the &quot;add&quot; link next to Waypoint 0. Drag the marker into its desired location.</li>
-  <li>Continue adding waypoints and dragging them into place. You may use the Generate Random button to have the server pick some random  waypoints around Waypoint 0. <i>The Desired Route Length is a gross approximation, affecting the average distance between waypoints.</i>  <i>Random waypoints are random, and may not always make sense.</i></li>
-  <li>Click Recalculate to have the server calculate the route between your waypoints. It will also populate the directions, the  elevation profile, et cetera.</li>
-  <li>When you're done, click Save Changes to save the Loop.</li>
-  <li>Remember, your Loop will only be visible to the public when you set its Status to Published.</li>
-  </ul>
+<p>Some other concepts:</p>
+<ul>
+<li><b>Random Loops</b> vs <b>Manual Loops</b> -- A loop whose <code>source</code> field is &quot;Random&quot; will be shown under the  Random Loops page; all others are shown on the Manual Loops page. This provides a separation from those Loops which were generated by  an admin, versus those generated randomly. (more on that topic later)</li>
+<li><b>Autoloop</b> -- This is used to manually generate a random loop from a given Lat/Lon (Manual) or from a CSV file of Lat/Lon  pairs (CSV). (more on this later)</li>
+</ul>
 
-  <p>
-  An option exists to generate random waypoints. It comes with no promises, but can sometimes reveal interesting Loops that you wouldn't  otherwise have known about.
-  </p>
+<h3>Generating a Loop</h3>
+<ul>
+<li>Go into the Administration panel and into Loops.</li>
+<li>Select &quot;Create a new loop&quot;</li>
+<li>Pan and center your map until you find the location for your desired trailhead. You may use the geocoder to search for an address   or landmark via Google.</li>
+<li>Click on the &quot;add&quot; link next to Waypoint 0. Drag the marker into its desired location.</li>
+<li>Continue adding waypoints and dragging them into place. You may use the Generate Random button to have the server pick some random  waypoints around Waypoint 0. <i>The Desired Route Length is a gross approximation, affecting the average distance between waypoints.</i>  <i>Random waypoints are random, and may not always make sense.</i></li>
+<li>Click Recalculate to have the server calculate the route between your waypoints. It will also populate the directions, the  elevation profile, et cetera.</li>
+<li>When you're done, click Save Changes to save the Loop.</li>
+<li>Remember, your Loop will only be visible to the public when you set its Status to Published.</li>
+</ul>
 
-  <h3>Autoloop</h3>
+<p>
+An option exists to generate random waypoints. It comes with no promises, but can sometimes reveal interesting Loops that you wouldn't  otherwise have known about.
+</p>
 
-  <p>Autoloop is a function which will start with a trailhead and a pavement status, and attempt to generate random waypoints and a Loop  over them.</p>
+<h3>Autoloop</h3>
 
-  <p>There are two modes of Autoloop. One allows you to enter coordinates in the web page, the other allows you to upload a spreadsheet   of coordinates for generating many Autoloops.</p>
+<p>Autoloop is a function which will start with a trailhead and a pavement status, and attempt to generate random waypoints and a Loop  over them.</p>
 
-  <p>At this time (August 2012) the generation of random loops is quite primitive, and is only good for experimental purposes. You may  generate 1,000 Loops and find only 20 worth keeping.</p>
+<p>There are two modes of Autoloop. One allows you to enter coordinates in the web page, the other allows you to upload a spreadsheet   of coordinates for generating many Autoloops.</p>
 
-  <h3>Known Issues</h3>
+<p>At this time (August 2012) the generation of random loops is quite primitive, and is only good for experimental purposes. You may  generate 1,000 Loops and find only 20 worth keeping.</p>
 
-  <p>Routing between waypoints that are not on intersections, especially randomly selected WPs, can result in a situation where the user  is instructed to walk up a trail to a waypoint, then do a U-turn to go to the next waypoint. We call these &quot;spurs&quot; The   current implemenatation of removing spurs, is unsuitable for situations where a loop is not in fact a loop but a line, e.g. the same  trail is the only way back, most notably at the trailhead. In these cases, spur removal can remove large parts of a route.</p>
+<h3>Known Issues</h3>
 
-</div>
+<p>Routing between waypoints that are not on intersections, especially randomly selected WPs, can result in a situation where the user  is instructed to walk up a trail to a waypoint, then do a U-turn to go to the next waypoint. We call these &quot;spurs&quot; The   current implemenatation of removing spurs, is unsuitable for situations where a loop is not in fact a loop but a line, e.g. the same  trail is the only way back, most notably at the trailhead. In these cases, spur removal can remove large parts of a route.</p>

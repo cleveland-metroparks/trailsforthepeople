@@ -1,22 +1,20 @@
-<div class="content">
-  <h1>The Finders</h1>
-  <p class="lead">An Embeddable Set of Search Systems.</p>
+<?php $this->page_title = 'The Finders'; ?>
 
-  <p>The <i>/finder/</i> URLs comprise a subsystem of embeddable search systems. These mirror the functionality of the Find panels in the Desktop and Mobile app, but are designed for use in an IFRAME and embedded within a website.</p>
+<p class="lead">An Embeddable Set of Search Systems.</p>
 
-  <h2>Trail Finder</h2>
-  The <i>/finder/trail/</i> subsystem allows one to search for Trails. Each Trail's <i>url</i> attribute is used to populate
+<p>The <i>/finder/</i> URLs comprise a subsystem of embeddable search systems. These mirror the functionality of the Find panels in the Desktop and Mobile app, but are designed for use in an IFRAME and embedded within a website.</p>
 
-  <p>This page accepts URL params to set the state of the checkboxes and other elements:</p>
-  <ul>
-    <li><b>difficulty</b>--A comma-joined list of any of these values: <i>Novice</i>, <i>Beginner</i>, <i>Intermediate</i>, <i>Advanced</i> .  For example, <i>Novice,Beginner</i> This sets the checkboxes for the acceptable levels of Difficulty.</li>
-    <li><b>uses</b>--A comma-joined list of any of these values: <i>Hiking</i>, <i>Bicycle</i>, <i>Equestrian</i>. For example, <i>   Hiking,Bicycle</i> This sets the checkboxes for the acceptable use types.</li>
-    <li><b>paved</b>--A text value, any of: <i>Yes</i>, <i>No</i> This sets the Paved selector.</li>
-    <li><b>reservation</b>--A text value, the name of any reservation, e.g. <i>Huntington Reservation</i> This sets the reservation selector.  <b>This must exactly match the name of the reservation, including capitalization and spaces.</b></li>
-  </ul>
+<h2>Trail Finder</h2>
+The <i>/finder/trail/</i> subsystem allows one to search for Trails. Each Trail's <i>url</i> attribute is used to populate
 
-  <h3>Example:</h3>
-  <code><a target="_blank" href="<?= site_url('finder/trail/?difficulty=Novice,Beginner&uses=Hiking,Bicycle&paved=Yes&reservation=Huntington%20Reservation'); ?>"><?= site_url('finder/trail/?difficulty=Novice,Beginner&uses=Hiking,Bicycle&paved=Yes&reservation=Huntington%20Reservation'); ?></a></code>
-  </p>
+<p>This page accepts URL params to set the state of the checkboxes and other elements:</p>
+<ul>
+  <li><b>difficulty</b>--A comma-joined list of any of these values: <i>Novice</i>, <i>Beginner</i>, <i>Intermediate</i>, <i>Advanced</i> .  For example, <i>Novice,Beginner</i> This sets the checkboxes for the acceptable levels of Difficulty.</li>
+  <li><b>uses</b>--A comma-joined list of any of these values: <i>Hiking</i>, <i>Bicycle</i>, <i>Equestrian</i>. For example, <i>   Hiking,Bicycle</i> This sets the checkboxes for the acceptable use types.</li>
+  <li><b>paved</b>--A text value, any of: <i>Yes</i>, <i>No</i> This sets the Paved selector.</li>
+  <li><b>reservation</b>--A text value, the name of any reservation, e.g. <i>Huntington Reservation</i> This sets the reservation selector.  <b>This must exactly match the name of the reservation, including capitalization and spaces.</b></li>
+</ul>
 
-</div>
+<h3>Example:</h3>
+<code><a target="_blank" href="<?= site_url('finder/trail/?difficulty=Novice,Beginner&uses=Hiking,Bicycle&paved=Yes&reservation=Huntington%20Reservation'); ?>"><?= site_url('finder/trail/?difficulty=Novice,Beginner&uses=Hiking,Bicycle&paved=Yes&reservation=Huntington%20Reservation'); ?></a></code>
+</p>

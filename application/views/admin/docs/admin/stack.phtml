@@ -1,137 +1,134 @@
-<div class="content">
-  <h1>Programing Language, Frameworks, Techniques</h1>
+<?php $this->page_title = 'Programming Language, Frameworks, Techniques'; ?>
 
-  <h2>Programing And Database Frameworks</h2>
-  <ul>
-  <li><b>PHP</b>, <b>CodeIgniter</b>, <b>DataMapper ORM</b> -- CodeIgniter (currently using version 2.1.0) is one of the most popular programming frameworks for PHP, and finding programming advice and howtos is very easy via Google. DataMapper ORM (not to be confused with DataMapper for Ruby) is an object  -relational mapper, allowing database records to be fetched and modified as objects.</li>
-  <li><b>jQuery</b> and <b>jQuery Mobile</b> -- These javaScript libraries are used to program the front-end apps. Virtually every  function in the system uses jQuery extensively.</li>
-  <li><b>Leaflet</b> -- This JavaScript library provides the mapping user interface.</li>
-  <li><b>PostgreSQL</b>, <b>PostGIS</b>, and <b>PgRouting</b> -- The PostgreSQL database, with the PostGIS extension, is used to store  the geodata. PgRouting is an additional set of libraries and procedures, allowing one to find the shortest path between two locations  over a network of lines. In this case, the <code>routing_trails</code> table (and some filtering views) is used for routing over the   trails.</li>
-  <li><b>GeoServer</b> and <b>GeoWebCache</b> -- These provide the mapping services, drawing the geodata as map images.</li>
-  <li><b>MapFish Print</b> -- This is used for printing the map. It is largely documented on its own page.</li>
-  </ul>
+<h2>Programming And Database Frameworks</h2>
+<ul>
+<li><b>PHP</b>, <b>CodeIgniter</b>, <b>DataMapper ORM</b> -- CodeIgniter (currently using version 2.1.0) is one of the most popular programming frameworks for PHP, and finding programming advice and howtos is very easy via Google. DataMapper ORM (not to be confused with DataMapper for Ruby) is an object  -relational mapper, allowing database records to be fetched and modified as objects.</li>
+<li><b>jQuery</b> and <b>jQuery Mobile</b> -- These javaScript libraries are used to program the front-end apps. Virtually every  function in the system uses jQuery extensively.</li>
+<li><b>Leaflet</b> -- This JavaScript library provides the mapping user interface.</li>
+<li><b>PostgreSQL</b>, <b>PostGIS</b>, and <b>PgRouting</b> -- The PostgreSQL database, with the PostGIS extension, is used to store  the geodata. PgRouting is an additional set of libraries and procedures, allowing one to find the shortest path between two locations  over a network of lines. In this case, the <code>routing_trails</code> table (and some filtering views) is used for routing over the   trails.</li>
+<li><b>GeoServer</b> and <b>GeoWebCache</b> -- These provide the mapping services, drawing the geodata as map images.</li>
+<li><b>MapFish Print</b> -- This is used for printing the map. It is largely documented on its own page.</li>
+</ul>
 
-  <h2>Geoserver</h2>
+<h2>Geoserver</h2>
 
-  <p>GeoServer is located at <a target="_blank" href="http://maps.clemetparks.com:48182/geoserver/web/">http://maps.clemetparks.  com:48182/geoserver/web/</a> and not at the usual port 8080.</p>
+<p>GeoServer is located at <a target="_blank" href="http://maps.clemetparks.com:48182/geoserver/web/">http://maps.clemetparks.  com:48182/geoserver/web/</a> and not at the usual port 8080.</p>
 
-  <h2>PHP and Suhosin Patch</h2>
+<h2>PHP and Suhosin Patch</h2>
 
-  <p>PHP runs without the Suhosin patch, though the Apache version string may still indicate that Suhosin is enabled.</p>
+<p>PHP runs without the Suhosin patch, though the Apache version string may still indicate that Suhosin is enabled.</p>
 
-  <p>The Suhosin patch clamps down certain buffers in PHP, for example &lt;textarea&gt; fields which it believes are unsuitably large.  This causes problems where we really do want to POST very large text; the most notable example is the Admin panel when administering   Loops, where we want to post the route's WKT to the server via a text field.</p>
+<p>The Suhosin patch clamps down certain buffers in PHP, for example &lt;textarea&gt; fields which it believes are unsuitably large.  This causes problems where we really do want to POST very large text; the most notable example is the Admin panel when administering   Loops, where we want to post the route's WKT to the server via a text field.</p>
 
-  <h2>CodeIgniter File Layout</h2>
+<h2>CodeIgniter File Layout</h2>
 
-  <p>All website files are stored under <code>/var/www</code> The subdirectories are as follows:</p>
+<p>All website files are stored under <code>/var/www</code> The subdirectories are as follows:</p>
 
-  <ul>
-  <li><b>static/</b> -- Static files served directly to the web.</li>
-  <li><b>static/common/</b> -- Static files served directly to the web. Content used by both Desktop and Mobile versions.</li>
-  <li><b>static/desktop/</b> -- Static files served directly to the web. Content used by Desktop version only.</li>
-  <li><b>static/mobile/</b> -- Static files served directly to the web. Content used by Mobile version only.</li>
-  <li><b>application/models/</b> -- The data models used by CodeIgniter. Almost all models are DataMapper subclasses.</li>
-  <li><b>application/controllers/</b> -- The controllers used by CodeIgniter, and thus the URLs which work in the system.</li>
-  <li><b>application/views/</b> -- The templates for all HTML output. There are subdirectories corresponding to the controllers.</li>
-  <li><b>application/views/ajax/</b> -- The HTML templates for AJAX stuff (<code>application/controllers/ajax.php</code>) which outputs   HTML. Most methods in </code>ajax.php</code> output JSON directly and do not use a template.</li>
-  <li><b>application/views/desktop/desktop.phtml</b> -- The HTML template for the Desktop map.</li>
-  <li><b>application/views/mobile/mobile.phtml</b> -- The HTML templates for the Mobile map.</li>
-  <li><b>application/config/config.php</b> -- General configuration options: the name of the app, re-CAPTCHA keys, Twitter information,   and so on.</li>
-  <li><b>application/config/database.php</b> -- Configuration file for the PostgreSQL database connection.</li>
-  <li><b>system/</b> -- CodeIgniter internals. Do not touch.</li>
-  </ul>
+<ul>
+<li><b>static/</b> -- Static files served directly to the web.</li>
+<li><b>static/common/</b> -- Static files served directly to the web. Content used by both Desktop and Mobile versions.</li>
+<li><b>static/desktop/</b> -- Static files served directly to the web. Content used by Desktop version only.</li>
+<li><b>static/mobile/</b> -- Static files served directly to the web. Content used by Mobile version only.</li>
+<li><b>application/models/</b> -- The data models used by CodeIgniter. Almost all models are DataMapper subclasses.</li>
+<li><b>application/controllers/</b> -- The controllers used by CodeIgniter, and thus the URLs which work in the system.</li>
+<li><b>application/views/</b> -- The templates for all HTML output. There are subdirectories corresponding to the controllers.</li>
+<li><b>application/views/ajax/</b> -- The HTML templates for AJAX stuff (<code>application/controllers/ajax.php</code>) which outputs   HTML. Most methods in </code>ajax.php</code> output JSON directly and do not use a template.</li>
+<li><b>application/views/desktop/desktop.phtml</b> -- The HTML template for the Desktop map.</li>
+<li><b>application/views/mobile/mobile.phtml</b> -- The HTML templates for the Mobile map.</li>
+<li><b>application/config/config.php</b> -- General configuration options: the name of the app, re-CAPTCHA keys, Twitter information,   and so on.</li>
+<li><b>application/config/database.php</b> -- Configuration file for the PostgreSQL database connection.</li>
+<li><b>system/</b> -- CodeIgniter internals. Do not touch.</li>
+</ul>
 
-  <h2>Javascript and CSS, Mobile vs. Desktop</h2>
+<h2>Javascript and CSS, Mobile vs. Desktop</h2>
 
-  There are two separate apps, Desktop and Mobile. TO the best degree possible, I have tried to share program code between them so that   fixes happen to both. Still, in many cases some JavaScript has to be separated, e.g. changing pages in jQuery Mobile is quite different   than opening jQuery Ui Dialogs.
+There are two separate apps, Desktop and Mobile. TO the best degree possible, I have tried to share program code between them so that   fixes happen to both. Still, in many cases some JavaScript has to be separated, e.g. changing pages in jQuery Mobile is quite different   than opening jQuery Ui Dialogs.
 
-  <ul>
-  <li><b>static/common/common.css</b> -- CSS styles common to both versions.</li>
-  <li><b>static/desktop/desktop.css</b> -- CSS styles for Desktop.</li>
-  <li><b>static/mobile/mobile.css</b> -- CSS styles for Mobile.</li>
-  <li><b>static/common/common.js</b> -- JavaScript code common to both apps. This is a lot of the code, e.g. directions, starting the   map, placing markers, printing, geocoding.</li>
-  <li><b>static/common/constants.js</b> -- JavaScript code common to both apps, but also by admin apps. This includes the list of layers,   and the bounding box of Cleveland.</li>
-  <li><b>static/desktop/desktop.js</b> -- JavaScript code for Desktop.</li>
-  <li><b>static/mobile/mobile.js</b> -- JavaScript code for Mobile.</li>
-  <li><b>application/controllers/desktop.php</b> -- Server-side PHP for launching the Desktop map.</li>
-  <li><b>application/controllers/mobile.php</b> -- Server-side PHP for launching the Mobile map.</li>
-  <li><b>application/controllers/ajax.php</b> -- Server-side PHP for most other functions after the map has loaded, e.g. geocoding,   directions, fetching listings, querying the map.</li>
-  </ul>
+<ul>
+<li><b>static/common/common.css</b> -- CSS styles common to both versions.</li>
+<li><b>static/desktop/desktop.css</b> -- CSS styles for Desktop.</li>
+<li><b>static/mobile/mobile.css</b> -- CSS styles for Mobile.</li>
+<li><b>static/common/common.js</b> -- JavaScript code common to both apps. This is a lot of the code, e.g. directions, starting the   map, placing markers, printing, geocoding.</li>
+<li><b>static/common/constants.js</b> -- JavaScript code common to both apps, but also by admin apps. This includes the list of layers,   and the bounding box of Cleveland.</li>
+<li><b>static/desktop/desktop.js</b> -- JavaScript code for Desktop.</li>
+<li><b>static/mobile/mobile.js</b> -- JavaScript code for Mobile.</li>
+<li><b>application/controllers/desktop.php</b> -- Server-side PHP for launching the Desktop map.</li>
+<li><b>application/controllers/mobile.php</b> -- Server-side PHP for launching the Mobile map.</li>
+<li><b>application/controllers/ajax.php</b> -- Server-side PHP for most other functions after the map has loaded, e.g. geocoding,   directions, fetching listings, querying the map.</li>
+</ul>
 
-  <h2>Database Internals: Codeigniter API vs. Datamapper Api</h2>
+<h2>Database Internals: Codeigniter API vs. Datamapper Api</h2>
 
-  <p>In some controllers and models, we skip the DataMapper ORM and use the CodeIgniter DB API <code>$this->db->query()</code> instead.</p  >
-  <p>This is usually for for queries too complex to implement using DataMapper ORM, such as PostGIS functions in which GeometryFromText()   would be commented and mangled by DataMapper ORM.</p>
+<p>In some controllers and models, we skip the DataMapper ORM and use the CodeIgniter DB API <code>$this->db->query()</code> instead.</p  >
+<p>This is usually for for queries too complex to implement using DataMapper ORM, such as PostGIS functions in which GeometryFromText()   would be commented and mangled by DataMapper ORM.</p>
 
-  <p>In most cases, database programming is done within the models. However, some controllers have database code in them directly, where  this was deemed less work than writing a special-purpose model to handle one single task.</p>
+<p>In most cases, database programming is done within the models. However, some controllers have database code in them directly, where  this was deemed less work than writing a special-purpose model to handle one single task.</p>
 
-  <h2>Custom Modifications to Leaflet</h2>
+<h2>Custom Modifications to Leaflet</h2>
 
-  <p>
-  The map uses Leaflet 0.3 At the time of the app's soft launch (August 2012) Leaflet 0.4 had come out but still had significant issues   causing it to fail on Android. So, the decision was made to stay with Leaflet 0.3
-  </p>
+<p>
+The map uses Leaflet 0.3 At the time of the app's soft launch (August 2012) Leaflet 0.4 had come out but still had significant issues   causing it to fail on Android. So, the decision was made to stay with Leaflet 0.3
+</p>
 
-  <p>
-  In <code>static/common/common.js</code> is defined the list of <code>OVERLAYS</code>. In addition to the usual Leaflet options are some   custom ones: <code>visibility</code> and <code>id</code> The <code>visibility</code> flag indicates whether the layer should be added   to the map when we start; this is later toggled via checkboes and allows us to guess the state of a layer. The <code>id</code> flag   uniquely identifies a layer, so we can manipulate that one layer within the Map; for instance, checkbox values can contain the layer id   and then we can check whether that layer is currently visible, invisible, or in the map.
-  </p>
+<p>
+In <code>static/common/common.js</code> is defined the list of <code>OVERLAYS</code>. In addition to the usual Leaflet options are some   custom ones: <code>visibility</code> and <code>id</code> The <code>visibility</code> flag indicates whether the layer should be added   to the map when we start; this is later toggled via checkboes and allows us to guess the state of a layer. The <code>id</code> flag   uniquely identifies a layer, so we can manipulate that one layer within the Map; for instance, checkbox values can contain the layer id   and then we can check whether that layer is currently visible, invisible, or in the map.
+</p>
 
-  <h2>JavaScript Programming Technique: zoomElementClick()</h2>
+<h2>JavaScript Programming Technique: zoomElementClick()</h2>
 
-  <p>A convention used within the JavaScript code for both Mobile and Desktop versions, is <code>zoomElementClick()</code> This is  defined separately in mobile.js and desktop.js, and it provides a common interface for populating the More Info page and the Show On   Map button, from any arbitrary DOM element.</p>
+<p>A convention used within the JavaScript code for both Mobile and Desktop versions, is <code>zoomElementClick()</code> This is  defined separately in mobile.js and desktop.js, and it provides a common interface for populating the More Info page and the Show On   Map button, from any arbitrary DOM element.</p>
 
-  <p><code>zoomElementClick()</code> accepts 1 parameter: a DOM element such as a DIV. It then reads various attributes from the element  and uses them to configure the More Info panel and the Show On Map button.</p>
+<p><code>zoomElementClick()</code> accepts 1 parameter: a DOM element such as a DIV. It then reads various attributes from the element  and uses them to configure the More Info panel and the Show On Map button.</p>
 
-  <p>Any element may be used, as long as it has all of these attributes:</p>
+<p>Any element may be used, as long as it has all of these attributes:</p>
 
-  <ul>
-  <li><b>title</b> -- The title of the element. This is loaded into the Directions panel, and could potentially load into other places as   well.</li>
-  <li><b>type</b> -- The internal short feature type of the feature: trail, poi, reservation.</li>
-  <li><b>gid</b> -- The gid (unique ID) of the feature. Combined with the type, these uniquely identify a feature ithin the system and  are used to fetch the More Info content.</li>
-  <li><b>lat</b> -- The latitude of the place; for polygons, the latitude of the centroid. Used for distance calculations and for   directions.</li>
-  <li><b>lon</b> -- The longitude of the place; for polygons, the longitude of the centroid. Used for distance calculations and for   directions.</li>
-  <li><b>w</b> -- The west (minx) of the bounding box. Used for Show On Map to allow zooming to the given exstent.</li>
-  <li><b>s</b> -- The south (miny) of the bounding box. Used for Show On Map to allow zooming to the given exstent.</li>
-  <li><b>e</b> -- The east (maxx) of the bounding box. Used for Show On Map to allow zooming to the given exstent.</li>
-  <li><b>n</b> -- The north (maxy) of the bounding box. Used for Show On Map to allow zooming to the given exstent.</li>
-  <li><b>wkt</b> -- Optional. This is NOT an attribute, but is assigned to data via <code>element.data('wkt')</code> The WKT vector   representation, allowing this feature to be drawn onto the map.</li>
-  </ul>
+<ul>
+<li><b>title</b> -- The title of the element. This is loaded into the Directions panel, and could potentially load into other places as   well.</li>
+<li><b>type</b> -- The internal short feature type of the feature: trail, poi, reservation.</li>
+<li><b>gid</b> -- The gid (unique ID) of the feature. Combined with the type, these uniquely identify a feature ithin the system and  are used to fetch the More Info content.</li>
+<li><b>lat</b> -- The latitude of the place; for polygons, the latitude of the centroid. Used for distance calculations and for   directions.</li>
+<li><b>lon</b> -- The longitude of the place; for polygons, the longitude of the centroid. Used for distance calculations and for   directions.</li>
+<li><b>w</b> -- The west (minx) of the bounding box. Used for Show On Map to allow zooming to the given exstent.</li>
+<li><b>s</b> -- The south (miny) of the bounding box. Used for Show On Map to allow zooming to the given exstent.</li>
+<li><b>e</b> -- The east (maxx) of the bounding box. Used for Show On Map to allow zooming to the given exstent.</li>
+<li><b>n</b> -- The north (maxy) of the bounding box. Used for Show On Map to allow zooming to the given exstent.</li>
+<li><b>wkt</b> -- Optional. This is NOT an attribute, but is assigned to data via <code>element.data('wkt')</code> The WKT vector   representation, allowing this feature to be drawn onto the map.</li>
+</ul>
 
-  <p>
-  This example defines a DOM element with the required fields, and then a call to <code>zoomElementClick()</code> This will correctly   open the More Info panel and do the AJAX to fetch it, draw the vector feature onto the map if appropriate, and enable the Show On Map   button to zoom to the extent.
-  </p>
+<p>
+This example defines a DOM element with the required fields, and then a call to <code>zoomElementClick()</code> This will correctly   open the More Info panel and do the AJAX to fetch it, draw the vector feature onto the map if appropriate, and enable the Show On Map   button to zoom to the extent.
+</p>
 
-  <pre>
-  &lt;li id="arbo_link" class=&quot;zoom&quot; type=&quot;trail&quot; title=&quot;Arboretum Loop Trail&quot; gid=&quot;2470&quot; w=&quot;  -81.4233119020889&quot; s=&quot;41.4128886259214&quot; e=&quot;-81.4214609465899&quot; n=&quot;41.4146766337645&quot; lat=&quot;41. 413782629843&quot; lng=&quot;-81.422386424339&quot;&gt;
+<pre>
+&lt;li id="arbo_link" class=&quot;zoom&quot; type=&quot;trail&quot; title=&quot;Arboretum Loop Trail&quot; gid=&quot;2470&quot; w=&quot;  -81.4233119020889&quot; s=&quot;41.4128886259214&quot; e=&quot;-81.4214609465899&quot; n=&quot;41.4146766337645&quot; lat=&quot;41. 413782629843&quot; lng=&quot;-81.422386424339&quot;&gt;
 
-  var link = $('#arbo_link');
-  zoomElementClick(link);
-  </pre>
+var link = $('#arbo_link');
+zoomElementClick(link);
+</pre>
 
-  <h2>Programming Technique: Directions API</h2>
+<h2>Programming Technique: Directions API</h2>
 
-  <p>All calls for directions are made to the server, even Google driving directions. The input and output follow a specific format, and  is best illustrated by example:</p>
+<p>All calls for directions are made to the server, even Google driving directions. The input and output follow a specific format, and  is best illustrated by example:</p>
 
-  <p>
-  <code>http://maps.clemetparks.com/ajax/directions?sourcelat=41.4962105&amp;sourcelng=-81.68516749999998&amp;targetlat=41.4127044549537&amp;targetlng=-81.9622779057202&amp;tofrom=to&amp;via=hike</code>
-  </p>
+<p>
+<code>http://maps.clemetparks.com/ajax/directions?sourcelat=41.4962105&amp;sourcelng=-81.68516749999998&amp;targetlat=41.4127044549537&amp;targetlng=-81.9622779057202&amp;tofrom=to&amp;via=hike</code>
+</p>
 
-  <p>In the case of Google driving directions (<code>&amp;via=car</code>), the server makes the request for directions, then massages   them to fit the format. For all others, routing is done over the roads and network using whatever database view is appropriate: hike,   hike_paved, bridle, etc.</p>
+<p>In the case of Google driving directions (<code>&amp;via=car</code>), the server makes the request for directions, then massages   them to fit the format. For all others, routing is done over the roads and network using whatever database view is appropriate: hike,   hike_paved, bridle, etc.</p>
 
-  <p>The official list of accepted parameters and the generation of output can be found in <code>application/controllers/ajax.php</code></p>
+<p>The official list of accepted parameters and the generation of output can be found in <code>application/controllers/ajax.php</code></p>
 
-  <p>Of the request parameters, the only notable one is the <code>&amp;via=</code> param specifying the travel mode. For a complete list  of acceptable values, see the <code>switch</code> statement in <code>_directions_via_trails()</code> in <code> application/controllers/ajax.php</code> Note that there is no value allowing you to route directly over routing_trails (100% of all  trails) since the network is too complex for such directions to run in a useful time span.</p>
+<p>Of the request parameters, the only notable one is the <code>&amp;via=</code> param specifying the travel mode. For a complete list  of acceptable values, see the <code>switch</code> statement in <code>_directions_via_trails()</code> in <code> application/controllers/ajax.php</code> Note that there is no value allowing you to route directly over routing_trails (100% of all  trails) since the network is too complex for such directions to run in a useful time span.</p>
 
-  <p>The output consists of the following fields:</p>
+<p>The output consists of the following fields:</p>
 
-  <ul>
-  <li><b>bounds.west</b>, <b>bounds.south</b>, <b>bounds.east</b>, <b>bounds.north</b> -- The bounding box of the route, useful for   zooming the map to show the route on screen.</li>
-  <li><b>start.lat</b>, <b>start.lng</b>, <b>end.lat</b>, <b>end.lng</b> -- The starting point and einging point of the route. Useful for   laying down markers indicating the start and end.</li>
-  <li><b>steps</b> -- A list of the text steps. Each step is an object with these properties: <b>stepnumber</b>, <b>text</b>, <b>distance</b>, <b>duration</b></li>
-  <li><b>wkt</b> -- The multilinestring WKT representing the route to draw onto the map. This is usually the largest part of the  response, consisting of some 75% of the payload.</li>
-  <li><b>retries</b> -- A measure of how many nodes the server had to try before it could find a route. If this is more than 5, the   route's starting or ending locations may be significantly different from those requested.</li>
-  <li><b>elevationprofile</b> -- A list of values used to generate the elevation profile. These are the X (distance travelled along the   route) and the Y (elevation at that sample point). These are passed to the <code>elevationprofilebysegments()</code> method in <code> application/controllers/ajax.php</code></li>
-  </ul>
+<ul>
+<li><b>bounds.west</b>, <b>bounds.south</b>, <b>bounds.east</b>, <b>bounds.north</b> -- The bounding box of the route, useful for   zooming the map to show the route on screen.</li>
+<li><b>start.lat</b>, <b>start.lng</b>, <b>end.lat</b>, <b>end.lng</b> -- The starting point and einging point of the route. Useful for   laying down markers indicating the start and end.</li>
+<li><b>steps</b> -- A list of the text steps. Each step is an object with these properties: <b>stepnumber</b>, <b>text</b>, <b>distance</b>, <b>duration</b></li>
+<li><b>wkt</b> -- The multilinestring WKT representing the route to draw onto the map. This is usually the largest part of the  response, consisting of some 75% of the payload.</li>
+<li><b>retries</b> -- A measure of how many nodes the server had to try before it could find a route. If this is more than 5, the   route's starting or ending locations may be significantly different from those requested.</li>
+<li><b>elevationprofile</b> -- A list of values used to generate the elevation profile. These are the X (distance travelled along the   route) and the Y (elevation at that sample point). These are passed to the <code>elevationprofilebysegments()</code> method in <code> application/controllers/ajax.php</code></li>
+</ul>
 
-  <p>Some of the output items could technically be done on the client side: the bounding box and the starting and ending locations.   However, Leaflet does not expose this information, so it's much easier to have the server calculate it. It turns out that these   calculations and their JSON payload are trivial compared to the WKT and the elevation profile.</p>
-
-</div>
+<p>Some of the output items could technically be done on the client side: the bounding box and the starting and ending locations.   However, Leaflet does not expose this information, so it's much easier to have the server calculate it. It turns out that these   calculations and their JSON payload are trivial compared to the WKT and the elevation profile.</p>

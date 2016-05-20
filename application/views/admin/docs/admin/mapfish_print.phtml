@@ -1,93 +1,90 @@
-<div class="content">
-  <h1>MapFish Print</h1>
+<?php $this->page_title = 'MapFish Print'; ?>
 
-  <p>MapFish print has been installed as part of GeoServer. Its raw URL is as follows:
-  <br/>
-  <code>http://maps.clemetparks.com:48182/geoserver/web/?wicket:bookmarkablePage=:org.geoserver.printing.PrintDemoPage</code>
-  <br/>
-  <code>http://maps.clemetparks.com:48182/geoserver/pdf/info.json</code></p>
+<p>MapFish print has been installed as part of GeoServer. Its raw URL is as follows:
+<br/>
+<code>http://maps.clemetparks.com:48182/geoserver/web/?wicket:bookmarkablePage=:org.geoserver.printing.PrintDemoPage</code>
+<br/>
+<code>http://maps.clemetparks.com:48182/geoserver/pdf/info.json</code></p>
 
-  <p>For public use, an URL proxy under /pdf/ has been created for public use.
-  <br/>
-  <code>http://maps.clemetparks.com/pdf/info.json</code></p>
+<p>For public use, an URL proxy under /pdf/ has been created for public use.
+<br/>
+<code>http://maps.clemetparks.com/pdf/info.json</code></p>
 
-  <p>The YAML file for its configuration is:
-  <br/>
-  <code>/opt/apache-tomcat-6.0.30/webapps/geoserver/data/printing/config.yaml</code>
-  </p>
+<p>The YAML file for its configuration is:
+<br/>
+<code>/opt/apache-tomcat-6.0.30/webapps/geoserver/data/printing/config.yaml</code>
+</p>
 
-  <h2>Taking a Print</h2>
+<h2>Taking a Print</h2>
 
-  <p>
-  To make a print, POST a JSON document to this URL:
-  <br/>
-  <code>http://maps.clemetparks.com/pdf/create.json</code>
-  </p>
+<p>
+To make a print, POST a JSON document to this URL:
+<br/>
+<code>http://maps.clemetparks.com/pdf/create.json</code>
+</p>
 
-  <p>
-  The document looks like this, specifying an SRS, a list of layers, and finally a page listing the center and scale for the map. The   document below lists a tiled WMS layer, and a Vector layer with a Point feature, a Linestring feature, and a Polygon feature.
-  </p>
+<p>
+The document looks like this, specifying an SRS, a list of layers, and finally a page listing the center and scale for the map. The   document below lists a tiled WMS layer, and a Vector layer with a Point feature, a Linestring feature, and a Polygon feature.
+</p>
 
-  <pre>
-  {
-  "units":"degrees",
-  "srs":"EPSG:4326",
-  "layout":"A4 portrait",
-  "dpi":300,
-  "layers":[
-          { "baseURL":"http://labs.metacarta.com/wms/vmap0", "opacity":1, "singleTile":false, "type":"WMS", "layers":["basic"],   "format":"image/jpeg", "styles":[""], "customParams":{} },
-          { "type":"Vector", "styles":{
-              "1":{
-                  "externalGraphic":"http://openlayers.org/dev/img/marker-blue.png","strokeColor":"red","fillColor":"red","fillOpacity":0.  7,"strokeWidth":2,"pointRadius":12}
-              },
-              "styleProperty":"_gx_style",
-              "geoJson":{
-                  "type":"FeatureCollection",
-                  "features":[
-                      { "type":"Feature", "id":"OpenLayers.Feature.Vector_52", "properties":{"_gx_style":1}, "geometry":{   "type":"Polygon", "coordinates":[[[15,47],[16,48],[14,49],[15,47]]] } },
-                      { "type":"Feature", "id":"OpenLayers.Feature.Vector_61", "properties":{"_gx_style":1}, "geometry":{   "type":"LineString", "coordinates":[[15,48],[16,47],[17,46]] } },
-                      { "type":"Feature", "id":"OpenLayers.Feature.Vector_64", "properties":{"_gx_style":1}, "geometry":{ "type":"Point",   "coordinates":[16,46] }}
-                  ]
-              },
-              "name":"vector",
-              "opacity":1
-          }
-  ],
-  "pages":[
-          {"center":[16.087890625,46.0224609375],"scale":1000000,"rotation":"0","mapTitle":"A custom title","comment":"A custom comment"}
-          ]
-  }
-  </pre>
+<pre>
+{
+"units":"degrees",
+"srs":"EPSG:4326",
+"layout":"A4 portrait",
+"dpi":300,
+"layers":[
+        { "baseURL":"http://labs.metacarta.com/wms/vmap0", "opacity":1, "singleTile":false, "type":"WMS", "layers":["basic"],   "format":"image/jpeg", "styles":[""], "customParams":{} },
+        { "type":"Vector", "styles":{
+            "1":{
+                "externalGraphic":"http://openlayers.org/dev/img/marker-blue.png","strokeColor":"red","fillColor":"red","fillOpacity":0.  7,"strokeWidth":2,"pointRadius":12}
+            },
+            "styleProperty":"_gx_style",
+            "geoJson":{
+                "type":"FeatureCollection",
+                "features":[
+                    { "type":"Feature", "id":"OpenLayers.Feature.Vector_52", "properties":{"_gx_style":1}, "geometry":{   "type":"Polygon", "coordinates":[[[15,47],[16,48],[14,49],[15,47]]] } },
+                    { "type":"Feature", "id":"OpenLayers.Feature.Vector_61", "properties":{"_gx_style":1}, "geometry":{   "type":"LineString", "coordinates":[[15,48],[16,47],[17,46]] } },
+                    { "type":"Feature", "id":"OpenLayers.Feature.Vector_64", "properties":{"_gx_style":1}, "geometry":{ "type":"Point",   "coordinates":[16,46] }}
+                ]
+            },
+            "name":"vector",
+            "opacity":1
+        }
+],
+"pages":[
+        {"center":[16.087890625,46.0224609375],"scale":1000000,"rotation":"0","mapTitle":"A custom title","comment":"A custom comment"}
+        ]
+}
+</pre>
 
-  </p>
-  The response is a JSON object, containing a "getURL" attribute. This attribute is a string, the URL of the finished PDF. Point your   browser at that string (or fetch it as a file, download it via cURL, etc) to get the image.
-  </p>
+</p>
+The response is a JSON object, containing a "getURL" attribute. This attribute is a string, the URL of the finished PDF. Point your   browser at that string (or fetch it as a file, download it via cURL, etc) to get the image.
+</p>
 
-  <h2>Adaptation To Leaflet</h2>
+<h2>Adaptation To Leaflet</h2>
 
-  <p>
-  In this app, the print process is handled by the <code>printMap()</code> function in <code>static/common/common.js</code> This function   creates a JSON representation of the map state, including the layout/paper selection, the directions and highlights lines, any any  icons on the map at the time.
-  </p>
+<p>
+In this app, the print process is handled by the <code>printMap()</code> function in <code>static/common/common.js</code> This function   creates a JSON representation of the map state, including the layout/paper selection, the directions and highlights lines, any any  icons on the map at the time.
+</p>
 
-  <p>
-  <code>printMap()</code> uses some arithmetic based on the page sizes (see <code>PRINT_SIZES</code> in <code>static/common/common.js</code>) so it can figure out the best bounding box to center your map onto a sheet of paper. This is necessary since many monitors are  larger than a sheet of paper, and have different aspect ratios than a sheet of paper.
-  </p>
+<p>
+<code>printMap()</code> uses some arithmetic based on the page sizes (see <code>PRINT_SIZES</code> in <code>static/common/common.js</code>) so it can figure out the best bounding box to center your map onto a sheet of paper. This is necessary since many monitors are  larger than a sheet of paper, and have different aspect ratios than a sheet of paper.
+</p>
 
-  <p>
-  Additionally, <code>printMap()</code> determines whether there are directions to be displayed on the map (by virtue of the Directions   line being visible). if so, this adds &quot;with directions&quot; to the name of the layout, e.g. &quot;Letter portrait with directions&quot; These alternate layouts contain a titlePage element on which the directions will be printed.
-  </p>
+<p>
+Additionally, <code>printMap()</code> determines whether there are directions to be displayed on the map (by virtue of the Directions   line being visible). if so, this adds &quot;with directions&quot; to the name of the layout, e.g. &quot;Letter portrait with directions&quot; These alternate layouts contain a titlePage element on which the directions will be printed.
+</p>
 
-  <h2>config.yaml And Layouts</h2>
+<h2>config.yaml And Layouts</h2>
 
-  <p>Check the config.yaml file for the authoritative list of layouts. In general we have:</p>
-  <ul>
-  <li>Letter (8.5x11) and Ledger (11x17)</li>
-  <li>Portrait and Landscape</li>
-  <li>With and without directions</li>
-  </ul>
+<p>Check the config.yaml file for the authoritative list of layouts. In general we have:</p>
+<ul>
+<li>Letter (8.5x11) and Ledger (11x17)</li>
+<li>Portrait and Landscape</li>
+<li>With and without directions</li>
+</ul>
 
-  <p>
-  The versions which have directions must be implemented as a separate layout, rather than a conditional block, because of MapFish's  limitations in conditional content. Pages cannot be conditional, only text blocks within a page; and the mainPage is already 100% full   with a full-page map.
-  </p>
-
-</div>
+<p>
+The versions which have directions must be implemented as a separate layout, rather than a conditional block, because of MapFish's  limitations in conditional content. Pages cannot be conditional, only text blocks within a page; and the mainPage is already 100% full   with a full-page map.
+</p>

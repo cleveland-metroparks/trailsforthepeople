@@ -1,85 +1,83 @@
-<div class="content">
-  <h1>TileStache Basemap</h1>
-  <p class="lead">The "map" basemap.</p>
+<?php $this->page_title = 'TileStache Basemap'; ?>
 
-  <h2>Web Map: Served From Tilestache</h2>
+<p class="lead">The "map" basemap.</p>
 
-  <p>The Map basemap is served from a tile service hosted on Cleveland's map service. Unlike the other map layers, it is not served via   GeoServer but from TileStache, because TileStache can do more advanced compositing effects and blending modes, such as that effect that   makes the reservations look embossed onto the hillshade.</p>
+<h2>Web Map: Served From Tilestache</h2>
 
-  <p>TileStache is housed entirely under <i>/var/www/tilestache</i> as follows:</p>
+<p>The Map basemap is served from a tile service hosted on Cleveland's map service. Unlike the other map layers, it is not served via   GeoServer but from TileStache, because TileStache can do more advanced compositing effects and blending modes, such as that effect that   makes the reservations look embossed onto the hillshade.</p>
 
+<p>TileStache is housed entirely under <i>/var/www/tilestache</i> as follows:</p>
+
+<ul>
+<li><b>tilestache.cgi</b> -- The CGI program (Python) that brings it together. Browsers call this program, and it loads and executes  TileStache.</li>
+<li><b>tilestache.cfg</b> -- The configuration file for TileStache. Defines the sub-layers, the compositing effect. The final products  are the <i>labels</i> and <i>basemap</i> layers.</li>
+<li><b>mapfiles</b> -- Mapnik mapfiles, in XML format. These define the sub-layers of the composited basemap.</li>
+<li><b>data/cmp</b> -- Data files from Cleveland's own data: water lines, contours, Lake Erie, reservations.</li>
+<li><b>data/osm</b> -- OpenStreetMap (OSM) data. Most notably, this has roads and some polygon features such as airports.</li>
+<li><b>data/ned</b> -- National Elevation Dataset (NED). Used to generate the hillshade.</li>
+<li><b>data/gnis</b> -- Data files from GNIS and other sources, most notably city-point locations.</li>
+<li><b>tiles</b> -- This is where the generated map tiles are stored. See below for maintenance of the tile cache.</li>
+</ul>
+
+<h3>Tile Cache Maintenance</h3>
+
+<p><b>It may not be possible to take file-level backups of tile cache directory, due to the depth of directories. If your backups take  inordinately long, or time out, consider excluding the cache directory from your backups.</b></p>
+
+<p>The <i>/var/www/tilestache/tiles</i> directory stores the generated map tiles, so they can be served up next time without re-  generating them from the data. There are two reasons you will want to delete tiles from here:</p>
+<ul>
+  <li>This directory will increasingly consume disk space, and will probably become your #1 consumer of disk space. This is a great   place to free up disk space in a pinch.</p>
+  <li>If you make changes to the underlying data, changes will not be visible in the browser because the already-rendered tiles are   still here. You would need to delete the tiles, in order to have them re-generate from the new data.</li>
+</ul>
+<p>See below for links to utilities for deleting and re-seeding tiles.</p>
+
+<h2>Printed Map: Served From Geoserver</h2>
+
+<p>For printing purposes, a version of the basemap was created in GeoServer. This is not identical to the browser version, since  GeoServer can't do complex mixing effects, can't display the hillshade with a pale screen, and so on.</p>
+
+<p>These are served via GeoServer's WMS, as LayerGroups named <i>basemap</i> and <i>labels</i>. Because LayerGroups are not served from   the &quot;cm&quot; workspace, these use the special URL <i>/gwms</i> See the printMap() function in common.js for a definition of this  WMS service.</p>
+
+<p>The styles for this basemap, were derived from the Mapnik mapfiles but are now independent copies using GeoServer SLDs. For more   information on the process of converting from Mapnik mapfiles to GeoServer SLDs, see the README.TXT file in the mapfiles subdirectory.</  p>
+
+<p>The labels are are served via GeoServer and GeoWebCache's WMS integration. There is no specific reason why labels should be served   from GWC versus TileStache, but it had to be one of them. A benefit of serving them from GeoServer and GWC, is that the labels are  guaranteed to be consistent between web and print versions, and that there is no need for a second cached copy of the labels.</p>
+
+<h2>Clearing And Seeding (regenerating) The Tile Caches</h2>
+
+<p>Both TileStache and GeoServer cache tiles. When you replace shapefiles, you typically need to clear out the cached tiles so the new  ones will be generated from the new data. <i>After clearing the caches, expect that layers will be served up slowly for a few days as  they are re-cached.</i></p>
+
+<p>
+  <b>GeoServer</b>
   <ul>
-  <li><b>tilestache.cgi</b> -- The CGI program (Python) that brings it together. Browsers call this program, and it loads and executes  TileStache.</li>
-  <li><b>tilestache.cfg</b> -- The configuration file for TileStache. Defines the sub-layers, the compositing effect. The final products  are the <i>labels</i> and <i>basemap</i> layers.</li>
-  <li><b>mapfiles</b> -- Mapnik mapfiles, in XML format. These define the sub-layers of the composited basemap.</li>
-  <li><b>data/cmp</b> -- Data files from Cleveland's own data: water lines, contours, Lake Erie, reservations.</li>
-  <li><b>data/osm</b> -- OpenStreetMap (OSM) data. Most notably, this has roads and some polygon features such as airports.</li>
-  <li><b>data/ned</b> -- National Elevation Dataset (NED). Used to generate the hillshade.</li>
-  <li><b>data/gnis</b> -- Data files from GNIS and other sources, most notably city-point locations.</li>
-  <li><b>tiles</b> -- This is where the generated map tiles are stored. See below for maintenance of the tile cache.</li>
+    <li>Go to the <i>GeoWebCache Demos</i> page.</li>
+    <li>Open the <i>Seed This Layer</i> link for each <i>basemap_</i> and <i>labels_</i> layer. I find that opening each in a new     window/tab is helpful.</li>
+    <li>I don't recommend re-seeding the Labels layer from GeoServer / GeoWebCache. The labels aren't very slow, and most of the  layers   are loaded only during printing, so seeding is not worth the disk performance and consumption.</li>
+    <li>For each layer, run a Truncate on EPSG:900913 from levels 00 to 19.</li>
+    <li>Then, run a Seed on EPSG:900913 from levels 00 to 15.</li>
   </ul>
+</p>
 
-  <h3>Tile Cache Maintenance</h3>
-
-  <p><b>It may not be possible to take file-level backups of tile cache directory, due to the depth of directories. If your backups take  inordinately long, or time out, consider excluding the cache directory from your backups.</b></p>
-
-  <p>The <i>/var/www/tilestache/tiles</i> directory stores the generated map tiles, so they can be served up next time without re-  generating them from the data. There are two reasons you will want to delete tiles from here:</p>
-  <ul>
-    <li>This directory will increasingly consume disk space, and will probably become your #1 consumer of disk space. This is a great   place to free up disk space in a pinch.</p>
-    <li>If you make changes to the underlying data, changes will not be visible in the browser because the already-rendered tiles are   still here. You would need to delete the tiles, in order to have them re-generate from the new data.</li>
-  </ul>
-  <p>See below for links to utilities for deleting and re-seeding tiles.</p>
-
-  <h2>Printed Map: Served From Geoserver</h2>
-
-  <p>For printing purposes, a version of the basemap was created in GeoServer. This is not identical to the browser version, since  GeoServer can't do complex mixing effects, can't display the hillshade with a pale screen, and so on.</p>
-
-  <p>These are served via GeoServer's WMS, as LayerGroups named <i>basemap</i> and <i>labels</i>. Because LayerGroups are not served from   the &quot;cm&quot; workspace, these use the special URL <i>/gwms</i> See the printMap() function in common.js for a definition of this  WMS service.</p>
-
-  <p>The styles for this basemap, were derived from the Mapnik mapfiles but are now independent copies using GeoServer SLDs. For more   information on the process of converting from Mapnik mapfiles to GeoServer SLDs, see the README.TXT file in the mapfiles subdirectory.</  p>
-
-  <p>The labels are are served via GeoServer and GeoWebCache's WMS integration. There is no specific reason why labels should be served   from GWC versus TileStache, but it had to be one of them. A benefit of serving them from GeoServer and GWC, is that the labels are  guaranteed to be consistent between web and print versions, and that there is no need for a second cached copy of the labels.</p>
-
-  <h2>Clearing And Seeding (regenerating) The Tile Caches</h2>
-
-  <p>Both TileStache and GeoServer cache tiles. When you replace shapefiles, you typically need to clear out the cached tiles so the new  ones will be generated from the new data. <i>After clearing the caches, expect that layers will be served up slowly for a few days as  they are re-cached.</i></p>
-
-  <p>
-    <b>GeoServer</b>
+<p>
+    <b>TileStache</b>
     <ul>
-      <li>Go to the <i>GeoWebCache Demos</i> page.</li>
-      <li>Open the <i>Seed This Layer</i> link for each <i>basemap_</i> and <i>labels_</i> layer. I find that opening each in a new     window/tab is helpful.</li>
-      <li>I don't recommend re-seeding the Labels layer from GeoServer / GeoWebCache. The labels aren't very slow, and most of the  layers   are loaded only during printing, so seeding is not worth the disk performance and consumption.</li>
-      <li>For each layer, run a Truncate on EPSG:900913 from levels 00 to 19.</li>
-      <li>Then, run a Seed on EPSG:900913 from levels 00 to 15.</li>
+    <li>
+        Regenerate TileStache's shapefile, using shp2pgsql like this:<br />
+        <code>
+        cd /var/www/tilestache/data/cmp
+        pgsql2shp -p 44017 -f reservations.shp -u trails -P password path  reservation_boundaries_public_private_cm_dissolved
+        </code><br />
+        You will need to do this for whatever layer was regenerated. If you're uncertain as to which mapfiles are which layer, refer to <i>/var/www/tilestache/mapfiles</i>
+    </li>
+    <li><a target="_blank" href="<?= ssl_url("administration/purge_tilestache"); ?>"><?= ssl_url("administration/purge_tilestache"); ?></a></li>
+    <li><a target="_blank" href="<?= ssl_url("administration/seed_tilestache"); ?>"><?= ssl_url("administration/seed_tilestache"); ?></a  ></li>
     </ul>
-  </p>
+</p>
 
-  <p>
-      <b>TileStache</b>
-      <ul>
-      <li>
-          Regenerate TileStache's shapefile, using shp2pgsql like this:<br />
-          <code>
-          cd /var/www/tilestache/data/cmp
-          pgsql2shp -p 44017 -f reservations.shp -u trails -P password path  reservation_boundaries_public_private_cm_dissolved
-          </code><br />
-          You will need to do this for whatever layer was regenerated. If you're uncertain as to which mapfiles are which layer, refer to <i>/var/www/tilestache/mapfiles</i>
-      </li>
-      <li><a target="_blank" href="<?= ssl_url("administration/purge_tilestache"); ?>"><?= ssl_url("administration/purge_tilestache"); ?></a></li>
-      <li><a target="_blank" href="<?= ssl_url("administration/seed_tilestache"); ?>"><?= ssl_url("administration/seed_tilestache"); ?></a  ></li>
-      </ul>
-  </p>
+<h2>Replacing A Dataset / Shapefile</h2>
 
-  <h2>Replacing A Dataset / Shapefile</h2>
+<p>So, you made some fixes to a shapefile (filtered the features, fixed some classification-related or label-related attributes), and   want to update the basemap. There are a few steps you must take to get the data massaged into TileStache and GeoServer:</p>
 
-  <p>So, you made some fixes to a shapefile (filtered the features, fixed some classification-related or label-related attributes), and   want to update the basemap. There are a few steps you must take to get the data massaged into TileStache and GeoServer:</p>
-
-  <ul>
-    <li>Make sure that the shapefile you're about to upload is in the correct SRS. Check the Mapnik mapfiles for that specific layer,   and   look for the <i>srs=</i> parameter. For instance, if you are replacing the OSM shapefile, check the various XML files and look  for <i>  /osm/</i> to find layers which use that shapefile, then look for the <i>srs=</i> parameter in the &lt;Layer&gt; tag. You'll   see that  the OSM shapefile is 4326, which is Lat-Lon WGS64 coordinates. Others, particularly CMP's own reservations and water, may be  in Ohio   State Plane (3734).</li>
-    <li>Name the shapefile and upload it, overwriting the previous one.</li>
-    <li>Clear the TileStache tile cache and the GeoServer GeoWebCache.</li>
-    <li>Reload and test! If tiles do not show up, use Firebug to see individual tile requests, and visit those tile URLs to see whether   they are generating tiles or errors.</li>
-  </ul>
-
-</div>
+<ul>
+  <li>Make sure that the shapefile you're about to upload is in the correct SRS. Check the Mapnik mapfiles for that specific layer,   and   look for the <i>srs=</i> parameter. For instance, if you are replacing the OSM shapefile, check the various XML files and look  for <i>  /osm/</i> to find layers which use that shapefile, then look for the <i>srs=</i> parameter in the &lt;Layer&gt; tag. You'll   see that  the OSM shapefile is 4326, which is Lat-Lon WGS64 coordinates. Others, particularly CMP's own reservations and water, may be  in Ohio   State Plane (3734).</li>
+  <li>Name the shapefile and upload it, overwriting the previous one.</li>
+  <li>Clear the TileStache tile cache and the GeoServer GeoWebCache.</li>
+  <li>Reload and test! If tiles do not show up, use Firebug to see individual tile requests, and visit those tile URLs to see whether   they are generating tiles or errors.</li>
+</ul>

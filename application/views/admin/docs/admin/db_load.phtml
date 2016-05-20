@@ -1,11 +1,10 @@
-<div class="content">
-  <h1>Database Load</h1>
+<?php $this->page_title = 'Database Load'; ?>
 
-  <p>Unlike the other documents, this one is largely intended as copy-and-paste database code for PostgreSQL. As such, narrative will usually be in the form of double-dash comments so as not to interrupt the flow of SQL.</p>
+<p>Unlike the other documents, this one is largely intended as copy-and-paste database code for PostgreSQL. As such, narrative will usually be in the form of double-dash comments so as not to interrupt the flow of SQL.</p>
 
-  <h2>Initial Setup: PostGIS, pgRouting, Some Stored Procedures</h2>
+<h2>Initial Setup: PostGIS, pgRouting, Some Stored Procedures</h2>
 
-  <p>These steps won't be necessary again, but are worth recording for future projects, especially where they pertain to PostGIS 2 compatibility or pgRouting bugs.</p>
+<p>These steps won't be necessary again, but are worth recording for future projects, especially where they pertain to PostGIS 2 compatibility or pgRouting bugs.</p>
 
 <pre>
 -- PostgreSQL 9 has tighter default permissions, not even allowing SELECT unless you explicitly GRANT it
@@ -730,5 +729,3 @@ GRANT UPDATE ON trails_fixed TO trails;
 -- do the import at http://maps.clemetparks.com/static/import/Aggregate_Trails.php
 SELECT description FROM trails_fixed limit 3;
 </pre>
-
-</div>
