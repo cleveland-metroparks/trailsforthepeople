@@ -1,8 +1,10 @@
+<?php $this->page_title = 'Login'; ?>
+
 <form method="post" action="<?= ssl_current_url() ?>">
-<table style="width:150px; margin:auto auto auto auto;">
-<tr><td>Username:</td><td><input type="text" name="username" /></td></tr>
-<tr><td>Password:</td><td><input type="password" name="password" /></td></tr>
-<tr><td></td><td><!--<?= $recaptcha ?>--></td></tr>
-<tr><td></td><td><input type="submit" value="Log In" /></td></tr>
-</table>
+  <table>
+    <tr><td>Username:</td><td><input type="text" name="username" /></td></tr>
+    <tr><td>Password:</td><td><input type="password" name="password" /></td></tr>
+    <tr><td></td><td><!--<?= $recaptcha ?>--></td></tr>
+    <tr><td><input type="submit" value="Log in" class="btn btn-primary" /></td><td></td></tr>
+  </table>
 </form>

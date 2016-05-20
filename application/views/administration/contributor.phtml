@@ -1,8 +1,4 @@
-<style type="text/css">
-input[type="text"]   { width:2in; }
-input[type="submit"] { width:2in; }
-</style>
-
+<?php $this->page_title = 'Edit Contributor'; ?>
 
 <form method="POST" action="<?= ssl_current_url() ?>" id="edit">
 <table>
@@ -15,7 +11,7 @@ input[type="submit"] { width:2in; }
     <td><input type="text" name="realname" maxlength="100" value="<?= htmlspecialchars($contributor->realname) ?>" /></td>
 </tr>
 <tr>
-    <td>Password:<br/><span style="font-size:50%;">only if you want to change it</span></td>
+    <td>Password:<br/><span style="font-size:75%;">only if you want to change it</span></td>
     <td><input type="text" name="password" value="" /></td>
 </tr>
 <tr>
@@ -73,8 +69,8 @@ input[type="submit"] { width:2in; }
     </td>
 </tr>
 <tr>
+    <td><input type="submit" value="Save Changes" class="btn btn-primary" /></td>
     <td></td>
-    <td><input type="submit" value="Save Changes" /></td>
 </tr>
 </table>
 </form>
@@ -95,9 +91,7 @@ $(window).load(function () {
 });
 </script>
 
-
-
 <form style="margin-top:1in;" method="post" action="<?= ssl_url("administration/deletecontributor/") ?>" onSubmit="return confirm('Really delete this contributor? This will NOT delete any markers.');">
 <input type="hidden" name="id" value="<?= $contributor->id ?>" />
-<input type="submit" value="Delete" />
+<input type="submit" value="Delete" class="btn btn-warning" />
 </form>
