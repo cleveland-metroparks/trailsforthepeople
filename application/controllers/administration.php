@@ -11,31 +11,21 @@ function login() {
     // must be using SSL to do this
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
 
-    $this->load->helper('recaptchalib');
-
-    // check the CAPTCHA
-    $captcha_ok = recaptcha_check_answer($this->config->item('recaptcha_private_key'), $_SERVER["REMOTE_ADDR"], @$_POST['recaptcha_challenge_field'], @$_POST['recaptcha_response_field']);
-    $captcha_ok = $captcha_ok->is_valid;
-    //$captcha_ok = 'True';
     // check their username & password, which are simple static configs
     $login_ok = (@$_POST['username'] and $_POST['username']==$this->config->item('admin_user') and @$_POST['password'] and $_POST['password']==$this->config->item('admin_pass'));
 
-    if ($login_ok and $captcha_ok) {
+    if ($login_ok) {
         $this->session->set_userdata('admin', TRUE);
         Auditlog::log_message("Successful login to admin panel",'administrator');
         return redirect(ssl_url('administration/'));
+    } else {
+        Auditlog::log_message("Failed login attempt to admin panel", 'administrator');
     }
-
-    // if they got here, then login failed; but if the CAPTCHA was good and the password was bad, then it was truly a failed login attempt
-    if ($captcha_ok and ! $login_ok) Auditlog::log_message("Failed login attempt to admin panel", 'administrator');
 
     // if we got here, it must not have worked out
     $this->session->unset_userdata('admin');
 
-    $data = array();
-    $data['recaptcha'] = recaptcha_get_html( $this->config->item('recaptcha_public_key'), null, true );
-
-    $this->load->view('administration/login.phtml', $data);
+    $this->load->view('administration/login.phtml');
 }
 
 

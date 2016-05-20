@@ -35,15 +35,9 @@ function login() {
     // must be using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
 
-    $this->load->helper('recaptchalib');
-
     // if they submitted a user & pass AND it matches the salted SHA1 hash, good
     // set their session variable and send them onward
     if (@$_POST['username'] and $_POST['password']) {
-        // check the CAPTCHA
-        $captcha_ok = recaptcha_check_answer($this->config->item('recaptcha_private_key'), $_SERVER["REMOTE_ADDR"], @$_POST['recaptcha_challenge_field'], @$_POST['recaptcha_response_field']);
-        $captcha_ok = $captcha_ok->is_valid;
-        //$captcha_ok = 'True';
         // fetch their account and check their password
         $account = new Contributor();
         $account->where('email',$_POST['username'])->get();
@@ -51,7 +45,7 @@ function login() {
 
         // if both passed, they're in; capture a bunch of their Contributor attributes into a session variable
         // this can be used in templates or this controller via $this->loggedin or $this->loggedin
-        if ($captcha_ok and $login_ok) {
+        if ($login_ok) {
             $sessiondata = array(
                 'id' => $account->id,
                 'email' => $account->email,
@@ -66,19 +60,15 @@ function login() {
             $this->session->set_userdata('contributor', $sessiondata);
             Auditlog::log_message("Successful login to contributor panel", $account->email);
             return redirect(ssl_url('contributors/'));
+        } else {
+            Auditlog::log_message("Failed login attempt to contributor panel", $_POST['username']);
         }
-
-        // if they got here, then login failed; but if the CAPTCHA was good and the password was bad, then it was truly a failed login attempt
-        if ($captcha_ok and ! $login_ok) Auditlog::log_message("Failed login attempt to contributor panel", $_POST['username']);
     }
 
     // if we got here, it must not have worked out
     $this->session->unset_userdata('contributor');
 
-    $data = array();
-    $data['recaptcha'] = recaptcha_get_html( $this->config->item('recaptcha_public_key'), null, true );
-
-    $this->load->view('contributors/login.phtml', $data);
+    $this->load->view('contributors/login.phtml');
 }
 
 
