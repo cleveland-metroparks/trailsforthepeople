@@ -35,7 +35,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">CM-Trails Admin</a>
+          <a class="navbar-brand" href="/administration">CM-Trails Admin</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">

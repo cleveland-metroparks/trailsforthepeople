@@ -69,7 +69,7 @@ function index() {
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
     if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
 
-    $this->load->view('administration/mainmenu.phtml');
+    $this->load->view('administration/home.phtml');
 }
 
 
@@ -290,6 +290,17 @@ function seed_tilestache() {
     // done!
     print "<p>DONE!</p>\n";
     print $this->load->view('administration/footer.phtml', array(), TRUE);
+}
+
+/*
+ * TBD
+ */
+function testing() {
+    // must be logged in and using SSL to do this
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+
+    $this->load->view('administration/testing.phtml');
 }
 
 }

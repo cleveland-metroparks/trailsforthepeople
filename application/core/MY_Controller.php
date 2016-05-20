@@ -70,20 +70,20 @@ private function _generate_menu_markup($menu, $active_path='') {
  */
 private function _mainmenu_array() {
   $mainmenu_array = array(
-    /*
-     * Home
-     */
-    array(
-      'url' => 'admin/index/home',
-      'title' => 'Home'
-    ),
-    /*
-     * Content
-     */
-    array(
-      'url' => 'admin/index/content',
-      'title' => 'Content'
-    ),
+    ///*
+    // * Home
+    // */
+    //array(
+    //  'url' => 'administration',
+    //  'title' => 'Home'
+    //),
+    ///*
+    // * Content
+    // */
+    //array(
+    //  'url' => 'administration/index/content',
+    //  'title' => 'Content'
+    //),
     /*
      * Administration
      */
@@ -205,7 +205,7 @@ private function _mainmenu_array() {
      * Testing
      */
     array(
-      'url' => 'admin/index/testing',
+      'url' => 'administration/testing',
       'title' => 'Testing'
     ),
     /*
