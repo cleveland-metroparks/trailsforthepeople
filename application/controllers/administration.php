@@ -1,10 +1,10 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-class Administration extends CI_Controller {
+
+class Administration extends MY_Controller {
 
 function __construct() {
     parent::__construct();
 }
-
 
 
 function login() {
