@@ -1,5 +1,3 @@
-<?php $this->load->view('administration/header.phtml') ?>
-
 <table id="markers" style="width:75%;">
 <thead>
 <tr>
@@ -31,13 +29,10 @@
 
 
 <script type="text/javascript">
-$(window).load(function() { 
-    $('#markers').tablesorter({ 
+$(window).load(function() {
+    $('#markers').tablesorter({
         sortList: [[0,0]]
     });
     $('#markers').addClass('tablesorter');
-}); 
+});
 </script>
-
-
-<?php $this->load->view('administration/footer.phtml') ?>

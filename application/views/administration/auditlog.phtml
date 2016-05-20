@@ -1,5 +1,3 @@
-<?php $this->load->view('administration/header.phtml') ?>
-
 <table id="auditlog" style="width:100%;">
 <thead>
 <tr>
@@ -24,11 +22,9 @@
 
 
 <script type="text/javascript">
-$(window).load(function() { 
-    $('#auditlog').tablesorter({ 
+$(window).load(function() {
+    $('#auditlog').tablesorter({
     });
     $('#auditlog').addClass('tablesorter');
-}); 
+});
 </script>
-
-<?php $this->load->view('administration/footer.phtml') ?>

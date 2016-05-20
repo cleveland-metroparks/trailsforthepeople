@@ -1,20 +1,8 @@
-<html>
-<head>
-    <title>Log In</title>
-    <style type="text/css">
-    input { width:2in; }
-    </style>
-</head>
-<body>
-
 <form method="post" action="<?= ssl_current_url() ?>">
 <table style="width:150px; margin:auto auto auto auto;">
 <tr><td>Username:</td><td><input type="text" name="username" /></td></tr>
 <tr><td>Password:</td><td><input type="password" name="password" /></td></tr>
-<tr><td></td><td><?= $recaptcha ?></td></tr>
+<tr><td></td><td><!--<?= $recaptcha ?>--></td></tr>
 <tr><td></td><td><input type="submit" value="Log In" /></td></tr>
 </table>
 </form>
-
-</body>
-</html>
