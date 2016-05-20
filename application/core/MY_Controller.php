@@ -120,6 +120,9 @@ private function _mainmenu_array() {
       'url' => 'docs',
       'title' => 'Docs',
       'submenu' => array(
+        /*
+         * Docs: Content
+         */
         array(
           'url' => 'docs/index/content/panel',
           'title' => 'Content &amp; Contributors',
@@ -130,6 +133,9 @@ private function _mainmenu_array() {
             ),
           ),
         ),
+        /*
+         * Docs: Admin
+         */
         array(
           'url' => 'docs/index/admin/panel',
           'title' => 'Administration',
@@ -164,6 +170,9 @@ private function _mainmenu_array() {
             ),
           ),
         ),
+        /*
+         * Docs: CMS
+         */
         array(
           'url' => 'docs/index/cms/cms',
           'title' => 'CMS &amp; Embedding',
@@ -179,6 +188,14 @@ private function _mainmenu_array() {
             array(
               'url' => 'docs/index/cms/url_params',
               'title' => 'Controlling map start view',
+            ),
+            array(
+              'url' => 'docs/index/cms/loops',
+              'title' => 'Loops',
+            ),
+            array(
+              'url' => 'docs/index/cms/trail_closures',
+              'title' => 'Trail Closures',
             ),
           ),
         ),
