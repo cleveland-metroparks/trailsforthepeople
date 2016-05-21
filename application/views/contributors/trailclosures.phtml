@@ -1,4 +1,4 @@
-<?php $this->load->view('contributors/header.phtml') ?>
+<?php $this->page_title = 'Trail Closures'; ?>
 
 <style type="text/css">
 input[type="text"]   { width:2in; }
@@ -7,11 +7,6 @@ input[type="text"]   { width:2in; }
     height:7in;
     width:50%;
     border:2px solid black;
-}
-
-#savebuttondiv {
-    text-align:center;
-    width:50%;
 }
 
 #closure_details {
@@ -44,38 +39,35 @@ input[type="text"]   { width:2in; }
         <div id="map_canvas"></div>
 
         <h2>Close a trail by name...</h2>
-        <div>
-            <input type="text" id="close_trail_text" /> <input type="button" id="close_trail_button" value="Search &gt;" />
+        <div class="form-inline">
+            <input type="text" class="form-control" id="close_trail_text" />
+            <button id="close_trail_button" class="btn btn-default">Search &gt;</button>
             <br/>
         </div>
 
         <h2>Re-open a trail by name...</h2>
-        <div>
-            <input type="text" id="open_trail_text" /> <input type="button" id="open_trail_button" value="Search &gt;" />
+        <div class="form-inline">
+            <input type="text" class="form-control" id="open_trail_text" />
+            <button id="open_trail_button" class="btn btn-default">Search &gt;</button>
             <br/>
         </div>
 
         <h2>Zoom to...</h2>
-        <div>
-            Click the map to get info. Click the resulting popup to mark a trail section as closed.
-            <br/>
-            The names and descriptions on the right will be publicly visible.
-            <br/>
-            <br/>
-            Your current GPS location:<br/>
-                <input type="button" id="gps_button" value="Go &gt;" />
-                <br/>
-            Search:<br/>
-                <input type="text" id="cleocode_address" />
-                <input type="button" id="cleocode_button" value="Go &gt;" />
-                <br/>
+            <p>Click the map to get info. Click the resulting popup to mark a trail section as closed.<br/>
+            The names and descriptions on the right will be publicly visible.</p>
+            <div>
+                <strong>Your current GPS location:</strong><br/>
+                <button id="gps_button" class="btn btn-default">Go &gt;</button>
+            </div>
+            <div class="form-inline">
+            <strong>Search:</strong><br/>
+                <input type="text" class="form-control" id="cleocode_address" />
+                <button id="cleocode_button" class="btn btn-default">Go &gt;</button>
+            </div>
             <ul id="results"></ul>
-        </div>
     </div>
 
-    <div id="savebuttondiv">
-        <input type="submit" name="save" value="Save Changes" />
-    </div>
+    <button type="submit" name="save" value="Save Changes" class="btn btn-primary">Save Changes</button>
 </form>
 
 
@@ -289,7 +281,3 @@ function zoomToTrail(element) {
     MAP.fitBounds( new L.LatLngBounds( new L.LatLng(boxs,boxw) , new L.LatLng(boxn,boxe) ) );
 }
 </script>
-
-
-
-<?php $this->load->view('contributors/footer.phtml') ?>

@@ -1,4 +1,4 @@
-<?php $this->load->view('contributors/header.phtml') ?>
+<?php $this->page_title = 'Markers'; ?>
 
 <style type="text/css">
 table.tablesorter thead tr .header {
@@ -6,35 +6,34 @@ table.tablesorter thead tr .header {
 }
 </style>
 
-
-<div style="float:right;">
-    <a href="<?= ssl_url('contributors/marker/0/') ?>">Create a new marker</a>
-</div>
+<ul class="local-actions">
+    <li><a href="<?= ssl_url('contributors/marker/0/') ?>" class="btn btn-primary">+ Create a marker</a></li>
+</ul>
 
 <?php if ($markers_count) { ?>
-<h3>Your Markers</h3>
-<table id="markers" style="width:100%;">
+<h2>Your Markers</h2>
+<table id="markers" class="table table-striped">
 <thead>
 <tr>
-    <th></th>
-    <th style="text-align:left; padding-left:2em;">Enabled?</th>
-    <th style="text-align:left; padding-left:2em;">Starts</th>
-    <th style="text-align:left; padding-left:2em;">Expires</th>
-    <th style="text-align:left; padding-left:2em;">Category</th>
-    <th style="text-align:left; padding-left:2em;">Title</th>
-    <th style="text-align:left; padding-left:2em;">Content</th>
+    <th>Enabled</th>
+    <th>Starts</th>
+    <th>Expires</th>
+    <th>Category</th>
+    <th>Title</th>
+    <th>Content</th>
+    <th>Edit</th>
 </tr>
 </thead>
 <tbody>
 <?php foreach ($markers as $marker) { ?>
 <tr>
+    <td><?= $marker->enabled ? 'Yes' : 'No' ?></td>
+    <td><?= $marker->startdate ?></td>
+    <td><?= $marker->expires ?></td>
+    <td><?= htmlspecialchars($marker->category) ?></td>
+    <td><?= htmlspecialchars($marker->title) ?></td>
+    <td><?= htmlspecialchars(strip_tags(substr($marker->content,0,200))) ?></td>
     <td><a href="<?= ssl_url("contributors/marker/{$marker->id}") ?>">edit</a></td>
-    <td style="text-align:right;"><?= $marker->enabled ? 'Yes' : 'No' ?></td>
-    <td style="text-align:right;"><?= $marker->startdate ?></td>
-    <td style="text-align:right;"><?= $marker->expires ?></td>
-    <td style="text-align:left;"><?= htmlspecialchars($marker->category) ?></td>
-    <td style="text-align:left;"><?= htmlspecialchars($marker->title) ?></td>
-    <td style="text-align:left;"><?= htmlspecialchars(strip_tags(substr($marker->content,0,200))) ?></td>
 </tr>
 <?php } ?>
 </tbody>
@@ -45,29 +44,29 @@ table.tablesorter thead tr .header {
 
 <?php if ($this->loggedin['admin']) { ?>
 <?php if ($other_markers_count) { ?>
-<h3>Other Markers</h3>
-<table id="other_markers" style="width:100%;">
+<h2>Other Markers</h2>
+<table id="other_markers" class="table table-striped">
 <thead>
 <tr>
-    <th></th>
-    <th style="text-align:left; padding-left:2em;">Enabled?</th>
-    <th style="text-align:left; padding-left:2em;">Starts</th>
-    <th style="text-align:left; padding-left:2em;">Expires</th>
-    <th style="text-align:left; padding-left:2em;">Category</th>
-    <th style="text-align:left; padding-left:2em;">Title</th>
-    <th style="text-align:left; padding-left:2em;">Content</th>
+    <th>Enabled</th>
+    <th>Starts</th>
+    <th>Expires</th>
+    <th>Category</th>
+    <th>Title</th>
+    <th>Content</th>
+    <th>Edit</th>
 </tr>
 </thead>
 <tbody>
 <?php foreach ($other_markers as $marker) { ?>
 <tr>
+    <td><?= $marker->enabled ? 'Yes' : 'No' ?></td>
+    <td><?= $marker->startdate ?></td>
+    <td><?= $marker->expires ?></td>
+    <td><?= htmlspecialchars($marker->category) ?></td>
+    <td><?= htmlspecialchars($marker->title) ?></td>
+    <td><?= htmlspecialchars(strip_tags(substr($marker->content,0,200))) ?></td>
     <td><a href="<?= ssl_url("contributors/marker/{$marker->id}") ?>">edit</a></td>
-    <td style="text-align:right;"><?= $marker->enabled ? 'Yes' : 'No' ?></td>
-    <td style="text-align:right;"><?= $marker->startdate ?></td>
-    <td style="text-align:right;"><?= $marker->expires ?></td>
-    <td style="text-align:left;"><?= htmlspecialchars($marker->category) ?></td>
-    <td style="text-align:left;"><?= htmlspecialchars($marker->title) ?></td>
-    <td style="text-align:left;"><?= htmlspecialchars(strip_tags(substr($marker->content,0,200))) ?></td>
 </tr>
 <?php } ?>
 </tbody>
