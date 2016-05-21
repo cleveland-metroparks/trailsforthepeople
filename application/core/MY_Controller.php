@@ -15,6 +15,12 @@ function _output($content)
     // Load the base template with output content available as $content
     $data['content'] = &$content;
     $data['mainmenu'] = $this->_generate_menu_markup($this->_mainmenu_array(), $this->uri->uri_string);
+    $body_classes_array = array(
+      'section-' . $this->router->class,
+      'page-' . $this->router->method,
+    );
+    $data['body_classes'] = implode(' ', $body_classes_array);
+
     echo($this->load->view('backend_base', $data, true));
 }
 
