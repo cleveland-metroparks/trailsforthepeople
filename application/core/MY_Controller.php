@@ -76,20 +76,31 @@ private function _generate_menu_markup($menu, $active_path='') {
  */
 private function _mainmenu_array() {
   $mainmenu_array = array(
-    ///*
-    // * Home
-    // */
-    //array(
-    //  'url' => 'administration',
-    //  'title' => 'Home'
-    //),
-    ///*
-    // * Content
-    // */
-    //array(
-    //  'url' => 'administration/index/content',
-    //  'title' => 'Content'
-    //),
+    /*
+     * Contributors
+     */
+    array(
+      'url' => 'contributors',
+      'title' => 'Contributors',
+      'submenu' => array(
+        array(
+          'url' => 'contributors/markers',
+          'title' => 'Markers',
+        ),
+        array(
+          'url' => 'contributors/loops',
+          'title' => 'Loops',
+        ),
+        array(
+          'url' => 'contributors/trailclosures',
+          'title' => 'Trail Closures',
+        ),
+        array(
+          'url' => 'contributors/logout',
+          'title' => 'Contributor Logout (temp)',
+        ),
+      ),
+    ),
     /*
      * Administration
      */
@@ -207,19 +218,26 @@ private function _mainmenu_array() {
         ),
       ),
     ),
+    ///*
+    // * Testing
+    // */
+    //array(
+    //  'url' => 'administration/testing',
+    //  'title' => 'Testing'
+    //),
     /*
-     * Testing
+     * User Account
      */
     array(
-      'url' => 'administration/testing',
-      'title' => 'Testing'
+      'url' => 'contributors/password',
+      'title' => 'User Account'
     ),
     /*
      * Log out
      */
     array(
       'url' => 'administration/logout',
-      'title' => 'Log out'
+      'title' => 'Log Out'
     ),
   );
 
