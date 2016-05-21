@@ -96,3 +96,13 @@ body.page-login h1 {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
+
+ul.local-actions {
+  padding-left: 0;
+  margin: 2em 0;
+}
+ul.local-actions li {
+  list-style-type: none;
+  display: inline-block;
+  margin-right: 2em;
+}
