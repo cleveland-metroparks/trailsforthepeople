@@ -1,63 +1,46 @@
-<?php $this->load->view('contributors/header.phtml') ?>
-
-<style type="text/css">
-th,td {
-    text-align:left;
-    vertical-align:top;
-}
-</style>
+<?php $this->page_title = 'Autoloop Generator'; ?>
 
 
-<table>
+<div class="form-group">
+    <label>Base name for the loop:</label>
+    <input class="form-control" type="text" name="basename" value="Random" />
+</div>
 
-<tr>
-    <th>Base name for the loop:</th>
-    <th><input type="text" name="basename" value="Random" /></th>
-</tr>
+<div class="form-group">
+    <label>WP0 lat:</label>
+    <input class="form-control" type="text" name="lat" value="<?= $this->config->item('geo_lat') ?>" />
+</div>
 
-<tr>
-    <th>WP0 lat:</th>
-    <th><input type="text" name="lat" value="<?= $this->config->item('geo_lat') ?>" /></th>
-</tr>
+<div class="form-group">
+    <label>WP0 lon:</label>
+    <input class="form-control" type="text" name="lon" value="<?= $this->config->item('geo_lon') ?>" />
+</div>
 
-<tr>
-    <th>WP0 lon:</th>
-    <th><input type="text" name="lon" value="<?= $this->config->item('geo_lon') ?>" /></th>
-</tr>
+<div class="form-group">
+    <label>Desired route length:</label>
+    <select class="form-control" name="miles">
+        <option value="3">3 miles</option>
+        <option value="5">5 miles</option>
+        <option value="10">10 miles</option>
+        <option value="15">15 miles</option>
+        <option value="20">20 miles</option>
+    </select>
+</div>
 
-<tr>
-    <th>Desired route length:</th>
-    <th><select name="miles">
-    <option value="3">3 miles</option>
-    <option value="5">5 miles</option>
-    <option value="10">10 miles</option>
-    <option value="15">15 miles</option>
-    <option value="20">20 miles</option>
-    </select></th>
-</tr>
+<div class="form-group">
+    <label>Use type:</label>
+    <select class="form-control" name="usetype">
+        <option value="hike">Hiking trails</option>
+        <option value="bike">Bicycle trails</option>
+        <option value="bike_novice">Bicycle trails, novice</option>
+        <option value="bike_beginner">Bicycle trails &amp; roads, beginner</option>
+        <option value="bike_intermediate">Bicycle trails &amp; roads, intermediate</option>
+        <option value="bike_advanced">Bicycle trails &amp; roads, advanced</option>
+        <option value="bridle">Equestrian trails</option>
+    </select>
+</div>
 
-<tr>
-    <th>Use type:</th>
-    <th><select name="usetype">
-    <option value="hike">Hiking trails</option>
-    <option value="bike">Bicycle trails</option>
-    <option value="bike_novice">Bicycle trails, novice</option>
-    <option value="bike_beginner">Bicycle trails &amp; roads, beginner</option>
-    <option value="bike_intermediate">Bicycle trails &amp; roads, intermediate</option>
-    <option value="bike_advanced">Bicycle trails &amp; roads, advanced</option>
-    <option value="bridle">Equestrian trails</option>
-    </select></th>
-</tr>
-
-<tr>
-    <th></th>
-    <th><input type="submit" value="Generate" id="go" /></th>
-</tr>
-
-</table>
-
-
-
+<input class="btn btn-primary" type="submit" value="Generate" id="go" />
 
 
 <script type="text/javascript">
@@ -85,5 +68,3 @@ $(window).load(function () {
     });
 });
 </script>
-
-<?php $this->load->view('contributors/footer.phtml') ?>

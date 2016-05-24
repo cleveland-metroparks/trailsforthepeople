@@ -1,4 +1,4 @@
-<?php $this->load->view('contributors/header.phtml') ?>
+<?php $this->page_title = 'Autoloop CSV'; ?>
 
 <form method="POST" action="<?= ssl_current_url() ?>" enctype="multipart/form-data" id="upload">
 
@@ -8,17 +8,15 @@
 
 <ul>
     <li>The CSV file must have 3 columns, and they must be in this order: Name, Lat, Lon.</li>
-    <li>There must be no header/title row. The very first row is a name & coordinates line.</li>
+    <li>There must be no header/title row. The very first row is a name &amp; coordinates line.</li>
 </ul>
 
 
-<p>
-    <input type="file" name="csv" size="75"/>
-</p>
+<div class="form-group">
+    <input class="form-control" type="file" name="csv" size="75"/>
+</div>
 
-<p>
-    <input type="submit" value="Upload" />
-</p>
+<input type="submit" value="Upload" class="btn btn-primary" />
 
 </form>
 
@@ -36,5 +34,3 @@ $(window).load(function () {
     });
 });
 </script>
-
-<?php $this->load->view('contributors/footer.phtml') ?>
