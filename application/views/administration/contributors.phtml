@@ -7,7 +7,6 @@
 <table id="contributors" class="table table-striped">
 <thead>
 <tr>
-  <th></th>
   <th>Name &amp; Organization</th>
   <th>E-mail</th>
   <th>Admin</th>
@@ -15,19 +14,20 @@
   <th>Markers</th>
   <th>Loops</th>
   <th>Closures</th>
+  <th>Edit</th>
 </tr>
 </thead>
 <tbody>
 <?php foreach ($contributors as $contributor) { ?>
   <tr>
-    <td><a href="<?= ssl_url("administration/contributor/{$contributor->id}") ?>">edit</a></td>
-    <td><?= htmlspecialchars($contributor->realname) ?></td>
+    <td><a href="<?= ssl_url("administration/contributor/{$contributor->id}") ?>"><?= htmlspecialchars($contributor->realname) ?></a></td>
     <td><?= htmlspecialchars($contributor->email) ?></td>
     <td><?= $contributor->admin          == 'f' ? 'no' : 'yes' ?></td>
     <td><?= $contributor->allow_swgh     == 'f' ? 'no' : 'yes' ?></td>
     <td><?= $contributor->allow_markers  == 'f' ? 'no' : 'yes' ?></td>
     <td><?= $contributor->allow_loops    == 'f' ? 'no' : 'yes' ?></td>
     <td><?= $contributor->allow_closures == 'f' ? 'no' : 'yes' ?></td>
+    <td><a href="<?= ssl_url("administration/contributor/{$contributor->id}") ?>">edit</a></td>
   </tr>
 <?php } ?>
 </tbody>
@@ -39,5 +39,6 @@ $(window).load(function() {
         sortList: [[0,0]]
     });
     $('#contributors').addClass('tablesorter');
+
 });
 </script>
