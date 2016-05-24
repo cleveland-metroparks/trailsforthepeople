@@ -33,7 +33,6 @@
 
     <!-- tablesorter -->
     <script type="text/javascript" src="<?= ssl_url('static/common/tablesorter/jquery.tablesorter.js'); ?>"></script>
-    <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/common/tablesorter/themes/blue/style.css'); ?>" />
 
     <!-- Leaflet map API and Wicket plugin for parsing WKT -->
     <link rel="stylesheet" type="text/css" href="<?= ssl_url('static/common/leaflet-0.7.1/leaflet.css'); ?>" />
