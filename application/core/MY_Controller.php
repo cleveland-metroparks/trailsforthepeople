@@ -87,9 +87,22 @@ private function _mainmenu_array() {
           'url' => 'contributors/markers',
           'title' => 'Markers',
         ),
+        /*
+         * Contributors: Loops
+         */
         array(
           'url' => 'contributors/loops',
           'title' => 'Loops',
+          'submenu' => array(
+            array(
+              'url' => 'contributors/autoloop',
+              'title' => 'Autoloop Manual',
+            ),
+            array(
+              'url' => 'contributors/autoloop_csv',
+              'title' => 'Autoloop CSV',
+            ),
+          ),
         ),
         array(
           'url' => 'contributors/trailclosures',
