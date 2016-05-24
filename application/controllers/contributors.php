@@ -736,6 +736,8 @@ function password() {
     // not saving? bail
     if (! @$_POST) return $this->load->view('contributors/password.phtml');
 
+    $data = array();
+
     // guess we're saving; validate that they gave a password
     // deeper validation would mean them hacking their browser to give themselves a weak password, which isn't a realistic concern
     if (! $_POST['password1']) return $this->load->view('contributors/password.phtml', $data);
