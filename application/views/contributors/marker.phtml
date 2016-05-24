@@ -1,4 +1,4 @@
-<?php $this->load->view('contributors/header.phtml') ?>
+<?php $this->page_title = 'Edit Marker'; ?>
 
 
 <style type="text/css">
@@ -8,16 +8,6 @@
 
 #ui-datepicker-div {
     display:none;
-}
-
-th,td {
-    vertical-align:top;
-}
-
-.fakelink {
-    cursor:pointer;
-    font-weight:bold;
-    color:blue;
 }
 
 input.short {
@@ -199,12 +189,12 @@ $('textarea[name="content"]').tinymce({
 <table>
 <tr>
     <td>Title:</td>
-    <td><input type="text" name="title" maxlength="50" value="<?= $marker ? htmlspecialchars($marker->title) : '- Untitled Marker' ?>" style="width:3in;" /></td>
+    <td><input class="form-control" type="text" name="title" maxlength="50" value="<?= $marker ? htmlspecialchars($marker->title) : '- Untitled Marker' ?>" /></td>
 </tr>
 <tr>
     <td>Category:</td>
     <td>
-        <select name="category">
+        <select class="form-control" name="category">
             <?php foreach ($categories as $category) { ?>
             <option <?= ($marker and $category == $marker->category) ? 'selected="true"' : '' ?> ><?= htmlspecialchars($category) ?></option>
             <?php } ?>
@@ -217,7 +207,7 @@ $('textarea[name="content"]').tinymce({
     <td>Start date:</td>
     <td>
         <input type="text" name="startdate" size="10" maxlength="10" value="<?= $marker ? $marker->startdate : date('Y-m-d') ?>" />
-        <span class="fakelink" id="startdate_today">today</span>
+        <span class="btn btn-sm btn-default" id="startdate_today">today</span>
     </td>
     <td>
     </td>
@@ -226,12 +216,12 @@ $('textarea[name="content"]').tinymce({
     <td>Expiration date:</td>
     <td>
         <input type="text" name="expires" size="10" maxlength="10" value="<?= $marker ? $marker->expires : '' ?>" />
-        <span class="fakelink" id="expires_never">never</span>
+        <span class="btn btn-sm btn-default" id="expires_never">never</span>
         <br/>
         If this event expires, should it be re-enabled on the starting date the following year?<br/>
-        <select name="annual">
-        <option value="0" <?= ($marker and $marker->annual) ? '' : 'selected="true"' ?> >No, this marker will not repeat</option>
-        <option value="1" <?= ($marker and $marker->annual) ? 'selected="true"' : '' ?> >Yes, re-enable this marker each year</option>
+        <select class="form-control" name="annual">
+            <option value="0" <?= ($marker and $marker->annual) ? '' : 'selected="true"' ?> >No, this marker will not repeat</option>
+            <option value="1" <?= ($marker and $marker->annual) ? 'selected="true"' : '' ?> >Yes, re-enable this marker each year</option>
         </select>
     </td>
     <td>
@@ -250,11 +240,11 @@ $('textarea[name="content"]').tinymce({
         <br/>
         <br/>
         Your current GPS location:<br/>
-        <input type="button" id="gps_button" value="Go &gt;" />
+        <input class="btn btn-default" type="button" id="gps_button" value="Go &gt;" />
         <br/>
         Search:<br/>
         <input type="text" id="cleocode_address" />
-        <input type="button" id="cleocode_button" value="Go &gt;" />
+        <input class="btn btn-default" type="button" id="cleocode_button" value="Go &gt;" />
         <br/>
         <ul id="results"></ul>
     </td>
@@ -268,7 +258,7 @@ $('textarea[name="content"]').tinymce({
 <tr>
     <td></td>
     <td>
-        <input type="submit" value="Save Changes" />
+        <input class="btn btn-primary" type="submit" value="Save Changes" />
     </td>
     <td>
     </td>
@@ -279,14 +269,9 @@ $('textarea[name="content"]').tinymce({
 
 
 
-
-
 <?php if ($marker) { ?>
 <form id="deleteform" method="post" action="<?= ssl_url("contributors/deletemarker/") ?>" onSubmit="return confirm('Really delete this marker?');">
 <input type="hidden" name="id" value="<?= $marker->id ?>" />
-<input type="submit" value="Delete" />
+<input class="btn btn-primary" type="submit" value="Delete" />
 </form>
 <?php } ?>
-
-
-<?php $this->load->view('contributors/footer.phtml') ?>

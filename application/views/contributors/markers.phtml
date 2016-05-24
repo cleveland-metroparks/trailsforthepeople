@@ -1,11 +1,5 @@
 <?php $this->page_title = 'Markers'; ?>
 
-<style type="text/css">
-table.tablesorter thead tr .header {
-    background-position: left center;
-}
-</style>
-
 <ul class="local-actions">
     <li><a href="<?= ssl_url('contributors/marker/0/') ?>" class="btn btn-primary">+ Create a marker</a></li>
 </ul>
@@ -15,11 +9,11 @@ table.tablesorter thead tr .header {
 <table id="markers" class="table table-striped">
 <thead>
 <tr>
+    <th>Title</th>
     <th>Enabled</th>
     <th>Starts</th>
     <th>Expires</th>
     <th>Category</th>
-    <th>Title</th>
     <th>Content</th>
     <th>Edit</th>
 </tr>
@@ -27,11 +21,11 @@ table.tablesorter thead tr .header {
 <tbody>
 <?php foreach ($markers as $marker) { ?>
 <tr>
+    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}") ?>"><?= htmlspecialchars($marker->title) ?></a></td>
     <td><?= $marker->enabled ? 'Yes' : 'No' ?></td>
     <td><?= $marker->startdate ?></td>
     <td><?= $marker->expires ?></td>
     <td><?= htmlspecialchars($marker->category) ?></td>
-    <td><?= htmlspecialchars($marker->title) ?></td>
     <td><?= htmlspecialchars(strip_tags(substr($marker->content,0,200))) ?></td>
     <td><a href="<?= ssl_url("contributors/marker/{$marker->id}") ?>">edit</a></td>
 </tr>
@@ -48,11 +42,11 @@ table.tablesorter thead tr .header {
 <table id="other_markers" class="table table-striped">
 <thead>
 <tr>
+    <th>Title</th>
     <th>Enabled</th>
     <th>Starts</th>
     <th>Expires</th>
     <th>Category</th>
-    <th>Title</th>
     <th>Content</th>
     <th>Edit</th>
 </tr>
@@ -60,11 +54,11 @@ table.tablesorter thead tr .header {
 <tbody>
 <?php foreach ($other_markers as $marker) { ?>
 <tr>
+    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}") ?>"><?= htmlspecialchars($marker->title) ?></a></td>
     <td><?= $marker->enabled ? 'Yes' : 'No' ?></td>
     <td><?= $marker->startdate ?></td>
     <td><?= $marker->expires ?></td>
     <td><?= htmlspecialchars($marker->category) ?></td>
-    <td><?= htmlspecialchars($marker->title) ?></td>
     <td><?= htmlspecialchars(strip_tags(substr($marker->content,0,200))) ?></td>
     <td><a href="<?= ssl_url("contributors/marker/{$marker->id}") ?>">edit</a></td>
 </tr>
@@ -77,19 +71,17 @@ table.tablesorter thead tr .header {
 
 
 <script type="text/javascript">
-$(window).load(function() { 
-    $('#markers').tablesorter({ 
-        sortList: [[1,0],[2,0]]
+$(window).load(function() {
+    $('#markers').tablesorter({
+        sortList: [[2,0],[3,0]]
     });
     $('#markers').addClass('tablesorter');
-}); 
+});
 
-$(window).load(function() { 
-    $('#other_markers').tablesorter({ 
-        sortList: [[1,0],[2,0]]
+$(window).load(function() {
+    $('#other_markers').tablesorter({
+        sortList: [[2,0],[3,0]]
     });
     $('#other_markers').addClass('tablesorter');
-}); 
+});
 </script>
-
-<?php $this->load->view('contributors/footer.phtml') ?>
