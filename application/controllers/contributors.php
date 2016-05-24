@@ -92,7 +92,7 @@ function index() {
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
     if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
 
-    $this->load->view('contributors/mainmenu.phtml');
+    $this->load->view('contributors/home.phtml');
 }
 
 
