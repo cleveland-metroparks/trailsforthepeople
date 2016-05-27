@@ -30,9 +30,18 @@ private function delTree($dir) {
     return rmdir($dir);
 }
 
+/*
+ * Login
+ */
 function login() {
     // must be using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
+
+    // If already logged-in, redirect to user account page
+    if ($this->loggedin) {
+         return redirect(ssl_url('contributors/user'));
+    }
+
     // if they submitted a user & pass AND it matches the salted SHA1 hash, good
     // set their session variable and send them onward
     if (@$_POST['username'] and $_POST['password']) {
@@ -69,6 +78,9 @@ function login() {
     $this->load->view('contributors/login.phtml');
 }
 
+/*
+ * Logout
+ */
 function logout() {
     // must be using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
