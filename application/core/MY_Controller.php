@@ -242,7 +242,7 @@ private function _mainmenu_array() {
      * User Account
      */
     array(
-      'url' => 'contributors/password',
+      'url' => 'contributors/user',
       'title' => 'User Account'
     ),
     /*

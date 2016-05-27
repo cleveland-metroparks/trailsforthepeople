@@ -1,0 +1,11 @@
+<?php $this->page_title = 'User Account'; ?>
+
+<p>
+    <label>Real name &amp; Organization:</label> <?= htmlspecialchars($this->loggedin['realname']) ?><br />
+    <label>E-mail:</label> <?= htmlspecialchars($this->loggedin['email']) ?><br />
+    <label>Access areas:</label> <?= '<em>' . implode('</em>, <em>', $access_areas) . '</em>'; ?><br />
+</p>
+
+<h3>Change Password</h3>
+
+<?php $this->load->view('contributors/password_form.phtml'); ?>

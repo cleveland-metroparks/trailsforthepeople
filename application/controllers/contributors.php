@@ -30,11 +30,9 @@ private function delTree($dir) {
     return rmdir($dir);
 }
 
-
 function login() {
     // must be using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-
     // if they submitted a user & pass AND it matches the salted SHA1 hash, good
     // set their session variable and send them onward
     if (@$_POST['username'] and $_POST['password']) {
@@ -71,7 +69,6 @@ function login() {
     $this->load->view('contributors/login.phtml');
 }
 
-
 function logout() {
     // must be using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
@@ -84,6 +81,35 @@ function logout() {
     // purge their token, send them to the login page
     $this->session->unset_userdata('contributor');
     redirect(ssl_url('contributors/login'));
+}
+
+/*
+ * User Account
+ */
+function user() {
+    // must be logged in and using SSL to do this
+    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
+    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+
+    $data = array();
+
+    // Make an array of the back-end areas the user has access to
+    $all_areas = array(
+        'admin' => 'Admin',
+        'allow_swgh' => 'SWGH',
+        'allow_markers' => 'Markers',
+        'allow_loops' => 'Loops',
+        'allow_closures' => 'Closures',
+    );
+    $access_areas = array();
+    foreach ($all_areas as $k => $v) {
+        if ($this->loggedin[$k] == 't') {
+            $access_areas[] = $v;
+        }
+    }
+    $data['access_areas'] = $access_areas;
+
+    $this->load->view('contributors/user.phtml', $data);
 }
 
 
