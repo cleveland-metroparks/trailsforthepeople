@@ -30,5 +30,22 @@ function checkPassword($password) {
     return ($salt . sha1($salt.$password)) == $salted;
 }
 
+/*
+ * Capture certain contributor attributes into a variable we'll
+ * store in the session.
+ */
+function buildSessionDataArray() {
+    return array(
+        'id' => $this->id,
+        'email' => $this->email,
+        'realname' => $this->realname,
+        'admin' => ($this->admin == 't'),
+        'allow_markers' => ($this->allow_markers == 't'),
+        'allow_swgh' => ($this->allow_swgh == 't'),
+        'allow_loops' => ($this->allow_loops == 't'),
+        'allow_closures' => ($this->allow_closures == 't'),
+        'allow_twitter' => ($this->allow_twitter == 't'),
+    );
+}
 
 }

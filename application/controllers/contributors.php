@@ -39,7 +39,7 @@ function login() {
 
     // If already logged-in, redirect to user account page
     if ($this->loggedin) {
-         return redirect(ssl_url('contributors/user'));
+        return redirect(ssl_url('contributors/user'));
     }
 
     // if they submitted a user & pass AND it matches the salted SHA1 hash, good
@@ -48,31 +48,20 @@ function login() {
         // fetch their account and check their password
         $account = new Contributor();
         $account->where('email',$_POST['username'])->get();
-        $login_ok = $account->id and $account->checkPassword($_POST['password']);
+        $login_ok = ($account->id && $account->checkPassword($_POST['password']));
 
         // if both passed, they're in; capture a bunch of their Contributor attributes into a session variable
         // this can be used in templates or this controller via $this->loggedin or $this->loggedin
         if ($login_ok) {
-            $sessiondata = array(
-                'id' => $account->id,
-                'email' => $account->email,
-                'realname' => $account->realname,
-                'admin' => $account->admin == 't',
-                'allow_markers' => $account->allow_markers == 't',
-                'allow_swgh' => $account->allow_swgh == 't',
-                'allow_loops' => $account->allow_loops == 't',
-                'allow_closures' => $account->allow_closures == 't',
-                'allow_twitter' => $account->allow_twitter == 't',
-            );
-            $this->session->set_userdata('contributor', $sessiondata);
-            Auditlog::log_message("Successful login to contributor panel", $account->email);
-            return redirect(ssl_url('contributors/'));
+            Auditlog::log_message("Successful login", $account->email);
+            $this->session->set_userdata('contributor', $account->buildSessionDataArray());
+            return redirect(ssl_url('contributors'));
         } else {
-            Auditlog::log_message("Failed login attempt to contributor panel", $_POST['username']);
+            Auditlog::log_message("Failed login attempt", $_POST['username']);
         }
     }
 
-    // if we got here, it must not have worked out
+    // If we got here, the login failed or the form has not yet been successfully submitted
     $this->session->unset_userdata('contributor');
 
     $this->load->view('contributors/login.phtml');
@@ -84,11 +73,12 @@ function login() {
 function logout() {
     // must be using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
+    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
 
     // log the event, wow they actually logged out!
     $email = $this->loggedin;
     $email = $email['email'];
-    Auditlog::log_message("Successful logout from to contributor panel", $email);
+    Auditlog::log_message("Successful logout from contributor panel", $email);
 
     // purge their token, send them to the login page
     $this->session->unset_userdata('contributor');
