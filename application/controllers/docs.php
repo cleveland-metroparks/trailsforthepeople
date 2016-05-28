@@ -10,9 +10,9 @@ function __construct() {
  *
  */
 function index($which=null) {
-  // must be logged in and using SSL to do this
+  // Require SSL
   if (! is_ssl() ) return $this->load->view('docs/sslrequired.phtml');
-  if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+  if (! $this->session->userdata('contributor') ) return redirect(ssl_url('administration/login'));
 
   // Clean and assemble our path.
   // Each '/'-separated path element in the URL string will be passed as an argument to this function.
