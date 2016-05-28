@@ -1,44 +1,4 @@
-<?php $this->page_title = 'Edit Marker'; ?>
-
-
-<style type="text/css">
-#map_canvas {
-    width:5in; height:5in;
-}
-
-#ui-datepicker-div {
-    display:none;
-}
-
-input.short {
-    text-align:right;
-    width:0.6in;
-}
-
-input.long {
-    text-align:right;
-    width:1.0in;
-}
-
-#deleteform {
-    margin-top:1in;
-    font-size:8pt;
-}
-
-textarea[name="content"] {
-    width:2in;
-    height:2in;
-}
-
-.ui-datepicker {
-    /* a default z-index of 1 puts it below the map */
-    z-index:200 !important;
-}
-</style>
-
-
-
-
+<?php $this->page_title = isset($marker->id) ? 'Edit Marker' : 'Create Marker'; ?>
 
 <script type="text/javascript">
 var MARKER;
@@ -182,96 +142,112 @@ $('textarea[name="content"]').tinymce({
 
 
 
+<form class="form-horizontal" id="markerform" method="post" action="<?= ssl_url("contributors/savemarker/") ?>" style="margin-top: 2em;">
 
-<form id="loopform" method="post" action="<?= ssl_url("contributors/savemarker/") ?>">
 <input type="hidden" name="id" value="<?= $marker ? $marker->id : 0 ?>" />
 
-<table>
-<tr>
-    <td>Title:</td>
-    <td><input class="form-control" type="text" name="title" maxlength="50" value="<?= $marker ? htmlspecialchars($marker->title) : '- Untitled Marker' ?>" /></td>
-</tr>
-<tr>
-    <td>Category:</td>
-    <td>
+<div class="form-group">
+    <label class="control-label col-sm-2">Title:</label>
+    <div class="col-sm-4">
+        <input class="form-control" type="text" name="title" maxlength="50" value="<?= $marker ? htmlspecialchars($marker->title) : '- Untitled Marker' ?>" />
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-2">Category:</label>
+    <div class="col-sm-4">
         <select class="form-control" name="category">
             <?php foreach ($categories as $category) { ?>
-            <option <?= ($marker and $category == $marker->category) ? 'selected="true"' : '' ?> ><?= htmlspecialchars($category) ?></option>
+            <option <?= ($marker && ($category == $marker->category)) ? 'selected="true"' : '' ?> ><?= htmlspecialchars($category) ?></option>
             <?php } ?>
         </select>
-    </td>
-    <td>
-    </td>
-</tr>
-<tr>
-    <td>Start date:</td>
-    <td>
-        <input type="text" name="startdate" size="10" maxlength="10" value="<?= $marker ? $marker->startdate : date('Y-m-d') ?>" />
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-2">Start date:</label>
+    <div class="col-sm-4 form-inline">
+        <input class="form-control" type="text" name="startdate" size="10" maxlength="10" value="<?= $marker ? $marker->startdate : date('Y-m-d') ?>" />
         <span class="btn btn-sm btn-default" id="startdate_today">today</span>
-    </td>
-    <td>
-    </td>
-</tr>
-<tr>
-    <td>Expiration date:</td>
-    <td>
-        <input type="text" name="expires" size="10" maxlength="10" value="<?= $marker ? $marker->expires : '' ?>" />
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-2">Expiration date:</label>
+    <div class="col-sm-4 form-inline">
+        <input class="form-control" type="text" name="expires" size="10" maxlength="10" value="<?= $marker ? $marker->expires : '' ?>" />
         <span class="btn btn-sm btn-default" id="expires_never">never</span>
-        <br/>
-        If this event expires, should it be re-enabled on the starting date the following year?<br/>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-2">Repeat:</label>
+    <div class="col-sm-4">
         <select class="form-control" name="annual">
-            <option value="0" <?= ($marker and $marker->annual) ? '' : 'selected="true"' ?> >No, this marker will not repeat</option>
-            <option value="1" <?= ($marker and $marker->annual) ? 'selected="true"' : '' ?> >Yes, re-enable this marker each year</option>
+            <option value="0" <?= ($marker && $marker->annual) ? '' : 'selected="true"' ?> >No, this marker will not repeat</option>
+            <option value="1" <?= ($marker && $marker->annual) ? 'selected="true"' : '' ?> >Yes, re-enable this marker each year</option>
         </select>
-    </td>
-    <td>
-    </td>
-</tr>
-<tr>
-    <td>Location:</td>
-    <td>
-        <input type="text" name="lat" size="20" value="<?= $marker ? $marker->lat : $this->config->item('geo_lat') ?>" />
-        <input type="text" name="lng" size="20" value="<?= $marker ? $marker->lng : $this->config->item('geo_lon') ?>" />
-        <br/>
-        <div id="map_canvas"></div>
-    </td>
-    <td>
-        Click the map to get info. Right-click, or drag the marker, to place the marker.
-        <br/>
-        <br/>
-        Your current GPS location:<br/>
-        <input class="btn btn-default" type="button" id="gps_button" value="Go &gt;" />
-        <br/>
-        Search:<br/>
-        <input type="text" id="cleocode_address" />
-        <input class="btn btn-default" type="button" id="cleocode_button" value="Go &gt;" />
-        <br/>
+        <p class="help-block">If this event expires, should it be re-enabled on the starting date the following year?</p>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-2">Location:</label>
+    <div class="col-sm-4 form-inline">
+        <input class="form-control" type="text" name="lat" size="20" value="<?= $marker ? $marker->lat : $this->config->item('geo_lat') ?>" />
+        <input class="form-control" type="text" name="lng" size="20" value="<?= $marker ? $marker->lng : $this->config->item('geo_lon') ?>" />
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-2">Choose on map:</label>
+    <div class="col-sm-6">
+        <div id="map_canvas" style="width: 100%; height: 4in;"></div>
+        <p class="help-block">Click the map to get info. Right-click, or drag the marker, to place the marker.</p>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-2">Current location:</label>
+    <div class="col-sm-4">
+        <input class="btn btn-sm btn-default" type="button" id="gps_button" value="Go &gt;" />
+        <p class="help-block">Click to use your current GPS location.</p>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-2">Search:</label>
+    <div class="col-sm-4">
+        <input classs="form-control" type="text" id="cleocode_address" />
+        <input class="btn btn-sm btn-default" type="button" id="cleocode_button" value="Go &gt;" />
+        <p class="help-block">Search for a Cleveland Metroparks location.</p>
         <ul id="results"></ul>
-    </td>
-</tr>
-<tr>
-    <td>Popup content:</td>
-    <td><textarea name="content"><?= $marker ? htmlspecialchars($marker->content) : '' ?></textarea></td>
-    <td>
-    </td>
-</tr>
-<tr>
-    <td></td>
-    <td>
-        <input class="btn btn-primary" type="submit" value="Save Changes" />
-    </td>
-    <td>
-    </td>
-</tr>
-</table>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-2">Popup content:</label>
+    <div class="col-sm-6">
+        <textarea class="form-control" name="content"><?= $marker ? htmlspecialchars($marker->content) : '' ?></textarea>
+    </div>
+</div>
+
+<div class="form-group">
+    <div class="col-sm-offset-2 col-sm-4">
+        <input class="btn btn-primary" type="submit" value="Save" />
+    </div>
+</div>
 
 </form>
 
 
-
 <?php if ($marker) { ?>
-<form id="deleteform" method="post" action="<?= ssl_url("contributors/deletemarker/") ?>" onSubmit="return confirm('Really delete this marker?');">
-<input type="hidden" name="id" value="<?= $marker->id ?>" />
-<input class="btn btn-primary" type="submit" value="Delete" />
+<form class="form-horizontal" id="deleteform" method="post" action="<?= ssl_url("contributors/deletemarker/") ?>" onSubmit="return confirm('Really delete this marker?');">
+    <input type="hidden" name="id" value="<?= $marker->id ?>" />
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-4">
+            <input class="btn btn-primary" type="submit" value="Delete" />
+        </div>
+    </div>
 </form>
 <?php } ?>
