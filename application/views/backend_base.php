@@ -23,13 +23,14 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- jQuery -->
+    <script type="text/javascript" src="<?= ssl_url('static/common/jquery-1.12.4.min.js'); ?>"></script>
 
-    <!-- jQuery et al -->
-    <!-- <script type="text/javascript" src="<?= ssl_url('static/common/jquery-1.7.2.min.js'); ?>"></script> -->
-    <script type="text/javascript" src="<?= ssl_url('static/common/jquery-ui-1.8.21.custom.min.js'); ?>"></script>
-    <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/common/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" />
+    <!-- jQuery UI -->
+    <!-- <script type="text/javascript" src="<?= ssl_url('static/common/jquery-ui-1.8.21.custom.min.js'); ?>"></script> -->
+    <script type="text/javascript" src="<?= ssl_url('static/common/jquery-ui-1.11.4/jquery-ui.min.js'); ?>"></script>
+    <!-- <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/common/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" /> -->
+    <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/common/jquery-ui-1.11.4/jquery-ui.min.css'); ?>" />
 
     <!-- tablesorter -->
     <script type="text/javascript" src="<?= ssl_url('static/common/tablesorter/jquery.tablesorter.js'); ?>"></script>
