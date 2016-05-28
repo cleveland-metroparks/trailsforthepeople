@@ -108,10 +108,6 @@ private function _mainmenu_array() {
           'url' => 'contributors/trailclosures',
           'title' => 'Trail Closures',
         ),
-        array(
-          'url' => 'contributors/logout',
-          'title' => 'Contributor Logout (temp)',
-        ),
       ),
     ),
     /*

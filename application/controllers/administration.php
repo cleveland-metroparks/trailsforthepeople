@@ -4,48 +4,119 @@ class Administration extends MY_Controller {
 
 function __construct() {
     parent::__construct();
+
+    // Shortcuts for use in templates:
+    // An associated array of the Contributor's info (and quick test for whether they're logged-in).
+    $this->loggedin = $this->session->userdata('contributor');
+    // Whether the user is an admin.
+    $this->is_admin = $this->loggedin['admin'];
+}
+
+///*
+// * Check that we're in SSL mode and that the user is logged-in.
+// *
+// * @param $check_admin:
+// *   Whether to also ensure the user is an administrator.
+// *
+// * return:
+// *   NULL if everything checks-out.
+// *   Otherwise redirect or load appropriate page.
+// */
+//private function _check_ssl() {
+//    if (!is_ssl()) {
+//        return $this->load->view('administration/sslrequired.phtml');
+//    }
+//}
+
+/*
+ * Check that we're in SSL mode and that the user is logged-in.
+ *
+ * @param $check_admin:
+ *   Whether to also ensure the user is an administrator.
+ *
+ * return:
+ *   NULL if everything checks-out.
+ *   Otherwise redirect or load appropriate page.
+ */
+private function _user_access($area='') {
+    $user = $this->session->userdata('contributor');
+    // Must be logged-in
+    if (!$user) {
+        return redirect(ssl_url('administration/login'));
+    }
+    // Check if user has access to area
+    if (!empty($area)) {
+        if (!$user[$area]) {
+            return redirect(ssl_url('administration/access_denied'));
+        }
+    }
 }
 
 
+/*
+ * Login
+ */
 function login() {
-    // must be using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
 
-    // check their username & password, which are simple static configs
-    $login_ok = (@$_POST['username'] and $_POST['username']==$this->config->item('admin_user') and @$_POST['password'] and $_POST['password']==$this->config->item('admin_pass'));
-
-    if ($login_ok) {
-        $this->session->set_userdata('admin', TRUE);
-        Auditlog::log_message("Successful login to admin panel",'administrator');
-        return redirect(ssl_url('administration/'));
-    } else {
-        Auditlog::log_message("Failed login attempt to admin panel", 'administrator');
+    // If already logged-in, redirect to user account page
+    if ($this->loggedin) {
+        return redirect(ssl_url('contributors/user'));
     }
 
-    // if we got here, it must not have worked out
-    $this->session->unset_userdata('admin');
+    // if they submitted a user & pass AND it matches the salted SHA1 hash, good
+    // set their session variable and send them onward
+    if (@$_POST['username'] and $_POST['password']) {
+        // fetch their account and check their password
+        $account = new Contributor();
+        $account->where('email',$_POST['username'])->get();
+        $login_ok = ($account->id && $account->checkPassword($_POST['password']));
+
+        // if both passed, they're in; capture a bunch of their Contributor attributes into a session variable
+        // this can be used in templates or this controller via $this->loggedin or $this->loggedin
+        if ($login_ok) {
+            Auditlog::log_message("Successful login", $account->email);
+            $this->session->set_userdata('contributor', $account->buildSessionDataArray());
+            return redirect(ssl_url('administration'));
+        } else {
+            Auditlog::log_message("Failed login attempt", $_POST['username']);
+        }
+    }
+
+    // If we got here, the login failed or the form has not yet been successfully submitted
+    $this->session->unset_userdata('contributor');
 
     $this->load->view('administration/login.phtml');
 }
 
 
+function access_denied() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+
+    $this->load->view('administration/access_denied.phtml');
+}
+
+
 function logout() {
-    // must be using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
 
     // wow, they actually logged out? log it!
     Auditlog::log_message("Successful logout from admin panel",'administrator');
 
     // purge their token, send them to the login page
-    $this->session->unset_userdata('admin');
+    $this->session->unset_userdata('contributor');
     redirect(ssl_url('administration/login'));
 }
 
 
 function auditlog() {
-    // must be logged in and using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
 
     $data = array();
     $data['logs'] = Auditlog::fetch_messages();
@@ -55,18 +126,21 @@ function auditlog() {
 
 
 function index() {
-    // must be logged in and using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+    // Require user
+    // Don't require admin, since the top-level page is "home" and default post-login.
+    if ($this->_user_access() !== NULL) return;
 
     $this->load->view('administration/home.phtml');
 }
 
 
 function contributors() {
-    // must be logged in and using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
 
     // simply make a list of all contributors in the system
     $data = array();
@@ -78,11 +152,11 @@ function contributors() {
 }
 
 
-
 function contributor($id) {
-    // must be logged in and using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
 
     // if the ID# 0 was given, either reuse a current record with a blank username OR create such a blank and use it
     if ($id == "0") {
@@ -135,9 +209,10 @@ function contributor($id) {
 
 
 function deletecontributor() {
-    // must be logged in and using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
 
     // fetch it, log it, delete it
     $contributor = new Contributor();
@@ -152,11 +227,11 @@ function deletecontributor() {
 }
 
 
-
 function markers() {
-    // must be logged in and using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
 
     // simply make a list of all contributors in the system
     $data = array();
@@ -168,11 +243,11 @@ function markers() {
 }
 
 
-
 function marker($id) {
-    // must be logged in and using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
 
     // load the marker's info
     $data = array();
@@ -189,9 +264,10 @@ function marker($id) {
 
 
 function deletemarker() {
-    // must be logged in and using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
 
     // fetch it, delete it
     $marker = new Marker();
@@ -206,12 +282,11 @@ function deletemarker() {
 }
 
 
-
-
 function purge_tilestache() {
-    // must be logged in and using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
 
     // bail to the OK form
     if (! @$_POST['ok']) return $this->load->view('administration/purge_tilestache.phtml');
@@ -236,13 +311,11 @@ function purge_tilestache() {
 }
 
 
-
-
-
 function seed_tilestache() {
-    // must be logged in and using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
 
     // bail to the OK form
     if (! @$_POST['ok']) return $this->load->view('administration/seed_tilestache.phtml');
@@ -286,9 +359,10 @@ function seed_tilestache() {
  * TBD
  */
 function testing() {
-    // must be logged in and using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
 
     $this->load->view('administration/testing.phtml');
 }
