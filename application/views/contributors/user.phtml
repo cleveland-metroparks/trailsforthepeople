@@ -1,11 +1,19 @@
 <?php $this->page_title = 'User Account'; ?>
 
+<h2>Profile</h2>
+
 <p>
     <label>Real name &amp; Organization:</label> <?= htmlspecialchars($this->loggedin['realname']) ?><br />
     <label>E-mail:</label> <?= htmlspecialchars($this->loggedin['email']) ?><br />
     <label>Access areas:</label> <?= '<em>' . implode('</em>, <em>', $access_areas) . '</em>'; ?><br />
 </p>
 
-<h3>Change Password</h3>
+<h2>Change Password</h2>
 
 <?php $this->load->view('contributors/password_form.phtml'); ?>
+
+<h2>Log out</h2>
+
+<p>
+  <a href="contributors/logout" class="btn btn-primary">Log out</a>
+</p>
