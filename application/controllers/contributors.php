@@ -34,55 +34,14 @@ private function delTree($dir) {
  * Login
  */
 function login() {
-    // must be using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-
-    // If already logged-in, redirect to user account page
-    if ($this->loggedin) {
-        return redirect(ssl_url('contributors/user'));
-    }
-
-    // if they submitted a user & pass AND it matches the salted SHA1 hash, good
-    // set their session variable and send them onward
-    if (@$_POST['username'] and $_POST['password']) {
-        // fetch their account and check their password
-        $account = new Contributor();
-        $account->where('email',$_POST['username'])->get();
-        $login_ok = ($account->id && $account->checkPassword($_POST['password']));
-
-        // if both passed, they're in; capture a bunch of their Contributor attributes into a session variable
-        // this can be used in templates or this controller via $this->loggedin or $this->loggedin
-        if ($login_ok) {
-            Auditlog::log_message("Successful login", $account->email);
-            $this->session->set_userdata('contributor', $account->buildSessionDataArray());
-            return redirect(ssl_url('contributors'));
-        } else {
-            Auditlog::log_message("Failed login attempt", $_POST['username']);
-        }
-    }
-
-    // If we got here, the login failed or the form has not yet been successfully submitted
-    $this->session->unset_userdata('contributor');
-
-    $this->load->view('contributors/login.phtml');
+    return redirect(ssl_url('administration/login'));
 }
 
 /*
  * Logout
  */
 function logout() {
-    // must be using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
-
-    // log the event, wow they actually logged out!
-    $email = $this->loggedin;
-    $email = $email['email'];
-    Auditlog::log_message("Successful logout from contributor panel", $email);
-
-    // purge their token, send them to the login page
-    $this->session->unset_userdata('contributor');
-    redirect(ssl_url('contributors/login'));
+    return redirect(ssl_url('administration/logout'));
 }
 
 /*
