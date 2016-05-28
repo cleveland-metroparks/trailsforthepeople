@@ -32,6 +32,8 @@ private function delTree($dir) {
 
 /*
  * Login
+ *
+ * Deprecated; using administration for this now.
  */
 function login() {
     return redirect(ssl_url('administration/login'));
@@ -39,6 +41,8 @@ function login() {
 
 /*
  * Logout
+ *
+ * Deprecated; using administration for this now.
  */
 function logout() {
     return redirect(ssl_url('administration/logout'));
@@ -50,7 +54,7 @@ function logout() {
 function user() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
 
     $data = array();
 
@@ -77,7 +81,7 @@ function user() {
 function index() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
 
     $this->load->view('contributors/home.phtml');
 }
@@ -87,7 +91,7 @@ function index() {
 function markers() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
     $myid = $this->loggedin;
 
     // must have the permission to use this specific function
@@ -124,7 +128,7 @@ function markers() {
 function marker($id) {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
     $myid = $this->loggedin;
 
     // must have the permission to use this specific function
@@ -174,7 +178,7 @@ function marker($id) {
 function deletemarker() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
     $myid = $this->loggedin;
 
     // must have the permission to use this specific function
@@ -207,7 +211,7 @@ function deletemarker() {
 function savemarker() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
     $myid = $this->loggedin;
 
     // must have the permission to use this specific function
@@ -261,7 +265,7 @@ function savemarker() {
 function trailclosures() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
     $myid = $this->loggedin;
 
     // must have the permission to use this specific function
@@ -312,7 +316,7 @@ function trailclosures() {
 function autoloop() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
     $myid = $this->loggedin;
 
     // must have the permission to use this specific function
@@ -325,7 +329,7 @@ function autoloop() {
 function autoloop_csv() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
     $myid = $this->loggedin;
 
     // must have the permission to use this specific function
@@ -396,7 +400,7 @@ function autoloop_csv() {
 function loops() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
     $myid = $this->loggedin;
 
     // must have the permission to use this specific function
@@ -420,7 +424,7 @@ function loops() {
 function loop($id) {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
 
     // must have the permission to use this specific function
     if (! $this->loggedin['allow_loops']) return redirect(ssl_url('contributors/'));
@@ -447,7 +451,7 @@ function loop($id) {
 function saveloop() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
 
     // must have the permission to use this specific function
     if (! $this->loggedin['allow_loops']) return redirect(ssl_url('contributors/'));
@@ -546,7 +550,7 @@ function saveloop() {
 function cloneloop($id) {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
 
     // must have the permission to use this specific function
     if (! $this->loggedin['allow_loops']) return redirect(ssl_url('contributors/'));
@@ -579,7 +583,7 @@ function cloneloop($id) {
 function deleteloop() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
 
     // must have the permission to use this specific function
     if (! $this->loggedin['allow_loops']) return redirect(ssl_url('contributors/'));
@@ -615,7 +619,7 @@ function deleteloop() {
 function twitter() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
 
     // must have the permission to use this specific function
     if (! $this->loggedin['allow_twitter']) return redirect(ssl_url('contributors/'));
@@ -632,7 +636,7 @@ function twitter() {
 function twitterbans() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
 
     // must have the permission to use this specific function
     if (! $this->loggedin['allow_twitter']) return redirect(ssl_url('contributors/'));
@@ -648,7 +652,7 @@ function twitterbans() {
 function twitter_delete() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
 
     // must have the permission to use this specific function
     if (! $this->loggedin['allow_twitter']) return redirect(ssl_url('contributors/'));
@@ -668,7 +672,7 @@ function twitter_delete() {
 function twitter_ban() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
 
     // must have the permission to use this specific function
     if (! $this->loggedin['allow_twitter']) return redirect(ssl_url('contributors/'));
@@ -701,7 +705,7 @@ function twitter_ban() {
 function twitter_unban() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('contributors/login'));
+    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
 
     // log the event and do the deed
     $username = @$_POST['username'];
@@ -718,7 +722,7 @@ function twitter_unban() {
 function password() {
     // must be logged in and using SSL to do this
     if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
 
     // not saving? bail
     if (! @$_POST) return $this->load->view('contributors/password.phtml');
