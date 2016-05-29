@@ -132,6 +132,16 @@ private function _mainmenu_left_array() {
       'title' => 'Contributors',
       'submenu' => array(
         array(
+          'url' => 'contributors/trails',
+          'title' => 'Trails',
+          'access' => 'allow_trails',
+        ),
+        array(
+          'url' => 'contributors/use_areas',
+          'title' => 'Use Areas',
+          'access' => 'allow_use_areas',
+        ),
+        array(
           'url' => 'contributors/markers',
           'title' => 'Markers',
           'access' => 'allow_markers',

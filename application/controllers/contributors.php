@@ -742,5 +742,33 @@ function password() {
     $this->load->view('contributors/password_done.phtml', $data);
 }
 
+/*
+ * Manage Trails Page
+ */
+function trails() {
+    // must be logged in and using SSL to do this
+    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
+
+    // must have the permission to use this specific function
+    //if (! $this->loggedin['allow_trails']) return redirect(ssl_url('contributors/'));
+
+    $this->load->view('contributors/trails.phtml');
+}
+
+/*
+ * Manage Use Areas Page
+ */
+function use_areas() {
+    // must be logged in and using SSL to do this
+    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
+    if (! $this->loggedin) return redirect(ssl_url('administration/login'));
+
+    // must have the permission to use this specific function
+    //if (! $this->loggedin['allow_use_areas']) return redirect(ssl_url('contributors/'));
+
+    $this->load->view('contributors/use_areas.phtml');
+}
+
 
 }
