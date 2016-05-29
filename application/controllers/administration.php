@@ -44,9 +44,9 @@ private function _user_access($area='') {
     if (!$user) {
         return redirect(ssl_url('administration/login'));
     }
-    // Check if user has access to area
+    // Check if user has access to area. Admin overrides all areas.
     if (!empty($area)) {
-        if (!$user[$area]) {
+        if (!$user['admin'] && !$user[$area]) {
             return redirect(ssl_url('administration/access_denied'));
         }
     }
