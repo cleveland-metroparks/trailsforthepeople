@@ -44,15 +44,20 @@ private function _generate_menu_markup($menu, $active_path='') {
   $markup = '';
 
   foreach ($menu as $item) {
-    // Check if the menu item has access control restrictions
-    // and if so, if the user has this role/permission.
+
+    // Check if the menu item has access control restrictions.
     if (isset($item['access'])) {
-      if (!isset($user[$item['access']]) || !$user[$item['access']]) {
-        // No access. Skip this menu item and move on to the next.
-        //
-        // Note that [currently] if access is denied to an item with a submenu,
-        // we skip displaying the whole submenu too.
-        continue;
+      // Ensure user isn't admin (if they are, don't worry about specific area check)
+      if (!isset($user['admin']) || !$user['admin']) {
+        // Check access to area
+        if (!isset($user[$item['access']]) || !$user[$item['access']]) {
+          // Access denied.
+          // Skip this menu item and move on to the next.
+          //
+          // Note that [currently] if access is denied to an item with a submenu,
+          // we skip displaying the whole submenu too.
+          continue;
+        }
       }
     }
 
