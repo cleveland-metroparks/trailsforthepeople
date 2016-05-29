@@ -14,7 +14,8 @@ function _output($content)
 {
     // Load the base template with output content available as $content
     $data['content'] = &$content;
-    $data['mainmenu'] = $this->_generate_menu_markup($this->_mainmenu_array(), $this->uri->uri_string);
+    $data['mainmenu_left'] = $this->_generate_menu_markup($this->_mainmenu_left_array(), $this->uri->uri_string);
+    $data['mainmenu_right'] = $this->_generate_menu_markup($this->_mainmenu_right_array(), $this->uri->uri_string);
     $body_classes_array = array(
       'section-' . $this->router->class,
       'page-' . $this->router->method,
@@ -30,7 +31,8 @@ function _output($content)
  * Control access to menu items if specified with the item in the array,
  * checking user access stored in session.
  *
- * @see _mainmenu_array()
+ * @see _mainmenu_left_array()
+ * @see _mainmenu_right_array()
  */
 private function _generate_menu_markup($menu, $active_path='') {
   // Only logged-in users have access to the menu.
@@ -91,12 +93,37 @@ private function _generate_menu_markup($menu, $active_path='') {
 }
 
 /*
- * Return our back-end navigation main menu (in a custom format).
+ * Return our back-end navigation main menu right side as an array.
  *
  * @see _generate_menu_markup()
  */
-private function _mainmenu_array() {
-  $mainmenu_array = array(
+private function _mainmenu_right_array() {
+  $menu = array(
+    /*
+     * User Account
+     */
+    array(
+      'url' => 'contributors/user',
+      'title' => 'User Account'
+    ),
+    /*
+     * Log out
+     */
+    array(
+      'url' => 'administration/logout',
+      'title' => 'Log Out'
+    ),
+  );
+  return $menu;
+}
+
+/*
+ * Return our back-end navigation main menu left side as an array.
+ *
+ * @see _generate_menu_markup()
+ */
+private function _mainmenu_left_array() {
+  $menu = array(
     /*
      * Contributors
      */
@@ -274,23 +301,9 @@ private function _mainmenu_array() {
     //  'url' => 'administration/testing',
     //  'title' => 'Testing'
     //),
-    /*
-     * User Account
-     */
-    array(
-      'url' => 'contributors/user',
-      'title' => 'User Account'
-    ),
-    /*
-     * Log out
-     */
-    array(
-      'url' => 'administration/logout',
-      'title' => 'Log Out'
-    ),
   );
 
-  return $mainmenu_array;
+  return $menu;
 }
 
 }

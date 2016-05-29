@@ -68,7 +68,10 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <?= $mainmenu; ?>
+            <?= $mainmenu_left; ?>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <?= $mainmenu_right; ?>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
