@@ -25,13 +25,34 @@ function _output($content)
 }
 
 /*
- * From a menu array (simple custom data structure), generate markup to display it as a bootstrap menu.
+ * From our custom menu array, generate markup to display it as a bootstrap menu.
+ *
+ * Control access to menu items if specified with the item in the array,
+ * checking user access stored in session.
  *
  * @see _mainmenu_array()
  */
 private function _generate_menu_markup($menu, $active_path='') {
+  // Only logged-in users have access to the menu.
+  $user = $this->session->userdata('contributor');
+  if (!$user) {
+    return;
+  }
+
   $markup = '';
+
   foreach ($menu as $item) {
+    // Check if the menu item has access control restrictions
+    // and if so, if the user has this role/permission.
+    if (isset($item['access'])) {
+      if (!isset($user[$item['access']]) || !$user[$item['access']]) {
+        // No access. Skip this menu item and move on to the next.
+        //
+        // Note that [currently] if access is denied to an item with a submenu,
+        // we skip displaying the whole submenu too.
+        continue;
+      }
+    }
 
     $classes = array();
     if (isset($item['url']) && $item['url'] == $active_path) {
@@ -86,6 +107,7 @@ private function _mainmenu_array() {
         array(
           'url' => 'contributors/markers',
           'title' => 'Markers',
+          'access' => 'allow_markers',
         ),
         /*
          * Contributors: Loops
@@ -93,20 +115,24 @@ private function _mainmenu_array() {
         array(
           'url' => 'contributors/loops',
           'title' => 'Loops',
+          'access' => 'allow_loops',
           'submenu' => array(
             array(
               'url' => 'contributors/autoloop',
               'title' => 'Autoloop Manual',
+              'access' => 'allow_loops',
             ),
             array(
               'url' => 'contributors/autoloop_csv',
               'title' => 'Autoloop CSV',
+              'access' => 'allow_loops',
             ),
           ),
         ),
         array(
           'url' => 'contributors/trailclosures',
           'title' => 'Trail Closures',
+          'access' => 'allow_closures',
         ),
       ),
     ),
@@ -116,26 +142,32 @@ private function _mainmenu_array() {
     array(
       'url' => 'administration',
       'title' => 'Administration',
+      'access' => 'admin',
       'submenu' => array(
         array(
           'url' => 'administration/contributors',
           'title' => 'Manage Contributors',
+          'access' => 'admin',
         ),
         array(
           'url' => 'administration/markers',
           'title' => 'Markers',
+          'access' => 'admin',
         ),
         array(
           'url' => 'administration/purge_tilestache',
           'title' => 'Purge Tilestache',
+          'access' => 'admin',
         ),
         array(
           'url' => 'administration/seed_tilestache',
           'title' => 'Seed Tilestache',
+          'access' => 'admin',
         ),
         array(
           'url' => 'administration/auditlog',
           'title' => 'Log',
+          'access' => 'admin',
         ),
       ),
     ),
@@ -165,34 +197,42 @@ private function _mainmenu_array() {
         array(
           'url' => 'docs/index/admin/panel',
           'title' => 'Administration',
+          'access' => 'admin',
           'submenu' => array(
             array(
               'url' => 'docs/index/admin/panel',
               'title' => 'Admin Panel',
+              'access' => 'admin',
             ),
             array(
               'url' => 'docs/index/admin/stack',
               'title' => 'Programming Language, Frameworks, Techniques',
+              'access' => 'admin',
             ),
             array(
               'url' => 'docs/index/admin/js_compression',
               'title' => 'Javascript Compression',
+              'access' => 'admin',
             ),
             array(
               'url' => 'docs/index/admin/mapfish_print',
               'title' => 'MapFish Print',
+              'access' => 'admin',
             ),
             array(
               'url' => 'docs/index/admin/db_load',
               'title' => 'Database Load',
+              'access' => 'admin',
             ),
             array(
               'url' => 'docs/index/admin/db_update',
               'title' => 'Database Update',
+              'access' => 'admin',
             ),
             array(
               'url' => 'docs/index/admin/tilestache',
               'title' => 'TileStache Basemap',
+              'access' => 'admin',
             ),
           ),
         ),
