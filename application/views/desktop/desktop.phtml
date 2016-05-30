@@ -3,17 +3,17 @@
 <head>
     <title><?= htmlspecialchars($this->config->item('title')) ?></title>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no"/>
 
     <!-- a library for encoding and decoding JSON. necessary for IE8 and earlier Firefox to do printing
     at any rate, known to be consistent between browsers; I doubt the ECMA standard will be so lucky, ha ha -->
     <script type="text/javascript" src="<?= site_url('static/common/json.js'); ?>"></script>
 
     <!-- Google API, for geocoding and directions -->
-    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" src="//maps.googleapis.com/maps/api/js"></script>
 
     <!-- the Montserrat font, matches the master website -->
-    <link href="http://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css" />
+    <link href="//fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css" />
 
     <!-- jQuery et al -->
     <script type="text/javascript" src="<?= site_url('static/common/jquery-1.7.2.min.js'); ?>"></script>

@@ -7,7 +7,7 @@ var BING_API_KEY = "AjBuYw8goYn_CWiqk65Rbf_Cm-j1QFPH-gGfOxjBipxuEB2N3n9yACKu5s8D
 var GEOCODE_BIAS_BOX = "41.202048178648,-81.9627793163304,41.5885467839419,-81.386224018357";
 
 var SUBDOMAINS = [ '1', '2', '3' ];
-var BASEMAP = new L.TileLayer("http://maps{s}.clemetparks.com/tilestache/tilestache.cgi/basemap/{z}/{x}/{y}.jpg", { subdomains:SUBDOMAINS });
+var BASEMAP = new L.TileLayer("http://maps{s}.clemetparks.com/tilestache/tilestache.cgi/basemap_mobilestack/{z}/{x}/{y}.jpg", { subdomains:SUBDOMAINS });
 var LABELS  = new L.TileLayer.WMS("http://maps{s}.clemetparks.com/gwc", { layers:'group_overlays', format:'image/png', transparent:'TRUE', subdomains:SUBDOMAINS });
 
 var MARKER_ICON = L.icon({ iconUrl:'/static/cms/marker.png', iconSize:[30,34] });
