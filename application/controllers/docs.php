@@ -25,7 +25,7 @@ function index($which=null) {
   $which = implode('/', $path_parts);
 
   // then load the appropriate page (with .phtml extension)
-  if (!$which) $which = "docs";
+  if (!$which) $which = "home";
   $this->load->view("docs/$which.phtml");
 }
 
