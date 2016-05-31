@@ -27,7 +27,13 @@
 <tbody>
 <?php foreach ($loops as $loop) { ?>
 <tr>
-    <td style="text-align:left;"><?= htmlspecialchars($loop->name) ?></td>
+    <td>
+        <?php if ($this->loggedin['admin'] or ($loop->creatorid == $this->loggedin['id'])): ?>
+            <a href="<?= ssl_url("contributors/loop/{$loop->id}") ?>"><?= htmlspecialchars($loop->name) ?></a>
+        <?php else: ?>
+            <?= htmlspecialchars($loop->name) ?>
+        <?php endif; ?>
+    </td>
     <td style="text-align:left;"><?= htmlspecialchars($loop->editedby) ?></td>
     <td style="text-align:right;"><?= $loop->status ?></td>
     <td style="text-align:right;"><?= (float) $loop->distancetext ?></td>
@@ -37,11 +43,11 @@
     <td style="text-align:right;"><?= $loop->bridle ?></td>
     <td style="text-align:right;"><?= $loop->mountainbike ?></td>
     <td>
-        <?php if ($this->loggedin['admin'] or $loop->creatorid == $this->loggedin['id']) { ?>
+        <?php if ($this->loggedin['admin'] or ($loop->creatorid == $this->loggedin['id'])): ?>
             <a href="<?= ssl_url("contributors/loop/{$loop->id}") ?>">edit</a>
-        <?php } else { ?>
+        <?php else: ?>
             &nbsp;
-        <?php } ?>
+        <?php endif; ?>
     </td>
     <td><a class="clone" href="<?= ssl_url("contributors/cloneloop/{$loop->id}") ?>">clone</a></td>
 </tr>
@@ -56,7 +62,7 @@
 $(window).load(function() {
     // sort the table
     $('#loops').tablesorter({
-        sortList: [[3,0],[1,0]]
+        sortList: [[2,0],[0,0]]
     });
     $('#loops').addClass('tablesorter');
 
