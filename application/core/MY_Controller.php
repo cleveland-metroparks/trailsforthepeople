@@ -5,9 +5,14 @@
  */
 class MY_Controller extends CI_Controller {
 
+public $loggedin;
+
 function __construct()
 {
     parent::__construct();
+    // Shortcuts for use in templates:
+    // An associated array of the Contributor's info (and quick test for whether they're logged-in).
+    $this->loggedin = $this->session->userdata('contributor');
 }
 
 function _output($content)
@@ -23,6 +28,30 @@ function _output($content)
     $data['body_classes'] = implode(' ', $body_classes_array);
 
     echo($this->load->view('backend_base', $data, true));
+}
+
+/*
+ * Check that we're in SSL mode and that the user is logged-in.
+ *
+ * @param $check_admin:
+ *   Whether to also ensure the user is an administrator.
+ *
+ * return:
+ *   NULL if everything checks-out.
+ *   Otherwise redirect or load appropriate page.
+ */
+protected function _user_access($area='') {
+    $user = $this->session->userdata('contributor');
+    // Must be logged-in
+    if (!$user) {
+        return redirect(ssl_url('administration/login'));
+    }
+    // Check if user has access to area. Admin overrides all areas.
+    if (!empty($area)) {
+        if (!$user['admin'] && !$user[$area]) {
+            return redirect(ssl_url('administration/access_denied'));
+        }
+    }
 }
 
 /*

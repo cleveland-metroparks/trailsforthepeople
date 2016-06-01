@@ -4,12 +4,6 @@ class Administration extends MY_Controller {
 
 function __construct() {
     parent::__construct();
-
-    // Shortcuts for use in templates:
-    // An associated array of the Contributor's info (and quick test for whether they're logged-in).
-    $this->loggedin = $this->session->userdata('contributor');
-    // Whether the user is an admin.
-    $this->is_admin = $this->loggedin['admin'];
 }
 
 ///*
@@ -27,30 +21,6 @@ function __construct() {
 //        return $this->load->view('administration/sslrequired.phtml');
 //    }
 //}
-
-/*
- * Check that we're in SSL mode and that the user is logged-in.
- *
- * @param $check_admin:
- *   Whether to also ensure the user is an administrator.
- *
- * return:
- *   NULL if everything checks-out.
- *   Otherwise redirect or load appropriate page.
- */
-private function _user_access($area='') {
-    $user = $this->session->userdata('contributor');
-    // Must be logged-in
-    if (!$user) {
-        return redirect(ssl_url('administration/login'));
-    }
-    // Check if user has access to area. Admin overrides all areas.
-    if (!empty($area)) {
-        if (!$user['admin'] && !$user[$area]) {
-            return redirect(ssl_url('administration/access_denied'));
-        }
-    }
-}
 
 
 /*
@@ -73,8 +43,9 @@ function login() {
         $account->where('email',$_POST['username'])->get();
         $login_ok = ($account->id && $account->checkPassword($_POST['password']));
 
-        // if both passed, they're in; capture a bunch of their Contributor attributes into a session variable
-        // this can be used in templates or this controller via $this->loggedin or $this->loggedin
+        // if both passed, they're in.
+        // capture a bunch of their Contributor attributes into a session variable
+        // that can be used in templates or this controller via $this->loggedin
         if ($login_ok) {
             Auditlog::log_message("Successful login", $account->email);
             $this->session->set_userdata('contributor', $account->buildSessionDataArray());
@@ -128,7 +99,7 @@ function auditlog() {
 function index() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require user
+    // Require logged-in user
     // Don't require admin, since the top-level page is "home" and default post-login.
     if ($this->_user_access() !== NULL) return;
 
