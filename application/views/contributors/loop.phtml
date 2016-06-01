@@ -1,47 +1,4 @@
-<?php $this->page_title = 'Edit Loop'; ?>
-
-
-<style type="text/css">
-#map_canvas {
-    width:5in; height:5in;
-}
-
-th,td {
-    vertical-align:top;
-}
-
-th {
-    text-align:left;
-    font-size:15pt;
-    margin-top:1em;
-}
-
-input[readonly="readonly"] {
-    background-color: #eee;
-}
-
-input.shortversion {
-    text-align:right;
-    width:0.6in;
-}
-
-input.longversion {
-    text-align:right;
-    width:1.0in;
-}
-
-input[name="stepnumber[]"]     { text-align:right; width:0.25in; }
-input[name="text[]"]           { text-align:right; width:2.25in; }
-input[name="distance[]"]       { text-align:right; width:0.50in; }
-input[name="timehike[]"]       { text-align:right; width:0.50in; }
-input[name="timebike[]"]       { text-align:right; width:0.50in; }
-input[name="timebridle[]"]     { text-align:right; width:0.50in; }
-
-</style>
-
-
-
-
+<?php $this->page_title = isset($loop->id) ? 'Edit Loop' : 'Create Loop'; ?>
 
 <script type="text/javascript">
 var DIRECTIONS_LINE       = null;
@@ -111,18 +68,22 @@ $('textarea[name="description"]').tinymce({
     theme : "advanced",
     plugins : "autolink,lists,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,advlist",
 
+    // Reduced options
+    theme_advanced_buttons1 : "code,|,bold,italic,|,bullist,numlist,|,link,unlink",
+
     // Theme options
-    theme_advanced_buttons1 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,undo,redo,|,hr,removeformat,|,charmap,emotions,media",
-    theme_advanced_buttons2 : "code,|,bold,italic,underline,strikethrough,sub,sup,|,formatselect,fontselect,fontsizeselect",
-    theme_advanced_buttons3 : "justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,outdent,indent,blockquote,|,link,unlink,anchor,image,|,forecolor,backcolor",
-    theme_advanced_buttons4 : "tablecontrols",
+    //theme_advanced_buttons1 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,undo,redo,|,hr,removeformat,|,charmap,emotions,media",
+    //theme_advanced_buttons2 : "code,|,bold,italic,underline,strikethrough,sub,sup,|,formatselect,fontselect,fontsizeselect",
+    //theme_advanced_buttons3 : "justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,outdent,indent,blockquote,|,link,unlink,anchor,image,|,forecolor,backcolor",
+    //theme_advanced_buttons4 : "tablecontrols",
+
     theme_advanced_toolbar_location : "top",
     theme_advanced_toolbar_align : "left",
     theme_advanced_statusbar_location : "bottom",
     theme_advanced_resizing : true,
 
     // Example content CSS (should be your site CSS)
-    content_css : "css/content.css",
+    //content_css : "css/content.css",
 
     // Drop lists for link/image/media/template dialogs
     template_external_list_url : "lists/template_list.js",
@@ -167,22 +128,22 @@ $('#geocode_button').click(function () {
 
 // waypoint Add button; pick the map's center, create a marker, populate the text fields, make rough route calculation
 $('.wpadd').click(function () {
-    var row    = $(this).closest('tr');
+    var row    = $(this).closest('li');
     var wpid   = row.prop('id');
 
     // the marker will load from the text fields; if the fields currently have no value, use the map center
-    var lat = parseFloat( row.find('input.lat').val() );
-    var lng = parseFloat( row.find('input.lng').val() );
+    var lat = parseFloat( row.find('.lat').html() );
+    var lng = parseFloat( row.find('.lng').html() );
     if (!lat || !lng) {
         var center = MAP.getCenter();
-        row.find('input.lat').val(center.lat);
-        row.find('input.lng').val(center.lng);
+        row.find('.lat').html(center.lat);
+        row.find('.lng').html(center.lng);
     }
 
     // add the marker, and its drag handler to update the text box
     if (! MARKERS[wpid]) {
-        var lat    = parseFloat( row.find('input.lat').val() );
-        var lng    = parseFloat( row.find('input.lng').val() );
+        var lat    = parseFloat( row.find('.lat').html() );
+        var lng    = parseFloat( row.find('.lng').html() );
         var center = new L.LatLng(lat,lng);
         var icon   = ICONS[wpid];
 
@@ -192,8 +153,8 @@ $('.wpadd').click(function () {
 
         MARKERS[wpid].on('dragend', function (event) {
             var latlng = this.getLatLng();
-            $('#' + this.wpid).find('input.lat').val(latlng.lat);
-            $('#' + this.wpid).find('input.lng').val(latlng.lng);
+            $('#' + this.wpid).find('.lat').html(latlng.lat);
+            $('#' + this.wpid).find('.lng').html(latlng.lng);
             generateRoughCut();
         });
     }
@@ -208,12 +169,12 @@ $('.wpadd').click(function () {
 
 // waypoint Remove button; remove the marker, clear the text fields, make rough route calculation
 $('.wpremove').click(function () {
-    var row  = $(this).closest('tr');
+    var row  = $(this).closest('li');
     var wpid = row.prop('id');
 
     // clear the text fields
-    row.find('input.lat').val(0);
-    row.find('input.lng').val(0);
+    row.find('.lat').html('');
+    row.find('.lng').html('');
 
     // remove the marker
     if (MARKERS[wpid]) {
@@ -234,9 +195,9 @@ $('#recalculate_button').click(function () {
     // load up a list of the waypoints, really a pair of lists: lat,lat,lat & lng,lng,lng
     var lats = [];
     var lngs = [];
-    $('#waypoints tr.waypoint').each(function () {
-        var lat = parseFloat( $(this).find('input.lat').val() );
-        var lng = parseFloat( $(this).find('input.lng').val() );
+    $('#waypoints .waypoint').each(function () {
+        var lat = parseFloat( $(this).find('.lat').html() );
+        var lng = parseFloat( $(this).find('.lng').html() );
         if (lat && lng) {
             lats[lats.length] = lat;
             lngs[lngs.length] = lng;
@@ -268,14 +229,15 @@ $('#recalculate_button').click(function () {
     $('#elevation_profile').prop('src','<?= ssl_url('static/common/blank.png') ?>');
 
     // visual effects: blank the totals
-    $('input[name="distance_feet"]').val('');
-    $('input[name="distancetext"]').val('');
-    $('input[name="duration_hike"]').val('');
-    $('input[name="durationtext_hike"]').val('');
-    $('input[name="duration_bike"]').val('');
-    $('input[name="durationtext_bike"]').val('');
-    $('input[name="duration_bridle"]').val('');
-    $('input[name="durationtext_bridle"]').val('');
+    $('#distance_feet').html('');
+    $('#distancetext').html('');
+    $('#duration_hike').html('');
+    $('#durationtext_hike').html('');
+    $('#duration_bike').html('');
+    $('#durationtext_bike').html('');
+    $('#duration_bridle').html('');
+    $('#durationtext_bridle').html('');
+
     $('input[name="hike"]').val('');
     $('input[name="bike"]').val('');
     $('input[name="bridle"]').val('');
@@ -305,8 +267,8 @@ $('#recalculate_button').click(function () {
 // random loop generator
 $('#random_button').click(function () {
     // fetch Waypoint 0 and bail if it's not set
-    var wp0lat = parseFloat( $('#wp0 input.lat').val() );
-    var wp0lng = parseFloat( $('#wp0 input.lng').val() );
+    var wp0lat = parseFloat( $('#wp0 .lat').html() );
+    var wp0lng = parseFloat( $('#wp0 .lng').html() );
     if (! wp0lat || ! wp0lng ) return alert("Pan and center the map and place Waypoint 0 to define your start.");
 
     // clear the existing waypoints
@@ -334,8 +296,8 @@ $('#random_button').click(function () {
         // load them into the corresponding WP boxes
         for (var i=0, l=reply.length; i<l; i++) {
             var div = $('#wp' + reply[i].wp );
-            div.find('input.lat').val( reply[i].lat );
-            div.find('input.lng').val( reply[i].lng );
+            div.find('.lat').html( reply[i].lat );
+            div.find('.lng').html( reply[i].lng );
             div.find('.wpadd').click();
         }
     }, 'json');
@@ -347,10 +309,10 @@ $('#random_button').click(function () {
 ///// if not, simply hide the 'remove' buttons because there's nothing yet and we're already done
 /////
 // phase 1: lay down markers for any waypoints that are populated
-$('#waypoints tr.waypoint').each(function () {
+$('#waypoints .waypoint').each(function () {
     // the waypoint's lat/lng are already loaded into the text fields
-    var lat = parseFloat( $(this).find('input.lat').val() );
-    var lng = parseFloat( $(this).find('input.lng').val() );
+    var lat = parseFloat( $(this).find('.lat').html() );
+    var lng = parseFloat( $(this).find('.lng').html() );
 
     // click either the Add or Remove button; their actions will show/hide markers, show/hide buttons, et cetera
     if (lat && lng) {
@@ -386,9 +348,9 @@ function generateRoughCut() {
     }
 
     var latlngs = [];
-    $('#waypoints tr.waypoint').each(function () {
-        var lat = parseFloat( $(this).find('input.lat').val() );
-        var lng = parseFloat( $(this).find('input.lng').val() );
+    $('#waypoints .waypoint').each(function () {
+        var lat = parseFloat( $(this).find('.lat').html() );
+        var lng = parseFloat( $(this).find('.lng').html() );
         if (lat && lng) latlngs[latlngs.length] = new L.LatLng(lat,lng);
     });
 
@@ -400,14 +362,15 @@ function generateRoughCut() {
 
 function renderRoute(routestruct) {
     // load the attributes and totals into the text boxes
-    $('input[name="distance_feet"]').val(routestruct.totals.distance_feet);
-    $('input[name="distancetext"]').val(routestruct.totals.distancetext);
-    $('input[name="duration_hike"]').val(routestruct.totals.duration_hike);
-    $('input[name="duration_bike"]').val(routestruct.totals.duration_bike);
-    $('input[name="duration_bridle"]').val(routestruct.totals.duration_bridle);
-    $('input[name="durationtext_hike"]').val(routestruct.totals.durationtext_hike);
-    $('input[name="durationtext_bike"]').val(routestruct.totals.durationtext_bike);
-    $('input[name="durationtext_bridle"]').val(routestruct.totals.durationtext_bridle);
+    $('#distance_feet').html(routestruct.totals.distance_feet);
+    $('#distancetext').html(routestruct.totals.distancetext);
+    $('#duration_hike').html(routestruct.totals.duration_hike);
+    $('#duration_bike').html(routestruct.totals.duration_bike);
+    $('#duration_bridle').html(routestruct.totals.duration_bridle);
+    $('#durationtext_hike').html(routestruct.totals.durationtext_hike);
+    $('#durationtext_bike').html(routestruct.totals.durationtext_bike);
+    $('#durationtext_bridle').html(routestruct.totals.durationtext_bridle);
+
     $('input[name="hike"]').val(routestruct.use_hike);
     $('input[name="bike"]').val(routestruct.use_bike);
     $('input[name="bridle"]').val(routestruct.use_bridle);
@@ -475,306 +438,367 @@ function renderDirections(steps) {
 
     var target = $('#directions');
     target.empty();
+    target.append($('<tr> <th>#</th> <th>Text</th> <th>Dist</th> <th>Hike</th> <th>Bike</th> <th>Bridle</th> </tr>'));
 
     for (var i=0, l=steps.length; i<l; i++) {
         var step = steps[i];
         //console.log(step);
         var row = $('<tr></tr>');
-        row.append($('<td></td>').append( $('<input></input>').prop('type','text').attr('readonly','readonly').prop('name','stepnumber[]').val(step.stepnumber) ));
-        row.append($('<td></td>').append( $('<input></input>').prop('type','text').attr('readonly','readonly').prop('name','text[]').val(step.text) ));
-        row.append($('<td></td>').append( $('<input></input>').prop('type','text').attr('readonly','readonly').prop('name','distance[]').val(step.distance) ));
-        row.append($('<td></td>').append( $('<input></input>').prop('type','text').attr('readonly','readonly').prop('name','timehike[]').val(step.timehike) ));
-        row.append($('<td></td>').append( $('<input></input>').prop('type','text').attr('readonly','readonly').prop('name','timebike[]').val(step.timebike) ));
-        row.append($('<td></td>').append( $('<input></input>').prop('type','text').attr('readonly','readonly').prop('name','timebridle[]').val(step.timebridle) ));
+        row.append($('<td></td>').append( $('<span></span>').prop('id','stepnumber').html(step.stepnumber) ));
+        row.append($('<td></td>').append( $('<span></span>').prop('id','text').html(step.text) ));
+        row.append($('<td></td>').append( $('<span></span>').prop('id','distance').html(step.distance) ));
+        row.append($('<td></td>').append( $('<span></span>').prop('id','timehike').html(step.timehike) ));
+        row.append($('<td></td>').append( $('<span></span>').prop('id','timebike').html(step.timebike) ));
+        row.append($('<td></td>').append( $('<span></span>').prop('id','timebridle').html(step.timebridle) ));
         target.append(row);
     }
 }
 </script>
 
 
-<form id="loopform" method="post" action="<?= ssl_url("contributors/saveloop/") ?>">
+<form class="form-horizontal" id="loopform" method="post" action="<?= ssl_url("contributors/saveloop/") ?>">
+
 <input type="hidden" name="id" value="<?= $loop ? $loop->id : 0 ?>" />
 <input type="hidden" name="wkt" value="<?= $loop ? $loop->wkt : '' ?>" />
 <input type="hidden" name="elevation_profile" value="<?= $loop ? $loop->elevation_profile : '' ?>" />
 <input type="hidden" name="elevation_profile_image" value="<?= $loop ? ssl_url("static/photos/loops/{$loop->id}.jpg") : '' ?>" />
 
-<table>
-<tr>
-    <th>Basic Information</th>
-    <th>Directions</th>
-</tr>
-<tr>
-    <td>
-        <table>
-        <tr>
-            <td>Name:</td>
-            <td><input class="form-control" type="text" name="name" maxlength="200" value="<?= $loop ? htmlspecialchars($loop->name) : '- Untitled Loop' ?>" /></td>
-        </tr>
-        <tr>
-            <td>Description:</td>
-            <td><textarea class="form-control" name="description" style="height:5em"><?= $loop ? htmlspecialchars($loop->description) : '' ?></textarea></td>
-        </tr>
-        <tr>
-            <td>Publication</td>
-            <td>
-                <select class="form-control" name="status">
-                    <option <?= $loop ? ($loop->status=='New' ? 'selected="true"' : '') : '' ?> value="New">New</option>
-                    <option <?= $loop ? ($loop->status=='In Progress' ? 'selected="true"' : '') : '' ?> value="In Progress">In Progress</option>
-                    <?php if ($this->loggedin['admin']) { ?>
-                    <option <?= $loop ? ($loop->status=='Published' ? 'selected="true"' : '') : '' ?> value="Published">Published</option>
-                    <?php } ?>
-                    <option <?= $loop ? ($loop->status=='Expired' ? 'selected="true"' : '') : '' ?> value="Published">Expired</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td>Start date:</td>
-            <td>
-                <input type="text" name="startdate" size="10" maxlength="10" value="<?= $loop ? $loop->startdate : date('Y-m-d') ?>" />
-                <span class="btn btn-sm btn-default" id="startdate_today">today</span>
-            </td>
-            <td>
-           </td>
-        </tr>
-        <tr>
-            <td>Expiration date:</td>
-            <td>
-                <input type="text" name="expires" size="10" maxlength="10" value="<?= $loop ? $loop->expires : '' ?>" />
-                <span class="btn btn-sm btn-default" id="expires_never">never</span>
-                <br/>
-                If this event expires, should it be re-enabled on the starting date the following year?<br/>
-                <select class="form-control" name="annual">
-                <option value="0" <?= ($loop and $loop->annual) ? '' : 'selected="true"' ?> >No, do not automatically re-enable</option>
-                <option value="1" <?= ($loop and $loop->annual) ? 'selected="true"' : '' ?> >Yes, re-enable this loop each year</option>
-                </select>
-            </td>
-            <td>
-            </td>
-        </tr>
-        <tr>
-            <td>Source</td>
-            <td><input class="form-control" type="text" name="source" maxlength="100" value="<?= $loop ? htmlspecialchars($loop->source) : '' ?>" /></td>
-        </tr>
-        <tr>
-            <td>Edited by</td>
-            <td><input class="form-control" type="text" name="editedby" maxlength="100" value="<?= $loop ? htmlspecialchars($loop->editedby) : '' ?>" /></td>
-        </tr>
-        <tr>
-            <td>Hiking?</td>
-            <td><input class="form-control" type="text" name="hike" value="<?= $loop ? $loop->hike : '' ?>" readonly="readonly" /></td>
-        </tr>
-        <tr>
-            <td>Bikes?</td>
-            <td><input class="form-control" type="text" name="bike" value="<?= $loop ? $loop->bike : '' ?>" readonly="readonly" /></td>
-        </tr>
-        <tr>
-            <td>Equestrian?</td>
-            <td><input class="form-control" type="text" name="bridle" value="<?= $loop ? $loop->bridle : '' ?>" readonly="readonly" /></td>
-        </tr>
-        <tr>
-            <td>Mountain Biking?</td>
-            <td><input class="form-control" type="text" name="mountainbike" value="<?= $loop ? $loop->mountainbike : '' ?>" readonly="readonly" /></td>
-        </tr>
-        <tr>
-            <td>Paved?</td>
-            <td><input class="form-control" type="text" name="paved" value="<?= $loop ? $loop->paved : '' ?>" readonly="readonly" /></td>
-        </tr>
-        <tr>
-            <td>Difficulty (bikes)</td>
-            <td><input class="form-control" type="text" name="dificulty" value="<?= $loop ? $loop->difficulty : '' ?>" readonly="readonly" /></td>
-        </tr>
-        <tr>
-            <td colspan="2">
-                <img src="<?= $loop ? ssl_url("static/photos/loops/{$loop->id}.jpg") : ssl_url('static/common/blank.png') ?>" id="elevation_profile" />
-            </td>
-        </tr>
-        </table>
-    </td>
-    <td>
-        <table id="directions">
-        </table>
 
-        <table>
-        <tr>
-            <td>Length</td>
-            <td><input type="text" readonly="readonly" class="shortversion" name="distance_feet" value="<?= $loop ? $loop->distance_feet : 0 ?>" /> feet</td>
-            <td><input type="text" readonly="readonly" class="longversion" name="distancetext" value="<?= $loop ? $loop->distancetext : 0 ?>" /></td>
-        </tr>
-        <tr>
-            <td>Duration, hike</td>
-            <td><input type="text" readonly="readonly" class="shortversion" name="duration_hike" value="<?= $loop ? $loop->duration_hike : 0 ?>" /> seconds</td>
-            <td><input type="text" readonly="readonly" class="longversion" name="durationtext_hike" value="<?= $loop ? $loop->durationtext_hike : 0 ?>" /></td>
-        </tr>
-        <tr>
-            <td>Duration, bicycle</td>
-            <td><input type="text" readonly="readonly" class="shortversion" name="duration_bike" value="<?= $loop ? $loop->duration_bike : 0 ?>" /> seconds</td>
-            <td><input type="text" readonly="readonly" class="longversion" name="durationtext_bike" value="<?= $loop ? $loop->durationtext_bike : 0 ?>" /></td>
-        </tr>
-        <tr>
-            <td>Duration, equestrian</td>
-            <td><input type="text" readonly="readonly" class="shortversion" name="duration_bridle" value="<?= $loop ? $loop->duration_bridle : 0 ?>" /> seconds</td>
-            <td><input type="text" readonly="readonly" class="longversion" name="durationtext_bridle" value="<?= $loop ? $loop->durationtext_bridle : 0 ?>" /></td>
-        </tr>
-        </table>
-    </td>
-</tr>
-<tr>
-    <th colspan="2">Waypoints and Route</th>
-</tr>
-<tr>
-    <td>
-        <div id="map_canvas"></div>
+<div class="row"><!-- Basic Information & Directions (row) -->
 
-        <div>
-            Search for an address or landmark: <input type="text" id="geocode_text" /> <input type="button" id="geocode_button" value="Go &gt;" />
-        </div>
-    </td>
-    <td>
-        <ol style="font-size:80%;">
-            <li>Start by zooming the map to the general area of your desired loop.</li>
-            <li>Lay down the first and last waypoints, then click Recalculate to get an idea of where the computer would route you. The routing system will automatically &quot;close the loop&quot; back to the first waypoint.</li>
-            <li>To fine-tune the route, add waypoints in between and Recalculate.</li>
+<div class="col-md-6"><!-- Basic Information (col) -->
+
+<h3>Basic Information</h3>
+
+<div class="form-group">
+    <label class="control-label col-sm-3">Name:</label>
+    <div class="col-sm-8">
+        <input class="form-control" type="text" name="name" maxlength="200" value="<?= $loop ? htmlspecialchars($loop->name) : '- Untitled Loop' ?>" />
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-3">Description:</label>
+    <div class="col-sm-8">
+        <textarea class="form-control" name="description" style="height:5em">
+            <?= $loop ? htmlspecialchars($loop->description) : '' ?>
+        </textarea>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-3">Publication</label>
+    <div class="col-sm-8">
+        <select class="form-control" name="status">
+            <option <?= $loop ? ($loop->status=='New' ? 'selected="true"' : '') : '' ?> value="New">New</option>
+            <option <?= $loop ? ($loop->status=='In Progress' ? 'selected="true"' : '') : '' ?> value="In Progress">In Progress</option>
+            <?php if ($this->loggedin['admin']) { ?>
+            <option <?= $loop ? ($loop->status=='Published' ? 'selected="true"' : '') : '' ?> value="Published">Published</option>
+            <?php } ?>
+            <option <?= $loop ? ($loop->status=='Expired' ? 'selected="true"' : '') : '' ?> value="Published">Expired</option>
+        </select>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-3">Start date:</label>
+    <div class="col-sm-8">
+        <input type="text" name="startdate" size="10" maxlength="10" value="<?= $loop ? $loop->startdate : date('Y-m-d') ?>" />
+        <span class="btn btn-sm btn-default" id="startdate_today">today</span>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-3">Expiration date:</label>
+    <div class="col-sm-8">
+        <input type="text" name="expires" size="10" maxlength="10" value="<?= $loop ? $loop->expires : '' ?>" />
+        <span class="btn btn-sm btn-default" id="expires_never">never</span>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-3">Repeat:</label>
+    <div class="col-sm-8">
+        <select class="form-control" name="annual">
+            <option value="0" <?= ($loop and $loop->annual) ? '' : 'selected="true"' ?> >No, do not automatically re-enable</option>
+            <option value="1" <?= ($loop and $loop->annual) ? 'selected="true"' : '' ?> >Yes, re-enable this loop each year</option>
+        </select>
+        <p class="help-block">If this event expires, should it be re-enabled on the starting date the following year?<br/>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-3">Source:</label>
+    <div class="col-sm-8">
+        <input class="form-control" type="text" name="source" maxlength="100" value="<?= $loop ? htmlspecialchars($loop->source) : '' ?>" />
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-3">Edited by:</label>
+    <div class="col-sm-8">
+        <input class="form-control" type="text" name="editedby" maxlength="100" value="<?= $loop ? htmlspecialchars($loop->editedby) : '' ?>" />
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-3">Hiking:</label>
+    <div class="col-sm-8">
+        <input class="form-control" type="text" name="hike" value="<?= $loop ? $loop->hike : '' ?>" readonly="readonly" />
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-3">Bikes:</label>
+    <div class="col-sm-8">
+        <input class="form-control" type="text" name="bike" value="<?= $loop ? $loop->bike : '' ?>" readonly="readonly" />
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-3">Equestrian:</label>
+    <div class="col-sm-8">
+        <input class="form-control" type="text" name="bridle" value="<?= $loop ? $loop->bridle : '' ?>" readonly="readonly" />
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-3">Mountain Biking:</label>
+    <div class="col-sm-8">
+        <input class="form-control" type="text" name="mountainbike" value="<?= $loop ? $loop->mountainbike : '' ?>" readonly="readonly" />
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-3">Paved:</label>
+    <div class="col-sm-8">
+        <input class="form-control" type="text" name="paved" value="<?= $loop ? $loop->paved : '' ?>" readonly="readonly" />
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-3">Difficulty (bikes):</label>
+    <div class="col-sm-8">
+        <input class="form-control" type="text" name="dificulty" value="<?= $loop ? $loop->difficulty : '' ?>" readonly="readonly" />
+    </div>
+</div>
+
+<div class="form-group">
+    <div class="col-sm-offset-1 col-sm-11">
+        <img src="<?= $loop ? ssl_url("static/photos/loops/{$loop->id}.jpg") : ssl_url('static/common/blank.png') ?>" id="elevation_profile" />
+    </div>
+</div>
+
+</div>
+<!-- /Basic Information (col) -->
+
+
+<!-- Directions (col) -->
+<div class="col-md-6">
+
+<h3>Directions</h3>
+
+<div class="row">
+     <table class="table table-striped table-condensed" id="directions" style="font-size:90%;">
+     </table>
+</div>
+
+<div class="row">
+    <label class="col-sm-4">Length:</label>
+    <div class="col-sm-8">
+        <span id="distancetext"><?= $loop ? $loop->distancetext : 0 ?></span> (<span id="distance_feet"><?= $loop ? $loop->distance_feet : 0 ?></span> ft)
+    </div>
+</div>
+
+<div class="row">
+    <label class="col-sm-4">Duration, hike:</label>
+    <div class="col-sm-8">
+        <span id="durationtext_hike"><?= $loop ? $loop->durationtext_hike : 0 ?></span> (<span id="duration_hike"><?= $loop ? $loop->duration_hike : 0 ?></span> sec)
+    </div>
+</div>
+
+<div class="row">
+    <label class="col-sm-4">Duration, bicycle:</label>
+    <div class="col-sm-8">
+        <span id="durationtext_bike"><?= $loop ? $loop->durationtext_bike : 0 ?></span> (<span id="duration_bike"><?= $loop ? $loop->duration_bike : 0 ?></span> sec)
+    </div>
+</div>
+
+<div class="row">
+    <label class="col-sm-4">Duration, equestrian:</label>
+    <div class="col-sm-8">
+        <span id="durationtext_bridle"><?= $loop ? $loop->durationtext_bridle : 0 ?></span> (<span id="duration_bridle"><?= $loop ? $loop->duration_bridle : 0 ?></span> sec)
+    </div>
+</div>
+
+
+</div><!-- /Directions (col) -->
+
+</div><!-- /Basic Information & Directions (row) -->
+
+
+<!-- Waypoints & Route (row) -->
+<div class="row">
+
+<h3>Waypoints and Route</h3>
+
+<!-- Waypoints Map (col) -->
+<div class="col-md-6">
+
+<div id="map_canvas" style="width:100%; height:5in; margin: 1em 0;"></div>
+
+<div class="form-group">
+    <label class="control-label col-sm-4">Search:</label>
+    <div class="col-sm-8 form-inline">
+        <input class="form-control" type="text" id="geocode_text" />
+        <input class="btn btn-sm btn-default" type="button" id="geocode_button" value="Go &gt;" />
+        <p class="help-block">Search for an address or landmark</p>
+    </div>
+</div>
+
+</div><!-- /Waypoints Map (col) -->
+
+
+<!-- Waypoints Table (col) -->
+<div class="col-md-6">
+
+        <h4>Waypoints</h4>
+
+        <ol>
+            <li>Zoom the map to the general area of your desired loop.</li>
+            <li>Add the first and last waypoints, then click <em>Recalculate</em> to get an idea of where the system would route you. The system will automatically &quot;close the loop&quot; back to the first waypoint.</li>
+            <li>To fine-tune the route: add waypoints in between and <em>Recalculate</em>.</li>
         </ol>
-        <table id="waypoints">
-            <tr class="waypoint" id="wp0">
-                <td>Waypoint 0:</td>
-                <td><input type="text" readonly="readonly" class="form-control lat" name="wp0lat" value="<?= $loop ? $loop->wp0lat : 0 ?>" /></td>
-                <td><input type="text" readonly="readonly" class="form-control lng" name="wp0lng" value="<?= $loop ? $loop->wp0lng : 0 ?>" /></td>
-                <td><span class="btn btn-sm btn-default wpadd" wp="wp0">add</span><span class="btn btn-sm btn-default wpremove" wp="wp0">remove</span></td>
-            </tr>
-            <tr class="waypoint" id="wp1">
-                <td>Waypoint 1:</td>
-                <td><input type="text" readonly="readonly" class="form-control lat" name="wp1lat" value="<?= $loop ? $loop->wp1lat : 0 ?>" /></td>
-                <td><input type="text" readonly="readonly" class="form-control lng" name="wp1lng" value="<?= $loop ? $loop->wp1lng : 0 ?>" /></td>
-                <td><span class="btn btn-sm btn-default wpadd" wp="wp1">add</span><span class="btn btn-sm btn-default wpremove" wp="wp1">remove</span></td>
-            </tr>
-            <tr class="waypoint" id="wp2">
-                <td>Waypoint 2:</td>
-                <td><input type="text" readonly="readonly" class="form-control lat" name="wp2lat" value="<?= $loop ? $loop->wp2lat : 0 ?>" /></td>
-                <td><input type="text" readonly="readonly" class="form-control lng" name="wp2lng" value="<?= $loop ? $loop->wp2lng : 0 ?>" /></td>
-                <td><span class="btn btn-sm btn-default wpadd" wp="wp2">add</span><span class="btn btn-sm btn-default wpremove" wp="wp2">remove</span></td>
-            </tr>
-            <tr class="waypoint" id="wp3">
-                <td>Waypoint 3:</td>
-                <td><input type="text" readonly="readonly" class="form-control lat" name="wp3lat" value="<?= $loop ? $loop->wp3lat : 0 ?>" /></td>
-                <td><input type="text" readonly="readonly" class="form-control lng" name="wp3lng" value="<?= $loop ? $loop->wp3lng : 0 ?>" /></td>
-                <td><span class="btn btn-sm btn-default wpadd" wp="wp3">add</span><span class="btn btn-sm btn-default wpremove" wp="wp3">remove</span></td>
-            </tr>
-            <tr class="waypoint" id="wp4">
-                <td>Waypoint 4:</td>
-                <td><input type="text" readonly="readonly" class="form-control lat" name="wp4lat" value="<?= $loop ? $loop->wp4lat : 0 ?>" /></td>
-                <td><input type="text" readonly="readonly" class="form-control lng" name="wp4lng" value="<?= $loop ? $loop->wp4lng : 0 ?>" /></td>
-                <td><span class="btn btn-sm btn-default wpadd" wp="wp4">add</span><span class="btn btn-sm btn-default wpremove" wp="wp4">remove</span></td>
-            </tr>
-            <tr class="waypoint" id="wp5">
-                <td>Waypoint 5:</td>
-                <td><input type="text" readonly="readonly" class="form-control lat" name="wp5lat" value="<?= $loop ? $loop->wp5lat : 0 ?>" /></td>
-                <td><input type="text" readonly="readonly" class="form-control lng" name="wp5lng" value="<?= $loop ? $loop->wp5lng : 0 ?>" /></td>
-                <td><span class="btn btn-sm btn-default wpadd" wp="wp5">add</span><span class="btn btn-sm btn-default wpremove" wp="wp5">remove</span></td>
-            </tr>
-            <tr class="waypoint" id="wp6">
-                <td>Waypoint 6:</td>
-                <td><input type="text" readonly="readonly" class="form-control lat" name="wp6lat" value="<?= $loop ? $loop->wp6lat : 0 ?>" /></td>
-                <td><input type="text" readonly="readonly" class="form-control lng" name="wp6lng" value="<?= $loop ? $loop->wp6lng : 0 ?>" /></td>
-                <td><span class="btn btn-sm btn-default wpadd" wp="wp6">add</span><span class="btn btn-sm btn-default wpremove" wp="wp6">remove</span></td>
-            </tr>
-            <tr class="waypoint" id="wp7">
-                <td>Waypoint 7:</td>
-                <td><input type="text" readonly="readonly" class="form-control lat" name="wp7lat" value="<?= $loop ? $loop->wp7lat : 0 ?>" /></td>
-                <td><input type="text" readonly="readonly" class="form-control lng" name="wp7lng" value="<?= $loop ? $loop->wp7lng : 0 ?>" /></td>
-                <td><span class="btn btn-sm btn-default wpadd" wp="wp7">add</span><span class="btn btn-sm btn-default wpremove" wp="wp7">remove</span></td>
-            </tr>
-            <tr class="waypoint" id="wp8">
-                <td>Waypoint 8:</td>
-                <td><input type="text" readonly="readonly" class="form-control lat" name="wp8lat" value="<?= $loop ? $loop->wp8lat : 0 ?>" /></td>
-                <td><input type="text" readonly="readonly" class="form-control lng" name="wp8lng" value="<?= $loop ? $loop->wp8lng : 0 ?>" /></td>
-                <td><span class="btn btn-sm btn-default wpadd" wp="wp8">add</span><span class="btn btn-sm btn-default wpremove" wp="wp8">remove</span></td>
-            </tr>
-            <tr class="waypoint" id="wp9">
-                <td>Waypoint 9:</td>
-                <td><input type="text" readonly="readonly" class="form-control lat" name="wp9lat" value="<?= $loop ? $loop->wp9lat : 0 ?>" /></td>
-                <td><input type="text" readonly="readonly" class="form-control lng" name="wp9lng" value="<?= $loop ? $loop->wp9lng : 0 ?>" /></td>
-                <td><span class="btn btn-sm btn-default wpadd" wp="wp9">add</span><span class="btn btn-sm btn-default wpremove" wp="wp9">remove</span></td>
-            </tr>
-            <tr>
-                <td>Loop?</td>
-                <td colspan="3">
+
+
+        <div class="row">
+
+        <ul id="waypoints" class="list-group">
+        <?php for ($i=0; $i<10; $i++) : ?>
+            <li class="list-group-item waypoint" id="wp<?= $i ?>">
+
+                <label class="control-label"><?= $i ?>:</label>
+                <span class="lat" id="wp<?= $i ?>lat"><?= $loop ? $loop->{"wp${i}lat"} . ',' : '' ?></span>
+                <span class="lng" id="wp<?= $i ?>lng"><?= $loop ? $loop->{"wp${i}lng"} : '' ?></span>
+                <span class="btn btn-sm btn-default wpadd pull-right" wp="wp<?= $i ?>">add</span>
+                <span class="btn btn-sm btn-default wpremove pull-right" wp="wp<?= $i ?>">remove</span>
+
+            </li>
+        <?php endfor; ?>
+        </ul>
+
+        </div>
+
+        <div class="row">
+
+            <h4>Route Options</h4>
+
+            <div class="form-group">
+                <label class="control-label col-sm-3">Loop:</label>
+                <div class="col-sm-6">
                     <select class="form-control" name="closedloop">
                         <option value="1" <?= $loop ? ($loop->closedloop=='1' ? 'selected="true"' : '') : '' ?> >Return to start to form a closed loop</option>
                         <option value="0" <?= $loop ? ($loop->closedloop=='0' ? 'selected="true"' : '') : '' ?> >End at the final waypoint, not a closed loop</option>
                     </select>
-                </td>
-            </tr>
-            <tr>
-                <td>Filter</td>
-                <td colspan="3">
-                <select class="form-control" name="terrain_filter">
-                    <option value="hike" <?= $loop ? ($loop->terrain_filter=='hike' ? 'selected="true"' : '') : '' ?> >Hiking trails</option>
-                    <option value="hike_paved" <?= $loop ? ($loop->terrain_filter=='hike_paved' ? 'selected="true"' : '') : '' ?> >Hiking trails, paved</option>
-                    <option value="hike_unpaved" <?= $loop ? ($loop->terrain_filter=='hike_unpaved' ? 'selected="true"' : '') : '' ?> >Hiking trails, unpaved</option>
-                    <option value="bike" <?= $loop ? ($loop->terrain_filter=='bike' ? 'selected="true"' : '') : '' ?> >Bicycle trails</option>
-                    <option value="bike_novice" <?= $loop ? ($loop->terrain_filter=='bike_novice' ? 'selected="true"' : '') : '' ?> >Bicycle trails, novice</option>
-                    <option value="bike_beginner" <?= $loop ? ($loop->terrain_filter=='bike_beginner' ? 'selected="true"' : '') : '' ?> >Bicycle trails &amp; roads, beginner</option>
-                    <option value="bike_intermediate" <?= $loop ? ($loop->terrain_filter=='bike_intermediate' ? 'selected="true"' : '') : '' ?> >Bicycle trails &amp; roads, intermediate</option>
-                    <option value="bike_advanced" <?= $loop ? ($loop->terrain_filter=='bike_advanced' ? 'selected="true"' : '') : '' ?> >Bicycle trails &amp; roads, advanced</option>
-                    <option value="bridle" <?= $loop ? ($loop->terrain_filter=='bridle' ? 'selected="true"' : '') : '' ?> >Equestrian trails</option>
-                    <option value="bridle_paved" <?= $loop ? ($loop->terrain_filter=='bridle_paved' ? 'selected="true"' : '') : '' ?> >Equestrian trails, paved</option>
-                    <option value="bridle_unpaved" <?= $loop ? ($loop->terrain_filter=='bridle_unpaved' ? 'selected="true"' : '') : '' ?> >Equestrian trails, unpaved</option>
-                </select>
-                </td>
-            </tr>
-            <tr>
-                <td>Trim?</td>
-                <td colspan="3">
-                <select class="form-control" name="trim_spurs">
-                    <option value="">Do not trim off spurs</option>
-                    <option value="trim">Trim off spurs</option>
-                </select>
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td><input type="button" id="recalculate_button" value="Recalculate" value0="One moment..." value1="Recalculate" class="btn btn-default" /></td>
-                <td></td>
-                <td></td>
-            </tr>
-        </table>
+                </div>
+            </div>
 
-        <br/>
+            <div class="form-group">
+                <label class="control-label col-sm-3">Filter:</label>
+                <div class="col-sm-6">
+                    <select class="form-control" name="terrain_filter">
+                        <option value="hike" <?= $loop ? ($loop->terrain_filter=='hike' ? 'selected="true"' : '') : '' ?> >Hiking trails</option>
+                        <option value="hike_paved" <?= $loop ? ($loop->terrain_filter=='hike_paved' ? 'selected="true"' : '') : '' ?> >Hiking trails, paved</option>
+                        <option value="hike_unpaved" <?= $loop ? ($loop->terrain_filter=='hike_unpaved' ? 'selected="true"' : '') : '' ?> >Hiking trails, unpaved</option>
+                        <option value="bike" <?= $loop ? ($loop->terrain_filter=='bike' ? 'selected="true"' : '') : '' ?> >Bicycle trails</option>
+                        <option value="bike_novice" <?= $loop ? ($loop->terrain_filter=='bike_novice' ? 'selected="true"' : '') : '' ?> >Bicycle trails, novice</option>
+                        <option value="bike_beginner" <?= $loop ? ($loop->terrain_filter=='bike_beginner' ? 'selected="true"' : '') : '' ?> >Bicycle trails &amp; roads, beginner</option>
+                        <option value="bike_intermediate" <?= $loop ? ($loop->terrain_filter=='bike_intermediate' ? 'selected="true"' : '') : '' ?> >Bicycle trails &amp; roads, intermediate</option>
+                        <option value="bike_advanced" <?= $loop ? ($loop->terrain_filter=='bike_advanced' ? 'selected="true"' : '') : '' ?> >Bicycle trails &amp; roads, advanced</option>
+                        <option value="bridle" <?= $loop ? ($loop->terrain_filter=='bridle' ? 'selected="true"' : '') : '' ?> >Equestrian trails</option>
+                        <option value="bridle_paved" <?= $loop ? ($loop->terrain_filter=='bridle_paved' ? 'selected="true"' : '') : '' ?> >Equestrian trails, paved</option>
+                        <option value="bridle_unpaved" <?= $loop ? ($loop->terrain_filter=='bridle_unpaved' ? 'selected="true"' : '') : '' ?> >Equestrian trails, unpaved</option>
+                    </select>
+                </div>
+            </div>
 
-        <ol style="font-size:80%;">
+            <div class="form-group">
+                <label class="control-label col-sm-3">Trim:</label>
+                <div class="col-sm-6">
+                    <select class="form-control" name="trim_spurs">
+                        <option value="">Do not trim off spurs</option>
+                        <option value="trim">Trim off spurs</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-offset-3 col-sm-6">
+                    <input type="button" id="recalculate_button" value="Recalculate" value0="One moment..." value1="Recalculate" class="btn btn-default" />
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="row">
+
+        <h4>Generate Random Loop</h4>
+        <ol>
             <li>Center the map and place Waypoint 0 to indicate a starting point.</li>
             <li>Select trail settings above: the trail types filter and whether to close the loop.</li>
-            <li>Select a route length below.</li>
+            <li>Select a desired route length below.</li>
             <li>Click the Generate Random button to have it select some waypoints and place markers.</li>
             <li>Click Generate Random again to try again, click the Recalculate button to calculate a route, or adjust the markers to fine tune the output.</li>
         </ol>
 
-        Desired route length: <select class="form-control" id="random_miles">
-            <option value="5">5 miles</option>
-            <option value="10">10 miles</option>
-            <option value="15">15 miles</option>
-            <option value="20">20 miles</option>
-            <option value="25">25 miles</option>
-            <option value="30">30 miles</option>
-        </select>
-        <input type="button" id="random_button" value="Generate Random" value0="One moment..." value1="Generate Random" class="btn btn-default" />
+        <div class="form-group">
+            <label class="control-label col-sm-3">Route length:</label>
+            <div class="col-sm-6">
+                <select class="form-control" id="random_miles">
+                    <option value="5">5 miles</option>
+                    <option value="10">10 miles</option>
+                    <option value="15">15 miles</option>
+                    <option value="20">20 miles</option>
+                    <option value="25">25 miles</option>
+                    <option value="30">30 miles</option>
+                </select>
+            </div>
+        </div>
 
-    </td>
-</tr>
-<tr>
-    <th>&nbsp;</th>
-</tr>
-</table>
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-6">
+                <input type="button" id="random_button" value="Generate Random" value0="One moment..." value1="Generate Random" class="btn btn-default" />
+            </div>
+        </div>
 
-<p><input type="submit" value="Save Changes" class="btn btn-primary" /></p>
+
+
+
+
+
+</div><!-- /Waypoints Table (col) -->
+
+
+</div><!-- /Waypoints & Route (row) -->
+
+<div class="form-group">
+    <div class="col-sm-4">
+        <input class="btn btn-primary" type="submit" value="Save Changes" />
+    </div>
+</div>
 
 </form>
 
 
+
 <?php if ($loop) { ?>
-<form id="deleteform" method="post" action="<?= ssl_url("contributors/deleteloop/") ?>" onSubmit="return confirm('Really delete this loop?');">
-<input type="hidden" name="id" value="<?= $loop->id ?>" />
-<input type="submit" value="Delete" class="btn btn-primary" />
+<form class="form-horizontal" id="deleteform" method="post" action="<?= ssl_url("contributors/deleteloop/") ?>" onSubmit="return confirm('Really delete this loop?');">
+    <input type="hidden" name="id" value="<?= $loop->id ?>" />
+    <div class="form-group">
+        <div class="col-sm-4">
+            <input class="btn btn-primary" type="submit" value="Delete Loop" />
+        </div>
+    </div>
 </form>
 <?php } ?>
