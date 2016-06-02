@@ -47,7 +47,7 @@ function login() {
         // fetch their account and check their password
         $account = new Contributor();
         $account->where('email',$_POST['username'])->get();
-        $login_ok = $account->id and $account->checkPassword($_POST['password']);
+        $login_ok = ($account->id and $account->checkPassword($_POST['password']));
 
         // if both passed, they're in; capture a bunch of their Contributor attributes into a session variable
         // this can be used in templates or this controller via $this->loggedin or $this->loggedin
