@@ -303,43 +303,53 @@ $('#random_button').click(function () {
     }, 'json');
 });
 
+// Load the loop
+loadLoop();
+
+// end of window.load callback
+});
+
 
 /////
 ///// if there's a loop, a technique for loading the existing loop into the waypoint boxes and the map
 ///// if not, simply hide the 'remove' buttons because there's nothing yet and we're already done
 /////
-// phase 1: lay down markers for any waypoints that are populated
-$('#waypoints .waypoint').each(function () {
-    // the waypoint's lat/lng are already loaded into the text fields
-    var lat = parseFloat( $(this).find('.lat').html() );
-    var lng = parseFloat( $(this).find('.lng').html() );
+function loadLoop() {
+    // phase 1: lay down markers for any waypoints that are populated
+    $('#waypoints .waypoint').each(function () {
+        // the waypoint's lat/lng are already loaded into the text fields
+        var lat = parseFloat( $(this).find('.lat').html() );
+        var lng = parseFloat( $(this).find('.lng').html() );
 
-    // click either the Add or Remove button; their actions will show/hide markers, show/hide buttons, et cetera
-    if (lat && lng) {
-        $(this).find('.wpadd').click();
-    } else {
-        $(this).find('.wpremove').click();
-    }
-});
-// phase 2: zoom to the collected extent of the markers
-{
+        // click either the Add or Remove button; their actions will show/hide markers, show/hide buttons, et cetera
+        if (lat && lng) {
+            $(this).find('.wpadd').click();
+        } else {
+            $(this).find('.wpremove').click();
+        }
+    });
+
+    // phase 2: zoom to the collected extent of the markers
+    zoomToMarkersExtent();
+
+    // phase 3: load the saved geometry (if any), the rough cut (marker-to-marker segments), and the elevation profile
+    generateRoughCut();
+    var wkt = $('input[name="wkt"]').val();
+    if (wkt) renderWKTtoMap(wkt);
+    //var elev = $('input[name="elevation_profile"]').val();
+    //if (elev) renderElevationProfile(elev);
+    // phase 4: load the directions
+    renderDirections(<?= $loop ? $loop->steps : '' ?>);
+}
+
+
+function zoomToMarkersExtent() {
     var extent = [];
     for (var wpid in MARKERS) {
         if (MARKERS[wpid]) extent[extent.length] = MARKERS[wpid].getLatLng();
     }
     if (extent.length) MAP.fitBounds( new L.LatLngBounds(extent) );
 }
-// phase 3: load the saved geometry (if any), the rough cut (marker-to-marker segments), and the elevation profile
-generateRoughCut();
-var wkt = $('input[name="wkt"]').val();
-if (wkt) renderWKTtoMap(wkt);
-//var elev = $('input[name="elevation_profile"]').val();
-//if (elev) renderElevationProfile(elev);
-// phase 4: load the directions
-renderDirections(<?= $loop ? $loop->steps : '' ?>);
-
-// end of window.load callback
-});
 
 function generateRoughCut() {
     if (ROUGHCUT_LINE) {
@@ -453,6 +463,21 @@ function renderDirections(steps) {
         target.append(row);
     }
 }
+
+// Since the embedded map is initially hidden in an inactive tab,
+// we have to re-initialize the size/zoom when we show it for the
+// first time.
+$('body').on('shown.bs.tab', function (e) {
+    if ($(e.target).attr("href") == '#waypoints-route') {
+        if (MAP._shown !== true) {
+            MAP.invalidateSize(false);
+            MAP.fitBounds(MAX_BOUNDS);
+            zoomToMarkersExtent();
+            MAP._shown = true;
+        }
+    }
+});
+
 </script>
 
 
@@ -766,10 +791,10 @@ function renderDirections(steps) {
     </div>
     <!-- /Directions (col) -->
 
-    <!-- Aggregates (col) -->
+    <!-- Distance (col) -->
     <div class="col-md-6">
 
-        <h4>Aggregates</h4>
+        <h4>Distance</h4>
 
         <div class="row">
             <label class="col-sm-4">Length:</label>
@@ -800,7 +825,7 @@ function renderDirections(steps) {
         </div>
 
     </div>
-    <!-- /Aggregates (col) -->
+    <!-- /Distance (col) -->
 
     <!-- Elevation Profile (col) -->
     <div class="col-md-6">
