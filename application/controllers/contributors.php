@@ -258,55 +258,6 @@ function savemarker() {
 
 
 
-function trailclosures() {
-    // Require SSL
-    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require logged-in user with "Allow Closures" permission
-    if ($this->_user_access('allow_closures') !== NULL) return;
-
-    $myid = $this->loggedin;
-
-    // if they are not saving, then bail to a form
-    if (! @$_POST['save']) {
-        $data = array();
-        $data['closures'] = new Trailclosure();
-        $data['closures']->order_by('name')->get();
-        return $this->load->view('contributors/trailclosures.phtml',$data);
-    }
-
-    // bypass the ORM cuz we need to insert geometries and truncate tables and stuff
-    if (! @$_POST['closure_names']) $_POST['closure_names'] = array();
-    $this->db->query('TRUNCATE TABLE trail_closures');
-    for ($i=0; $i<sizeof($_POST['closure_names']); $i++) {
-        $this->db->query('INSERT INTO trail_closures (name,description,wkt,geom) VALUES (?,?,?,ST_TRANSFORM(ST_GEOMFROMTEXT(?,4326),3734))',
-            array(
-            $_POST['closure_names'][$i], $_POST['closure_texts'][$i],
-            $_POST['closure_geoms'][$i],
-            $_POST['closure_geoms'][$i]
-        ));
-    }
-
-    // some postprocessing: add the centroid LatLng coordinates, for zooming in that UI
-    $this->db->query('UPDATE trail_closures SET boxw=ST_XMIN(ST_TRANSFORM(geom,4326))');
-    $this->db->query('UPDATE trail_closures SET boxe=ST_XMAX(ST_TRANSFORM(geom,4326))');
-    $this->db->query('UPDATE trail_closures SET boxs=ST_YMIN(ST_TRANSFORM(geom,4326))');
-    $this->db->query('UPDATE trail_closures SET boxn=ST_YMAX(ST_TRANSFORM(geom,4326))');
-
-    // postprocessing: find any Trails which intersect any of these Closures, tag them
-    $this->db->query('SELECT update_trail_closures()');
-
-    // purge the tile cache
-    $this->_clearTileCache('closure');
-
-    // done, audit and send them on
-    $email = $this->loggedin;
-    $email = $email['email'];
-    Auditlog::log_message("Trail closures saved", $email);
-    redirect(ssl_url('contributors/'));
-}
-
-
-
 
 function autoloop() {
     // Require SSL

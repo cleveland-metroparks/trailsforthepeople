@@ -200,11 +200,6 @@ private function _mainmenu_left_array() {
             ),
           ),
         ),
-        array(
-          'url' => 'contributors/trailclosures',
-          'title' => 'Trail Closures',
-          'access' => 'allow_closures',
-        ),
       ),
     ),
     /*
@@ -329,10 +324,6 @@ private function _mainmenu_left_array() {
             array(
               'url' => 'docs/index/cms/loops',
               'title' => 'Loops',
-            ),
-            array(
-              'url' => 'docs/index/cms/trail_closures',
-              'title' => 'Trail Closures',
             ),
           ),
         ),
