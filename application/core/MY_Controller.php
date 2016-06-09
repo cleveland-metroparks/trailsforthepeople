@@ -245,15 +245,15 @@ private function _mainmenu_left_array() {
       'title' => 'Docs',
       'submenu' => array(
         /*
-         * Docs: Content
+         * Docs: Contributors
          */
         array(
-          'url' => 'docs/index/content/panel',
-          'title' => 'Content &amp; Contributors',
+          'url' => 'docs/index/contributors/panel',
+          'title' => 'Contributors',
           'submenu' => array(
             array(
-              'url' => 'docs/index/content/panel',
-              'title' => 'Content &amp; Contributors Panel',
+              'url' => 'docs/index/contributors/panel',
+              'title' => 'Contributors Panel',
             ),
           ),
         ),
