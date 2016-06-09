@@ -27,12 +27,17 @@ function index($which=null) {
 
   // Access control for particular docs sections
   if (isset($path_parts[0])) {
-    // Require admin user for the admin section
-    if ($path_parts[0] == 'admin') {
-      if ($this->_user_access('admin') !== NULL) return;
+    switch ($path_parts[0]) {
+      // Require admin user for the Administration & CMS docs sections.
+      case 'admin':
+      case 'cms':
+        if ($this->_user_access('admin') !== NULL) return;
+        break;
+      default:
+        // Everything else currently just requires a logged-in user,
+        // for which we've already checked.
+        break;
     }
-    // Everything else currently just requires a logged-in user,
-    // for which we've already checked.
   }
 
   // then load the appropriate page (with .phtml extension)
