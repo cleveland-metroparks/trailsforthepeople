@@ -132,18 +132,18 @@ $('.wpadd').click(function () {
     var wpid   = row.prop('id');
 
     // the marker will load from the text fields; if the fields currently have no value, use the map center
-    var lat = parseFloat( row.find('.lat').html() );
-    var lng = parseFloat( row.find('.lng').html() );
+    var lat = parseFloat( row.find('.lat').val() );
+    var lng = parseFloat( row.find('.lng').val() );
     if (!lat || !lng) {
         var center = MAP.getCenter();
-        row.find('.lat').html(center.lat);
-        row.find('.lng').html(center.lng);
+        row.find('.lat').val(center.lat);
+        row.find('.lng').val(center.lng);
     }
 
     // add the marker, and its drag handler to update the text box
     if (! MARKERS[wpid]) {
-        var lat    = parseFloat( row.find('.lat').html() );
-        var lng    = parseFloat( row.find('.lng').html() );
+        var lat    = parseFloat( row.find('.lat').val() );
+        var lng    = parseFloat( row.find('.lng').val() );
         var center = new L.LatLng(lat,lng);
         var icon   = ICONS[wpid];
 
@@ -153,8 +153,8 @@ $('.wpadd').click(function () {
 
         MARKERS[wpid].on('dragend', function (event) {
             var latlng = this.getLatLng();
-            $('#' + this.wpid).find('.lat').html(latlng.lat);
-            $('#' + this.wpid).find('.lng').html(latlng.lng);
+            $('#' + this.wpid).find('.lat').val(latlng.lat);
+            $('#' + this.wpid).find('.lng').val(latlng.lng);
             generateRoughCut();
         });
     }
@@ -173,8 +173,8 @@ $('.wpremove').click(function () {
     var wpid = row.prop('id');
 
     // clear the text fields
-    row.find('.lat').html('');
-    row.find('.lng').html('');
+    row.find('.lat').val(0);
+    row.find('.lng').val(0);
 
     // remove the marker
     if (MARKERS[wpid]) {
@@ -196,8 +196,8 @@ $('#recalculate_button').click(function () {
     var lats = [];
     var lngs = [];
     $('#waypoints .waypoint').each(function () {
-        var lat = parseFloat( $(this).find('.lat').html() );
-        var lng = parseFloat( $(this).find('.lng').html() );
+        var lat = parseFloat( $(this).find('.lat').val() );
+        var lng = parseFloat( $(this).find('.lng').val() );
         if (lat && lng) {
             lats[lats.length] = lat;
             lngs[lngs.length] = lng;
@@ -267,8 +267,8 @@ $('#recalculate_button').click(function () {
 // random loop generator
 $('#random_button').click(function () {
     // fetch Waypoint 0 and bail if it's not set
-    var wp0lat = parseFloat( $('#wp0 .lat').html() );
-    var wp0lng = parseFloat( $('#wp0 .lng').html() );
+    var wp0lat = parseFloat( $('#wp0 .lat').val() );
+    var wp0lng = parseFloat( $('#wp0 .lng').val() );
     if (! wp0lat || ! wp0lng ) return alert("Pan and center the map and place Waypoint 0 to define your start.");
 
     // clear the existing waypoints
@@ -296,8 +296,8 @@ $('#random_button').click(function () {
         // load them into the corresponding WP boxes
         for (var i=0, l=reply.length; i<l; i++) {
             var div = $('#wp' + reply[i].wp );
-            div.find('.lat').html( reply[i].lat );
-            div.find('.lng').html( reply[i].lng );
+            div.find('.lat').val( reply[i].lat );
+            div.find('.lng').val( reply[i].lng );
             div.find('.wpadd').click();
         }
     }, 'json');
@@ -318,8 +318,8 @@ function loadLoop() {
     // phase 1: lay down markers for any waypoints that are populated
     $('#waypoints .waypoint').each(function () {
         // the waypoint's lat/lng are already loaded into the text fields
-        var lat = parseFloat( $(this).find('.lat').html() );
-        var lng = parseFloat( $(this).find('.lng').html() );
+        var lat = parseFloat( $(this).find('.lat').val() );
+        var lng = parseFloat( $(this).find('.lng').val() );
 
         // click either the Add or Remove button; their actions will show/hide markers, show/hide buttons, et cetera
         if (lat && lng) {
@@ -359,8 +359,8 @@ function generateRoughCut() {
 
     var latlngs = [];
     $('#waypoints .waypoint').each(function () {
-        var lat = parseFloat( $(this).find('.lat').html() );
-        var lng = parseFloat( $(this).find('.lng').html() );
+        var lat = parseFloat( $(this).find('.lat').val() );
+        var lng = parseFloat( $(this).find('.lng').val() );
         if (lat && lng) latlngs[latlngs.length] = new L.LatLng(lat,lng);
     });
 
@@ -663,8 +663,8 @@ $('body').on('shown.bs.tab', function (e) {
             <?php for ($i=0; $i<10; $i++) : ?>
                 <li class="list-group-item waypoint" id="wp<?= $i ?>">
                     <label class="control-label"><?= $i ?>:</label>
-                    <span class="lat" id="wp<?= $i ?>lat"><?= $loop ? $loop->{"wp${i}lat"} . ',' : '' ?></span>
-                    <span class="lng" id="wp<?= $i ?>lng"><?= $loop ? $loop->{"wp${i}lng"} : '' ?></span>
+                    <input type="text" class="lat" readonly="readonly" style="border: none;" id="wp<?= $i ?>lat" name="wp<?= $i ?>lat" value="<?= $loop ? $loop->{"wp${i}lat"} : '0' ?>" />
+                    <input type="text" class="lng" readonly="readonly" style="border: none;" id="wp<?= $i ?>lng" name="wp<?= $i ?>lng" value="<?= $loop ? $loop->{"wp${i}lng"} : '0' ?>" />
                     <span class="btn btn-sm btn-default wpadd pull-right" wp="wp<?= $i ?>">add</span>
                     <span class="btn btn-sm btn-default wpremove pull-right" wp="wp<?= $i ?>">remove</span>
                 </li>
