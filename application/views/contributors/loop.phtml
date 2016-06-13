@@ -229,15 +229,14 @@ $('#recalculate_button').click(function () {
     $('#elevation_profile').prop('src','<?= ssl_url('static/common/blank.png') ?>');
 
     // visual effects: blank the totals
-    $('#distance_feet').html('');
-    $('#distancetext').html('');
-    $('#duration_hike').html('');
-    $('#durationtext_hike').html('');
-    $('#duration_bike').html('');
-    $('#durationtext_bike').html('');
-    $('#duration_bridle').html('');
-    $('#durationtext_bridle').html('');
-
+    $('input[name="distance_feet"]').val('');
+    $('input[name="distancetext"]').val('');
+    $('input[name="duration_hike"]').val('');
+    $('input[name="durationtext_hike"]').val('');
+    $('input[name="duration_bike"]').val('');
+    $('input[name="durationtext_bike"]').val('');
+    $('input[name="duration_bridle"]').val('');
+    $('input[name="durationtext_bridle"]').va('');
     $('input[name="hike"]').val('');
     $('input[name="bike"]').val('');
     $('input[name="bridle"]').val('');
@@ -372,15 +371,14 @@ function generateRoughCut() {
 
 function renderRoute(routestruct) {
     // load the attributes and totals into the text boxes
-    $('#distance_feet').html(routestruct.totals.distance_feet);
-    $('#distancetext').html(routestruct.totals.distancetext);
-    $('#duration_hike').html(routestruct.totals.duration_hike);
-    $('#duration_bike').html(routestruct.totals.duration_bike);
-    $('#duration_bridle').html(routestruct.totals.duration_bridle);
-    $('#durationtext_hike').html(routestruct.totals.durationtext_hike);
-    $('#durationtext_bike').html(routestruct.totals.durationtext_bike);
-    $('#durationtext_bridle').html(routestruct.totals.durationtext_bridle);
-
+    $('input[name="distance_feet"]').val(routestruct.totals.distance_feet);
+    $('input[name="distancetext"]').val(routestruct.totals.distancetext);
+    $('input[name="duration_hike"]').val(routestruct.totals.duration_hike);
+    $('input[name="duration_bike"]').val(routestruct.totals.duration_bike);
+    $('input[name="duration_bridle"]').val(routestruct.totals.duration_bridle);
+    $('input[name="durationtext_hike"]').val(routestruct.totals.durationtext_hike);
+    $('input[name="durationtext_bike"]').val(routestruct.totals.durationtext_bike);
+    $('input[name="durationtext_bridle"]').val(routestruct.totals.durationtext_bridle);
     $('input[name="hike"]').val(routestruct.use_hike);
     $('input[name="bike"]').val(routestruct.use_bike);
     $('input[name="bridle"]').val(routestruct.use_bridle);
@@ -663,8 +661,8 @@ $('body').on('shown.bs.tab', function (e) {
             <?php for ($i=0; $i<10; $i++) : ?>
                 <li class="list-group-item waypoint" id="wp<?= $i ?>">
                     <label class="control-label"><?= $i ?>:</label>
-                    <input type="text" class="lat" readonly="readonly" style="border: none;" id="wp<?= $i ?>lat" name="wp<?= $i ?>lat" value="<?= $loop ? $loop->{"wp${i}lat"} : '0' ?>" />
-                    <input type="text" class="lng" readonly="readonly" style="border: none;" id="wp<?= $i ?>lng" name="wp<?= $i ?>lng" value="<?= $loop ? $loop->{"wp${i}lng"} : '0' ?>" />
+                    <input type="text" class="lat textonly" readonly="readonly" id="wp<?= $i ?>lat" name="wp<?= $i ?>lat" value="<?= $loop ? $loop->{"wp${i}lat"} : '0' ?>" />
+                    <input type="text" class="lng textonly" readonly="readonly" id="wp<?= $i ?>lng" name="wp<?= $i ?>lng" value="<?= $loop ? $loop->{"wp${i}lng"} : '0' ?>" />
                     <span class="btn btn-sm btn-default wpadd pull-right" wp="wp<?= $i ?>">add</span>
                     <span class="btn btn-sm btn-default wpremove pull-right" wp="wp<?= $i ?>">remove</span>
                 </li>
@@ -799,28 +797,28 @@ $('body').on('shown.bs.tab', function (e) {
         <div class="row">
             <label class="col-sm-4">Length:</label>
             <div class="col-sm-8">
-                <span id="distancetext"><?= $loop ? $loop->distancetext : 0 ?></span> (<span id="distance_feet"><?= $loop ? $loop->distance_feet : 0 ?></span> ft)
+                <input id="distancetext" class="textonly" value="<?= $loop ? $loop->distancetext : 0 ?>" /> (<input id="distancetext" class="textonly" value="<?= $loop ? $loop->distancetext : 0 ?>" /> ft)
             </div>
         </div>
 
         <div class="row">
             <label class="col-sm-4">Duration, hike:</label>
             <div class="col-sm-8">
-                <span id="durationtext_hike"><?= $loop ? $loop->durationtext_hike : 0 ?></span> (<span id="duration_hike"><?= $loop ? $loop->duration_hike : 0 ?></span> sec)
+                <input id="durationtext_hike" class="textonly" value="<?= $loop ? $loop->durationtext_hike : 0 ?>" /> (<input id="durationtext_hike" class="textonly" value="<?= $loop ? $loop->durationtext_hike : 0 ?>" /> sec)
             </div>
         </div>
 
         <div class="row">
             <label class="col-sm-4">Duration, bicycle:</label>
             <div class="col-sm-8">
-                <span id="durationtext_bike"><?= $loop ? $loop->durationtext_bike : 0 ?></span> (<span id="duration_bike"><?= $loop ? $loop->duration_bike : 0 ?></span> sec)
+                <input id="durationtext_bike" class="textonly" value="<?= $loop ? $loop->durationtext_bike : 0 ?>" /> (<input id="durationtext_bike" class="textonly" value="<?= $loop ? $loop->durationtext_bike : 0 ?>" /> sec)
             </div>
         </div>
 
         <div class="row">
             <label class="col-sm-4">Duration, equestrian:</label>
             <div class="col-sm-8">
-                <span id="durationtext_bridle"><?= $loop ? $loop->durationtext_bridle : 0 ?></span> (<span id="duration_bridle"><?= $loop ? $loop->duration_bridle : 0 ?></span> sec)
+                <span id="durationtext_bridle" class="textonly" value="<?= $loop ? $loop->durationtext_bridle : 0 ?>" /> (<input id="duration_bridle" class="textonly" value="<?= $loop ? $loop->duration_bridle : 0 ?>" /> sec)
             </div>
         </div>
 
