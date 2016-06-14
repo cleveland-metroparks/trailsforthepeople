@@ -64,7 +64,9 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/administration">CM-Trails Admin</a>
+          <a title="Maps administration home" class="navbar-brand" href="/administration">
+            <img height="40" width="40" alt="Cleveland Metroparks logo" src="/static/admin/images/metroparks-logo-only-small-white.png" />
+          </a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">

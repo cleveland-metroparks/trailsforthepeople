@@ -5,6 +5,10 @@ body {
   padding: 40px 15px;
 }
 
+.navbar-brand {
+  padding: 5px !important;
+}
+
 ul.nav li.dropdown:hover ul.dropdown-menu {
   display: block;
 }
