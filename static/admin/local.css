@@ -107,6 +107,10 @@ ul.local-actions li {
   margin-right: 2em;
 }
 
+input.textonly {
+  border: none;
+}
+
 
 /*
  * Tablesorter
