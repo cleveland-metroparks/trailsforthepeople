@@ -229,14 +229,14 @@ $('#recalculate_button').click(function () {
     $('#elevation_profile').prop('src','<?= ssl_url('static/common/blank.png') ?>');
 
     // visual effects: blank the totals
-    $('input[name="distance_feet"]').val('');
-    $('input[name="distancetext"]').val('');
-    $('input[name="duration_hike"]').val('');
-    $('input[name="durationtext_hike"]').val('');
-    $('input[name="duration_bike"]').val('');
-    $('input[name="durationtext_bike"]').val('');
-    $('input[name="duration_bridle"]').val('');
-    $('input[name="durationtext_bridle"]').va('');
+    updateHiddenFormText('distance_feet', '');
+    updateHiddenFormText('distancetext', '');
+    updateHiddenFormText('duration_hike', '');
+    updateHiddenFormText('duration_bike', '');
+    updateHiddenFormText('duration_bridle', '');
+    updateHiddenFormText('durationtext_hike', '');
+    updateHiddenFormText('durationtext_bike', '');
+    updateHiddenFormText('durationtext_bridle', '');
     $('input[name="hike"]').val('');
     $('input[name="bike"]').val('');
     $('input[name="bridle"]').val('');
@@ -369,16 +369,42 @@ function generateRoughCut() {
     }
 }
 
+/**
+ * Update hidden form text
+ *
+ * We have some fields that need to be form inputs so we store the value
+ * in the database, but are only ever calculated by the app; never editable
+ * by the user and really just displayed as text.
+ *
+ * This function updates these fields, setting the form input value
+ * as well as the html within the corresponding element.
+ *
+ * @param fieldName
+ *   The value of hidden input's name attribute as well as the
+ *   html element's id.
+ *
+ * @param value
+ */
+function updateHiddenFormText(fieldName, value) {
+    hiddenField = $('input[name="' + fieldName + '"]');
+    hiddenField.val(value);
+    textField = $('#' + fieldName);
+    textField.html(value);
+}
+
+/**
+ *
+ */
 function renderRoute(routestruct) {
     // load the attributes and totals into the text boxes
-    $('input[name="distance_feet"]').val(routestruct.totals.distance_feet);
-    $('input[name="distancetext"]').val(routestruct.totals.distancetext);
-    $('input[name="duration_hike"]').val(routestruct.totals.duration_hike);
-    $('input[name="duration_bike"]').val(routestruct.totals.duration_bike);
-    $('input[name="duration_bridle"]').val(routestruct.totals.duration_bridle);
-    $('input[name="durationtext_hike"]').val(routestruct.totals.durationtext_hike);
-    $('input[name="durationtext_bike"]').val(routestruct.totals.durationtext_bike);
-    $('input[name="durationtext_bridle"]').val(routestruct.totals.durationtext_bridle);
+    updateHiddenFormText('distance_feet', routestruct.totals.distance_feet);
+    updateHiddenFormText('distancetext', routestruct.totals.distancetext);
+    updateHiddenFormText('duration_hike', routestruct.totals.duration_hike);
+    updateHiddenFormText('duration_bike', routestruct.totals.duration_bike);
+    updateHiddenFormText('duration_bridle', routestruct.totals.duration_bridle);
+    updateHiddenFormText('durationtext_hike', routestruct.totals.durationtext_hike);
+    updateHiddenFormText('durationtext_bike', routestruct.totals.durationtext_bike);
+    updateHiddenFormText('durationtext_bridle', routestruct.totals.durationtext_bridle);
     $('input[name="hike"]').val(routestruct.use_hike);
     $('input[name="bike"]').val(routestruct.use_bike);
     $('input[name="bridle"]').val(routestruct.use_bridle);
@@ -797,28 +823,36 @@ $('body').on('shown.bs.tab', function (e) {
         <div class="row">
             <label class="col-sm-4">Length:</label>
             <div class="col-sm-8">
-                <input id="distancetext" class="textonly" value="<?= $loop ? $loop->distancetext : 0 ?>" /> (<input id="distancetext" class="textonly" value="<?= $loop ? $loop->distancetext : 0 ?>" /> ft)
+                <input type="hidden" name="distancetext" value="<?= $loop ? $loop->distancetext : 0 ?>" />
+                <input type="hidden" name="distance_feet" value="<?= $loop ? $loop->distance_feet : 0 ?>" />
+                <span id="distancetext"><?= $loop ? $loop->distancetext : 0 ?></span> (<span id="distance_feet"><?= $loop ? $loop->distance_feet : 0 ?></span> ft)
             </div>
         </div>
 
         <div class="row">
             <label class="col-sm-4">Duration, hike:</label>
             <div class="col-sm-8">
-                <input id="durationtext_hike" class="textonly" value="<?= $loop ? $loop->durationtext_hike : 0 ?>" /> (<input id="durationtext_hike" class="textonly" value="<?= $loop ? $loop->durationtext_hike : 0 ?>" /> sec)
+                <input type="hidden" name="durationtext_hike" value="<?= $loop ? $loop->durationtext_hike : 0 ?>" />
+                <input type="hidden" name="duration_hike" value="<?= $loop ? $loop->duration_hike : 0 ?>" />
+                <span id="durationtext_hike"><?= $loop ? $loop->durationtext_hike : 0 ?></span> (<span id="duration_hike"><?= $loop ? $loop->duration_hike : 0 ?></span> sec)
             </div>
         </div>
 
         <div class="row">
             <label class="col-sm-4">Duration, bicycle:</label>
             <div class="col-sm-8">
-                <input id="durationtext_bike" class="textonly" value="<?= $loop ? $loop->durationtext_bike : 0 ?>" /> (<input id="durationtext_bike" class="textonly" value="<?= $loop ? $loop->durationtext_bike : 0 ?>" /> sec)
+                <input type="hidden" name="durationtext_bike" value="<?= $loop ? $loop->durationtext_bike : 0 ?>" />
+                <input type="hidden" name="duration_bike" value="<?= $loop ? $loop->duration_bike : 0 ?>" />
+                <span id="durationtext_bike"><?= $loop ? $loop->durationtext_bike : 0 ?></span> (<span id="duration_bike"><?= $loop ? $loop->duration_bike : 0 ?></span> sec)
             </div>
         </div>
 
         <div class="row">
             <label class="col-sm-4">Duration, equestrian:</label>
             <div class="col-sm-8">
-                <span id="durationtext_bridle" class="textonly" value="<?= $loop ? $loop->durationtext_bridle : 0 ?>" /> (<input id="duration_bridle" class="textonly" value="<?= $loop ? $loop->duration_bridle : 0 ?>" /> sec)
+                <input type="hidden" name="durationtext_bridle" value="<?= $loop ? $loop->durationtext_bridle : 0 ?>" />
+                <input type="hidden" name="duration_bridle" value="<?= $loop ? $loop->duration_bridle : 0 ?>" />
+                <span id="durationtext_bridle"><?= $loop ? $loop->durationtext_bridle : 0 ?></span> (<span id="duration_bridle"><?= $loop ? $loop->duration_bridle : 0 ?></span> sec)
             </div>
         </div>
 
