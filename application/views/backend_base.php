@@ -65,7 +65,7 @@
             <span class="icon-bar"></span>
           </button>
           <a title="Maps administration home" class="navbar-brand" href="/administration">
-            <img height="40" width="40" alt="Cleveland Metroparks logo" src="/static/admin/images/metroparks-logo-only-small-white.png" />
+            <img height="36" width="36" alt="Cleveland Metroparks logo" src="/static/admin/images/metroparks-logo-only-small-white.png" />
           </a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">

@@ -6,7 +6,7 @@ body {
 }
 
 .navbar-brand {
-  padding: 5px !important;
+  padding: 8px 10px 0 !important;
 }
 
 ul.nav li.dropdown:hover ul.dropdown-menu {
