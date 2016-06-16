@@ -1,56 +1,37 @@
 <?php $this->page_title = 'Marker'; ?>
 
-<style type="text/css">
-input[type="text"]   { width:2in; }
-input[type="submit"] { width:2in; }
+<div class="col-md-6">
+    <dl class="dl-horizontal">
+        <dt>Created by:</dt>
+        <dd><a target="_blank" href="<?= ssl_url("administration/contributor/{$marker->creatorid}") ?>"><?= htmlspecialchars($marker->creator) ?></a></dd>
 
-#map_wrap {
-    float:right;
-}
+        <dt>Created on:</dt>
+        <dd><?= $marker->created ?></dd>
 
-#map_canvas {
-    width:4in; height:4in;
-    border:2px solid black;
-}
-</style>
+        <?php if ($marker->expires) { ?>
+            <dt>Expires:</dt>
+            <dd><?= $marker->expires ?></dd>
+        <?php } ?>
 
+        <dt>Title:</dt>
+        <dd><?= htmlspecialchars($marker->title) ?></dd>
 
-
-<div id="map_wrap">
-    <div id="map_canvas"></div>
-    <br/>
-    Lat: <?= $marker->lat ?>
-    <br/>
-    Lon: <?= $marker->lng ?>
+        <dt>Content:</dt>
+        <dd><?= htmlspecialchars($marker->content) ?></dd>
+    </dl>
 </div>
 
+<div class="col-md-6">
+    <div id="map_canvas" style="width: 4in; height: 4in; border: 2px solid black;"></div>
 
-<table>
-<tr>
-    <td>Created by</td>
-    <td><a target="_blank" href="<?= ssl_url("administration/contributor/{$marker->creatorid}") ?>"><?= htmlspecialchars($marker->creator) ?></a></td>
-</tr>
-<tr>
-    <td>Created on</td>
-    <td><?= $marker->created ?></td>
-</tr>
-<?php if ($marker->expires) { ?>
-<tr>
-    <td>Expires</td>
-    <td><?= $marker->expires ?></td>
-</tr>
-<?php } ?>
-<tr>
-    <td>Title</td>
-    <td><?= htmlspecialchars($marker->title) ?></td>
-</tr>
-<tr>
-    <td>Content</td>
-    <td><?= htmlspecialchars($marker->content) ?></td>
-</tr>
-</table>
+    <dl class="dl-horizontal">
+        <dt>Lat:</dt>
+        <dd><?= $marker->lat ?></dd>
 
-
+        <dt>Lon:</dt>
+        <dd><?= $marker->lng ?></dd>
+    </dl>
+</div>
 
 
 <script type="text/javascript">
