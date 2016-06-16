@@ -1,38 +1,45 @@
 <?php $this->page_title = 'Marker'; ?>
 
-<div class="col-md-6">
-    <dl class="dl-horizontal">
-        <dt>Created by:</dt>
-        <dd><a target="_blank" href="<?= ssl_url("administration/contributor/{$marker->creatorid}") ?>"><?= htmlspecialchars($marker->creator) ?></a></dd>
+<div class="row" style="margin-top: 2em;">
+    <div class="col-md-6">
+        <dl class="dl-horizontal">
+            <dt>Created by:</dt>
+            <dd><a target="_blank" href="<?= ssl_url("administration/contributor/{$marker->creatorid}") ?>"><?= htmlspecialchars($marker->creator) ?></a></dd>
 
-        <dt>Created on:</dt>
-        <dd><?= $marker->created ?></dd>
+            <dt>Created on:</dt>
+            <dd><?= $marker->created ?></dd>
 
-        <?php if ($marker->expires) { ?>
-            <dt>Expires:</dt>
-            <dd><?= $marker->expires ?></dd>
-        <?php } ?>
+            <?php if ($marker->expires) { ?>
+                <dt>Expires:</dt>
+                <dd><?= $marker->expires ?></dd>
+            <?php } ?>
 
-        <dt>Title:</dt>
-        <dd><?= htmlspecialchars($marker->title) ?></dd>
+            <dt>Title:</dt>
+            <dd><?= htmlspecialchars($marker->title) ?></dd>
 
-        <dt>Content:</dt>
-        <dd><?= htmlspecialchars($marker->content) ?></dd>
-    </dl>
+            <dt>Content:</dt>
+            <dd><code><?= htmlspecialchars($marker->content) ?></code></dd>
+        </dl>
+    </div>
 </div>
 
-<div class="col-md-6">
-    <div id="map_canvas" style="width: 4in; height: 4in; border: 2px solid black;"></div>
-
-    <dl class="dl-horizontal">
-        <dt>Lat:</dt>
-        <dd><?= $marker->lat ?></dd>
-
-        <dt>Lon:</dt>
-        <dd><?= $marker->lng ?></dd>
-    </dl>
+<div class="row">
+    <div class="col-md-offset-2 col-md-4">
+        <div id="map_canvas" style="width: 100%; height: 3in; border: 1px solid black;"></div>
+    </div>
 </div>
 
+<div class="row" style="margin-top: 1em;">
+    <div class="col-md-6">
+        <dl class="dl-horizontal">
+            <dt>Lat:</dt>
+            <dd><?= $marker->lat ?></dd>
+
+            <dt>Lon:</dt>
+            <dd><?= $marker->lng ?></dd>
+        </dl>
+    </div>
+</div>
 
 <script type="text/javascript">
 var MARKER;
@@ -83,8 +90,11 @@ $(window).load(function () {
 </script>
 
 
-
-<form style="margin-top:1in;" method="post" action="<?= ssl_url("administration/deletemarker/") ?>" onSubmit="return confirm('Really delete this marker?');">
-<input type="hidden" name="id" value="<?= $marker->id ?>" />
-<input type="submit" value="Delete" class="btn btn-primary" />
+<form class="form-horizontal" method="post" action="<?= ssl_url("administration/deletemarker/") ?>" onSubmit="return confirm('Really delete this marker?');">
+    <input type="hidden" name="id" value="<?= $marker->id ?>" />
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-4">
+            <input type="submit" value="Delete" class="btn btn-primary" />
+        </div>
+    </div>
 </form>
