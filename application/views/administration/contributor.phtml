@@ -1,71 +1,94 @@
 <?php $this->page_title = 'Edit Contributor'; ?>
 
-<form method="POST" action="<?= ssl_current_url() ?>" id="edit">
+<form class="form-horizontal" method="POST" action="<?= ssl_current_url() ?>" id="edit">
 
 <div class="form-group">
-    <label>E-mail:</label>
-    <input class="form-control" type="text" name="email" maxlength="100" value="<?= htmlspecialchars($contributor->email) ?>" />
+    <label class="control-label col-sm-2">E-mail:</label>
+    <div class="col-sm-4">
+        <input class="form-control" type="text" name="email" maxlength="100" value="<?= htmlspecialchars($contributor->email) ?>" />
+    </div>
 </div>
 
 <div class="form-group">
-    <label>Real name &amp; Organization:</label>
-    <input class="form-control" type="text" name="realname" maxlength="100" value="<?= htmlspecialchars($contributor->realname) ?>" />
+    <label class="control-label col-sm-2">Real name &amp; Organization:</label>
+    <div class="col-sm-4">
+        <input class="form-control" type="text" name="realname" maxlength="100" value="<?= htmlspecialchars($contributor->realname) ?>" />
+    </div>
 </div>
 
 <div class="form-group">
-    <label>Password:<br/><span style="font-size:75%;">only if you want to change it</span></label>
-    <input class="form-control" type="text" name="password" value="" />
+    <label class="control-label col-sm-2">Password:<br/></label>
+    <div class="col-sm-4">
+        <input class="form-control" type="text" name="password" value="" />
+        <small class="text-muted">Only if you want to change it.</small>
+    </div>
 </div>
 
 <div class="form-group">
-    <label>Admin:</label>
-    <select class="form-control" name="admin">
-        <option value="f" <?= $contributor->admin == 'f' ? 'selected="true"' : '' ?> >No</option>
-        <option value="t" <?= $contributor->admin == 't' ? 'selected="true"' : '' ?> >Yes</option>
-    </select>
+    <label class="control-label col-sm-2">Admin:</label>
+    <div class="col-sm-4">
+        <select class="form-control" name="admin">
+            <option value="f" <?= $contributor->admin == 'f' ? 'selected="true"' : '' ?> >No</option>
+            <option value="t" <?= $contributor->admin == 't' ? 'selected="true"' : '' ?> >Yes</option>
+        </select>
+    </div>
 </div>
 
 <div class="form-group">
-    <label>SWGH:</label>
-    <select class="form-control" name="allow_swgh">
-        <option value="f" <?= $contributor->allow_swgh == 'f' ? 'selected="true"' : '' ?> >No</option>
-        <option value="t" <?= $contributor->allow_swgh == 't' ? 'selected="true"' : '' ?> >Yes</option>
-    </select>
+    <label class="control-label col-sm-2">SWGH:</label>
+    <div class="col-sm-4">
+        <select class="form-control" name="allow_swgh">
+            <option value="f" <?= $contributor->allow_swgh == 'f' ? 'selected="true"' : '' ?> >No</option>
+            <option value="t" <?= $contributor->allow_swgh == 't' ? 'selected="true"' : '' ?> >Yes</option>
+        </select>
+    </div>
 </div>
 
 <div class="form-group">
-    <label>Markers:</label>
-    <select class="form-control" name="allow_markers">
-        <option value="f" <?= $contributor->allow_markers == 'f' ? 'selected="true"' : '' ?> >No</option>
-        <option value="t" <?= $contributor->allow_markers == 't' ? 'selected="true"' : '' ?> >Yes</option>
-    </select>
+    <label class="control-label col-sm-2">Markers:</label>
+    <div class="col-sm-4">
+        <select class="form-control" name="allow_markers">
+            <option value="f" <?= $contributor->allow_markers == 'f' ? 'selected="true"' : '' ?> >No</option>
+            <option value="t" <?= $contributor->allow_markers == 't' ? 'selected="true"' : '' ?> >Yes</option>
+        </select>
+    </div>
 </div>
 
 <div class="form-group">
-    <label>Loops:</label>
-    <select class="form-control" name="allow_loops">
-        <option value="f" <?= $contributor->allow_loops == 'f' ? 'selected="true"' : '' ?> >No</option>
-        <option value="t" <?= $contributor->allow_loops == 't' ? 'selected="true"' : '' ?> >Yes</option>
-    </select>
+    <label class="control-label col-sm-2">Loops:</label>
+    <div class="col-sm-4">
+        <select class="form-control" name="allow_loops">
+            <option value="f" <?= $contributor->allow_loops == 'f' ? 'selected="true"' : '' ?> >No</option>
+            <option value="t" <?= $contributor->allow_loops == 't' ? 'selected="true"' : '' ?> >Yes</option>
+        </select>
+    </div>
 </div>
 
 <div class="form-group">
-    <label>Closures:</label>
-    <select class="form-control" name="allow_closures">
-        <option value="f" <?= $contributor->allow_closures == 'f' ? 'selected="true"' : '' ?> >No</option>
-        <option value="t" <?= $contributor->allow_closures == 't' ? 'selected="true"' : '' ?> >Yes</option>
-    </select>
+    <label class="control-label col-sm-2">Closures:</label>
+    <div class="col-sm-4">
+        <select class="form-control" name="allow_closures">
+            <option value="f" <?= $contributor->allow_closures == 'f' ? 'selected="true"' : '' ?> >No</option>
+            <option value="t" <?= $contributor->allow_closures == 't' ? 'selected="true"' : '' ?> >Yes</option>
+        </select>
+    </div>
 </div>
 
 <div class="form-group">
-    <label>Twitter:</label>
-    <select class="form-control" name="allow_twitter">
-        <option value="f" <?= $contributor->allow_twitter == 'f' ? 'selected="true"' : '' ?> >No</option>
-        <option value="t" <?= $contributor->allow_twitter == 't' ? 'selected="true"' : '' ?> >Yes</option>
-    </select>
+    <label class="control-label col-sm-2">Twitter:</label>
+    <div class="col-sm-4">
+        <select class="form-control" name="allow_twitter">
+            <option value="f" <?= $contributor->allow_twitter == 'f' ? 'selected="true"' : '' ?> >No</option>
+            <option value="t" <?= $contributor->allow_twitter == 't' ? 'selected="true"' : '' ?> >Yes</option>
+        </select>
+    </div>
 </div>
 
-<input type="submit" value="Save Changes" class="btn btn-primary" />
+<div class="form-group">
+    <div class="col-sm-offset-2 col-sm-4">
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+</div>
 
 </form>
 
@@ -86,7 +109,11 @@ $(window).load(function () {
 </script>
 
 
-<form method="post" action="<?= ssl_url("administration/deletecontributor/") ?>" onSubmit="return confirm('Really delete this contributor? This will NOT delete any markers.');">
-    <input type="hidden" name="id" value="<?= $contributor->id ?>" />
-    <input type="submit" value="Delete" class="btn btn-primary" />
+<form class="form-horizontal" method="post" action="<?= ssl_url("administration/deletecontributor/") ?>" onSubmit="return confirm('Really delete this contributor? This will NOT delete any markers.');">
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-4">
+            <input type="hidden" name="id" value="<?= $contributor->id ?>" />
+            <input type="submit" value="Delete" class="btn btn-primary" />
+        </div>
+    </div>
 </form>
