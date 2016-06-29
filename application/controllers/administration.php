@@ -4,6 +4,9 @@ class Administration extends MY_Controller {
 
 function __construct() {
     parent::__construct();
+
+    // Add our administration JS as a <script> include.
+    $this->_add_js_include('static/admin/admin.js');
 }
 
 ///*

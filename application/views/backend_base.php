@@ -46,12 +46,9 @@
 
     <!-- Local back-end CSS -->
     <link href="<?= ssl_url('static/admin/local.css'); ?>" rel="stylesheet">
-    <!-- Local common JS -->
-    <script type="text/javascript" src="<?= ssl_url('static/common/constants.js'); ?>"></script>
-    <!-- Local administration JS -->
-    <script type="text/javascript" src="<?= ssl_url('static/admin/admin.js'); ?>"></script>
-    <!-- Local contributors JS -->
-    <script type="text/javascript" src="<?= ssl_url('static/contributors/contributors.js'); ?>"></script>
+
+    <!-- Local JS -->
+    <?= $js_includes ?>
   </head>
 
   <body class="<?= $body_classes ?>">

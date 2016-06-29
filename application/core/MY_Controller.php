@@ -6,10 +6,15 @@
 class MY_Controller extends CI_Controller {
 
 public $loggedin;
+private $js_scripts = array();
 
 function __construct()
 {
     parent::__construct();
+
+    // Add our common JS as a <script> include.
+    $this->_add_js_include('static/common/constants.js');
+
     // Shortcuts for use in templates:
     // An associated array of the Contributor's info (and quick test for whether they're logged-in).
     $this->loggedin = $this->session->userdata('contributor');
@@ -19,6 +24,7 @@ function _output($content)
 {
     // Load the base template with output content available as $content
     $data['content'] = &$content;
+    $data['js_includes'] = $this->_render_js_includes();
     $data['mainmenu_left'] = $this->_generate_menu_markup($this->_mainmenu_left_array(), $this->uri->uri_string);
     $data['mainmenu_right'] = $this->_generate_menu_markup($this->_mainmenu_right_array(), $this->uri->uri_string);
     $body_classes_array = array(
@@ -52,6 +58,24 @@ protected function _user_access($area='') {
             return redirect(ssl_url('administration/access_denied'));
         }
     }
+}
+
+/**
+ * Add a JavaScript external (but local, relative) script include to the HTML <head>.
+ */
+protected function _add_js_include($file) {
+    $this->js_scripts[] = $file;
+}
+
+/**
+ *
+ */
+private function _render_js_includes() {
+    $markup = '';
+    foreach ($this->js_scripts as $script) {
+        $markup .= '<script type="text/javascript" src="' . ssl_url($script) . '"></script>' . "\n";
+    }
+    return $markup;
 }
 
 /*
