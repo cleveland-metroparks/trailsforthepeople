@@ -2302,12 +2302,12 @@ function _rrmdir($path) {
 }
 
 /**
- *
+ * To test working with the progress indicator.
  */
 function test_progress_indicator() {
     header('Content-type: application/json');
 
-    $job_id = @$_GET['job_id'];
+    $job_id = $_GET['job_id'];
 
     $job = new Job();
     $job->where('id', $job_id)->get();
@@ -2325,10 +2325,31 @@ function test_progress_indicator() {
 }
 
 /**
- *
+ * Create a new system job in the database and return its ID.
+ */
+function create_job() {
+    header('Content-type: application/json');
+
+    $job = new Job();
+
+    $job->title = !empty($_GET['title']) ? $_GET['title'] : '';
+    $loggedin = $this->session->userdata('contributor');
+    $job->creator_email = !empty($_GET['creator_email']) ? $_GET['creator_email'] : $loggedin['email'];
+    $job->status = !empty($_GET['status']) ? $_GET['status'] : JOB_NOT_STARTED;
+
+    $job->save();
+
+    print json_encode($job->id);
+}
+
+/**
+ * Check on a given job's progress & status.
  */
 function check_job_progress() {
-    $job_id = @$_GET['job_id'];
+    header('Content-type: application/json');
+
+    $job_id = $_GET['job_id'];
+
     $job = new Job();
     $job->where('id', $job_id)->get();
 
@@ -2347,10 +2368,13 @@ function check_job_progress() {
 function purge_tilestache() {
     header('Content-type: application/json');
 
-    $job_id = @$_GET['job_id'];
+    $job_id = $_GET['job_id'];
 
     $job = new Job();
     $job->where('id', $job_id)->get();
+
+    $job->status = JOB_RUNNING;
+    $job->save();
 
     // Top-level dir:
     $tiles_root_dir = $this->config->item('tilestache_tiles_directory'); // /var/www/tilestache/tiles

@@ -259,17 +259,6 @@ function purge_tilestache() {
     // Require admin user
     if ($this->_user_access('admin') !== NULL) return;
 
-    $this->job_id = null;
-
-    // Create job
-    $job = new Job();
-    $job->title         = 'purge_tilestache';
-    $job->creator_email = $this->loggedin['email'];
-    $job->status        = JOB_RUNNING;
-    $job->save();
-
-    $this->job_id = $job->id;
-
     return $this->load->view('administration/purge_tilestache.phtml');
 }
 

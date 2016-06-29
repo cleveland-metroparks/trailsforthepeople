@@ -10,7 +10,7 @@
 
 <p>Use this tool to empty the TileStache tile cache, after you have made some changes to data which will affect the basemap.</p>
 
-<div class="progress-indicator" id="progress-indicator" style="display: none;" data-job-id="<?= $this->job_id ?>">
+<div class="progress-indicator" id="progress-indicator" style="display: none;">
     <div class="progress">
         <div class="progress-bar progress-bar-striped active" role="progressbar"
             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
@@ -38,18 +38,28 @@
         progressInitialize('', '% Complete');
         progressAddUpdate('Starting tilestache purge...');
 
-        job_id = $('#progress-indicator').attr('data-job-id');
+        var job_id;
 
-        var data = {};
-        data.job_id = job_id;
+        // Create a system job
+        $.ajax({
+            type: 'GET',
+            url: '../../ajax/create_job',
+            async: false,
+            data: { title: 'purge_tilestache' },
+            success: function(reply) {
+                job_id = jQuery.parseJSON(reply);
+            },
+            error: function (xhr, status, text) {
+                console.log('create_job error: ' + text);
+            }
+        });
 
+        // Start the Purge process
         $.ajax({
             type: 'GET',
             url: '../../ajax/purge_tilestache',
             async: true,
-            cache: false,
             data: { job_id: job_id },
-            //timeout: 12000,
             success: function(reply) {
                 progressIndicateFinished(reply);
             },
@@ -59,8 +69,9 @@
             }
         });
 
+        // Check progress of the process and quit when finished
         var progress_checker = setInterval(function() {
-            $.get('../../ajax/check_job_progress', data, function (response) {
+            $.get('../../ajax/check_job_progress', { job_id: job_id }, function (response) {
                 if (!response) return;
 
                 job_progress = jQuery.parseJSON(response);
