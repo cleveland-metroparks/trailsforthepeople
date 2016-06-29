@@ -31,8 +31,8 @@
      * Start the Tilestache Purge process, with progress indication.
      */
     function startPurge() {
-        // Hide "start" button while we do the work
-        $('form#purge-tilestache input[name="ok"]').blur().hide();
+        // Disable "start" button while we do the work
+        $('form#purge-tilestache input[name="ok"]').blur().val('Purging...').prop("disabled", true);
 
         progressActivate('Purging...');
         progressInitialize('', '% Complete');
@@ -88,8 +88,8 @@
                     // Finished...
                     // Stop this checker timer
                     clearInterval(progress_checker);
-                    // Show "start" button again
-                    $('form#purge-tilestache input[name="ok"]').val('Purge again').show();
+                    // Re-enable "start" button with new text
+                    $('form#purge-tilestache input[name="ok"]').val('Purge again').prop("disabled", false);
                 }
             }, 'html');
         }, 500);
