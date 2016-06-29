@@ -1,7 +1,87 @@
 <?php $this->page_title = 'Purge Tilestache'; ?>
 
+<style>
+.progress-updates {
+    max-height: 8em;
+    overflow: scroll;
+    display: none;
+}
+</style>
+
 <p>Use this tool to empty the TileStache tile cache, after you have made some changes to data which will affect the basemap.</p>
 
-<form action="<? ssl_current_url() ?>" method="post">
-    <input type="submit" name="ok" value=" Purge the TileStache cache" class="btn btn-primary" />
+<div class="progress-indicator" id="progress-indicator" style="display: none;" data-job-id="<?= $this->job_id ?>">
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped active" role="progressbar"
+            aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+        Purging...
+        </div>
+    </div>
+    <h4>Output:</h4>
+    <pre class="progress-updates"></pre>
+</div>
+
+<form id="purge-tilestache" action="<? ssl_current_url() ?>" method="post">
+    <input name="ok" value="Purge TileStache cache" class="btn btn-primary" onclick="startPurge()" />
 </form>
+
+<script type="text/javascript">
+
+    /**
+     * Start the Tilestache Purge process, with progress indication.
+     */
+    function startPurge() {
+        // Hide "start" button while we do the work
+        $('form#purge-tilestache input[name="ok"]').blur().hide();
+
+        progressActivate('Purging...');
+        progressInitialize('', '% Complete');
+        progressAddUpdate('Starting tilestache purge...');
+
+        job_id = $('#progress-indicator').attr('data-job-id');
+
+        var data = {};
+        data.job_id = job_id;
+
+        $.ajax({
+            type: 'GET',
+            url: '../../ajax/purge_tilestache',
+            async: true,
+            cache: false,
+            data: { job_id: job_id },
+            //timeout: 12000,
+            success: function(reply) {
+                progressIndicateFinished(reply);
+            },
+            error: function (xhr, status, text) {
+                console.log('purge_tilestache error: ' + text);
+                console.log(xhr);
+            }
+        });
+
+        var progress_checker = setInterval(function() {
+            $.get('../../ajax/check_job_progress', data, function (response) {
+                if (!response) return;
+
+                job_progress = jQuery.parseJSON(response);
+                // .status, .percent_complete, .status_msg
+
+                if (job_progress.status_msg !== null) {
+                    progressAddUpdate(job_progress.status_msg);
+                }
+                progressSetPercentFinished(job_progress.percent_complete, '', '% Complete');
+
+                if (job_progress.status == 'COMPLETE'
+                        || job_progress.status == 'ABORTED'
+                        || job_progress.percent_complete >= 100)  {
+                    // Finished...
+                    // Stop this checker timer
+                    clearInterval(progress_checker);
+                    // Show "start" button again
+                    $('form#purge-tilestache input[name="ok"]').val('Purge again').show();
+                }
+            }, 'html');
+        }, 500);
+    }
+
+</script>

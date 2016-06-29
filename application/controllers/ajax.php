@@ -2256,4 +2256,139 @@ function autocomplete_keywords() {
 }
 
 
+
+
+
+
+
+//foreach (glob(sprintf("%s/*/[01][123456789]", $this->config->item('tilestache_tiles_directory') )) as $dir) {
+//    printf("%s<br/>\n", $dir);
+//    ob_flush();
+//    //rrmdir($dir);
+//}
+
+/**
+* Get the total size and number of files (not dirs) within a given directory.
+*/
+function _dir_stats($dir_path) {
+    $stats = array('num_files'=>0, 'size'=>0);
+    foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir_path)) as $file){
+        if (is_file($file)) {
+            $stats['num_files']++;
+        }
+        $stats['size'] += $file->getSize();
+    }
+    return $stats;
+}
+
+/**
+* Converts bytes into human readable file size.
+*/
+function _human_filesize($bytes, $decimals = 2) {
+  $sz = 'BKMGTP';
+  $factor = floor((strlen($bytes) - 1) / 3);
+  return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor];
+}
+
+/**
+ * Remove one directory at a time so we can generate status and output
+ */
+function _rrmdir($path) {
+    if (is_file($path)) {
+        return @unlink($path);
+    } else {
+        return array_map(array(&$this, '_rrmdir'), glob($path . '/*')) == @rmdir($path);
+    }
+}
+
+/**
+ *
+ */
+function test_progress_indicator() {
+    header('Content-type: application/json');
+
+    $job_id = @$_GET['job_id'];
+
+    $job = new Job();
+    $job->where('id', $job_id)->get();
+
+    // Incrementally update progress
+    $percent_complete = 0;
+    while ($percent_complete < 100) {
+        $percent_complete += 10;
+        $job->percent_complete = $percent_complete;
+        $job->save();
+        sleep(1);
+    }
+
+    print json_encode('Purge complete!');
+}
+
+/**
+ *
+ */
+function check_job_progress() {
+    $job_id = @$_GET['job_id'];
+    $job = new Job();
+    $job->where('id', $job_id)->get();
+
+    $job_progress = array(
+        'status' => $job->status,
+        'percent_complete' => $job->percent_complete,
+        'status_msg' => $job->status_msg,
+        );
+
+    print json_encode($job_progress);
+}
+
+/**
+ *
+ */
+function purge_tilestache() {
+    header('Content-type: application/json');
+
+    $job_id = @$_GET['job_id'];
+
+    $job = new Job();
+    $job->where('id', $job_id)->get();
+
+    // Top-level dir:
+    $tiles_root_dir = $this->config->item('tilestache_tiles_directory'); // /var/www/tilestache/tiles
+
+    // Get total # of files and size
+    $root_dir_stats = $this->_dir_stats($tiles_root_dir);
+    $total_num_files = $root_dir_stats['num_files'];
+
+    $percent_complete = 0;
+    $num_files_deleted = 0;
+
+    $tile_subdirs = glob($tiles_root_dir . '/*/*/*');
+
+    foreach ($tile_subdirs as $dir) {
+        // Only match subdirs with two sets of numbers at the end, like /.../water/01/231
+        if (preg_match('~/[\d]+/[\d]+$~', $dir)) {
+            $sub_dir_stats = $this->_dir_stats($dir);
+            $num_files_deleted += $sub_dir_stats['num_files'];
+
+            $percent_complete = round($num_files_deleted / $total_num_files * 100);
+
+            $this->_rrmdir($dir);
+
+            $job->status_msg = "Deleted $num_files_deleted/$total_num_files files ($percent_complete%). (Currently: '$dir').";
+            $job->percent_complete = $percent_complete;
+            $job->save();
+        }
+    }
+
+    $job->percent_complete = 100;
+    $job->status = JOB_COMPLETE;
+    $job->end_time = date('Y-m-d H:i:s');
+    $job->status_msg = "Purge complete! $num_files_deleted/$total_num_files tile files deleted ($job->percent_complete%).";
+    $job->save();
+
+    $response = $job->status_msg;
+
+    print json_encode($response);
+}
+
 }

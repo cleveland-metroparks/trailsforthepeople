@@ -259,26 +259,18 @@ function purge_tilestache() {
     // Require admin user
     if ($this->_user_access('admin') !== NULL) return;
 
-    // bail to the OK form
-    if (! @$_POST['ok']) return $this->load->view('administration/purge_tilestache.phtml');
+    $this->job_id = null;
 
-    // print the HTML header; MVC violation ahead, as we delete and send incremental progress
-    print $this->load->view('administration/header.phtml', array(), TRUE);
+    // Create job
+    $job = new Job();
+    $job->title         = 'purge_tilestache';
+    $job->creator_email = $this->loggedin['email'];
+    $job->status        = JOB_RUNNING;
+    $job->save();
 
-    // okay, go for it; one directory at a time so we can generate status and output
-    // warning: MVC violation, generating our own output so we can send incrementally and not time out the browser
-    function rrmdir($path) {
-        return is_file($path) ? @unlink($path): array_map('rrmdir',glob($path.'/*'))==@rmdir($path);
-    }
-    foreach (glob(sprintf("%s/*/[01][123456789]", $this->config->item('tilestache_tiles_directory') )) as $dir) {
-        printf("%s<br/>\n", $dir);
-        ob_flush();
-        rrmdir($dir);
-    }
+    $this->job_id = $job->id;
 
-    // done!
-    print "<p>DONE!</p>\n";
-    print $this->load->view('administration/footer.phtml', array(), TRUE);
+    return $this->load->view('administration/purge_tilestache.phtml');
 }
 
 
