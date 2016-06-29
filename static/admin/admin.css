@@ -24,3 +24,8 @@ body {
     cursor:pointer;
 }
 
+.progress-updates {
+    max-height: 8em;
+    overflow: scroll;
+    display: none;
+}
