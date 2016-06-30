@@ -246,12 +246,12 @@ private function _mainmenu_left_array() {
         ),
         array(
           'url' => 'administration/purge_tilestache',
-          'title' => 'Purge Tilestache',
+          'title' => 'Purge TileStache',
           'access' => 'admin',
         ),
         array(
           'url' => 'administration/seed_tilestache',
-          'title' => 'Seed Tilestache',
+          'title' => 'Seed TileStache',
           'access' => 'admin',
         ),
         array(

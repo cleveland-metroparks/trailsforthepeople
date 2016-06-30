@@ -1,4 +1,4 @@
-<?php $this->page_title = 'Purge Tilestache'; ?>
+<?php $this->page_title = 'Purge TileStache'; ?>
 
 <p>Use this tool to empty the TileStache tile cache, after you have made some changes to data which will affect the basemap.</p>
 
@@ -14,13 +14,13 @@
 </div>
 
 <form id="purge-tilestache" action="<? ssl_current_url() ?>" method="post">
-    <input name="ok" value="Purge TileStache cache" class="btn btn-primary" onclick="startPurge()" />
+    <input name="ok" value="Purge TileStache" class="btn btn-primary" onclick="startPurge()" />
 </form>
 
 <script type="text/javascript">
 
     /**
-     * Start the Tilestache Purge process, with progress indication.
+     * Start the TileStache Purge process, with progress indication.
      */
     function startPurge() {
         // Disable "start" button while we do the work
@@ -28,7 +28,7 @@
 
         progressActivate('Purging...');
         progressInitialize('', '% Complete');
-        progressAddUpdate('Starting tilestache purge...');
+        progressAddUpdate('Starting TileStache purge...');
 
         var job_id;
 
