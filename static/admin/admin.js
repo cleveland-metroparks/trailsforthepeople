@@ -80,7 +80,8 @@ function progressActivate(text) {
     $('#progress-indicator .progress .progress-bar')
         .html(text)
         .addClass('active')
-        .addClass('progress-bar-striped');
+        .addClass('progress-bar-striped')
+        .removeClass('progress-bar-success');
 }
 
 /**
