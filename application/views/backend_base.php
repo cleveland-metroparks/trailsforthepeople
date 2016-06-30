@@ -45,7 +45,7 @@
     <script type="text/javascript" src="<?= ssl_url('static/tinymce/jscripts/tiny_mce/jquery.tinymce.js'); ?>"></script>
 
     <!-- Local back-end CSS -->
-    <link href="<?= ssl_url('static/admin/local.css'); ?>" rel="stylesheet">
+    <link href="<?= ssl_url('static/admin/admin.css'); ?>" rel="stylesheet">
 
     <!-- Local JS -->
     <?= $js_includes ?>
