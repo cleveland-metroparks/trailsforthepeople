@@ -8,7 +8,7 @@
     <div class="progress">
         <div class="progress-bar progress-bar-striped active" role="progressbar"
             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
-        Purging...
+        Seeding...
         </div>
     </div>
     <h4>Output:</h4>
@@ -26,9 +26,9 @@
      */
     function startSeedTilestache() {
         // Disable "start" button while we do the work
-        $('form#seed-tilestache input[name="ok"]').blur().val('Purging...').prop("disabled", true);
+        $('form#seed-tilestache input[name="ok"]').blur().val('Seeding...').prop("disabled", true);
 
-        progressActivate('Purging...');
+        progressActivate('Seeding...');
         progressInitialize('', '% Complete');
         progressAddUpdate('Starting TileStache seed...');
 
