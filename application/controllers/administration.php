@@ -272,42 +272,7 @@ function seed_tilestache() {
     // Require admin user
     if ($this->_user_access('admin') !== NULL) return;
 
-    // bail to the OK form
-    if (! @$_POST['ok']) return $this->load->view('administration/seed_tilestache.phtml');
-
-    // some JavaScript to the client; yes, big MVC violation, see below for an even worse one  :)
-    print $this->load->view('administration/header.phtml', array(), TRUE);
-
-    // make up the command and run it in a new fork. the parent process will wait for it to exit, sending out progress reports based on the progress file
-    $command = sprintf("%s -c %s -b %s -l %s -f %s %s", 
-        $this->config->item('tilestache_seed'),
-        $this->config->item('tilestache_cfg'),
-        $this->config->item('tilestache_seed_bbox'),
-        $this->config->item('tilestache_seed_layer'),
-        $this->config->item('tilestache_progress_file'),
-        implode(" " , $this->config->item('tilestache_seed_levels'))
-    );
-
-    // run it and send back the output. tougher than usual since seeder outputs to stderr and not stdout
-    $progfile = $this->config->item('tilestache_progress_file');
-    $handle = popen("$command 2>&1", 'r');
-    while (! feof($handle)) {
-        $output = fread($handle, 10240);
-        if (! is_file($progfile) ) continue; // progress file may not exist for a few seconds
-        $prog = json_decode(file_get_contents($progfile));
-        if (! $prog or ! $prog->total ) continue; // file opened but no JSON in it yet, skip it
-
-        // calculate a progress meter
-        $prog->percent = round( 100 * (float) $prog->offset / (float) $prog->total );
-        printf("Progress: %d / %d = %d %% &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s<br/>\n", $prog->offset, $prog->total, $prog->percent, $prog->tile );
-        flush();
-    }
-    pclose($handle);
-    unlink( $progfile);
-
-    // done!
-    print "<p>DONE!</p>\n";
-    print $this->load->view('administration/footer.phtml', array(), TRUE);
+    return $this->load->view('administration/seed_tilestache.phtml');
 }
 
 /*

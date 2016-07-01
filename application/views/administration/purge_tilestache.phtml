@@ -2,6 +2,8 @@
 
 <p>Use this tool to empty the TileStache tile cache, after you have made some changes to data which will affect the basemap.</p>
 
+<p>After purging you may want to <a href="<?= ssl_url("administration/seed_tilestache") ?>">seed the tilestache cache</a>.
+
 <div class="progress-indicator" id="progress-indicator" style="display: none;">
     <div class="progress">
         <div class="progress-bar progress-bar-striped active" role="progressbar"
@@ -14,7 +16,7 @@
 </div>
 
 <form id="purge-tilestache" action="<? ssl_current_url() ?>" method="post">
-    <input name="ok" value="Purge TileStache" class="btn btn-primary" onclick="startPurge()" />
+    <input name="ok" value="Purge TileStache" class="btn btn-primary" onclick="startPurgeTilestache()" />
 </form>
 
 <script type="text/javascript">
@@ -22,7 +24,7 @@
     /**
      * Start the TileStache Purge process, with progress indication.
      */
-    function startPurge() {
+    function startPurgeTilestache() {
         // Disable "start" button while we do the work
         $('form#purge-tilestache input[name="ok"]').blur().val('Purging...').prop("disabled", true);
 

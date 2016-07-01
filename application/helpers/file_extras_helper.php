@@ -10,7 +10,10 @@
 if ( ! function_exists('_dir_stats'))
 {
     function _dir_stats($dir_path) {
-        $stats = array('num_files'=>0, 'size'=>0);
+        $stats = array(
+            'num_files' => 0,
+            'size' => 0
+        );
         foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir_path)) as $file){
             if (is_file($file)) {
                 $stats['num_files']++;
