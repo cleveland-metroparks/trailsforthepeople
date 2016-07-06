@@ -79,6 +79,13 @@
     <div class="container">
       <div class="content">
         <h1><?= $page_title ?></h1>
+
+        <?php if (!empty($messages)): ?>
+        <div class="messages" id="messages">
+          <?= $messages ?>
+        </div>
+        <?php endif; ?>
+
         <?= $content ?>
       </div><!-- /.content -->
     </div><!-- /.container -->

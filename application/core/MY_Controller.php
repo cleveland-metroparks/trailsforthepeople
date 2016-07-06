@@ -7,6 +7,7 @@ class MY_Controller extends CI_Controller {
 
 public $loggedin;
 private $js_scripts = array();
+private $user_messages = array();
 
 function __construct()
 {
@@ -24,6 +25,7 @@ function _output($content)
 {
     // Load the base template with output content available as $content
     $data['content'] = &$content;
+    $data['messages'] = $this->_get_user_messages_markup();
     $data['js_includes'] = $this->_render_js_includes();
     $data['mainmenu_left'] = $this->_generate_menu_markup($this->_mainmenu_left_array(), $this->uri->uri_string);
     $data['mainmenu_right'] = $this->_generate_menu_markup($this->_mainmenu_right_array(), $this->uri->uri_string);
@@ -76,6 +78,38 @@ private function _render_js_includes() {
         $markup .= '<script type="text/javascript" src="' . ssl_url($script) . '"></script>' . "\n";
     }
     return $markup;
+}
+
+/**
+ * Turn all of the user messages into HTML markup.
+ */
+protected function _get_user_messages_markup() {
+    $markup = '';
+    $valid_statuses = array('success', 'info', 'warning', 'danger');
+    foreach ($this->user_messages as $message) {
+        if (!in_array($message['status'], $valid_statuses)) {
+            $message['status'] = 'info';
+        }
+        $markup .= '<div class="alert alert-' . $message['status'] . '" role="alert">' . $message['text'] . '</div>';
+    }
+    return $markup;
+}
+
+/**
+ * Add a message to be displayed to the user in the messages section of the page.
+ */
+protected function _add_user_message($message_text, $status='info') {
+    $this->user_messages[] = array(
+        'text' => $message_text,
+        'status' => $status
+    );
+}
+
+/**
+ * Clear the user messages.
+ */
+protected function _clear_user_messages($message) {
+    $this->user_messages = array();
 }
 
 /*
