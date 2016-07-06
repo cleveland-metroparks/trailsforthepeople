@@ -75,6 +75,14 @@ function user() {
     }
     $data['access_areas'] = $access_areas;
 
+    // They've successfully submitted the Change Password form
+    if (!empty($_POST['password1'])) {
+        // Fetch user's Contributor account
+        $contributor = new Contributor();
+        $contributor->where('id', $this->loggedin['id'] )->get();
+        $contributor->setPassword($_POST['password1']);
+    }
+
     $this->load->view('contributors/user.phtml', $data);
 }
 
