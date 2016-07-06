@@ -5,6 +5,9 @@ class Contributors extends MY_Controller {
 function __construct() {
     parent::__construct();
 
+    // Add our administration & contributors (shared) JS as a <script> include.
+    $this->_add_js_include('static/admin/admin-contrib.js');
+
     // Add our contributors JS as a <script> include.
     $this->_add_js_include('static/contributors/contributors.js');
 }
