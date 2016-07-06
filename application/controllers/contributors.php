@@ -84,6 +84,8 @@ function user() {
         $contributor = new Contributor();
         $contributor->where('id', $this->loggedin['id'] )->get();
         $contributor->setPassword($_POST['password1']);
+
+        $this->_add_user_message('Your password has been changed.', 'success');
     }
 
     $this->load->view('contributors/user.phtml', $data);
