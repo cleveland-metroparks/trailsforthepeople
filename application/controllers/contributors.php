@@ -668,31 +668,6 @@ function twitter_unban() {
     print 'ok';
 }
 
-
-function password() {
-    // Require SSL
-    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require logged-in user
-    if ($this->_user_access() !== NULL) return;
-
-    // not saving? bail
-    if (! @$_POST) return $this->load->view('contributors/password.phtml');
-
-    $data = array();
-
-    // guess we're saving; validate that they gave a password
-    // deeper validation would mean them hacking their browser to give themselves a weak password, which isn't a realistic concern
-    if (! $_POST['password1']) return $this->load->view('contributors/password.phtml', $data);
-
-    // fetch my own Contributor account
-    $contributor = new Contributor();
-    $contributor->where('id', $this->loggedin['id'] )->get();
-    $contributor->setPassword($_POST['password1']);
-
-    // done
-    $this->load->view('contributors/password_done.phtml', $data);
-}
-
 /*
  * Manage Trails Page
  */
