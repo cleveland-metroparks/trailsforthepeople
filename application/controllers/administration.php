@@ -176,7 +176,7 @@ function contributor($id) {
     $data['contributor']->allow_loops    = $_POST['allow_loops'];
     $data['contributor']->allow_closures = $_POST['allow_closures'];
     $data['contributor']->allow_twitter  = $_POST['allow_twitter'];
-    if (@$_POST['password']) $data['contributor']->setPassword($_POST['password']);
+    if (@$_POST['password1']) $data['contributor']->setPassword($_POST['password1']);
     $data['contributor']->save();
 
     // log this event and done

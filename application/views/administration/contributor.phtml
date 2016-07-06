@@ -1,6 +1,6 @@
 <?php $this->page_title = 'Edit Contributor'; ?>
 
-<form class="form-horizontal" method="POST" action="<?= ssl_current_url() ?>" id="edit">
+<form class="form-horizontal" method="POST" action="<?= ssl_current_url() ?>" onSubmit="return validateFormEditContributor()">
 
 <div class="form-group">
     <label class="control-label col-sm-2">E-mail:</label>
@@ -16,10 +16,11 @@
     </div>
 </div>
 
-<div class="form-group">
+<div class="form-group" id="password-form-group">
     <label class="control-label col-sm-2">Password:<br/></label>
     <div class="col-sm-4">
-        <input class="form-control" type="password" name="password" value="" placeholder="Set password" />
+        <input class="form-control" type="password" name="password1" placeholder="New password" />
+        <input class="form-control" type="password" name="password2" placeholder="Confirm password" />
         <small class="text-muted">Only if you want to change it.</small>
     </div>
 </div>
@@ -94,18 +95,30 @@
 
 
 <script type="text/javascript">
-$(window).load(function () {
-    $('#edit').submit(function () {
-        var error = null;
-        if (! $('input[name="realname"]').val() ) error = "The contributor's name or organiztaion is required.";
-        if (! $('input[name="email"]').val() ) error = "The contributor's e-mail address is required.";
-        if (error) {
-            alert(error);
-            return false;
-        }
-        return true;
-    });
-});
+
+function validateFormEditContributor() {
+    var error = null;
+    if (! $('input[name="realname"]').val() ) {
+        error = "The contributor's name or organiztaion is required.";
+    }
+    if (! $('input[name="email"]').val() ) {
+        error = "The contributor's e-mail address is required.";
+    }
+    if (error) {
+        alert(error);
+        return false;
+    }
+
+    var formValid = true;
+
+    var password1 = $('#password-form-group input[name="password1"]').val()
+    var password2 = $('#password-form-group input[name="password2"]').val();
+    if (password1 != '' || password2 != '') {
+        formValid = validateNewPassword(password1, password2, <?= json_encode($this->loggedin['email']) ?>);
+    }
+
+    return formValid;
+}
 </script>
 
 
