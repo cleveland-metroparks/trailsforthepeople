@@ -1,7 +1,7 @@
 <?php $this->page_title = 'Markers'; ?>
 
 <ul class="local-actions">
-    <li><a href="<?= ssl_url('contributors/marker/0/') ?>" class="btn btn-primary">+ Create a marker</a></li>
+    <li><a href="<?= ssl_url('contributors/marker/0') ?>" class="btn btn-primary">+ Create a marker</a></li>
 </ul>
 
 <h2>My Markers</h2>
@@ -16,18 +16,20 @@
     <th>Category</th>
     <th>Content</th>
     <th>Edit</th>
+    <th>Delete</th>
 </tr>
 </thead>
 <tbody>
 <?php foreach ($markers as $marker): ?>
 <tr>
-    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}") ?>"><?= htmlspecialchars($marker->title) ?></a></td>
+    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}/edit") ?>"><?= htmlspecialchars($marker->title) ?></a></td>
     <td><?= $marker->enabled ? 'Yes' : 'No' ?></td>
     <td><?= $marker->startdate ?></td>
     <td><?= $marker->expires ?></td>
     <td><?= htmlspecialchars($marker->category) ?></td>
     <td><?= htmlspecialchars(strip_tags(substr($marker->content,0,200))) ?></td>
-    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}") ?>">edit</a></td>
+    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}/edit") ?>">edit</a></td>
+    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}/delete") ?>">delete</a></td>
 </tr>
 <?php endforeach; ?>
 </tbody>
@@ -51,18 +53,20 @@
     <th>Category</th>
     <th>Content</th>
     <th>Edit</th>
+    <th>Delete</th>
 </tr>
 </thead>
 <tbody>
 <?php foreach ($other_markers as $marker): ?>
 <tr>
-    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}") ?>"><?= htmlspecialchars($marker->title) ?></a></td>
+    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}/edit") ?>"><?= htmlspecialchars($marker->title) ?></a></td>
     <td><?= $marker->enabled ? 'Yes' : 'No' ?></td>
     <td><?= $marker->startdate ?></td>
     <td><?= $marker->expires ?></td>
     <td><?= htmlspecialchars($marker->category) ?></td>
     <td><?= htmlspecialchars(strip_tags(substr($marker->content,0,200))) ?></td>
-    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}") ?>">edit</a></td>
+    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}/edit") ?>">edit</a></td>
+    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}/delete") ?>">delete</a></td>
 </tr>
 <?php endforeach; ?>
 </tbody>
@@ -71,7 +75,6 @@
 <p>There are no other markers.</p>
 <?php endif; ?>
 <?php endif; ?>
-
 
 
 <script type="text/javascript">

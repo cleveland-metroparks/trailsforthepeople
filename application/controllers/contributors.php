@@ -140,7 +140,8 @@ function markers() {
 }
 
 
-function marker($id) {
+
+function marker_edit($id) {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
     // Require logged-in user with "Allow Markers" permission
@@ -184,60 +185,87 @@ function marker($id) {
             "Trail Closures and Construction",
         );
     }
-
-    // ready, set, show!
-    $this->load->view('contributors/marker.phtml', $data);
+    $this->load->view('contributors/marker_edit.phtml', $data);
 }
 
-function deletemarker() {
+/**
+ * Confirm, then delete a marker from the database, checking access permissions.
+ */
+function marker_delete($id) {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
     // Require logged-in user with "Allow Markers" permission
     if ($this->_user_access('allow_markers') !== NULL) return;
-
+    
     $myid = $this->loggedin;
 
-    // fetch it, delete it
-    $marker = new Marker();
-    $marker->where('id',@$_POST['id']);
-    if (! $this->loggedin['admin'] ) {
-        // not an admin, then make sure the owner ID matches too
-        $marker->where('creatorid', $myid['id']);
-    }
-    $marker->get();
-    if ($marker->id) {
-        $email = $this->loggedin;
-        $email = $email['email'];
-        Auditlog::log_message( sprintf("Marker deleted: %s", htmlspecialchars($marker->title)) , $email);
+    if (!empty($_POST['submit']) ) {
+        // Perform the delete
 
-        $marker->delete();
-    }
-
-    // purge the tile cache
-    $this->_clearTileCache('marker');
-
-    // we're outta here
-    redirect(ssl_url('contributors/markers'));
-}
-
-
-function savemarker() {
-    // Require SSL
-    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require logged-in user with "Allow Markers" permission
-    if ($this->_user_access('allow_markers') !== NULL) return;
-
-    $myid = $this->loggedin;
-
-    // fetch the record we're updating, or create a new record and set its ownership/creator info
-    if (@$_POST['id']) {
         $marker = new Marker();
-        $marker->where('id',$_POST['id']);
+        $marker->where('id', $id);
+        if (! $this->loggedin['admin'] ) {
+            // not an admin, then make sure the owner ID matches too
+            $marker->where('creatorid', $myid['id']);
+        }
+        $marker->get();
+
+        if ($marker->id) {
+            $email = $this->loggedin;
+            $email = $email['email'];
+            Auditlog::log_message( sprintf("Marker deleted: \"%s\" (id: %d)", htmlspecialchars($marker->title), $marker->id) , $email);
+
+            $marker->delete();
+        }
+
+        // purge the tile cache
+        $this->_clearTileCache('marker');
+
+        redirect(ssl_url('contributors/markers'));
+    } else {
+        // Show confirmation form
+
+        // Load the marker info, if any, checking for permission
+        $data = array();
+        $data['marker'] = null;
+        if ((integer) $id) {
+            $data['marker'] = new Marker();
+            $data['marker']->where('id', $id);
+            if (!$this->loggedin['admin']) {
+                // Not an admin; make sure the owner ID matches
+                $data['marker']->where('creatorid', $myid['id']);
+            }
+            $data['marker']->get();
+
+            // @TODO: How to bail?
+            if (!$data['marker']->id) return redirect(ssl_url('contributors/markers'));
+        }
+
+        $this->load->view('contributors/marker_delete.phtml', $data);
+    }
+}
+
+/**
+ * Save a new or edited marker to the database, checking access permissions.
+ */
+function marker_save() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Markers" permission
+    if ($this->_user_access('allow_markers') !== NULL) return;
+
+    $myid = $this->loggedin;
+
+    $marker = new Marker();
+    // Fetch the marker record we're updating, or create a new record and set its ownership/creator info
+    if (@$_POST['id']) {
+        // Existing marker
+        $marker->where('id', $_POST['id']);
         $marker->where('creatorid', $myid['id']);
         $marker->get();
         if (! $marker->id) return redirect(ssl_url('contributors/markers'));
     } else {
-        $marker = new Marker();
+        // New marker
         $myid = $this->loggedin;
         $marker->creatorid = $myid['id'];
         $marker->creator   = $myid['realname'];
@@ -253,13 +281,24 @@ function savemarker() {
     $marker->save();
 
     // update the geometry
-    $this->db->query("UPDATE markers SET geom=ST_GeometryFromText('POINT(? ?)',4326) WHERE id=?", array( (float) $marker->lng, (float) $marker->lat, $marker->id ) );
+    $this->db->query(
+        "UPDATE markers SET geom=ST_GeometryFromText('POINT(? ?)',4326) WHERE id=?",
+        array(
+            (float)$marker->lng,
+            (float)$marker->lat,
+            $marker->id
+        )
+    );
 
     // now enable/disable the marker based on its startdate and expires date
     $today = date('Y-m-d');
     $marker->enabled = 1;
-    if ($marker->startdate and $marker->startdate > $today) $marker->enabled = 0;
-    if ($marker->expires and $marker->expires < $today) $marker->enabled = 0;
+    if ($marker->startdate and $marker->startdate > $today) {
+        $marker->enabled = 0;
+    }
+    if ($marker->expires and $marker->expires < $today) {
+        $marker->enabled = 0;
+    }
     $marker->save();
 
     // purge the tile cache
@@ -268,8 +307,14 @@ function savemarker() {
     // done
     $email = $this->loggedin;
     $email = $email['email'];
-    Auditlog::log_message( sprintf("Marker edited: %s", htmlspecialchars($marker->title)) , $email);
+    if (@$_POST['id']) {
+        Auditlog::log_message( sprintf("Marker edited: \"%s\" (id: %d)", htmlspecialchars($marker->title), $marker->id) , $email);
+    } else {
+        Auditlog::log_message( sprintf("Marker created: \"%s\" (id: %d)", htmlspecialchars($marker->title), $marker->id) , $email);
+    }
+
     redirect(ssl_url('contributors/markers'));
+    //$this->load->view('contributors/marker.phtml', $data);
 }
 
 

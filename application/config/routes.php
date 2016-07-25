@@ -45,5 +45,12 @@ $route['404_override'] = '';
 // for the short URL remapping: anything that starts with url/ must be a shorturl
 $route['url/(:any)'] = "browserdetect/url/$1";
 
+
+// contributors/marker
+$route['contributors/marker/(:num)'] = "contributors/marker_edit/$1";
+$route['contributors/marker/(:num)/edit'] = "contributors/marker_edit/$1";
+$route['contributors/marker/(:num)/delete'] = "contributors/marker_delete/$1";
+
+
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */
