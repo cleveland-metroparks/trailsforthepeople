@@ -274,11 +274,6 @@ private function _mainmenu_left_array() {
           'access' => 'admin',
         ),
         array(
-          'url' => 'administration/markers',
-          'title' => 'Markers',
-          'access' => 'admin',
-        ),
-        array(
           'url' => 'administration/purge_tilestache',
           'title' => 'Purge TileStache',
           'access' => 'admin',

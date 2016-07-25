@@ -204,61 +204,6 @@ function deletecontributor() {
 }
 
 
-function markers() {
-    // Require SSL
-    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require admin user
-    if ($this->_user_access('admin') !== NULL) return;
-
-    // simply make a list of all contributors in the system
-    $data = array();
-    $data['markers'] = new Marker();
-    $data['markers']->get();
-
-    // and print it out
-    $this->load->view('administration/markers.phtml', $data);
-}
-
-
-function marker($id) {
-    // Require SSL
-    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require admin user
-    if ($this->_user_access('admin') !== NULL) return;
-
-    // load the marker's info
-    $data = array();
-    $data['marker'] = null;
-    if ((integer) $id) {
-        $data['marker'] = new Marker();
-        $data['marker']->where('id',$id)->get();
-        if (! $data['marker']->id) return redirect(ssl_url('administration/markers'));
-    }
-
-    // and show the details, that's all
-    $this->load->view('administration/marker.phtml', $data);
-}
-
-
-function deletemarker() {
-    // Require SSL
-    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require admin user
-    if ($this->_user_access('admin') !== NULL) return;
-
-    // fetch it, delete it
-    $marker = new Marker();
-    $marker->where('id',@$_POST['id'])->get();
-    if ($marker->id) {
-        Auditlog::log_message( sprintf("Marker deleted: %s by %s", htmlspecialchars($contributor->title), htmlspecialchars($contributor->creator) ) , 'administrator');
-        $marker->delete();
-    }
-
-    // we're outta here
-    redirect(ssl_url('administration/markers'));
-}
-
-
 function purge_tilestache() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
