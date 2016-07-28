@@ -431,6 +431,8 @@ function loop($id) {
     // Require logged-in user with "Allow Loops" permission
     if ($this->_user_access('allow_loops') !== NULL) return;
 
+    $this->_add_js_include('static/contributors/loop.js');
+
     // load the loop's info
     $data = array();
     $data['loop'] = null;
