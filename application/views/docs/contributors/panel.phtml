@@ -46,27 +46,27 @@ Contributors are like assistant administrators. Depending on the permissions gra
 
 <p>A Loop consists of several components:</p>
 <ul>
-<li><b>Status</b> -- In the front-facing app, when a user searches for Features Routes and Loops, only Loops whose status is <i>  Published</i> will be shown. This allows the admin to disable loops which are still being thought out.</li>
-<li>A name and description, paved and use type -- These are filled in by the admin, and are purely descriptive.</li>
-<li>Paved status, and use types -- These are filled in by the computer, based on its analysis of the trail segments it crosses.</li>
-<li>Source and Edited By -- These indicate who is responsible for the Loop. A common value for Source is &quot;Random&quot; indicating  that it was randomly generated from a starting point. Once it has been vetted, it may make sense to change the Source to something else  so the Loop doesn't show up on the Random list anymore.</li>
-<li>Directions and the time/distance summary -- These are automatically filled in as part of the Recalculate process.</li>
-<li>An elevation profile -- This is a graphical representation of the elevation as one follows the route. Internally, the elevation   profile is identical to that described in the directions API on the programming documentation page.</li>
-<li>Waypoints -- Waypoint 0 is the starting location. Additional waypoints can be laid down to help shape the generated Loop. <i>Note   that your waypoints may not fall exactly onto the generated path.</i></li>
-<li>WKT -- The plotted route on the map, is stored in OGC WKT so it can be rendered to browsers in the future.</li>
-<li>Loop? -- This dictates whether the generated route is a Loop or a one-way path.</li>
-<li>Filter -- This determines which trails view will be used for finding a route: hiking, bicycle, et cetera. <i>There are situations   where a Loop cannot be made with a given trail use type, e.g. specifying equestrian trails in an area with few/no equestrian trails,  may not result in a usable Loop.</i></li>
-<li>Trim? -- This affects whether backtracking segments should be removed from the route, such as where a waypoint would have you walk  down a path then do a U-turn. <i>This has known side effects on trailhead segments, and for some complex manually-generated routes may   remove whole legs of the trip.</i></li>
+<li><strong>Status</strong>: In the front-facing app, when a user searches for Features Routes and Loops, only Loops whose status is <i>  Published</i> will be shown. This allows the admin to disable loops which are still being thought out.</li>
+<li><strong>Name</strong> and <strong>Description</strong>: These are filled in by the loop creator, and are purely descriptive.</li>
+<li><strong>Paved</strong> status, and <strong>use types</strong>: These are set automatically based on analysis of the trail segments the loop crosses.</li>
+<li><strong>Source</strong> and <strong>Edited by</strong>: These indicate who is responsible for the Loop. A common value for Source is &quot;Random&quot; indicating  that it was randomly generated from a starting point. Once it has been vetted, it may make sense to change the Source to something else  so the Loop doesn't show up on the Random list anymore.</li>
+<li><strong>Directions</strong> and <strong>Time</strong> &amp; <strong>Distance</strong> summaries: These are set automatically as part of the <em>Recalculate</em> process.</li>
+<li><strong>Elevation Profile</strong>: This is a graphical representation of the elevation as one follows the route. Internally, the elevation profile is identical to that described in the directions API on the programming documentation page.</li>
+<li><strong>Waypoints</strong>: Waypoint 0 is the starting location. Additional waypoints can be laid down to help shape the generated Loop. <i>Note   that your waypoints may not fall exactly onto the generated path.</i></li>
+<li><strong>WKT</strong>: The plotted route on the map, is stored in OGC WKT so it can be rendered to browsers in the future.</li>
+<li><strong>Loop</strong>: This dictates whether the generated route is a Loop or a one-way path.</li>
+<li><strong>Filter</strong>: This determines which trails view will be used for finding a route: hiking, bicycle, et cetera. <i>There are situations   where a Loop cannot be made with a given trail use type, e.g. specifying equestrian trails in an area with few/no equestrian trails,  may not result in a usable Loop.</i></li>
+<li><strong>Trim</strong>: This affects whether backtracking segments should be removed from the route, such as where a waypoint would have you walk  down a path then do a U-turn. <i>This has known side effects on trailhead segments, and for some complex manually-generated routes may   remove whole legs of the trip.</i></li>
 </ul>
 
 <p>Some other concepts:</p>
 <ul>
-<li><b>Random Loops</b> vs <b>Manual Loops</b> -- A loop whose <code>source</code> field is &quot;Random&quot; will be shown under the  Random Loops page; all others are shown on the Manual Loops page. This provides a separation from those Loops which were generated by  an admin, versus those generated randomly. (more on that topic later)</li>
-<li><b>Autoloop</b> -- This is used to manually generate a random loop from a given Lat/Lon (Manual) or from a CSV file of Lat/Lon  pairs (CSV). (more on this later)</li>
+<li><strong>Random Loops</strong> vs <strong>Manual Loops</strong>: A loop whose <code>source</code> field is &quot;Random&quot; will be shown under the  Random Loops page; all others are shown on the Manual Loops page. This provides a separation from those Loops which were generated by  an admin, versus those generated randomly. (more on that topic later)</li>
+<li><strong>Autoloop</strong>: This is used to manually generate a random loop from a given Lat/Lon (Manual) or from a CSV file of Lat/Lon  pairs (CSV). (more on this later)</li>
 </ul>
 
 <h3>Generating a Loop</h3>
-<ul>
+<ol>
 <li>Go into the Administration panel and into Loops.</li>
 <li>Select &quot;Create a new loop&quot;</li>
 <li>Pan and center your map until you find the location for your desired trailhead. You may use the geocoder to search for an address   or landmark via Google.</li>
@@ -75,7 +75,7 @@ Contributors are like assistant administrators. Depending on the permissions gra
 <li>Click Recalculate to have the server calculate the route between your waypoints. It will also populate the directions, the  elevation profile, et cetera.</li>
 <li>When you're done, click Save Changes to save the Loop.</li>
 <li>Remember, your Loop will only be visible to the public when you set its Status to Published.</li>
-</ul>
+</ol>
 
 <p>
 An option exists to generate random waypoints. It comes with no promises, but can sometimes reveal interesting Loops that you wouldn't  otherwise have known about.
