@@ -100,7 +100,7 @@
             <div class="col-sm-8">
                 <?php
                     $uses_list = array();
-                    if (is_array($trail->uses)) {
+                    if (!empty($trail->uses)) {
                         $uses_list = explode(', ', $trail->uses);
                     }
                     $options = array(
@@ -109,15 +109,7 @@
                         'Horseback Riding',
                         'Mountain Biking',
                     );
-                    foreach ($options as $option) {                        
-                        $selected = in_array($option, $uses_list);
-                        $selected_markup = $selected ? ' checked' : '';
-                        print
-                        '<label class="checkbox-inline">
-                            <input class="form-check-input" type="checkbox" value="' . $option .'">' .
-                            htmlspecialchars($option) .
-                        '</label>';
-                    }
+                    print html_checkbox_list($options, $uses_list);
                 ?>
             </div>
         </div>

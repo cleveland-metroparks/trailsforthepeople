@@ -21,3 +21,22 @@ if (!function_exists('html_select_list'))
         return $markup;
     }
 }
+
+/**
+ * Render an HTML checkbox list.
+ */
+if (!function_exists('html_checkbox_list'))
+{
+    function html_checkbox_list($options, $selected_list) {
+        $markup = '';
+        foreach ($options as $option) {
+            $selected_markup = in_array($option, $selected_list) ? ' checked' : '';
+            $markup .=
+                '<label class="checkbox-inline">
+                <input class="form-check-input" type="checkbox" value="' . $option .'"' . $selected_markup . '>'
+                . htmlspecialchars($option) . '</label>';
+        }
+
+        return $markup;
+    }
+}
