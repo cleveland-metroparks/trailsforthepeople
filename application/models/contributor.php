@@ -43,6 +43,7 @@ function buildSessionDataArray() {
         'allow_markers' => ($this->allow_markers == 't'),
         'allow_swgh' => ($this->allow_swgh == 't'),
         'allow_loops' => ($this->allow_loops == 't'),
+        'allow_trails' => ($this->allow_trails == 't'),
         'allow_closures' => ($this->allow_closures == 't'),
         'allow_twitter' => ($this->allow_twitter == 't'),
     );

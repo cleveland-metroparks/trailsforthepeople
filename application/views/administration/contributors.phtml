@@ -13,8 +13,8 @@
   <th>SWGH</th>
   <th>Markers</th>
   <th>Loops</th>
-  <th>Closures</th>
   <th>Hint Maps</th>
+  <th>Trails</th>
   <th>Edit</th>
 </tr>
 </thead>
@@ -27,8 +27,8 @@
     <td><?= $contributor->allow_swgh     == 'f' ? 'no' : 'yes' ?></td>
     <td><?= $contributor->allow_markers  == 'f' ? 'no' : 'yes' ?></td>
     <td><?= $contributor->allow_loops    == 'f' ? 'no' : 'yes' ?></td>
-    <td><?= $contributor->allow_closures == 'f' ? 'no' : 'yes' ?></td>
     <td><?= $contributor->allow_hintmaps == 'f' ? 'no' : 'yes' ?></td>
+    <td><?= $contributor->allow_trails   == 'f' ? 'no' : 'yes' ?></td>
     <td><a href="<?= ssl_url("administration/contributor/{$contributor->id}") ?>">edit</a></td>
   </tr>
 <?php } ?>
