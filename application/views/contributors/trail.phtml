@@ -45,19 +45,40 @@
         </div>
 
         <div class="form-group">
-            <label class="control-label col-sm-3">Publication:</label>
+            <label class="control-label col-sm-3">Closure:</label>
             <div class="col-sm-8">
             <?php
                 $options = array(
-                    'New',
-                    'In Progress',
-                    'Published',
-                    'Expired',
+                    'Open',
+                    'Closed',
+                    'By schedule',
                 );
                 print html_select_list('status', $options, $trail->status);
             ?>
             </div>
         </div>
+
+        <fieldset class="form-group schedule-options-group" style="display: none; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; ">
+            <div class="form-group row">
+                <label class="control-label col-sm-3">Schedule:</label>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-sm-3">Open date:</label>
+                <div class="col-sm-8">
+                    <input type="text" name="schedule-open-date" size="10" maxlength="10" value="<?= $trail ? $trail->startdate : date('Y-m-d') ?>" />
+                    <span class="btn btn-sm btn-default" id="schedule-open-date-today">today</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-sm-3">Close date:</label>
+                <div class="col-sm-8">
+                    <input type="text" name="schedule-close-date" size="10" maxlength="10" value="<?= $trail ? $trail->expires : '' ?>"  />
+                    <span class="btn btn-sm btn-default" id="schedule-close-date-never">never</span>
+                </div>
+            </div>
+        </fieldset>
 
         <div class="form-group">
             <label class="control-label col-sm-3">Primary Use:</label>
