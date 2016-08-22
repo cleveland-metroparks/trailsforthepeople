@@ -1,3 +1,60 @@
 <?php $this->page_title = 'Trails'; ?>
 
-<p>Coming soon...</p>
+<ul class="local-actions">
+    <li><a href="<?= ssl_url('contributors/trail/0/') ?>" class="btn btn-primary">+ Create a trail</a></li>
+</ul>
+
+<table id="trails" class="table table-striped">
+<thead>
+<tr>
+    <th>Name</th>
+    <th>Reservation</th>
+    <th>Miles</th>
+    <th>Paved</th>
+    <th>Primary Use</th>
+    <th>Edit</th>
+    <th>Clone</th>
+</tr>
+</thead>
+<tbody>
+<?php foreach ($trails as $trail) { ?>
+<tr>
+    <td>
+        <?php if ($this->loggedin['admin'] or ($trail->creatorid == $this->loggedin['id'])): ?>
+            <a href="<?= ssl_url("contributors/trail/{$trail->id}") ?>"><?= htmlspecialchars($trail->name) ?></a>
+        <?php else: ?>
+            <?= htmlspecialchars($trail->name) ?>
+        <?php endif; ?>
+    </td>
+    <td><?= $trail->reservation ?></td>
+    <td><?= (float) $trail->length_text ?></td>
+    <td><?= $trail->paved ?></td>
+    <td><?= $trail->pri_use ?></td>
+    <td>
+        <?php if ($this->loggedin['admin'] or ($trail->creatorid == $this->loggedin['id'])): ?>
+            <a href="<?= ssl_url("contributors/trail/{$trail->id}") ?>">edit</a>
+        <?php else: ?>
+            &nbsp;
+        <?php endif; ?>
+    </td>
+    <td><a class="clone" href="<?= ssl_url("contributors/clonetrail/{$trail->id}") ?>">clone</a></td>
+</tr>
+<?php } ?>
+</tbody>
+</table>
+
+<script type="text/javascript">
+$(window).load(function() {
+    // sort the table
+    $('#trails').tablesorter({
+        sortList: [[0,0]]
+    });
+    $('#trails').addClass('tablesorter');
+
+    // the clone links are simple links, but do ask for confirmation first
+    $('a.clone').click(function () {
+        if (! confirm("This will make a copy of the Trail, for your own editing and experimentation.\nClick OK to continue, or Cancel to cancel.") ) return false;
+        return true;
+    });
+});
+</script>

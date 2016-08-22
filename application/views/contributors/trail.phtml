@@ -1,0 +1,390 @@
+<?php $this->page_title = isset($trail->id) ? 'Edit Trail' : 'Create Trail'; ?>
+
+<?php $this->load->helper('html_extras'); ?>
+
+<script type="text/javascript">
+    trail_steps = <?= $trail ? $trail->steps : '[]' ?>;
+</script>
+
+<form class="form-horizontal" id="trailform" method="post" action="<?= ssl_url("contributors/savetrail/") ?>">
+
+<input type="hidden" name="id" value="<?= $trail ? $trail->id : 0 ?>" />
+<input type="hidden" name="wkt" value="<?= $trail ? $trail->wkt : '' ?>" />
+<input type="hidden" name="elevation_profile" value="<?= $trail ? $trail->elevation_profile : '' ?>" />
+<input type="hidden" name="elevation_profile_image" value="<?= $trail ? ssl_url("static/photos/trails/{$trail->id}.jpg") : '' ?>" />
+
+<ul class="nav nav-tabs">
+  <li class="active"><a data-toggle="tab" href="#basic-info">Basic Information</a></li>
+  <li><a data-toggle="tab" href="#waypoints-route">Waypoints &amp; Route</a></li>
+  <li><a data-toggle="tab" href="#directions-profile">Directions &amp; Profile</a></li>
+</ul>
+
+<div class="tab-content">
+
+<!-- Basic Information (tab) -->
+<div id="basic-info" class="tab-pane active">
+    <h3>Basic Information</h3>
+
+    <!-- Basic Information (col) -->
+    <div class="col-md-6">
+
+        <div class="form-group">
+            <label class="control-label col-sm-3">Name:</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="name" maxlength="200" value="<?= $trail ? htmlspecialchars($trail->name) : '- Untitled Trail' ?>" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-3">Description:</label>
+            <div class="col-sm-8">
+                <textarea class="form-control" name="description" style="height:5em">
+                    <?= $trail ? htmlspecialchars($trail->description) : '' ?>
+                </textarea>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-3">Publication:</label>
+            <div class="col-sm-8">
+            <?php
+                $options = array(
+                    'New',
+                    'In Progress',
+                    'Published',
+                    'Expired',
+                );
+                print html_select_list('status', $options, $trail->status);
+            ?>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-3">Source:</label>
+            <div class="col-sm-8">
+                <input class="form-control" type="text" name="source" maxlength="100" value="<?= $trail ? htmlspecialchars($trail->source) : '' ?>" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-3">Paved:</label>
+            <div class="col-sm-8">
+            <?php
+                $options = array(
+                    'No',
+                    'Few areas',
+                    'Some areas',
+                    'Most areas',
+                    'Yes',
+                );
+                print html_select_list('paved', $options, $trail->paved);
+            ?>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-3">Primary Use:</label>
+            <div class="col-sm-8">
+            <?php
+                $options = array(
+                    'All Purpose Trail',
+                    'Bridle',
+                    'Hiking',
+                    'Mountain Biking',
+                );
+                print html_select_list('pri_use', $options, $trail->pri_use);
+            ?>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-3">Uses:</label>
+            <div class="col-sm-8">
+                <?php
+                    $uses_list = array();
+                    if (is_array($trail->uses)) {
+                        $uses_list = explode(', ', $trail->uses);
+                    }
+                    $options = array(
+                        'Biking',
+                        'Exercising',
+                        'Hiking & Walking',
+                        'Horseback Riding',
+                        'Mountain Biking',
+                    );
+                    foreach ($options as $option) {                        
+                        $selected = in_array($option, $uses_list);
+                        $selected_markup = $selected ? ' checked' : '';
+                        print
+                        '<label class="checkbox-inline">
+                            <input class="form-check-input" type="checkbox" value="' . $option .'">' .
+                            htmlspecialchars($option) .
+                        '</label>';
+                    }
+                ?>
+            </div>
+        </div>
+
+    </div>
+    <!-- /Basic Information (col) -->
+
+</div>
+<!-- /Basic Information (tab) -->
+
+
+<div id="waypoints-route" class="tab-pane">
+    <h3>Waypoints &amp; Route</h3>
+
+    <!-- Waypoints Map - Left side (col) -->
+    <div class="col-md-6">
+
+        <div id="map_canvas" style="width:100%; height:5in; margin: 1em 0;"></div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-4">Search:</label>
+            <div class="col-sm-8 form-inline">
+                <input class="form-control" type="text" id="geocode_text" />
+                <input class="btn btn-sm btn-default" type="button" id="geocode_button" value="Go &gt;" />
+                <p class="help-block">Search for an address or landmark</p>
+            </div>
+        </div>
+
+    </div>
+    <!-- /Waypoints Map - Left side (col) -->
+
+    <!-- Waypoints Right side (col) -->
+    <div class="col-md-6">
+
+        <!-- Waypoints List (row) -->
+        <div class="row">
+
+            <h4>Waypoints <a href="#waypointInstructions" data-toggle="collapse" aria-expanded="false" aria-controls="waypointInstructions"><span class="glyphicon glyphicon-question-sign"></span></a></h4>
+
+            <div class="collapse well well-sm" id="waypointInstructions">
+                <ol>
+                    <li>Zoom the map to the general area of your desired trail.</li>
+                    <li>Add the first and last waypoints, then click <em>Recalculate</em> to get an idea of where the system would route you. The system will automatically &quot;close the trail&quot; back     to      the first waypoint.</li>
+                    <li>To fine-tune the route: add waypoints in between and <em>Recalculate</em>.</li>
+                </ol>
+            </div>
+
+            <ul id="waypoints" class="list-group">
+            <?php for ($i=0; $i<10; $i++) : ?>
+                <li class="list-group-item waypoint" id="wp<?= $i ?>">
+                    <label class="control-label"><?= $i ?>:</label>
+                    <input type="text" class="lat textonly" readonly="readonly" id="wp<?= $i ?>lat" name="wp<?= $i ?>lat" value="<?= $trail ? $trail->{"wp${i}lat"} : '0' ?>" />
+                    <input type="text" class="lng textonly" readonly="readonly" id="wp<?= $i ?>lng" name="wp<?= $i ?>lng" value="<?= $trail ? $trail->{"wp${i}lng"} : '0' ?>" />
+                    <span class="btn btn-sm btn-default wpadd pull-right" wp="wp<?= $i ?>">add</span>
+                    <span class="btn btn-sm btn-default wpremove pull-right" wp="wp<?= $i ?>">remove</span>
+                </li>
+            <?php endfor; ?>
+            </ul>
+
+        </div>
+        <!-- /Waypoints List (row) -->
+
+        <!-- Route Options (row) -->
+        <div class="row">
+
+            <h4>Route Options</h4>
+
+            <div class="form-group">
+                <label class="control-label col-sm-3">Trail:</label>
+                <div class="col-sm-6">
+                    <select class="form-control" name="closedtrail">
+                        <option value="1" <?= $trail ? ($trail->closedtrail=='1' ? 'selected="true"' : '') : '' ?> >Return to start to form a closed trail</option>
+                        <option value="0" <?= $trail ? ($trail->closedtrail=='0' ? 'selected="true"' : '') : '' ?> >End at the final waypoint, not a closed trail</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-sm-3">Filter:</label>
+                <div class="col-sm-6">
+                    <select class="form-control" name="terrain_filter">
+                        <option value="hike" <?= $trail ? ($trail->terrain_filter=='hike' ? 'selected="true"' : '') : '' ?> >Hiking trails</option>
+                        <option value="hike_paved" <?= $trail ? ($trail->terrain_filter=='hike_paved' ? 'selected="true"' : '') : '' ?> >Hiking trails, paved</option>
+                        <option value="hike_unpaved" <?= $trail ? ($trail->terrain_filter=='hike_unpaved' ? 'selected="true"' : '') : '' ?> >Hiking trails, unpaved</option>
+                        <option value="bike" <?= $trail ? ($trail->terrain_filter=='bike' ? 'selected="true"' : '') : '' ?> >Bicycle trails</option>
+                        <option value="bike_novice" <?= $trail ? ($trail->terrain_filter=='bike_novice' ? 'selected="true"' : '') : '' ?> >Bicycle trails, novice</option>
+                        <option value="bike_beginner" <?= $trail ? ($trail->terrain_filter=='bike_beginner' ? 'selected="true"' : '') : '' ?> >Bicycle trails &amp; roads, beginner</option>
+                        <option value="bike_intermediate" <?= $trail ? ($trail->terrain_filter=='bike_intermediate' ? 'selected="true"' : '') : '' ?> >Bicycle trails &amp; roads, intermediate</option>
+                        <option value="bike_advanced" <?= $trail ? ($trail->terrain_filter=='bike_advanced' ? 'selected="true"' : '') : '' ?> >Bicycle trails &amp; roads, advanced</option>
+                        <option value="bridle" <?= $trail ? ($trail->terrain_filter=='bridle' ? 'selected="true"' : '') : '' ?> >Equestrian trails</option>
+                        <option value="bridle_paved" <?= $trail ? ($trail->terrain_filter=='bridle_paved' ? 'selected="true"' : '') : '' ?> >Equestrian trails, paved</option>
+                        <option value="bridle_unpaved" <?= $trail ? ($trail->terrain_filter=='bridle_unpaved' ? 'selected="true"' : '') : '' ?> >Equestrian trails, unpaved</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-sm-3">Trim:</label>
+                <div class="col-sm-6">
+                    <select class="form-control" name="trim_spurs">
+                        <option value="">Do not trim off spurs</option>
+                        <option value="trim">Trim off spurs</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-offset-3 col-sm-6">
+                    <input type="button" id="recalculate_button" value="Recalculate" value0="One moment..." value1="Recalculate" class="btn btn-default" />
+                </div>
+            </div>
+
+        </div>
+        <!-- /Route Options (row) -->
+
+        <!-- Random Trails (row) -->
+        <div class="row">
+
+            <h4>Generate Random Trail <a href="#randomTrailInstructions" data-toggle="collapse" aria-expanded="false" aria-controls="randomTrailInstructions"><span class="glyphicon glyphicon-question-sign"></span></a></h4>
+
+            <div class="collapse well well-sm" id="randomTrailInstructions">
+                <ol>
+                    <li>Center the map and place Waypoint 0 to indicate a starting point.</li>
+                    <li>Select trail settings above: the trail types filter and whether to close the trail.</li>
+                    <li>Select a desired route length below.</li>
+                    <li>Click the Generate Random button to have it select some waypoints and place markers.</li>
+                    <li>Click Generate Random again to try again, click the Recalculate button to calculate a route, or adjust the markers to fine tune the output.</li>
+                </ol>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-sm-3">Route length:</label>
+                <div class="col-sm-6">
+                    <select class="form-control" id="random_miles">
+                        <option value="5">5 miles</option>
+                        <option value="10">10 miles</option>
+                        <option value="15">15 miles</option>
+                        <option value="20">20 miles</option>
+                        <option value="25">25 miles</option>
+                        <option value="30">30 miles</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-offset-3 col-sm-6">
+                    <input type="button" id="random_button" value="Generate Random" value0="One moment..." value1="Generate Random" class="btn btn-default" />
+                </div>
+            </div>
+
+        </div>
+        <!-- /Random Trails (row) -->
+
+    </div>
+    <!-- Waypoints Right side (col) -->
+
+</div>
+<!-- /Waypoints & Route (tab) -->
+
+
+
+<!-- /Directions & Profile (tab) -->
+<div id="directions-profile" class="tab-pane">
+
+    <h3>Directions &amp; Profile</h3>
+
+    <!-- Directions (col) -->
+    <div class="col-md-6">
+
+    <h4>Directions</h4>
+
+        <div class="row">
+             <table class="table table-striped table-condensed" id="directions" style="font-size:90%;">
+             </table>
+        </div>
+
+    </div>
+    <!-- /Directions (col) -->
+
+    <!-- Distance (col) -->
+    <div class="col-md-6">
+
+        <h4>Distance</h4>
+
+        <div class="row">
+            <label class="col-sm-4">Length:</label>
+            <div class="col-sm-8">
+                <input type="hidden" name="distancetext" value="<?= $trail ? $trail->distancetext : 0 ?>" />
+                <input type="hidden" name="distance_feet" value="<?= $trail ? $trail->distance_feet : 0 ?>" />
+                <span id="distancetext"><?= $trail ? $trail->distancetext : 0 ?></span> (<span id="distance_feet"><?= $trail ? $trail->distance_feet : 0 ?></span> ft)
+            </div>
+        </div>
+
+        <div class="row">
+            <label class="col-sm-4">Duration, hike:</label>
+            <div class="col-sm-8">
+                <input type="hidden" name="durationtext_hike" value="<?= $trail ? $trail->durationtext_hike : 0 ?>" />
+                <input type="hidden" name="duration_hike" value="<?= $trail ? $trail->duration_hike : 0 ?>" />
+                <span id="durationtext_hike"><?= $trail ? $trail->durationtext_hike : 0 ?></span> (<span id="duration_hike"><?= $trail ? $trail->duration_hike : 0 ?></span> sec)
+            </div>
+        </div>
+
+        <div class="row">
+            <label class="col-sm-4">Duration, bicycle:</label>
+            <div class="col-sm-8">
+                <input type="hidden" name="durationtext_bike" value="<?= $trail ? $trail->durationtext_bike : 0 ?>" />
+                <input type="hidden" name="duration_bike" value="<?= $trail ? $trail->duration_bike : 0 ?>" />
+                <span id="durationtext_bike"><?= $trail ? $trail->durationtext_bike : 0 ?></span> (<span id="duration_bike"><?= $trail ? $trail->duration_bike : 0 ?></span> sec)
+            </div>
+        </div>
+
+        <div class="row">
+            <label class="col-sm-4">Duration, equestrian:</label>
+            <div class="col-sm-8">
+                <input type="hidden" name="durationtext_bridle" value="<?= $trail ? $trail->durationtext_bridle : 0 ?>" />
+                <input type="hidden" name="duration_bridle" value="<?= $trail ? $trail->duration_bridle : 0 ?>" />
+                <span id="durationtext_bridle"><?= $trail ? $trail->durationtext_bridle : 0 ?></span> (<span id="duration_bridle"><?= $trail ? $trail->duration_bridle : 0 ?></span> sec)
+            </div>
+        </div>
+
+    </div>
+    <!-- /Distance (col) -->
+
+    <!-- Elevation Profile (col) -->
+    <div class="col-md-6">
+
+        <h4>Elevation Profile</h4>
+
+        <div class="form-group">
+            <div class="col-sm-6">
+                <img src="<?= $trail ? ssl_url("static/photos/trails/{$trail->id}.jpg") : ssl_url('static/common/blank.png') ?>" id="elevation_profile" />
+            </div>
+        </div>
+
+    </div>
+    <!-- /Elevation Profile -->
+
+</div>
+<!-- /Directions & Profile (tab) -->
+
+
+</div>
+<!-- /Tabs content -->
+
+<!-- Submit Button -->
+<div class="form-group">
+    <div class="col-md-12">
+        <input class="btn btn-primary" type="submit" value="Save Changes" />
+    </div>
+</div>
+<!-- /Submit Button -->
+
+</form>
+
+
+<!-- Delete Button -->
+<?php if ($trail) { ?>
+<form class="form-horizontal" id="deleteform" method="post" action="<?= ssl_url("contributors/deletetrail/") ?>" onSubmit="return confirm('Really delete this trail?');">
+    <input type="hidden" name="id" value="<?= $trail->id ?>" />
+    <div class="form-group">
+        <div class="col-sm-4">
+            <input class="btn btn-primary" type="submit" value="Delete Trail" />
+        </div>
+    </div>
+</form>
+<?php } ?>
+<!-- /Delete Button -->

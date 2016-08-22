@@ -33,7 +33,7 @@ private function delTree($dir) {
     return rmdir($dir);
 }
 
-/*
+/**
  * Login
  *
  * Deprecated; using administration for this now.
@@ -42,7 +42,7 @@ function login() {
     return redirect(ssl_url('administration/login'));
 }
 
-/*
+/**
  * Logout
  *
  * Deprecated; using administration for this now.
@@ -51,7 +51,7 @@ function logout() {
     return redirect(ssl_url('administration/logout'));
 }
 
-/*
+/**
  * User Account page
  */
 function user() {
@@ -681,16 +681,218 @@ function loop_delete($id) {
 function trails() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require logged-in user
-    if ($this->_user_access() !== NULL) return;
+    // Require logged-in user with "Allow Trails" permission
+    if ($this->_user_access('allow_trails') !== NULL) return;
 
-    // must have the permission to use this specific function
-    //if (! $this->loggedin['allow_trails']) return redirect(ssl_url('contributors/'));
+    $myid = $this->loggedin;
 
-    $this->load->view('contributors/trails.phtml');
+    // Load all trails.
+    // Fetch only the fields of interest: the WKT and geom fields are expensive!
+    $fields = 'id,name,status,paved,length_text,pri_use,reservation';
+    $data = array();
+    $data['trails'] = new Newtrail();
+    $data['trails']->select($fields)->get();
+
+    $this->load->view('contributors/trails.phtml', $data);
 }
 
-/*
+/**
+ *
+ */
+function trail($id) {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Trails" permission
+    if ($this->_user_access('allow_trails') !== NULL) return;
+
+    $this->_add_js_include('static/contributors/trail.js');
+
+    // Load the trail info.
+    $data = array();
+    $data['trail'] = null;
+    if ((integer) $id) {
+        $data['trail'] = new Newtrail();
+        $data['trail']->where('id',$id)->get();
+        if (! $data['trail']->id) return redirect(ssl_url('contributors/trails'));
+
+        // must be owner of the trail, or an admin
+        if (! $this->loggedin['admin'] and $data['trail']->creatorid != $this->loggedin['id']) {
+            return redirect(ssl_url('contributors/trails'));
+        }
+    }
+
+    $this->load->view('contributors/trail.phtml', $data);
+}
+
+/**
+ *
+ */
+function savetrail() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Trails" permission
+    if ($this->_user_access('allow_trails') !== NULL) return;
+
+    // fetch the record we're updating, or create a new record
+    if (@$_POST['id']) {
+        $trail = new Newtrail();
+        $trail->where('id',$_POST['id'])->get();
+        if (! $trail->id) return redirect(ssl_url('contributors/trails'));
+
+        // must be owner of the Trail, or an admin
+        if (! $this->loggedin['admin'] and $trail->creatorid != $this->loggedin['id']) {
+            return redirect(ssl_url('contributors/trails'));
+        }
+    } else {
+        $trail = new Newtrail();
+        $trail->creatorid = $this->loggedin['id'];
+    }
+
+    // save the plain and simple fields to the database
+    $asisfields = array(
+        'name', 'description',
+        'bike', 'bridle', 'hike', 'mountainbike', 'difficulty', 'paved',
+        'wp0lat', 'wp0lng','wp1lat', 'wp1lng', 'wp2lat', 'wp2lng', 'wp3lat', 'wp3lng', 'wp4lat', 'wp4lng', 'wp5lat', 'wp5lng', 'wp6lat', 'wp6lng', 'wp7lat', 'wp7lng', 'wp8lat', 'wp8lng', 'wp9lat', 'wp9lng', 
+        'distance_feet', 'distancetext', 'duration_hike', 'durationtext_hike', 'duration_bike', 'durationtext_bike', 'duration_bridle', 'durationtext_bridle', 
+        'wkt', 'elevation_profile', 'closedloop', 'terrain_filter', 
+        'startdate','expires','annual',
+        'status', 'source', 'editedby', 
+    );
+    if (!$_POST['expires']) $_POST['expires'] = null;
+    foreach ($asisfields as $fieldname) {
+        if (! @$_POST[$fieldname]) {
+            switch (@$fieldname) {
+                case 'distance_feet':
+                case 'duration_hike':
+                case 'duration_bike':
+                case 'duration_bridle':
+                    $_POST[$fieldname] = 0;
+                    break;
+            }
+        }
+        $trail->{$fieldname} = @$_POST[$fieldname];
+    }
+    $trail->save();
+
+    // now the directions steps, in JSON format
+    $steps = array();
+    for ($i=0; $i<sizeof($_POST['text']); $i++) {
+        $steps[] = array(
+            'stepnumber' => $_POST['stepnumber'][$i],
+            'text' => $_POST['text'][$i],
+            'distance' => $_POST['distance'][$i],
+            'timehike' => $_POST['timehike'][$i],
+            'timebike' => $_POST['timebike'][$i],
+            'timebridle' => $_POST['timebridle'][$i],
+        );
+    }
+    $trail->steps = json_encode($steps);
+    $trail->save();
+
+    // the WKT is saved already; save it as a geometry in both SRSs, WGS84 and 3734
+    // and calculate its centroid and WSEN bbox
+    if (@$_POST['wkt']) {
+        $this->db->query('UPDATE trails SET the_geom=ST_GeometryFromText(wkt,4326) WHERE id=?', array($trail->id) );
+        $this->db->query('UPDATE trails SET geom=ST_TRANSFORM(ST_GeometryFromText(wkt,4326),3734) WHERE id=?', array($trail->id) );
+        $this->db->query('UPDATE trails SET lat=ST_Y(ST_StartPoint(ST_GeometryN(the_geom,1))) WHERE id=?', array($trail->id) );
+        $this->db->query('UPDATE trails SET lng=ST_X(ST_StartPoint(ST_GeometryN(the_geom,1))) WHERE id=?', array($trail->id) );
+        $this->db->query('UPDATE trails SET boxw=ST_XMIN(the_geom) WHERE id=?', array($trail->id) );
+        $this->db->query('UPDATE trails SET boxs=ST_YMIN(the_geom) WHERE id=?', array($trail->id) );
+        $this->db->query('UPDATE trails SET boxe=ST_XMAX(the_geom) WHERE id=?', array($trail->id) );
+        $this->db->query('UPDATE trails SET boxn=ST_YMAX(the_geom) WHERE id=?', array($trail->id) );
+    }
+
+    // the tsvector fulltext search
+    $this->db->query("UPDATE trails SET search=to_tsvector(coalesce(name,'') || ' ' || coalesce(description,'') ) WHERE id=?", array($trail->id) );
+
+    // now the list of intersecting reservations
+    $this->db->query('SELECT update_trail_reservations(?)', array($trail->id) );
+
+    // save the elevation profile image; they have a tempfile in the browser, save it by the trail's ID#
+    if ($_POST['elevation_profile_image']) {
+        $source = $_POST['elevation_profile_image'];
+        $saveas = "static/photos/trails/{$trail->id}.jpg";
+        copy($source,$saveas);
+    }
+
+    // done
+    $email = $this->loggedin;
+    $email = $email['email'];
+    Auditlog::log_message( sprintf("Trail saved: %s", htmlspecialchars($trail->name) ) , $email);
+    $url = $trail->source == 'random' ? ssl_url('contributors/trails?random=1') : ssl_url('contributors/trails');
+    redirect($url);
+}
+
+/**
+ *
+ */
+function clonetrail($id) {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Trails" permission
+    if ($this->_user_access('allow_trails') !== NULL) return;
+
+    // fetch the original Trail
+    $old_trail = new Newtrail();
+    $old_trail->where('id',$id)->get();
+    if (! $old_trail->id) return redirect(ssl_url('contributors/trails'));
+
+    // log this event
+    $email = $this->loggedin;
+    $email = $email['email'];
+    Auditlog::log_message( sprintf("Trail cloned: %s", htmlspecialchars($old_trail->name) ) , $email);
+
+    // create a new Trail, and copy in all field values
+    // then override some fields: remove the ID, editor, status, ...
+    $new_trail = new Newtrail();
+    foreach($old_trail->stored as $field=>$value) $new_trail->{$field} = $value;
+    unset($new_trail->id);
+    $new_trail->status    = 'New';
+    $new_trail->editedby  = $this->loggedin['realname'];
+    $new_trail->creatorid = $this->loggedin['id'];
+    $new_trail->name      = substr("COPY of " . $new_trail->name, 0, 255 );
+    $new_trail->save();
+
+    // send them to the new Trail's editing page
+    redirect( ssl_url("contributors/trail/{$new_trail->id}") );
+}
+
+/**
+ *
+ */
+function deletetrail() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Trails" permission
+    if ($this->_user_access('allow_trails') !== NULL) return;
+
+    // log this event
+    $email = $this->loggedin;
+    $email = $email['email'];
+    Auditlog::log_message( sprintf("Trail deleted: %s", htmlspecialchars($trail->name) ) , $email);
+
+    // fetch it
+    $trail = new Newtrail();
+    $trail->where('id',@$_POST['id'])->get();
+    if (! $trail->id) return redirect(ssl_url('contributors/'));
+
+    // they must own it, or be an admin
+    if (! $this->loggedin['admin'] and $trail->creatorid != $this->loggedin['id']) {
+        return redirect(ssl_url('contributors/trails'));
+    }
+
+    // fine; delete it
+    $trail->delete();
+
+    // delete any static images associated with it
+    $photo = "static/photos/trails/{$trail->id}.jpg";
+    if (is_file($photo)) unlink($photo);
+
+    // we're outta here
+    redirect(ssl_url('contributors/trails'));
+}
+
+/**
  * List/manage Use Areas
  */
 function use_areas() {
