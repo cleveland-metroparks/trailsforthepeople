@@ -213,10 +213,14 @@
             <div class="form-group">
                 <label class="control-label col-sm-3">Trim:</label>
                 <div class="col-sm-6">
-                    <select class="form-control" name="trim_spurs">
-                        <option value="">Do not trim off spurs</option>
-                        <option value="trim">Trim off spurs</option>
-                    </select>
+                    <?php
+                        $options = array(
+                            'trim' => 'Trim off spurs',
+                            '' => 'Do not trim off spurs',
+                        );
+                        $selected = 'trim';
+                        print html_select_list('trim_spurs', $options, $selected);
+                    ?>
                 </div>
             </div>
 
