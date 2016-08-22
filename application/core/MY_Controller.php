@@ -223,11 +223,11 @@ private function _mainmenu_left_array() {
       'url' => 'contributors',
       'title' => 'Contributors',
       'submenu' => array(
-        //array(
-        //  'url' => 'contributors/trails',
-        //  'title' => 'Trails',
-        //  'access' => 'allow_trails',
-        //),
+        array(
+          'url' => 'contributors/trails',
+          'title' => 'Trails',
+          'access' => 'allow_trails',
+        ),
         //array(
         //  'url' => 'contributors/use_areas',
         //  'title' => 'Use Areas',
