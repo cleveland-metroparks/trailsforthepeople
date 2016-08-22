@@ -54,7 +54,8 @@
                     'Closed',
                     'By schedule',
                 );
-                print html_select_list('status', $options, $trail->status);
+                $selected = isset($trail->status) ? $trail->status : '';
+                print html_select_list('status', $options, $selected);
             ?>
             </div>
         </div>
@@ -91,7 +92,8 @@
                     'Hiking',
                     'Mountain Biking',
                 );
-                print html_select_list('pri_use', $options, $trail->pri_use);
+                $selected = isset($trail->pri_use) ? $trail->pri_use : '';
+                print html_select_list('pri_use', $options, $selected);
             ?>
             </div>
         </div>
@@ -100,9 +102,9 @@
             <label class="control-label col-sm-3">Uses:</label>
             <div class="col-sm-8">
                 <?php
-                    $uses_list = array();
+                    $selected_list = array();
                     if (!empty($trail->uses)) {
-                        $uses_list = explode(', ', $trail->uses);
+                        $selected_list = explode(', ', $trail->uses);
                     }
                     $options = array(
                         'Biking',
@@ -110,7 +112,7 @@
                         'Horseback Riding',
                         'Mountain Biking',
                     );
-                    print html_checkbox_list($options, $uses_list);
+                    print html_checkbox_list($options, $selected_list);
                 ?>
             </div>
         </div>
