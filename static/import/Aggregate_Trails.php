@@ -26,31 +26,32 @@ $sheet    = $xls->setActiveSheetIndex(0);
 // iterate over rows, fetching the trail name and description, and the query to perform on the cm_trails data to get the segments
 // load this into an associative array, since they aren't unique and we don't want to run them multiple times
 // row 1 is the title row; the rest are data
-//  0 Recreation Type ID. Ignored
-//  1 Recreation Type. Ignored
-//  2 Reservation ID. Ignored
-//  3 Reservation Name. Ignored
-//  4 Location Name ID. Ignored
-//  5 LINK. The URL of a landing page to view info about this Trail
-//  6 Location Name. The name for this Trail
-//  7 Description. The free-text description for this trail
-//  8 blank
-//  9 blank
-// 10 blank
-// 11 blank
-// 12 Query2Geom. The SQL query to fetrch the trail segments comprising this Trail
+//
+//  Col 0: Recreation Type ID. Ignored
+//  Col 1: Recreation Type. Ignored
+//  Col 2: Reservation ID. Ignored
+//  Col 3: Reservation Name. Ignored
+//  Col 4: Location Name ID. Ignored
+//  Col 5: LINK. The URL of a landing page to view info about this Trail
+//  Col 6: Location Name. The name for this Trail
+//  Col 7: Description. The free-text description for this trail
+//  Col 8: Query2Geom. The SQL query to fetrch the trail segments comprising this Trail
+//  Col 9: DEST_ID
 
 print "<p>Loading XLSX into memory...</p>\n";
 $trails = array();
 $numrows = $sheet->getHighestRow();
 for ($row=2; $row<$numrows; $row++) {
-    $usetype  = $sheet->getCellByColumnAndRow( 1, $row)->getValue();
-    $title    = $sheet->getCellByColumnAndRow( 6, $row)->getValue();
-    $res      = $sheet->getCellByColumnAndRow( 3, $row)->getValue();
-    $url      = $sheet->getCellByColumnAndRow( 5, $row)->getValue();
-    $descr    = $sheet->getCellByColumnAndRow( 7, $row)->getValue();
-    $sql      = $sheet->getCellByColumnAndRow( 8, $row)->getValue();
-    $driving  = $sheet->getCellByColumnAndRow( 9, $row)->getValue();
+                                                                     // Col 0: Recreation Type ID
+    $usetype  = $sheet->getCellByColumnAndRow( 1, $row)->getValue(); // Col 1: Recreation Type
+    $title    = $sheet->getCellByColumnAndRow( 6, $row)->getValue(); // Col 2: Reservation ID
+    $res      = $sheet->getCellByColumnAndRow( 3, $row)->getValue(); // Col 3: Reservation Name
+                                                                     // Col 4: Location Name ID
+    $url      = $sheet->getCellByColumnAndRow( 5, $row)->getValue(); // Col 5: LINK
+                                                                     // Col 6: Location Name
+    $descr    = $sheet->getCellByColumnAndRow( 7, $row)->getValue(); // Col 7: Description
+    $sql      = $sheet->getCellByColumnAndRow( 8, $row)->getValue(); // Col 8: QUERY2GEOM
+    $driving  = $sheet->getCellByColumnAndRow( 9, $row)->getValue(); // Col 9: DEST_ID
     //printf("%s<br/>\n", $title ); ob_flush();
 
     // the SQL has some issues: capitalization of field names, and not escaping ' characters in the trail name
