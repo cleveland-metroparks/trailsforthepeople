@@ -68,6 +68,7 @@ function user() {
         'allow_swgh' => 'SWGH',
         'allow_markers' => 'Markers',
         'allow_loops' => 'Loops',
+        'allow_trails' => 'Trails',
         'allow_closures' => 'Closures',
     );
     $access_areas = array();
