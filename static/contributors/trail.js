@@ -91,26 +91,35 @@ $('textarea[name="description"]').tinymce({
 
 
 
-/////
-///// enable the widgets for startdate and expiration date
-/////
 
-$('input[name="expires"]').datepicker({
+
+/**
+ * Closure schedule
+ */
+// Only show the "Schedule" fieldset when "By schedule" is selected
+$(".form-control[name='status']").change(function() {
+    if (this.value == 'By schedule') {
+        $('.schedule-options-group').slideDown();
+    } else {
+        $('.schedule-options-group').slideUp();
+    }
+})
+// Open date datepicker
+$('input[name="schedule-open-date"]').datepicker({
     dateFormat: 'yy-mm-dd'
 });
-
-$('#expires_never').click(function () {
-    $('input[name="expires"]').val('');
-});
-
-$('input[name="startdate"]').datepicker({
-    dateFormat: 'yy-mm-dd'
-});
-
-$('#startdate_today').click(function () {
+$('#schedule-open-date-today').click(function () {
     var today = new Date().yyyymmdd();
-    $('input[name="startdate"]').val(today);
+    $('input[name="schedule-open-date"]').val(today);
 });
+// Close date datepicker
+$('input[name="schedule-close-date"]').datepicker({
+    dateFormat: 'yy-mm-dd'
+});
+$('#schedule-close-date-never').click(function () {
+    $('input[name="schedule-close-date"]').val('');
+});
+
 
 
 /////
