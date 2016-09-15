@@ -14,8 +14,8 @@
 <input type="hidden" name="elevation_profile_image" value="<?= $trail ? ssl_url("static/photos/trails/{$trail->id}.jpg") : '' ?>" />
 
 <ul class="nav nav-tabs">
-  <li class="active"><a data-toggle="tab" href="#basic-info">Basic Information</a></li>
-  <li><a data-toggle="tab" href="#waypoints-route">Waypoints &amp; Route</a></li>
+  <li><a data-toggle="tab" href="#basic-info">Basic Information</a></li>
+  <li class="active"><a data-toggle="tab" href="#waypoints-route">Waypoints &amp; Route</a></li>
   <li><a data-toggle="tab" href="#directions-profile">Directions &amp; Profile</a></li>
   <li><a data-toggle="tab" href="#driving-destinations">Driving Destinations</a></li>
 </ul>
@@ -23,7 +23,7 @@
 <div class="tab-content">
 
 <!-- Basic Information (tab) -->
-<div id="basic-info" class="tab-pane active">
+<div id="basic-info" class="tab-pane">
     <h3>Basic Information</h3>
 
     <!-- Basic Information (col) -->
@@ -125,7 +125,7 @@
 
 
 <!-- Waypoints & Route (tab) -->
-<div id="waypoints-route" class="tab-pane">
+<div id="waypoints-route" class="tab-pane active">
     <h3>Waypoints &amp; Route</h3>
 
     <!-- Waypoints Map - Left side (col) -->
@@ -156,21 +156,36 @@
             <div class="collapse well well-sm" id="waypointInstructions">
                 <ol>
                     <li>Zoom the map to the general area of your desired trail.</li>
-                    <li>Add the first and last waypoints, then click <em>Recalculate</em> to get an idea of where the system would route you. The system will automatically &quot;close the trail&quot; back     to      the first waypoint.</li>
-                    <li>To fine-tune the route: add waypoints in between and <em>Recalculate</em>.</li>
+                    <li>Place the first and last waypoints, then click <em>Recalculate</em> to get an idea of where the system would route you. The system will automatically &quot;close the trail&quot; back to the first waypoint.</li>
+                    <li>To fine-tune the route: place waypoints in between and <em>Recalculate</em>.</li>
                 </ol>
             </div>
 
             <ul id="waypoints" class="list-group">
-            <?php for ($i=0; $i<10; $i++) : ?>
-                <li class="list-group-item waypoint" id="wp<?= $i ?>">
-                    <label class="control-label"><?= $i ?>:</label>
-                    <input type="text" class="lat textonly" readonly="readonly" id="wp<?= $i ?>lat" name="wp<?= $i ?>lat" value="<?= $trail ? $trail->{"wp${i}lat"} : '0' ?>" />
-                    <input type="text" class="lng textonly" readonly="readonly" id="wp<?= $i ?>lng" name="wp<?= $i ?>lng" value="<?= $trail ? $trail->{"wp${i}lng"} : '0' ?>" />
-                    <span class="btn btn-sm btn-default wpadd pull-right" wp="wp<?= $i ?>">add</span>
-                    <span class="btn btn-sm btn-default wpremove pull-right" wp="wp<?= $i ?>">remove</span>
-                </li>
-            <?php endfor; ?>
+            <?php if ($num_markers > 0): ?>
+                <?php for ($i=0; $i<10; $i++): ?>
+                    <?php if (!empty($trail->{"wp${i}lat"}) && !empty($trail->{"wp${i}lat"})): ?>
+                        <li class="list-group-item waypoint" id="wp-<?= $i ?>">
+                            <label class="control-label"><?= $i ?>:</label>
+                            <input type="text" class="lat textonly" name="wp-<?= $i ?>-lat" value="<?= $trail ? $trail->{"wp${i}lat"} : '0' ?>" readonly="readonly" />
+                            <input type="text" class="lng textonly" name="wp-<?= $i ?>-lng" value="<?= $trail ? $trail->{"wp${i}lng"} : '0' ?>" readonly="readonly" />
+                            <span class="btn btn-sm btn-default wp_insert pull-right">+</span>
+                            <span class="btn btn-sm btn-default wp_place pull-right">place</span>
+                            <span class="btn btn-sm btn-default wp_remove pull-right">remove</span>
+                        </li>
+                    <?php endif; ?>
+                <?php endfor; ?>
+            <?php else: ?>
+                <?php $i=0; ?>
+                    <li class="list-group-item waypoint" id="wp-<?= $i ?>">
+                        <label class="control-label"><?= $i ?>:</label>
+                        <input type="text" class="lat textonly" name="wp-<?= $i ?>-lat" value="<?= $trail  ? $trail->{"wp${i}lat"} : '0' ?>" readonly="readonly" />
+                        <input type="text" class="lng textonly" name="wp-<?= $i ?>-lng" value="<?= $trail  ? $trail->{"wp${i}lng"} : '0' ?>" readonly="readonly" />
+                        <span class="btn btn-sm btn-default wp_insert pull-right">+</span>
+                        <span class="btn btn-sm btn-default wp_place pull-right">place</span>
+                        <span class="btn btn-sm btn-default wp_remove pull-right">remove</span>
+                    </li>
+            <?php endif; ?>
             </ul>
 
         </div>

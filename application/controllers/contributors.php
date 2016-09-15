@@ -659,6 +659,7 @@ function trail($id) {
     // Load the trail info.
     $data = array();
     $data['trail'] = null;
+    $data['num_markers'] = 0;
     if ((integer) $id) {
         $data['trail'] = new Newtrail();
         $data['trail']->where('id',$id)->get();
@@ -667,6 +668,13 @@ function trail($id) {
         // must be owner of the trail, or an admin
         if (! $this->loggedin['admin'] and $data['trail']->creatorid != $this->loggedin['id']) {
             return redirect(ssl_url('contributors/trails'));
+        }
+
+        // Count the number of markers
+        for ($i=0; $i<10; $i++) {
+            if (!empty($trail->{"wp${i}lat"}) && !empty($trail->{"wp${i}lat"})) {
+                $data['num_markers']++;
+            }
         }
     }
 

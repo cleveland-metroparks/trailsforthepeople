@@ -3,18 +3,19 @@ var DIRECTIONS_LINE_STYLE = { color:"#0000FF", weight:5, opacity:0.80, clickable
 var ROUGHCUT_LINE         = null;
 var ROUGHCUT_LINE_STYLE   = { color: "#FFFFFF", weight:5, opacity:0.5, clickable:false };
 
-var MARKERS = { 'wp0':null, 'wp1':null, 'wp2':null, 'wp3':null, 'wp4':null, 'wp5':null, 'wp6':null, 'wp7':null, 'wp8':null, 'wp9':null };
+//var MARKERS = { 0:null, 1:null, 2:null, 3:null, 4:null, 5:null, 6:null, 7:null, 8:null, 9:null };
+var MARKERS = new Array();
 var ICONS = {
-    'wp0' : L.icon({ iconUrl: '/static/contributors/wp0.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp1' : L.icon({ iconUrl: '/static/contributors/wp1.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp2' : L.icon({ iconUrl: '/static/contributors/wp2.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp3' : L.icon({ iconUrl: '/static/contributors/wp3.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp4' : L.icon({ iconUrl: '/static/contributors/wp4.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp5' : L.icon({ iconUrl: '/static/contributors/wp5.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp6' : L.icon({ iconUrl: '/static/contributors/wp6.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp7' : L.icon({ iconUrl: '/static/contributors/wp7.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp8' : L.icon({ iconUrl: '/static/contributors/wp8.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp9' : L.icon({ iconUrl: '/static/contributors/wp9.png', iconSize:[20,34], iconAnchor:[10,34] })
+    0 : L.icon({ iconUrl: '/static/contributors/wp0.png', iconSize:[20,34], iconAnchor:[10,34] }),
+    1 : L.icon({ iconUrl: '/static/contributors/wp1.png', iconSize:[20,34], iconAnchor:[10,34] }),
+    2 : L.icon({ iconUrl: '/static/contributors/wp2.png', iconSize:[20,34], iconAnchor:[10,34] }),
+    3 : L.icon({ iconUrl: '/static/contributors/wp3.png', iconSize:[20,34], iconAnchor:[10,34] }),
+    4 : L.icon({ iconUrl: '/static/contributors/wp4.png', iconSize:[20,34], iconAnchor:[10,34] }),
+    5 : L.icon({ iconUrl: '/static/contributors/wp5.png', iconSize:[20,34], iconAnchor:[10,34] }),
+    6 : L.icon({ iconUrl: '/static/contributors/wp6.png', iconSize:[20,34], iconAnchor:[10,34] }),
+    7 : L.icon({ iconUrl: '/static/contributors/wp7.png', iconSize:[20,34], iconAnchor:[10,34] }),
+    8 : L.icon({ iconUrl: '/static/contributors/wp8.png', iconSize:[20,34], iconAnchor:[10,34] }),
+    9 : L.icon({ iconUrl: '/static/contributors/wp9.png', iconSize:[20,34], iconAnchor:[10,34] })
 };
 
 
@@ -123,44 +124,50 @@ $('#schedule-close-date-never').click(function () {
 
 
 /////
-///// enable various buttons and clicks
+///// Various buttons and clicks
 /////
 
-// geocode submit button
+/**
+ * Geocode
+ */
 $('#geocode_button').click(function () {
     var address = $('#geocode_text').val();
     geocodeAndZoomContributorMap(MAP, address);
 });
 
-// waypoint Add button; pick the map's center, create a marker, populate the text fields, make rough route calculation
-$('.wpadd').click(function () {
+/**
+ * Place Waypoint button
+ *
+ * Pick the map's center, create a marker, populate the text fields, make rough route calculation.
+ */
+$('#waypoints').on("click", ".wp_place", function () {
     var row    = $(this).closest('li');
-    var wpid   = row.prop('id');
+    var wp_id = row.prop('id');
+    var wp_num = get_wp_num_from_wp_id(wp_id);
 
-    // the marker will load from the text fields; if the fields currently have no value, use the map center
+    // Load marker lat/lng from text fields.
     var lat = parseFloat( row.find('.lat').val() );
     var lng = parseFloat( row.find('.lng').val() );
+    var center = new L.LatLng(lat,lng);
+    // If the fields currently have no value, use the map center and set the text.
     if (!lat || !lng) {
-        var center = MAP.getCenter();
-        row.find('.lat').val(center.lat);
-        row.find('.lng').val(center.lng);
+        center = MAP.getCenter();
+        lat = row.find('.lat').val(center.lat);
+        lng = row.find('.lng').val(center.lng);
     }
 
-    // add the marker, and its drag handler to update the text box
-    if (! MARKERS[wpid]) {
-        var lat    = parseFloat( row.find('.lat').val() );
-        var lng    = parseFloat( row.find('.lng').val() );
-        var center = new L.LatLng(lat,lng);
-        var icon   = ICONS[wpid];
+    // add the marker and its drag handler (which updates the text box)
+    if (! MARKERS[wp_num]) {
+        var icon = ICONS[wp_num];
 
-        MARKERS[wpid] = new L.Marker(center, { clickable:true, draggable:true, icon:icon });
-        MARKERS[wpid].wpid = wpid;
-        MAP.addLayer(MARKERS[wpid]);
+        MARKERS[wp_num] = new L.Marker(center, { clickable:true, draggable:true, icon:icon });
+        MARKERS[wp_num].wp_id = wp_id;
+        MAP.addLayer(MARKERS[wp_num]);
 
-        MARKERS[wpid].on('dragend', function (event) {
+        MARKERS[wp_num].on('dragend', function (event) {
             var latlng = this.getLatLng();
-            $('#' + this.wpid).find('.lat').val(latlng.lat);
-            $('#' + this.wpid).find('.lng').val(latlng.lng);
+            $('#' + this.wp_id).find('.lat').val(latlng.lat);
+            $('#' + this.wp_id).find('.lng').val(latlng.lng);
             generateRoughCut();
         });
     }
@@ -170,22 +177,105 @@ $('.wpadd').click(function () {
 
     // hide this button, show the opposite
     $(this).hide();
-    $(this).siblings('.wpremove').show();
+    $(this).siblings('.wp_remove').show();
 });
 
-// waypoint Remove button; remove the marker, clear the text fields, make rough route calculation
-$('.wpremove').click(function () {
+/**
+ * Increment Waypoint
+ * 
+ * Increment a waypoint's number/position. (When inserting a waypoint we
+ * need to increment the number on each waypoint after it.)
+ * Takes the waypoint li as "this".
+ */
+$.fn.increment_waypoint = function() {
+    var cur_id = this.attr('id');
+    var cur_num = get_wp_num_from_wp_id(cur_id);
+
+    var new_num = cur_num + 1;
+    var new_id = 'wp-' + new_num;
+
+    this.attr('id', new_id);
+    this.children('label').text(new_num + ':');
+
+    return this;
+}
+
+/**
+ * Insert Waypoint button
+ *
+ * Insert another waypoint row into the list, after the one clicked.
+ */
+$('#waypoints').on("click", ".wp_insert", function () {
+    var row = $(this).closest('li');
+    var wp_num = get_wp_num_from_wp_id(row.prop('id')) + 1;
+
+    // Increment the waypoint number for each waypoint after the one we're inserting.
+    row.nextAll().each(function(i) {
+        $(this).increment_waypoint();
+    });
+
+    // Bump the marker icon numbers.
+    for (i in MARKERS) {
+        console.log(i);
+        if (i >= wp_num && MARKERS[i]) {
+            console.log("increasing " + i);
+            var icon = ICONS[i + 1];
+            MARKERS[i].icon = icon;
+            MARKERS[i].wp_id = make_wp_id_from_wp_num(i + 1);
+        }
+    }
+    // Insert a new spot into our MARKERS array.
+    MARKERS.splice(wp_num, 0, null);
+
+    row.after(make_waypoint_li(wp_num));
+});
+
+/**
+ * Parse the waypoint number (position) from the waypoint id attribute (from inside the <li>).
+ */
+function get_wp_num_from_wp_id(wp_id) {
+    return parseInt(wp_id.substr(3));
+}
+
+/**
+ * Make the waypoint id attribute (for <li>) from number (position).
+ */
+function make_wp_id_from_wp_num(wp_num) {
+    return 'wp-' + wp_num;
+}
+
+/**
+ * Make Waypoint List Item
+ */
+function make_waypoint_li(wp_num) {
+    wp_id = 'wp-' + wp_num;
+    var row = $('<li class="list-group-item waypoint" id="' + wp_id + '"></li>');
+    row.append('<label class="control-label">' + wp_num + ':</label> ');
+    row.append('<input type="text" class="lat textonly" name="' + wp_id + '-lat" readonly="readonly" value="0" />');
+    row.append('<input type="text" class="lng textonly" name="' + wp_id + '-lng" readonly="readonly" value="0" />');
+    row.append('<span class="btn btn-sm btn-default wp_insert pull-right">+</span>');
+    row.append('<span class="btn btn-sm btn-default wp_place pull-right">place</span>');
+    row.append('<span class="btn btn-sm btn-default wp_remove pull-right">remove</span>');
+    return row;
+}
+
+/**
+ * Remove Waypoint button
+ *
+ * Remove the marker, clear the text fields, make rough route calculation.
+ */
+$('#waypoints').on("click", ".wp_remove", function () {
     var row  = $(this).closest('li');
-    var wpid = row.prop('id');
+    var wp_num = get_wp_num_from_wp_id(row.prop('id'));
 
     // clear the text fields
     row.find('.lat').val(0);
     row.find('.lng').val(0);
 
     // remove the marker
-    if (MARKERS[wpid]) {
-        MAP.removeLayer(MARKERS[wpid]);
-        MARKERS[wpid] = null;
+    if (MARKERS[wp_num]) {
+        MAP.removeLayer(MARKERS[wp_num]);
+        MARKERS[wp_num] = null;
     }
 
     // recalculate the rough cut
@@ -193,10 +283,14 @@ $('.wpremove').click(function () {
 
     // hide this button, show the opposite
     $(this).hide();
-    $(this).siblings('.wpadd').show();
+    $(this).siblings('.wp_place').show();
 });
 
-// Recalculate button: fetches a route from the server, overwreites MULTILINESTRING, draws it onto the map
+/**
+ * Recalculate button
+ *
+ * Fetch a route from the server, overwrite MULTILINESTRING, draw it onto the map
+ */
 $('#recalculate_button').click(function () {
     // load up a list of the waypoints, really a pair of lists: lat,lat,lat & lng,lng,lng
     var lats = [];
@@ -306,9 +400,9 @@ function loadTrail() {
 
         // click either the Add or Remove button; their actions will show/hide markers, show/hide buttons, et cetera
         if (lat && lng) {
-            $(this).find('.wpadd').click();
+            $(this).find('.wp_place').click();
         } else {
-            $(this).find('.wpremove').click();
+            $(this).find('.wp_remove').click();
         }
     });
 
@@ -333,8 +427,8 @@ function loadTrail() {
  */
 function zoomToMarkersExtent() {
     var extent = [];
-    for (var wpid in MARKERS) {
-        if (MARKERS[wpid]) extent[extent.length] = MARKERS[wpid].getLatLng();
+    for (var wp_num in MARKERS) {
+        if (MARKERS[wp_num]) extent[extent.length] = MARKERS[wp_num].getLatLng();
     }
     if (extent.length) MAP.fitBounds( new L.LatLngBounds(extent) );
 }
