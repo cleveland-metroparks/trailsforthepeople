@@ -34,6 +34,10 @@
     <script type="text/javascript" src="<?= site_url('static/common/wicket/wicket.js'); ?>"></script>
     <script type="text/javascript" src="<?= site_url('static/common/wicket/wicket-leaflet.js'); ?>"></script>
 
+    <!-- Mapbox.js standalone (without Leaflet) -->
+    <script src='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.standalone.js'></script>
+    <link href='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css' rel='stylesheet' />
+
     <!-- JavaScript for handling cookies -->
     <script type="text/javascript" src="<?= site_url('static/common/cookie.js'); ?>"></script>
 
@@ -280,7 +284,8 @@
 
 <div class="dialog" id="settings">
     <h3>Map Type</h3>
-    <label><input type="radio" name="basemap" value="map" checked="true" /> Map </label><br/>
+    <label><input type="radio" name="basemap" value="mapbox" checked="true" /> Mapbox </label><br/>
+    <label><input type="radio" name="basemap" value="map" /> Map </label><br/>
     <label><input type="radio" name="basemap" value="photo" /> Satellite </label><br/>
 
     <br/>
