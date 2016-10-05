@@ -1247,7 +1247,7 @@ a.ui-link-inherit {
 	 -moz-border-radius-topright: 0em /*{global-radii-buttons}*/;
 	-webkit-border-top-right-radius: 0em /*{global-radii-buttons}*/;
 	border-top-right-radius: 0em /*{global-radii-buttons}*/;
-	-moz-border-radius-bottomright: 0.m /*{global-radii-buttons}*/;
+	-moz-border-radius-bottomright: 0em /*{global-radii-buttons}*/;
 	-webkit-border-bottom-right-radius: 0em /*{global-radii-buttons}*/;
 	border-bottom-right-radius: 0em /*{global-radii-buttons}*/;
 }
