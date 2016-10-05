@@ -7,3 +7,10 @@ README.TXT
 
 # Sublime Text
 sftp-config.json
+
+# Sass
+.sass-cache
+*.css.map
+
+# Packaging
+node_modules
