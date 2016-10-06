@@ -1,11 +1,9 @@
-@import url(jqm-themes/antonio/stylesheet.css);
-@import url(jqm-themes/bignoodletitling/stylesheet.css);
-@import url(jqm-themes/cm-jqm-theme.min.css);
+@import url(jqm-themes/cm-jqm-theme.css);
 /* the front page (Map page) doesn't need padding; it interferes with the splash screen */
 #page-map > .ui-content { padding: 0; }
 
 /* global font stuff */
-.ui-header { font-family: Montserrat; }
+.ui-header { font-family: "myriad-pro", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif; }
 
 /* jQuery Mobile style overrides */
 .ui-bar-a { background: none repeat scroll 0 0 #0D6B51; border: 1px solid #0D6B51; }
@@ -146,7 +144,7 @@ h1 { font-weight: normal; }
 
 .ui-content { padding: 0; }
 
-.ui-header .ui-title, .ui-footer .ui-title { min-height: 1.25em; text-align: center; font-size: 1em; display: block; margin: 0; padding: 0; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; outline: 0; font-family: "bignoodletitlingregular", Helvetica, Arial, sans-serif; }
+.ui-header .ui-title, .ui-footer .ui-title { min-height: 1.25em; text-align: center; font-size: 1em; display: block; margin: 0; padding: 0; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; outline: 0; font-family: "myriad-pro", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif; }
 
 .ui-header .ui-btn-left, .ui-header .ui-btn-right, .ui-footer .ui-btn-left, .ui-footer .ui-btn-right { position: absolute; top: 0px; border: none; border-right: 1px; }
 

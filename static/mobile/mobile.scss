@@ -1,6 +1,7 @@
-@import "jqm-themes/antonio/stylesheet.css";
-@import "jqm-themes/bignoodletitling/stylesheet.css";
-@import "jqm-themes/cm-jqm-theme.min.css";
+@import "jqm-themes/cm-jqm-theme.css";
+
+$mainfont: "myriad-pro", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$mainfont_condensed: "myriad-pro-condensed", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
 /* the front page (Map page) doesn't need padding; it interferes with the splash screen */
 
@@ -12,7 +13,7 @@
 /* global font stuff */
 
 .ui-header {
-    font-family: Montserrat;
+    font-family: $mainfont;
 }
 
 
@@ -405,7 +406,7 @@ text-overflow: ellipsis;
 overflow: hidden; 
 white-space: nowrap; 
 outline: 0; 
-font-family: 'bignoodletitlingregular', Helvetica, Arial, sans-serif /*{global-font-family}*/;
+font-family: $mainfont;
 }
 
 .ui-header .ui-btn-left,
