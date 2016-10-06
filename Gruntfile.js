@@ -19,7 +19,8 @@ module.exports = function(grunt) {
           style: 'compact'
         },
         files: {
-          'static/mobile/mobile.css': 'static/mobile/mobile.scss'
+          'static/mobile/mobile.css': 'static/mobile/mobile.scss',
+          'static/mobile/jqm-themes/cm-jqm-theme.css': 'static/mobile/jqm-themes/cm-jqm-theme.scss'
         }
       }
     }
