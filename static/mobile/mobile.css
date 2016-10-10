@@ -10,6 +10,8 @@
 
 .ui-btn-up-a { background: #0C5A40; border: 1px solid #111111; color: #FFFFFF; font-weight: bold; text-shadow: none; }
 
+.ui-btn-up-c, .ui-btn-hover-c { font-weight: normal; cursor: pointer; }
+
 .ui-body-c, .ui-overlay-c { background: #ECE4CF; }
 
 /* Page elements */
@@ -112,6 +114,8 @@ div.share_button img { vertical-align: middle; margin-right: 10px; }
 /* icons in the Find menu */
 #page-browse ul[data-role="listview"] li img { margin-top: -20px; /* hack to make the icons align to the text */ }
 
+.ui-listview .ui-li-icon { max-height: 40px; max-width: 40px; }
+
 /* TRAIL FINDER and FEATURED LOOPS */
 #trailfinder_typeicons { text-align: center; margin-bottom: 1em; }
 
@@ -144,7 +148,7 @@ h1 { font-weight: normal; }
 
 .ui-content { padding: 0; }
 
-.ui-header .ui-title, .ui-footer .ui-title { min-height: 1.25em; text-align: center; font-size: 1em; display: block; margin: 0; padding: 0; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; outline: 0; font-family: "myriad-pro", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.ui-header .ui-title, .ui-footer .ui-title { color: white; min-height: 1.25em; text-align: center; font-size: 1em; display: block; margin: 0; padding: 0; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; outline: 0; font-family: "myriad-pro", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif; }
 
 .ui-header .ui-btn-left, .ui-header .ui-btn-right, .ui-footer .ui-btn-left, .ui-footer .ui-btn-right { position: absolute; top: 0px; border: none; border-right: 1px; }
 
@@ -168,7 +172,7 @@ h1 { font-weight: normal; }
 
 #page-find ul[data-role="listview"] li img { margin: auto; height: 1em; }
 
-.ui-li-icon { margin-top: -20px; height: 20px !important; }
+.ui-li-icon { margin-top: -20px; }
 
 #searchButton { height: 40px; width: 40px; }
 

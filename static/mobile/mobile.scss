@@ -3,6 +3,8 @@
 $mainfont: "myriad-pro", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif;
 $mainfont_condensed: "myriad-pro-condensed", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
+$nps_icons_dir: "/static/common/nps-symbols/renders/standalone";
+
 /* the front page (Map page) doesn't need padding; it interferes with the splash screen */
 
 #page-map > .ui-content {
@@ -30,6 +32,12 @@ $mainfont_condensed: "myriad-pro-condensed", "Myriad Pro", Myriad, "Liberation S
     color: #FFFFFF;
     font-weight: bold;
     text-shadow: none;
+}
+
+.ui-btn-up-c,
+.ui-btn-hover-c {
+    font-weight: normal;
+    cursor: pointer;
 }
 
 .ui-body-c, .ui-overlay-c {
@@ -314,6 +322,11 @@ div.share_button img {
     margin-top: -20px; /* hack to make the icons align to the text */
 }
 
+.ui-listview .ui-li-icon {
+    max-height: 40px;
+    max-width: 40px;
+}
+
 
 /* TRAIL FINDER and FEATURED LOOPS */
 
@@ -395,7 +408,8 @@ h1 {
 	font-weight: normal;}
 
 .ui-content{ padding: 0;}
-.ui-header .ui-title, .ui-footer .ui-title { 
+.ui-header .ui-title, .ui-footer .ui-title {
+color: white;
 min-height: 1.25em; 
 text-align: center; 
 font-size: 1em; 
@@ -461,7 +475,7 @@ line-height: 2em !important;
 		}
 .ui-li-icon {
 	margin-top: -20px;
-	height: 20px !important;
+	//height: 20px !important;
 	}
 
 #searchButton {
