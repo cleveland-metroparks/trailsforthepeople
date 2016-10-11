@@ -6,10 +6,9 @@ module.exports = function(grunt) {
     uglify: {
       dist: {
         files: {
-          //'static/mobile/mobile.jscompress.js': ['static/mobile/mobile.js'],
-          //'static/desktop/desktop.jscompress.js': ['static/desktop/desktop.js'],
-          //'static/common/constants.jscompress.js': ['static/common/constants.js'],
-          //'static/desktop/common.jscompress.js': ['static/desktop/common.js']
+          'static/mobile/mobile.jscompress.js': ['static/mobile/mobile.js'],
+          'static/common/constants.jscompress.js': ['static/common/constants.js'],
+          'static/common/common.jscompress.js': ['static/common/common.js']
         }
       }
     },
