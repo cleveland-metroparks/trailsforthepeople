@@ -3,7 +3,18 @@
 $mainfont: "myriad-pro", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif;
 $mainfont_condensed: "myriad-pro-condensed", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
-$nps_icons_dir: "/static/common/nps-symbols/renders/standalone";
+// Colors
+$green_dark: #1D5C1F;
+$green_light: #6AB03E;
+$red_dark: #831729;
+$red_light: #DE5049;
+$orange_dark: #BB402F;
+$orange_light: #FF7C3B;
+$grey_darkest: #232222;
+$grey_dark: #565555;
+$grey_medium: #8D8C8C;
+$grey_light: #B2B2B2;
+$grey_lightest: #DCDCDC;
 
 /* the front page (Map page) doesn't need padding; it interferes with the splash screen */
 
@@ -484,3 +495,23 @@ line-height: 2em !important;
 	width: 40px;
 	}		
 
+
+/* Leaflet Sidebar-v2 */
+#sidebar {
+    .sidebar-header {
+        background-color: $green_dark;
+    }
+    .sidebar-tabs {
+        .ui-link,
+        .ui-link:visited {
+            color: $grey_darkest;
+        }
+        > ul > li.active {
+            background-color: $green_dark;
+            a {
+                color: white;
+                text-shadow: 0 1px 0 $grey_darkest;
+            }
+        }
+    }
+}

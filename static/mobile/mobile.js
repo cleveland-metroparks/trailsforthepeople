@@ -1105,3 +1105,16 @@ function toggleGPSOff() {
     var iconurl = is_ios() ? '/static/mobile/mapbutton_gps_ios_off.png' : '/static/mobile/mapbutton_gps_off.png';
     $('#mapbutton_gps img').prop('src',iconurl);
 }
+
+// To make links that open Leaflet Sidebar-v2 panes,
+// give them the class ".sidebar-pane-link"
+// and make the href an anchor with the pane name, (#panename)
+$(window).load(function () {
+    $('.sidebar-pane-link').click(function() {
+        link = $(this).attr('href');
+        if (link.charAt(0) == '#') {
+            pane = link.substr(1);
+        }
+        sidebar.open(pane);
+    });
+});

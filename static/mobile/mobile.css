@@ -176,4 +176,10 @@ h1 { font-weight: normal; }
 
 #searchButton { height: 40px; width: 40px; }
 
+/* Leaflet Sidebar-v2 */
+#sidebar .sidebar-header { background-color: #1D5C1F; }
+#sidebar .sidebar-tabs .ui-link, #sidebar .sidebar-tabs .ui-link:visited { color: #232222; }
+#sidebar .sidebar-tabs > ul > li.active { background-color: #1D5C1F; }
+#sidebar .sidebar-tabs > ul > li.active a { color: white; text-shadow: 0 1px 0 #232222; }
+
 /*# sourceMappingURL=mobile.css.map */
