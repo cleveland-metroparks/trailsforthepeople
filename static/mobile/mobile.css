@@ -1,4 +1,3 @@
-@import url(jqm-themes/cm-jqm-theme.css);
 /* the front page (Map page) doesn't need padding; it interferes with the splash screen */
 #page-map > .ui-content { padding: 0; }
 
