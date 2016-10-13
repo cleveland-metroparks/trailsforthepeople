@@ -10,9 +10,9 @@ function index() {
     $data = array();
     $data['options'] = array();
 
-    // Summer 2013: short-circuit the page that shows a choice of mobile/desktop
-    // and have it redirect straight there
-    redirect( $this->agent->is_mobile() ? site_url('mobile/map') : site_url('desktop/map') );
+    // Removing Desktop version and moving to single responsive version only.
+    //redirect( $this->agent->is_mobile() ? site_url('mobile/map') : site_url('desktop/map') );
+    redirect(site_url('mobile/map'));
 
     /*
     if ($this->agent->is_mobile()) {
