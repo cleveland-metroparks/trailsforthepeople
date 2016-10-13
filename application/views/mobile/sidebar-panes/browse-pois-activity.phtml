@@ -1,0 +1,14 @@
+<!-- Linked from Find pane -->
+<div class="sidebar-pane" id="pane-browse-pois-activity">
+    <h1 class="sidebar-header">
+        Find POIs<span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+    </h1>
+
+    <a href="#pane-browse" class="sidebar-pane-link">Back</a>
+    
+    <ul data-role="listview" data-inset="true">
+        <?php foreach ($poicategories as $category) { ?>
+            <li><a href="#browse-items?category=pois_usetype_<?= urlencode($category) ?>"><img class="ui-li-icon" style="width:16px; height: 16px;" src="<?= site_url("/static/wms/pois/{$poicategory_icons[$category]}") ?>" /> <?=     htmlspecialchars($category) ?></a></li>
+        <?php } ?>
+    </ul>
+</div>

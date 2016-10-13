@@ -1,0 +1,20 @@
+<!-- Triggered via JS: When clicking on map points -->
+<div class="sidebar-pane" id="pane-info">
+    <h1 class="sidebar-header">
+        Info<span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+    </h1>
+    <a href="#pane-map" class="sidebar-pane-link">Back</a>
+    
+    <div style="float:right; clear:both; text-align:center;">
+        <b>Directions:</b><br/>
+        <img src="<?= site_url('static/mobile/directions_hike.png') ?>" class="moreinfo_directions_button" id="directions_hike"         title="Get directions via hiking trails" />
+        <img src="<?= site_url('static/mobile/directions_bike.png') ?>" class="moreinfo_directions_button" id="directions_bike"         title="Get directions via bicycle trails" />
+        <!--<img src="<?= site_url('static/mobile/directions_bridle.png') ?>" class="moreinfo_directions_button"        id="directions_bridle" title="Get directions via equestrian trails" />-->
+        <img src="<?= site_url('static/mobile/directions_car.png') ?>" class="moreinfo_directions_button" id="directions_car"       title="Get driving directions" />
+        <img src="<?= site_url('static/mobile/directions_bus.png') ?>" class="moreinfo_directions_button" id="directions_bus"       title="Get directions via public transit" />
+    </div>
+    
+    <div id="info-content"></div>
+    
+    <input type="button" data-mini="true" id="show_on_map" value="Show on Map" />
+</div>
