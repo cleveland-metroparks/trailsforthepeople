@@ -95,25 +95,20 @@ function initMap () {
     // in mobile mode, render the Settings panel because we may need to check checkboxes in it
     if (MOBILE) $('#page-settings').page();
 
-    // URL param: the base map; defaults to the "mapbox" basemap
+    // URL param: the base map; defaults to the [Mapbox] map tiles
     var base = URL_PARAMS.param('base');
-    if (! base) base = 'mapbox';
+    if (! base) base = 'map';
     var basemap; // which L.TileLayer instance to use?
     switch (base) {
         case 'photo':
             var checkbox = $('input[name="basemap"][value="photo"]').prop('checked',true);
             if (MOBILE) checkbox.checkboxradio('refresh');
-            basemap = PHOTOBASE;
+            basemap = LAYER_MAPBOX_SAT;
             break;
         case 'map':
             var checkbox = $('input[name="basemap"][value="map"]').prop('checked',true);
             if (MOBILE) checkbox.checkboxradio('refresh');
-            basemap = MAPBASE;
-            break;
-        case 'mapbox':
-            var checkbox = $('input[name="basemap"][value="mapbox"]').prop('checked',true);
-            if (MOBILE) checkbox.checkboxradio('refresh');
-            basemap = MAPBOXBASE;
+            basemap = LAYER_MAPBOX_MAP;
             break;
         default:
             throw "Invalid basemap given?";
@@ -291,27 +286,38 @@ function WSENtoBounds(west,south,east,north) {
     return L.latLngBounds([ [south,west] , [north,east] ]);
 }
 
+/**
+ *
+ */
 function selectBasemap(which) {
+    var layers = [
+        LAYER_TILESTACHE_MAP,
+        LAYER_TILESTACHE_SAT,
+        LAYER_MAPBOX_MAP,
+        LAYER_MAPBOX_SAT,
+    ];
     switch (which) {
         case 'photo':
-            if (MAP.hasLayer(MAPBASE)) MAP.removeLayer(MAPBASE);
-            if (MAP.hasLayer(MAPBOXBASE)) MAP.removeLayer(MAPBOXBASE);
-            if (! MAP.hasLayer(PHOTOBASE)) MAP.addLayer(PHOTOBASE,true);
-            PHOTOBASE.bringToBack();
-            break;
+            showlayer = LAYER_MAPBOX_SAT;
         case 'map':
-            if (MAP.hasLayer(PHOTOBASE)) MAP.removeLayer(PHOTOBASE);
-            if (MAP.hasLayer(MAPBOXBASE)) MAP.removeLayer(MAPBOXBASE);
-            if (! MAP.hasLayer(MAPBASE)) MAP.addLayer(MAPBASE,true);
-            MAPBASE.bringToBack();
-            break;
-        case 'mapbox':
-            if (MAP.hasLayer(MAPBASE)) MAP.removeLayer(MAPBASE);
-            if (MAP.hasLayer(PHOTOBASE)) MAP.removeLayer(PHOTOBASE);
-            if (! MAP.hasLayer(MAPBOXBASE)) MAP.addLayer(MAPBOXBASE,true);
-            MAPBOXBASE.bringToBack();
+        default:
+            showlayer = LAYER_MAPBOX_SAT;
             break;
     }
+    for (i=0; i<layers.length; i++) {
+        if (layers[i] == showlayer) {
+            // Add
+            if (! MAP.hasLayer(layers[i])) {
+                MAP.addLayer(layers[i], true);
+            }
+        } else {
+            // Remove
+            if (MAP.hasLayer(layers[i])) {
+                MAP.removeLayer(layers[i]);
+            }
+        }
+    }
+    showlayer.bringToBack();
 }
 
 
@@ -1587,9 +1593,8 @@ function updateShareUrl() {
     params.z = MAP.getZoom();
     params.x = MAP.getCenter().lng;
     params.y = MAP.getCenter().lat;
-    if (MAP.hasLayer(PHOTOBASE)) params.base = 'photo';
-    if (MAP.hasLayer(MAPBASE))   params.base = 'map';
-    if (MAP.hasLayer(MAPBOXBASE))   params.base = 'mapbox';
+    if (MAP.hasLayer(LAYER_MAPBOX_SAT)) params.base = 'photo';
+    if (MAP.hasLayer(LAYER_MAPBOX_MAP))   params.base = 'map';
 
     // compile all of the params together and save it to the global. this is later read by populateShareBox()
     SHARE_URL_STRING = $.param(params);
