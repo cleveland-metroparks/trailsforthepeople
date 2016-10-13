@@ -95,7 +95,7 @@ function initMap () {
     // in mobile mode, render the Settings panel because we may need to check checkboxes in it
     if (MOBILE) $('#page-settings').page();
 
-    // URL param: the base map; defaults to the [Mapbox] map tiles
+    // URL param: the base map; defaults to the (Mapbox) map tiles
     var base = URL_PARAMS.param('base');
     if (! base) base = 'map';
     var basemap; // which L.TileLayer instance to use?
@@ -294,14 +294,15 @@ function selectBasemap(which) {
         LAYER_TILESTACHE_MAP,
         LAYER_TILESTACHE_SAT,
         LAYER_MAPBOX_MAP,
-        LAYER_MAPBOX_SAT,
+        LAYER_MAPBOX_SAT
     ];
     switch (which) {
         case 'photo':
             showlayer = LAYER_MAPBOX_SAT;
+            break;
         case 'map':
         default:
-            showlayer = LAYER_MAPBOX_SAT;
+            showlayer = LAYER_MAPBOX_MAP;
             break;
     }
     for (i=0; i<layers.length; i++) {
@@ -1594,7 +1595,7 @@ function updateShareUrl() {
     params.x = MAP.getCenter().lng;
     params.y = MAP.getCenter().lat;
     if (MAP.hasLayer(LAYER_MAPBOX_SAT)) params.base = 'photo';
-    if (MAP.hasLayer(LAYER_MAPBOX_MAP))   params.base = 'map';
+    if (MAP.hasLayer(LAYER_MAPBOX_MAP)) params.base = 'map';
 
     // compile all of the params together and save it to the global. this is later read by populateShareBox()
     SHARE_URL_STRING = $.param(params);
