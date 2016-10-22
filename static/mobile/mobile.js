@@ -14,7 +14,6 @@ var AUTO_CENTER_ON_LOCATION = false;
 // what type of sorting do they prefer?
 var DEFAULT_SORT = 'distance';
 
-
 // mobile specific: when we change pages or rotate the screen, resize the map accordingly
 $(window).bind('orientationchange pageshow resize', function() {
     // scrolling the window is supposed to remove the address bar,
@@ -259,7 +258,7 @@ $(window).load(function () {
     setTimeout(function () {
         $('#toolbar').show();
         $('#splashscreen').hide();
-    }, 5000);
+    }, 50);
 
     // switch to the Welcome panel if they asked for it AND some other setting doesn't disable it
     var show_welcome = cookieGet('show_welcome');

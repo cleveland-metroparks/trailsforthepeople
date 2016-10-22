@@ -97,7 +97,7 @@ function initMap () {
 
     // URL param: the base map; defaults to the (Mapbox) map tiles
     var base = URL_PARAMS.param('base');
-    if (! base) base = 'map';
+    if (! base) base = 'vector';
     var basemap; // which L.TileLayer instance to use?
     switch (base) {
         case 'photo':
@@ -109,6 +109,11 @@ function initMap () {
             var checkbox = $('input[name="basemap"][value="map"]').prop('checked',true);
             if (MOBILE) checkbox.checkboxradio('refresh');
             basemap = LAYER_MAPBOX_MAP;
+            break;
+        case 'vector':
+            var checkbox = $('input[name="basemap"][value="vector"]').prop('checked',true);
+            if (MOBILE) checkbox.checkboxradio('refresh');
+            basemap = LAYER_MAPBOX_GL_MAP;
             break;
         default:
             throw "Invalid basemap given?";
@@ -287,38 +292,34 @@ function WSENtoBounds(west,south,east,north) {
 }
 
 /**
+ * Enable the given base map layer.
  *
+ * @param layer_key: Must refer to the key of an available layer (in AVAILABLE_LAYERS constant).
  */
-function selectBasemap(which) {
-    var layers = [
-        LAYER_TILESTACHE_MAP,
-        LAYER_TILESTACHE_SAT,
-        LAYER_MAPBOX_MAP,
-        LAYER_MAPBOX_SAT
-    ];
-    switch (which) {
-        case 'photo':
-            showlayer = LAYER_MAPBOX_SAT;
-            break;
-        case 'map':
-        default:
-            showlayer = LAYER_MAPBOX_MAP;
-            break;
-    }
-    for (i=0; i<layers.length; i++) {
-        if (layers[i] == showlayer) {
-            // Add
-            if (! MAP.hasLayer(layers[i])) {
-                MAP.addLayer(layers[i], true);
+function selectBasemap(layer_key) {
+    //if (!(layer_key in AVAILABLE_LAYERS)) {
+    //    layer_key = 'vector'; // Default, if non-sane value provided
+    //}
+    active_layer = AVAILABLE_LAYERS[layer_key];
+
+    // Go through all layers, adding the intended one and removing others.
+    for (i=0; i<ALL_LAYERS.length; i++) {
+        if (ALL_LAYERS[i] == active_layer) {
+            // Add the active layer
+            if (! MAP.hasLayer(ALL_LAYERS[i])) {
+                MAP.addLayer(ALL_LAYERS[i], true);
+            }
+            if (layer_key != 'vector') {
+                // Mapbox GL+Leaflet layers don't implement bringToBack()
+                active_layer.bringToBack();
             }
         } else {
-            // Remove
-            if (MAP.hasLayer(layers[i])) {
-                MAP.removeLayer(layers[i]);
+            // Remove the inactive layer
+            if (MAP.hasLayer(ALL_LAYERS[i])) {
+                MAP.removeLayer(ALL_LAYERS[i]);
             }
         }
     }
-    showlayer.bringToBack();
 }
 
 

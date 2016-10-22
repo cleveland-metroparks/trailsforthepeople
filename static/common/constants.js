@@ -45,7 +45,7 @@ var LAYER_TILESTACHE_MAP = new L.TileLayer("//maps.clevelandmetroparks.com/tiles
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiWHRKaDhuRSJ9.FGqNSOHwiCr2dmTH2JTMAA';
 L.mapbox.accessToken = MAPBOX_TOKEN;
 
-// Mapbox tiles baselayer
+// Mapbox map tiles baselayer
 const MAPBOX_MAP_URL_FRAG = 'cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
 var LAYER_MAPBOX_MAP = L.tileLayer(
     'https://api.mapbox.com/styles/v1/' + MAPBOX_MAP_URL_FRAG + '/tiles/{z}/{x}/{y}?access_token=' + L.mapbox.accessToken, {
@@ -62,6 +62,27 @@ var LAYER_MAPBOX_SAT = L.tileLayer(
         zoomOffset: -1,
         attribution: '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     });
+
+// Mapbox GL-Leaflet map tiles baselayer
+// Experimental GL+Leaflet binding - https://github.com/mapbox/mapbox-gl-leaflet
+var LAYER_MAPBOX_GL_MAP = L.mapboxGL({
+    accessToken: MAPBOX_TOKEN,
+    style: 'mapbox://styles/' + MAPBOX_MAP_URL_FRAG
+});
+
+const ALL_LAYERS = [
+    LAYER_TILESTACHE_MAP,
+    LAYER_TILESTACHE_SAT,
+    LAYER_MAPBOX_MAP,
+    LAYER_MAPBOX_SAT,
+    LAYER_MAPBOX_GL_MAP
+];
+
+const AVAILABLE_LAYERS = {
+    'map' : LAYER_MAPBOX_MAP,
+    'photo' : LAYER_MAPBOX_SAT,
+    'vector' : LAYER_MAPBOX_GL_MAP
+};
 
 /* to add route debugging into the map as it is running, paste this into the JavaScript console */
 /*
