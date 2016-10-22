@@ -51,15 +51,24 @@
     <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/defs/EPSG3734.js'); ?>"></script>
     -->
 
-    <!-- Leaflet map API and Wicket plugin for parsing WKT -->
-    <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/leaflet-0.7.1/leaflet.css'); ?>" />
-    <script type="text/javascript" src="<?= site_url('static/common/leaflet-0.7.1/leaflet.js'); ?>"></script>
+    <!-- Leaflet 1.0.1 -->
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/leaflet-1.0.1/leaflet.css'); ?>" />
+    <script type="text/javascript" src="<?= site_url('static/common/leaflet-1.0.1/leaflet.js'); ?>"></script>
+
+    <!-- Wicket plugin for parsing WKT -->
     <script type="text/javascript" src="<?= site_url('static/common/wicket/wicket.js'); ?>"></script>
     <script type="text/javascript" src="<?= site_url('static/common/wicket/wicket-leaflet.js'); ?>"></script>
 
     <!-- Mapbox.js standalone (without Leaflet) -->
     <script src='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.standalone.js'></script>
     <link href='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css' rel='stylesheet' />
+
+    <!-- Mapbox GL JS -->
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.3/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.3/mapbox-gl.js'></script>
+
+    <!-- Mapbox GL Leaflet binding (experimental) -->
+    <script src="<?= site_url('static/common/mapbox-gl-leaflet/leaflet-mapbox-gl.js'); ?>"></script>
 
     <!-- JavaScript for handling cookies -->
     <script type="text/javascript" src="<?= site_url('static/common/cookie.js'); ?>"></script>
