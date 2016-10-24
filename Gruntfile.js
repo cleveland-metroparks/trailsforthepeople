@@ -21,11 +21,26 @@ module.exports = function(grunt) {
           'static/mobile/mobile.css': 'static/mobile/mobile.scss',
         }
       }
+    },
+    watch: {
+      css: {
+        files: ['static/mobile/mobile.scss'],
+        tasks: ['sass']
+      },
+      js: {
+        files: [
+          'static/mobile/mobile.js',
+          'static/common/constants.js',
+          'static/common/common.js'
+          ],
+        tasks: ['uglify']
+      }
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-sass');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
   // Default tasks
   grunt.registerTask('default', ['uglify', 'sass']);
