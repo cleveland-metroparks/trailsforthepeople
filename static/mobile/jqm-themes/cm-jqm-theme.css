@@ -24,7 +24,7 @@ button,
 .ui-btn {
 	font-size: 1em;
 	line-height: 1.3;
-	   font-family: "myriad-pro", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif /*{global-font-family}*/;
+	 font-family: "myriad-pro", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif /*{global-font-family}*/;
 }
 legend,
 .ui-input-text input,
@@ -145,8 +145,8 @@ label.ui-btn {
 .ui-btn-icon-top:after,
 .ui-btn-icon-bottom:after,
 .ui-btn-icon-notext:after {
-	background-color: transparent /*{global-icon-color}*/;
-	background-color: transparent /*{global-icon-disc}*/;
+	background-color: #1D5C1F /*{global-icon-color}*/;
+	background-color: rgba(29,92,31,1) /*{global-icon-disc}*/;
 	background-position: center center;
 	background-repeat: no-repeat;
 	-webkit-border-radius: 1em;
@@ -159,8 +159,8 @@ html .ui-alt-icon.ui-checkbox-off:after,
 html .ui-alt-icon.ui-radio-off:after,
 html .ui-alt-icon .ui-checkbox-off:after,
 html .ui-alt-icon .ui-radio-off:after {
-	background-color: transparent /*{global-icon-color}*/;
-	background-color: transparent /*{global-icon-disc}*/;
+	background-color: #1D5C1F /*{global-icon-color}*/;
+	background-color: rgba(29,92,31,1) /*{global-icon-disc}*/;
 }
 /* No disc */
 .ui-nodisc-icon.ui-btn:after,
@@ -170,9 +170,9 @@ html .ui-alt-icon .ui-radio-off:after {
 /* Icon shadow */
 .ui-shadow-icon.ui-btn:after,
 .ui-shadow-icon .ui-btn:after {
-	-webkit-box-shadow: 0 1px 0 transparent /*{global-icon-shadow}*/;
-	-moz-box-shadow: 0 1px 0 transparent /*{global-icon-shadow}*/;
-	box-shadow: 0 1px 0 transparent /*{global-icon-shadow}*/;
+	-webkit-box-shadow: 0 1px 0 rgba(255,255,255,.4) /*{global-icon-shadow}*/;
+	-moz-box-shadow: 0 1px 0 rgba(255,255,255,.4) /*{global-icon-shadow}*/;
+	box-shadow: 0 1px 0 rgba(255,255,255,.4) /*{global-icon-shadow}*/;
 }
 /* Checkbox and radio */
 .ui-btn.ui-checkbox-off:after,
@@ -225,7 +225,7 @@ html .ui-bar-a .ui-bar-inherit,
 html .ui-body-a .ui-bar-inherit,
 html body .ui-group-theme-a .ui-bar-inherit {
 	background-color: #1D5C1F /*{a-bar-background-color}*/;
-	border-color: #1D5C1F /*{a-bar-border}*/;
+	border-color: #28802b /*{a-bar-border}*/;
 	color: #FFF /*{a-bar-color}*/;
 	text-shadow: 0 /*{a-bar-shadow-x}*/ 0px /*{a-bar-shadow-y}*/ 0px /*{a-bar-shadow-radius}*/ #ffffff /*{a-bar-shadow-color}*/;
 	font-weight: bold;
@@ -309,7 +309,7 @@ html .ui-body-a .ui-btn:hover,
 html body .ui-group-theme-a .ui-btn:hover,
 html head + body .ui-btn.ui-btn-a:hover {
 	background-color: #6AB03E /*{a-bhover-background-color}*/;
-	border-color: #6AB03E /*{a-bhover-border}*/;
+	border-color: #3a6022 /*{a-bhover-border}*/;
 	color: #FFFFFF /*{a-bhover-color}*/;
 	text-shadow: 0 /*{a-bhover-shadow-x}*/ 0px /*{a-bhover-shadow-y}*/ 0px /*{a-bhover-shadow-radius}*/ #FFFFFF /*{a-bhover-shadow-color}*/;
 }
@@ -349,7 +349,7 @@ html .ui-body-a .ui-slider-track .ui-btn-active,
 html body .ui-group-theme-a .ui-slider-track .ui-btn-active,
 html body div.ui-slider-track.ui-body-a .ui-btn-active {
 	background-color: #1D5C1F /*{a-active-background-color}*/;
-	border-color: #1D5C1F /*{a-active-border}*/;
+	border-color: #28802b /*{a-active-border}*/;
 	color: #ffffff /*{a-active-color}*/;
 	text-shadow: 0 /*{a-active-shadow-x}*/ 0px /*{a-active-shadow-y}*/ 0px /*{a-active-shadow-radius}*/ #FFFFFF /*{a-active-shadow-color}*/;
 }
