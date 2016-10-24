@@ -19,12 +19,14 @@ module.exports = function(grunt) {
         },
         files: {
           'static/mobile/mobile.css': 'static/mobile/mobile.scss',
+          'static/mobile/jqm-themes/cm-jqm-theme.min.css': 'static/mobile/jqm-themes/cm-jqm-theme.css',
         }
       }
     },
     watch: {
       css: {
         files: ['static/mobile/mobile.scss'],
+        files: ['static/mobile/jqm-themes/cm-jqm-theme.css'],
         tasks: ['sass']
       },
       js: {
