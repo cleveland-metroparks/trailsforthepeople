@@ -444,8 +444,8 @@ function updateNearYouNow() {
         li.attr('lat', poi.lat).attr('lng', poi.lng);
 
         var div = $('<div></div>').addClass('ui-btn-text');
-        div.append( $('<span></span>').addClass('ui-li-heading').text(poi.title) );
-        div.append( $('<span></span>').addClass('ui-li-desc').text(poi.categories) );
+        div.append( $('<h2></h2>').text(poi.title) );
+        div.append( $('<p></p>').text(poi.categories) );
         div.append( $('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text(poi.range + ' ' + poi.bearing) );
 
         li.tap(function () {

@@ -28,30 +28,26 @@ $grey_lightest: #DCDCDC;
 }
 
 
-/* jQuery Mobile style overrides */
-
-.ui-bar-a {
-    background: none repeat scroll 0 0 #0D6B51;
-    border: 1px solid #0D6B51;
+/* Leaflet Sidebar-v2 */
+#sidebar {
+    .sidebar-header {
+        background-color: $green_dark;
+    }
+    .sidebar-tabs {
+        .ui-link,
+        .ui-link:visited {
+            color: $grey_darkest;
+        }
+        > ul > li.active {
+            background-color: $green_dark;
+            a {
+                color: white;
+                text-shadow: 0 1px 0 $grey_darkest;
+            }
+        }
+    }
 }
 
-.ui-btn-up-a {
-    background: #0C5A40;
-    border: 1px solid #111111;
-    color: #FFFFFF;
-    font-weight: bold;
-    text-shadow: none;
-}
-
-.ui-btn-up-c,
-.ui-btn-hover-c {
-    font-weight: normal;
-    cursor: pointer;
-}
-
-.ui-body-c, .ui-overlay-c {
-    background: #ECE4CF;
-}
 
 
 /* Page elements */
@@ -110,18 +106,13 @@ $grey_lightest: #DCDCDC;
 
 }
 
-#alerts .zoom_distance {
-    text-align:right;
-    min-width:50px;
-}
-
-.ui-li-has-count .ui-li-count {
-    top:85%;
-}
-
-.ui-li-divider .ui-li-count, .ui-li-static .ui-li-count {
-    right: 0;
-}
+//.ui-li-has-count .ui-li-count {
+//    top:85%;
+//}
+//
+//.ui-li-divider .ui-li-count, .ui-li-static .ui-li-count {
+//    right: 0;
+//}
 
 #change_directions_target {
     float:right;
@@ -252,41 +243,21 @@ div.ui-slider {
 }
 
 
-/* the Share panel and the Settings panel, have panels which need to LOOK like read-only text boxes
-  but which are really DIVs, cuz iOS forgot to add a select and copy function!
+/*
+ * The Share panel and Settings panels have elements that need to appear as read-only text
+ * inputs but that are really <div>'s, beacause iOS forgot to add a select-and-copy function!
 */
-
 div.fakeinput {
     text-align: left;
-    background: none repeat scroll 0 0 #F9F9F9;
-    font-size: 16px;
+    background-color: #F9F9F9;
     line-height: 1.4;
-    width: 99%;
     padding: 0.4em;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) inset;
-    border: 1px solid #AAAAAA;
-    color: #333333;
-    text-shadow: 0 1px 0 #FFFFFF;
-    border-radius: 0.6em 0.6em 0.6em 0.6em;
-    height:1.4em;
+    border: 1px solid #000;
+    border-radius: 0.2em;
+    height: 1.4em;
 }
 
 
-/* the buttons in the top Header bar, on each page; Cleveland asked for a tan brown color */
-
-.ui-btn-up-a {
-    background: none repeat scroll 0 0 #AB8E5A;
-    color: #333333;
-}
-
-
-/* in the Directions panel, the buttons to finally get directions */
-
-#directions_button_wrapper .ui-btn-inner {
-    background: none repeat scroll 0 0 #AB8E5A;
-    color:#333333;
-    text-shadow:0 1px 0 #CCCCCC;
-}
 
 
 /* toggle for sorting alphabetically or by distance, hidden by default but added as searches happen */
@@ -311,30 +282,8 @@ div.elevationprofileimage img {
 
 
 
-/* Share on Facebook and Twitter */
-div.share_button {
-    line-height:24px;
-    margin-bottom:1em;
-}
-div.share_button a {
-    text-decoration:none;
-}
-div.share_button img {
-    vertical-align:middle;
-    margin-right:10px;
-}
 
 
-/* icons in the Find menu */
-
-#page-browse ul[data-role="listview"] li img {
-    margin-top: -20px; /* hack to make the icons align to the text */
-}
-
-.ui-listview .ui-li-icon {
-    max-height: 40px;
-    max-width: 40px;
-}
 
 
 /* TRAIL FINDER and FEATURED LOOPS */
@@ -369,147 +318,222 @@ div.share_button img {
 padding: 18px 0;
 }
 
-.zoom_distance {
-height: 100%;
-line-height: 1.5em;
-text-align: center;
-vertical-align: middle;
-}
-
-#browse_results .zoom_distance {
-height: 60px;
-top: -18px;
-}
-
 #info-content, .description {
 padding: 0 20px;
 }
 
-.ui-btn-hidden {
-text-transform: uppercase;
+
+/*-----------------------------------------------------------------------------------------------------------*/
+/* jQm styles
+/*-----------------------------------------------------------------------------------------------------------*/
+
+/* jQuery Mobile style overrides */
+
+//.ui-bar-a {
+//    background: none repeat scroll 0 0 #0D6B51;
+//    border: 1px solid #0D6B51;
+//}
+//
+//.ui-btn-up-a {
+//    background: #0C5A40;
+//    border: 1px solid #111111;
+//    color: #FFFFFF;
+//    font-weight: bold;
+//    text-shadow: none;
+//}
+//
+//.ui-btn-up-c,
+//.ui-btn-hover-c {
+//    font-weight: normal;
+//    cursor: pointer;
+//}
+//
+//.ui-body-c, .ui-overlay-c {
+//    background: #ECE4CF;
+//}
+
+
+
+
+//.ui-btn-hidden {
+//    text-transform: uppercase;
+//}
+//
+//.ui-li-has-count .ui-li-count {
+//    top: 0;
+//	margin-top: 0;
+//	margin-right: 35px;
+//    text-align: center;
+//    vertical-align: middle;
+//	padding: 0 10px;
+//	min-width: 90px;
+//	font-size: 0.5em;
+//	border-top: none;
+//	border-bottom: none;
+//}
+//
+//.ui-li-heading,
+//.ui-li-desc {
+//    margin: 0 120px 0 0;
+//    padding-left: 10px;
+//    line-height: 1.5em;
+//    white-space:normal !important;
+//}
+//
+//.ui-content{
+//    padding: 0;
+//}
+//
+//.ui-header .ui-title, .ui-footer .ui-title {
+//    color: white;
+//    min-height: 1.25em; 
+//    text-align: center; 
+//    font-size: 1em; 
+//    display: block; 
+//    margin: 0;  
+//    padding: 0;  
+//    text-overflow: ellipsis; 
+//    overflow: hidden; 
+//    white-space: nowrap; 
+//    outline: 0; 
+//    font-family: $mainfont;
+//}
+//
+//.ui-header .ui-btn-left,
+//.ui-header .ui-btn-right,
+//.ui-footer .ui-btn-left,
+//.ui-footer .ui-btn-right {
+//    position: absolute;
+//    top: 0px;
+//    border: none;
+//    border-right: 1px; 
+//}
+//
+//.ui-header .ui-btn-left,
+//.ui-footer .ui-btn-left {
+//    left: 0px;
+//}
+//
+//.ui-header .ui-btn-right,
+//.ui-footer .ui-btn-right {
+//    right: 0px;
+//}
+//
+//.ui-footer .ui-btn-icon-notext,
+//.ui-header .ui-btn-icon-notext {
+//    top: 0px;
+//}
+//
+//.ui-header {
+//	font-size: 2em;
+//}
+//
+//.ui-btn-inner {
+//	min-height: 1.7em;
+//	padding: 0;
+//	margin: 0;
+//}
+//	
+//.ui-btn-text {
+//    line-height: 2em !important;
+//}
+//
+//.ui-li .ui-btn-inner a.ui-link-inherit {
+//	padding: 0;
+//	margin-left: 50px;
+//	font-size: 2em;
+//	line-height: 1.25em;
+//}
+//	
+//.ui-li-static.ui-li {
+//    padding: 0;
+//	margin-left: 0;
+//	font-size: 2em;
+//	line-height: 1.25em;
+//}
+//	
+//#page-find ul[data-role="listview"] li img {
+//	margin: auto;
+//	height: 1em;
+//}
+//
+//.ui-li-icon {
+//	margin-top: -20px;
+//	//height: 20px !important;
+//}
+
+/*-----------------------------------------------------------------------------------------------------------*/
+/*-----------------------------------------------------------------------------------------------------------*/
+
+//
+// Sidebar: Header
+//
+.sidebar-header{
+    margin-bottom: 20px;
 }
 
-.ui-li-has-count .ui-li-count {
-    top: 0;
-	margin-top: 0;
-	margin-right: 35px;
-text-align: center;
-vertical-align: middle;
-	padding: 0 10px;
-	min-width: 90px;
-	font-size: 0.5em;
-	border-top: none;
-	border-bottom: none;
-}
-
-
-.ui-li-heading, .ui-li-desc {
-margin: 0 120px 0 0;
-padding-left: 10px;
-line-height: 1.5em;
-white-space:normal !important;
-}
-
-.ui-li-heading {
-}
-h1 {
-	
-	font-weight: normal;}
-
-.ui-content{ padding: 0;}
-.ui-header .ui-title, .ui-footer .ui-title {
-color: white;
-min-height: 1.25em; 
-text-align: center; 
-font-size: 1em; 
-display: block; 
-margin: 0;  
-padding: 0;  
-text-overflow: ellipsis; 
-overflow: hidden; 
-white-space: nowrap; 
-outline: 0; 
-font-family: $mainfont;
-}
-
-.ui-header .ui-btn-left,
-.ui-header .ui-btn-right,
-.ui-footer .ui-btn-left,
-.ui-footer .ui-btn-right { position: absolute; top: 0px; border: none; border-right: 1px; }
-.ui-header .ui-btn-left,
-.ui-footer .ui-btn-left { left: 0px; }
-.ui-header .ui-btn-right,
-.ui-footer .ui-btn-right { right: 0px; }
-.ui-footer .ui-btn-icon-notext,
-.ui-header .ui-btn-icon-notext { top: 0px; }
-
-.ui-btn {
-			height: 40px;
-			padding:0;}
-.ui-header {
-	font-size: 2em;
-	}
-
-.ui-btn-inner {
-	
-	min-height: 1.7em;
-	padding: 0;
-			margin: 0;}
-	
-	
-		
-	.ui-btn-text {
-line-height: 2em !important;
-
-		}
-
-.ui-li .ui-btn-inner a.ui-link-inherit {
-	padding: 0;
-	margin-left: 50px;
-	font-size: 2em;
-	line-height: 1.25em;
-	}
-	
-	.ui-li-static.ui-li {	padding: 0;
-	margin-left: 0;
-	font-size: 2em;
-	line-height: 1.25em;}
-	
-	#page-find ul[data-role="listview"] li img {
-		margin: auto;
-		height: 1em;
-		}
-	.ui-li-thumb, .ui-listview .ui-li-icon, .ui-li-content{
-		
-		}
-.ui-li-icon {
-	margin-top: -20px;
-	//height: 20px !important;
-	}
-
-#searchButton {
-
-	height: 40px;
-	width: 40px;
-	}		
-
-
-/* Leaflet Sidebar-v2 */
-#sidebar {
-    .sidebar-header {
-        background-color: $green_dark;
+//
+// Sidebar: Lists
+//
+.sidebar-content {
+    ul li {
+        padding-left: 0;
+        .fa {
+            padding-right: 10px;
+            font-size: 24px;
+            width: 24px;
+        }
     }
-    .sidebar-tabs {
-        .ui-link,
-        .ui-link:visited {
-            color: $grey_darkest;
-        }
-        > ul > li.active {
-            background-color: $green_dark;
-            a {
-                color: white;
-                text-shadow: 0 1px 0 $grey_darkest;
-            }
-        }
+    .ui-li-icon {
+        max-height: 40px;
+        max-width: 40px;
+    }
+}
+
+/*-----------------------------------------------------------------------------------------------------------*/
+/* Sidebar Panes */
+/*-----------------------------------------------------------------------------------------------------------*/
+
+//
+// Sidebar Pane: Find
+//
+#page-browse ul[data-role="listview"] li img {
+    margin-top: -20px; /* hack to make the icons align to the text */
+}
+
+//
+// Sidebar Pane: Nearby
+//
+#pane-radar {
+    #alerts {
+    }
+}
+
+//
+// Sidebar Pane: Get Directions
+//
+#pane-getdirections {
+    #directions_button_wrapper .ui-btn-inner {
+        background: none repeat scroll 0 0 #AB8E5A;
+        color: #333333;
+        text-shadow: 0 1px 0 #CCCCCC;
+    }
+}
+
+//
+// Sidebar Pane: Share
+//
+#pane-share {
+    .share_button {
+        line-height: 1.5em;
+    }
+}
+
+//
+// Sidebar Pane: Credits
+//
+#pane-credits {
+    .disclaimer {
+        font-size: 90%;
     }
 }

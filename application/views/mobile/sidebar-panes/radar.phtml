@@ -4,10 +4,12 @@
     </h1>
 
     <label><input type="checkbox" id="radar_enabled" /> Enable alerts</label>
+
     <br />
+
     <div id="radar_config" style="display:none;">
         <strong>Alert me when I am within:</strong>
-        <select id="radar_radius" data-mini="true">
+        <select id="radar_radius">
             <option value="6.10">20 feet</option>
             <option value="15.24">50 feet</option>
             <option value="30.48">100 feet</option>
@@ -18,7 +20,9 @@
             <option value="1207.08">&frac34; mile</option>
             <option value="1609.344">1 mile</option>
         </select>
+
         <br />
+
         <strong>Watch for these types of features:</strong>
         <fieldset data-role="controlgroup">
             <label><input type="checkbox" name="radar_category" value="Health Tips" checked="checked">Health Tips</label>
@@ -27,6 +31,9 @@
             <?php } ?>
         </fieldset>
     </div>
+
     <br/>
+
     <ul id="alerts" data-role="listview"></ul>
+
 </div>

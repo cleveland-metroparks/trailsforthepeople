@@ -1,11 +1,3 @@
-body,.ui-widget {
-    font-family: Verdana,Arial,sans-serif;
-}
-
-.ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button {
-    font-family: Verdana,Arial,sans-serif;
-}
-
 .above_map {
     z-index:500;
 }
@@ -69,29 +61,6 @@ div.lng_driving {
 }
 
 
-/* the Twitter panel */
-
-#tweets td {
-}
-
-.twitter_lhs {
-    text-align:center;
-    vertical-align:top;
-    font-size:8pt;
-}
-
-.twitter_lhs img {
-    width:32px; height:32px;
-}
-
-.twitter_rhs {
-    text-align:left;
-    vertical-align:top;
-    font-size:9pt;
-}
-
-
-
 /* Leaflet Zoom panel, allow buttons to be disabled */
 
 .leaflet-control-zoom a.disabled {
@@ -118,16 +87,4 @@ li.directions_functions {
 
 #gallery {
     text-align:center;
-}
-
-
-
-/* for the Welcome panel and the About This App panel */
-
-.disclaimer {
-    font-size:8pt;
-}
-
-.disclaimer b {
-    font-size:10pt;
 }
