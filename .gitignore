@@ -14,3 +14,6 @@ sftp-config.json
 
 # Packaging
 node_modules
+
+# Grunt local config
+grunt-local-config.json
