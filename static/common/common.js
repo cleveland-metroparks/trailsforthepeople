@@ -463,7 +463,7 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
         // set up the Popup and load its content
         // beware of very-lengthy content and force a max height on the bubble
         var options = {};
-        options.maxHeight = parseInt( $('#map_canvas').height() - $('#toolbar').height() );
+        options.maxHeight = parseInt( $('#map_canvas').height() );
         options.maxWidth = parseInt( $('#map_canvas').width() );
         var popup = new L.Popup(options);
         popup.setLatLng(anchor);

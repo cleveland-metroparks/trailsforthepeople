@@ -14,15 +14,8 @@ $grey_medium: #8D8C8C;
 $grey_light: #B2B2B2;
 $grey_lightest: #DCDCDC;
 
-/* the front page (Map page) doesn't need padding; it interferes with the splash screen */
 
-#page-map > .ui-content {
-    padding:0;
-}
-
-
-/* global font stuff */
-
+/* Typography */
 .ui-header {
     font-family: $mainfont;
 }
@@ -58,53 +51,6 @@ $grey_lightest: #DCDCDC;
     width:100%; height:100%;
 }
 
-#splashscreen {
-    background-color:#0D6B51;
-    opacity:0.75;
-    z-index:1000;
-
-    width:100%; height:100%;
-    text-align:center;
-    vertical-align:middle;
-}
-
-#splashscreen > div {
-    text-align:center;
-
-    /* the margin-left and margin-top should be set to 1/2 of the combined height and 1/2 the max width of the two logos */
-    position:fixed; left:50%; top:50%;
-    margin-left:-125px;
-    margin-top:-140px;
-}
-
-#toolbar {
-    position:absolute; left:0; bottom:0;
-    height:46px;
-    width:100%;
-    background-color:black;
-
-    text-align:center;
-
-    display:none;
-}
-
-#toolbar table {
-    width:100%;
-    border-collapse:collapse;
-}
-
-#toolbar table td {
-    border-right:1px solid silver;
-    border-left:1px solid silver;
-}
-#toolbar table td:first-child {
-    border-left:0 none transparent;
-}
-#toolbar table td:last-child {
-    border-right:0 none transparent;
-	
-
-}
 
 //.ui-li-has-count .ui-li-count {
 //    top:85%;
@@ -193,13 +139,6 @@ div.ui-slider {
 
 
 
-/* the scalebar needs to clear the toolbar */
-
-.leaflet-bottom .leaflet-control-scale {
-    margin-bottom: 55px;
-}
-
-
 /* Leaflet popups which are large enough to induce scrolling, can't really scroll */
 .leaflet-popup-scrolled .leaflet-popup-content {
     overflow:hidden;
@@ -217,10 +156,6 @@ div.ui-slider {
     right: 10px;
     cursor: pointer;
     z-index: 401;
-}
-
-.leaflet-control-scale {
-    display:none;
 }
 
 
@@ -250,8 +185,6 @@ div.fakeinput {
 }
 
 
-
-
 /* toggle for sorting alphabetically or by distance, hidden by default but added as searches happen */
 
 .sortpicker {
@@ -259,10 +192,9 @@ div.fakeinput {
     text-align:center;
 }
 
-#page-browse-results .sortpicker {
+#pane-browse-results .sortpicker {
     display:block;
 }
-
 
 
 /* Elevation profile wrapper */
@@ -271,11 +203,6 @@ div.elevationprofileimage {
 
 div.elevationprofileimage img {
 }
-
-
-
-
-
 
 
 /* TRAIL FINDER and FEATURED LOOPS */
@@ -314,147 +241,8 @@ div.elevationprofileimage img {
     padding: 0 20px;
 }
 
-
 /*-----------------------------------------------------------------------------------------------------------*/
-/* jQm styles
-/*-----------------------------------------------------------------------------------------------------------*/
-
-/* jQuery Mobile style overrides */
-
-//.ui-bar-a {
-//    background: none repeat scroll 0 0 #0D6B51;
-//    border: 1px solid #0D6B51;
-//}
-//
-//.ui-btn-up-a {
-//    background: #0C5A40;
-//    border: 1px solid #111111;
-//    color: #FFFFFF;
-//    font-weight: bold;
-//    text-shadow: none;
-//}
-//
-//.ui-btn-up-c,
-//.ui-btn-hover-c {
-//    font-weight: normal;
-//    cursor: pointer;
-//}
-//
-//.ui-body-c, .ui-overlay-c {
-//    background: #ECE4CF;
-//}
-
-
-
-
-//.ui-btn-hidden {
-//    text-transform: uppercase;
-//}
-//
-//.ui-li-has-count .ui-li-count {
-//    top: 0;
-//	margin-top: 0;
-//	margin-right: 35px;
-//    text-align: center;
-//    vertical-align: middle;
-//	padding: 0 10px;
-//	min-width: 90px;
-//	font-size: 0.5em;
-//	border-top: none;
-//	border-bottom: none;
-//}
-//
-//.ui-li-heading,
-//.ui-li-desc {
-//    margin: 0 120px 0 0;
-//    padding-left: 10px;
-//    line-height: 1.5em;
-//    white-space:normal !important;
-//}
-//
-//.ui-content{
-//    padding: 0;
-//}
-//
-//.ui-header .ui-title, .ui-footer .ui-title {
-//    color: white;
-//    min-height: 1.25em; 
-//    text-align: center; 
-//    font-size: 1em; 
-//    display: block; 
-//    margin: 0;  
-//    padding: 0;  
-//    text-overflow: ellipsis; 
-//    overflow: hidden; 
-//    white-space: nowrap; 
-//    outline: 0; 
-//    font-family: $mainfont;
-//}
-//
-//.ui-header .ui-btn-left,
-//.ui-header .ui-btn-right,
-//.ui-footer .ui-btn-left,
-//.ui-footer .ui-btn-right {
-//    position: absolute;
-//    top: 0px;
-//    border: none;
-//    border-right: 1px; 
-//}
-//
-//.ui-header .ui-btn-left,
-//.ui-footer .ui-btn-left {
-//    left: 0px;
-//}
-//
-//.ui-header .ui-btn-right,
-//.ui-footer .ui-btn-right {
-//    right: 0px;
-//}
-//
-//.ui-footer .ui-btn-icon-notext,
-//.ui-header .ui-btn-icon-notext {
-//    top: 0px;
-//}
-//
-//.ui-header {
-//	font-size: 2em;
-//}
-//
-//.ui-btn-inner {
-//	min-height: 1.7em;
-//	padding: 0;
-//	margin: 0;
-//}
-//	
-//.ui-btn-text {
-//    line-height: 2em !important;
-//}
-//
-//.ui-li .ui-btn-inner a.ui-link-inherit {
-//	padding: 0;
-//	margin-left: 50px;
-//	font-size: 2em;
-//	line-height: 1.25em;
-//}
-//	
-//.ui-li-static.ui-li {
-//    padding: 0;
-//	margin-left: 0;
-//	font-size: 2em;
-//	line-height: 1.25em;
-//}
-//	
-//#page-find ul[data-role="listview"] li img {
-//	margin: auto;
-//	height: 1em;
-//}
-//
-//.ui-li-icon {
-//	margin-top: -20px;
-//	//height: 20px !important;
-//}
-
-/*-----------------------------------------------------------------------------------------------------------*/
+/* Sidebar */
 /*-----------------------------------------------------------------------------------------------------------*/
 
 //
@@ -491,7 +279,7 @@ div.elevationprofileimage img {
 //
 // Sidebar Pane: Find
 //
-#page-browse ul[data-role="listview"] li img {
+#pane-browse ul[data-role="listview"] li img {
     margin-top: -20px; /* hack to make the icons align to the text */
 }
 

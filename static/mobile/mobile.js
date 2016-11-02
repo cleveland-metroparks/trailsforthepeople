@@ -235,7 +235,7 @@ function switchToMap(callback) {
 
 
 
-// on page load: load the MAP, yank the splashscreen, then add a geolocation callback to center the map
+// on page load: load the MAP, then add a geolocation callback to center the map
 $(window).load(function () {
     // load up the URL params before the map, as we may need them to configure the map
     URL_PARAMS = $.url();
@@ -243,14 +243,6 @@ $(window).load(function () {
     // override the min zoom for Mobile, then start the map
     MIN_ZOOM = 10;
     initMap();
-
-    // @TODO: Remove the splash screen entirely.
-    //
-    // remove the splash screen; we won't need it anymore so remove it entirely
-    setTimeout(function () {
-        $('#toolbar').show();
-        $('#splashscreen').hide();
-    }, 50);
 
     // @TODO: Get Welcome panel working
     //
@@ -346,20 +338,6 @@ $(window).load(function () {
     $('div.sortpicker span').tap(function () {
         DEFAULT_SORT = $(this).attr('value');
         sortLists();
-    });
-});
-
-
-
-
-///// on page load: the ENABLE_MAPCLICK hack applied to the bottom button bar
-///// so that a too-long tap won't hit the Directions button a moment later
-///// To see it: disable this function, search for a Loop which has lengthy content,
-///// placing the Show On Map button in the same area of the screen as the button bar
-///// after tapping it, the map will open but then the button under your finger will be clicked
-$(window).load(function () {
-    $('#toolbar a.button').click(function () {
-        if (! ENABLE_MAPCLICK) return false;
     });
 });
 
