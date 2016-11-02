@@ -213,7 +213,7 @@ div.ui-slider {
  */
 #mapbutton_gps {
     position: absolute;
-    bottom: 10px;
+    bottom: 5px;
     right: 10px;
     cursor: pointer;
     z-index: 401;
@@ -307,11 +307,11 @@ div.elevationprofileimage img {
 /*-----------------------------------------------------------------------------------------------------------*/
 
 #browse_results li {
-padding: 18px 0;
+    padding: 18px .8em;
 }
 
 #info-content, .description {
-padding: 0 20px;
+    padding: 0 20px;
 }
 
 

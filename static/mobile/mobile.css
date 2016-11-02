@@ -67,7 +67,7 @@ div.ui-slider { height: 25px; }
 .leaflet-popup-scrolled .leaflet-popup-content { overflow: hidden; }
 
 /* Geolocate button this goes over the map, and the Scale control is hidden (it's added in common, so can't disable it only in mobile) */
-#mapbutton_gps { position: absolute; bottom: 10px; right: 10px; cursor: pointer; z-index: 401; }
+#mapbutton_gps { position: absolute; bottom: 5px; right: 10px; cursor: pointer; z-index: 401; }
 
 .leaflet-control-scale { display: none; }
 
@@ -100,7 +100,7 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 #loops_filter_distancepicker img { cursor: pointer; }
 
 /*-----------------------------------------------------------------------------------------------------------*/
-#browse_results li { padding: 18px 0; }
+#browse_results li { padding: 18px .8em; }
 
 #info-content, .description { padding: 0 20px; }
 
