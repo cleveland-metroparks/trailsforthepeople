@@ -66,10 +66,8 @@ div.ui-slider { height: 25px; }
 /* Leaflet popups which are large enough to induce scrolling, can't really scroll */
 .leaflet-popup-scrolled .leaflet-popup-content { overflow: hidden; }
 
-/* these buttons go over the map, and the Scale control is hidden (it's added in common, so can't disable it only in mobile) */
-#mapbutton_settings { position: absolute; bottom: 52px; left: 5px; cursor: pointer; z-index: 200; }
-
-#mapbutton_gps { position: absolute; bottom: 52px; right: 5px; cursor: pointer; z-index: 200; }
+/* Geolocate button this goes over the map, and the Scale control is hidden (it's added in common, so can't disable it only in mobile) */
+#mapbutton_gps { position: absolute; bottom: 10px; right: 10px; cursor: pointer; z-index: 401; }
 
 .leaflet-control-scale { display: none; }
 
@@ -115,7 +113,7 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 .sidebar-header { margin-bottom: 20px; }
 
 .sidebar-content ul li { padding-left: 0; }
-.sidebar-content ul li .fa { padding-right: 10px; font-size: 24px; width: 24px; }
+.sidebar-content ul li .fa { padding-right: 10px; font-size: 24px; width: 24px; vertical-align: middle; text-align: center; }
 .sidebar-content .ui-li-icon { max-height: 40px; max-width: 40px; }
 
 /*-----------------------------------------------------------------------------------------------------------*/

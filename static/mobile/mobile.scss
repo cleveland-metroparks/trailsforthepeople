@@ -206,25 +206,17 @@ div.ui-slider {
 }
 
 
-/* these buttons go over the map, and the Scale control is hidden (it's added in common, so can't disable it only in mobile) */
-
-#mapbutton_settings {
-    position:absolute;
-    bottom:52px;
-    left:5px;
-
-    cursor:pointer;
-
-    z-index:200;
-}
+/*
+ * Geolocate button
+ * this goes over the map, and the Scale control is hidden
+ * (it's added in common, so can't disable it only in mobile)
+ */
 #mapbutton_gps {
-    position:absolute;
-    bottom:52px;
-    right:5px;
-
-    cursor:pointer;
-
-    z-index:200;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    cursor: pointer;
+    z-index: 401;
 }
 
 .leaflet-control-scale {
@@ -482,6 +474,8 @@ padding: 0 20px;
             padding-right: 10px;
             font-size: 24px;
             width: 24px;
+            vertical-align: middle;
+            text-align: center;
         }
     }
     .ui-li-icon {
