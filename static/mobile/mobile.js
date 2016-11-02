@@ -1088,6 +1088,8 @@ function sortLists(target) {
             });
             break;
     }
+    // @TODO: re-set .ui-last-child on appropriate element
+    // (because we're getting last-element styling on non-last elements)
 }
 
 function is_ios() {
