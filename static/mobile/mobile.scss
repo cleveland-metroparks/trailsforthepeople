@@ -52,14 +52,6 @@ $grey_lightest: #DCDCDC;
 }
 
 
-//.ui-li-has-count .ui-li-count {
-//    top:85%;
-//}
-//
-//.ui-li-divider .ui-li-count, .ui-li-static .ui-li-count {
-//    right: 0;
-//}
-
 #change_directions_target {
     float:right;
     text-align:right;
@@ -233,11 +225,8 @@ div.elevationprofileimage img {
 
 /*-----------------------------------------------------------------------------------------------------------*/
 
-#browse_results li {
-    padding: 18px .8em;
-}
-
-#info-content, .description {
+#info-content,
+.description {
     padding: 0 20px;
 }
 
@@ -269,6 +258,12 @@ div.elevationprofileimage img {
     .ui-li-icon {
         max-height: 40px;
         max-width: 40px;
+    }
+    .ui-li-count {
+        background-color: $green_dark;
+        border: none;
+        color: white;
+        font-weight: normal;
     }
 }
 

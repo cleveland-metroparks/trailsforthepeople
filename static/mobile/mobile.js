@@ -108,30 +108,52 @@ $(document).ready(function () {
     
             // iterate over the fetched results, render them into the target
             for (var i=0, l=reply.results.length; i<l; i++) {
-                // initialize the result's LI entry; a whole lot of attributes to set pertaining to .zoom handling
                 var result = reply.results[i];
+
+                // List item
+                // A lot of attributes to set pertaining to .zoom handling
                 var li = $('<li></li>').addClass('zoom');
                 li.attr('title', result.name );
                 li.attr('gid',result.gid).attr('type',result.type).attr('w',result.w).attr('s',result.s).attr('e',result.e).attr('n',result.n).attr('lat',result.lat).attr('lng',result.lng);
                 li.attr('backbutton', backbuttonurl);
-    
-                // and the DIV with SPANs for styling substitles, etc.
-                var div = $('<div></div>').addClass('ui-btn-text');
-                div.append( $('<span></span>').addClass('ui-li-heading').text(result.name) );
+
+                // Link    
+                link = $('<a></a>');
+                link.attr('class', 'ui-btn ui-btn-text');
+                link.attr('href', 'javascript:zoomElementClick(this)');
+                li.append(link);
+
+                // Inner spans for text
+                link.append(
+                    $('<span></span>')
+                        .addClass('ui-li-heading')
+                        .text(result.name)
+                    );
                 if (result.note) {
-                    div.append( $('<span></span>').addClass('ui-li-desc').html(result.note) );
+                    link.append(
+                        $('<span></span>')
+                            .addClass('ui-li-desc')
+                            .html(result.note)
+                        );
                 }
     
                 // add the placeholder for a distance readout, to be sorted later
-                div.append( $('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text('0 mi') );
+                link.append(
+                    $('<span></span>')
+                        .addClass('zoom_distance')
+                        .addClass('ui-li-count')
+                        .addClass('ui-btn-up-c')
+                        .addClass('ui-btn-corner-all')
+                        .text('0 mi')
+                    );
     
-                // the click handler is to call zoomElementClick(element), which will center the map, load More Info content, etc.
+                // On click, call zoomElementClick() to center the map, load More Info, etc.
                 li.tap(function () {
                     zoomElementClick( $(this) );
                 });
     
                 // ready, add it to the list!
-                li.append(div);
+                li.append(link);
                 target.append(li);
             }
     
@@ -293,7 +315,6 @@ $(window).load(function () {
 
         // @TODO: Is this working?
         // update the GPS coordinates readout in the Settings panel
-        console.log('here');
         var lat = event.latlng.lat;
         var lng = event.latlng.lng;
         var ns = lat < 0 ? 'S' : 'N';
@@ -428,6 +449,7 @@ function updateNearYouNow() {
         div.append( $('<p></p>').text(poi.categories) );
         div.append( $('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text(poi.range + ' ' + poi.bearing) );
 
+        // On click, call zoomElementClick() to center the map, load More Info, etc.
         li.tap(function () {
             zoomElementClick( $(this) );
         });
@@ -588,7 +610,10 @@ function searchByKeyword(keyword) {
             li.attr('title',result.name);
             target.append(li);
 
-            li.tap(function () { zoomElementClick( $(this) ); });
+            // On click, call zoomElementClick() to center the map, load More Info, etc.
+            li.tap(function () {
+                zoomElementClick( $(this) );
+            });
         }
 
         // finally, have jQuery Mobile do its magic, then trigger distance calculation and sorting
@@ -597,10 +622,15 @@ function searchByKeyword(keyword) {
     }, 'json');
 }
 
-
-
-///// common interface: given a .zoom element with lon, lat, WSEN, type, gid,
-///// fetch info about it and show it in a panel
+/**
+ * zoomElementClick
+ * 
+ * common interface: given a .zoom element with lon, lat, WSEN, type, gid,
+ * fetch info about it and show it in a panel
+ *
+ * @TODO: Get this working
+ *
+ */
 function zoomElementClick(element) {
     // are we ignoring clicks? if so, then never mind; if not, then proceed but ignore clicks for a moment
     // this attempts to work around slow fingers sending multiple touches,
@@ -615,14 +645,15 @@ function zoomElementClick(element) {
     // and to the getdirections form so we can route to it
     // and so the pagechange event handler can see that we really do have a target
     $('#show_on_map').data('zoomelement', element );
+
     $('#directions_target_lat').val( element.attr('lat') );
     $('#directions_target_lng').val( element.attr('lng') );
     $('#directions_target_type').val( element.attr('type') );
     $('#directions_target_gid').val( element.attr('gid') );
     $('#directions_target_title').text( element.attr('title') );
 
-    // change to the info page
-    $.mobile.changePage('#pane-info');
+    // Change to the Info pane
+    sidebar.open('pane-info');
 
     // correct the Back button to go to the URL specified in the element, or else to the map
     var backurl = element.attr('backbutton');

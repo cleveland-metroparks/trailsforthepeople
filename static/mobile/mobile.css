@@ -78,8 +78,6 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 #loops_filter_distancepicker img { cursor: pointer; }
 
 /*-----------------------------------------------------------------------------------------------------------*/
-#browse_results li { padding: 18px .8em; }
-
 #info-content, .description { padding: 0 20px; }
 
 /*-----------------------------------------------------------------------------------------------------------*/
@@ -90,6 +88,7 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 .sidebar-content ul li { padding-left: 0; }
 .sidebar-content ul li .fa { padding-right: 10px; font-size: 24px; width: 24px; vertical-align: middle; text-align: center; }
 .sidebar-content .ui-li-icon { max-height: 40px; max-width: 40px; }
+.sidebar-content .ui-li-count { background-color: #1D5C1F; border: none; color: white; font-weight: normal; }
 
 /*-----------------------------------------------------------------------------------------------------------*/
 /* Sidebar Panes */
