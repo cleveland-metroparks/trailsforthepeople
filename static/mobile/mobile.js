@@ -98,7 +98,7 @@ $(document).ready(function () {
 
         //// for the fetched items, if one follows to the Info panel, where should that Back button go?
         var backbuttonurl = backurl;
-        if (category) backbuttonurl = "#browse-items?category=" + category;
+        if (category) backbuttonurl = "#pane-browse-results";
 
         // do the AJAX call: fetch the JSON data, render to UL.zoom in the #pane-browse-results page, switch over to it
         $.get('../ajax/browse_items', { category:category }, function (reply) {
@@ -658,7 +658,7 @@ function zoomElementClick(element) {
     // correct the Back button to go to the URL specified in the element, or else to the map
     var backurl = element.attr('backbutton');
     if (! backurl) backurl = '#pane-browse';
-    $('#pane-info .ui-header .ui-btn-left').prop('href', backurl);
+    $('#pane-info .sidebar-back').prop('href', backurl);
 
     // now that we have a location defined, enable the Get Directions
     $('#getdirections_disabled').hide();
