@@ -2,12 +2,6 @@
     z-index:500;
 }
 
-.fakelink {
-    color:blue;
-    text-decoration:underline;
-    cursor:pointer;
-}
-
 .popup_title {
     font-size:10pt; font-weight:bold;
     margin-bottom:0.25em;

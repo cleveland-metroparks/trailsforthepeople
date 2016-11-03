@@ -75,6 +75,12 @@ $grey_lightest: #DCDCDC;
     font-size:12pt;
 }
 
+.fakelink {
+    color: $green_light;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 #getdirections_disabled {
     text-align:center;
     font-size:12pt;
@@ -180,12 +186,13 @@ div.fakeinput {
 /* toggle for sorting alphabetically or by distance, hidden by default but added as searches happen */
 
 .sortpicker {
-    display:none;
-    text-align:center;
+    display: none;
+    text-align: center;
+    margin: 10px 0;
 }
 
 #pane-browse-results .sortpicker {
-    display:block;
+    display: block;
 }
 
 

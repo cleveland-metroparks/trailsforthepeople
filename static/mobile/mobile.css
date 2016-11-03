@@ -18,6 +18,8 @@
 
 .leaflet-popup .fakelink { font-size: 12pt; }
 
+.fakelink { color: #6AB03E; text-decoration: underline; cursor: pointer; }
+
 #getdirections_disabled { text-align: center; font-size: 12pt; }
 
 #info-content { min-height: 3em; }
@@ -59,7 +61,7 @@ div.ui-slider { height: 25px; }
 div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; padding: 0.4em; border: 1px solid #000; border-radius: 0.2em; height: 1.4em; }
 
 /* toggle for sorting alphabetically or by distance, hidden by default but added as searches happen */
-.sortpicker { display: none; text-align: center; }
+.sortpicker { display: none; text-align: center; margin: 10px 0; }
 
 #pane-browse-results .sortpicker { display: block; }
 
