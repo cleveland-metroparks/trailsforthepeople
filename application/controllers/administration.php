@@ -28,6 +28,18 @@ function __construct() {
 //    }
 //}
 
+/*
+ * index()
+ */
+function index() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user
+    // Don't require admin, since the top-level page is "home" and default post-login.
+    if ($this->_user_access() !== NULL) return;
+
+    $this->load->view('administration/home.phtml');
+}
 
 /*
  * Login
@@ -67,15 +79,9 @@ function login() {
     $this->load->view('administration/login.phtml');
 }
 
-
-function access_denied() {
-    // Require SSL
-    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-
-    $this->load->view('administration/access_denied.phtml');
-}
-
-
+/*
+ * Log out
+ */
 function logout() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
@@ -88,7 +94,19 @@ function logout() {
     redirect(ssl_url('administration/login'));
 }
 
+/*
+ * Access Denied
+ */
+function access_denied() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
 
+    $this->load->view('administration/access_denied.phtml');
+}
+
+/*
+ * System Audit Log
+ */
 function auditlog() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
@@ -100,19 +118,9 @@ function auditlog() {
     $this->load->view('administration/auditlog.phtml', $data);
 }
 
-
-
-function index() {
-    // Require SSL
-    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require logged-in user
-    // Don't require admin, since the top-level page is "home" and default post-login.
-    if ($this->_user_access() !== NULL) return;
-
-    $this->load->view('administration/home.phtml');
-}
-
-
+/*
+ * List Contributors
+ */
 function contributors() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
@@ -128,7 +136,9 @@ function contributors() {
     $this->load->view('administration/contributors.phtml', $data);
 }
 
-
+/*
+ * Add/Edit Contributor
+ */
 function contributor($id) {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
@@ -184,7 +194,9 @@ function contributor($id) {
     redirect(ssl_url('administration/contributors'));
 }
 
-
+/*
+ * Delete Contributor
+ */
 function deletecontributor() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
@@ -203,7 +215,9 @@ function deletecontributor() {
     redirect(ssl_url('administration/contributors'));
 }
 
-
+/*
+ * Purge Tilestache
+ */
 function purge_tilestache() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
@@ -213,7 +227,9 @@ function purge_tilestache() {
     return $this->load->view('administration/purge_tilestache.phtml');
 }
 
-
+/*
+ * Seed Tilestache
+ */
 function seed_tilestache() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
@@ -223,16 +239,17 @@ function seed_tilestache() {
     return $this->load->view('administration/seed_tilestache.phtml');
 }
 
-/*
- * TBD
- */
-function testing() {
-    // Require SSL
-    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require admin user
-    if ($this->_user_access('admin') !== NULL) return;
+///*
+// * Testing
+// */
+//function testing() {
+//    // Require SSL
+//    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+//    // Require admin user
+//    if ($this->_user_access('admin') !== NULL) return;
+//
+//    $this->load->view('administration/testing.phtml');
+//}
 
-    $this->load->view('administration/testing.phtml');
-}
 
 }
