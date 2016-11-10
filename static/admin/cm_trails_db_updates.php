@@ -138,12 +138,12 @@ function trailsforthepeople_db_update_2001() {
 /**
  * Database update #2002
  *
- * Add "allow_trails" permission to contributors.
+ * Add "allow_trails" permission (column) to contributors table.
  */
 function trailsforthepeople_db_update_2002() {
 	$db = db_connect();
 
-	$sql = 'ALTER TABLE contributors ADD COLUMN allow_trails bool NOT NULL SET DEFAULT false;';
+	$sql = 'ALTER TABLE contributors ADD COLUMN allow_trails bool NOT NULL DEFAULT false;';
 	$result = pg_query($db, $sql)
 		or exit("Error running query.");
 
@@ -219,10 +219,27 @@ function trailsforthepeople_db_update_2004() {
 	$result = pg_query($db, $sql) or exit("Error running query.");
 }
 
+/**
+ * Database update #2005
+ *
+ * Add "allow_hintmaps" permission (column) to contributors table.
+ */
+function trailsforthepeople_db_update_2005() {
+	$db = db_connect();
+
+	$sql = 'ALTER TABLE contributors ADD COLUMN allow_hintmaps bool NOT NULL DEFAULT false;';
+	$result = pg_query($db, $sql)
+		or exit("Error running query.");
+
+	$sql = 'UPDATE contributors SET allow_hintmaps=TRUE WHERE admin=true;';
+
+	$result = pg_query($db, $sql) or exit("Error running query.");
+}
+
 
 //print_r(get_all_db_update_nums());
 //print_r(get_pending_db_update_nums());
 
 //run_updates(get_pending_db_update_nums());
 
-trailsforthepeople_db_update_2004();
+trailsforthepeople_db_update_2005();

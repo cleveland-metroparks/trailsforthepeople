@@ -186,6 +186,7 @@ function contributor($id) {
     $data['contributor']->allow_loops    = $_POST['allow_loops'];
     $data['contributor']->allow_closures = $_POST['allow_closures'];
     $data['contributor']->allow_twitter  = $_POST['allow_twitter'];
+    $data['contributor']->allow_hintmaps = $_POST['allow_hintmaps'];
     if (@$_POST['password1']) $data['contributor']->setPassword($_POST['password1']);
     $data['contributor']->save();
 
@@ -246,7 +247,7 @@ function hint_maps() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
     // Require admin user
-    if ($this->_user_access('admin') !== NULL) return;
+    if ($this->_user_access('allow_hint_maps') !== NULL) return;
 
     // Get all Hint Maps
     $data = array();
@@ -264,7 +265,7 @@ function hint_map_edit($id) {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
     // Require admin user
-    if ($this->_user_access('admin') !== NULL) return;
+    if ($this->_user_access('allow_hint_maps') !== NULL) return;
 
     // Add new hint map entry
     if ($id == "0") {
@@ -288,6 +289,11 @@ function hint_map_edit($id) {
  * Save Hint Map
  */
 function hint_map_save() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Markers" permission
+    if ($this->_user_access('allow_hint_maps') !== NULL) return;
+
     $myid = $this->loggedin;
 
     $hint_map = new HintMap();
@@ -324,7 +330,7 @@ function hint_map_save() {
 
     // Download the image
     if ($save_image) {
-        $this->hint_map_cache_save($hint_map->id);
+        $this->__hint_map_cache_save($hint_map->id);
     }
 
     redirect(ssl_url('administration/hint_maps'));
@@ -333,7 +339,7 @@ function hint_map_save() {
 /*
  * Get hint map from external source and save locally.
  */
-function hint_map_cache_save($id) {
+private function __hint_map_cache_save($id) {
     $myid = $this->loggedin;
 
     $hint_map = new HintMap();
@@ -399,7 +405,12 @@ function hint_map_cache_save($id) {
  * Essentially an alias for hint_map_cache(), run from listing/management page.
  */
 function hint_map_refresh($id) {
-    $this->hint_map_cache_save($id);
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Markers" permission
+    if ($this->_user_access('allow_hint_maps') !== NULL) return;
+
+    $this->__hint_map_cache_save($id);
     return redirect(ssl_url('administration/hint_maps'));
 }
 
@@ -407,12 +418,27 @@ function hint_map_refresh($id) {
  * Delete Hint Map
  */
 function hint_map_delete($id) {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Markers" permission
+    if ($this->_user_access('allow_hint_maps') !== NULL) return;
+
+    $myid = $this->loggedin;
+
+    $hint_map = new HintMap();
+    $hint_map->where('id', $id)->get();
+
 }
 
 /*
  * Get a hint map image. For our aliasing (see routes.php).
  */
 function hint_map_retrieve($id) {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Markers" permission
+    if ($this->_user_access('allow_hint_maps') !== NULL) return;
+
     $hint_map = new HintMap();
     $hint_map->where('id', $id)->get();
     return redirect(ssl_url($hint_map->local_image_url()));
