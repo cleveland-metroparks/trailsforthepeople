@@ -26,6 +26,14 @@ $config['ssl_url']	= 'https://ururlhere.com/';
 
 /*
 |--------------------------------------------------------------------------
+| Base filesystem path: Where the app resides
+|--------------------------------------------------------------------------
+*/
+$config['base_path'] = '/var/www/yourwebdir';
+
+
+/*
+|--------------------------------------------------------------------------
 | Administration tool
 |--------------------------------------------------------------------------
 */
@@ -65,6 +73,15 @@ $config['tilestache_seed_bbox'] = "40.73 -82.437 41.887 -80.798";
 $config['tilestache_seed_layer'] = "basemap";
 $config['tilestache_seed_levels'] = array(10, 11, 12, 13, 14, 15, 16, 17);
 $config['tilestache_progress_file'] = '/var/www/static/tmp/tilestache.progress.json';
+
+
+/*
+|--------------------------------------------------------------------------
+| Temporary files directory
+|--------------------------------------------------------------------------
+*/
+$config['temp_dir'] = '/var/www/trailsforthepeople/static/tmp';
+
 
 /*
 |--------------------------------------------------------------------------
