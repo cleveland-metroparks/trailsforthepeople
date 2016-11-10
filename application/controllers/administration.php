@@ -314,8 +314,9 @@ function hint_map_save() {
     $hint_map->title        = $_POST['title'];
     $hint_map->url_external = $_POST['url_external'];
 
-    // @TODO: Set to now
-    //$hint_map->last_edited = time();
+    // Set "last edited" timestamp
+    $postgre_timestamp_format = 'Y-m-d H:i:s';
+    $hint_map->last_edited = date($postgre_timestamp_format);
 
     $hint_map->save();
 
@@ -387,14 +388,15 @@ private function __hint_map_cache_save($id) {
 
     $hint_map->image_filename_local = $local_filename;
 
-    // @TODO: Set to now
-    //$hint_map->last_refreshed = now();
+    // Set "last refreshed" timestamp
+    $postgre_timestamp_format = 'Y-m-d H:i:s';
+    $hint_map->last_refreshed = date($postgre_timestamp_format);
 
     $hint_map->save();
 
     Auditlog::log_message(
         sprintf(
-            "Hint Map '%s' image cached (id: %d).",
+            "Hint Map '%s' image saved/refreshed (id: %d).",
             $hint_map->title,
             $hint_map->id
         ),

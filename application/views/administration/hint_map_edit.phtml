@@ -70,6 +70,26 @@
     </div>
 </div>
 
+<?php
+      $date_format = 'Y-m-d, g:i a';
+      $last_edited = date($date_format, strtotime($hint_map->last_edited));
+      $last_refreshed = date($date_format, strtotime($hint_map->last_refreshed));
+?>
+
+<div class="form-group">
+    <label class="control-label col-sm-2">Last edited:</label>
+    <div class="col-sm-4">
+        <p class="form-control-static"><?= $last_edited ?></p>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="control-label col-sm-2">Last refreshed:</label>
+    <div class="col-sm-4">
+        <p class="form-control-static"><?= $last_refreshed ?></p>
+    </div>
+</div>
+
 <?php endif; ?>
 
 <div class="form-group">
