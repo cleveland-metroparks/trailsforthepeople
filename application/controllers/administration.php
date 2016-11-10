@@ -246,7 +246,7 @@ function seed_tilestache() {
 function hint_maps() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require admin user
+    // Require logged-in user with "Allow Hint Maps" permission
     if ($this->_user_access('allow_hint_maps') !== NULL) return;
 
     // Get all Hint Maps
@@ -264,7 +264,7 @@ function hint_maps() {
 function hint_map_edit($id) {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require admin user
+    // Require logged-in user with "Allow Hint Maps" permission
     if ($this->_user_access('allow_hint_maps') !== NULL) return;
 
     // Add new hint map entry
@@ -291,7 +291,7 @@ function hint_map_edit($id) {
 function hint_map_save() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require logged-in user with "Allow Markers" permission
+    // Require logged-in user with "Allow Hint Maps" permission
     if ($this->_user_access('allow_hint_maps') !== NULL) return;
 
     $myid = $this->loggedin;
@@ -322,9 +322,9 @@ function hint_map_save() {
     // Log
     Auditlog::log_message(
         sprintf(
-            "Hint Map id=%d saved: '%s'.",
-            $hint_map->id,
-            $hint_map->image_filename_local
+            "Hint Map '%s' saved (id: %d).",
+            $hint_map->title,
+            $hint_map->id
         ),
         $myid['email']);
 
@@ -394,9 +394,9 @@ private function __hint_map_cache_save($id) {
 
     Auditlog::log_message(
         sprintf(
-            "Hint Map id=%d image cached: '%s'.",
-            $id,
-            $local_filepath
+            "Hint Map '%s' image cached (id: %d).",
+            $hint_map->title,
+            $hint_map->id
         ),
         $myid['email']);
 }
@@ -407,10 +407,11 @@ private function __hint_map_cache_save($id) {
 function hint_map_refresh($id) {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require logged-in user with "Allow Markers" permission
+    // Require logged-in user with "Allow Hint Maps" permission
     if ($this->_user_access('allow_hint_maps') !== NULL) return;
 
     $this->__hint_map_cache_save($id);
+
     return redirect(ssl_url('administration/hint_maps'));
 }
 
@@ -420,14 +421,44 @@ function hint_map_refresh($id) {
 function hint_map_delete($id) {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require logged-in user with "Allow Markers" permission
+    // Require logged-in user with "Allow Hint Maps" permission
     if ($this->_user_access('allow_hint_maps') !== NULL) return;
 
-    $myid = $this->loggedin;
+    // Delete or confirm
+    if (!empty($_POST['submit']) ) {
+        // Perform the delete
+        $hint_map = new HintMap();
+        $hint_map->where('id', $id)->get();
 
-    $hint_map = new HintMap();
-    $hint_map->where('id', $id)->get();
+        if ($hint_map->id) {
+            $myid = $this->loggedin;
+            Auditlog::log_message(
+                sprintf("Hint Map deleted: \"%s\" (id: %d)",
+                    htmlspecialchars($hint_map->title),
+                    $hint_map->id),
+                $myid['email']
+            );
+            $hint_map->delete();
+        }
 
+        redirect(ssl_url('administration/hint_maps'));
+    } else {
+        // Show confirmation form
+        // Load the hint map info
+        $data = array();
+        $data['hint_map'] = null;
+
+        if ((integer) $id) {
+            $data['hint_map'] = new HintMap();
+            $data['hint_map']->where('id', $id)->get();
+
+            // @TODO: How to bail?
+            if (!$data['hint_map']->id) {
+                return redirect(ssl_url('administration/hint_maps'));
+            }
+        }
+        $this->load->view('administration/hint_map_delete.phtml', $data);
+    }
 }
 
 /*
@@ -436,7 +467,7 @@ function hint_map_delete($id) {
 function hint_map_retrieve($id) {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require logged-in user with "Allow Markers" permission
+    // Require logged-in user with "Allow Hint Maps" permission
     if ($this->_user_access('allow_hint_maps') !== NULL) return;
 
     $hint_map = new HintMap();
