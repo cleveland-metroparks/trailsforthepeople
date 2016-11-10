@@ -239,6 +239,185 @@ function seed_tilestache() {
     return $this->load->view('administration/seed_tilestache.phtml');
 }
 
+/*
+ * List Hint Maps
+ */
+function hint_maps() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
+
+    // Get all Hint Maps
+    $data = array();
+    $data['hint_maps'] = new HintMap();
+    $data['hint_maps']->get();
+
+    // Load template
+    $this->load->view('administration/hint_maps.phtml', $data);
+}
+
+/*
+ * Add/Edit Hint Map
+ */
+function hint_map_edit($id) {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
+
+    // Add new hint map entry
+    if ($id == "0") {
+        $hint_map = new HintMap();
+        $id = $hint_map->id;
+    }
+
+    // load the hint map info
+    $data = array();
+    $data['hint_map'] = null;
+    if ((integer) $id) {
+        $data['hint_map'] = new HintMap();
+        $data['hint_map']->where('id', $id)->get();
+        if (! $data['hint_map']->id) return redirect(ssl_url('administration/hint_maps'));
+    }
+
+    return $this->load->view('administration/hint_map_edit.phtml', $data);
+}
+
+/*
+ * Save Hint Map
+ */
+function hint_map_save() {
+    $myid = $this->loggedin;
+
+    $hint_map = new HintMap();
+
+    // Fetch if we're editing existing
+    if (@$_POST['id']) {
+        $hint_map->where('id', $_POST['id']);
+        $hint_map->get();
+        if (! $hint_map->id) return redirect(ssl_url('administration/hint_maps'));
+    }
+
+    // If url_external has changed or this is a new record,
+    // we'll need to download the image
+    if ($hint_map->url_external != $_POST['url_external']) {
+        $save_image = TRUE;
+    }
+
+    $hint_map->title        = $_POST['title'];
+    $hint_map->url_external = $_POST['url_external'];
+
+    // @TODO: Set to now
+    //$hint_map->last_edited = time();
+
+    $hint_map->save();
+
+    // Log
+    Auditlog::log_message(
+        sprintf(
+            "Hint Map id=%d saved: '%s'.",
+            $hint_map->id,
+            $hint_map->image_filename_local
+        ),
+        $myid['email']);
+
+    // Download the image
+    if ($save_image) {
+        $this->hint_map_cache_save($hint_map->id);
+    }
+
+    redirect(ssl_url('administration/hint_maps'));
+}
+
+/*
+ * Get hint map from external source and save locally.
+ */
+function hint_map_cache_save($id) {
+    $myid = $this->loggedin;
+
+    $hint_map = new HintMap();
+    $hint_map->where('id', $id)->get();
+
+    // Download file to temp dir
+    $local_filename_temp = 'hint_' . $id . '_tmp';
+    $local_filepath_temp = $this->config->item('temp_dir') . '/' . $local_filename_temp;
+
+    // Download and save image
+    file_put_contents($local_filepath_temp, fopen($hint_map->url_external, 'r'));
+
+    // Figure out file MIME type, and corresponding extension
+    $mimetype = mime_content_type($local_filepath_temp);
+    switch ($mimetype) {
+        case 'image/png':
+              $file_ext = 'png';
+              break;
+        case 'image/jpeg':
+              $file_ext = 'jpg';
+              break;
+        case 'image/gif':
+              $file_ext = 'gif';
+              break;
+        case 'image/bmp':
+              $file_ext = 'bmp';
+              break;
+        case 'image/tiff':
+              $file_ext = 'tif';
+              break;
+        case 'image/svg+xml':
+              $file_ext = 'svg';
+              break;
+        default:
+              $file_ext = '';
+    }
+
+    // Build local file path
+    $local_filename = 'hint-' . $id . '.' . $file_ext;
+    $local_dir = $this->config->item('hint_maps_dir');
+    $local_filepath = $local_dir . '/' . $local_filename;
+
+    // Move and rename with file extension
+    rename($local_filepath_temp, $local_filepath);
+
+    $hint_map->image_filename_local = $local_filename;
+
+    // @TODO: Set to now
+    //$hint_map->last_refreshed = now();
+
+    $hint_map->save();
+
+    Auditlog::log_message(
+        sprintf(
+            "Hint Map id=%d image cached: '%s'.",
+            $id,
+            $local_filepath
+        ),
+        $myid['email']);
+}
+
+/*
+ * Essentially an alias for hint_map_cache(), run from listing/management page.
+ */
+function hint_map_refresh($id) {
+    $this->hint_map_cache_save($id);
+    return redirect(ssl_url('administration/hint_maps'));
+}
+
+/*
+ * Delete Hint Map
+ */
+function hint_map_delete($id) {
+}
+
+/*
+ * Get a hint map image. For our aliasing (see routes.php).
+ */
+function hint_map_retrieve($id) {
+    $hint_map = new HintMap();
+    $hint_map->where('id', $id)->get();
+    return redirect(ssl_url($hint_map->local_image_url()));
+}
+
 ///*
 // * Testing
 // */

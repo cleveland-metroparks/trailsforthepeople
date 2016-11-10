@@ -284,6 +284,11 @@ private function _mainmenu_left_array() {
           'access' => 'admin',
         ),
         array(
+          'url' => 'administration/hint_maps',
+          'title' => 'Hint Maps',
+          'access' => 'admin',
+        ),
+        array(
           'url' => 'administration/auditlog',
           'title' => 'Log',
           'access' => 'admin',

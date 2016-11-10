@@ -39,18 +39,26 @@
 */
 
 $route['default_controller'] = "browserdetect";
+
 $route['404_override'] = '';
 
-
-// for the short URL remapping: anything that starts with url/ must be a shorturl
+// Short URLs
+// Remap anything starting with "url/"
 $route['url/(:any)'] = "browserdetect/url/$1";
 
-
-// contributors/marker
+// Marker management
 $route['contributors/marker/(:num)'] = "contributors/marker_edit/$1";
 $route['contributors/marker/(:num)/edit'] = "contributors/marker_edit/$1";
 $route['contributors/marker/(:num)/delete'] = "contributors/marker_delete/$1";
 
+// Hint Map management
+$route['administration/hint_map/(:num)'] = "administration/hint_map_edit/$1";
+$route['administration/hint_map/(:num)/edit'] = "administration/hint_map_edit/$1";
+$route['administration/hint_map/(:num)/delete'] = "administration/hint_map_delete/$1";
+$route['administration/hint_map/(:num)/refresh'] = "administration/hint_map_refresh/$1";
+
+// Hint Map aliases
+$route['hint/(:num)'] = "administration/hint_map_retrieve/$1";
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

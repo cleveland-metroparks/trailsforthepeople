@@ -1,0 +1,58 @@
+<?php $this->page_title = 'Manage Hint Maps'; ?>
+
+<ul class="local-actions">
+    <li><a href="<?= ssl_url('administration/hint_map/0/') ?>" class="btn btn-primary">+ New hint map</a></li>
+</ul>
+
+<table id="hint_maps" class="table table-striped">
+
+<thead>
+<tr>
+  <th>Title</th>
+  <th>URL Alias</th>
+  <th>Cached Image</th>
+  <th>Last Edited</th>
+  <th>Last Refreshed</th>
+  <th>Refresh</th>
+  <th>Edit</th>
+  <th>Delete</th>
+</tr>
+</thead>
+
+<tbody>
+<?php foreach ($hint_maps as $hint_map) { ?>
+  <tr>
+    <td>
+      <a href="<?= ssl_url("administration/hint_map/{$hint_map->id}") ?>">
+        <?= htmlspecialchars($hint_map->title) ?>
+      </a>
+    </td>
+    <td><a href="<?= $hint_map->hint_url(TRUE); ?>"><?= $hint_map->hint_url() ?></a></td>
+    <?php
+        $local_image_url = ssl_url($this->config->item('hint_maps_dir_rel') . '/' . $hint_map->image_filename_local);
+    ?>
+    <td>
+      <a href="<?= $local_image_url ?>" target="_blank">
+        <img height="100" src="<?= $local_image_url ?>" alt="<?= htmlspecialchars($hint_map->title) ?>" target="_blank" />
+      </a>
+    </td>
+    <td><?= htmlspecialchars($hint_map->last_edited) ?></td>
+    <td><?= htmlspecialchars($hint_map->last_refreshed) ?></td>
+    <td><a href="<?= ssl_url("administration/hint_map/{$hint_map->id}/refresh") ?>">refresh</a></td>
+    <td><a href="<?= ssl_url("administration/hint_map/{$hint_map->id}") ?>">edit</a></td>
+    <td><a href="<?= ssl_url("administration/hint_map/{$hint_map->id}/delete") ?>">delete</a></td>
+  </tr>
+<?php } ?>
+</tbody>
+
+</table>
+
+<script type="text/javascript">
+$(window).load(function() {
+    $('#hint_maps').tablesorter({
+        sortList: [[0,0]]
+    });
+    $('#hint_maps').addClass('tablesorter');
+
+});
+</script>
