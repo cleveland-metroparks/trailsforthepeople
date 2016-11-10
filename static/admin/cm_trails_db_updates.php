@@ -194,10 +194,35 @@ function trailsforthepeople_db_update_2003() {
 	$result = pg_query($db, $sql) or exit("Error running query.");
 }
 
+/**
+ * Database update #2004
+ *
+ * Create "hint_maps" table.
+ */
+function trailsforthepeople_db_update_2004() {
+	$db = db_connect();
+
+	$sql='
+		CREATE TABLE IF NOT EXISTS hint_maps (
+		  id serial,
+		  title varchar(100),
+		  image_filename_local varchar(255),
+		  last_edited TIMESTAMP DEFAULT current_timestamp,
+		  last_refreshed TIMESTAMP DEFAULT current_timestamp,
+		  url_external VARCHAR(2083),
+		  PRIMARY KEY(id)
+		);
+		GRANT ALL PRIVILEGES ON TABLE hint_maps TO trails;
+		GRANT ALL PRIVILEGES ON SEQUENCE hint_maps_id_seq TO trails;
+	';
+
+	$result = pg_query($db, $sql) or exit("Error running query.");
+}
+
 
 //print_r(get_all_db_update_nums());
 //print_r(get_pending_db_update_nums());
 
 //run_updates(get_pending_db_update_nums());
 
-trailsforthepeople_db_update_2003();
+trailsforthepeople_db_update_2004();
