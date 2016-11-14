@@ -38,8 +38,51 @@ var PRINT_SIZES = {
 };
 
 // these basemaps are really basemaps WITH baked-in labels and features, so the map can function with only one overlay visible
-var PHOTOBASE = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/satphoto_mobilestack/{z}/{x}/{y}.jpg", { name:'photo', subdomains:'123' });
-var MAPBASE   = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/basemap_mobilestack/{z}/{x}/{y}.jpg", { name:'terrain', subdomains:'123' });
+var LAYER_TILESTACHE_SAT = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/satphoto_mobilestack/{z}/{x}/{y}.jpg", { name:'photo', subdomains:'123' });
+var LAYER_TILESTACHE_MAP = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/basemap_mobilestack/{z}/{x}/{y}.jpg", { name:'terrain', subdomains:'123' });
+
+// Mapbox access token
+const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiWHRKaDhuRSJ9.FGqNSOHwiCr2dmTH2JTMAA';
+L.mapbox.accessToken = MAPBOX_TOKEN;
+
+// Mapbox map tiles baselayer
+const MAPBOX_MAP_URL_FRAG = 'cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
+var LAYER_MAPBOX_MAP = L.tileLayer(
+    'https://api.mapbox.com/styles/v1/' + MAPBOX_MAP_URL_FRAG + '/tiles/{z}/{x}/{y}?access_token=' + L.mapbox.accessToken, {
+        tileSize: 512,
+        zoomOffset: -1,
+        attribution: '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    });
+
+// Mapbox satellite baselayer
+const MAPBOX_SAT_URL_FRAG = 'cleveland-metroparks/cit0kaw3v000k2xpi18payeig';
+var LAYER_MAPBOX_SAT = L.tileLayer(
+    'https://api.mapbox.com/styles/v1/' + MAPBOX_SAT_URL_FRAG + '/tiles/{z}/{x}/{y}?access_token=' + L.mapbox.accessToken, {
+        tileSize: 512,
+        zoomOffset: -1,
+        attribution: '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    });
+
+// Mapbox GL-Leaflet map tiles baselayer
+// Experimental GL+Leaflet binding - https://github.com/mapbox/mapbox-gl-leaflet
+var LAYER_MAPBOX_GL_MAP = L.mapboxGL({
+    accessToken: MAPBOX_TOKEN,
+    style: 'mapbox://styles/' + MAPBOX_MAP_URL_FRAG
+});
+
+const ALL_LAYERS = [
+    LAYER_TILESTACHE_MAP,
+    LAYER_TILESTACHE_SAT,
+    LAYER_MAPBOX_MAP,
+    LAYER_MAPBOX_SAT,
+    LAYER_MAPBOX_GL_MAP
+];
+
+const AVAILABLE_LAYERS = {
+    'map' : LAYER_MAPBOX_MAP,
+    'photo' : LAYER_MAPBOX_SAT,
+    'vector' : LAYER_MAPBOX_GL_MAP
+};
 
 /* to add route debugging into the map as it is running, paste this into the JavaScript console */
 /*

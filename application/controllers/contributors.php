@@ -1,12 +1,15 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-class Contributors extends CI_Controller {
 
+class Contributors extends MY_Controller {
 
 function __construct() {
     parent::__construct();
 
-    // a shortcut for use in templates: $this->loggedin is a shortcut to an assocarray of the Contributor's info
-    $this->loggedin = $this->session->userdata('contributor');
+    // Add our administration & contributors (shared) JS as a <script> include.
+    $this->_add_js_include('static/admin/admin-contrib.js');
+
+    // Add our contributors JS as a <script> include.
+    $this->_add_js_include('static/contributors/contributors.js');
 }
 
 
@@ -30,91 +33,84 @@ private function delTree($dir) {
     return rmdir($dir);
 }
 
-
+/*
+ * Login
+ *
+ * Deprecated; using administration for this now.
+ */
 function login() {
-    // must be using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-
-    $this->load->helper('recaptchalib');
-
-    // if they submitted a user & pass AND it matches the salted SHA1 hash, good
-    // set their session variable and send them onward
-    if (@$_POST['username'] and $_POST['password']) {
-        // check the CAPTCHA
-        $captcha_ok = recaptcha_check_answer($this->config->item('recaptcha_private_key'), $_SERVER["REMOTE_ADDR"], @$_POST['recaptcha_challenge_field'], @$_POST['recaptcha_response_field']);
-        $captcha_ok = $captcha_ok->is_valid;
-        //$captcha_ok = 'True';
-        // fetch their account and check their password
-        $account = new Contributor();
-        $account->where('email',$_POST['username'])->get();
-        $login_ok = ($account->id and $account->checkPassword($_POST['password']));
-
-        // if both passed, they're in; capture a bunch of their Contributor attributes into a session variable
-        // this can be used in templates or this controller via $this->loggedin or $this->loggedin
-        if ($captcha_ok and $login_ok) {
-            $sessiondata = array(
-                'id' => $account->id,
-                'email' => $account->email,
-                'realname' => $account->realname,
-                'admin' => $account->admin == 't',
-                'allow_markers' => $account->allow_markers == 't',
-                'allow_swgh' => $account->allow_swgh == 't',
-                'allow_loops' => $account->allow_loops == 't',
-                'allow_closures' => $account->allow_closures == 't',
-                'allow_twitter' => $account->allow_twitter == 't',
-            );
-            $this->session->set_userdata('contributor', $sessiondata);
-            Auditlog::log_message("Successful login to contributor panel", $account->email);
-            return redirect(ssl_url('contributors/'));
-        }
-
-        // if they got here, then login failed; but if the CAPTCHA was good and the password was bad, then it was truly a failed login attempt
-        if ($captcha_ok and ! $login_ok) Auditlog::log_message("Failed login attempt to contributor panel", $_POST['username']);
-    }
-
-    // if we got here, it must not have worked out
-    $this->session->unset_userdata('contributor');
-
-    $data = array();
-    $data['recaptcha'] = recaptcha_get_html( $this->config->item('recaptcha_public_key'), null, true );
-
-    $this->load->view('contributors/login.phtml', $data);
+    return redirect(ssl_url('administration/login'));
 }
 
-
+/*
+ * Logout
+ *
+ * Deprecated; using administration for this now.
+ */
 function logout() {
-    // must be using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
+    return redirect(ssl_url('administration/logout'));
+}
 
-    // log the event, wow they actually logged out!
-    $email = $this->loggedin;
-    $email = $email['email'];
-    Auditlog::log_message("Successful logout from to contributor panel", $email);
+/*
+ * User Account page
+ */
+function user() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user
+    if ($this->_user_access() !== NULL) return;
 
-    // purge their token, send them to the login page
-    $this->session->unset_userdata('contributor');
-    redirect(ssl_url('contributors/login'));
+    $data = array();
+
+    // Make an array of the back-end areas the user has access to
+    $all_areas = array(
+        'admin' => 'Admin',
+        'allow_swgh' => 'SWGH',
+        'allow_markers' => 'Markers',
+        'allow_loops' => 'Loops',
+        'allow_closures' => 'Closures',
+    );
+    $access_areas = array();
+    foreach ($all_areas as $k => $v) {
+        if ($this->loggedin[$k] == 't') {
+            $access_areas[] = $v;
+        }
+    }
+    $data['access_areas'] = $access_areas;
+
+    // They've successfully submitted the Change Password form
+    if (!empty($_POST['password1'])) {
+        // Fetch user's Contributor account
+        $contributor = new Contributor();
+        $contributor->where('id', $this->loggedin['id'] )->get();
+        $contributor->setPassword($_POST['password1']);
+
+        $this->_add_user_message('Your password has been changed.', 'success');
+    }
+
+    $this->load->view('contributors/user.phtml', $data);
 }
 
 
 function index() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user
+    if ($this->_user_access() !== NULL) return;
 
-    $this->load->view('contributors/mainmenu.phtml');
+    $this->load->view('contributors/home.phtml');
 }
 
 
 
 function markers() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Markers" permission
+    if ($this->_user_access('allow_markers') !== NULL) return;
+
     $myid = $this->loggedin;
 
-    // must have the permission to use this specific function
-    if (! $this->loggedin['allow_markers']) return redirect(ssl_url('contributors/'));
     $data = array();
 
     // fetch the marker list, MY OWN markers with possible filters
@@ -144,14 +140,14 @@ function markers() {
 }
 
 
-function marker($id) {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
-    $myid = $this->loggedin;
 
-    // must have the permission to use this specific function
-    if (! $this->loggedin['allow_markers']) return redirect(ssl_url('contributors/'));
+function marker_edit($id) {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Markers" permission
+    if ($this->_user_access('allow_markers') !== NULL) return;
+
+    $myid = $this->loggedin;
 
     // load the marker info, if any; note the extra WHERE to ensure that we own the marker
     $data = array();
@@ -189,62 +185,87 @@ function marker($id) {
             "Trail Closures and Construction",
         );
     }
-
-    // ready, set, show!
-    $this->load->view('contributors/marker.phtml', $data);
+    $this->load->view('contributors/marker_edit.phtml', $data);
 }
 
-function deletemarker() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+/**
+ * Confirm, then delete a marker from the database, checking access permissions.
+ */
+function marker_delete($id) {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Markers" permission
+    if ($this->_user_access('allow_markers') !== NULL) return;
+    
     $myid = $this->loggedin;
 
-    // must have the permission to use this specific function
-    if (! $this->loggedin['allow_markers']) return redirect(ssl_url('contributors/'));
+    if (!empty($_POST['submit']) ) {
+        // Perform the delete
 
-    // fetch it, delete it
-    $marker = new Marker();
-    $marker->where('id',@$_POST['id']);
-    if (! $this->loggedin['admin'] ) {
-        // not an admin, then make sure the owner ID matches too
-        $marker->where('creatorid', $myid['id']);
-    }
-    $marker->get();
-    if ($marker->id) {
-        $email = $this->loggedin;
-        $email = $email['email'];
-        Auditlog::log_message( sprintf("Marker deleted: %s", htmlspecialchars($marker->title)) , $email);
-
-        $marker->delete();
-    }
-
-    // purge the tile cache
-    $this->_clearTileCache('marker');
-
-    // we're outta here
-    redirect(ssl_url('contributors/markers'));
-}
-
-
-function savemarker() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
-    $myid = $this->loggedin;
-
-    // must have the permission to use this specific function
-    if (! $this->loggedin['allow_markers']) return redirect(ssl_url('contributors/'));
-
-    // fetch the record we're updating, or create a new record and set its ownership/creator info
-    if (@$_POST['id']) {
         $marker = new Marker();
-        $marker->where('id',$_POST['id']);
+        $marker->where('id', $id);
+        if (! $this->loggedin['admin'] ) {
+            // not an admin, then make sure the owner ID matches too
+            $marker->where('creatorid', $myid['id']);
+        }
+        $marker->get();
+
+        if ($marker->id) {
+            $email = $this->loggedin;
+            $email = $email['email'];
+            Auditlog::log_message( sprintf("Marker deleted: \"%s\" (id: %d)", htmlspecialchars($marker->title), $marker->id) , $email);
+
+            $marker->delete();
+        }
+
+        // purge the tile cache
+        $this->_clearTileCache('marker');
+
+        redirect(ssl_url('contributors/markers'));
+    } else {
+        // Show confirmation form
+
+        // Load the marker info, if any, checking for permission
+        $data = array();
+        $data['marker'] = null;
+        if ((integer) $id) {
+            $data['marker'] = new Marker();
+            $data['marker']->where('id', $id);
+            if (!$this->loggedin['admin']) {
+                // Not an admin; make sure the owner ID matches
+                $data['marker']->where('creatorid', $myid['id']);
+            }
+            $data['marker']->get();
+
+            // @TODO: How to bail?
+            if (!$data['marker']->id) return redirect(ssl_url('contributors/markers'));
+        }
+
+        $this->load->view('contributors/marker_delete.phtml', $data);
+    }
+}
+
+/**
+ * Save a new or edited marker to the database, checking access permissions.
+ */
+function marker_save() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Markers" permission
+    if ($this->_user_access('allow_markers') !== NULL) return;
+
+    $myid = $this->loggedin;
+
+    $marker = new Marker();
+    // Fetch the marker record we're updating, or create a new record and set its ownership/creator info
+    if (@$_POST['id']) {
+        // Existing marker
+        $marker->where('id', $_POST['id']);
         $marker->where('creatorid', $myid['id']);
         $marker->get();
         if (! $marker->id) return redirect(ssl_url('contributors/markers'));
     } else {
-        $marker = new Marker();
+        // New marker
         $myid = $this->loggedin;
         $marker->creatorid = $myid['id'];
         $marker->creator   = $myid['realname'];
@@ -260,13 +281,24 @@ function savemarker() {
     $marker->save();
 
     // update the geometry
-    $this->db->query("UPDATE markers SET geom=ST_GeometryFromText('POINT(? ?)',4326) WHERE id=?", array( (float) $marker->lng, (float) $marker->lat, $marker->id ) );
+    $this->db->query(
+        "UPDATE markers SET geom=ST_GeometryFromText('POINT(? ?)',4326) WHERE id=?",
+        array(
+            (float)$marker->lng,
+            (float)$marker->lat,
+            $marker->id
+        )
+    );
 
     // now enable/disable the marker based on its startdate and expires date
     $today = date('Y-m-d');
     $marker->enabled = 1;
-    if ($marker->startdate and $marker->startdate > $today) $marker->enabled = 0;
-    if ($marker->expires and $marker->expires < $today) $marker->enabled = 0;
+    if ($marker->startdate and $marker->startdate > $today) {
+        $marker->enabled = 0;
+    }
+    if ($marker->expires and $marker->expires < $today) {
+        $marker->enabled = 0;
+    }
     $marker->save();
 
     // purge the tile cache
@@ -275,84 +307,38 @@ function savemarker() {
     // done
     $email = $this->loggedin;
     $email = $email['email'];
-    Auditlog::log_message( sprintf("Marker edited: %s", htmlspecialchars($marker->title)) , $email);
+    if (@$_POST['id']) {
+        Auditlog::log_message( sprintf("Marker edited: \"%s\" (id: %d)", htmlspecialchars($marker->title), $marker->id) , $email);
+    } else {
+        Auditlog::log_message( sprintf("Marker created: \"%s\" (id: %d)", htmlspecialchars($marker->title), $marker->id) , $email);
+    }
+
     redirect(ssl_url('contributors/markers'));
-}
-
-
-
-function trailclosures() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
-    $myid = $this->loggedin;
-
-    // must have the permission to use this specific function
-    if (! $this->loggedin['allow_closures']) return redirect(ssl_url('contributors/'));
-
-    // if they are not saving, then bail to a form
-    if (! @$_POST['save']) {
-        $data = array();
-        $data['closures'] = new Trailclosure();
-        $data['closures']->order_by('name')->get();
-        return $this->load->view('contributors/trailclosures.phtml',$data);
-    }
-
-    // bypass the ORM cuz we need to insert geometries and truncate tables and stuff
-    if (! @$_POST['closure_names']) $_POST['closure_names'] = array();
-    $this->db->query('TRUNCATE TABLE trail_closures');
-    for ($i=0; $i<sizeof($_POST['closure_names']); $i++) {
-        $this->db->query('INSERT INTO trail_closures (name,description,wkt,geom) VALUES (?,?,?,ST_TRANSFORM(ST_GEOMFROMTEXT(?,4326),3734))',
-            array(
-            $_POST['closure_names'][$i], $_POST['closure_texts'][$i],
-            $_POST['closure_geoms'][$i],
-            $_POST['closure_geoms'][$i]
-        ));
-    }
-
-    // some postprocessing: add the centroid LatLng coordinates, for zooming in that UI
-    $this->db->query('UPDATE trail_closures SET boxw=ST_XMIN(ST_TRANSFORM(geom,4326))');
-    $this->db->query('UPDATE trail_closures SET boxe=ST_XMAX(ST_TRANSFORM(geom,4326))');
-    $this->db->query('UPDATE trail_closures SET boxs=ST_YMIN(ST_TRANSFORM(geom,4326))');
-    $this->db->query('UPDATE trail_closures SET boxn=ST_YMAX(ST_TRANSFORM(geom,4326))');
-
-    // postprocessing: find any Trails which intersect any of these Closures, tag them
-    $this->db->query('SELECT update_trail_closures()');
-
-    // purge the tile cache
-    $this->_clearTileCache('closure');
-
-    // done, audit and send them on
-    $email = $this->loggedin;
-    $email = $email['email'];
-    Auditlog::log_message("Trail closures saved", $email);
-    redirect(ssl_url('contributors/'));
+    //$this->load->view('contributors/marker.phtml', $data);
 }
 
 
 
 
 function autoloop() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
-    $myid = $this->loggedin;
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Loops" permission
+    if ($this->_user_access('allow_loops') !== NULL) return;
 
-    // must have the permission to use this specific function
-    if (! $this->loggedin['allow_loops']) return redirect(ssl_url('contributors/'));
+    $myid = $this->loggedin;
 
     $this->load->view('contributors/autoloop.phtml');
 }
 
 
 function autoloop_csv() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
-    $myid = $this->loggedin;
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Loops" permission
+    if ($this->_user_access('allow_loops') !== NULL) return;
 
-    // must have the permission to use this specific function
-    if (! $this->loggedin['allow_loops']) return redirect(ssl_url('contributors/'));
+    $myid = $this->loggedin;
 
     // is a CSV file uploaded? no? then bail
     $csvfilename = @$_FILES['csv']['tmp_name'];
@@ -417,13 +403,12 @@ function autoloop_csv() {
 
 
 function loops() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
-    $myid = $this->loggedin;
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Loops" permission
+    if ($this->_user_access('allow_loops') !== NULL) return;
 
-    // must have the permission to use this specific function
-    if (! $this->loggedin['allow_loops']) return redirect(ssl_url('contributors/'));
+    $myid = $this->loggedin;
 
     // simply make a list of all loops in the system
     // note the select() clause below to fetch only the fields of interest: the WKT and geom fields are expensive!
@@ -441,12 +426,12 @@ function loops() {
 
 
 function loop($id) {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Loops" permission
+    if ($this->_user_access('allow_loops') !== NULL) return;
 
-    // must have the permission to use this specific function
-    if (! $this->loggedin['allow_loops']) return redirect(ssl_url('contributors/'));
+    $this->_add_js_include('static/contributors/loop.js');
 
     // load the loop's info
     $data = array();
@@ -468,12 +453,10 @@ function loop($id) {
 
 
 function saveloop() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
-
-    // must have the permission to use this specific function
-    if (! $this->loggedin['allow_loops']) return redirect(ssl_url('contributors/'));
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Loops" permission
+    if ($this->_user_access('allow_loops') !== NULL) return;
 
     // fetch the record we're updating, or create a new record
     if (@$_POST['id']) {
@@ -567,12 +550,10 @@ function saveloop() {
 
 
 function cloneloop($id) {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
-
-    // must have the permission to use this specific function
-    if (! $this->loggedin['allow_loops']) return redirect(ssl_url('contributors/'));
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Loops" permission
+    if ($this->_user_access('allow_loops') !== NULL) return;
 
     // fetch the original Loop
     $old_loop = new Loop();
@@ -600,12 +581,10 @@ function cloneloop($id) {
 }
 
 function deleteloop() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
-
-    // must have the permission to use this specific function
-    if (! $this->loggedin['allow_loops']) return redirect(ssl_url('contributors/'));
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Loops" permission
+    if ($this->_user_access('allow_loops') !== NULL) return;
 
     // log this event
     $email = $this->loggedin;
@@ -636,9 +615,10 @@ function deleteloop() {
 
 
 function twitter() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user
+    if ($this->_user_access() !== NULL) return;
 
     // must have the permission to use this specific function
     if (! $this->loggedin['allow_twitter']) return redirect(ssl_url('contributors/'));
@@ -653,9 +633,10 @@ function twitter() {
 
 
 function twitterbans() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user
+    if ($this->_user_access() !== NULL) return;
 
     // must have the permission to use this specific function
     if (! $this->loggedin['allow_twitter']) return redirect(ssl_url('contributors/'));
@@ -669,9 +650,10 @@ function twitterbans() {
 
 
 function twitter_delete() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user
+    if ($this->_user_access() !== NULL) return;
 
     // must have the permission to use this specific function
     if (! $this->loggedin['allow_twitter']) return redirect(ssl_url('contributors/'));
@@ -689,9 +671,10 @@ function twitter_delete() {
 
 
 function twitter_ban() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user
+    if ($this->_user_access() !== NULL) return;
 
     // must have the permission to use this specific function
     if (! $this->loggedin['allow_twitter']) return redirect(ssl_url('contributors/'));
@@ -722,9 +705,9 @@ function twitter_ban() {
 
 
 function twitter_unban() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('contributors/login'));
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
 
     // log the event and do the deed
     $username = @$_POST['username'];
@@ -737,26 +720,34 @@ function twitter_unban() {
     print 'ok';
 }
 
+/*
+ * Manage Trails Page
+ */
+function trails() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user
+    if ($this->_user_access() !== NULL) return;
 
-function password() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('contributors/sslrequired.phtml');
-    if (! $this->loggedin) return redirect(ssl_url('contributors/login'));
+    // must have the permission to use this specific function
+    //if (! $this->loggedin['allow_trails']) return redirect(ssl_url('contributors/'));
 
-    // not saving? bail
-    if (! @$_POST) return $this->load->view('contributors/password.phtml');
+    $this->load->view('contributors/trails.phtml');
+}
 
-    // guess we're saving; validate that they gave a password
-    // deeper validation would mean them hacking their browser to give themselves a weak password, which isn't a realistic concern
-    if (! $_POST['password1']) return $this->load->view('contributors/password.phtml', $data);
+/*
+ * Manage Use Areas Page
+ */
+function use_areas() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user
+    if ($this->_user_access() !== NULL) return;
 
-    // fetch my own Contributor account
-    $contributor = new Contributor();
-    $contributor->where('id', $this->loggedin['id'] )->get();
-    $contributor->setPassword($_POST['password1']);
+    // must have the permission to use this specific function
+    //if (! $this->loggedin['allow_use_areas']) return redirect(ssl_url('contributors/'));
 
-    // done
-    $this->load->view('contributors/password_done.phtml', $data);
+    $this->load->view('contributors/use_areas.phtml');
 }
 
 

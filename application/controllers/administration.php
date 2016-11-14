@@ -1,82 +1,131 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-class Administration extends CI_Controller {
+
+class Administration extends MY_Controller {
 
 function __construct() {
     parent::__construct();
+
+    // Add our administration & contributors (shared) JS as a <script> include.
+    $this->_add_js_include('static/admin/admin-contrib.js');
+
+    // Add our administration JS as a <script> include.
+    $this->_add_js_include('static/admin/admin.js');
 }
 
+///*
+// * Check that we're in SSL mode and that the user is logged-in.
+// *
+// * @param $check_admin:
+// *   Whether to also ensure the user is an administrator.
+// *
+// * return:
+// *   NULL if everything checks-out.
+// *   Otherwise redirect or load appropriate page.
+// */
+//private function _check_ssl() {
+//    if (!is_ssl()) {
+//        return $this->load->view('administration/sslrequired.phtml');
+//    }
+//}
 
+/*
+ * index()
+ */
+function index() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user
+    // Don't require admin, since the top-level page is "home" and default post-login.
+    if ($this->_user_access() !== NULL) return;
 
+    $this->load->view('administration/home.phtml');
+}
+
+/*
+ * Login
+ */
 function login() {
-    // must be using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
 
-    $this->load->helper('recaptchalib');
-
-    // check the CAPTCHA
-    $captcha_ok = recaptcha_check_answer($this->config->item('recaptcha_private_key'), $_SERVER["REMOTE_ADDR"], @$_POST['recaptcha_challenge_field'], @$_POST['recaptcha_response_field']);
-    $captcha_ok = $captcha_ok->is_valid;
-    //$captcha_ok = 'True';
-    // check their username & password, which are simple static configs
-    $login_ok = (@$_POST['username'] and $_POST['username']==$this->config->item('admin_user') and @$_POST['password'] and $_POST['password']==$this->config->item('admin_pass'));
-
-    if ($login_ok and $captcha_ok) {
-        $this->session->set_userdata('admin', TRUE);
-        Auditlog::log_message("Successful login to admin panel",'administrator');
-        return redirect(ssl_url('administration/'));
+    // If already logged-in, redirect to user account page
+    if ($this->loggedin) {
+        return redirect(ssl_url('contributors/user'));
     }
 
-    // if they got here, then login failed; but if the CAPTCHA was good and the password was bad, then it was truly a failed login attempt
-    if ($captcha_ok and ! $login_ok) Auditlog::log_message("Failed login attempt to admin panel", 'administrator');
+    // if they submitted a user & pass AND it matches the salted SHA1 hash, good
+    // set their session variable and send them onward
+    if (@$_POST['username'] and $_POST['password']) {
+        // fetch their account and check their password
+        $account = new Contributor();
+        $account->where('email',$_POST['username'])->get();
+        $login_ok = ($account->id && $account->checkPassword($_POST['password']));
 
-    // if we got here, it must not have worked out
-    $this->session->unset_userdata('admin');
+        // if both passed, they're in.
+        // capture a bunch of their Contributor attributes into a session variable
+        // that can be used in templates or this controller via $this->loggedin
+        if ($login_ok) {
+            Auditlog::log_message("Successful login", $account->email);
+            $this->session->set_userdata('contributor', $account->buildSessionDataArray());
+            return redirect(ssl_url('administration'));
+        } else {
+            Auditlog::log_message("Failed login attempt", $_POST['username']);
+        }
+    }
 
-    $data = array();
-    $data['recaptcha'] = recaptcha_get_html( $this->config->item('recaptcha_public_key'), null, true );
+    // If we got here, the login failed or the form has not yet been successfully submitted
+    $this->session->unset_userdata('contributor');
 
-    $this->load->view('administration/login.phtml', $data);
+    $this->load->view('administration/login.phtml');
 }
 
-
+/*
+ * Log out
+ */
 function logout() {
-    // must be using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
 
     // wow, they actually logged out? log it!
     Auditlog::log_message("Successful logout from admin panel",'administrator');
 
     // purge their token, send them to the login page
-    $this->session->unset_userdata('admin');
+    $this->session->unset_userdata('contributor');
     redirect(ssl_url('administration/login'));
 }
 
-
-function auditlog() {
-    // must be logged in and using SSL to do this
+/*
+ * Access Denied
+ */
+function access_denied() {
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+
+    $this->load->view('administration/access_denied.phtml');
+}
+
+/*
+ * System Audit Log
+ */
+function auditlog() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
 
     $data = array();
     $data['logs'] = Auditlog::fetch_messages();
     $this->load->view('administration/auditlog.phtml', $data);
 }
 
-
-
-function index() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
-
-    $this->load->view('administration/mainmenu.phtml');
-}
-
-
+/*
+ * List Contributors
+ */
 function contributors() {
-    // must be logged in and using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
 
     // simply make a list of all contributors in the system
     $data = array();
@@ -87,12 +136,14 @@ function contributors() {
     $this->load->view('administration/contributors.phtml', $data);
 }
 
-
-
+/*
+ * Add/Edit Contributor
+ */
 function contributor($id) {
-    // must be logged in and using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
 
     // if the ID# 0 was given, either reuse a current record with a blank username OR create such a blank and use it
     if ($id == "0") {
@@ -135,7 +186,8 @@ function contributor($id) {
     $data['contributor']->allow_loops    = $_POST['allow_loops'];
     $data['contributor']->allow_closures = $_POST['allow_closures'];
     $data['contributor']->allow_twitter  = $_POST['allow_twitter'];
-    if (@$_POST['password']) $data['contributor']->setPassword($_POST['password']);
+    $data['contributor']->allow_hintmaps = $_POST['allow_hintmaps'];
+    if (@$_POST['password1']) $data['contributor']->setPassword($_POST['password1']);
     $data['contributor']->save();
 
     // log this event and done
@@ -143,11 +195,14 @@ function contributor($id) {
     redirect(ssl_url('administration/contributors'));
 }
 
-
+/*
+ * Delete Contributor
+ */
 function deletecontributor() {
-    // must be logged in and using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
 
     // fetch it, log it, delete it
     $contributor = new Contributor();
@@ -161,135 +216,278 @@ function deletecontributor() {
     redirect(ssl_url('administration/contributors'));
 }
 
-
-
-function markers() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
-
-    // simply make a list of all contributors in the system
-    $data = array();
-    $data['markers'] = new Marker();
-    $data['markers']->get();
-
-    // and print it out
-    $this->load->view('administration/markers.phtml', $data);
-}
-
-
-
-function marker($id) {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
-
-    // load the marker's info
-    $data = array();
-    $data['marker'] = null;
-    if ((integer) $id) {
-        $data['marker'] = new Marker();
-        $data['marker']->where('id',$id)->get();
-        if (! $data['marker']->id) return redirect(ssl_url('administration/markers'));
-    }
-
-    // and show the details, that's all
-    $this->load->view('administration/marker.phtml', $data);
-}
-
-
-function deletemarker() {
-    // must be logged in and using SSL to do this
-    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
-
-    // fetch it, delete it
-    $marker = new Marker();
-    $marker->where('id',@$_POST['id'])->get();
-    if ($marker->id) {
-        Auditlog::log_message( sprintf("Marker deleted: %s by %s", htmlspecialchars($contributor->title), htmlspecialchars($contributor->creator) ) , 'administrator');
-        $marker->delete();
-    }
-
-    // we're outta here
-    redirect(ssl_url('administration/markers'));
-}
-
-
-
-
+/*
+ * Purge Tilestache
+ */
 function purge_tilestache() {
-    // must be logged in and using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
 
-    // bail to the OK form
-    if (! @$_POST['ok']) return $this->load->view('administration/purge_tilestache.phtml');
-
-    // print the HTML header; MVC violation ahead, as we delete and send incremental progress
-    print $this->load->view('administration/header.phtml', array(), TRUE);
-
-    // okay, go for it; one directory at a time so we can generate status and output
-    // warning: MVC violation, generating our own output so we can send incrementally and not time out the browser
-    function rrmdir($path) {
-        return is_file($path) ? @unlink($path): array_map('rrmdir',glob($path.'/*'))==@rmdir($path);
-    }
-    foreach (glob(sprintf("%s/*/[01][123456789]", $this->config->item('tilestache_tiles_directory') )) as $dir) {
-        printf("%s<br/>\n", $dir);
-        ob_flush();
-        rrmdir($dir);
-    }
-
-    // done!
-    print "<p>DONE!</p>\n";
-    print $this->load->view('administration/footer.phtml', array(), TRUE);
+    return $this->load->view('administration/purge_tilestache.phtml');
 }
 
-
-
-
-
+/*
+ * Seed Tilestache
+ */
 function seed_tilestache() {
-    // must be logged in and using SSL to do this
+    // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    if (! $this->session->userdata('admin') ) return redirect(ssl_url('administration/login'));
+    // Require admin user
+    if ($this->_user_access('admin') !== NULL) return;
 
-    // bail to the OK form
-    if (! @$_POST['ok']) return $this->load->view('administration/seed_tilestache.phtml');
-
-    // some JavaScript to the client; yes, big MVC violation, see below for an even worse one  :)
-    print $this->load->view('administration/header.phtml', array(), TRUE);
-
-    // make up the command and run it in a new fork. the parent process will wait for it to exit, sending out progress reports based on the progress file
-    $command = sprintf("%s -c %s -b %s -l %s -f %s %s", 
-        $this->config->item('tilestache_seed'),
-        $this->config->item('tilestache_cfg'),
-        $this->config->item('tilestache_seed_bbox'),
-        $this->config->item('tilestache_seed_layer'),
-        $this->config->item('tilestache_progress_file'),
-        implode(" " , $this->config->item('tilestache_seed_levels'))
-    );
-
-    // run it and send back the output. tougher than usual since seeder outputs to stderr and not stdout
-    $progfile = $this->config->item('tilestache_progress_file');
-    $handle = popen("$command 2>&1", 'r');
-    while (! feof($handle)) {
-        $output = fread($handle, 10240);
-        if (! is_file($progfile) ) continue; // progress file may not exist for a few seconds
-        $prog = json_decode(file_get_contents($progfile));
-        if (! $prog or ! $prog->total ) continue; // file opened but no JSON in it yet, skip it
-
-        // calculate a progress meter
-        $prog->percent = round( 100 * (float) $prog->offset / (float) $prog->total );
-        printf("Progress: %d / %d = %d %% &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; %s<br/>\n", $prog->offset, $prog->total, $prog->percent, $prog->tile );
-        flush();
-    }
-    pclose($handle);
-    unlink( $progfile);
-
-    // done!
-    print "<p>DONE!</p>\n";
-    print $this->load->view('administration/footer.phtml', array(), TRUE);
+    return $this->load->view('administration/seed_tilestache.phtml');
 }
+
+/*
+ * List Hint Maps
+ */
+function hint_maps() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Hint Maps" permission
+    if ($this->_user_access('allow_hint_maps') !== NULL) return;
+
+    // Get all Hint Maps
+    $data = array();
+    $data['hint_maps'] = new HintMap();
+    $data['hint_maps']->get();
+
+    // Load template
+    $this->load->view('administration/hint_maps.phtml', $data);
+}
+
+/*
+ * Add/Edit Hint Map
+ */
+function hint_map_edit($id) {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Hint Maps" permission
+    if ($this->_user_access('allow_hint_maps') !== NULL) return;
+
+    // Add new hint map entry
+    if ($id == "0") {
+        $hint_map = new HintMap();
+        $id = $hint_map->id;
+    }
+
+    // load the hint map info
+    $data = array();
+    $data['hint_map'] = null;
+    if ((integer) $id) {
+        $data['hint_map'] = new HintMap();
+        $data['hint_map']->where('id', $id)->get();
+        if (! $data['hint_map']->id) return redirect(ssl_url('administration/hint_maps'));
+    }
+
+    return $this->load->view('administration/hint_map_edit.phtml', $data);
+}
+
+/*
+ * Save Hint Map
+ */
+function hint_map_save() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Hint Maps" permission
+    if ($this->_user_access('allow_hint_maps') !== NULL) return;
+
+    $myid = $this->loggedin;
+
+    $hint_map = new HintMap();
+
+    // Fetch if we're editing existing
+    if (@$_POST['id']) {
+        $hint_map->where('id', $_POST['id']);
+        $hint_map->get();
+        if (! $hint_map->id) return redirect(ssl_url('administration/hint_maps'));
+    }
+
+    // If url_external has changed or this is a new record,
+    // we'll need to download the image
+    if ($hint_map->url_external != $_POST['url_external']) {
+        $save_image = TRUE;
+    }
+
+    $hint_map->title        = $_POST['title'];
+    $hint_map->url_external = $_POST['url_external'];
+
+    // Set "last edited" timestamp
+    $postgre_timestamp_format = 'Y-m-d H:i:s';
+    $hint_map->last_edited = date($postgre_timestamp_format);
+
+    $hint_map->save();
+
+    // Log
+    Auditlog::log_message(
+        sprintf(
+            "Hint Map '%s' saved (id: %d).",
+            $hint_map->title,
+            $hint_map->id
+        ),
+        $myid['email']);
+
+    // Download the image
+    if ($save_image) {
+        $this->__hint_map_cache_save($hint_map->id);
+    }
+
+    redirect(ssl_url('administration/hint_maps'));
+}
+
+/*
+ * Get hint map from external source and save locally.
+ */
+private function __hint_map_cache_save($id) {
+    $myid = $this->loggedin;
+
+    $hint_map = new HintMap();
+    $hint_map->where('id', $id)->get();
+
+    // Download file to temp dir
+    $local_filename_temp = 'hint_' . $id . '_tmp';
+    $local_filepath_temp = $this->config->item('temp_dir') . '/' . $local_filename_temp;
+
+    // Download and save image
+    file_put_contents($local_filepath_temp, fopen($hint_map->url_external, 'r'));
+
+    // Figure out file MIME type, and corresponding extension
+    $mimetype = mime_content_type($local_filepath_temp);
+    switch ($mimetype) {
+        case 'image/png':
+              $file_ext = 'png';
+              break;
+        case 'image/jpeg':
+              $file_ext = 'jpg';
+              break;
+        case 'image/gif':
+              $file_ext = 'gif';
+              break;
+        case 'image/bmp':
+              $file_ext = 'bmp';
+              break;
+        case 'image/tiff':
+              $file_ext = 'tif';
+              break;
+        case 'image/svg+xml':
+              $file_ext = 'svg';
+              break;
+        default:
+              $file_ext = '';
+    }
+
+    // Build local file path
+    $local_filename = 'hint-' . $id . '.' . $file_ext;
+    $local_dir = $this->config->item('hint_maps_dir');
+    $local_filepath = $local_dir . '/' . $local_filename;
+
+    // Move and rename with file extension
+    rename($local_filepath_temp, $local_filepath);
+
+    $hint_map->image_filename_local = $local_filename;
+
+    // Set "last refreshed" timestamp
+    $postgre_timestamp_format = 'Y-m-d H:i:s';
+    $hint_map->last_refreshed = date($postgre_timestamp_format);
+
+    $hint_map->save();
+
+    Auditlog::log_message(
+        sprintf(
+            "Hint Map '%s' image saved/refreshed (id: %d).",
+            $hint_map->title,
+            $hint_map->id
+        ),
+        $myid['email']);
+}
+
+/*
+ * Essentially an alias for hint_map_cache(), run from listing/management page.
+ */
+function hint_map_refresh($id) {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Hint Maps" permission
+    if ($this->_user_access('allow_hint_maps') !== NULL) return;
+
+    $this->__hint_map_cache_save($id);
+
+    return redirect(ssl_url('administration/hint_maps'));
+}
+
+/*
+ * Delete Hint Map
+ */
+function hint_map_delete($id) {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Hint Maps" permission
+    if ($this->_user_access('allow_hint_maps') !== NULL) return;
+
+    // Delete or confirm
+    if (!empty($_POST['submit']) ) {
+        // Perform the delete
+        $hint_map = new HintMap();
+        $hint_map->where('id', $id)->get();
+
+        if ($hint_map->id) {
+            $myid = $this->loggedin;
+            Auditlog::log_message(
+                sprintf("Hint Map deleted: \"%s\" (id: %d)",
+                    htmlspecialchars($hint_map->title),
+                    $hint_map->id),
+                $myid['email']
+            );
+            $hint_map->delete();
+        }
+
+        redirect(ssl_url('administration/hint_maps'));
+    } else {
+        // Show confirmation form
+        // Load the hint map info
+        $data = array();
+        $data['hint_map'] = null;
+
+        if ((integer) $id) {
+            $data['hint_map'] = new HintMap();
+            $data['hint_map']->where('id', $id)->get();
+
+            // @TODO: How to bail?
+            if (!$data['hint_map']->id) {
+                return redirect(ssl_url('administration/hint_maps'));
+            }
+        }
+        $this->load->view('administration/hint_map_delete.phtml', $data);
+    }
+}
+
+/*
+ * Get a hint map image. For our aliasing (see routes.php).
+ */
+function hint_map_retrieve($id) {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Hint Maps" permission
+    if ($this->_user_access('allow_hint_maps') !== NULL) return;
+
+    $hint_map = new HintMap();
+    $hint_map->where('id', $id)->get();
+    return redirect(ssl_url($hint_map->local_image_url()));
+}
+
+///*
+// * Testing
+// */
+//function testing() {
+//    // Require SSL
+//    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+//    // Require admin user
+//    if ($this->_user_access('admin') !== NULL) return;
+//
+//    $this->load->view('administration/testing.phtml');
+//}
+
 
 }

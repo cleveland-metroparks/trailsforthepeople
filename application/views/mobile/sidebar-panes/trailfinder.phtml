@@ -1,0 +1,68 @@
+<?php
+/**
+ * Sidebar Pane: Trail Finder 
+ * (No icon tab in sidebar; linked from Find pane.)
+ */
+?>
+
+<div class="sidebar-pane" id="pane-trailfinder">
+    <h1 class="sidebar-header">
+        <span class="title-text">Trail Finder</span>
+        <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+    </h1>
+
+    <a href="#pane-browse" class="sidebar-pane-link sidebar-back ui-btn ui-btn-inline ui-icon-back ui-btn-icon-left ui-corner-all">Back</a>
+
+    <div>
+        <!-- May 2014, they don't want to see this but we need the form controls internally; and coluld change back at any time... -->
+        <div style="display:none;">
+            <b>Activities</b><br/>
+            <fieldset data-role="controlgroup">
+                <label><input type="checkbox" data-mini="true" name="trailfinder_uses" checked="true" value="Hiking & Walking" /> Hiking &amp; Walking</label>
+                <label><input type="checkbox" data-mini="true" name="trailfinder_uses" value="Biking" /> Biking</label>
+                <label><input type="checkbox" data-mini="true" name="trailfinder_uses" value="Horseback Riding" /> Horseback Riding</label>
+                <label><input type="checkbox" data-mini="true" name="trailfinder_uses" value="Exercising" /> Exercising</label>
+                <label><input type="checkbox" data-mini="true" name="trailfinder_uses" value="Mountain Biking" /> Mountain Biking</label>
+            </fieldset>
+        </div>
+
+        <div id="trailfinder_typeicons">
+            <img data-value="Hiking & Walking" src="<?= site_url('static/desktop/trailfinder_hike_off.png') ?>" />
+            <img data-value="Biking" src="<?= site_url('static/desktop/trailfinder_bike_off.png') ?>" />
+            <img data-value="Horseback Riding" src="<?= site_url('static/desktop/trailfinder_horse_off.png') ?>" />
+            <img data-value="Exercising" src="<?= site_url('static/desktop/trailfinder_exercise_off.png') ?>" />
+            <img data-value="Mountain Biking" src="<?= site_url('static/desktop/trailfinder_mtnbike_off.png') ?>" />
+        </div>
+    
+        <div style="display:none;">
+            <b>Pavement:</b><br/>
+            <fieldset data=role="controlgroup">
+                <select name="trailfinder_paved" data-mini="true">
+                    <option value="">No preference</option>
+                    <option value="Yes">Paved</option>
+                    <option value="No">Unpaved</option>
+                </select>
+            </fieldset>
+        </div>
+    
+        <select name="trailfinder_reservation" data-mini="true">
+            <option value="">(any reservation)</option>
+            <?php foreach ($reservations as $res) { ?>
+            <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
+            <?php } ?>
+        </select>
+
+        <br/>
+
+        <input type="button" id="trailfinder_go" value="Search" value0="Searching..." value1="Search" />
+    </div>
+
+    <div class="sortpicker">
+        <br/>
+        <span class="fakelink" value="distance">Sort by distance</span>
+        &bull;
+        <span class="fakelink" value="alphabetical">Sort alphabetically</span>
+    </div>
+
+    <ul id="trailfinder_results" class="distance_sortable" data-role="listview" data-inset="true"></ul>
+</div>

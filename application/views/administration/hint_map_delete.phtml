@@ -1,0 +1,14 @@
+<?php $this->page_title = 'Delete Hint Map'; ?>
+
+<form class="form-horizontal" id="hintmapform" method="post" action="<?= ssl_url("administration/hint_map/" . $hint_map->id . "/delete") ?>">
+
+<p>Are you sure you want to permanently delete the hint map, <em>"<?= $hint_map->title ?>"</em>?</p>
+
+<div class="form-group">
+    <div class="col-sm-4">
+        <input class="btn btn-primary" type="submit" name="submit" value="Delete" />
+        <a class="btn btn-primary" href="/administration/hint_maps" role="button">Cancel</a>
+    </div>
+</div>
+
+</form>

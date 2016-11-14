@@ -2255,5 +2255,188 @@ function autocomplete_keywords() {
     print json_encode($words);
 }
 
+/**
+ * To test working with the progress indicator.
+ */
+function test_progress_indicator() {
+    header('Content-type: application/json');
+
+    $job_id = $_GET['job_id'];
+
+    $job = new Job();
+    $job->where('id', $job_id)->get();
+
+    // Incrementally update progress
+    $percent_complete = 0;
+    while ($percent_complete < 100) {
+        $percent_complete += 10;
+        $job->percent_complete = $percent_complete;
+        $job->save();
+        sleep(1);
+    }
+
+    print json_encode('Complete!');
+}
+
+/**
+ * Create a new system job in the database and return its ID.
+ */
+function create_job() {
+    header('Content-type: application/json');
+
+    $job = new Job();
+
+    $job->title = !empty($_GET['title']) ? $_GET['title'] : '';
+    $loggedin = $this->session->userdata('contributor');
+    $job->creator_email = !empty($_GET['creator_email']) ? $_GET['creator_email'] : $loggedin['email'];
+    $job->status = !empty($_GET['status']) ? $_GET['status'] : JOB_NOT_STARTED;
+
+    $job->save();
+
+    print json_encode($job->id);
+}
+
+/**
+ * Check on a given job's progress & status.
+ */
+function check_job_progress() {
+    header('Content-type: application/json');
+
+    $job_id = $_GET['job_id'];
+
+    $job = new Job();
+    $job->where('id', $job_id)->get();
+
+    $job_progress = array(
+        'status' => $job->status,
+        'percent_complete' => $job->percent_complete,
+        'status_msg' => $job->status_msg,
+        );
+
+    print json_encode($job_progress);
+}
+
+/**
+ *
+ */
+function purge_tilestache() {
+    header('Content-type: application/json');
+
+    $this->load->helper('file_extras');
+
+    $job_id = $_GET['job_id'];
+
+    $job = new Job();
+    $job->where('id', $job_id)->get();
+
+    $job->status = JOB_RUNNING;
+    $job->save();
+
+    // Top-level dir:
+    $tiles_root_dir = $this->config->item('tilestache_tiles_directory'); // /var/www/tilestache/tiles
+
+    // Get total # of files and size
+    $root_dir_stats = _dir_stats($tiles_root_dir);
+    $total_num_files = $root_dir_stats['num_files'];
+
+    $percent_complete = 0;
+    $num_files_deleted = 0;
+
+    $tile_subdirs = glob($tiles_root_dir . '/*/*/*');
+
+    foreach ($tile_subdirs as $dir) {
+        // Only match subdirs with two sets of numbers at the end, like /.../water/01/231
+        if (preg_match('~/[\d]+/[\d]+$~', $dir)) {
+            $sub_dir_stats = _dir_stats($dir);
+            $num_files_deleted += $sub_dir_stats['num_files'];
+
+            $percent_complete = ($total_num_files <= 0) ? 100 : round($num_files_deleted / $total_num_files * 100);
+
+            _rrmdir($dir);
+
+            $job->status_msg = sprintf("Deleted %d/%d files (%d%%). (Currently: '%s').",
+                $num_files_deleted, $total_num_files, $percent_complete, $dir);
+            $job->percent_complete = $percent_complete;
+            $job->save();
+        }
+    }
+
+    $job->percent_complete = ($total_num_files <= 0) ? 100 : round($num_files_deleted / $total_num_files * 100);
+    $job->status = JOB_COMPLETE;
+    $job->end_time = date('Y-m-d H:i:s');
+    $job->status_msg = sprintf("Purge complete! %d/%d tile files deleted (%d%%).",
+        $num_files_deleted, $total_num_files, $job->percent_complete );
+    $job->save();
+
+    $response = $job->status_msg;
+
+    print json_encode($response);
+}
+
+/**
+ *
+ */
+function seed_tilestache() {
+    header('Content-type: application/json');
+
+    $job_id = $_GET['job_id'];
+
+    $job = new Job();
+    $job->where('id', $job_id)->get();
+
+    $job->status = JOB_RUNNING;
+    $job->save();
+
+    // Build the seed command.
+    $command = sprintf("%s -c %s -b %s -l %s -f %s %s", 
+        $this->config->item('tilestache_seed'),
+        $this->config->item('tilestache_cfg'),
+        $this->config->item('tilestache_seed_bbox'),
+        $this->config->item('tilestache_seed_layer'),
+        $this->config->item('tilestache_progress_file'),
+        implode(" " , $this->config->item('tilestache_seed_levels'))
+    );
+
+    // Run the command (in a new fork) and send back the output.
+    // The parent process waits for it to exit,
+    // sending out progress reports based on the progress file
+    // The seeder outputs to stderr, not stdout.
+    $handle = popen("$command 2>&1", 'r');
+
+    $progress_file = $this->config->item('tilestache_progress_file');
+
+    // Read from progress file, repeatedly
+    while (! feof($handle)) {
+        $output = fread($handle, 10240);
+        if (! is_file($progress_file) ) {
+            // Progress file may not exist yet.
+            continue;
+        }
+        $progress = json_decode(file_get_contents($progress_file));
+        if (!$progress or !$progress->total ) {
+            // File opened but no JSON content yet.
+            continue;
+        }
+        $percent_complete = round(100 * (float)$progress->offset / (float)$progress->total);
+
+        $job->percent_complete = $percent_complete;
+        $job->status_msg = sprintf("Seeded %d/%d files (%d%%). (Currently: '%s').",
+            $progress->offset, $progress->total, $percent_complete, $progress->tile);
+        $job->save();
+    }
+    pclose($handle);
+    unlink($progress_file);
+
+    $job->percent_complete = round(100 * (float)$progress->offset / (float)$progress->total);
+    $job->status = JOB_COMPLETE;
+    $job->end_time = date('Y-m-d H:i:s');
+    $job->status_msg = sprintf("Seed complete! %d/%d files seeded (%d%%).",
+        $progress->offset, $progress->total, $job->percent_complete);
+    $job->save();
+
+    $response = $job->status_msg;
+
+    print json_encode($response);
+}
 
 }

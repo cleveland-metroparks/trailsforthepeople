@@ -1,0 +1,14 @@
+<?php $this->page_title = 'Delete Marker'; ?>
+
+<form class="form-horizontal" id="markerform" method="post" action="<?= ssl_url("contributors/marker/" . $marker->id . "/delete") ?>">
+
+<p>Are you sure you want to permanently delete the marker, <em>"<?= $marker->title ?>"</em>?</p>
+
+<div class="form-group">
+    <div class="col-sm-4">
+        <input class="btn btn-primary" type="submit" name="submit" value="Delete" />
+        <a class="btn btn-primary" href="/contributors/markers" role="button">Cancel</a>
+    </div>
+</div>
+
+</form>

@@ -53,7 +53,7 @@ $autoload['packages'] = array();
 */
 
 $autoload['libraries'] = array('database','datamapper','session','user_agent',);
-
+require BASEPATH . '../' . '/application/libraries/kint/Kint.class.php';
 
 /*
 | -------------------------------------------------------------------

@@ -1,0 +1,10 @@
+{
+  "name": "cm-trails",
+  "devDependencies": {
+    "grunt": "^0.4.1",
+    "grunt-contrib-sass": "^1.0.0",
+    "grunt-contrib-uglify": "^2.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-ssh": "^0.12.9"
+  }
+}

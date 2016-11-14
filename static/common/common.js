@@ -95,20 +95,25 @@ function initMap () {
     // in mobile mode, render the Settings panel because we may need to check checkboxes in it
     if (MOBILE) $('#page-settings').page();
 
-    // URL param: the base map; defaults to the "map" basemap
+    // URL param: the base map; defaults to the (Mapbox) map tiles
     var base = URL_PARAMS.param('base');
-    if (! base) base = 'map';
+    if (! base) base = 'vector';
     var basemap; // which L.TileLayer instance to use?
     switch (base) {
         case 'photo':
             var checkbox = $('input[name="basemap"][value="photo"]').prop('checked',true);
             if (MOBILE) checkbox.checkboxradio('refresh');
-            basemap = PHOTOBASE;
+            basemap = LAYER_MAPBOX_SAT;
             break;
         case 'map':
             var checkbox = $('input[name="basemap"][value="map"]').prop('checked',true);
             if (MOBILE) checkbox.checkboxradio('refresh');
-            basemap = MAPBASE;
+            basemap = LAYER_MAPBOX_MAP;
+            break;
+        case 'vector':
+            var checkbox = $('input[name="basemap"][value="vector"]').prop('checked',true);
+            if (MOBILE) checkbox.checkboxradio('refresh');
+            basemap = LAYER_MAPBOX_GL_MAP;
             break;
         default:
             throw "Invalid basemap given?";
@@ -131,6 +136,7 @@ function initMap () {
         options.zoomAnimation       = true;
         options.markerZoomAnimation = true;
     }
+
     MAP = new L.Map('map_canvas', options);
 
     // zoom to the XYZ given in the URL, or else to the max extent
@@ -285,18 +291,34 @@ function WSENtoBounds(west,south,east,north) {
     return L.latLngBounds([ [south,west] , [north,east] ]);
 }
 
-function selectBasemap(which) {
-    switch (which) {
-        case 'photo':
-            if (MAP.hasLayer(MAPBASE)) MAP.removeLayer(MAPBASE);
-            if (! MAP.hasLayer(PHOTOBASE)) MAP.addLayer(PHOTOBASE,true);
-            PHOTOBASE.bringToBack();
-            break;
-        case 'map':
-            if (MAP.hasLayer(PHOTOBASE)) MAP.removeLayer(PHOTOBASE);
-            if (! MAP.hasLayer(MAPBASE)) MAP.addLayer(MAPBASE,true);
-            MAPBASE.bringToBack();
-            break;
+/**
+ * Enable the given base map layer.
+ *
+ * @param layer_key: Must refer to the key of an available layer (in AVAILABLE_LAYERS constant).
+ */
+function selectBasemap(layer_key) {
+    //if (!(layer_key in AVAILABLE_LAYERS)) {
+    //    layer_key = 'vector'; // Default, if non-sane value provided
+    //}
+    active_layer = AVAILABLE_LAYERS[layer_key];
+
+    // Go through all layers, adding the intended one and removing others.
+    for (i=0; i<ALL_LAYERS.length; i++) {
+        if (ALL_LAYERS[i] == active_layer) {
+            // Add the active layer
+            if (! MAP.hasLayer(ALL_LAYERS[i])) {
+                MAP.addLayer(ALL_LAYERS[i], true);
+            }
+            if (layer_key != 'vector') {
+                // Mapbox GL+Leaflet layers don't implement bringToBack()
+                active_layer.bringToBack();
+            }
+        } else {
+            // Remove the inactive layer
+            if (MAP.hasLayer(ALL_LAYERS[i])) {
+                MAP.removeLayer(ALL_LAYERS[i]);
+            }
+        }
     }
 }
 
@@ -441,7 +463,7 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
         // set up the Popup and load its content
         // beware of very-lengthy content and force a max height on the bubble
         var options = {};
-        options.maxHeight = parseInt( $('#map_canvas').height() - $('#toolbar').height() );
+        options.maxHeight = parseInt( $('#map_canvas').height() );
         options.maxWidth = parseInt( $('#map_canvas').width() );
         var popup = new L.Popup(options);
         popup.setLatLng(anchor);
@@ -1573,8 +1595,8 @@ function updateShareUrl() {
     params.z = MAP.getZoom();
     params.x = MAP.getCenter().lng;
     params.y = MAP.getCenter().lat;
-    if (MAP.hasLayer(PHOTOBASE)) params.base = 'photo';
-    if (MAP.hasLayer(MAPBASE))   params.base = 'map';
+    if (MAP.hasLayer(LAYER_MAPBOX_SAT)) params.base = 'photo';
+    if (MAP.hasLayer(LAYER_MAPBOX_MAP)) params.base = 'map';
 
     // compile all of the params together and save it to the global. this is later read by populateShareBox()
     SHARE_URL_STRING = $.param(params);

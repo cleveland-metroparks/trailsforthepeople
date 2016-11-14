@@ -1,0 +1,46 @@
+<?php $this->page_title = 'Controlling Map Start View'; ?>
+
+<p class="lead">Controlling the Desktop &amp; Mobile maps' starting view with URL parameters.</p>
+
+<h2>Embedded Mode</h2>
+<p>The URL param <b>embed=1</b> is supported only by the Desktop app. It causes certain behaviors which make the page more amenable to  being embedded into the CMP website via <i>iframe</i> techniques. These behaviors are:</p>
+<ul>
+<li>One more zoom level outward is added to the map. (MIN_ZOOM is decreased by 1)</li>
+<li>The CMP logo across the top is hidden.</li>
+<li>The Measure button in the top toolbar is hidden.</li>
+<li>All dialogs have their size modified to fit into the given space. <i>If the size of the embedded iframe changes, the variables  EMBED_DIALOG_WIDTH and EMBED_DIALOG_HEIGHT must be adjusted in desktop.js so the dialogs will match.</i></li>
+</ul>
+<p><a target="_blank" href="<?= site_url('/desktop/map?embed=1') ?>"><?= site_url('/desktop/map?embed=1') ?></a></p>
+
+<h2>Zooming the map to a specific Lat/Lon</h2>
+<ul>
+<li><b>x</b> -- A decimal number. The longitude of the location to zoom.</li>
+<li><b>y</b> -- A decimal number. The latitude of the location to zoom.</li>
+<li><b>z</b> -- An integer. The zoom level of the location to zoom. 11 is the minimum and shows the entire Cleveland region. 18 is the  maximum, and zooms tightly to a single building.</li>
+</ul>
+<p><a target="_blank" href="<?= site_url('/desktop/map?z=15&amp;x=-81.71414136886597&amp;y=41.447985976193614') ?>"><?= site_url(' /desktop/map?z=15&amp;x=-81.71414136886597&amp;y=41.447985976193614') ?></a>
+</p>
+
+<h2>Setting the basemap and other layers</h2>
+<ul>
+  <li><b>base</b> -- Any of: map, photo</li>
+  <li><b>layers</b> -- A comma-joined list of layers. Each layer may be any of: trails, reservations, buildings, markers_swgh,  markers_other, useareapois, roadlabels, routedebug</li>
+</ul>
+<p><a target="_blank" href="<?= site_url('/desktop/map?base=map&amp;layers=reservations%2Cuseareapois%2Cbuildings') ?>"><?= site_url(' /desktop/map?base=map&amp;layers=reservations%2Cuseareapois%2Cbuildings') ?></a></p>
+
+<h2>Zooming to a specific feature</h2>
+<p>Note that this does not implicitly turn on other layers, so one can zoom to a Building and not have the Buildings layer visible. See   the <b>layers</b> parameter described above, if you need to ensure that a given layer is active.</p>
+<ul>
+<li><b>type</b> -- Any of: trail, building, poi, reservation, loop</li>
+<li><b>name</b> -- The exact proper name of the thing being searched. This must match capitalization and punctuation.</li>
+</ul>
+<p>
+  <a target="_blank" href="<?= site_url('/desktop/map?type=reservation&amp;name=Huntington Reservation') ?>"><?= site_url(' /desktop/map?type=reservation&amp;name=Huntington Reservation') ?></a><br/>
+  <a target="_blank" href="<?= site_url('/desktop/map?type=building&amp;name=Harriet Keeler Picnic Shelter') ?>"><?= site_url(' /desktop/map?type=building&amp;name=Harriet Keeler Picnic Shelter') ?></a>
+</p>
+
+<h2>Other features &amp; capabilities</h2>
+<ul>
+  <li><b>measure=1</b> -- Enable the Measure tool</li>
+</ul>
+<p><a target="_blank" href="<?= site_url('/desktop/map?type=reservation&amp;name=Huntington Reservation') ?>"><?= site_url(' /desktop/map?measure=1') ?></a></p>

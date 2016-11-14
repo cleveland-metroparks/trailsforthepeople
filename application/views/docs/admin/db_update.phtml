@@ -1,0 +1,89 @@
+<?php $this->page_title = 'Database Update'; ?>
+
+<p class="lead">Updating data: more than shapefiles.</p>
+
+<p>Every now and then, Cleveland sends over an updated set of spreadsheets and/or shapefiles for Use Area POIs, for Reservations, and   Trails. The spreadsheets supply info which could not be included in the shapefile duie to length restrictions (1000 characters per field  ).</p>
+
+<p>A separate set of PHP programs exist to read these spreadsheets and update the database. <b>These must be run when the data are  updated, as a new shapefile lacks this content.</b></p>
+
+<p>The following is a task-oriented approach, of the steps necessary to update any given dataset.</p>
+
+<h3>If this was a new spreadsheet for aggregating Trails</h3>
+<ul>
+<li>The spreadsheet must be in XLSX format (office 2010+) and not XLS. If it is a XLS (Office 2003 format), open it and save it as XLSX   instead.</li>
+<li>Name it <i>Aggregate_Trails.xlsx</i> and upload it to <i>/var/www/static/import</i></li>
+<li><a target="_blank" href="<?= site_url('static/import/Aggregate_Trails.php') ?>">Aggregate the trail segments into finished Trails</a  ></li>
+<li><a target="_blank" href="<?= site_url('static/import/Populate_Autocomplete.php') ?>">Rebuild the autocomplete database</a></li>
+</ul>
+
+<h3>If this was a shapefile load for the Trails</h3>
+<ul>
+<li>Run <i>shp2pgsql</i> to replace the table in the database. See the <a href="<?= ssl_url('docs/index/admin/db_load') ?>">Database Load</a> doc for details.</li>
+<li>Look through dbdata.phtml for <i>cm_trails</i> and run those commands</li>
+<li>Check dbdata.phtml for the table <i>trails_routing</i> There is a whole set of paragraphs of SQL commands for populating the trails   data, analyzing it for routing, then creating the filtered views.</li>
+<li><a target="_blank" href="<?= site_url('static/import/Aggregate_Trails.php') ?>">Aggregate the trail segments into finished Trails</a  ></li>
+<li><a target="_blank" href="<?= site_url('static/import/Populate_Autocomplete.php') ?>">Rebuild the autocomplete database</a></li>
+<li>If the geometries have changed so the map tiles need to be regenerated, move on to <a href="<?= ssl_url('docs/index/admin/tilestache') ?>  ">Regenerating map tiles</a></li>
+</ul>
+
+<h3>If this was a new spreadsheet for the Use Areas</h3>
+<ul>
+<li>The spreadsheet must be in XLSX format (office 2010+) and not XLS. If it is a XLS (Office 2003 format), open it and save it as XLSX   instead.</li>
+<li>Name it <i>Use_Areas_Descriptions.xlsx</i> and upload it to <i>/var/www/static/import</i></li>
+<li><a target="_blank" href="<?= site_url('static/import/Use_Areas_Descriptions.php') ?>">Update the Use Areas with their descriptions,   hyperlinks, and Driving latlng</a></li>
+<li><a target="_blank" href="<?= site_url('static/import/Reservation_Activities.php') ?>">Re-populate each Reservation's activities   from its contained Use Areas' activities</a></li>
+<li><a target="_blank" href="<?= site_url('cronjobs/cms_load_activities') ?>">Re-generate the CMS pages for Use Areas and activities</a>  </li>
+<li><a target="_blank" href="<?= site_url('cronjobs/cms_load_reservations') ?>">Regenerate the CMS associations for Reservations and  Activities</a></li>
+<li><a target="_blank" href="<?= site_url('static/import/Populate_Autocomplete.php') ?>">Rebuild the autocomplete database</a></li>
+</ul>
+
+<h3>If this was a shapefile load for Use Areas</h3>
+<ul>
+<li>Run <i>shp2pgsql</i> to replace the table in the database. See the <a href="<?= ssl_url('docs/index/admin/db_load') ?>">Database Load</a> doc for details.</li>
+<li>Look through dbdata.phtml for <i>cm_use_areas</i> and run those commands</li>
+<li><a target="_blank" href="<?= site_url('static/import/Use_Areas_Descriptions.php') ?>">Update the Use Areas with their descriptions,   hyperlinks, and Driving latlng</a></li>
+<li><a target="_blank" href="<?= site_url('static/import/Reservation_Activities.php') ?>">Re-populate each Reservation's activities   from its contained Use Areas' activities</a></li>
+<li><a target="_blank" href="<?= site_url('cronjobs/cms_load_activities') ?>">Re-generate the CMS pages for Use Areas and activities</a>  </li>
+<li><a target="_blank" href="<?= site_url('cronjobs/cms_load_reservations') ?>">Regenerate the CMS associations for Reservations and  Activities</a></li>
+<li><a target="_blank" href="<?= site_url('static/import/Populate_Autocomplete.php') ?>">Rebuild the autocomplete database</a></li>
+<li>If the geometries have changed so the map tiles need to be regenerated, move on to <a href="<?= ssl_url('docs/index/admin/tilestache') ?>  ">Regenerating map tiles</a></li>
+</ul>
+
+<h3>If this was a shapefile load for Reservations</h3>
+<ul>
+<li>Run <i>shp2pgsql</i> to replace the table in the database. See the <a href="<?= ssl_url('docs/index/admin/db_load') ?>">Database Load</a> doc for details.</li>
+<li>Look through dbdata.phtml for <i>reservation_boundaries_public_private_cm_dissolved</i> and run those commands.</li>
+<li><a target="_blank" href="<?= site_url('static/import/Reservation_Activities.php') ?>">Populate each Reservation's activities from   its contained Use Areas' activities</a></li>
+<li><a target="_blank" href="<?= site_url('cronjobs/cms_load_reservations') ?>">Regenerate the CMS associations for Reservations and  Activities</a></li>
+<li><a target="_blank" href="<?= site_url('static/import/Populate_Autocomplete.php') ?>">Rebuild the autocomplete database</a></li>
+<li>If the geometries have changed so the map tiles need to be regenerated, move on to <a href="<?= ssl_url('docs/index/admin/tilestache') ?>  ">Regenerating map tiles</a></li>
+</ul>
+
+<h3>If this was a shapefile load for Buildings</h3>
+<ul>
+<li>Run <i>shp2pgsql</i> to replace the table in the database. See the <a href="<?= ssl_url('docs/index/admin/db_load') ?>">Database Load</a> doc for details.</li>
+<li>Look through dbdata.phtml for <i>cm_buildings</i> and run those commands.</li>
+<li><a target="_blank" href="<?= site_url('static/import/Buildings.php') ?>">Re-populate the buildings with their DEST_ID and Driving   latlng</a></li>
+<li><a target="_blank" href="<?= site_url('cronjobs/cms_load_facilities') ?>">Re-populate the CMS pages based on those new buildings</a>  </li>
+<li><a target="_blank" href="<?= site_url('static/import/Populate_Autocomplete.php') ?>">Rebuild the autocomplete database</a></li>
+<li>If the geometries have changed so the map tiles need to be regenerated, move on to <a href="<?= ssl_url('docs/index/admin/tilestache') ?>  ">Regenerating map tiles</a></li>
+</ul>
+
+<h3>If this was a new spreadsheet for Buildings</h3>
+<ul>
+<li>The spreadsheet must be in XLSX format (office 2010+) and not XLS. If it is a XLS (Office 2003 format), open it and save it as XLSX   instead.</li>
+<li>Name it <i>Buildings.xlsx</i> and upload it to <i>/var/www/static/import</i></li>
+<li><a target="_blank" href="<?= site_url('static/import/Buildings.php') ?>">Update the Buildings table with the Driving latlng from  the spreadsheet</a></li>
+<li><a target="_blank" href="<?= site_url('static/import/Populate_Autocomplete.php') ?>">Rebuild the autocomplete database</a></li>
+</ul>
+
+<h3>If this was a shapefile load of Driving Destinations</h3>
+<ul>
+<li>Run <i>shp2pgsql</i> to replace the table in the database. See the <a href="<?= ssl_url('docs/index/admin/db_load') ?>">Database Load</a> doc for details.</li>
+<li>Look through dbdata.phtml for <i>reservation_boundaries_public_private_cm_dissolved</i> and run those commands.</li>
+<li><a target="_blank" href="<?= site_url('static/import/Use_Areas_Descriptions.php') ?>">Update the Use Areas' driving destinations</li  >
+<li><a target="_blank" href="<?= site_url('static/import/Buildings.php') ?>">Update the Buildings' driving destinations</li>
+<li><a target="_blank" href="<?= site_url('static/import/Aggregate_Trails.php') ?>">Re-aggregate Trails, which also calculates their  driving destinations</li>
+<li><a target="_blank" href="<?= site_url('static/import/Populate_Autocomplete.php') ?>">Rebuild the autocomplete database</a></li>
+<li>If the geometries have changed so the map tiles need to be regenerated, move on to <a href="<?= ssl_url('docs/index/admin/tilestache') ?>  ">Regenerating map tiles</a></li>
+</ul>

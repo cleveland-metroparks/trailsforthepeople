@@ -1,0 +1,28 @@
+<!-- Triggered via JS: On clicking Search button -->
+<div class="sidebar-pane" id="pane-search">
+    <h1 class="sidebar-header">
+        <span class="title-text">Search</span>
+        <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+    </h1>
+
+    <a href="#pane-browse" class="sidebar-pane-link sidebar-back ui-btn ui-btn-inline ui-icon-back ui-btn-icon-left ui-corner-all">Back</a>
+    
+    <fieldset data-role="controlgroup">
+        <h3>Keyword or name:</h3>
+        <input type="text" data-mini="true" id="search_keyword" />
+        <ul id="search_keyword_autocomplete" data-role="listview" data-inset="true"></ul>
+        <input type="button" data-mini="true" id="search_keyword_button" value="Search &gt;&gt;" value0="Loading" value1="Search        &gt;&gt;" />
+    </fieldset>
+    
+    <br/>
+    
+    <div class="sortpicker">
+        <span class="fakelink" value="distance">Sort by distance</span>
+        &bull;
+        <span class="fakelink" value="alphabetical">Sort alphabetically</span>
+        <br/>
+        <br/>
+    </div>
+    
+    <ul id="keyword_results" data-role="listview" class="distance_sortable"></ul>
+</div>

@@ -1,45 +1,39 @@
-<?php $this->load->view('contributors/header.phtml') ?>
+<?php $this->page_title = 'Loops'; ?>
 
-<div style="float:right;">
-    <a href="<?= ssl_url('contributors/loops/?random=1') ?>">Random Loops</a>
-    <br/>
-    <a href="<?= ssl_url('contributors/loops/') ?>">Manual Loops</a>
-    <br/>
-    <br/>
-    <a href="<?= ssl_url('contributors/loop/0/') ?>">Create a new loop</a>
-    <br/>
-    <a href="<?= ssl_url('contributors/autoloop/') ?>">Autoloop&trade; manual</a>
-    <br/>
-    <a href="<?= ssl_url('contributors/autoloop_csv/') ?>">Autoloop&trade; CSV</a>
-</div>
+<ul class="local-actions">
+    <li><a href="<?= ssl_url('contributors/loop/0/') ?>" class="btn btn-primary">+ Create a loop</a></li>
+    <li><a href="<?= ssl_url('contributors/loops/?random=1') ?>">Random Loops</a></li>
+    <li><a href="<?= ssl_url('contributors/loops/') ?>">Manual Loops</a></li>
+    <li><a href="<?= ssl_url('contributors/autoloop/') ?>">Autoloop&trade; manual</a></li>
+    <li><a href="<?= ssl_url('contributors/autoloop_csv/') ?>">Autoloop&trade; CSV</a></li>
+</ul>
 
-<table id="loops" style="width:75%;">
+<table id="loops" class="table table-striped">
 <thead>
 <tr>
-    <th></th>
-    <th style="text-align:left;">Name</th>
-    <th style="text-align:left;">Editor</th>
-    <th style="text-align:right; padding-right:2em;">Status</th>
-    <th style="text-align:right; padding-right:2em;">Miles</th>
-    <th style="text-align:right; padding-right:2em;">Closed?</th>
-    <th style="text-align:right; padding-right:2em;">Hike?</th>
-    <th style="text-align:right; padding-right:2em;">Bike?</th>
-    <th style="text-align:right; padding-right:2em;">Bridle?</th>
-    <th style="text-align:right; padding-right:2em;">MtnBike?</th>
-    <th></th>
+    <th>Name</th>
+    <th>Editor</th>
+    <th>Status</th>
+    <th>Miles</th>
+    <th>Closed</th>
+    <th>Hike</th>
+    <th>Bike</th>
+    <th>Bridle</th>
+    <th>MtnBike</th>
+    <th>Edit</th>
+    <th>Clone</th>
 </tr>
 </thead>
 <tbody>
 <?php foreach ($loops as $loop) { ?>
 <tr>
     <td>
-        <?php if ($this->loggedin['admin'] or $loop->creatorid == $this->loggedin['id']) { ?>
-            <a href="<?= ssl_url("contributors/loop/{$loop->id}") ?>">edit</a>
-        <?php } else { ?>
-            &nbsp;
-        <?php } ?>
+        <?php if ($this->loggedin['admin'] or ($loop->creatorid == $this->loggedin['id'])): ?>
+            <a href="<?= ssl_url("contributors/loop/{$loop->id}") ?>"><?= htmlspecialchars($loop->name) ?></a>
+        <?php else: ?>
+            <?= htmlspecialchars($loop->name) ?>
+        <?php endif; ?>
     </td>
-    <td style="text-align:left;"><?= htmlspecialchars($loop->name) ?></td>
     <td style="text-align:left;"><?= htmlspecialchars($loop->editedby) ?></td>
     <td style="text-align:right;"><?= $loop->status ?></td>
     <td style="text-align:right;"><?= (float) $loop->distancetext ?></td>
@@ -48,6 +42,13 @@
     <td style="text-align:right;"><?= $loop->bike ?></td>
     <td style="text-align:right;"><?= $loop->bridle ?></td>
     <td style="text-align:right;"><?= $loop->mountainbike ?></td>
+    <td>
+        <?php if ($this->loggedin['admin'] or ($loop->creatorid == $this->loggedin['id'])): ?>
+            <a href="<?= ssl_url("contributors/loop/{$loop->id}") ?>">edit</a>
+        <?php else: ?>
+            &nbsp;
+        <?php endif; ?>
+    </td>
     <td><a class="clone" href="<?= ssl_url("contributors/cloneloop/{$loop->id}") ?>">clone</a></td>
 </tr>
 <?php } ?>
@@ -58,10 +59,10 @@
 
 
 <script type="text/javascript">
-$(window).load(function() { 
+$(window).load(function() {
     // sort the table
-    $('#loops').tablesorter({ 
-        sortList: [[3,0],[1,0]]
+    $('#loops').tablesorter({
+        sortList: [[2,0],[0,0]]
     });
     $('#loops').addClass('tablesorter');
 
@@ -70,7 +71,5 @@ $(window).load(function() {
         if (! confirm("This will make a copy of the Loop, for your own editing and experimentation.\nClick OK to continue, or Cancel to cancel.") ) return false;
         return true;
     });
-}); 
+});
 </script>
-
-<?php $this->load->view('contributors/footer.phtml') ?>

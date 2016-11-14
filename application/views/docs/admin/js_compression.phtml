@@ -1,0 +1,52 @@
+<?php $this->page_title = 'JavaScript Compression'; ?>
+
+<p>
+    Most JavaScript (.js) files exist in two versions: uncompressed and compressed.
+    <br/>
+    Compressed ones are given a <i>.jscompress</i> addition, to distinguish them but keep them similar to the editable versions.
+    <br/>
+    This is reflected in the HTML documents, where you will see references to both versions and one of them commented out, like this:
+    <br/>
+    <pre>
+    &lt;!-- Commented out uncompressed versions
+    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/common/constants.js&quot;&gt;&lt;/script&gt;
+    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/common/common.js&quot;&gt;&lt;/script&gt;
+    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/desktop/desktop.js&quot;&gt;&lt;/script&gt;
+    --&gt;
+    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/common/constants.jscompress.js&quot;&gt;&lt; /script&gt;
+    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/common/common.jscompress.js&quot;&gt;&lt;  /script&gt;
+    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/desktop/desktop.jscompress.js&quot;&gt;&lt;  /script&gt;
+    </pre>
+</p>
+
+<p>
+    Using compressed versions makes a substantial difference in the loading time, trimming off 10-30 KB per JavaScript file and   ultimately 2-3 seconds over slower connections (particularly mobile).
+</p>
+
+<h2>Development / Making Changes</h2>
+
+<p>Compressed files have one caveat: developing and debugging on them is nearly impossible. All errors happen on line 1 since it has  only 1 line, and editing is really not a good idea.</p>
+
+<p>For development, edit the appropriate HTML document and use the uncompressed versions, such as <i>index.js</i> instead of <i>index.  jscompress.js</i> The page loading will take a small hit, but it's not killer.</p>
+
+<p>After you have made your fixes to the JavaScript files, you will want to compress them into the <i>.jscompress</i> versions, then  change the HTML back again so the compressed versions are loaded.</p>
+
+<h2>Compressing the New JavaScript Files</h2>
+
+<p>Recompressing JavaScript is fairly easy, using the online compressor JSCompress.</p>
+
+<ol>
+<li>Open both versions of your file, compressed and uncompressed.</li>
+<li>Open a browser to <a target="_blank" href="http://jscompress.com/">http://jscompress.com/</a></li>
+<li>Copy and paste the contents of the uncompressed JavaScript file into the entry box at JSCompress.</li>
+<li>Click the button. In a moment, the panel will change and show you the compressed version.</li>
+<li>Paste that compressed content into the compressed JavaScript file, and save your changes.</li>
+<li>Test your changes, preferably before existing the editor so you can Undo if something went wrong.</li>
+</ol>
+
+<h2>Exceptions</h2>
+
+<p>A known bug of compressing JavaScript, is that it doesn't work with every possible JavaScript program in the world. A few of the JS  files used here, do not use compression, and it's recommended that you not try it.</p>
+<ul>
+    <li>purl.js</li>
+</ul>

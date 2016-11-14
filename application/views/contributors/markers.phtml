@@ -1,96 +1,94 @@
-<?php $this->load->view('contributors/header.phtml') ?>
+<?php $this->page_title = 'Markers'; ?>
 
-<style type="text/css">
-table.tablesorter thead tr .header {
-    background-position: left center;
-}
-</style>
+<ul class="local-actions">
+    <li><a href="<?= ssl_url('contributors/marker/0') ?>" class="btn btn-primary">+ Create a marker</a></li>
+</ul>
 
-
-<div style="float:right;">
-    <a href="<?= ssl_url('contributors/marker/0/') ?>">Create a new marker</a>
-</div>
-
-<?php if ($markers_count) { ?>
-<h3>Your Markers</h3>
-<table id="markers" style="width:100%;">
+<h2>My Markers</h2>
+<?php if ($markers_count): ?>
+<table id="markers" class="table table-striped">
 <thead>
 <tr>
-    <th></th>
-    <th style="text-align:left; padding-left:2em;">Enabled?</th>
-    <th style="text-align:left; padding-left:2em;">Starts</th>
-    <th style="text-align:left; padding-left:2em;">Expires</th>
-    <th style="text-align:left; padding-left:2em;">Category</th>
-    <th style="text-align:left; padding-left:2em;">Title</th>
-    <th style="text-align:left; padding-left:2em;">Content</th>
+    <th>Title</th>
+    <th>Enabled</th>
+    <th>Starts</th>
+    <th>Expires</th>
+    <th>Category</th>
+    <th>Content</th>
+    <th>Edit</th>
+    <th>Delete</th>
 </tr>
 </thead>
 <tbody>
-<?php foreach ($markers as $marker) { ?>
+<?php foreach ($markers as $marker): ?>
 <tr>
-    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}") ?>">edit</a></td>
-    <td style="text-align:right;"><?= $marker->enabled ? 'Yes' : 'No' ?></td>
-    <td style="text-align:right;"><?= $marker->startdate ?></td>
-    <td style="text-align:right;"><?= $marker->expires ?></td>
-    <td style="text-align:left;"><?= htmlspecialchars($marker->category) ?></td>
-    <td style="text-align:left;"><?= htmlspecialchars($marker->title) ?></td>
-    <td style="text-align:left;"><?= htmlspecialchars(strip_tags(substr($marker->content,0,200))) ?></td>
+    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}/edit") ?>"><?= htmlspecialchars($marker->title) ?></a></td>
+    <td><?= $marker->enabled ? 'Yes' : 'No' ?></td>
+    <td><?= $marker->startdate ?></td>
+    <td><?= $marker->expires ?></td>
+    <td><?= htmlspecialchars($marker->category) ?></td>
+    <td><?= htmlspecialchars(strip_tags(substr($marker->content,0,200))) ?></td>
+    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}/edit") ?>">edit</a></td>
+    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}/delete") ?>">delete</a></td>
 </tr>
-<?php } ?>
+<?php endforeach; ?>
 </tbody>
 </table>
-<?php } ?>
+<?php else: ?>
+<p>You have no markers.</p>
+<?php endif; ?>
 
 
 
-<?php if ($this->loggedin['admin']) { ?>
-<?php if ($other_markers_count) { ?>
-<h3>Other Markers</h3>
-<table id="other_markers" style="width:100%;">
+<?php if ($this->loggedin['admin']): ?>
+<h2>Other Markers</h2>
+<?php if ($other_markers_count): ?>
+<table id="other_markers" class="table table-striped">
 <thead>
 <tr>
-    <th></th>
-    <th style="text-align:left; padding-left:2em;">Enabled?</th>
-    <th style="text-align:left; padding-left:2em;">Starts</th>
-    <th style="text-align:left; padding-left:2em;">Expires</th>
-    <th style="text-align:left; padding-left:2em;">Category</th>
-    <th style="text-align:left; padding-left:2em;">Title</th>
-    <th style="text-align:left; padding-left:2em;">Content</th>
+    <th>Title</th>
+    <th>Enabled</th>
+    <th>Starts</th>
+    <th>Expires</th>
+    <th>Category</th>
+    <th>Content</th>
+    <th>Edit</th>
+    <th>Delete</th>
 </tr>
 </thead>
 <tbody>
-<?php foreach ($other_markers as $marker) { ?>
+<?php foreach ($other_markers as $marker): ?>
 <tr>
-    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}") ?>">edit</a></td>
-    <td style="text-align:right;"><?= $marker->enabled ? 'Yes' : 'No' ?></td>
-    <td style="text-align:right;"><?= $marker->startdate ?></td>
-    <td style="text-align:right;"><?= $marker->expires ?></td>
-    <td style="text-align:left;"><?= htmlspecialchars($marker->category) ?></td>
-    <td style="text-align:left;"><?= htmlspecialchars($marker->title) ?></td>
-    <td style="text-align:left;"><?= htmlspecialchars(strip_tags(substr($marker->content,0,200))) ?></td>
+    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}/edit") ?>"><?= htmlspecialchars($marker->title) ?></a></td>
+    <td><?= $marker->enabled ? 'Yes' : 'No' ?></td>
+    <td><?= $marker->startdate ?></td>
+    <td><?= $marker->expires ?></td>
+    <td><?= htmlspecialchars($marker->category) ?></td>
+    <td><?= htmlspecialchars(strip_tags(substr($marker->content,0,200))) ?></td>
+    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}/edit") ?>">edit</a></td>
+    <td><a href="<?= ssl_url("contributors/marker/{$marker->id}/delete") ?>">delete</a></td>
 </tr>
-<?php } ?>
+<?php endforeach; ?>
 </tbody>
 </table>
-<?php } ?>
-<?php } ?>
-
+<?php else: ?>
+<p>There are no other markers.</p>
+<?php endif; ?>
+<?php endif; ?>
 
 
 <script type="text/javascript">
-$(window).load(function() { 
-    $('#markers').tablesorter({ 
-        sortList: [[1,0],[2,0]]
+$(window).load(function() {
+    $('#markers').tablesorter({
+        sortList: [[2,0],[3,0]]
     });
     $('#markers').addClass('tablesorter');
-}); 
+});
 
-$(window).load(function() { 
-    $('#other_markers').tablesorter({ 
-        sortList: [[1,0],[2,0]]
+$(window).load(function() {
+    $('#other_markers').tablesorter({
+        sortList: [[2,0],[3,0]]
     });
     $('#other_markers').addClass('tablesorter');
-}); 
+});
 </script>
-
-<?php $this->load->view('contributors/footer.phtml') ?>

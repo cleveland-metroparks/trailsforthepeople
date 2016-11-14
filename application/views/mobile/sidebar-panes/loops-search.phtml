@@ -1,0 +1,92 @@
+<!-- Linked from Find pane -->
+<div class="sidebar-pane" id="pane-loops-search">
+    <h1 class="sidebar-header">
+        <span class="title-text">Photo</span>
+        <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+    </h1>
+
+    <a href="#pane-browse" class="sidebar-pane-link sidebar-back ui-btn ui-btn-inline ui-icon-back ui-btn-icon-left ui-corner-all">Back</a>
+    
+    <fieldset data=role="controlgroup">
+    
+    <!-- May 2014, they don't want this anymore but want clicky icons, but internally we still need the form controls... -->
+    <div style="display:none;">
+        <select id="loops_filter_type" data-mini="true">
+        <!-- <option value="">All trail types</option> -->
+        <option value="hike">Hiking / Walking</option>
+        <option value="bike_Novice">Bicycle, Novice</option>
+        <option value="bike_Beginner">Bicycle, Beginner</option>
+        <option value="bike_Intermediate">Bicycle, Intermediate</option>
+        <option value="bike_Advanced">Bicycle, Advanced</option>
+        <option value="bridle">Equestrian</option>
+        <option value="exercise">Exercise Trail</option>
+        <option value="mountainbike">Mountain Biking Trail</option>
+        </select>
+    </div>
+    <div id="loops_typeicons">
+        <img data-value="hike" src="<?= site_url('static/desktop/trailfinder_hike_off.png') ?>" />
+        <img data-value="bike_Advanced" src="<?= site_url('static/desktop/trailfinder_bike_off.png') ?>" />
+        <img data-value="bridle" src="<?= site_url('static/desktop/trailfinder_horse_off.png') ?>" />
+        <!--<img data-value="exercise" src="<?= site_url('static/desktop/trailfinder_exercise_off.png') ?>" />-->
+        <img data-value="mountainbike" src="<?= site_url('static/desktop/trailfinder_mtnbike_off.png') ?>" />
+    </div>
+    
+    <div style="display:none;">
+        <select id="loops_filter_paved" data-mini="true">
+        <option value="">Paved or unpaved</option>
+        <option value="Yes">Paved</option>
+        <option value="No">Unpaved</option>
+        </select>
+    </div>
+    
+    <br/>
+    <select id="loops_filter_reservation" data-mini="true">
+    <option value="">(any reservation)</option>
+    <?php foreach ($reservations as $res) { ?>
+    <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
+    <?php } ?>
+    </select>
+    
+    </fieldset>
+
+    <!-- May 2014, they want this hidden in favor of icons below, but still need the form controls internally -->
+    <div data-role="fieldcontain" style="display:none;">
+        <b>Length</b>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <span id="loops_filter_distance_min_text"></span> - <span id="loops_filter_distance_max_text"></span>
+        <br/>
+        Min: <input type="range" id="loops_filter_distance_min" min="0" max="100" value="0" />
+        <br/>
+        Max: <input type="range" id="loops_filter_distance_max" min="0" max="50" value="50" />
+    </div>
+    <div id="loops_filter_distancepicker">
+        <img data-min="0" data-max="2" src="<?= site_url('static/desktop/trailfinder_distance1_off.png') ?>" />
+        <img data-min="2" data-max="5" src="<?= site_url('static/desktop/trailfinder_distance2_off.png') ?>" />
+        <img data-min="5" data-max="10" src="<?= site_url('static/desktop/trailfinder_distance3_off.png') ?>" />
+        <img data-min="10" data-max="100" src="<?= site_url('static/desktop/trailfinder_distance4_off.png') ?>" />
+    </div>
+    
+    <div data-role="fieldcontain" id="loops_filter_duration" style="display:none;">
+        <b>Duration</b>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <span id="loops_filter_duration_min_text"></span> - <span id="loops_filter_duration_max_text"></span>
+        <br/>
+        Min: <input type="range" id="loops_filter_duration_min" min="0" max="300" value="0" />
+        <br/>
+        Max: <input type="range" id="loops_filter_duration_max" min="0" max="300" value="300" />
+    </div>
+    
+    <br/>
+    <input type="button" id="loops_filter_button" value="Search" value0="Searching..." value1="Search" />
+    
+    <br/>
+    
+    <div class="sortpicker">
+        <span class="fakelink" value="distance">Sort by distance</span>
+        &bull;
+        <span class="fakelink" value="alphabetical">Sort alphabetically</span>
+        <br/>
+    </div>
+    
+    <ul id="loops_list" data-role="listview" data-inset="true" class="distance_sortable"></ul>
+</div>

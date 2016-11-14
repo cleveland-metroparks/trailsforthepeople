@@ -1,0 +1,38 @@
+<?php $this->page_title = 'User Account'; ?>
+
+<h2>Profile</h2>
+
+<p>
+    <label>Real name &amp; Organization:</label> <?= htmlspecialchars($this->loggedin['realname']) ?><br />
+    <label>E-mail:</label> <?= htmlspecialchars($this->loggedin['email']) ?><br />
+    <label>Access areas:</label> <?= '<em>' . implode('</em>, <em>', $access_areas) . '</em>'; ?><br />
+</p>
+
+<h2>Change Password</h2>
+
+<form id="password-form" method="post" action="<?= ssl_current_url() ?>" onSubmit="return validateNewPasswordSubmit();">
+    <div class="form-group" id="password-form-group">
+        <label>Enter your new password twice to change it:</label>
+        <input class="form-control" type="password" name="password1" placeholder="New password" />
+        <input class="form-control" type="password" name="password2" placeholder="Confirm password" />
+    </div>
+    <input class="btn btn-primary" type="submit" value="Save" />
+</form>
+
+<h2>Log out</h2>
+
+<p>
+  <a href="<?= ssl_url('administration/logout') ?>" class="btn btn-primary">Log out</a>
+</p>
+
+
+
+<script type="text/javascript">
+
+function validateNewPasswordSubmit() {
+    var password1 = $('#password-form-group input[name="password1"]').val()
+    var password2 = $('#password-form-group input[name="password2"]').val();
+    return validateNewPassword(password1, password2, <?= json_encode($this->loggedin['email']) ?>);
+}
+
+</script>

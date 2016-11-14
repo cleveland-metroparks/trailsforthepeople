@@ -14,7 +14,6 @@ var AUTO_CENTER_ON_LOCATION = false;
 // what type of sorting do they prefer?
 var DEFAULT_SORT = 'distance';
 
-
 // mobile specific: when we change pages or rotate the screen, resize the map accordingly
 $(window).bind('orientationchange pageshow resize', function() {
     // scrolling the window is supposed to remove the address bar,
@@ -25,7 +24,7 @@ $(window).bind('orientationchange pageshow resize', function() {
     var page    = $(":jqmData(role='page'):visible");
     var header  = $(":jqmData(role='header'):visible");
     //var footer  = $(":jqmData(role='footer'):visible");
-    var content = $(":jqmData(role='content'):visible");
+    var content = $(":jqmData(role='c=ontent'):visible");
     var viewportHeight = $(window).height();
     //var contentHeight = viewportHeight - header.outerHeight() - footer.outerHeight();
     var contentHeight = viewportHeight - header.outerHeight();
@@ -47,163 +46,174 @@ $(document).bind('pagebeforechange', function(e,data) {
 });
 
 
-// mobile-specific: listen for page changes to #page-browse-results and load the page content via AJAX
-$(document).bind('pagebeforechange', function(e,data) {
-    if ( typeof data.toPage != "string" ) return; // no hash given
-    var url = $.mobile.path.parseUrl(data.toPage);
-    if ( url.hash.search(/^#browse-items/) == -1 ) return; // not a #browse-items URL that we want to handle
-    var category = url.hash.replace( /.*category=/, "" ); // string, the category to query
 
-    // tell the event system that we have it covered, no need for it to change our page
-    e.preventDefault();
-
-    // have jQuery Mobile render the target Page (if not already) so we have a destination
-    $('#page-browse-results').page();
-
-    // change us over to the browse-results page, but lie about the URL so a reload won't bring us to this blank page
-    // the AJAX is (presumably) making some headway while we do this, so we cut the apparent response time
-    data.options.dataUrl = url.href.replace(/#.+$/, '#browse-items?category=' + category);
-    $.mobile.changePage('#page-browse-results', data.options );
-
-    // initialize the list; again with visual eyecandy while the AJAX stuff starts
-    var target = $('#browse_results');
-    target.empty();
-
-    // set the header to Loading to keep their eyes busy
-    var header = $('#page-browse-results div[data-role="header"] h1');
-    header.text('Loading...');
-
-    // fix the Back button on the target panel, to go Back to the right page
-    var backurl = "#page-browse";
-    if (category.indexOf('pois_usetype_') == 0) backurl = "#page-browse-pois-activity";
-    if (category.indexOf('pois_reservation_') == 0) backurl = "#page-browse-pois-reservation";
-    if (category.indexOf('loops_res_') == 0) backurl = "#page-browse-loops-byres";
-
-    var back = $('#page-browse-results  div[data-role="header"] a:eq(0)');
-    back.prop('href', backurl);
-
-    // for the fetched items, if one follows to the Info panel, where should that Back button go?
-    var backbuttonurl = backurl;
-    if (category) backbuttonurl = "#browse-items?category=" + category;
-
-    // do the AJAX call: fetch the JSON data, render to UL.zoom in the #page-browse-results page, switch over to it
-    $.get('../ajax/browse_items', { category:category }, function (reply) {
-        // fetch the title
-        header.text(reply.title);
-
-        // iterate over the fetched results, render them into the target
-        for (var i=0, l=reply.results.length; i<l; i++) {
-            // initialize the result's LI entry; a whole lot of attributes to set pertaining to .zoom handling
-            var result = reply.results[i];
-            var li = $('<li></li>').addClass('zoom');
-            li.attr('title', result.name );
-            li.attr('gid',result.gid).attr('type',result.type).attr('w',result.w).attr('s',result.s).attr('e',result.e).attr('n',result.n).attr('lat',result.lat).attr('lng',result.lng);
-            li.attr('backbutton', backbuttonurl);
-
-            // and the DIV with SPANs for styling substitles, etc.
-            var div = $('<div></div>').addClass('ui-btn-text');
-            div.append( $('<span></span>').addClass('ui-li-heading').text(result.name) );
-            if (result.note) {
-                div.append( $('<span></span>').addClass('ui-li-desc').html(result.note) );
-            }
-
-            // add the placeholder for a distance readout, to be sorted later
-            div.append( $('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text('0 mi') );
-
-            // the click handler is to call zoomElementClick(element), which will center the map, load More Info content, etc.
-            li.tap(function () {
-                zoomElementClick( $(this) );
-            });
-
-            // ready, add it to the list!
-            li.append(div);
-            target.append(li);
-        }
-
-        // finalize the list, have jQuery Mobile do its styling magic on the newly-loaded content, then calculate the distances and sort
-        target.listview('refresh');
-        sortLists(target);
-    }, 'json');
-});
-
-
-
-// mobile-specific: listen for page changes to #page-twitter and reload tweets
 /*
-$(document).bind('pagebeforechange', function(e,data) {
-    if ( typeof data.toPage != "string" ) return; // no hash given
-    var url = $.mobile.path.parseUrl(data.toPage);
-    if ( url.hash != '#page-twitter') return; // not the URL that we want to handle
-
-    loadTwitter();
-});
-*/
-
-
-// mobile-specific: listen for page changes to #page-share and request a new short URL for the current map state
-// also, enable the Share Facebook and Share Twitter links
-$(document).bind('pagebeforechange', function(e,data) {
-    if ( typeof data.toPage != "string" ) return; // no hash given
-    var url = $.mobile.path.parseUrl(data.toPage);
-    if ( url.hash != '#page-share') return; // not the URL that we want to handle
-
-    populateShareBox();
-});
+ * Handle clicks on various sidebar elements
+ */
 $(document).ready(function () {
-    // Twitter and Facebook are plain ol' hyperlinks,
-    // but when we click them we update their URL before we allow them to trigger
 
-    // mobile warning: on mobile #share_url is not a text input and val() won't work
-    // at this time the FB and T icons don't exist on Mobile, but FYI
+    // To make links that open new sidebar panes,
+    // give them the class ".sidebar-pane-link"
+    // and make the href an anchor with the pane name, (#panename)
+    $('.sidebar-pane-link').click(function() {
+        link = $(this).attr('href');
+        if (link.charAt(0) == '#') {
+            pane = link.substr(1);
+        }
+        sidebar.open(pane);
+    });
 
+    /*
+     * Find pane (#pane-browse)
+     */
+    $('#pane-browse li a').click(function() {
+
+    });
+
+    /*
+     * Nearby pane (#pane-radar)
+     */
+    $('.sidebar-tabs li a[href="#pane-radar"]').click(function() {
+        updateNearYouNow();
+    });
+
+    /*
+     * Find POIs pane (#pane-browse-pois-activity)
+     */
+    $('#pane-browse-pois-activity li a').click(function() {
+        var category = this.hash.replace( /.*category=/, "" );
+
+        sidebar.open('pane-browse-results');
+    
+        var target = $('ul#browse_results');
+        target.empty();
+    
+        // fix the Back button on the target panel, to go Back to the right page
+        var backurl = "#pane-browse";
+        if (category.indexOf('pois_usetype_') == 0) backurl = "#pane-browse-pois-activity";
+        if (category.indexOf('pois_reservation_') == 0) backurl = "#pane-browse-pois-reservation";
+        if (category.indexOf('loops_res_') == 0) backurl = "#pane-browse-loops-byres";
+
+        $('#pane-browse-results .sidebar-back').prop('href', backurl);
+
+        //// for the fetched items, if one follows to the Info panel, where should that Back button go?
+        var backbuttonurl = backurl;
+        if (category) backbuttonurl = "#pane-browse-results";
+
+        // do the AJAX call: fetch the JSON data, render to UL.zoom in the #pane-browse-results page, switch over to it
+        $.get('../ajax/browse_items', { category:category }, function (reply) {
+            // fetch the title
+            var header = $('#pane-browse-results h1.sidebar-header .title-text');
+            header.text(reply.title);
+    
+            // iterate over the fetched results, render them into the target
+            for (var i=0, l=reply.results.length; i<l; i++) {
+                var result = reply.results[i];
+
+                // List item
+                // A lot of attributes to set pertaining to .zoom handling
+                var li = $('<li></li>').addClass('zoom');
+                li.attr('title', result.name );
+                li.attr('gid',result.gid).attr('type',result.type).attr('w',result.w).attr('s',result.s).attr('e',result.e).attr('n',result.n).attr('lat',result.lat).attr('lng',result.lng);
+                li.attr('backbutton', backbuttonurl);
+
+                // Link    
+                link = $('<a></a>');
+                link.attr('class', 'ui-btn ui-btn-text');
+                link.attr('href', 'javascript:zoomElementClick(this)');
+                li.append(link);
+
+                // Inner spans for text
+                link.append(
+                    $('<span></span>')
+                        .addClass('ui-li-heading')
+                        .text(result.name)
+                    );
+                if (result.note) {
+                    link.append(
+                        $('<span></span>')
+                            .addClass('ui-li-desc')
+                            .html(result.note)
+                        );
+                }
+    
+                // add the placeholder for a distance readout, to be sorted later
+                link.append(
+                    $('<span></span>')
+                        .addClass('zoom_distance')
+                        .addClass('ui-li-count')
+                        .addClass('ui-btn-up-c')
+                        .addClass('ui-btn-corner-all')
+                        .text('0 mi')
+                    );
+    
+                // On click, call zoomElementClick() to center the map, load More Info, etc.
+                li.tap(function () {
+                    zoomElementClick( $(this) );
+                });
+    
+                // ready, add it to the list!
+                li.append(link);
+                target.append(li);
+            }
+    
+            // finalize the list, have jQuery Mobile do its styling magic on the newly-loaded content, then calculate the distances and sort
+            target.listview('refresh');
+            sortLists(target);
+        }, 'json');
+
+    });
+
+    /*
+     * Share pane (#pane-share)
+     */
+     // Build a new short URL for the current map state.
+    $('.sidebar-tabs a[href="#pane-share"]').click(function() {
+        populateShareBox();
+    });
+    // Use current URL for Twitter and Facebook share links
     $('#share_facebook').tap(function () {
-        var url = $('#share_url').val();
+        var url = $('#share_url').val() || $('#share_url').text();
             url = 'http://www.facebook.com/share.php?u=' + encodeURIComponent(url);
-        $('#share_facebook').prop('href',url);
+        $('#share_facebook').prop('href', url);
         return true;
     });
     $('#share_twitter').tap(function () {
-        var url = $('#share_url').val();
+        var url = $('#share_url').val() || $('#share_url').text();
             url = 'http://twitter.com/home?status=' + encodeURIComponent(url);
-        $('#share_twitter').prop('href',url);
+        $('#share_twitter').prop('href', url);
         return true;
     });
 });
 
 
-
-
-// mobile-specific: listen for page changes to #page-radar and update Near You Now content
-$(document).bind('pagebeforechange', function(e,data) {
-    if ( typeof data.toPage != "string" ) return; // no hash given
-    var url = $.mobile.path.parseUrl(data.toPage);
-    if ( url.hash != '#page-radar') return; // not the URL that we want to handle
-
-    updateNearYouNow();
-});
-
-
-// mobile-specific: listen for page changes to #page-info and make sure we really have something to show data for
-// e.g. in the case of someone reloading #page-info the app can get stuck since no feature has been loaded
-$(document).bind('pagebeforechange', function(e,data) {
-    if ( typeof data.toPage != "string" ) return; // no hash given
-    var url = $.mobile.path.parseUrl(data.toPage);
-    if ( url.hash != '#page-info') return; // not the URL that we want to handle
-
-    var ok = $('#show_on_map').data('zoomelement');
-    if (ok) return; // guess it's fine, proceed
-
-    // got here: they selected info but have nothing to show info, bail to the Find panel
-    $.mobile.changePage('#page-browse');
-    return false;
-});
-
-
+// @TODO: Bind this to sidebar tab button clicks AND
+// clicks inside sidebar panes that generate/load new data
+//
 // mobile-specific: on any page change, after the changeover,
 // update the distance readouts in any ul.dstance_sortable which was just now made visible
 $(document).bind('pagechange', function(e,data) {
     sortLists();
 });
+
+
+//// mobile-specific: listen for page changes to #pane-info
+//// and make sure we really have something to show data for
+//// e.g. in the case of someone reloading #pane-info the app
+//// can get stuck since no feature has been loaded
+//$(document).bind('pagebeforechange', function(e,data) {
+//    if ( typeof data.toPage != "string" ) return; // no hash given
+//    var url = $.mobile.path.parseUrl(data.toPage);
+//    if ( url.hash != '#pane-info') return; // not the URL that we want to handle
+//
+//    var ok = $('#show_on_map').data('zoomelement');
+//    if (ok) return; // guess it's fine, proceed
+//
+//    // got here: they selected info but have nothing to show info, bail to the Find panel
+//    $.mobile.changePage('#pane-browse');
+//    return false;
+//});
+
 
 
 
@@ -216,7 +226,8 @@ $(window).load(function () {
 });
 */
 
-
+// @TODO: Do we need to do this anymore?
+//
 // a method for changing over to the map "page" without having a hyperlink, e.g. from the geocoder callback
 // this is particularly important because we often want to zoom the map, but since map resizing is async,
 // the map is wrongly sized and badly positioned when we try to fitBounds() or setView(()
@@ -240,13 +251,13 @@ function enableClicks() {
 }
 function switchToMap(callback) {
     // go ahead and switch over now, with whatever their callback to do after the map is focused
-    $.mobile.changePage('#page-map');
+    $.mobile.changePage('#pane-map');
     if (callback) setTimeout(callback,1000);
 }
 
 
 
-// on page load: load the MAP, yank the splashscreen, then add a geolocation callback to center the map
+// on page load: load the MAP, then add a geolocation callback to center the map
 $(window).load(function () {
     // load up the URL params before the map, as we may need them to configure the map
     URL_PARAMS = $.url();
@@ -255,18 +266,14 @@ $(window).load(function () {
     MIN_ZOOM = 10;
     initMap();
 
-    // remove the splash screen; we won't need it anymore so remove it entirely
-    setTimeout(function () {
-        $('#toolbar').show();
-        $('#splashscreen').hide();
-    }, 5000);
-
+    // @TODO: Get Welcome panel working
+    //
     // switch to the Welcome panel if they asked for it AND some other setting doesn't disable it
     var show_welcome = cookieGet('show_welcome');
     if (URL_PARAMS.attr('query')) show_welcome = false;
     if (URL_PARAMS.attr('fragment')) show_welcome = false;
     if (show_welcome) {
-        $.mobile.changePage('#page-welcome');
+        $.mobile.changePage('#pane-welcome');
     }
 
     // event handler for a geolocation update: update our last-known location, then do more calculations regarding it
@@ -286,9 +293,14 @@ $(window).load(function () {
             }
         }
 
+        // @TODO: Let's identify all such lists and see if there's a cleaner way.
+        //
         // sort any visible distance-sorted lists
         sortLists();
 
+        // @TODO: Why do we do this again when opening the panel?
+        // @TODO: Also, should this be mobile only?
+        //
         // adjust the Near You Now listing
         updateNearYouNow();
 
@@ -301,6 +313,7 @@ $(window).load(function () {
             checkRadar(event.latlng,meters,categories);
         }
 
+        // @TODO: Is this working?
         // update the GPS coordinates readout in the Settings panel
         var lat = event.latlng.lat;
         var lng = event.latlng.lng;
@@ -351,26 +364,12 @@ $(window).load(function () {
 
 
 
-
-///// on page load: the ENABLE_MAPCLICK hack applied to the bottom button bar
-///// so that a too-long tap won't hit the Directions button a moment later
-///// To see it: disable this function, search for a Loop which has lengthy content,
-///// placing the Show On Map button in the same area of the screen as the button bar
-///// after tapping it, the map will open but then the button under your finger will be clicked
-$(window).load(function () {
-    $('#toolbar a.button').click(function () {
-        if (! ENABLE_MAPCLICK) return false;
-    });
-});
-
-
-
 ///// on page load: enable some event handlers for the Keyword Search subsystem
 $(window).load(function () {
     // the Keyword Search text search in the Browse panel, is just a shell over the one in #search
     $('#browse_keyword_button').tap(function () {
         // change over to the Search page
-        $.mobile.changePage('#page-search');
+        $.mobile.changePage('#pane-search');
 
         // fill in the Search keyword and click the button to do the search (if any)
         // it's up to #search_keyword to detect it being blank
@@ -410,7 +409,8 @@ $(window).load(function () {
 // this is a significant exception to the sortLists() system, as we need to do the distance and sorting BEFORE rendering, an unusual case
 function updateNearYouNow() {
     // render the Radar page, in case it hasn't happened yet
-    $('#page-radar').page();
+    //$('#pane-radar').page();
+
     var target = $('#alerts');
 
     // iterate over ALL_POIS and calculate their distance from our last known location
@@ -445,10 +445,11 @@ function updateNearYouNow() {
         li.attr('lat', poi.lat).attr('lng', poi.lng);
 
         var div = $('<div></div>').addClass('ui-btn-text');
-        div.append( $('<span></span>').addClass('ui-li-heading').text(poi.title) );
-        div.append( $('<span></span>').addClass('ui-li-desc').text(poi.categories) );
+        div.append( $('<h2></h2>').text(poi.title) );
+        div.append( $('<p></p>').text(poi.categories) );
         div.append( $('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text(poi.range + ' ' + poi.bearing) );
 
+        // On click, call zoomElementClick() to center the map, load More Info, etc.
         li.tap(function () {
             zoomElementClick( $(this) );
         });
@@ -551,12 +552,12 @@ $(window).load(function () {
 // this varies between mobile and desktop, but since they're named the same it forms a common interface
 function showPhoto(url) {
     $('#photo').prop('src',url);
-    $.mobile.changePage('#page-photo');
+    $.mobile.changePage('#pane-photo');
 }
 
 function showElevation(url) {
     $('#elevation').prop('src',url);
-    $.mobile.changePage('#page-elevationprofile');
+    $.mobile.changePage('#pane-elevationprofile');
 }
 
 
@@ -577,11 +578,11 @@ function searchByKeyword(keyword) {
     target.empty();
 
     disableKeywordButton();
-    $('#page-search .sortpicker').hide();
+    $('#pane-search .sortpicker').hide();
 
     $.get('../ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
         enableKeywordButton();
-        $('#page-search .sortpicker').show();
+        $('#pane-search .sortpicker').show();
 
         if (! reply.length) {
             // no matches, means we say so ... and that we pass on to an address search
@@ -597,7 +598,7 @@ function searchByKeyword(keyword) {
             var distance = $('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text('0 mi');
             var div      = $('<div></div>').addClass('ui-btn-text').append(title).append(subtitle).append(distance);
             var li       = $('<li></li>').addClass('zoom').addClass('ui-li-has-count').append(div);
-            li.attr('backbutton','#page-browse');
+            li.attr('backbutton','#pane-browse');
             li.attr('w', result.w);
             li.attr('s', result.s);
             li.attr('e', result.e);
@@ -609,7 +610,10 @@ function searchByKeyword(keyword) {
             li.attr('title',result.name);
             target.append(li);
 
-            li.tap(function () { zoomElementClick( $(this) ); });
+            // On click, call zoomElementClick() to center the map, load More Info, etc.
+            li.tap(function () {
+                zoomElementClick( $(this) );
+            });
         }
 
         // finally, have jQuery Mobile do its magic, then trigger distance calculation and sorting
@@ -618,10 +622,15 @@ function searchByKeyword(keyword) {
     }, 'json');
 }
 
-
-
-///// common interface: given a .zoom element with lon, lat, WSEN, type, gid,
-///// fetch info about it and show it in a panel
+/**
+ * zoomElementClick
+ * 
+ * common interface: given a .zoom element with lon, lat, WSEN, type, gid,
+ * fetch info about it and show it in a panel
+ *
+ * @TODO: Get this working
+ *
+ */
 function zoomElementClick(element) {
     // are we ignoring clicks? if so, then never mind; if not, then proceed but ignore clicks for a moment
     // this attempts to work around slow fingers sending multiple touches,
@@ -636,19 +645,20 @@ function zoomElementClick(element) {
     // and to the getdirections form so we can route to it
     // and so the pagechange event handler can see that we really do have a target
     $('#show_on_map').data('zoomelement', element );
+
     $('#directions_target_lat').val( element.attr('lat') );
     $('#directions_target_lng').val( element.attr('lng') );
     $('#directions_target_type').val( element.attr('type') );
     $('#directions_target_gid').val( element.attr('gid') );
     $('#directions_target_title').text( element.attr('title') );
 
-    // change to the info page
-    $.mobile.changePage('#page-info');
+    // Change to the Info pane
+    sidebar.open('pane-info');
 
     // correct the Back button to go to the URL specified in the element, or else to the map
     var backurl = element.attr('backbutton');
-    if (! backurl) backurl = '#page-browse';
-    $('#page-info .ui-header .ui-btn-left').prop('href', backurl);
+    if (! backurl) backurl = '#pane-browse';
+    $('#pane-info .sidebar-back').prop('href', backurl);
 
     // now that we have a location defined, enable the Get Directions
     $('#getdirections_disabled').hide();
@@ -747,50 +757,50 @@ $(window).load(function () {
         $('#directions_via').val('hike');
         $('#directions_via').trigger('change');
         // update that selector: render the page if it's not already been visited, then restyle the selector so it shows the value it has
-        $('#page-getdirections').page();
+        $('#pane-getdirections').page();
         $('#directions_via').selectmenu("refresh");
         // and change to the Get Directions panel
-        $.mobile.changePage('#page-getdirections');
+        $.mobile.changePage('#pane-getdirections');
     });
     $('#directions_bike').tap(function () {
         // set the directions type
         $('#directions_via').val('bike');
         $('#directions_via').trigger('change');
         // update that selector: render the page if it's not already been visited, then restyle the selector so it shows the value it has
-        $('#page-getdirections').page();
+        $('#pane-getdirections').page();
         $('#directions_via').selectmenu("refresh");
         // and change to the Get Directions panel
-        $.mobile.changePage('#page-getdirections');
+        $.mobile.changePage('#pane-getdirections');
     });
     $('#directions_bridle').tap(function () {
         // set the directions type
         $('#directions_via').val('bridle');
         $('#directions_via').trigger('change');
         // update that selector: render the page if it's not already been visited, then restyle the selector so it shows the value it has
-        $('#page-getdirections').page();
+        $('#pane-getdirections').page();
         $('#directions_via').selectmenu("refresh");
         // and change to the Get Directions panel
-        $.mobile.changePage('#page-getdirections');
+        $.mobile.changePage('#pane-getdirections');
     });
     $('#directions_car').tap(function () {
         // set the directions type
         $('#directions_via').val('car');
         $('#directions_via').trigger('change');
         // update that selector: render the page if it's not already been visited, then restyle the selector so it shows the value it has
-        $('#page-getdirections').page();
+        $('#pane-getdirections').page();
         $('#directions_via').selectmenu("refresh");
         // and change to the Get Directions panel
-        $.mobile.changePage('#page-getdirections');
+        $.mobile.changePage('#pane-getdirections');
     });
     $('#directions_bus').tap(function () {
         // set the directions type
         $('#directions_via').val('bus');
         $('#directions_via').trigger('change');
         // update that selector: render the page if it's not already been visited, then restyle the selector so it shows the value it has
-        $('#page-getdirections').page();
+        $('#pane-getdirections').page();
         $('#directions_via').selectmenu("refresh");
         // and change to the Get Directions panel
-        $.mobile.changePage('#page-getdirections');
+        $.mobile.changePage('#pane-getdirections');
     });
 
     // the directions-type picker (GPS, address, POI, etc) mostly shows and hides elements
@@ -824,7 +834,7 @@ $(window).load(function () {
 
     // this button changes over to the Find subpage, so they can pick a destination
     $('#change_directions_target2').tap(function () {
-        $.mobile.changePage('#page-browse');
+        $.mobile.changePage('#pane-browse');
 
         // if they clicked this button, it means that they will be looking for a place,
         // with the specific purpose of getting Directions there
@@ -849,9 +859,9 @@ $(window).load(function () {
 ///// event handlers for the Loops listing and filtering
 ///// See also filterLoops() below
 $(window).load(function () {
-    // the event handlers below are for the sliders and textboxes within #page-loops,
+    // the event handlers below are for the sliders and textboxes within #pane-loops,
     // so trigger a DOM rendering of the page now so the elements exist
-    $('#page-loops-search').page();
+    $('#pane-loops-search').page();
 
     // the #loops_filter_type selector is invisible, and we have a set of icons to set its value when they're clicked
     $('#loops_typeicons img').tap(function () {
@@ -1010,7 +1020,7 @@ function filterLoops() {
             var result = results[i];
 
             var li = $('<li></li>').addClass('zoom').addClass('ui-li-has-count');
-            li.attr('backbutton', '#page-loops-search');
+            li.attr('backbutton', '#pane-loops-search');
             li.attr('type','loop');
             li.attr('title', result.title);
             li.attr('gid', result.gid);
@@ -1034,7 +1044,7 @@ function filterLoops() {
         }
 
         // sort it by distance and have jQuery Mobile refresh it
-        $('#page-loops-search .sortpicker').show();
+        $('#pane-loops-search .sortpicker').show();
         target.listview('refresh');
         sortLists(target);
     }, 'json');
@@ -1087,6 +1097,8 @@ function sortLists(target) {
             });
             break;
     }
+    // @TODO: re-set .ui-last-child on appropriate element
+    // (because we're getting last-element styling on non-last elements)
 }
 
 function is_ios() {

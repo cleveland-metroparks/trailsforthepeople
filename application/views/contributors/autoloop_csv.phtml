@@ -1,24 +1,27 @@
-<?php $this->load->view('contributors/header.phtml') ?>
+<?php $this->page_title = 'Autoloop CSV'; ?>
 
-<form method="POST" action="<?= ssl_current_url() ?>" enctype="multipart/form-data" id="upload">
+<p>Upload a CSV file containing the coordinates of trailheads, and let Autoloop generate loops for you. For each point listed, loops will be generated at various (approximated) lengths and for each trail use type (hike, bridle, advanced bike).</p>
 
-<p>
-    Upload a CSV file containing the coordinates of trailheads, and let Autoloop generate loops for you. For each point listed, loops will be generated at various (approximated) lengths and for each trail use type (hike, bridle, advanced bike).
-</p>
+<div class="well">
+    <h4>CSV Format</h4>
+    <ul>
+        <li>The CSV file must have 3 columns, ordered: <em>Name, Lat, Lon</em>.</li>
+        <li>There must be no header/title row. The very first row is a name &amp; coordinates line.</li>
+    </ul>
+</div>
 
-<ul>
-    <li>The CSV file must have 3 columns, and they must be in this order: Name, Lat, Lon.</li>
-    <li>There must be no header/title row. The very first row is a name & coordinates line.</li>
-</ul>
+<form class="" method="POST" action="<?= ssl_current_url() ?>" enctype="multipart/form-data" id="upload">
 
+<div class="col-sm-6">
 
-<p>
-    <input type="file" name="csv" size="75"/>
-</p>
+<fieldset class="form-group">
+    <label class="control-label">Upload CSV:</label>
+    <input class="form-control" type="file" name="csv" size="75"/>
+</fieldset>
 
-<p>
-    <input type="submit" value="Upload" />
-</p>
+<input type="submit" value="Upload" class="btn btn-primary" />
+
+</div>
 
 </form>
 
@@ -36,5 +39,3 @@ $(window).load(function () {
     });
 });
 </script>
-
-<?php $this->load->view('contributors/footer.phtml') ?>
