@@ -93,7 +93,7 @@ if (! jQuery.fn.tap ) {
 // on page load: start the map
 function initMap () {
     // in mobile mode, render the Settings panel because we may need to check checkboxes in it
-    if (MOBILE) $('#page-settings').page();
+    if (MOBILE) $('#pane-settings').page();
 
     // URL param: the base map; defaults to the (Mapbox) map tiles
     var base = URL_PARAMS.param('base');
@@ -234,7 +234,7 @@ function initMap () {
         var tofrom    = 'to';
 
         // toggle the directions panel so it shows directions instead of Select A Destination
-        if (MOBILE) $('#page-getdirections').page();
+        if (MOBILE) $('#pane-getdirections').page();
         $('#getdirections_disabled').hide();
         $('#getdirections_enabled').show();
 
@@ -877,7 +877,7 @@ function renderDirectionsStructure(directions,target,options) {
     // for the bounding box, we save the bbox LatLngBounds into DIRECTIONS_LINE
     // because on Mobile, zooming the map now is an error and the map must be zoomed later, using the DIRECTIONS_LINE global
     DIRECTIONS_LINE.extent = WSENtoBounds(directions.bounds.west,directions.bounds.south,directions.bounds.east,directions.bounds.north);
-    if (! MOBILE || $.mobile.activePage.prop('id') == 'page-map') {
+    if (! MOBILE || $.mobile.activePage.prop('id') == 'pane-map') {
         var bbox = DIRECTIONS_LINE.extent.pad(0.15);
         MAP.fitBounds(bbox);
     }
@@ -936,7 +936,7 @@ function renderDirectionsStructure(directions,target,options) {
         shareroute.click(function () {
             updateShareUrlByDirections();
             if (MOBILE) {
-                $.mobile.changePage('#page-share');
+                $.mobile.changePage('#pane-share');
             } else {
                 $('.dialog').dialog('close');
                 $('#share').dialog('open');
@@ -1434,7 +1434,7 @@ function loadTwitter() {
 ///// these used to be identical but then they diverged so desktop has these clicky icons, while mobile is still a selector (for now)
 /////
 $(window).load(function () {
-    if (MOBILE) $('#page-trailfinder').page();
+    if (MOBILE) $('#pane-trailfinder').page();
 
     // the icons for the trail type, trigger the underlying checkboxes so we're still using real form elements
     $('#trailfinder_typeicons img').tap(function () {
@@ -1490,7 +1490,7 @@ function searchTrails(params) {
     // disable the Search button
     var button = $('#trailfinder_go');
     if (MOBILE) {
-        $('#page-trailfinder .sortpicker').hide();
+        $('#pane-trailfinder .sortpicker').hide();
         button.button('disable');
         button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
     }
@@ -1503,7 +1503,7 @@ function searchTrails(params) {
     $.get('../ajax/search_trails', params, function (results) {
         // re-enable the Search button
         if (MOBILE) {
-            $('#page-trailfinder .sortpicker').show();
+            $('#pane-trailfinder .sortpicker').show();
             button.button('enable');
             button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
         }
@@ -1520,7 +1520,7 @@ function searchTrails(params) {
                 var li = $('<li></li>').addClass('zoom');
                 li.attr('title', result.name );
                 li.attr('gid',result.gid).attr('type',result.type).attr('w',result.w).attr('s',result.s).attr('e',result.e).attr('n',result.n).attr('lat',result.lat).attr('lng',result.lng);
-                li.attr('backbutton', '#page-trailfinder'); // used by Mobile only, but not harmful on Desktop
+                li.attr('backbutton', '#pane-trailfinder'); // used by Mobile only, but not harmful on Desktop
 
                 // and the DIV with SPANs for styling substitles, etc.
                 var div = $('<div></div>').addClass('ui-btn-text');
@@ -1644,8 +1644,8 @@ function updateShareUrlByDirections() {
 
 $(window).load(function () {
     if (MOBILE) {
-        $('#page-settings').page();
-        $('#page-welcome').page();
+        $('#pane-settings').page();
+        $('#pane-welcome').page();
     }
 
     // in the Settings panel, check or uncheck the Show Welcome box to match the cookie
