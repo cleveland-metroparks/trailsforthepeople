@@ -167,6 +167,19 @@ div.ui-slider {
     vertical-align:middle;
 }
 
+/**
+ * Misc element styles
+ */
+ul.nobull {
+    list-style-type: none;
+    padding: 0;
+}
+
+.small-light {
+    color: $grey_medium;
+    font-size: 90%;
+}
+
 
 /*
  * The Share panel and Settings panels have elements that need to appear as read-only text
@@ -232,7 +245,6 @@ div.elevationprofileimage img {
 
 /*-----------------------------------------------------------------------------------------------------------*/
 
-#info-content,
 .description {
     padding: 0 20px;
 }
@@ -330,5 +342,14 @@ div.elevationprofileimage img {
 #pane-credits {
     .disclaimer {
         font-size: 90%;
+    }
+}
+
+//
+// Sidebar Pane: Info
+//
+#pane-info {
+    .info-directions {
+        margin-top: 1em;
     }
 }
