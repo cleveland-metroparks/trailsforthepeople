@@ -1459,9 +1459,14 @@ $(window).load(function () {
         $('#trailfinder_go').click();
     }).first().tap();
 
+
+    /**
+     * On clicking "Search" in Trail Finder
+     *
+     * Build Search params from the form, for passing to searchTrails() --
+     * most notably the difficulty checkboxes, and making sure at least one is checked.
+     */
     $('#trailfinder_go').click(function () {
-        // compile the params from the form for passing to searchTrails()
-        // most notably the difficulty checkboxes, and making sure at least one is checked
         var params = {};
         params.reservation = $('select[name="trailfinder_reservation"]').val();
         params.paved       = $('select[name="trailfinder_paved"]').val();
@@ -1482,6 +1487,9 @@ $(window).load(function () {
     $('select[name="trailfinder_paved"]').change(function () { $('#trailfinder_go').click(); });
 });
 
+/**
+ * "Search" functionality in Trail Finder
+ */
 function searchTrails(params) {
     // clear out any old search results
     var target = $('#trailfinder_results');
@@ -1515,32 +1523,53 @@ function searchTrails(params) {
         // iterate over the results and add them to the output
         if (results.length) {
             for (var i=0, l=results.length; i<l; i++) {
-                // initialize the result's LI entry; a whole lot of attributes to set pertaining to .zoom handling
+
                 var result = results[i];
+
+                // List item
+                // A lot of attributes to set pertaining to .zoom handling
                 var li = $('<li></li>').addClass('zoom');
                 li.attr('title', result.name );
                 li.attr('gid',result.gid).attr('type',result.type).attr('w',result.w).attr('s',result.s).attr('e',result.e).attr('n',result.n).attr('lat',result.lat).attr('lng',result.lng);
-                li.attr('backbutton', '#pane-trailfinder'); // used by Mobile only, but not harmful on Desktop
+                li.attr('backbutton', '#pane-trailfinder');
 
-                // and the DIV with SPANs for styling substitles, etc.
-                var div = $('<div></div>').addClass('ui-btn-text');
-                div.append( $('<span></span>').addClass('ui-li-heading').text(result.name) );
+                // Link    
+                link = $('<a></a>');
+                link.attr('class', 'ui-btn ui-btn-text');
+                link.attr('href', 'javascript:zoomElementClick(this)');
+                li.append(link);
+
+                // Inner spans for text
+                link.append(
+                    $('<h4></h4>')
+                        .addClass('ui-li-heading')
+                        .text(result.name)
+                );
                 if (result.note) {
-                    div.append( $('<span></span>').addClass('ui-li-desc').html(result.note) );
+                    link.append(
+                        $('<span></span>')
+                            .addClass('ui-li-desc')
+                            .html(result.note)
+                    );
                 }
-
-                // if this is Mobile mode, add some distance placeholders
-                if (MOBILE) {
-                    div.append( $('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text('0 mi') );
-                }
+    
+                // Add the placeholder for distance readout, to be sorted later
+                link.append(
+                    $('<span></span>')
+                        .addClass('zoom_distance')
+                        .addClass('ui-li-count')
+                        .addClass('ui-btn-up-c')
+                        .addClass('ui-btn-corner-all')
+                        .text('0 mi')
+                );
 
                // the click handler is to call zoomElementClick(element), which will center the map, load More Info content, etc.
-                li.click(function () {
+                li.tap(function () {
                     zoomElementClick( $(this) );
                 });
 
                 // ready, add it to the list!
-                li.append(div);
+                li.append(link);
                 target.append(li);
             }
         } else {

@@ -272,6 +272,17 @@ div.elevationprofileimage img {
         color: white;
         font-weight: normal;
     }
+    .distance_sortable {
+        a.ui-btn {
+            padding-right: 60px;
+            h4.ui-li-heading {
+                margin-top: 0;
+            }
+            .ui-li-desc {
+                font-weight: normal;
+            }
+        }
+    }
 }
 
 /*-----------------------------------------------------------------------------------------------------------*/
