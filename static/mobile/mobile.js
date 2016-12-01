@@ -64,6 +64,14 @@ $(document).ready(function () {
     });
 
     /*
+     * Trail-finder pane (#pane-trailfinder)
+     */
+    $('a.sidebar-pane-link[href="#pane-trailfinder"]').click(function() {
+        // On opening the Trailfinder pane, trigger the search (list update).
+        trailfinderUpdate();
+    });
+
+    /*
      * Find pane (#pane-browse)
      */
     $('#pane-browse li a').click(function() {
@@ -1057,6 +1065,7 @@ function filterLoops() {
 // this ended up being so common a design pattern, putting it here saves a lot of repeat
 // look for the magic tag ul.distance_sortable and populate the .zoom_distance boxes within it, then sort the ul.distance_sortable
 function sortLists(target) {
+    console.log('sortLists');
     // if no target was specified, get the first (only) ul.distance_sortable on the currently visible page
     // if there isn't one there, bail
     if (! target) {

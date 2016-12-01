@@ -1455,37 +1455,48 @@ $(window).load(function () {
             $(this).prop('src', src);
         });
 
-        // then click the GO button to submit the search for them
-        $('#trailfinder_go').click();
+        // Update the listing.
+        trailfinderUpdate();
+
     }).first().tap();
 
-
-    /**
-     * On clicking "Search" in Trail Finder
-     *
-     * Build Search params from the form, for passing to searchTrails() --
-     * most notably the difficulty checkboxes, and making sure at least one is checked.
-     */
+    // The "Search" button on the Trail Finder pane.
+    // We've removed this button from the Trail Finder pane, but it's still on
+    // views/finder/trail.phtml
     $('#trailfinder_go').click(function () {
-        var params = {};
-        params.reservation = $('select[name="trailfinder_reservation"]').val();
-        params.paved       = $('select[name="trailfinder_paved"]').val();
-
-        // this is a list of selected trail uses, now only 1 will be checked but it was made to accept a list and that will likely become the case again in the future
-        params.uses = [];
-        $('input[name="trailfinder_uses"]:checked').each(function () {
-            params.uses[params.uses.length] = $(this).val();
-        });
-        params.uses = params.uses.join(",");
-
-        // pass it to the search called
-        searchTrails(params);
+        trailfinderUpdate();
     });
 
-    // when the selectors change, click the GO button so they don't have to
-    $('select[name="trailfinder_reservation"]').change(function () { $('#trailfinder_go').click(); });
-    $('select[name="trailfinder_paved"]').change(function () { $('#trailfinder_go').click(); });
+    // When the selectors change, trigger a list update
+    $('select[name="trailfinder_reservation"]').change(function () {
+        trailfinderUpdate();
+    });
+    $('select[name="trailfinder_paved"]').change(function () {
+        trailfinderUpdate();
+    });
 });
+
+/**
+ * Trail Finder Search/Update
+ *
+ * Build Search params from the form, for passing to searchTrails() --
+ * most notably the difficulty checkboxes, and making sure at least one is checked.
+ */
+function trailfinderUpdate() {
+    var params = {};
+    params.reservation = $('select[name="trailfinder_reservation"]').val();
+    params.paved       = $('select[name="trailfinder_paved"]').val();
+
+    // this is a list of selected trail uses, now only 1 will be checked but it was made to accept a list and that will likely become the case again in the future
+    params.uses = [];
+    $('input[name="trailfinder_uses"]:checked').each(function () {
+        params.uses[params.uses.length] = $(this).val();
+    });
+    params.uses = params.uses.join(",");
+
+    // pass it to the search called
+    searchTrails(params);
+}
 
 /**
  * "Search" functionality in Trail Finder
@@ -1495,30 +1506,8 @@ function searchTrails(params) {
     var target = $('#trailfinder_results');
     target.empty();
 
-    // disable the Search button
-    var button = $('#trailfinder_go');
-    if (MOBILE) {
-        $('#pane-trailfinder .sortpicker').hide();
-        button.button('disable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
-    }
-    else {
-        button.prop('disabled',true);
-        button.val( button.attr('value0') );
-    }
-
     // AJAX to fetch results, and render them as LIs with .zoom et cetera
     $.get('../ajax/search_trails', params, function (results) {
-        // re-enable the Search button
-        if (MOBILE) {
-            $('#pane-trailfinder .sortpicker').show();
-            button.button('enable');
-            button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
-        }
-        else {
-            button.prop('disabled',false);
-            button.val( button.attr('value1') );
-        }
 
         // iterate over the results and add them to the output
         if (results.length) {
