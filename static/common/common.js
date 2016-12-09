@@ -1434,7 +1434,7 @@ function loadTwitter() {
 ///// these used to be identical but then they diverged so desktop has these clicky icons, while mobile is still a selector (for now)
 /////
 $(window).load(function () {
-    if (MOBILE) $('#pane-trailfinder').page();
+    //if (MOBILE) $('#pane-trailfinder').page();
 
     // the icons for the trail type, trigger the underlying checkboxes so we're still using real form elements
     $('#trailfinder_typeicons img').tap(function () {
@@ -1458,7 +1458,8 @@ $(window).load(function () {
         // Update the listing.
         trailfinderUpdate();
 
-    }).first().tap();
+    //}).first().tap();
+    });
 
     // The "Search" button on the Trail Finder pane.
     // We've removed this button from the Trail Finder pane, but it's still on

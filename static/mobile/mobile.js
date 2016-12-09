@@ -69,6 +69,7 @@ $(document).ready(function () {
     $('a.sidebar-pane-link[href="#pane-trailfinder"]').click(function() {
         // On opening the Trailfinder pane, trigger the search (list update).
         trailfinderUpdate();
+        $('#pane-trailfinder .sortpicker').show();
     });
 
     /*
@@ -88,6 +89,7 @@ $(document).ready(function () {
     /*
      * Find POIs pane (#pane-browse-pois-activity)
      */
+    // When POI Item clicked:
     $('#pane-browse-pois-activity li a').click(function() {
         var category = this.hash.replace( /.*category=/, "" );
 
@@ -201,7 +203,7 @@ $(document).ready(function () {
 // mobile-specific: on any page change, after the changeover,
 // update the distance readouts in any ul.dstance_sortable which was just now made visible
 $(document).bind('pagechange', function(e,data) {
-    sortLists();
+    //sortLists();
 });
 
 
@@ -304,7 +306,7 @@ $(window).load(function () {
         // @TODO: Let's identify all such lists and see if there's a cleaner way.
         //
         // sort any visible distance-sorted lists
-        sortLists();
+        //sortLists();
 
         // @TODO: Why do we do this again when opening the panel?
         // @TODO: Also, should this be mobile only?
@@ -914,7 +916,8 @@ $(window).load(function () {
 
         // ready, now trigger a search
         filterLoops();
-    }).first().tap();
+    //}).first().tap();
+    });
 
     // having set up the sliders 'change' handlers, trigger them now to set the displayed text
     $('#loops_filter_distance_min').change();
@@ -995,6 +998,9 @@ $(window).load(function () {
     });
 });
 
+/**
+ *
+ */
 function filterLoops() {
     $('#loops_list li').show();
 
@@ -1065,12 +1071,13 @@ function filterLoops() {
 // this ended up being so common a design pattern, putting it here saves a lot of repeat
 // look for the magic tag ul.distance_sortable and populate the .zoom_distance boxes within it, then sort the ul.distance_sortable
 function sortLists(target) {
-    console.log('sortLists');
     // if no target was specified, get the first (only) ul.distance_sortable on the currently visible page
     // if there isn't one there, bail
     if (! target) {
-        target = $(":jqmData(role='page'):visible ul.distance_sortable").eq(0);
-        if (! target.length) return;
+        target = $(".sidebar-pane.active ul.distance_sortable").eq(0);
+        if (! target.length) {
+            return;
+        }
     }
 
     // okay, so we have our target UL, find all .zoom_distance tags under it,
