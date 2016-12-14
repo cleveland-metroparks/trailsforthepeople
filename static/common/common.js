@@ -1519,22 +1519,38 @@ function searchTrails(params) {
                 // List item
                 // A lot of attributes to set pertaining to .zoom handling
                 var li = $('<li></li>').addClass('zoom');
-                li.attr('title', result.name );
-                li.attr('gid',result.gid).attr('type',result.type).attr('w',result.w).attr('s',result.s).attr('e',result.e).attr('n',result.n).attr('lat',result.lat).attr('lng',result.lng);
+
+                li.attr('title', result.name)
+                  .attr('gid',result.gid)
+                  .attr('type',result.type)
+                  .attr('w',result.w)
+                  .attr('s',result.s)
+                  .attr('e',result.e)
+                  .attr('n',result.n)
+                  .attr('lat',result.lat)
+                  .attr('lng',result.lng);
+
                 li.attr('backbutton', '#pane-trailfinder');
 
-                // Link    
+                // Link (fake, currently)
                 link = $('<a></a>');
                 link.attr('class', 'ui-btn ui-btn-text');
-                link.attr('href', 'javascript:zoomElementClick(this)');
+                //link.attr('href', 'javascript:zoomElementClick($(this)');
                 li.append(link);
 
-                // Inner spans for text
+                // Click handler: center the map and load More Info
+                li.click(function () {
+                    zoomElementClick( $(this) );
+                });
+
+                // Title
                 link.append(
                     $('<h4></h4>')
                         .addClass('ui-li-heading')
                         .text(result.name)
                 );
+
+                // Inner text
                 if (result.note) {
                     link.append(
                         $('<span></span>')
@@ -1543,7 +1559,7 @@ function searchTrails(params) {
                     );
                 }
     
-                // Add the placeholder for distance readout, to be sorted later
+                // Distance placeholder, to be populated later
                 link.append(
                     $('<span></span>')
                         .addClass('zoom_distance')
@@ -1553,12 +1569,7 @@ function searchTrails(params) {
                         .text('0 mi')
                 );
 
-               // the click handler is to call zoomElementClick(element), which will center the map, load More Info content, etc.
-                li.tap(function () {
-                    zoomElementClick( $(this) );
-                });
-
-                // ready, add it to the list!
+                // Add to the list
                 li.append(link);
                 target.append(li);
             }

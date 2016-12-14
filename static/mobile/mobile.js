@@ -127,18 +127,25 @@ $(document).ready(function () {
                 li.attr('gid',result.gid).attr('type',result.type).attr('w',result.w).attr('s',result.s).attr('e',result.e).attr('n',result.n).attr('lat',result.lat).attr('lng',result.lng);
                 li.attr('backbutton', backbuttonurl);
 
-                // Link    
+                // Link (fake, currently)
                 link = $('<a></a>');
                 link.attr('class', 'ui-btn ui-btn-text');
-                link.attr('href', 'javascript:zoomElementClick(this)');
+                //link.attr('href', 'javascript:zoomElementClick(this)');
                 li.append(link);
 
-                // Inner spans for text
+                // Click handler: center the map and load More Info
+                li.click(function () {
+                    zoomElementClick( $(this) );
+                });
+
+                // Title
                 link.append(
                     $('<span></span>')
                         .addClass('ui-li-heading')
                         .text(result.name)
                     );
+
+                // Inner text
                 if (result.note) {
                     link.append(
                         $('<span></span>')
@@ -147,7 +154,7 @@ $(document).ready(function () {
                         );
                 }
     
-                // add the placeholder for a distance readout, to be sorted later
+                // Distance placeholder, to be populated later
                 link.append(
                     $('<span></span>')
                         .addClass('zoom_distance')
@@ -157,12 +164,7 @@ $(document).ready(function () {
                         .text('0 mi')
                     );
     
-                // On click, call zoomElementClick() to center the map, load More Info, etc.
-                li.tap(function () {
-                    zoomElementClick( $(this) );
-                });
-    
-                // ready, add it to the list!
+                // Add to the list
                 li.append(link);
                 target.append(li);
             }
@@ -638,7 +640,7 @@ function searchByKeyword(keyword) {
  * common interface: given a .zoom element with lon, lat, WSEN, type, gid,
  * fetch info about it and show it in a panel
  *
- * @TODO: Get this working
+ * @TODO: Get the zoom working
  *
  */
 function zoomElementClick(element) {
@@ -999,7 +1001,7 @@ $(window).load(function () {
 });
 
 /**
- *
+ * Featured Routes list
  */
 function filterLoops() {
     $('#loops_list li').show();
@@ -1033,28 +1035,59 @@ function filterLoops() {
         for (var i=0, l=results.length; i<l; i++) {
             var result = results[i];
 
-            var li = $('<li></li>').addClass('zoom').addClass('ui-li-has-count');
+            var li = $('<li></li>')
+                .addClass('zoom')
+                .addClass('ui-li-has-count');
+
+            li.attr('title', result.title)
+                .attr('gid', result.gid)
+                .attr('type','loop')
+                .attr('w', result.w)
+                .attr('s', result.s)
+                .attr('e', result.e)
+                .attr('n', result.n)
+                .attr('lat', result.lat)
+                .attr('lng', result.lng);
+
             li.attr('backbutton', '#pane-loops-search');
-            li.attr('type','loop');
-            li.attr('title', result.title);
-            li.attr('gid', result.gid);
-            li.attr('w', result.w);
-            li.attr('s', result.s);
-            li.attr('e', result.e);
-            li.attr('n', result.n);
-            li.attr('lat', result.lat);
-            li.attr('lng', result.lng);
 
-            var div = $('<div></div>').addClass('ui-btn-text');
-            div.append( $('<span></span>').addClass('ui-li-heading').text(result.title) );
-            div.append( $('<span></span>').addClass('ui-li-desc').html(result.distance + ' &nbsp;&nbsp; ' + result.duration) );
-            div.append( $('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text('0 mi') );
+            // Link (fake, currently)
+            link = $('<a></a>');
+            link.attr('class', 'ui-btn ui-btn-text');
+            //link.attr('href', 'javascript:zoomElementClick(this)');
 
-            li.append(div);
-            target.append(li);
+            // Click handler: center the map and load More Info
+            li.click(function () {
+                zoomElementClick( $(this) );
+            });
+            li.append(link);
 
-            // enable click behavior: calls zoomElementClick() to bring up details
-            li.tap(function () { zoomElementClick( $(this) ); });
+            // Title
+            link.append(
+                $('<h4></h4>')
+                    .addClass('ui-li-heading')
+                    .text(result.title)
+            );
+            // Inner text
+            link.append(
+                $('<span></span>')
+                    .addClass('ui-li-desc')
+                    .html(result.distance + ' &nbsp;&nbsp; ' + result.duration)
+            );
+    
+            // Distance placeholder, to be populated later
+            link.append(
+                $('<span></span>')
+                    .addClass('zoom_distance')
+                    .addClass('ui-li-count')
+                    .addClass('ui-btn-up-c')
+                    .addClass('ui-btn-corner-all')
+                    .text('0 mi')
+            );
+
+            // Add to the list
+            li.append(link);
+            target.append(li);            
         }
 
         // sort it by distance and have jQuery Mobile refresh it
