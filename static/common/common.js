@@ -1538,7 +1538,7 @@ function searchTrails(params) {
                 //link.attr('href', 'javascript:zoomElementClick($(this)');
                 li.append(link);
 
-                // Click handler: center the map and load More Info
+                // On click, call zoomElementClick() to load more info
                 li.click(function () {
                     zoomElementClick( $(this) );
                 });

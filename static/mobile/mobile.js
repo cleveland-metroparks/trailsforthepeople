@@ -461,7 +461,7 @@ function updateNearYouNow() {
         div.append( $('<p></p>').text(poi.categories) );
         div.append( $('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text(poi.range + ' ' + poi.bearing) );
 
-        // On click, call zoomElementClick() to center the map, load More Info, etc.
+        // On click, call zoomElementClick() to load more info
         li.tap(function () {
             zoomElementClick( $(this) );
         });
@@ -622,7 +622,7 @@ function searchByKeyword(keyword) {
             li.attr('title',result.name);
             target.append(li);
 
-            // On click, call zoomElementClick() to center the map, load More Info, etc.
+            // On click, call zoomElementClick() to load more info
             li.tap(function () {
                 zoomElementClick( $(this) );
             });
@@ -639,9 +639,6 @@ function searchByKeyword(keyword) {
  * 
  * common interface: given a .zoom element with lon, lat, WSEN, type, gid,
  * fetch info about it and show it in a panel
- *
- * @TODO: Get the zoom working
- *
  */
 function zoomElementClick(element) {
     // are we ignoring clicks? if so, then never mind; if not, then proceed but ignore clicks for a moment
