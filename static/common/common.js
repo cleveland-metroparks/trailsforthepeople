@@ -1,3 +1,7 @@
+/**
+ * JavaScript code common to both Mobile and Desktop maps
+ */
+
 var MOBILE; // set in desktop.js and mobile.js, so we can work around some things in shared code
 
 var ICON_TARGET = L.icon({
@@ -46,7 +50,6 @@ var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; o
 
 var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
 
-///// JavaScript code common to both Mobile and Desktop maps
 
 
 // extend Leaflet: add to LatLng the ability to calculate the bearing to another LatLng
@@ -93,28 +96,30 @@ if (! jQuery.fn.tap ) {
 // on page load: start the map
 function initMap () {
     // in mobile mode, render the Settings panel because we may need to check checkboxes in it
-    if (MOBILE) $('#pane-settings').page();
+    //if (MOBILE) $('#pane-settings').page();
 
     // URL param: the base map; defaults to the (Mapbox) map tiles
     var base = URL_PARAMS.param('base');
-    if (! base) base = 'vector';
+    if (! base) base = 'map';
     var basemap; // which L.TileLayer instance to use?
     switch (base) {
         case 'photo':
             var checkbox = $('input[name="basemap"][value="photo"]').prop('checked',true);
             if (MOBILE) checkbox.checkboxradio('refresh');
             basemap = LAYER_MAPBOX_SAT;
+            basemap_style = STYLE_LAYER_CM_SAT;
             break;
         case 'map':
             var checkbox = $('input[name="basemap"][value="map"]').prop('checked',true);
             if (MOBILE) checkbox.checkboxradio('refresh');
             basemap = LAYER_MAPBOX_MAP;
+            basemap_style = STYLE_LAYER_CM_MAP;
             break;
-        case 'vector':
-            var checkbox = $('input[name="basemap"][value="vector"]').prop('checked',true);
-            if (MOBILE) checkbox.checkboxradio('refresh');
-            basemap = LAYER_MAPBOX_GL_MAP;
-            break;
+        //case 'vector':
+        //    var checkbox = $('input[name="basemap"][value="vector"]').prop('checked',true);
+        //    if (MOBILE) checkbox.checkboxradio('refresh');
+        //    //basemap = LAYER_MAPBOX_GL_MAP;
+        //    break;
         default:
             throw "Invalid basemap given?";
             break;
@@ -124,10 +129,13 @@ function initMap () {
     // do some detection of browser to find Android 4+ and override the animation settings, hoping to enable pinch-zoom without breaking the app entirely
     // this is specifically contraindicated by Leaflet's own feature detection
     var options = {
-        attributionControl: false, zoomControl: true, dragging: true,
+        attributionControl: false,
+        zoomControl: true,
+        dragging: true,
         closePopupOnClick: false,
         crs: L.CRS.EPSG3857,
-        minZoom: MIN_ZOOM, maxZoom: MAX_ZOOM,
+        minZoom: MIN_ZOOM,
+        maxZoom: MAX_ZOOM,
         layers : [ basemap ]
     };
     var android4 = navigator.userAgent.match(/Android (4|5)/);
@@ -137,9 +145,15 @@ function initMap () {
         options.markerZoomAnimation = true;
     }
 
-    MAP = new L.Map('map_canvas', options);
+    //MAP = new L.Map('map_canvas', options);
+    MAPGL = new mapboxgl.Map({
+        container: 'map_canvas',
+        style: STYLE_LAYER_CM_MAP,
+        center: [START_LON, START_LAT],
+        zoom: START_ZOOM
+    });
 
-    // zoom to the XYZ given in the URL, or else to the max extent
+    // Zoom to the XYZ given in the URL, or else to the max extent
     if (URL_PARAMS.param('x') && URL_PARAMS.param('y') && URL_PARAMS.param('z')) {
         var x = parseFloat( URL_PARAMS.param('x') );
         var y = parseFloat( URL_PARAMS.param('y') );
@@ -152,7 +166,7 @@ function initMap () {
         MAP.fitBounds(MAX_BOUNDS);
     }
 
-    // additional Controls
+    // Additional Controls
     L.control.scale().addTo(MAP);
 
     // debugging: when the viewport changes, log the current bbox and zoom
@@ -320,6 +334,17 @@ function selectBasemap(layer_key) {
             }
         }
     }
+}
+
+/**
+ * Enable the given base map layer.
+ * Mapbox GL JS version.
+ *
+ * @param layer_key: Must refer to the key of an available layer (in STYLE_LAYERS constant).
+ */
+function glSelectBasemap(layer_key) {
+    active_layer = STYLE_LAYERS[layer_key];
+    MAPGL.setStyle(active_layer);
 }
 
 
@@ -554,7 +579,7 @@ $(window).load(function () {
 $(window).load(function () {
     $('input[type="radio"][name="basemap"]').change(function () {
         var which = $(this).val();
-        selectBasemap(which);
+        glSelectBasemap(which);
     });
 });
 
@@ -1673,10 +1698,10 @@ function updateShareUrlByDirections() {
 /////
 
 $(window).load(function () {
-    if (MOBILE) {
-        $('#pane-settings').page();
-        $('#pane-welcome').page();
-    }
+    //if (MOBILE) {
+    //    $('#pane-settings').page();
+    //    $('#pane-welcome').page();
+    //}
 
     // in the Settings panel, check or uncheck the Show Welcome box to match the cookie
     var show_welcome = cookieGet('show_welcome');

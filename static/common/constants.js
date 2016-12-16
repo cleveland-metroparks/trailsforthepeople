@@ -65,23 +65,23 @@ var LAYER_MAPBOX_SAT = L.tileLayer(
 
 // Mapbox GL-Leaflet map tiles baselayer
 // Experimental GL+Leaflet binding - https://github.com/mapbox/mapbox-gl-leaflet
-var LAYER_MAPBOX_GL_MAP = L.mapboxGL({
-    accessToken: MAPBOX_TOKEN,
-    style: 'mapbox://styles/' + MAPBOX_MAP_URL_FRAG
-});
+//var LAYER_MAPBOX_GL_MAP_L = L.mapboxGL({
+//    accessToken: MAPBOX_TOKEN,
+//    style: 'mapbox://styles/' + MAPBOX_MAP_URL_FRAG
+//});
 
 const ALL_LAYERS = [
     LAYER_TILESTACHE_MAP,
     LAYER_TILESTACHE_SAT,
     LAYER_MAPBOX_MAP,
     LAYER_MAPBOX_SAT,
-    LAYER_MAPBOX_GL_MAP
+    //LAYER_MAPBOX_GL_MAP_L
 ];
 
 const AVAILABLE_LAYERS = {
     'map' : LAYER_MAPBOX_MAP,
     'photo' : LAYER_MAPBOX_SAT,
-    'vector' : LAYER_MAPBOX_GL_MAP
+    //'vector' : LAYER_MAPBOX_GL_MAP_L
 };
 
 /* to add route debugging into the map as it is running, paste this into the JavaScript console */
@@ -89,3 +89,22 @@ const AVAILABLE_LAYERS = {
 var routedebug = L.tileLayer.wms("http://maps1.clemetparks.com/wms", { layers:'cm:routing_barriers,cm:routing_segments,cm:routing_nodes,cm:route_problem_intersections', format:'image/png', transparent:'TRUE' });
 MAP.addLayer(routedebug);
 */
+
+START_LAT = 41.3953;
+START_LON = -81.6730;
+START_ZOOM = 14;
+
+/**
+ * Mapbox GL JS
+ */
+mapboxgl.accessToken = MAPBOX_TOKEN;
+
+STYLE_LAYER_CM_MAP = 'mapbox://styles/' + MAPBOX_MAP_URL_FRAG;
+STYLE_LAYER_CM_SAT = 'mapbox://styles/' + MAPBOX_SAT_URL_FRAG;
+
+const STYLE_LAYERS = {
+    'map' : STYLE_LAYER_CM_MAP,
+    'photo' : STYLE_LAYER_CM_SAT
+};
+
+var MAPGL = null;
