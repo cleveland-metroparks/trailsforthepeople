@@ -164,6 +164,7 @@ function initMap () {
         MARKER_TARGET.setLatLng(L.latLng(y,x));
     } else {
         MAP.fitBounds(MAX_BOUNDS);
+        MAPGL.fitBounds(MAX_BOUNDS_GL);
     }
 
     // Additional Controls
@@ -553,9 +554,14 @@ $(window).load(function () {
             var wkt  = $(this).data('wkt');
             switchToMap(function () {
                 // zoom the map into the stated bbox
-                var bounds = L.latLngBounds( L.latLng(s,w) , L.latLng(n,e) );
-                bounds = bounds.pad(0.15);
-                MAP.fitBounds(bounds);
+                //var bounds = L.latLngBounds( L.latLng(s,w) , L.latLng(n,e) );
+                //bounds = bounds.pad(0.15);
+                //MAP.fitBounds(bounds);
+                var glBounds = [[s, w], [n, e]];
+                var glBoundsOptions = {
+                    padding: 0.15
+                };
+                MAPGL.fitBounds(glBounds, glBoundsOptions);
 
                 // lay down a marker if this is a point feature
                 if (type == 'poi' || type == 'loop') placeTargetMarker(y,x);

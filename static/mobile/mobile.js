@@ -301,7 +301,8 @@ $(window).load(function () {
                 MAP.panTo(event.latlng);
                 if (MAP.getZoom() < 12) MAP.setZoom(16);
             } else {
-                MAP.fitBounds(MAX_BOUNDS);
+                //MAP.fitBounds(MAX_BOUNDS);
+                MAPGL.fitBounds(MAX_BOUNDS_GL);
             }
         }
 

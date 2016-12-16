@@ -6,9 +6,17 @@ var MAP = null;
 
 // the bounding box of the mappable area, for setting the initial view
 // and potentially for restricting the map from zooming away (not enforced)
-var BBOX_SOUTHWEST = L.latLng(41.11816, -82.08504);
-var BBOX_NORTHEAST = L.latLng(41.70009, -81.28029);
+MAX_BOUND_SOUTH = 41.11816;
+MAX_BOUND_WEST = -82.08504;
+MAX_BOUND_NORTH = 41.70009;
+MAX_BOUND_EAST = -81.28029;
+
+var BBOX_SOUTHWEST = L.latLng(MAX_BOUND_SOUTH, MAX_BOUND_WEST);
+var BBOX_NORTHEAST = L.latLng(MAX_BOUND_NORTH, MAX_BOUND_EAST);
+
 var MAX_BOUNDS = L.latLngBounds(BBOX_SOUTHWEST,BBOX_NORTHEAST);
+
+var MAX_BOUNDS_GL = [[MAX_BOUND_SOUTH, MAX_BOUND_WEST], [MAX_BOUND_NORTH, MAX_BOUND_EAST]];
 
 // the min and max zoom level: min (low) is further out and max (high) is further in
 // level 11 covers the Cleveland region at full desktop size, level 18 is street level
