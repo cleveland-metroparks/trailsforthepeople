@@ -1,12 +1,11 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 class Mobile extends CI_Controller {
 
-// index is the landing page; it sends them to a Mobile-or-Desktop picker page
-function index() {
-    return redirect(site_url('browserdetect/'));
-}
 
-function map() {
+/**
+ *
+ */
+function index() {
     $data = array();
 
     // very little data loaded here: mostly it's later on in AJAX handlers,
@@ -43,13 +42,28 @@ function map() {
         'Play Areas' => 'play.png',
         'Restroom' => 'restroom.png',
         'Sledding & Tobogganing' => 'sled.png',
-	'Snowshoeing' => 'sled.png',
+	    'Snowshoeing' => 'sled.png',
         'Swimming' => 'swim.png',
         'Viewing Wildlife' => 'wildlife.png',
     );
 
     // ready!
     $this->load->view('mobile/mobile.phtml',$data);
+}
+
+/**
+ * Allow for URLs from old "mobile/map" scheme.
+ */
+function map() {
+    return redirect(site_url('/'));
+}
+
+/**
+ * Short URLs.
+ */
+function url($shorturl="") {
+    $qstring = Shorturl::fetch_url($shorturl);
+    return header("Location: " . site_url($qstring) );
 }
 
 }

@@ -12,7 +12,7 @@ function index() {
 
     // Removing Desktop version and moving to single responsive version only.
     //redirect( $this->agent->is_mobile() ? site_url('mobile/map') : site_url('desktop/map') );
-    redirect(site_url('mobile/map'));
+    redirect(site_url('map'));
 
     /*
     if ($this->agent->is_mobile()) {

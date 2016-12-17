@@ -38,13 +38,18 @@
 |
 */
 
-$route['default_controller'] = "browserdetect";
+$route['default_controller'] = "mobile";
 
 $route['404_override'] = '';
 
-// Short URLs
-// Remap anything starting with "url/"
-$route['url/(:any)'] = "browserdetect/url/$1";
+// We're phasing out separate mobile & desktop versions.
+// Eventually we'll replace both those controllers with a single "map" controller.
+// For now let's provide for "/map" as the main URL by routing to "mobile".
+$route['map'] = "mobile";
+$route['map/(:any)'] = "mobile/$1";
+
+// Remap our "Short URLs" that start with "url/"
+$route['url/(:any)'] = "mobile/url/$1";
 
 // Marker management
 $route['contributors/marker/(:num)'] = "contributors/marker_edit/$1";

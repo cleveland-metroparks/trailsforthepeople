@@ -3,7 +3,7 @@ class Desktop extends CI_Controller {
 
 // index is the landing page; it sends them to a Mobile-or-Desktop picker page
 function index() {
-    return redirect(site_url('browserdetect/'));
+    return redirect(site_url('map'));
 }
 
 function map() {
@@ -53,8 +53,12 @@ function fetch_loops() {
         $output[] = array(
             'name' => $loop->name,
             'id' => (integer) $loop->id,
-            'boxw' => (float) $loop->boxw, 'boxs' => (float) $loop->boxs, 'boxe' => (float) $loop->boxe, 'boxn' => (float) $loop->boxn,
-            'lat' => (float) $loop->lat, 'lng' => (float) $loop->lng,
+            'boxw' => (float) $loop->boxw,
+            'boxs' => (float) $loop->boxs,
+            'boxe' => (float) $loop->boxe,
+            'boxn' => (float) $loop->boxn,
+            'lat' => (float) $loop->lat,
+            'lng' => (float) $loop->lng,
             'hike' => $loop->hike,
             'bike' => $loop->bike,
             'bridle' => $loop->bridle,
