@@ -268,8 +268,10 @@ function switchToMap(callback) {
 }
 
 
-
-// on page load: load the MAP, then add a geolocation callback to center the map
+/**
+ * On page load
+ * Load the MAP, then add a geolocation callback to center the map
+ */
 $(window).load(function () {
     // load up the URL params before the map, as we may need them to configure the map
     URL_PARAMS = $.url();
@@ -417,8 +419,14 @@ $(window).load(function () {
 });
 
 
-// update the Near You Now listing from ALL_POIS; called on a location update
-// this is a significant exception to the sortLists() system, as we need to do the distance and sorting BEFORE rendering, an unusual case
+
+/**
+ * Update Near You Now
+ *
+ * update the Near You Now listing from ALL_POIS; called on a location update
+ * this is a significant exception to the sortLists() system,
+ * as we need to do the distance and sorting BEFORE rendering, an unusual case
+ */
 function updateNearYouNow() {
     // render the Radar page, in case it hasn't happened yet
     //$('#pane-radar').page();
@@ -474,8 +482,9 @@ function updateNearYouNow() {
     target.listview('refresh');
 }
 
-
-
+/**
+ * Check Radar
+ */
 function checkRadar(latlng,maxmeters,categories) {
     // 1: go over the Near You Now entries, find which ones are within distance and matching the filters
     maxmeters = parseFloat(maxmeters); // passed in as a .attr() string sometimes
@@ -557,24 +566,30 @@ $(window).load(function () {
     });
 });
 
-
-
-
-// functions for toggling the photo, like a one-item gallery  :)
-// this varies between mobile and desktop, but since they're named the same it forms a common interface
+/**
+ * Show Photo
+ *
+ * functions for toggling the photo, like a one-item gallery  :)
+ * this varies between mobile and desktop, but since they're named the same it forms a common interface
+ */
 function showPhoto(url) {
     $('#photo').prop('src',url);
     $.mobile.changePage('#pane-photo');
 }
 
+/**
+ * Show Elevation
+ */
 function showElevation(url) {
     $('#elevation').prop('src',url);
     $.mobile.changePage('#pane-elevationprofile');
 }
 
-
-
-///// a common interface at the AJAX level, but different CSS and sorting for Mobile vs Desktop
+/**
+ * Search by Keyword
+ *
+ * A common interface at the AJAX level, but different CSS and sorting for Mobile vs Desktop
+ */
 function searchByKeyword(keyword) {
     // surprise bypass
     // if the search word "looks like coordinates" then zoom the map there
@@ -757,60 +772,41 @@ $(window).load(function () {
 
 
 
-///// on page load
-///// event handlers for the directions subsystem
+/**
+ * Event handlers for the directions subsystem
+ */
 $(window).load(function () {
-    // the 4 icons simply select that directions type option, then change over to the Get Directions panel
+    // The 4 icons launch the Get Directions panel
+    // selecting the appropriate transport method
     $('#directions_hike').tap(function () {
-        // set the directions type
-        $('#directions_via').val('hike');
-        $('#directions_via').trigger('change');
-        // update that selector: render the page if it's not already been visited, then restyle the selector so it shows the value it has
-        $('#pane-getdirections').page();
-        $('#directions_via').selectmenu("refresh");
-        // and change to the Get Directions panel
-        $.mobile.changePage('#pane-getdirections');
+        launchGetDirections('hike');
     });
     $('#directions_bike').tap(function () {
-        // set the directions type
-        $('#directions_via').val('bike');
-        $('#directions_via').trigger('change');
-        // update that selector: render the page if it's not already been visited, then restyle the selector so it shows the value it has
-        $('#pane-getdirections').page();
-        $('#directions_via').selectmenu("refresh");
-        // and change to the Get Directions panel
-        $.mobile.changePage('#pane-getdirections');
+        launchGetDirections('bike');
     });
     $('#directions_bridle').tap(function () {
-        // set the directions type
-        $('#directions_via').val('bridle');
-        $('#directions_via').trigger('change');
-        // update that selector: render the page if it's not already been visited, then restyle the selector so it shows the value it has
-        $('#pane-getdirections').page();
-        $('#directions_via').selectmenu("refresh");
-        // and change to the Get Directions panel
-        $.mobile.changePage('#pane-getdirections');
+        launchGetDirections('bridle');
     });
     $('#directions_car').tap(function () {
-        // set the directions type
-        $('#directions_via').val('car');
-        $('#directions_via').trigger('change');
-        // update that selector: render the page if it's not already been visited, then restyle the selector so it shows the value it has
-        $('#pane-getdirections').page();
-        $('#directions_via').selectmenu("refresh");
-        // and change to the Get Directions panel
-        $.mobile.changePage('#pane-getdirections');
+        launchGetDirections('car');
     });
     $('#directions_bus').tap(function () {
-        // set the directions type
-        $('#directions_via').val('bus');
+        launchGetDirections('bus');
+    });
+
+    /**
+     * Launch Get Directions
+     */
+    function launchGetDirections(transport_method) {
+        $('#directions_via').val(transport_method);
         $('#directions_via').trigger('change');
         // update that selector: render the page if it's not already been visited, then restyle the selector so it shows the value it has
         $('#pane-getdirections').page();
         $('#directions_via').selectmenu("refresh");
         // and change to the Get Directions panel
-        $.mobile.changePage('#pane-getdirections');
-    });
+        //$.mobile.changePage('#pane-getdirections');
+        sidebar.open('pane-getdirections');
+    }
 
     // the directions-type picker (GPS, address, POI, etc) mostly shows and hides elements
     // its value is used in processGetDirectionsForm() for choosing how to figure out which element to use
@@ -1095,11 +1091,12 @@ function filterLoops() {
 }
 
 
-
-
-// a unified interface to calculate distances of items in a list, then sort that list by distance
-// this ended up being so common a design pattern, putting it here saves a lot of repeat
-// look for the magic tag ul.distance_sortable and populate the .zoom_distance boxes within it, then sort the ul.distance_sortable
+/**
+ * Sort Lists
+ * a unified interface to calculate distances of items in a list, then sort that list by distance
+ * this ended up being so common a design pattern, putting it here saves a lot of repeat
+ * look for the magic tag ul.distance_sortable and populate the .zoom_distance boxes within it, then sort the ul.distance_sortable
+ */
 function sortLists(target) {
     // if no target was specified, get the first (only) ul.distance_sortable on the currently visible page
     // if there isn't one there, bail
@@ -1147,17 +1144,32 @@ function sortLists(target) {
     // (because we're getting last-element styling on non-last elements)
 }
 
+/**
+ * Is IOS?
+ */
 function is_ios() {
     return /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
 }
+
+/**
+ * Toggle GPS
+ */
 function toggleGPS() {
     AUTO_CENTER_ON_LOCATION ? toggleGPSOff() : toggleGPSOn();
 }
+
+/**
+ * Toggle GPS On
+ */
 function toggleGPSOn() {
     AUTO_CENTER_ON_LOCATION = true;
     var iconurl = is_ios() ? '/static/mobile/mapbutton_gps_ios_on.png' : '/static/mobile/mapbutton_gps_on.png';
     $('#mapbutton_gps img').prop('src',iconurl);
 }
+
+/**
+ * Toggle GPS Off
+ */
 function toggleGPSOff() {
     AUTO_CENTER_ON_LOCATION = false;
     var iconurl = is_ios() ? '/static/mobile/mapbutton_gps_ios_off.png' : '/static/mobile/mapbutton_gps_off.png';
