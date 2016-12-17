@@ -246,8 +246,8 @@ $(window).load(function () {
 // Solution: use switchToMap() and give it a callback function. This callback will be executed after a
 // short delay, ensuring that the map is showing and properly resized before doing the next activity
 function disableClicksMomentarily() {
-    disableClicks();
-    setTimeout(enableClicks, 1500);
+    //disableClicks();
+    //setTimeout(enableClicks, 1500);
 }
 function disableClicks() {
     if (! MAP) return; // map isn't even running yet, so clicking is irrelevant
