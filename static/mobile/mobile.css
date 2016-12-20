@@ -56,6 +56,11 @@ div.ui-slider { height: 25px; }
 
 .textnowrap td { vertical-align: middle; }
 
+/** Misc element styles */
+ul.nobull { list-style-type: none; padding: 0; }
+
+.small-light { color: #8D8C8C; font-size: 90%; }
+
 /* The Share panel and Settings panels have elements that need to appear as read-only text inputs but that are really <div>'s, beacause iOS forgot to add a select-and-copy function!
 */
 div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; padding: 0.4em; border: 1px solid #000; border-radius: 0.2em; height: 1.4em; }
@@ -80,7 +85,7 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 #loops_filter_distancepicker img { cursor: pointer; }
 
 /*-----------------------------------------------------------------------------------------------------------*/
-#info-content, .description { padding: 0 20px; }
+.description { padding: 0 20px; }
 
 /*-----------------------------------------------------------------------------------------------------------*/
 /* Sidebar */
@@ -91,6 +96,9 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 .sidebar-content ul li .fa { padding-right: 10px; font-size: 24px; width: 24px; vertical-align: middle; text-align: center; }
 .sidebar-content .ui-li-icon { max-height: 40px; max-width: 40px; }
 .sidebar-content .ui-li-count { background-color: #1D5C1F; border: none; color: white; font-weight: normal; }
+.sidebar-content .distance_sortable a.ui-btn { padding-right: 60px; }
+.sidebar-content .distance_sortable a.ui-btn h4.ui-li-heading { margin-top: 0; }
+.sidebar-content .distance_sortable a.ui-btn .ui-li-desc { font-weight: normal; }
 
 /*-----------------------------------------------------------------------------------------------------------*/
 /* Sidebar Panes */
@@ -102,5 +110,7 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 #pane-share .share_button { line-height: 1.5em; }
 
 #pane-credits .disclaimer { font-size: 90%; }
+
+#pane-info .info-directions { margin-top: 1em; }
 
 /*# sourceMappingURL=mobile.css.map */
