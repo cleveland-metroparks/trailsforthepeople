@@ -107,5 +107,6 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 #pane-credits .disclaimer { font-size: 90%; }
 
 #pane-info .info-directions { margin-top: 1em; }
+#pane-info .info-directions img { cursor: pointer; }
 
 /*# sourceMappingURL=mobile.css.map */

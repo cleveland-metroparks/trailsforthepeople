@@ -360,5 +360,8 @@ div.elevationprofileimage img {
 #pane-info {
     .info-directions {
         margin-top: 1em;
+        img {
+            cursor: pointer;
+        }
     }
 }
