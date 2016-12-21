@@ -1,12 +1,6 @@
 /* Typography */
 .ui-header { font-family: "myriad-pro", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif; }
 
-/* Leaflet Sidebar-v2 */
-#sidebar .sidebar-header { background-color: #1D5C1F; }
-#sidebar .sidebar-tabs .ui-link, #sidebar .sidebar-tabs .ui-link:visited { color: #232222; }
-#sidebar .sidebar-tabs > ul > li.active { background-color: #1D5C1F; }
-#sidebar .sidebar-tabs > ul > li.active a { color: white; text-shadow: 0 1px 0 #232222; }
-
 /* Page elements */
 #map_canvas { position: absolute; top: 0; left: 0; margin: 0; padding: 0; width: 100%; height: 100%; }
 
@@ -14,7 +8,7 @@
 
 .fakelink { color: #6AB03E; text-decoration: underline; cursor: pointer; }
 
-#info-content { min-height: 3em; }
+#info-content { margin-bottom: 1em; }
 
 /* input widgets inherit the background color, making them nearly invisible! */
 .ui-content input[type="text"] { background: none repeat scroll 0 0 #F9F9F9; }
@@ -80,17 +74,21 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 .description { padding: 0 20px; }
 
 /*-----------------------------------------------------------------------------------------------------------*/
-/* Sidebar */
+/* Sidebar
+/* Leaflet Sidebar-v2
 /*-----------------------------------------------------------------------------------------------------------*/
-.sidebar-header { margin-bottom: 20px; }
-
-.sidebar-content ul li { padding-left: 0; }
-.sidebar-content ul li .fa { padding-right: 10px; font-size: 24px; width: 24px; vertical-align: middle; text-align: center; }
-.sidebar-content .ui-li-icon { max-height: 40px; max-width: 40px; }
-.sidebar-content .ui-li-count { background-color: #1D5C1F; border: none; color: white; font-weight: normal; }
-.sidebar-content .distance_sortable a.ui-btn { padding-right: 60px; }
-.sidebar-content .distance_sortable a.ui-btn h4.ui-li-heading { margin-top: 0; }
-.sidebar-content .distance_sortable a.ui-btn .ui-li-desc { font-weight: normal; }
+#sidebar .sidebar-header { background-color: #1D5C1F; margin-bottom: 20px; }
+#sidebar .sidebar-tabs .ui-link, #sidebar .sidebar-tabs .ui-link:visited { color: #232222; }
+#sidebar .sidebar-tabs > ul > li.active { background-color: #1D5C1F; }
+#sidebar .sidebar-tabs > ul > li.active a { color: white; text-shadow: 0 1px 0 #232222; }
+#sidebar .sidebar-content ul li { padding-left: 0; }
+#sidebar .sidebar-content ul li .fa { padding-right: 10px; font-size: 24px; width: 24px; vertical-align: middle; text-align: center; }
+#sidebar .sidebar-content h4 { margin: 0; }
+#sidebar .sidebar-content .ui-li-icon { max-height: 40px; max-width: 40px; }
+#sidebar .sidebar-content .ui-li-count { background-color: #1D5C1F; border: none; color: white; font-weight: normal; }
+#sidebar .sidebar-content .distance_sortable a.ui-btn { padding-right: 60px; }
+#sidebar .sidebar-content .distance_sortable a.ui-btn h4.ui-li-heading { margin-top: 0; }
+#sidebar .sidebar-content .distance_sortable a.ui-btn .ui-li-desc { font-weight: normal; }
 
 /*-----------------------------------------------------------------------------------------------------------*/
 /* Sidebar Panes */

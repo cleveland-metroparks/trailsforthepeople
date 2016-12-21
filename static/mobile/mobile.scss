@@ -21,28 +21,6 @@ $grey_lightest: #DCDCDC;
 }
 
 
-/* Leaflet Sidebar-v2 */
-#sidebar {
-    .sidebar-header {
-        background-color: $green_dark;
-    }
-    .sidebar-tabs {
-        .ui-link,
-        .ui-link:visited {
-            color: $grey_darkest;
-        }
-        > ul > li.active {
-            background-color: $green_dark;
-            a {
-                color: white;
-                text-shadow: 0 1px 0 $grey_darkest;
-            }
-        }
-    }
-}
-
-
-
 /* Page elements */
 
 #map_canvas {
@@ -63,7 +41,8 @@ $grey_lightest: #DCDCDC;
 
 
 #info-content {
-    min-height:3em;
+    //min-height: 3em;
+    margin-bottom: 1em;
 }
 
 
@@ -226,48 +205,72 @@ div.elevationprofileimage img {
 }
 
 /*-----------------------------------------------------------------------------------------------------------*/
-/* Sidebar */
+/* Sidebar
+/* Leaflet Sidebar-v2
 /*-----------------------------------------------------------------------------------------------------------*/
 
-//
-// Sidebar: Header
-//
-.sidebar-header{
-    margin-bottom: 20px;
-}
+#sidebar {
+    //
+    // Sidebar Header
+    //
+    .sidebar-header {
+        background-color: $green_dark;
+        margin-bottom: 20px;
+    }
 
-//
-// Sidebar: Lists
-//
-.sidebar-content {
-    ul li {
-        padding-left: 0;
-        .fa {
-            padding-right: 10px;
-            font-size: 24px;
-            width: 24px;
-            vertical-align: middle;
-            text-align: center;
+    //
+    // Sidebar Tabs
+    //
+    .sidebar-tabs {
+        .ui-link,
+        .ui-link:visited {
+            color: $grey_darkest;
+        }
+        > ul > li.active {
+            background-color: $green_dark;
+            a {
+                color: white;
+                text-shadow: 0 1px 0 $grey_darkest;
+            }
         }
     }
-    .ui-li-icon {
-        max-height: 40px;
-        max-width: 40px;
-    }
-    .ui-li-count {
-        background-color: $green_dark;
-        border: none;
-        color: white;
-        font-weight: normal;
-    }
-    .distance_sortable {
-        a.ui-btn {
-            padding-right: 60px;
-            h4.ui-li-heading {
-                margin-top: 0;
+
+    //
+    // Sidebar Content
+    //
+    .sidebar-content {
+        ul li {
+            padding-left: 0;
+            .fa {
+                padding-right: 10px;
+                font-size: 24px;
+                width: 24px;
+                vertical-align: middle;
+                text-align: center;
             }
-            .ui-li-desc {
-                font-weight: normal;
+        }
+        h4 {
+            margin: 0;
+        }
+        .ui-li-icon {
+            max-height: 40px;
+            max-width: 40px;
+        }
+        .ui-li-count {
+            background-color: $green_dark;
+            border: none;
+            color: white;
+            font-weight: normal;
+        }
+        .distance_sortable {
+            a.ui-btn {
+                padding-right: 60px;
+                h4.ui-li-heading {
+                    margin-top: 0;
+                }
+                .ui-li-desc {
+                    font-weight: normal;
+                }
             }
         }
     }

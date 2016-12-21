@@ -1,7 +1,7 @@
 <h2><?= htmlspecialchars($feature->use_area) ?></h2>
 
 <?php if ($feature->activity): ?>
-	<div><strong>Activities:</strong></div>
+	<h4>Activities:</h4>
 	<div><?= htmlspecialchars($feature->activity) ?></div>
 <?php endif; ?>
 
@@ -23,10 +23,8 @@
 	<?php endif; ?>
 </ul>
 
-<p>
-    <div><strong>GPS coordinates:</strong></div>
-    <span class="small-light">
-    	<?= $feature->lat_dms ?><br/>
-    	<?= $feature->lng_dms ?>
-    </span>
-</p>
+<h4>GPS coordinates:</h4>
+<div class="small-light">
+	<?= $feature->lat_dms ?><br/>
+	<?= $feature->lng_dms ?>
+</div>
