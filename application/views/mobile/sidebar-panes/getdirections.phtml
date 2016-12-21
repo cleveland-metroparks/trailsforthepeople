@@ -20,44 +20,46 @@
     </div>
 
     <div id="getdirections_enabled" style="display:none;">
-        <div id="change_directions_target">
-            <a href="#pane-browse" class="sidebar-pane-link">change<br/>destination</a>
-        </div>
 
         <fieldset data=role="controlgroup">
+
             <select id="directions_reverse" data-mini="true">
-            <option value="to">Get directions to</option>
-            <option value="from">Get directions from</option>
+                <option value="to">Get directions to</option>
+                <option value="from">Get directions from</option>
             </select>
-            <br/>
 
             <div id="directions_target_title"></div>
-            <br/>
+
+            <div id="change_directions_target">
+                <a href="#pane-browse" class="sidebar-pane-link">Change destination</a>
+            </div>
 
             <select id="directions_type" data-mini="true">
-            <option value="gps">from your current location</option>
-            <option value="geocode">from a street address</option>
-            <option value="features">from a park feature or point of interest</option>
+                <option value="gps">from your current location</option>
+                <option value="geocode">from a street address</option>
+                <option value="features">from a park feature or point of interest</option>
             </select>
 
             <div id="directions_type_geocode_wrap" style="display:none;">
                 <input type="text" data-mini="true" id="directions_address" placeholder="enter address or place name" />
             </div>
 
-            <select id="directions_via" data-mini="true"><!-- if the default changes, may need to change the via supplements below -->
-            <option value="bike">By bicycle</option>
-            <option value="car" selected="true">By car</option>
-            <option value="hike">By foot</option>
-            <!--<option value="bridle">By horse</option>-->
-            <option value="bus">By public transportation</option>
+            <!-- if the default changes, may need to change the via supplements below -->
+            <select id="directions_via" data-mini="true">
+                <option value="bike">By bicycle</option>
+                <option value="car" selected="true">By car</option>
+                <option value="hike">By foot</option>
+                <!--<option value="bridle">By horse</option>-->
+                <option value="bus">By public transportation</option>
             </select>
 
-            <span id="directions_via_bike_wrap" style="display:none;"><!-- hide because Car is default -->
+            <!-- hide because Car is default -->
+            <span id="directions_via_bike_wrap" style="display:none;">
                 <select id="directions_via_bike" data-mini="true">
-                <option value="bike_advanced">Advanced</option>
-                <option value="bike_intermediate">Intermediate</option>
-                <option value="bike_beginner">Beginner</option>
-                <option value="bike_novice">Novice</option>
+                    <option value="bike_advanced">Advanced</option>
+                    <option value="bike_intermediate">Intermediate</option>
+                    <option value="bike_beginner">Beginner</option>
+                    <option value="bike_novice">Novice</option>
                 </select>
             </span>
 
@@ -70,6 +72,7 @@
             <span id="directions_button_wrapper">
                 <input type="button" data-mini="true" id="directions_button" value="Get directions" value0="Loading" value1="Get directions" />
             </span>
+
         </fieldset>
         <br/>
         <ul id="directions_steps" data-role="listview"></ul>

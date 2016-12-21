@@ -10,17 +10,9 @@
 /* Page elements */
 #map_canvas { position: absolute; top: 0; left: 0; margin: 0; padding: 0; width: 100%; height: 100%; }
 
-#change_directions_target { float: right; text-align: right; font-size: 8pt; }
-
-#directions_target_title { text-align: center; font-size: 110%; font-weight: bold; }
-
-#directions_getgps { float: right; text-align: right; font-size: 8pt; margin-top: 10px; }
-
 .leaflet-popup .fakelink { font-size: 12pt; }
 
 .fakelink { color: #6AB03E; text-decoration: underline; cursor: pointer; }
-
-#getdirections_disabled { text-align: center; font-size: 12pt; }
 
 #info-content { min-height: 3em; }
 
@@ -105,7 +97,12 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 /*-----------------------------------------------------------------------------------------------------------*/
 #pane-browse ul[data-role="listview"] li img { margin-top: -20px; /* hack to make the icons align to the text */ }
 
-#pane-getdirections #directions_button_wrapper .ui-btn-inner { background: none repeat scroll 0 0 #AB8E5A; color: #333333; text-shadow: 0 1px 0 #CCCCCC; }
+#pane-getdirections #directions_target_title { text-align: center; font-size: 110%; font-weight: bold; margin-top: 1.5em; }
+#pane-getdirections #change_directions_target { text-align: center; font-size: 75%; margin-top: .5em; margin-bottom: 1.5em; }
+#pane-getdirections #change_directions_target a { font-weight: normal; }
+#pane-getdirections #directions_getgps { float: right; text-align: right; font-size: 8pt; margin-top: 10px; }
+#pane-getdirections #getdirections_disabled { text-align: center; font-size: 12pt; }
+#pane-getdirections #directions_button_wrapper .ui-btn { margin-top: 1.5em; }
 
 #pane-share .share_button { line-height: 1.5em; }
 
