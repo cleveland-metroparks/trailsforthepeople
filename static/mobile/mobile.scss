@@ -360,8 +360,12 @@ div.elevationprofileimage img {
 #pane-info {
     .info-directions {
         margin-top: 1em;
-        img {
-            cursor: pointer;
+        .ui-btn {
+            padding: 10px;
+            .fa {
+                font-size: 24px;
+                min-width: 32px;
+            }
         }
     }
 }
