@@ -101,6 +101,7 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 #pane-getdirections #directions_getgps { float: right; text-align: right; font-size: 8pt; margin-top: 10px; }
 #pane-getdirections #getdirections_disabled { text-align: center; font-size: 12pt; }
 #pane-getdirections #directions_button_wrapper .ui-btn { margin-top: 1.5em; }
+#pane-getdirections .directions_functions { margin-top: 1em; font-weight: bold; font-size: 10pt; }
 
 #pane-share .share_button { line-height: 1.5em; }
 

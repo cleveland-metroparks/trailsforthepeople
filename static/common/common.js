@@ -475,7 +475,8 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
 
 
 
-// event handler on the map canvas: when it is resized, trigger a refresh
+// Event handler on the map canvas:
+// When it is resized, trigger a refresh.
 $(window).resize(function () {
     MAP.invalidateSize();
 });
@@ -877,10 +878,8 @@ function renderDirectionsStructure(directions,target,options) {
     // for the bounding box, we save the bbox LatLngBounds into DIRECTIONS_LINE
     // because on Mobile, zooming the map now is an error and the map must be zoomed later, using the DIRECTIONS_LINE global
     DIRECTIONS_LINE.extent = WSENtoBounds(directions.bounds.west,directions.bounds.south,directions.bounds.east,directions.bounds.north);
-    if (! MOBILE || $.mobile.activePage.prop('id') == 'pane-map') {
-        var bbox = DIRECTIONS_LINE.extent.pad(0.15);
-        MAP.fitBounds(bbox);
-    }
+    var bbox = DIRECTIONS_LINE.extent.pad(0.15);
+    MAP.fitBounds(bbox);
 
     // phase 2: put the directions into the panel
     if (! target) target = $('#directions_steps');
@@ -905,53 +904,70 @@ function renderDirectionsStructure(directions,target,options) {
     var total = $('<span></span>').addClass('ui-li-heading').html('<b>Total:</b> ' + directions.totals.distance + ', ' + directions.totals.duration);
     target.append( $('<li></li>').append(total).append(note) );
 
-    var funcs = $('<li></li>').addClass('directions_functions');
+    var directionsFunctions = $('<div></div>').addClass('directions_functions');
+
+    // Elevation Profile button
     if (directions.elevationprofile) {
-        var profile = $('<img></img>').prop('title','Elevation Profile').prop('id','elevationprofile_button').addClass('fakelink').prop('src','/static/common/elevprofile.png');
-        profile.attr('value1', 'Elevation Profile').attr('value0', 'Loading');
-        profile.tap(function () {
-            openElevationProfileBySegments();
-        });
-        funcs.append(profile);
-    }
-    if (MOBILE) {
-        funcs.append('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
-        var showonmap = $('<img></img>').prop('title','Map').addClass('fakelink').prop('src','/static/common/map.png');
-        showonmap.tap(function () {
-            switchToMap(function () {
-                if (DIRECTIONS_LINE) MAP.fitBounds(DIRECTIONS_LINE.extent);
+        var elevationProfileBtn = $('<a></a>')
+            .addClass('ui-btn')
+            .addClass('ui-btn-inline')
+            .addClass('ui-corner-all')
+            .prop('id','elevationprofile_button')
+            .text('Elevation Profile');
+        elevationProfileBtn
+            .attr('value1', 'Elevation Profile')
+            .attr('value0', 'Loading');
+        elevationProfileBtn
+            .tap(function () {
+                openElevationProfileBySegments();
             });
-        });
-        funcs.append(showonmap);
-        var clearmap = $('<img></img>').prop('title','Clear').addClass('fakelink').prop('src','/static/common/smallclear.png');
-        clearmap.tap(function () {
-            $('#directions_steps').empty();
-            clearDirectionsLine();
-        });
-        funcs.append(clearmap);
+
+        directionsFunctions.append(elevationProfileBtn);
     }
+
+    // Clear button
+    var clearMapBtn = $('<a></a>')
+        .addClass('ui-btn')
+        .addClass('ui-btn-inline')
+        .addClass('ui-corner-all')
+        .text('Clear');
+    clearMapBtn.tap(function () {
+        $('#directions_steps').empty();
+        clearDirectionsLine();
+        $('.directions_functions').empty();
+    });
+    directionsFunctions.append(clearMapBtn);
+
+    // Share button
     if (! options.noshare) {
         // if there are options given, check for noshare:true and skip on the Share link
-        var shareroute = $('<img></img>').prop('title','Share').addClass('fakelink').prop('id','share_route_button').prop('src','/static/common/share.png');
-        shareroute.click(function () {
+        var shareRouteBtn = $('<a></a>')
+            .addClass('ui-btn')
+            .addClass('ui-btn-inline')
+            .addClass('ui-corner-all')
+            .prop('id','share_route_button')
+            .text('Share');
+        shareRouteBtn.click(function () {
             updateShareUrlByDirections();
-            if (MOBILE) {
-                $.mobile.changePage('#pane-share');
-            } else {
-                $('.dialog').dialog('close');
-                $('#share').dialog('open');
-            }
+            populateShareBox();
+            sidebar.open('pane-share');
         });
-        funcs.append(shareroute);
+        directionsFunctions.append(shareRouteBtn);
     }
+
+    // Print button
     if (! MOBILE) {
-        var printme = $('<img></img>').attr('title','Print').addClass('fakelink').prop('src','/static/common/print.png');
-        printme.click(function () {
+        var printMeBtn = $('<a></a>')
+            .addClass('ui-btn')
+            .addClass('ui-btn-inline')
+            .addClass('ui-corner-all')
+            .text('Print');
+        printMeBtn.click(function () {
             $('#button_print').click();
         });
-        funcs.append(printme);
+        directionsFunctions.append(printMeBtn);
     }
-    target.append(funcs);
+    target.after(directionsFunctions);
 
     // phase 3: save the elevation profile given, if any, so it can be recalled later
     ELEVATION_PROFILE = [];
@@ -1113,14 +1129,14 @@ function printMap() {
         format_options : "dpi:300"
     };
     var layers = [];
-    if ( MAP.hasLayer(PHOTOBASE) ) {
+    if ( MAP.hasLayer(AVAILABLE_LAYERS['photo']) ) {
         if ( MAP.getZoom() < 14 ) return alert("Before printing, zoom in closer.");
 
         // the photo base layer is a GeoServer cascade to a State of Ohio WMS service, but the Ohio WMS doesn't support large requests for printing
         // swap in the URL of a proxy service which fixes that
         layers[layers.length] = { baseURL:"http://maps.clevelandmetroparks.com/proxy/ohioimagery", opacity:1, singleTile:false, type:"WMS", layers:["0"], format:"image/png", styles:[""]  };
     }
-    if ( MAP.hasLayer(MAPBASE) ) {
+    if ( MAP.hasLayer(AVAILABLE_LAYERS['photo']) || MAP.hasLayer(AVAILABLE_LAYERS['vector'])) {
         // the basemap is a tile service from TileStache, but printing can't do tile services
         // so we use the GeoServer WMS version, which does lack a bit in the image quality but does get the job done
         layers[layers.length] = { baseURL:"http://maps.clevelandmetroparks.com/gwms", opacity:1, singleTile:true, type:"WMS", layers:["group_basemap"], format:"image/jpeg", styles:[""], customParams:wmsparams };
@@ -1604,17 +1620,12 @@ function populateShareBox() {
         uri : URL_PARAMS.attr('path'),
         querystring : SHARE_URL_STRING
     };
-    //console.log(params);
+
     $.get('../ajax/make_shorturl', params, function (shortstring) {
         if (! shortstring) return alert("Unable to fetch a short URL.\nPlease try again.");
         var url = URL_PARAMS.attr('protocol') + '://' + URL_PARAMS.attr('host') + '/url/' + shortstring;
 
-        // mobile uses a div.fakeinput cuz iOS "copy" copies a whole lot more than your input field content (sigh)
-        if (MOBILE) {
-            $('#share_url').text(url);
-        } else {
-            $('#share_url').val(url);
-        }
+        $('#share_url').text(url);
     });
 }
 
@@ -1650,8 +1661,13 @@ function updateShareUrlByDirections() {
 
     // compose the params to bring up this route at page load: route title, to and from coordinates, via type, etc
     var params = {};
-    if (MAP.hasLayer(PHOTOBASE)) params.base = 'photo';
-    if (MAP.hasLayer(MAPBASE))   params.base = 'map';
+    if (MAP.hasLayer(AVAILABLE_LAYERS['photo'])) {
+        params.base = 'photo';
+    } else if (MAP.hasLayer(AVAILABLE_LAYERS['vector'])) {
+        params.base = 'vector';
+    } else if (MAP.hasLayer(AVAILABLE_LAYERS['map'])) {
+        params.base = 'map';
+    }
     params.routevia        = $('#directions_via').val();
     params.routevia_bike   = $('#directions_via_bike').val();
     params.routefrom       = $('#directions_source_lat').val() + ',' + $('#directions_source_lng').val();
@@ -1660,18 +1676,18 @@ function updateShareUrlByDirections() {
     params.whichway        = $('#directions_reverse').val();
     params.loctype         = $('#directions_type').val();
     params.fromaddr        = $('#directions_address').val();
-    if (params.routevia == 'trail') params.routevia = $('#directions_via_trail').val();
+    if (params.routevia == 'trail') {
+        params.routevia = $('#directions_via_trail').val();
+    }
 
     // compile all of the params together and save it to the global. this is later read by populateShareBox()
     SHARE_URL_STRING = $.param(params);
 }
 
-
-
-/////
-///// pertaining to the Welcome panel and whether it should be shown, as determined by a cookie
-/////
-
+/**
+ * The Welcome panel
+ * and whether it should be shown, as determined by a cookie.
+ */
 $(window).load(function () {
     if (MOBILE) {
         $('#pane-settings').page();
@@ -1712,15 +1728,19 @@ function toggleWelcome(show_welcome) {
     }
 }
 
-
-
-///// on page load
-///// event handler for the Share Map button, which reads from the Show On Map button to populate the Share Your Map box
+/**
+ * Share Map button handler
+ *
+ * Reads from the Show On Map button to populate the Share Your Map box.
+ */
 $(window).load(function () {
     $('#share_feature').click(function () {
         var element = $('#show_on_map').data('zoomelement');
-        if (! element) return;
+        if (! element) {
+            return;
+        }
         updateShareUrlByFeature(element);
-        if (! MOBILE) $('#share').dialog('open');
+        populateShareBox();
+        sidebar.open('pane-share');
     });
 });
