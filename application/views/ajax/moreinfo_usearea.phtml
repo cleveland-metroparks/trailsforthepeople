@@ -1,32 +1,28 @@
+<style type="text/css">
+</style>
+
 <h2><?= htmlspecialchars($feature->use_area) ?></h2>
 
-<?php if ($feature->activity): ?>
-	<div><strong>Activities:</strong></div>
-	<div><?= htmlspecialchars($feature->activity) ?></div>
-<?php endif; ?>
+<?php if ($feature->activity) { ?>
+<p>Activities: <?= htmlspecialchars($feature->activity) ?></p>
+<?php } ?>
 
-<?php if ($feature->description): ?>
-	<div><?= nl2br($feature->description) ?></div>
-<?php endif; ?>
+<?php if ($feature->description) { ?>
+<div>
+<?= nl2br($feature->description) ?>
+</div>
+<?php } ?>
 
-<ul class="nobull">
-	<?php if ($feature->link): ?>
-		<li><a href="<?= $feature->link ?>" target="_blank">More Info</a></li>
-	<?php endif; ?>
-	
-	<?php if ($feature->cal_link): ?>
-		<li><a href="<?= $feature->cal_link ?>" target="_blank">Reservations &amp; Events Calendar</a></li>
-	<?php endif; ?>
-	
-	<?php if ($feature->image_url): ?>
-		<li><span class="fakelink paddme" onClick="showPhoto('<?= $feature->image_url ?>');">Photo</span></li>
-	<?php endif; ?>
+<ul>
+<?php if ($feature->link) { ?><li><a href="<?= $feature->link ?>" target="_blank">More Info</a></li><?php } ?>
+<?php if ($feature->cal_link) { ?><li><a href="<?= $feature->cal_link ?>" target="_blank">Reservations &amp; Events Calendar</a></li><?php } ?>
+<?php if ($feature->image_url) { ?><li><span class="fakelink paddme" onClick="showPhoto('<?= $feature->image_url ?>');">Photo</span></li><?php } ?>
 </ul>
 
+
 <p>
-    <div><strong>GPS coordinates:</strong></div>
-    <span class="small-light">
-    	<?= $feature->lat_dms ?><br/>
-    	<?= $feature->lng_dms ?>
-    </span>
+    GPS coordinates:<br/>
+    <?= $feature->lat_dms ?><br/>
+    <?= $feature->lng_dms ?>
 </p>
+

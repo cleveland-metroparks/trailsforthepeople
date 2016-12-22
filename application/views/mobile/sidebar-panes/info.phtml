@@ -7,16 +7,16 @@
 
     <a href="#pane-map" class="sidebar-pane-link sidebar-back ui-btn ui-btn-inline ui-icon-back ui-btn-icon-left ui-corner-all">Back</a>
     
-    <div id="info-content"></div>
-
-    <a class="ui-btn ui-btn-inline ui-icon-location ui-btn-icon-left ui-corner-all" id="show_on_map">Show on Map</a>
-    
-    <div class="info-directions">
-        <strong>Directions:</strong><br/>
+    <div style="float:right; clear:both; text-align:center;">
+        <b>Directions:</b><br/>
         <img src="<?= site_url('static/mobile/directions_hike.png') ?>" class="moreinfo_directions_button" id="directions_hike"         title="Get directions via hiking trails" />
         <img src="<?= site_url('static/mobile/directions_bike.png') ?>" class="moreinfo_directions_button" id="directions_bike"         title="Get directions via bicycle trails" />
         <!--<img src="<?= site_url('static/mobile/directions_bridle.png') ?>" class="moreinfo_directions_button"        id="directions_bridle" title="Get directions via equestrian trails" />-->
         <img src="<?= site_url('static/mobile/directions_car.png') ?>" class="moreinfo_directions_button" id="directions_car"       title="Get driving directions" />
         <img src="<?= site_url('static/mobile/directions_bus.png') ?>" class="moreinfo_directions_button" id="directions_bus"       title="Get directions via public transit" />
     </div>
+    
+    <div id="info-content"></div>
+    
+    <input type="button" data-mini="true" id="show_on_map" value="Show on Map" />
 </div>

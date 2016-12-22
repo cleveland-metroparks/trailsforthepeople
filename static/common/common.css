@@ -43,6 +43,10 @@ div.lng_driving {
     margin-top:10px;
 }
 
+#info-content {
+    margin-bottom:20px;
+}
+
 /* the legend swatches in the Layers panel */
 
 .legend {

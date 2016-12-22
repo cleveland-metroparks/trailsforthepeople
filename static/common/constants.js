@@ -6,17 +6,9 @@ var MAP = null;
 
 // the bounding box of the mappable area, for setting the initial view
 // and potentially for restricting the map from zooming away (not enforced)
-MAX_BOUND_SOUTH = 41.11816;
-MAX_BOUND_WEST = -82.08504;
-MAX_BOUND_NORTH = 41.70009;
-MAX_BOUND_EAST = -81.28029;
-
-var BBOX_SOUTHWEST = L.latLng(MAX_BOUND_SOUTH, MAX_BOUND_WEST);
-var BBOX_NORTHEAST = L.latLng(MAX_BOUND_NORTH, MAX_BOUND_EAST);
-
+var BBOX_SOUTHWEST = L.latLng(41.11816, -82.08504);
+var BBOX_NORTHEAST = L.latLng(41.70009, -81.28029);
 var MAX_BOUNDS = L.latLngBounds(BBOX_SOUTHWEST,BBOX_NORTHEAST);
-
-var MAX_BOUNDS_GL = [[MAX_BOUND_SOUTH, MAX_BOUND_WEST], [MAX_BOUND_NORTH, MAX_BOUND_EAST]];
 
 // the min and max zoom level: min (low) is further out and max (high) is further in
 // level 11 covers the Cleveland region at full desktop size, level 18 is street level
@@ -73,23 +65,23 @@ var LAYER_MAPBOX_SAT = L.tileLayer(
 
 // Mapbox GL-Leaflet map tiles baselayer
 // Experimental GL+Leaflet binding - https://github.com/mapbox/mapbox-gl-leaflet
-//var LAYER_MAPBOX_GL_MAP_L = L.mapboxGL({
-//    accessToken: MAPBOX_TOKEN,
-//    style: 'mapbox://styles/' + MAPBOX_MAP_URL_FRAG
-//});
+var LAYER_MAPBOX_GL_MAP = L.mapboxGL({
+    accessToken: MAPBOX_TOKEN,
+    style: 'mapbox://styles/' + MAPBOX_MAP_URL_FRAG
+});
 
 const ALL_LAYERS = [
     LAYER_TILESTACHE_MAP,
     LAYER_TILESTACHE_SAT,
     LAYER_MAPBOX_MAP,
     LAYER_MAPBOX_SAT,
-    //LAYER_MAPBOX_GL_MAP_L
+    LAYER_MAPBOX_GL_MAP
 ];
 
 const AVAILABLE_LAYERS = {
     'map' : LAYER_MAPBOX_MAP,
     'photo' : LAYER_MAPBOX_SAT,
-    //'vector' : LAYER_MAPBOX_GL_MAP_L
+    'vector' : LAYER_MAPBOX_GL_MAP
 };
 
 /* to add route debugging into the map as it is running, paste this into the JavaScript console */
@@ -97,22 +89,3 @@ const AVAILABLE_LAYERS = {
 var routedebug = L.tileLayer.wms("http://maps1.clemetparks.com/wms", { layers:'cm:routing_barriers,cm:routing_segments,cm:routing_nodes,cm:route_problem_intersections', format:'image/png', transparent:'TRUE' });
 MAP.addLayer(routedebug);
 */
-
-START_LAT = 41.3953;
-START_LON = -81.6730;
-START_ZOOM = 14;
-
-/**
- * Mapbox GL JS
- */
-mapboxgl.accessToken = MAPBOX_TOKEN;
-
-STYLE_LAYER_CM_MAP = 'mapbox://styles/' + MAPBOX_MAP_URL_FRAG;
-STYLE_LAYER_CM_SAT = 'mapbox://styles/' + MAPBOX_SAT_URL_FRAG;
-
-const STYLE_LAYERS = {
-    'map' : STYLE_LAYER_CM_MAP,
-    'photo' : STYLE_LAYER_CM_SAT
-};
-
-var MAPGL = null;

@@ -1,7 +1,3 @@
-/**
- * JavaScript code common to both Mobile and Desktop maps
- */
-
 var MOBILE; // set in desktop.js and mobile.js, so we can work around some things in shared code
 
 var ICON_TARGET = L.icon({
@@ -50,6 +46,7 @@ var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; o
 
 var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
 
+///// JavaScript code common to both Mobile and Desktop maps
 
 
 // extend Leaflet: add to LatLng the ability to calculate the bearing to another LatLng
@@ -96,30 +93,28 @@ if (! jQuery.fn.tap ) {
 // on page load: start the map
 function initMap () {
     // in mobile mode, render the Settings panel because we may need to check checkboxes in it
-    //if (MOBILE) $('#pane-settings').page();
+    if (MOBILE) $('#page-settings').page();
 
     // URL param: the base map; defaults to the (Mapbox) map tiles
     var base = URL_PARAMS.param('base');
-    if (! base) base = 'map';
+    if (! base) base = 'vector';
     var basemap; // which L.TileLayer instance to use?
     switch (base) {
         case 'photo':
             var checkbox = $('input[name="basemap"][value="photo"]').prop('checked',true);
             if (MOBILE) checkbox.checkboxradio('refresh');
             basemap = LAYER_MAPBOX_SAT;
-            basemap_style = STYLE_LAYER_CM_SAT;
             break;
         case 'map':
             var checkbox = $('input[name="basemap"][value="map"]').prop('checked',true);
             if (MOBILE) checkbox.checkboxradio('refresh');
             basemap = LAYER_MAPBOX_MAP;
-            basemap_style = STYLE_LAYER_CM_MAP;
             break;
-        //case 'vector':
-        //    var checkbox = $('input[name="basemap"][value="vector"]').prop('checked',true);
-        //    if (MOBILE) checkbox.checkboxradio('refresh');
-        //    //basemap = LAYER_MAPBOX_GL_MAP;
-        //    break;
+        case 'vector':
+            var checkbox = $('input[name="basemap"][value="vector"]').prop('checked',true);
+            if (MOBILE) checkbox.checkboxradio('refresh');
+            basemap = LAYER_MAPBOX_GL_MAP;
+            break;
         default:
             throw "Invalid basemap given?";
             break;
@@ -129,13 +124,10 @@ function initMap () {
     // do some detection of browser to find Android 4+ and override the animation settings, hoping to enable pinch-zoom without breaking the app entirely
     // this is specifically contraindicated by Leaflet's own feature detection
     var options = {
-        attributionControl: false,
-        zoomControl: true,
-        dragging: true,
+        attributionControl: false, zoomControl: true, dragging: true,
         closePopupOnClick: false,
         crs: L.CRS.EPSG3857,
-        minZoom: MIN_ZOOM,
-        maxZoom: MAX_ZOOM,
+        minZoom: MIN_ZOOM, maxZoom: MAX_ZOOM,
         layers : [ basemap ]
     };
     var android4 = navigator.userAgent.match(/Android (4|5)/);
@@ -145,15 +137,9 @@ function initMap () {
         options.markerZoomAnimation = true;
     }
 
-    //MAP = new L.Map('map_canvas', options);
-    MAPGL = new mapboxgl.Map({
-        container: 'map_canvas',
-        style: STYLE_LAYER_CM_MAP,
-        center: [START_LON, START_LAT],
-        zoom: START_ZOOM
-    });
+    MAP = new L.Map('map_canvas', options);
 
-    // Zoom to the XYZ given in the URL, or else to the max extent
+    // zoom to the XYZ given in the URL, or else to the max extent
     if (URL_PARAMS.param('x') && URL_PARAMS.param('y') && URL_PARAMS.param('z')) {
         var x = parseFloat( URL_PARAMS.param('x') );
         var y = parseFloat( URL_PARAMS.param('y') );
@@ -164,10 +150,9 @@ function initMap () {
         MARKER_TARGET.setLatLng(L.latLng(y,x));
     } else {
         MAP.fitBounds(MAX_BOUNDS);
-        MAPGL.fitBounds(MAX_BOUNDS_GL);
     }
 
-    // Additional Controls
+    // additional Controls
     L.control.scale().addTo(MAP);
 
     // debugging: when the viewport changes, log the current bbox and zoom
@@ -249,7 +234,7 @@ function initMap () {
         var tofrom    = 'to';
 
         // toggle the directions panel so it shows directions instead of Select A Destination
-        if (MOBILE) $('#pane-getdirections').page();
+        if (MOBILE) $('#page-getdirections').page();
         $('#getdirections_disabled').hide();
         $('#getdirections_enabled').show();
 
@@ -335,17 +320,6 @@ function selectBasemap(layer_key) {
             }
         }
     }
-}
-
-/**
- * Enable the given base map layer.
- * Mapbox GL JS version.
- *
- * @param layer_key: Must refer to the key of an available layer (in STYLE_LAYERS constant).
- */
-function glSelectBasemap(layer_key) {
-    active_layer = STYLE_LAYERS[layer_key];
-    MAPGL.setStyle(active_layer);
 }
 
 
@@ -554,14 +528,9 @@ $(window).load(function () {
             var wkt  = $(this).data('wkt');
             switchToMap(function () {
                 // zoom the map into the stated bbox
-                //var bounds = L.latLngBounds( L.latLng(s,w) , L.latLng(n,e) );
-                //bounds = bounds.pad(0.15);
-                //MAP.fitBounds(bounds);
-                var glBounds = [[s, w], [n, e]];
-                var glBoundsOptions = {
-                    padding: 0.15
-                };
-                MAPGL.fitBounds(glBounds, glBoundsOptions);
+                var bounds = L.latLngBounds( L.latLng(s,w) , L.latLng(n,e) );
+                bounds = bounds.pad(0.15);
+                MAP.fitBounds(bounds);
 
                 // lay down a marker if this is a point feature
                 if (type == 'poi' || type == 'loop') placeTargetMarker(y,x);
@@ -585,7 +554,7 @@ $(window).load(function () {
 $(window).load(function () {
     $('input[type="radio"][name="basemap"]').change(function () {
         var which = $(this).val();
-        glSelectBasemap(which);
+        selectBasemap(which);
     });
 });
 
@@ -908,7 +877,7 @@ function renderDirectionsStructure(directions,target,options) {
     // for the bounding box, we save the bbox LatLngBounds into DIRECTIONS_LINE
     // because on Mobile, zooming the map now is an error and the map must be zoomed later, using the DIRECTIONS_LINE global
     DIRECTIONS_LINE.extent = WSENtoBounds(directions.bounds.west,directions.bounds.south,directions.bounds.east,directions.bounds.north);
-    if (! MOBILE || $.mobile.activePage.prop('id') == 'pane-map') {
+    if (! MOBILE || $.mobile.activePage.prop('id') == 'page-map') {
         var bbox = DIRECTIONS_LINE.extent.pad(0.15);
         MAP.fitBounds(bbox);
     }
@@ -967,7 +936,7 @@ function renderDirectionsStructure(directions,target,options) {
         shareroute.click(function () {
             updateShareUrlByDirections();
             if (MOBILE) {
-                $.mobile.changePage('#pane-share');
+                $.mobile.changePage('#page-share');
             } else {
                 $('.dialog').dialog('close');
                 $('#share').dialog('open');
@@ -1465,7 +1434,7 @@ function loadTwitter() {
 ///// these used to be identical but then they diverged so desktop has these clicky icons, while mobile is still a selector (for now)
 /////
 $(window).load(function () {
-    //if (MOBILE) $('#pane-trailfinder').page();
+    if (MOBILE) $('#page-trailfinder').page();
 
     // the icons for the trail type, trigger the underlying checkboxes so we're still using real form elements
     $('#trailfinder_typeicons img').tap(function () {
@@ -1486,122 +1455,92 @@ $(window).load(function () {
             $(this).prop('src', src);
         });
 
-        // Update the listing.
-        trailfinderUpdate();
+        // then click the GO button to submit the search for them
+        $('#trailfinder_go').click();
+    }).first().tap();
 
-    //}).first().tap();
-    });
-
-    // The "Search" button on the Trail Finder pane.
-    // We've removed this button from the Trail Finder pane, but it's still on
-    // views/finder/trail.phtml
     $('#trailfinder_go').click(function () {
-        trailfinderUpdate();
+        // compile the params from the form for passing to searchTrails()
+        // most notably the difficulty checkboxes, and making sure at least one is checked
+        var params = {};
+        params.reservation = $('select[name="trailfinder_reservation"]').val();
+        params.paved       = $('select[name="trailfinder_paved"]').val();
+
+        // this is a list of selected trail uses, now only 1 will be checked but it was made to accept a list and that will likely become the case again in the future
+        params.uses = [];
+        $('input[name="trailfinder_uses"]:checked').each(function () {
+            params.uses[params.uses.length] = $(this).val();
+        });
+        params.uses = params.uses.join(",");
+
+        // pass it to the search called
+        searchTrails(params);
     });
 
-    // When the selectors change, trigger a list update
-    $('select[name="trailfinder_reservation"]').change(function () {
-        trailfinderUpdate();
-    });
-    $('select[name="trailfinder_paved"]').change(function () {
-        trailfinderUpdate();
-    });
+    // when the selectors change, click the GO button so they don't have to
+    $('select[name="trailfinder_reservation"]').change(function () { $('#trailfinder_go').click(); });
+    $('select[name="trailfinder_paved"]').change(function () { $('#trailfinder_go').click(); });
 });
 
-/**
- * Trail Finder Search/Update
- *
- * Build Search params from the form, for passing to searchTrails() --
- * most notably the difficulty checkboxes, and making sure at least one is checked.
- */
-function trailfinderUpdate() {
-    var params = {};
-    params.reservation = $('select[name="trailfinder_reservation"]').val();
-    params.paved       = $('select[name="trailfinder_paved"]').val();
-
-    // this is a list of selected trail uses, now only 1 will be checked but it was made to accept a list and that will likely become the case again in the future
-    params.uses = [];
-    $('input[name="trailfinder_uses"]:checked').each(function () {
-        params.uses[params.uses.length] = $(this).val();
-    });
-    params.uses = params.uses.join(",");
-
-    // pass it to the search called
-    searchTrails(params);
-}
-
-/**
- * "Search" functionality in Trail Finder
- */
 function searchTrails(params) {
     // clear out any old search results
     var target = $('#trailfinder_results');
     target.empty();
 
+    // disable the Search button
+    var button = $('#trailfinder_go');
+    if (MOBILE) {
+        $('#page-trailfinder .sortpicker').hide();
+        button.button('disable');
+        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
+    }
+    else {
+        button.prop('disabled',true);
+        button.val( button.attr('value0') );
+    }
+
     // AJAX to fetch results, and render them as LIs with .zoom et cetera
     $.get('../ajax/search_trails', params, function (results) {
+        // re-enable the Search button
+        if (MOBILE) {
+            $('#page-trailfinder .sortpicker').show();
+            button.button('enable');
+            button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
+        }
+        else {
+            button.prop('disabled',false);
+            button.val( button.attr('value1') );
+        }
 
         // iterate over the results and add them to the output
         if (results.length) {
             for (var i=0, l=results.length; i<l; i++) {
-
+                // initialize the result's LI entry; a whole lot of attributes to set pertaining to .zoom handling
                 var result = results[i];
-
-                // List item
-                // A lot of attributes to set pertaining to .zoom handling
                 var li = $('<li></li>').addClass('zoom');
+                li.attr('title', result.name );
+                li.attr('gid',result.gid).attr('type',result.type).attr('w',result.w).attr('s',result.s).attr('e',result.e).attr('n',result.n).attr('lat',result.lat).attr('lng',result.lng);
+                li.attr('backbutton', '#page-trailfinder'); // used by Mobile only, but not harmful on Desktop
 
-                li.attr('title', result.name)
-                  .attr('gid',result.gid)
-                  .attr('type',result.type)
-                  .attr('w',result.w)
-                  .attr('s',result.s)
-                  .attr('e',result.e)
-                  .attr('n',result.n)
-                  .attr('lat',result.lat)
-                  .attr('lng',result.lng);
+                // and the DIV with SPANs for styling substitles, etc.
+                var div = $('<div></div>').addClass('ui-btn-text');
+                div.append( $('<span></span>').addClass('ui-li-heading').text(result.name) );
+                if (result.note) {
+                    div.append( $('<span></span>').addClass('ui-li-desc').html(result.note) );
+                }
 
-                li.attr('backbutton', '#pane-trailfinder');
+                // if this is Mobile mode, add some distance placeholders
+                if (MOBILE) {
+                    div.append( $('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text('0 mi') );
+                }
 
-                // Link (fake, currently)
-                link = $('<a></a>');
-                link.attr('class', 'ui-btn ui-btn-text');
-                //link.attr('href', 'javascript:zoomElementClick($(this)');
-                li.append(link);
-
-                // On click, call zoomElementClick() to load more info
+               // the click handler is to call zoomElementClick(element), which will center the map, load More Info content, etc.
                 li.click(function () {
                     zoomElementClick( $(this) );
                 });
 
-                // Title
-                link.append(
-                    $('<h4></h4>')
-                        .addClass('ui-li-heading')
-                        .text(result.name)
-                );
-
-                // Inner text
-                if (result.note) {
-                    link.append(
-                        $('<span></span>')
-                            .addClass('ui-li-desc')
-                            .html(result.note)
-                    );
-                }
-    
-                // Distance placeholder, to be populated later
-                link.append(
-                    $('<span></span>')
-                        .addClass('zoom_distance')
-                        .addClass('ui-li-count')
-                        .addClass('ui-btn-up-c')
-                        .addClass('ui-btn-corner-all')
-                        .text('0 mi')
-                );
-
-                // Add to the list
-                li.append(link);
+                // ready, add it to the list!
+                li.append(div);
                 target.append(li);
             }
         } else {
@@ -1704,10 +1643,10 @@ function updateShareUrlByDirections() {
 /////
 
 $(window).load(function () {
-    //if (MOBILE) {
-    //    $('#pane-settings').page();
-    //    $('#pane-welcome').page();
-    //}
+    if (MOBILE) {
+        $('#page-settings').page();
+        $('#page-welcome').page();
+    }
 
     // in the Settings panel, check or uncheck the Show Welcome box to match the cookie
     var show_welcome = cookieGet('show_welcome');
