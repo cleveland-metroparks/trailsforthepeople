@@ -36,8 +36,8 @@
     <script type="text/javascript" src="<?= ssl_url('static/common/tablesorter/jquery.tablesorter.js'); ?>"></script>
 
     <!-- Leaflet map API and Wicket plugin for parsing WKT -->
-    <link rel="stylesheet" type="text/css" href="<?= ssl_url('static/common/leaflet-0.7.1/leaflet.css'); ?>" />
-    <script type="text/javascript" src="<?= ssl_url('static/common/leaflet-0.7.1/leaflet.js'); ?>"></script>
+    <link rel="stylesheet" type="text/css" href="<?= ssl_url('static/common/libraries/leaflet-0.7.1/leaflet.css'); ?>" />
+    <script type="text/javascript" src="<?= ssl_url('static/common/libraries/leaflet-0.7.1/leaflet.js'); ?>"></script>
     <script type="text/javascript" src="<?= ssl_url('static/common/wicket/wicket.js'); ?>"></script>
     <script type="text/javascript" src="<?= ssl_url('static/common/wicket/wicket-leaflet.js'); ?>"></script>
 
