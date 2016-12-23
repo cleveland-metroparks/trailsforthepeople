@@ -24,13 +24,13 @@
     <![endif]-->
 
     <!-- jQuery -->
-    <script type="text/javascript" src="<?= ssl_url('static/common/jquery-1.12.4.min.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/common/libraries/jquery-1.12.4.min.js'); ?>"></script>
 
     <!-- jQuery UI -->
-    <!-- <script type="text/javascript" src="<?= ssl_url('static/common/jquery-ui-1.8.21.custom.min.js'); ?>"></script> -->
-    <script type="text/javascript" src="<?= ssl_url('static/common/jquery-ui-1.11.4/jquery-ui.min.js'); ?>"></script>
-    <!-- <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/common/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" /> -->
-    <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/common/jquery-ui-1.11.4/jquery-ui.min.css'); ?>" />
+    <!-- <script type="text/javascript" src="<?= ssl_url('static/common/libraries/jquery-ui-1.8.21.custom.min.js'); ?>"></script> -->
+    <script type="text/javascript" src="<?= ssl_url('static/common/libraries/jquery-ui-1.11.4/jquery-ui.min.js'); ?>"></script>
+    <!-- <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/common/libraries/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" /> -->
+    <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/common/libraries/jquery-ui-1.11.4/jquery-ui.min.css'); ?>" />
 
     <!-- tablesorter -->
     <script type="text/javascript" src="<?= ssl_url('static/common/tablesorter/jquery.tablesorter.js'); ?>"></script>
