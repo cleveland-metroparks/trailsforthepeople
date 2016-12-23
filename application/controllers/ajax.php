@@ -2144,7 +2144,7 @@ function autoloop() {
     $loop->save();
 
     // save the loop: phase 7: elevation profile image
-    $saveas = "static/photos/loops/{$loop->id}.jpg";
+    $saveas = "static/common/images/loops/{$loop->id}.jpg";
     copy($epurl,$saveas);
 
     // finished! print the route's ID# (an integer) so the caller can edit it, or note success/failure
