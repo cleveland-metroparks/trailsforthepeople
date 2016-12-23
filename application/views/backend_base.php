@@ -38,8 +38,8 @@
     <!-- Leaflet map API and Wicket plugin for parsing WKT -->
     <link rel="stylesheet" type="text/css" href="<?= ssl_url('static/common/libraries/leaflet-0.7.1/leaflet.css'); ?>" />
     <script type="text/javascript" src="<?= ssl_url('static/common/libraries/leaflet-0.7.1/leaflet.js'); ?>"></script>
-    <script type="text/javascript" src="<?= ssl_url('static/common/wicket/wicket.js'); ?>"></script>
-    <script type="text/javascript" src="<?= ssl_url('static/common/wicket/wicket-leaflet.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/common/libraries/wicket/wicket.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/common/libraries/wicket/wicket-leaflet.js'); ?>"></script>
 
     <!-- TinyMCE, the HTML editor -->
     <script type="text/javascript" src="<?= ssl_url('static/tinymce/jscripts/tiny_mce/jquery.tinymce.js'); ?>"></script>
