@@ -14,7 +14,7 @@ function __construct()
     parent::__construct();
 
     // Add our common JS as a <script> include.
-    $this->_add_js_include('static/common/constants.js');
+    $this->_add_js_include('static/common/js/constants.js');
 
     // Shortcuts for use in templates:
     // An associated array of the Contributor's info (and quick test for whether they're logged-in).

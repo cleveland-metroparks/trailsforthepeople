@@ -65,11 +65,11 @@ The response is a JSON object, containing a "getURL" attribute. This attribute i
 <h2>Adaptation To Leaflet</h2>
 
 <p>
-In this app, the print process is handled by the <code>printMap()</code> function in <code>static/common/common.js</code> This function   creates a JSON representation of the map state, including the layout/paper selection, the directions and highlights lines, any any  icons on the map at the time.
+In this app, the print process is handled by the <code>printMap()</code> function in <code>static/common/js/common.js</code> This function   creates a JSON representation of the map state, including the layout/paper selection, the directions and highlights lines, any any  icons on the map at the time.
 </p>
 
 <p>
-<code>printMap()</code> uses some arithmetic based on the page sizes (see <code>PRINT_SIZES</code> in <code>static/common/common.js</code>) so it can figure out the best bounding box to center your map onto a sheet of paper. This is necessary since many monitors are  larger than a sheet of paper, and have different aspect ratios than a sheet of paper.
+<code>printMap()</code> uses some arithmetic based on the page sizes (see <code>PRINT_SIZES</code> in <code>static/common/js/common.js</code>) so it can figure out the best bounding box to center your map onto a sheet of paper. This is necessary since many monitors are  larger than a sheet of paper, and have different aspect ratios than a sheet of paper.
 </p>
 
 <p>
