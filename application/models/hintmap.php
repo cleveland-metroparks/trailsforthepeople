@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Hint Map Data Model
+ * Hint Map data model
  */
 
 class HintMap extends DataMapper {
@@ -54,6 +54,10 @@ public function hint_url($absolute=FALSE) {
 
 
 /**
+
+Schema creation
+(@TODO: move this into migration routines.)
+---------------
 
 CREATE TABLE IF NOT EXISTS hint_maps (
   id serial,
