@@ -7,7 +7,7 @@
 
     <!-- a library for encoding and decoding JSON. necessary for IE8 and earlier Firefox to do printing
     at any rate, known to be consistent between browsers; I doubt the ECMA standard will be so lucky, ha ha -->
-    <script type="text/javascript" src="<?= site_url('static/common/json.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/libraries/json.js'); ?>"></script>
 
     <!-- Google API, for geocoding and directions -->
     <script type="text/javascript" src="//maps.googleapis.com/maps/api/js"></script>
@@ -16,36 +16,36 @@
     <link href="//fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css" />
 
     <!-- jQuery et al -->
-    <script type="text/javascript" src="<?= site_url('static/common/jquery-1.7.2.min.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/common/jquery-ui-1.8.21.custom.min.js'); ?>"></script>
-    <link type="text/css" rel="stylesheet" href="<?= site_url('static/common/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" />
-    <script type="text/javascript" src="<?= site_url('static/common/purl.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/libraries/jquery-1.7.2.min.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/libraries/jquery-ui-1.8.21.custom.min.js'); ?>"></script>
+    <link type="text/css" rel="stylesheet" href="<?= site_url('static/common/libraries/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" />
+    <script type="text/javascript" src="<?= site_url('static/common/libraries/purl.js'); ?>"></script>
 
     <!-- proj4js, reproject points    see wgsToLocalSRS()    used for printing, which is desktop only -->
-    <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/proj4js-compressed.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/projCode/utm.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/projCode/merc.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/defs/EPSG4326.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/common/proj4js/lib/defs/EPSG3734.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/libraries/proj4js/lib/proj4js-compressed.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/libraries/proj4js/lib/projCode/utm.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/libraries/proj4js/lib/projCode/merc.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/libraries/proj4js/lib/defs/EPSG4326.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/libraries/proj4js/lib/defs/EPSG3734.js'); ?>"></script>
 
     <!-- Leaflet map API and Wicket plugin for parsing WKT -->
-    <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/leaflet-0.7.1/leaflet.css'); ?>" />
-    <script type="text/javascript" src="<?= site_url('static/common/leaflet-0.7.1/leaflet.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/common/wicket/wicket.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/common/wicket/wicket-leaflet.js'); ?>"></script>
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/libraries/leaflet-0.7.1/leaflet.css'); ?>" />
+    <script type="text/javascript" src="<?= site_url('static/common/libraries/leaflet-0.7.1/leaflet.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/libraries/wicket/wicket.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/libraries/wicket/wicket-leaflet.js'); ?>"></script>
 
     <!-- Mapbox.js standalone (without Leaflet) -->
     <script src='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.standalone.js'></script>
     <link href='https://api.mapbox.com/mapbox.js/v2.4.0/mapbox.css' rel='stylesheet' />
 
     <!-- JavaScript for handling cookies -->
-    <script type="text/javascript" src="<?= site_url('static/common/cookie.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/libraries/cookie.js'); ?>"></script>
 
     <!-- our own local javaScript and CSS: the common stuff then our own overrides -->
-    <script type="text/javascript" src="<?= site_url('static/common/constants.jscompress.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/common/common.jscompress.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/js/constants.jscompress.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/common/js/common.jscompress.js'); ?>"></script>
     <script type="text/javascript" src="<?= site_url('static/desktop/desktop.jscompress.js'); ?>"></script>
-    <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/common.css'); ?>" />
+    <link rel="stylesheet" type="text/css" href="<?= site_url('static/common/css/common.css'); ?>" />
     <link rel="stylesheet" type="text/css" href="<?= site_url('static/desktop/desktop.css'); ?>" />
 </head>
 <body>
@@ -110,7 +110,7 @@
     </table>
 
     <div id="print_waiting">
-        <img src="<?= site_url('static/common/spinner.gif') ?>" />
+        <img src="<?= site_url('static/common/images/spinner.gif') ?>" />
         <br/>
         One moment please
     </div>

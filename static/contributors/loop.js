@@ -223,7 +223,7 @@ $('#recalculate_button').click(function () {
     button.attr("disabled", "disabled");
 
     // visual effects: blank the elevation profile picture
-    $('#elevation_profile').prop('src','/static/common/blank.png');
+    $('#elevation_profile').prop('src','/static/common/images/blank.png');
 
     // visual effects: blank the totals
     updateHiddenFormText('distance_feet', '');
@@ -487,7 +487,7 @@ function renderElevationProfile(vpoints) {
     x = x.join(',');
     y = y.join(',');
 
-    $('#elevation_profile').prop('src','/static/common/blank.png');
+    $('#elevation_profile').prop('src','/static/common/images/blank.png');
     $.post('../../ajax/elevationprofilebysegments', { 'x':x, 'y':y }, function (url) {
         if (url.indexOf('http') != 0) return alert(url);
         $('#elevation_profile').prop('src',url);

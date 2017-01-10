@@ -464,6 +464,40 @@ function hint_map_delete($id) {
 }
 
 /*
+ * Download metadata on hint maps in CSV form.
+ *
+ * Rows include Title and URL
+ */
+function hint_maps_download_csv() {
+    // Require SSL
+    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
+    // Require logged-in user with "Allow Hint Maps" permission
+    if ($this->_user_access('allow_hint_maps') !== NULL) return;
+
+    $this->load->helper('download');
+
+    // Get all Hint Maps
+    $hint_maps = new HintMap();
+    $hint_maps->get();
+
+    $datestamp = date('Ymd-His');
+    $csv_filename = 'hint_maps-' . $datestamp . '.csv';
+
+    $csv_filepath_tmp = $this->config->item('temp_dir') . '/' . $csv_filename;
+    $file_tmp = fopen($csv_filepath_tmp, 'w');
+
+    fputcsv($file_tmp, array("Title", "URL"));
+    foreach ($hint_maps as $hint_map) {
+        $row = array($hint_map->title, $hint_map->hint_url(TRUE));
+        fputcsv($file_tmp, $row);
+    }
+
+    fclose($file_tmp);
+    $file_data = file_get_contents($csv_filepath_tmp);
+    force_download($csv_filename, $file_data);
+}
+
+/*
  * Get a hint map image. For our aliasing (see routes.php).
  */
 function hint_map_retrieve($id) {

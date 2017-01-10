@@ -8,8 +8,8 @@ module.exports = function(grunt) {
       dist: {
         files: {
           'static/mobile/mobile.jscompress.js': ['static/mobile/mobile.js'],
-          'static/common/constants.jscompress.js': ['static/common/constants.js'],
-          'static/common/common.jscompress.js': ['static/common/common.js']
+          'static/common/js/constants.jscompress.js': ['static/common/js/constants.js'],
+          'static/common/js/common.jscompress.js': ['static/common/js/common.js']
         }
       }
     },
@@ -31,8 +31,8 @@ module.exports = function(grunt) {
             "static/mobile/mobile.css",
             "static/mobile/jqm-themes/cm-jqm-theme.min.css",
             "static/mobile/mobile.jscompress.js",
-            "static/common/constants.jscompress.js",
-            "static/common/common.jscompress.js"
+            "static/common/js/constants.jscompress.js",
+            "static/common/js/common.jscompress.js"
           ]
         },
         options: {
@@ -57,8 +57,8 @@ module.exports = function(grunt) {
       uglify_js: {
         files: [
           'static/mobile/mobile.js',
-          'static/common/constants.js',
-          'static/common/common.js'
+          'static/common/js/constants.js',
+          'static/common/js/common.js'
         ],
         tasks: ['uglify']
       },
@@ -67,8 +67,8 @@ module.exports = function(grunt) {
           'static/mobile/mobile.css',
           'static/mobile/jqm-themes/cm-jqm-theme.css',
           'static/mobile/mobile.jscompress.js',
-          'static/common/constants.jscompress.js',
-          'static/common/common.jscompress.js'
+          'static/common/js/constants.jscompress.js',
+          'static/common/js/common.jscompress.js'
         ],
         tasks: ['sftp']
       }

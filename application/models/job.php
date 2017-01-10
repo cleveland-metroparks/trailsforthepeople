@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Job Model
+ * Job data model
  */
 
 // Job statuses: Currently storing in DB as text to avoid making up an integer-based system,
@@ -12,10 +12,6 @@ const JOB_ABORTED      = 'ABORTED';
 const JOB_RUNNING      = 'RUNNING';
 const JOB_PAUSED       = 'PAUSED';
 
-
-/**
- * Job
- */
 class Job extends DataMapper {
 
 var $table    = 'jobs';
@@ -27,12 +23,11 @@ function __construct($id = NULL) {
 }
 
 
-
 /**
- * Leaving this here for now:
- */
 
-/*
+Schema creation
+(@TODO: move this into migration routines.)
+---------------
 
 CREATE TABLE IF NOT EXISTS jobs (
   id serial,
