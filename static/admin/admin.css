@@ -108,7 +108,7 @@ ul.local-actions {
 ul.local-actions li {
   list-style-type: none;
   display: inline-block;
-  margin-right: 2em;
+  margin-right: 1em;
 }
 
 input.textonly {
