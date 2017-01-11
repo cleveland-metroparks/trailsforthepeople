@@ -384,7 +384,16 @@ private function __hint_map_cache_save($id) {
     $local_filepath = $local_dir . '/' . $local_filename;
 
     // Move and rename with file extension
-    rename($local_filepath_temp, $local_filepath);
+    if (!rename($local_filepath_temp, $local_filepath)) {
+        Auditlog::log_message(
+            sprintf(
+                "Error: Hint Map image could not be moved from '%s' to '%s'.",
+                $local_filepath_temp,
+                $local_filepath
+            ),
+            $myid['email']);
+        return;
+    }
 
     $hint_map->image_filename_local = $local_filename;
 
