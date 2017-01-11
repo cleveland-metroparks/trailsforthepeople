@@ -1,26 +1,26 @@
 var MOBILE; // set in desktop.js and mobile.js, so we can work around some things in shared code
 
 var ICON_TARGET = L.icon({
-    iconUrl: 'https://maps.clevelandmetroparks.com/static/common/images/markers/marker-target.png',
+    iconUrl: '/static/common/images/markers/marker-target.png',
     iconSize: [ 25, 41 ],
     iconAnchor: [ 13, 41 ]
 });
 var MARKER_TARGET = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_TARGET });
 
 var ICON_GPS = L.icon({
-    iconUrl: 'https://maps.clevelandmetroparks.com/static/common/images/markers/marker-gps.png',
+    iconUrl: '/static/common/images/markers/marker-gps.png',
     iconSize: [ 25, 41 ],
     iconAnchor: [ 13, 41 ]
 });
 var MARKER_GPS     = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_GPS });
 
 var ICON_FROM = L.icon({
-    iconUrl: 'https://maps.clevelandmetroparks.com/static/desktop/measure1.png',
+    iconUrl: '/static/desktop/measure1.png',
     iconSize: [ 20, 34 ],
     iconAnchor: [ 10, 34 ]
 });
 var ICON_TO = L.icon({
-    iconUrl: 'https://maps.clevelandmetroparks.com/static/desktop/measure2.png',
+    iconUrl: '/static/desktop/measure2.png',
     iconSize: [ 20, 34 ],
     iconAnchor: [ 10, 34 ]
 });
