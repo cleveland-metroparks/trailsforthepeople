@@ -75,6 +75,15 @@ module.exports = function(grunt) {
           'static/mobile/mobile.css': 'static/mobile/mobile.scss',
           'static/mobile/jqm-themes/cm-jqm-theme.min.css': 'static/mobile/jqm-themes/cm-jqm-theme.css'
         }
+      },
+      // Map embeds on external sites:
+      embedded: {
+        options: {
+          style: 'compact'
+        },
+        files: {
+          'static/dist/css/embedded.css': 'static/src/scss/embedded.scss'
+        }
       }
     },
     sftp: {
@@ -89,7 +98,8 @@ module.exports = function(grunt) {
             "static/dist/js/map-embedded.js",
             "static/dist/js/map-embedded.min.js",
             "static/dist/js/map-embedded-nojq.js",
-            "static/dist/js/map-embedded-nojq.min.js"
+            "static/dist/js/map-embedded-nojq.min.js",
+            "static/dist/css/embedded.css"
           ]
         },
         options: {
