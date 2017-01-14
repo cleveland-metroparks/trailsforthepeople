@@ -227,16 +227,12 @@ $(document).bind('pagechange', function(e,data) {
 //});
 
 
-
-
-// mobile-specific: when the map canvas gets swiped, turn off GPS mode
-/*
+// Turn off GPS mode if map canvas is swiped. (Mobile-specific.)
 $(window).load(function () {
     $('#map_canvas').bind('swipe', function () {
         toggleGPSOff();
     });
 });
-*/
 
 // @TODO: Do we need to do this anymore?
 //
