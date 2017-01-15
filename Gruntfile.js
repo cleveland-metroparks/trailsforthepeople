@@ -5,6 +5,9 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     local: grunt.file.readJSON('grunt-local-config.json'),
     concat: {
+      options: {
+        separator: ';\n',
+      },
       // Main package:
       dist: {},
       // Map embeds on external sites:
@@ -78,7 +81,7 @@ module.exports = function(grunt) {
           'static/mobile/jqm-themes/cm-jqm-theme.min.css': 'static/mobile/jqm-themes/cm-jqm-theme.css'
         }
       },
-      // Map embeds on external sites:
+      // For map embeds on external sites:
       embedded: {
         options: {
           style: 'compact'
@@ -89,29 +92,37 @@ module.exports = function(grunt) {
       }
     },
     sftp: {
-      test: {
+      options: {
+        path: '<%= local.remoteHost.path %>',
+        host: '<%= local.remoteHost.hostname %>',
+        port: '<%= local.remoteHost.port %>',
+        username: '<%= local.remoteHost.username %>',
+        password: '<%= local.remoteHost.password %>',
+        showProgress: true,
+        readyTimeout: '<%= local.remoteHost.readyTimeout %>'
+      },
+      // Main package:
+      dist: {
         files: {
           "./": [
             "static/mobile/mobile.css",
             "static/mobile/jqm-themes/cm-jqm-theme.min.css",
             "static/mobile/mobile.jscompress.js",
             "static/common/js/constants.jscompress.js",
-            "static/common/js/common.jscompress.js",
+            "static/common/js/common.jscompress.js"
+          ]
+        }
+      },
+      // For map embeds on external sites:
+      embedded: {
+        files: {
+          "./": [
             "static/dist/js/map-embedded.js",
             "static/dist/js/map-embedded.min.js",
             "static/dist/js/map-embedded-nojq.js",
             "static/dist/js/map-embedded-nojq.min.js",
             "static/dist/css/embedded.css"
           ]
-        },
-        options: {
-          path: '<%= local.remoteHost.path %>',
-          host: '<%= local.remoteHost.hostname %>',
-          port: '<%= local.remoteHost.port %>',
-          username: '<%= local.remoteHost.username %>',
-          password: '<%= local.remoteHost.password %>',
-          showProgress: true,
-          readyTimeout: '<%= local.remoteHost.readyTimeout %>'
         }
       }
     },
@@ -150,8 +161,13 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-ssh');
 
-  // Default tasks
-  grunt.registerTask('default', ['concat:dist', 'uglify:dist', 'sass:dist', 'sftp']);
+  // Default (dist only; non-embedded) tasks
+  grunt.registerTask('default', ['concat:dist', 'uglify:dist', 'sass:dist', 'sftp:dist']);
+  // All tasks
   grunt.registerTask('all', ['concat', 'uglify', 'sass', 'sftp']);
+  // Embedded tasks only
+  grunt.registerTask('embedded', ['concat:embedded', 'concat:embedded_nojq', 'uglify:embedded', 'uglify:embedded_nojq', 'sass:embedded', 'sftp:embedded']);
+  // Embedded tasks only, without uglify
+  grunt.registerTask('embedded_nougly', ['concat:embedded', 'concat:embedded_nojq', 'sass:embedded', 'sftp:embedded']);
 
 };
