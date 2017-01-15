@@ -14,7 +14,6 @@ module.exports = function(grunt) {
       embedded: {
         src: [
           'static/common/libraries/jquery-1.12.4.min.js',
-          'static/common/libraries/jquery.mobile-1.4.5/jquery.mobile-1.4.5.js',
           'static/mobile/jqm.autoComplete-1.5.1-min.js',
           'static/common/libraries/purl.js',
           'static/common/libraries/leaflet-1.0.2/leaflet.js',
@@ -24,7 +23,6 @@ module.exports = function(grunt) {
           'static/common/libraries/cookie.js',
           'static/common/js/constants.js',
           'static/common/js/common.js',
-          'static/mobile/mobile.js',
           'static/src/js/embedded.js'
         ],
         dest: 'static/dist/js/map-embedded.js'
@@ -32,7 +30,6 @@ module.exports = function(grunt) {
       // Map embeds on external sites that already have jQuery included (we don't package it):
       embedded_nojq: {
         src: [
-          'static/common/libraries/jquery.mobile-1.4.5/jquery.mobile-1.4.5.js',
           'static/mobile/jqm.autoComplete-1.5.1-min.js',
           'static/common/libraries/purl.js',
           'static/common/libraries/leaflet-1.0.2/leaflet.js',
@@ -42,7 +39,6 @@ module.exports = function(grunt) {
           'static/common/libraries/cookie.js',
           'static/common/js/constants.js',
           'static/common/js/common.js',
-          'static/mobile/mobile.js',
           'static/src/js/embedded.js'
         ],
         dest: 'static/dist/js/map-embedded-nojq.js'
