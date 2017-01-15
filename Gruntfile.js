@@ -19,9 +19,10 @@ module.exports = function(grunt) {
           'static/lib/mapbox-gl-0.28.0.js',
           'static/common/libraries/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
           'static/common/libraries/cookie.js',
-          'static/common/js/constants.jscompress.js',
-          'static/common/js/common.jscompress.js',
-          'static/mobile/mobile.jscompress.js'
+          'static/common/js/constants.js',
+          'static/common/js/common.js',
+          'static/mobile/mobile.js',
+          'static/src/js/embedded.js'
         ],
         dest: 'static/dist/js/map-embedded.js'
       },
@@ -36,9 +37,10 @@ module.exports = function(grunt) {
           'static/lib/mapbox-gl-0.28.0.js',
           'static/common/libraries/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
           'static/common/libraries/cookie.js',
-          'static/common/js/constants.jscompress.js',
-          'static/common/js/common.jscompress.js',
-          'static/mobile/mobile.jscompress.js'
+          'static/common/js/constants.js',
+          'static/common/js/common.js',
+          'static/mobile/mobile.js',
+          'static/src/js/embedded.js'
         ],
         dest: 'static/dist/js/map-embedded-nojq.js'
       }
@@ -149,6 +151,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-ssh');
 
   // Default tasks
-  grunt.registerTask('default', ['concat', 'uglify', 'sass', 'sftp']);
+  grunt.registerTask('default', ['concat:dist', 'uglify:dist', 'sass:dist', 'sftp']);
+  grunt.registerTask('all', ['concat', 'uglify', 'sass', 'sftp']);
 
 };
