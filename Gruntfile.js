@@ -14,7 +14,6 @@ module.exports = function(grunt) {
       embedded: {
         src: [
           'static/common/libraries/jquery-1.12.4.min.js',
-          'static/mobile/jqm.autoComplete-1.5.1-min.js',
           'static/common/libraries/purl.js',
           'static/common/libraries/leaflet-1.0.2/leaflet.js',
           'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
@@ -30,7 +29,6 @@ module.exports = function(grunt) {
       // Map embeds on external sites that already have jQuery included (we don't package it):
       embedded_nojq: {
         src: [
-          'static/mobile/jqm.autoComplete-1.5.1-min.js',
           'static/common/libraries/purl.js',
           'static/common/libraries/leaflet-1.0.2/leaflet.js',
           'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
