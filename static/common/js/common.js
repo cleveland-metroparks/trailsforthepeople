@@ -1,3 +1,11 @@
+ /**
+ * common.js
+ *
+ * JS for common app functionality.
+ *
+ * Cleveland Metroparks
+ */
+
 var MOBILE; // set in desktop.js and mobile.js, so we can work around some things in shared code
 
 var ICON_TARGET = L.icon({
