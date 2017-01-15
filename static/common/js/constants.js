@@ -1,3 +1,11 @@
+ /**
+ * constants.js
+ *
+ * JS constants.
+ *
+ * Cleveland Metroparks
+ */
+
 ///// constants about all maps, Desktop and Mobile as well as Admin and Contributor
 ///// The Admin and Contributor have their own versions too, which override the map URLs with SSL URLs
 ///// for Admin and Contributors maps, see admin.js and contributors.js

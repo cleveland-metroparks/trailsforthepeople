@@ -1,3 +1,11 @@
+ /**
+ * mobile.js
+ *
+ * JS for main app map.
+ *
+ * Cleveland Metroparks
+ */
+
 // used by the radar: sound an alert only if the list has in fact changed
 var LAST_BEEP_IDS = [];
 

@@ -1,15468 +1,3 @@
-/*!
-* jQuery Mobile 1.4.5
-* Git HEAD hash: 68e55e78b292634d3991c795f06f5e37a512decc <> Date: Fri Oct 31 2014 17:33:30 UTC
-* http://jquerymobile.com
-*
-* Copyright 2010, 2014 jQuery Foundation, Inc. and othercontributors
-* Released under the MIT license.
-* http://jquery.org/license
-*
-*/
-
-
-(function ( root, doc, factory ) {
-	if ( typeof define === "function" && define.amd ) {
-		// AMD. Register as an anonymous module.
-		define( [ "jquery" ], function ( $ ) {
-			factory( $, root, doc );
-			return $.mobile;
-		});
-	} else {
-		// Browser globals
-		factory( root.jQuery, root, doc );
-	}
-}( this, document, function ( jQuery, window, document, undefined ) {
-(function( $ ) {
-	$.mobile = {};
-}( jQuery ));
-
-/*!
- * jQuery UI Core c0ab71056b936627e8a7821f03c044aec6280a40
- * http://jqueryui.com
- *
- * Copyright 2013 jQuery Foundation and other contributors
- * Released under the MIT license.
- * http://jquery.org/license
- *
- * http://api.jqueryui.com/category/ui-core/
- */
-(function( $, undefined ) {
-
-var uuid = 0,
-	runiqueId = /^ui-id-\d+$/;
-
-// $.ui might exist from components with no dependencies, e.g., $.ui.position
-$.ui = $.ui || {};
-
-$.extend( $.ui, {
-	version: "c0ab71056b936627e8a7821f03c044aec6280a40",
-
-	keyCode: {
-		BACKSPACE: 8,
-		COMMA: 188,
-		DELETE: 46,
-		DOWN: 40,
-		END: 35,
-		ENTER: 13,
-		ESCAPE: 27,
-		HOME: 36,
-		LEFT: 37,
-		PAGE_DOWN: 34,
-		PAGE_UP: 33,
-		PERIOD: 190,
-		RIGHT: 39,
-		SPACE: 32,
-		TAB: 9,
-		UP: 38
-	}
-});
-
-// plugins
-$.fn.extend({
-	focus: (function( orig ) {
-		return function( delay, fn ) {
-			return typeof delay === "number" ?
-				this.each(function() {
-					var elem = this;
-					setTimeout(function() {
-						$( elem ).focus();
-						if ( fn ) {
-							fn.call( elem );
-						}
-					}, delay );
-				}) :
-				orig.apply( this, arguments );
-		};
-	})( $.fn.focus ),
-
-	scrollParent: function() {
-		var scrollParent;
-		if (($.ui.ie && (/(static|relative)/).test(this.css("position"))) || (/absolute/).test(this.css("position"))) {
-			scrollParent = this.parents().filter(function() {
-				return (/(relative|absolute|fixed)/).test($.css(this,"position")) && (/(auto|scroll)/).test($.css(this,"overflow")+$.css(this,"overflow-y")+$.css(this,"overflow-x"));
-			}).eq(0);
-		} else {
-			scrollParent = this.parents().filter(function() {
-				return (/(auto|scroll)/).test($.css(this,"overflow")+$.css(this,"overflow-y")+$.css(this,"overflow-x"));
-			}).eq(0);
-		}
-
-		return ( /fixed/ ).test( this.css( "position") ) || !scrollParent.length ? $( this[ 0 ].ownerDocument || document ) : scrollParent;
-	},
-
-	uniqueId: function() {
-		return this.each(function() {
-			if ( !this.id ) {
-				this.id = "ui-id-" + (++uuid);
-			}
-		});
-	},
-
-	removeUniqueId: function() {
-		return this.each(function() {
-			if ( runiqueId.test( this.id ) ) {
-				$( this ).removeAttr( "id" );
-			}
-		});
-	}
-});
-
-// selectors
-function focusable( element, isTabIndexNotNaN ) {
-	var map, mapName, img,
-		nodeName = element.nodeName.toLowerCase();
-	if ( "area" === nodeName ) {
-		map = element.parentNode;
-		mapName = map.name;
-		if ( !element.href || !mapName || map.nodeName.toLowerCase() !== "map" ) {
-			return false;
-		}
-		img = $( "img[usemap=#" + mapName + "]" )[0];
-		return !!img && visible( img );
-	}
-	return ( /input|select|textarea|button|object/.test( nodeName ) ?
-		!element.disabled :
-		"a" === nodeName ?
-			element.href || isTabIndexNotNaN :
-			isTabIndexNotNaN) &&
-		// the element and all of its ancestors must be visible
-		visible( element );
-}
-
-function visible( element ) {
-	return $.expr.filters.visible( element ) &&
-		!$( element ).parents().addBack().filter(function() {
-			return $.css( this, "visibility" ) === "hidden";
-		}).length;
-}
-
-$.extend( $.expr[ ":" ], {
-	data: $.expr.createPseudo ?
-		$.expr.createPseudo(function( dataName ) {
-			return function( elem ) {
-				return !!$.data( elem, dataName );
-			};
-		}) :
-		// support: jQuery <1.8
-		function( elem, i, match ) {
-			return !!$.data( elem, match[ 3 ] );
-		},
-
-	focusable: function( element ) {
-		return focusable( element, !isNaN( $.attr( element, "tabindex" ) ) );
-	},
-
-	tabbable: function( element ) {
-		var tabIndex = $.attr( element, "tabindex" ),
-			isTabIndexNaN = isNaN( tabIndex );
-		return ( isTabIndexNaN || tabIndex >= 0 ) && focusable( element, !isTabIndexNaN );
-	}
-});
-
-// support: jQuery <1.8
-if ( !$( "<a>" ).outerWidth( 1 ).jquery ) {
-	$.each( [ "Width", "Height" ], function( i, name ) {
-		var side = name === "Width" ? [ "Left", "Right" ] : [ "Top", "Bottom" ],
-			type = name.toLowerCase(),
-			orig = {
-				innerWidth: $.fn.innerWidth,
-				innerHeight: $.fn.innerHeight,
-				outerWidth: $.fn.outerWidth,
-				outerHeight: $.fn.outerHeight
-			};
-
-		function reduce( elem, size, border, margin ) {
-			$.each( side, function() {
-				size -= parseFloat( $.css( elem, "padding" + this ) ) || 0;
-				if ( border ) {
-					size -= parseFloat( $.css( elem, "border" + this + "Width" ) ) || 0;
-				}
-				if ( margin ) {
-					size -= parseFloat( $.css( elem, "margin" + this ) ) || 0;
-				}
-			});
-			return size;
-		}
-
-		$.fn[ "inner" + name ] = function( size ) {
-			if ( size === undefined ) {
-				return orig[ "inner" + name ].call( this );
-			}
-
-			return this.each(function() {
-				$( this ).css( type, reduce( this, size ) + "px" );
-			});
-		};
-
-		$.fn[ "outer" + name] = function( size, margin ) {
-			if ( typeof size !== "number" ) {
-				return orig[ "outer" + name ].call( this, size );
-			}
-
-			return this.each(function() {
-				$( this).css( type, reduce( this, size, true, margin ) + "px" );
-			});
-		};
-	});
-}
-
-// support: jQuery <1.8
-if ( !$.fn.addBack ) {
-	$.fn.addBack = function( selector ) {
-		return this.add( selector == null ?
-			this.prevObject : this.prevObject.filter( selector )
-		);
-	};
-}
-
-// support: jQuery 1.6.1, 1.6.2 (http://bugs.jquery.com/ticket/9413)
-if ( $( "<a>" ).data( "a-b", "a" ).removeData( "a-b" ).data( "a-b" ) ) {
-	$.fn.removeData = (function( removeData ) {
-		return function( key ) {
-			if ( arguments.length ) {
-				return removeData.call( this, $.camelCase( key ) );
-			} else {
-				return removeData.call( this );
-			}
-		};
-	})( $.fn.removeData );
-}
-
-
-
-
-
-// deprecated
-$.ui.ie = !!/msie [\w.]+/.exec( navigator.userAgent.toLowerCase() );
-
-$.support.selectstart = "onselectstart" in document.createElement( "div" );
-$.fn.extend({
-	disableSelection: function() {
-		return this.bind( ( $.support.selectstart ? "selectstart" : "mousedown" ) +
-			".ui-disableSelection", function( event ) {
-				event.preventDefault();
-			});
-	},
-
-	enableSelection: function() {
-		return this.unbind( ".ui-disableSelection" );
-	},
-
-	zIndex: function( zIndex ) {
-		if ( zIndex !== undefined ) {
-			return this.css( "zIndex", zIndex );
-		}
-
-		if ( this.length ) {
-			var elem = $( this[ 0 ] ), position, value;
-			while ( elem.length && elem[ 0 ] !== document ) {
-				// Ignore z-index if position is set to a value where z-index is ignored by the browser
-				// This makes behavior of this function consistent across browsers
-				// WebKit always returns auto if the element is positioned
-				position = elem.css( "position" );
-				if ( position === "absolute" || position === "relative" || position === "fixed" ) {
-					// IE returns 0 when zIndex is not specified
-					// other browsers return a string
-					// we ignore the case of nested elements with an explicit value of 0
-					// <div style="z-index: -10;"><div style="z-index: 0;"></div></div>
-					value = parseInt( elem.css( "zIndex" ), 10 );
-					if ( !isNaN( value ) && value !== 0 ) {
-						return value;
-					}
-				}
-				elem = elem.parent();
-			}
-		}
-
-		return 0;
-	}
-});
-
-// $.ui.plugin is deprecated. Use $.widget() extensions instead.
-$.ui.plugin = {
-	add: function( module, option, set ) {
-		var i,
-			proto = $.ui[ module ].prototype;
-		for ( i in set ) {
-			proto.plugins[ i ] = proto.plugins[ i ] || [];
-			proto.plugins[ i ].push( [ option, set[ i ] ] );
-		}
-	},
-	call: function( instance, name, args, allowDisconnected ) {
-		var i,
-			set = instance.plugins[ name ];
-
-		if ( !set ) {
-			return;
-		}
-
-		if ( !allowDisconnected && ( !instance.element[ 0 ].parentNode || instance.element[ 0 ].parentNode.nodeType === 11 ) ) {
-			return;
-		}
-
-		for ( i = 0; i < set.length; i++ ) {
-			if ( instance.options[ set[ i ][ 0 ] ] ) {
-				set[ i ][ 1 ].apply( instance.element, args );
-			}
-		}
-	}
-};
-
-})( jQuery );
-
-(function( $, window, undefined ) {
-
-	// Subtract the height of external toolbars from the page height, if the page does not have
-	// internal toolbars of the same type. We take care to use the widget options if we find a
-	// widget instance and the element's data-attributes otherwise.
-	var compensateToolbars = function( page, desiredHeight ) {
-		var pageParent = page.parent(),
-			toolbarsAffectingHeight = [],
-
-			// We use this function to filter fixed toolbars with option updatePagePadding set to
-			// true (which is the default) from our height subtraction, because fixed toolbars with
-			// option updatePagePadding set to true compensate for their presence by adding padding
-			// to the active page. We want to avoid double-counting by also subtracting their
-			// height from the desired page height.
-			noPadders = function() {
-				var theElement = $( this ),
-					widgetOptions = $.mobile.toolbar && theElement.data( "mobile-toolbar" ) ?
-						theElement.toolbar( "option" ) : {
-							position: theElement.attr( "data-" + $.mobile.ns + "position" ),
-							updatePagePadding: ( theElement.attr( "data-" + $.mobile.ns +
-								"update-page-padding" ) !== false )
-						};
-
-				return !( widgetOptions.position === "fixed" &&
-					widgetOptions.updatePagePadding === true );
-			},
-			externalHeaders = pageParent.children( ":jqmData(role='header')" ).filter( noPadders ),
-			internalHeaders = page.children( ":jqmData(role='header')" ),
-			externalFooters = pageParent.children( ":jqmData(role='footer')" ).filter( noPadders ),
-			internalFooters = page.children( ":jqmData(role='footer')" );
-
-		// If we have no internal headers, but we do have external headers, then their height
-		// reduces the page height
-		if ( internalHeaders.length === 0 && externalHeaders.length > 0 ) {
-			toolbarsAffectingHeight = toolbarsAffectingHeight.concat( externalHeaders.toArray() );
-		}
-
-		// If we have no internal footers, but we do have external footers, then their height
-		// reduces the page height
-		if ( internalFooters.length === 0 && externalFooters.length > 0 ) {
-			toolbarsAffectingHeight = toolbarsAffectingHeight.concat( externalFooters.toArray() );
-		}
-
-		$.each( toolbarsAffectingHeight, function( index, value ) {
-			desiredHeight -= $( value ).outerHeight();
-		});
-
-		// Height must be at least zero
-		return Math.max( 0, desiredHeight );
-	};
-
-	$.extend( $.mobile, {
-		// define the window and the document objects
-		window: $( window ),
-		document: $( document ),
-
-		// TODO: Remove and use $.ui.keyCode directly
-		keyCode: $.ui.keyCode,
-
-		// Place to store various widget extensions
-		behaviors: {},
-
-		// Scroll page vertically: scroll to 0 to hide iOS address bar, or pass a Y value
-		silentScroll: function( ypos ) {
-			if ( $.type( ypos ) !== "number" ) {
-				ypos = $.mobile.defaultHomeScroll;
-			}
-
-			// prevent scrollstart and scrollstop events
-			$.event.special.scrollstart.enabled = false;
-
-			setTimeout(function() {
-				window.scrollTo( 0, ypos );
-				$.mobile.document.trigger( "silentscroll", { x: 0, y: ypos });
-			}, 20 );
-
-			setTimeout(function() {
-				$.event.special.scrollstart.enabled = true;
-			}, 150 );
-		},
-
-		getClosestBaseUrl: function( ele )	{
-			// Find the closest page and extract out its url.
-			var url = $( ele ).closest( ".ui-page" ).jqmData( "url" ),
-				base = $.mobile.path.documentBase.hrefNoHash;
-
-			if ( !$.mobile.dynamicBaseEnabled || !url || !$.mobile.path.isPath( url ) ) {
-				url = base;
-			}
-
-			return $.mobile.path.makeUrlAbsolute( url, base );
-		},
-		removeActiveLinkClass: function( forceRemoval ) {
-			if ( !!$.mobile.activeClickedLink &&
-				( !$.mobile.activeClickedLink.closest( "." + $.mobile.activePageClass ).length ||
-					forceRemoval ) ) {
-
-				$.mobile.activeClickedLink.removeClass( $.mobile.activeBtnClass );
-			}
-			$.mobile.activeClickedLink = null;
-		},
-
-		// DEPRECATED in 1.4
-		// Find the closest parent with a theme class on it. Note that
-		// we are not using $.fn.closest() on purpose here because this
-		// method gets called quite a bit and we need it to be as fast
-		// as possible.
-		getInheritedTheme: function( el, defaultTheme ) {
-			var e = el[ 0 ],
-				ltr = "",
-				re = /ui-(bar|body|overlay)-([a-z])\b/,
-				c, m;
-			while ( e ) {
-				c = e.className || "";
-				if ( c && ( m = re.exec( c ) ) && ( ltr = m[ 2 ] ) ) {
-					// We found a parent with a theme class
-					// on it so bail from this loop.
-					break;
-				}
-
-				e = e.parentNode;
-			}
-			// Return the theme letter we found, if none, return the
-			// specified default.
-			return ltr || defaultTheme || "a";
-		},
-
-		enhanceable: function( elements ) {
-			return this.haveParents( elements, "enhance" );
-		},
-
-		hijackable: function( elements ) {
-			return this.haveParents( elements, "ajax" );
-		},
-
-		haveParents: function( elements, attr ) {
-			if ( !$.mobile.ignoreContentEnabled ) {
-				return elements;
-			}
-
-			var count = elements.length,
-				$newSet = $(),
-				e, $element, excluded,
-				i, c;
-
-			for ( i = 0; i < count; i++ ) {
-				$element = elements.eq( i );
-				excluded = false;
-				e = elements[ i ];
-
-				while ( e ) {
-					c = e.getAttribute ? e.getAttribute( "data-" + $.mobile.ns + attr ) : "";
-
-					if ( c === "false" ) {
-						excluded = true;
-						break;
-					}
-
-					e = e.parentNode;
-				}
-
-				if ( !excluded ) {
-					$newSet = $newSet.add( $element );
-				}
-			}
-
-			return $newSet;
-		},
-
-		getScreenHeight: function() {
-			// Native innerHeight returns more accurate value for this across platforms,
-			// jQuery version is here as a normalized fallback for platforms like Symbian
-			return window.innerHeight || $.mobile.window.height();
-		},
-
-		//simply set the active page's minimum height to screen height, depending on orientation
-		resetActivePageHeight: function( height ) {
-			var page = $( "." + $.mobile.activePageClass ),
-				pageHeight = page.height(),
-				pageOuterHeight = page.outerHeight( true );
-
-			height = compensateToolbars( page,
-				( typeof height === "number" ) ? height : $.mobile.getScreenHeight() );
-
-			// Remove any previous min-height setting
-			page.css( "min-height", "" );
-
-			// Set the minimum height only if the height as determined by CSS is insufficient
-			if ( page.height() < height ) {
-				page.css( "min-height", height - ( pageOuterHeight - pageHeight ) );
-			}
-		},
-
-		loading: function() {
-			// If this is the first call to this function, instantiate a loader widget
-			var loader = this.loading._widget || $( $.mobile.loader.prototype.defaultHtml ).loader(),
-
-				// Call the appropriate method on the loader
-				returnValue = loader.loader.apply( loader, arguments );
-
-			// Make sure the loader is retained for future calls to this function.
-			this.loading._widget = loader;
-
-			return returnValue;
-		}
-	});
-
-	$.addDependents = function( elem, newDependents ) {
-		var $elem = $( elem ),
-			dependents = $elem.jqmData( "dependents" ) || $();
-
-		$elem.jqmData( "dependents", $( dependents ).add( newDependents ) );
-	};
-
-	// plugins
-	$.fn.extend({
-		removeWithDependents: function() {
-			$.removeWithDependents( this );
-		},
-
-		// Enhance child elements
-		enhanceWithin: function() {
-			var index,
-				widgetElements = {},
-				keepNative = $.mobile.page.prototype.keepNativeSelector(),
-				that = this;
-
-			// Add no js class to elements
-			if ( $.mobile.nojs ) {
-				$.mobile.nojs( this );
-			}
-
-			// Bind links for ajax nav
-			if ( $.mobile.links ) {
-				$.mobile.links( this );
-			}
-
-			// Degrade inputs for styleing
-			if ( $.mobile.degradeInputsWithin ) {
-				$.mobile.degradeInputsWithin( this );
-			}
-
-			// Run buttonmarkup
-			if ( $.fn.buttonMarkup ) {
-				this.find( $.fn.buttonMarkup.initSelector ).not( keepNative )
-				.jqmEnhanceable().buttonMarkup();
-			}
-
-			// Add classes for fieldContain
-			if ( $.fn.fieldcontain ) {
-				this.find( ":jqmData(role='fieldcontain')" ).not( keepNative )
-				.jqmEnhanceable().fieldcontain();
-			}
-
-			// Enhance widgets
-			$.each( $.mobile.widgets, function( name, constructor ) {
-
-				// If initSelector not false find elements
-				if ( constructor.initSelector ) {
-
-					// Filter elements that should not be enhanced based on parents
-					var elements = $.mobile.enhanceable( that.find( constructor.initSelector ) );
-
-					// If any matching elements remain filter ones with keepNativeSelector
-					if ( elements.length > 0 ) {
-
-						// $.mobile.page.prototype.keepNativeSelector is deprecated this is just for backcompat
-						// Switch to $.mobile.keepNative in 1.5 which is just a value not a function
-						elements = elements.not( keepNative );
-					}
-
-					// Enhance whatever is left
-					if ( elements.length > 0 ) {
-						widgetElements[ constructor.prototype.widgetName ] = elements;
-					}
-				}
-			});
-
-			for ( index in widgetElements ) {
-				widgetElements[ index ][ index ]();
-			}
-
-			return this;
-		},
-
-		addDependents: function( newDependents ) {
-			$.addDependents( this, newDependents );
-		},
-
-		// note that this helper doesn't attempt to handle the callback
-		// or setting of an html element's text, its only purpose is
-		// to return the html encoded version of the text in all cases. (thus the name)
-		getEncodedText: function() {
-			return $( "<a>" ).text( this.text() ).html();
-		},
-
-		// fluent helper function for the mobile namespaced equivalent
-		jqmEnhanceable: function() {
-			return $.mobile.enhanceable( this );
-		},
-
-		jqmHijackable: function() {
-			return $.mobile.hijackable( this );
-		}
-	});
-
-	$.removeWithDependents = function( nativeElement ) {
-		var element = $( nativeElement );
-
-		( element.jqmData( "dependents" ) || $() ).remove();
-		element.remove();
-	};
-	$.addDependents = function( nativeElement, newDependents ) {
-		var element = $( nativeElement ),
-			dependents = element.jqmData( "dependents" ) || $();
-
-		element.jqmData( "dependents", $( dependents ).add( newDependents ) );
-	};
-
-	$.find.matches = function( expr, set ) {
-		return $.find( expr, null, null, set );
-	};
-
-	$.find.matchesSelector = function( node, expr ) {
-		return $.find( expr, null, null, [ node ] ).length > 0;
-	};
-
-})( jQuery, this );
-
-(function( $, window, undefined ) {
-	$.extend( $.mobile, {
-
-		// Version of the jQuery Mobile Framework
-		version: "1.4.5",
-
-		// Deprecated and no longer used in 1.4 remove in 1.5
-		// Define the url parameter used for referencing widget-generated sub-pages.
-		// Translates to example.html&ui-page=subpageIdentifier
-		// hash segment before &ui-page= is used to make Ajax request
-		subPageUrlKey: "ui-page",
-
-		hideUrlBar: true,
-
-		// Keepnative Selector
-		keepNative: ":jqmData(role='none'), :jqmData(role='nojs')",
-
-		// Deprecated in 1.4 remove in 1.5
-		// Class assigned to page currently in view, and during transitions
-		activePageClass: "ui-page-active",
-
-		// Deprecated in 1.4 remove in 1.5
-		// Class used for "active" button state, from CSS framework
-		activeBtnClass: "ui-btn-active",
-
-		// Deprecated in 1.4 remove in 1.5
-		// Class used for "focus" form element state, from CSS framework
-		focusClass: "ui-focus",
-
-		// Automatically handle clicks and form submissions through Ajax, when same-domain
-		ajaxEnabled: true,
-
-		// Automatically load and show pages based on location.hash
-		hashListeningEnabled: true,
-
-		// disable to prevent jquery from bothering with links
-		linkBindingEnabled: true,
-
-		// Set default page transition - 'none' for no transitions
-		defaultPageTransition: "fade",
-
-		// Set maximum window width for transitions to apply - 'false' for no limit
-		maxTransitionWidth: false,
-
-		// Minimum scroll distance that will be remembered when returning to a page
-		// Deprecated remove in 1.5
-		minScrollBack: 0,
-
-		// Set default dialog transition - 'none' for no transitions
-		defaultDialogTransition: "pop",
-
-		// Error response message - appears when an Ajax page request fails
-		pageLoadErrorMessage: "Error Loading Page",
-
-		// For error messages, which theme does the box use?
-		pageLoadErrorMessageTheme: "a",
-
-		// replace calls to window.history.back with phonegaps navigation helper
-		// where it is provided on the window object
-		phonegapNavigationEnabled: false,
-
-		//automatically initialize the DOM when it's ready
-		autoInitializePage: true,
-
-		pushStateEnabled: true,
-
-		// allows users to opt in to ignoring content by marking a parent element as
-		// data-ignored
-		ignoreContentEnabled: false,
-
-		buttonMarkup: {
-			hoverDelay: 200
-		},
-
-		// disable the alteration of the dynamic base tag or links in the case
-		// that a dynamic base tag isn't supported
-		dynamicBaseEnabled: true,
-
-		// default the property to remove dependency on assignment in init module
-		pageContainer: $(),
-
-		//enable cross-domain page support
-		allowCrossDomainPages: false,
-
-		dialogHashKey: "&ui-state=dialog"
-	});
-})( jQuery, this );
-
-/*!
- * jQuery UI Widget c0ab71056b936627e8a7821f03c044aec6280a40
- * http://jqueryui.com
- *
- * Copyright 2013 jQuery Foundation and other contributors
- * Released under the MIT license.
- * http://jquery.org/license
- *
- * http://api.jqueryui.com/jQuery.widget/
- */
-(function( $, undefined ) {
-
-var uuid = 0,
-	slice = Array.prototype.slice,
-	_cleanData = $.cleanData;
-$.cleanData = function( elems ) {
-	for ( var i = 0, elem; (elem = elems[i]) != null; i++ ) {
-		try {
-			$( elem ).triggerHandler( "remove" );
-		// http://bugs.jquery.com/ticket/8235
-		} catch( e ) {}
-	}
-	_cleanData( elems );
-};
-
-$.widget = function( name, base, prototype ) {
-	var fullName, existingConstructor, constructor, basePrototype,
-		// proxiedPrototype allows the provided prototype to remain unmodified
-		// so that it can be used as a mixin for multiple widgets (#8876)
-		proxiedPrototype = {},
-		namespace = name.split( "." )[ 0 ];
-
-	name = name.split( "." )[ 1 ];
-	fullName = namespace + "-" + name;
-
-	if ( !prototype ) {
-		prototype = base;
-		base = $.Widget;
-	}
-
-	// create selector for plugin
-	$.expr[ ":" ][ fullName.toLowerCase() ] = function( elem ) {
-		return !!$.data( elem, fullName );
-	};
-
-	$[ namespace ] = $[ namespace ] || {};
-	existingConstructor = $[ namespace ][ name ];
-	constructor = $[ namespace ][ name ] = function( options, element ) {
-		// allow instantiation without "new" keyword
-		if ( !this._createWidget ) {
-			return new constructor( options, element );
-		}
-
-		// allow instantiation without initializing for simple inheritance
-		// must use "new" keyword (the code above always passes args)
-		if ( arguments.length ) {
-			this._createWidget( options, element );
-		}
-	};
-	// extend with the existing constructor to carry over any static properties
-	$.extend( constructor, existingConstructor, {
-		version: prototype.version,
-		// copy the object used to create the prototype in case we need to
-		// redefine the widget later
-		_proto: $.extend( {}, prototype ),
-		// track widgets that inherit from this widget in case this widget is
-		// redefined after a widget inherits from it
-		_childConstructors: []
-	});
-
-	basePrototype = new base();
-	// we need to make the options hash a property directly on the new instance
-	// otherwise we'll modify the options hash on the prototype that we're
-	// inheriting from
-	basePrototype.options = $.widget.extend( {}, basePrototype.options );
-	$.each( prototype, function( prop, value ) {
-		if ( !$.isFunction( value ) ) {
-			proxiedPrototype[ prop ] = value;
-			return;
-		}
-		proxiedPrototype[ prop ] = (function() {
-			var _super = function() {
-					return base.prototype[ prop ].apply( this, arguments );
-				},
-				_superApply = function( args ) {
-					return base.prototype[ prop ].apply( this, args );
-				};
-			return function() {
-				var __super = this._super,
-					__superApply = this._superApply,
-					returnValue;
-
-				this._super = _super;
-				this._superApply = _superApply;
-
-				returnValue = value.apply( this, arguments );
-
-				this._super = __super;
-				this._superApply = __superApply;
-
-				return returnValue;
-			};
-		})();
-	});
-	constructor.prototype = $.widget.extend( basePrototype, {
-		// TODO: remove support for widgetEventPrefix
-		// always use the name + a colon as the prefix, e.g., draggable:start
-		// don't prefix for widgets that aren't DOM-based
-		widgetEventPrefix: existingConstructor ? (basePrototype.widgetEventPrefix || name) : name
-	}, proxiedPrototype, {
-		constructor: constructor,
-		namespace: namespace,
-		widgetName: name,
-		widgetFullName: fullName
-	});
-
-	// If this widget is being redefined then we need to find all widgets that
-	// are inheriting from it and redefine all of them so that they inherit from
-	// the new version of this widget. We're essentially trying to replace one
-	// level in the prototype chain.
-	if ( existingConstructor ) {
-		$.each( existingConstructor._childConstructors, function( i, child ) {
-			var childPrototype = child.prototype;
-
-			// redefine the child widget using the same prototype that was
-			// originally used, but inherit from the new version of the base
-			$.widget( childPrototype.namespace + "." + childPrototype.widgetName, constructor, child._proto );
-		});
-		// remove the list of existing child constructors from the old constructor
-		// so the old child constructors can be garbage collected
-		delete existingConstructor._childConstructors;
-	} else {
-		base._childConstructors.push( constructor );
-	}
-
-	$.widget.bridge( name, constructor );
-
-	return constructor;
-};
-
-$.widget.extend = function( target ) {
-	var input = slice.call( arguments, 1 ),
-		inputIndex = 0,
-		inputLength = input.length,
-		key,
-		value;
-	for ( ; inputIndex < inputLength; inputIndex++ ) {
-		for ( key in input[ inputIndex ] ) {
-			value = input[ inputIndex ][ key ];
-			if ( input[ inputIndex ].hasOwnProperty( key ) && value !== undefined ) {
-				// Clone objects
-				if ( $.isPlainObject( value ) ) {
-					target[ key ] = $.isPlainObject( target[ key ] ) ?
-						$.widget.extend( {}, target[ key ], value ) :
-						// Don't extend strings, arrays, etc. with objects
-						$.widget.extend( {}, value );
-				// Copy everything else by reference
-				} else {
-					target[ key ] = value;
-				}
-			}
-		}
-	}
-	return target;
-};
-
-$.widget.bridge = function( name, object ) {
-	var fullName = object.prototype.widgetFullName || name;
-	$.fn[ name ] = function( options ) {
-		var isMethodCall = typeof options === "string",
-			args = slice.call( arguments, 1 ),
-			returnValue = this;
-
-		// allow multiple hashes to be passed on init
-		options = !isMethodCall && args.length ?
-			$.widget.extend.apply( null, [ options ].concat(args) ) :
-			options;
-
-		if ( isMethodCall ) {
-			this.each(function() {
-				var methodValue,
-					instance = $.data( this, fullName );
-				if ( options === "instance" ) {
-					returnValue = instance;
-					return false;
-				}
-				if ( !instance ) {
-					return $.error( "cannot call methods on " + name + " prior to initialization; " +
-						"attempted to call method '" + options + "'" );
-				}
-				if ( !$.isFunction( instance[options] ) || options.charAt( 0 ) === "_" ) {
-					return $.error( "no such method '" + options + "' for " + name + " widget instance" );
-				}
-				methodValue = instance[ options ].apply( instance, args );
-				if ( methodValue !== instance && methodValue !== undefined ) {
-					returnValue = methodValue && methodValue.jquery ?
-						returnValue.pushStack( methodValue.get() ) :
-						methodValue;
-					return false;
-				}
-			});
-		} else {
-			this.each(function() {
-				var instance = $.data( this, fullName );
-				if ( instance ) {
-					instance.option( options || {} )._init();
-				} else {
-					$.data( this, fullName, new object( options, this ) );
-				}
-			});
-		}
-
-		return returnValue;
-	};
-};
-
-$.Widget = function( /* options, element */ ) {};
-$.Widget._childConstructors = [];
-
-$.Widget.prototype = {
-	widgetName: "widget",
-	widgetEventPrefix: "",
-	defaultElement: "<div>",
-	options: {
-		disabled: false,
-
-		// callbacks
-		create: null
-	},
-	_createWidget: function( options, element ) {
-		element = $( element || this.defaultElement || this )[ 0 ];
-		this.element = $( element );
-		this.uuid = uuid++;
-		this.eventNamespace = "." + this.widgetName + this.uuid;
-		this.options = $.widget.extend( {},
-			this.options,
-			this._getCreateOptions(),
-			options );
-
-		this.bindings = $();
-		this.hoverable = $();
-		this.focusable = $();
-
-		if ( element !== this ) {
-			$.data( element, this.widgetFullName, this );
-			this._on( true, this.element, {
-				remove: function( event ) {
-					if ( event.target === element ) {
-						this.destroy();
-					}
-				}
-			});
-			this.document = $( element.style ?
-				// element within the document
-				element.ownerDocument :
-				// element is window or document
-				element.document || element );
-			this.window = $( this.document[0].defaultView || this.document[0].parentWindow );
-		}
-
-		this._create();
-		this._trigger( "create", null, this._getCreateEventData() );
-		this._init();
-	},
-	_getCreateOptions: $.noop,
-	_getCreateEventData: $.noop,
-	_create: $.noop,
-	_init: $.noop,
-
-	destroy: function() {
-		this._destroy();
-		// we can probably remove the unbind calls in 2.0
-		// all event bindings should go through this._on()
-		this.element
-			.unbind( this.eventNamespace )
-			.removeData( this.widgetFullName )
-			// support: jquery <1.6.3
-			// http://bugs.jquery.com/ticket/9413
-			.removeData( $.camelCase( this.widgetFullName ) );
-		this.widget()
-			.unbind( this.eventNamespace )
-			.removeAttr( "aria-disabled" )
-			.removeClass(
-				this.widgetFullName + "-disabled " +
-				"ui-state-disabled" );
-
-		// clean up events and states
-		this.bindings.unbind( this.eventNamespace );
-		this.hoverable.removeClass( "ui-state-hover" );
-		this.focusable.removeClass( "ui-state-focus" );
-	},
-	_destroy: $.noop,
-
-	widget: function() {
-		return this.element;
-	},
-
-	option: function( key, value ) {
-		var options = key,
-			parts,
-			curOption,
-			i;
-
-		if ( arguments.length === 0 ) {
-			// don't return a reference to the internal hash
-			return $.widget.extend( {}, this.options );
-		}
-
-		if ( typeof key === "string" ) {
-			// handle nested keys, e.g., "foo.bar" => { foo: { bar: ___ } }
-			options = {};
-			parts = key.split( "." );
-			key = parts.shift();
-			if ( parts.length ) {
-				curOption = options[ key ] = $.widget.extend( {}, this.options[ key ] );
-				for ( i = 0; i < parts.length - 1; i++ ) {
-					curOption[ parts[ i ] ] = curOption[ parts[ i ] ] || {};
-					curOption = curOption[ parts[ i ] ];
-				}
-				key = parts.pop();
-				if ( value === undefined ) {
-					return curOption[ key ] === undefined ? null : curOption[ key ];
-				}
-				curOption[ key ] = value;
-			} else {
-				if ( value === undefined ) {
-					return this.options[ key ] === undefined ? null : this.options[ key ];
-				}
-				options[ key ] = value;
-			}
-		}
-
-		this._setOptions( options );
-
-		return this;
-	},
-	_setOptions: function( options ) {
-		var key;
-
-		for ( key in options ) {
-			this._setOption( key, options[ key ] );
-		}
-
-		return this;
-	},
-	_setOption: function( key, value ) {
-		this.options[ key ] = value;
-
-		if ( key === "disabled" ) {
-			this.widget()
-				.toggleClass( this.widgetFullName + "-disabled", !!value );
-			this.hoverable.removeClass( "ui-state-hover" );
-			this.focusable.removeClass( "ui-state-focus" );
-		}
-
-		return this;
-	},
-
-	enable: function() {
-		return this._setOptions({ disabled: false });
-	},
-	disable: function() {
-		return this._setOptions({ disabled: true });
-	},
-
-	_on: function( suppressDisabledCheck, element, handlers ) {
-		var delegateElement,
-			instance = this;
-
-		// no suppressDisabledCheck flag, shuffle arguments
-		if ( typeof suppressDisabledCheck !== "boolean" ) {
-			handlers = element;
-			element = suppressDisabledCheck;
-			suppressDisabledCheck = false;
-		}
-
-		// no element argument, shuffle and use this.element
-		if ( !handlers ) {
-			handlers = element;
-			element = this.element;
-			delegateElement = this.widget();
-		} else {
-			// accept selectors, DOM elements
-			element = delegateElement = $( element );
-			this.bindings = this.bindings.add( element );
-		}
-
-		$.each( handlers, function( event, handler ) {
-			function handlerProxy() {
-				// allow widgets to customize the disabled handling
-				// - disabled as an array instead of boolean
-				// - disabled class as method for disabling individual parts
-				if ( !suppressDisabledCheck &&
-						( instance.options.disabled === true ||
-							$( this ).hasClass( "ui-state-disabled" ) ) ) {
-					return;
-				}
-				return ( typeof handler === "string" ? instance[ handler ] : handler )
-					.apply( instance, arguments );
-			}
-
-			// copy the guid so direct unbinding works
-			if ( typeof handler !== "string" ) {
-				handlerProxy.guid = handler.guid =
-					handler.guid || handlerProxy.guid || $.guid++;
-			}
-
-			var match = event.match( /^(\w+)\s*(.*)$/ ),
-				eventName = match[1] + instance.eventNamespace,
-				selector = match[2];
-			if ( selector ) {
-				delegateElement.delegate( selector, eventName, handlerProxy );
-			} else {
-				element.bind( eventName, handlerProxy );
-			}
-		});
-	},
-
-	_off: function( element, eventName ) {
-		eventName = (eventName || "").split( " " ).join( this.eventNamespace + " " ) + this.eventNamespace;
-		element.unbind( eventName ).undelegate( eventName );
-	},
-
-	_delay: function( handler, delay ) {
-		function handlerProxy() {
-			return ( typeof handler === "string" ? instance[ handler ] : handler )
-				.apply( instance, arguments );
-		}
-		var instance = this;
-		return setTimeout( handlerProxy, delay || 0 );
-	},
-
-	_hoverable: function( element ) {
-		this.hoverable = this.hoverable.add( element );
-		this._on( element, {
-			mouseenter: function( event ) {
-				$( event.currentTarget ).addClass( "ui-state-hover" );
-			},
-			mouseleave: function( event ) {
-				$( event.currentTarget ).removeClass( "ui-state-hover" );
-			}
-		});
-	},
-
-	_focusable: function( element ) {
-		this.focusable = this.focusable.add( element );
-		this._on( element, {
-			focusin: function( event ) {
-				$( event.currentTarget ).addClass( "ui-state-focus" );
-			},
-			focusout: function( event ) {
-				$( event.currentTarget ).removeClass( "ui-state-focus" );
-			}
-		});
-	},
-
-	_trigger: function( type, event, data ) {
-		var prop, orig,
-			callback = this.options[ type ];
-
-		data = data || {};
-		event = $.Event( event );
-		event.type = ( type === this.widgetEventPrefix ?
-			type :
-			this.widgetEventPrefix + type ).toLowerCase();
-		// the original event may come from any element
-		// so we need to reset the target on the new event
-		event.target = this.element[ 0 ];
-
-		// copy original event properties over to the new event
-		orig = event.originalEvent;
-		if ( orig ) {
-			for ( prop in orig ) {
-				if ( !( prop in event ) ) {
-					event[ prop ] = orig[ prop ];
-				}
-			}
-		}
-
-		this.element.trigger( event, data );
-		return !( $.isFunction( callback ) &&
-			callback.apply( this.element[0], [ event ].concat( data ) ) === false ||
-			event.isDefaultPrevented() );
-	}
-};
-
-$.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultEffect ) {
-	$.Widget.prototype[ "_" + method ] = function( element, options, callback ) {
-		if ( typeof options === "string" ) {
-			options = { effect: options };
-		}
-		var hasOptions,
-			effectName = !options ?
-				method :
-				options === true || typeof options === "number" ?
-					defaultEffect :
-					options.effect || defaultEffect;
-		options = options || {};
-		if ( typeof options === "number" ) {
-			options = { duration: options };
-		}
-		hasOptions = !$.isEmptyObject( options );
-		options.complete = callback;
-		if ( options.delay ) {
-			element.delay( options.delay );
-		}
-		if ( hasOptions && $.effects && $.effects.effect[ effectName ] ) {
-			element[ method ]( options );
-		} else if ( effectName !== method && element[ effectName ] ) {
-			element[ effectName ]( options.duration, options.easing, callback );
-		} else {
-			element.queue(function( next ) {
-				$( this )[ method ]();
-				if ( callback ) {
-					callback.call( element[ 0 ] );
-				}
-				next();
-			});
-		}
-	};
-});
-
-})( jQuery );
-
-(function( $, window, undefined ) {
-	var nsNormalizeDict = {},
-		oldFind = $.find,
-		rbrace = /(?:\{[\s\S]*\}|\[[\s\S]*\])$/,
-		jqmDataRE = /:jqmData\(([^)]*)\)/g;
-
-	$.extend( $.mobile, {
-
-		// Namespace used framework-wide for data-attrs. Default is no namespace
-
-		ns: "",
-
-		// Retrieve an attribute from an element and perform some massaging of the value
-
-		getAttribute: function( element, key ) {
-			var data;
-
-			element = element.jquery ? element[0] : element;
-
-			if ( element && element.getAttribute ) {
-				data = element.getAttribute( "data-" + $.mobile.ns + key );
-			}
-
-			// Copied from core's src/data.js:dataAttr()
-			// Convert from a string to a proper data type
-			try {
-				data = data === "true" ? true :
-					data === "false" ? false :
-					data === "null" ? null :
-					// Only convert to a number if it doesn't change the string
-					+data + "" === data ? +data :
-					rbrace.test( data ) ? JSON.parse( data ) :
-					data;
-			} catch( err ) {}
-
-			return data;
-		},
-
-		// Expose our cache for testing purposes.
-		nsNormalizeDict: nsNormalizeDict,
-
-		// Take a data attribute property, prepend the namespace
-		// and then camel case the attribute string. Add the result
-		// to our nsNormalizeDict so we don't have to do this again.
-		nsNormalize: function( prop ) {
-			return nsNormalizeDict[ prop ] ||
-				( nsNormalizeDict[ prop ] = $.camelCase( $.mobile.ns + prop ) );
-		},
-
-		// Find the closest javascript page element to gather settings data jsperf test
-		// http://jsperf.com/single-complex-selector-vs-many-complex-selectors/edit
-		// possibly naive, but it shows that the parsing overhead for *just* the page selector vs
-		// the page and dialog selector is negligable. This could probably be speed up by
-		// doing a similar parent node traversal to the one found in the inherited theme code above
-		closestPageData: function( $target ) {
-			return $target
-				.closest( ":jqmData(role='page'), :jqmData(role='dialog')" )
-				.data( "mobile-page" );
-		}
-
-	});
-
-	// Mobile version of data and removeData and hasData methods
-	// ensures all data is set and retrieved using jQuery Mobile's data namespace
-	$.fn.jqmData = function( prop, value ) {
-		var result;
-		if ( typeof prop !== "undefined" ) {
-			if ( prop ) {
-				prop = $.mobile.nsNormalize( prop );
-			}
-
-			// undefined is permitted as an explicit input for the second param
-			// in this case it returns the value and does not set it to undefined
-			if ( arguments.length < 2 || value === undefined ) {
-				result = this.data( prop );
-			} else {
-				result = this.data( prop, value );
-			}
-		}
-		return result;
-	};
-
-	$.jqmData = function( elem, prop, value ) {
-		var result;
-		if ( typeof prop !== "undefined" ) {
-			result = $.data( elem, prop ? $.mobile.nsNormalize( prop ) : prop, value );
-		}
-		return result;
-	};
-
-	$.fn.jqmRemoveData = function( prop ) {
-		return this.removeData( $.mobile.nsNormalize( prop ) );
-	};
-
-	$.jqmRemoveData = function( elem, prop ) {
-		return $.removeData( elem, $.mobile.nsNormalize( prop ) );
-	};
-
-	$.find = function( selector, context, ret, extra ) {
-		if ( selector.indexOf( ":jqmData" ) > -1 ) {
-			selector = selector.replace( jqmDataRE, "[data-" + ( $.mobile.ns || "" ) + "$1]" );
-		}
-
-		return oldFind.call( this, selector, context, ret, extra );
-	};
-
-	$.extend( $.find, oldFind );
-
-})( jQuery, this );
-
-(function( $, undefined ) {
-
-var rcapitals = /[A-Z]/g,
-	replaceFunction = function( c ) {
-		return "-" + c.toLowerCase();
-	};
-
-$.extend( $.Widget.prototype, {
-	_getCreateOptions: function() {
-		var option, value,
-			elem = this.element[ 0 ],
-			options = {};
-
-		//
-		if ( !$.mobile.getAttribute( elem, "defaults" ) ) {
-			for ( option in this.options ) {
-				value = $.mobile.getAttribute( elem, option.replace( rcapitals, replaceFunction ) );
-
-				if ( value != null ) {
-					options[ option ] = value;
-				}
-			}
-		}
-
-		return options;
-	}
-});
-
-//TODO: Remove in 1.5 for backcompat only
-$.mobile.widget = $.Widget;
-
-})( jQuery );
-
-
-(function( $ ) {
-	// TODO move loader class down into the widget settings
-	var loaderClass = "ui-loader", $html = $( "html" );
-
-	$.widget( "mobile.loader", {
-		// NOTE if the global config settings are defined they will override these
-		//      options
-		options: {
-			// the theme for the loading message
-			theme: "a",
-
-			// whether the text in the loading message is shown
-			textVisible: false,
-
-			// custom html for the inner content of the loading message
-			html: "",
-
-			// the text to be displayed when the popup is shown
-			text: "loading"
-		},
-
-		defaultHtml: "<div class='" + loaderClass + "'>" +
-			"<span class='ui-icon-loading'></span>" +
-			"<h1></h1>" +
-			"</div>",
-
-		// For non-fixed supportin browsers. Position at y center (if scrollTop supported), above the activeBtn (if defined), or just 100px from top
-		fakeFixLoader: function() {
-			var activeBtn = $( "." + $.mobile.activeBtnClass ).first();
-
-			this.element
-				.css({
-					top: $.support.scrollTop && this.window.scrollTop() + this.window.height() / 2 ||
-						activeBtn.length && activeBtn.offset().top || 100
-				});
-		},
-
-		// check position of loader to see if it appears to be "fixed" to center
-		// if not, use abs positioning
-		checkLoaderPosition: function() {
-			var offset = this.element.offset(),
-				scrollTop = this.window.scrollTop(),
-				screenHeight = $.mobile.getScreenHeight();
-
-			if ( offset.top < scrollTop || ( offset.top - scrollTop ) > screenHeight ) {
-				this.element.addClass( "ui-loader-fakefix" );
-				this.fakeFixLoader();
-				this.window
-					.unbind( "scroll", this.checkLoaderPosition )
-					.bind( "scroll", $.proxy( this.fakeFixLoader, this ) );
-			}
-		},
-
-		resetHtml: function() {
-			this.element.html( $( this.defaultHtml ).html() );
-		},
-
-		// Turn on/off page loading message. Theme doubles as an object argument
-		// with the following shape: { theme: '', text: '', html: '', textVisible: '' }
-		// NOTE that the $.mobile.loading* settings and params past the first are deprecated
-		// TODO sweet jesus we need to break some of this out
-		show: function( theme, msgText, textonly ) {
-			var textVisible, message, loadSettings;
-
-			this.resetHtml();
-
-			// use the prototype options so that people can set them globally at
-			// mobile init. Consistency, it's what's for dinner
-			if ( $.type( theme ) === "object" ) {
-				loadSettings = $.extend( {}, this.options, theme );
-
-				theme = loadSettings.theme;
-			} else {
-				loadSettings = this.options;
-
-				// here we prefer the theme value passed as a string argument, then
-				// we prefer the global option because we can't use undefined default
-				// prototype options, then the prototype option
-				theme = theme || loadSettings.theme;
-			}
-
-			// set the message text, prefer the param, then the settings object
-			// then loading message
-			message = msgText || ( loadSettings.text === false ? "" : loadSettings.text );
-
-			// prepare the dom
-			$html.addClass( "ui-loading" );
-
-			textVisible = loadSettings.textVisible;
-
-			// add the proper css given the options (theme, text, etc)
-			// Force text visibility if the second argument was supplied, or
-			// if the text was explicitly set in the object args
-			this.element.attr("class", loaderClass +
-				" ui-corner-all ui-body-" + theme +
-				" ui-loader-" + ( textVisible || msgText || theme.text ? "verbose" : "default" ) +
-				( loadSettings.textonly || textonly ? " ui-loader-textonly" : "" ) );
-
-			// TODO verify that jquery.fn.html is ok to use in both cases here
-			//      this might be overly defensive in preventing unknowing xss
-			// if the html attribute is defined on the loading settings, use that
-			// otherwise use the fallbacks from above
-			if ( loadSettings.html ) {
-				this.element.html( loadSettings.html );
-			} else {
-				this.element.find( "h1" ).text( message );
-			}
-
-			// If the pagecontainer widget has been defined we may use the :mobile-pagecontainer
-			// and attach to the element on which the pagecontainer widget has been defined. If not,
-			// we attach to the body.
-			this.element.appendTo( $.mobile.pagecontainer ?
-				$( ":mobile-pagecontainer" ) : $( "body" ) );
-
-			// check that the loader is visible
-			this.checkLoaderPosition();
-
-			// on scroll check the loader position
-			this.window.bind( "scroll", $.proxy( this.checkLoaderPosition, this ) );
-		},
-
-		hide: function() {
-			$html.removeClass( "ui-loading" );
-
-			if ( this.options.text ) {
-				this.element.removeClass( "ui-loader-fakefix" );
-			}
-
-			this.window.unbind( "scroll", this.fakeFixLoader );
-			this.window.unbind( "scroll", this.checkLoaderPosition );
-		}
-	});
-
-})(jQuery, this);
-
-
-/*!
- * jQuery hashchange event - v1.3 - 7/21/2010
- * http://benalman.com/projects/jquery-hashchange-plugin/
- * 
- * Copyright (c) 2010 "Cowboy" Ben Alman
- * Dual licensed under the MIT and GPL licenses.
- * http://benalman.com/about/license/
- */
-
-// Script: jQuery hashchange event
-//
-// *Version: 1.3, Last updated: 7/21/2010*
-// 
-// Project Home - http://benalman.com/projects/jquery-hashchange-plugin/
-// GitHub       - http://github.com/cowboy/jquery-hashchange/
-// Source       - http://github.com/cowboy/jquery-hashchange/raw/master/jquery.ba-hashchange.js
-// (Minified)   - http://github.com/cowboy/jquery-hashchange/raw/master/jquery.ba-hashchange.min.js (0.8kb gzipped)
-// 
-// About: License
-// 
-// Copyright (c) 2010 "Cowboy" Ben Alman,
-// Dual licensed under the MIT and GPL licenses.
-// http://benalman.com/about/license/
-// 
-// About: Examples
-// 
-// These working examples, complete with fully commented code, illustrate a few
-// ways in which this plugin can be used.
-// 
-// hashchange event - http://benalman.com/code/projects/jquery-hashchange/examples/hashchange/
-// document.domain - http://benalman.com/code/projects/jquery-hashchange/examples/document_domain/
-// 
-// About: Support and Testing
-// 
-// Information about what version or versions of jQuery this plugin has been
-// tested with, what browsers it has been tested in, and where the unit tests
-// reside (so you can test it yourself).
-// 
-// jQuery Versions - 1.2.6, 1.3.2, 1.4.1, 1.4.2
-// Browsers Tested - Internet Explorer 6-8, Firefox 2-4, Chrome 5-6, Safari 3.2-5,
-//                   Opera 9.6-10.60, iPhone 3.1, Android 1.6-2.2, BlackBerry 4.6-5.
-// Unit Tests      - http://benalman.com/code/projects/jquery-hashchange/unit/
-// 
-// About: Known issues
-// 
-// While this jQuery hashchange event implementation is quite stable and
-// robust, there are a few unfortunate browser bugs surrounding expected
-// hashchange event-based behaviors, independent of any JavaScript
-// window.onhashchange abstraction. See the following examples for more
-// information:
-// 
-// Chrome: Back Button - http://benalman.com/code/projects/jquery-hashchange/examples/bug-chrome-back-button/
-// Firefox: Remote XMLHttpRequest - http://benalman.com/code/projects/jquery-hashchange/examples/bug-firefox-remote-xhr/
-// WebKit: Back Button in an Iframe - http://benalman.com/code/projects/jquery-hashchange/examples/bug-webkit-hash-iframe/
-// Safari: Back Button from a different domain - http://benalman.com/code/projects/jquery-hashchange/examples/bug-safari-back-from-diff-domain/
-// 
-// Also note that should a browser natively support the window.onhashchange 
-// event, but not report that it does, the fallback polling loop will be used.
-// 
-// About: Release History
-// 
-// 1.3   - (7/21/2010) Reorganized IE6/7 Iframe code to make it more
-//         "removable" for mobile-only development. Added IE6/7 document.title
-//         support. Attempted to make Iframe as hidden as possible by using
-//         techniques from http://www.paciellogroup.com/blog/?p=604. Added 
-//         support for the "shortcut" format $(window).hashchange( fn ) and
-//         $(window).hashchange() like jQuery provides for built-in events.
-//         Renamed jQuery.hashchangeDelay to <jQuery.fn.hashchange.delay> and
-//         lowered its default value to 50. Added <jQuery.fn.hashchange.domain>
-//         and <jQuery.fn.hashchange.src> properties plus document-domain.html
-//         file to address access denied issues when setting document.domain in
-//         IE6/7.
-// 1.2   - (2/11/2010) Fixed a bug where coming back to a page using this plugin
-//         from a page on another domain would cause an error in Safari 4. Also,
-//         IE6/7 Iframe is now inserted after the body (this actually works),
-//         which prevents the page from scrolling when the event is first bound.
-//         Event can also now be bound before DOM ready, but it won't be usable
-//         before then in IE6/7.
-// 1.1   - (1/21/2010) Incorporated document.documentMode test to fix IE8 bug
-//         where browser version is incorrectly reported as 8.0, despite
-//         inclusion of the X-UA-Compatible IE=EmulateIE7 meta tag.
-// 1.0   - (1/9/2010) Initial Release. Broke out the jQuery BBQ event.special
-//         window.onhashchange functionality into a separate plugin for users
-//         who want just the basic event & back button support, without all the
-//         extra awesomeness that BBQ provides. This plugin will be included as
-//         part of jQuery BBQ, but also be available separately.
-
-(function($,window,undefined){
-  '$:nomunge'; // Used by YUI compressor.
-  
-  // Reused string.
-  var str_hashchange = 'hashchange',
-    
-    // Method / object references.
-    doc = document,
-    fake_onhashchange,
-    special = $.event.special,
-    
-    // Does the browser support window.onhashchange? Note that IE8 running in
-    // IE7 compatibility mode reports true for 'onhashchange' in window, even
-    // though the event isn't supported, so also test document.documentMode.
-    doc_mode = doc.documentMode,
-    supports_onhashchange = 'on' + str_hashchange in window && ( doc_mode === undefined || doc_mode > 7 );
-  
-  // Get location.hash (or what you'd expect location.hash to be) sans any
-  // leading #. Thanks for making this necessary, Firefox!
-  function get_fragment( url ) {
-    url = url || location.href;
-    return '#' + url.replace( /^[^#]*#?(.*)$/, '$1' );
-  };
-  
-  // Method: jQuery.fn.hashchange
-  // 
-  // Bind a handler to the window.onhashchange event or trigger all bound
-  // window.onhashchange event handlers. This behavior is consistent with
-  // jQuery's built-in event handlers.
-  // 
-  // Usage:
-  // 
-  // > jQuery(window).hashchange( [ handler ] );
-  // 
-  // Arguments:
-  // 
-  //  handler - (Function) Optional handler to be bound to the hashchange
-  //    event. This is a "shortcut" for the more verbose form:
-  //    jQuery(window).bind( 'hashchange', handler ). If handler is omitted,
-  //    all bound window.onhashchange event handlers will be triggered. This
-  //    is a shortcut for the more verbose
-  //    jQuery(window).trigger( 'hashchange' ). These forms are described in
-  //    the <hashchange event> section.
-  // 
-  // Returns:
-  // 
-  //  (jQuery) The initial jQuery collection of elements.
-  
-  // Allow the "shortcut" format $(elem).hashchange( fn ) for binding and
-  // $(elem).hashchange() for triggering, like jQuery does for built-in events.
-  $.fn[ str_hashchange ] = function( fn ) {
-    return fn ? this.bind( str_hashchange, fn ) : this.trigger( str_hashchange );
-  };
-  
-  // Property: jQuery.fn.hashchange.delay
-  // 
-  // The numeric interval (in milliseconds) at which the <hashchange event>
-  // polling loop executes. Defaults to 50.
-  
-  // Property: jQuery.fn.hashchange.domain
-  // 
-  // If you're setting document.domain in your JavaScript, and you want hash
-  // history to work in IE6/7, not only must this property be set, but you must
-  // also set document.domain BEFORE jQuery is loaded into the page. This
-  // property is only applicable if you are supporting IE6/7 (or IE8 operating
-  // in "IE7 compatibility" mode).
-  // 
-  // In addition, the <jQuery.fn.hashchange.src> property must be set to the
-  // path of the included "document-domain.html" file, which can be renamed or
-  // modified if necessary (note that the document.domain specified must be the
-  // same in both your main JavaScript as well as in this file).
-  // 
-  // Usage:
-  // 
-  // jQuery.fn.hashchange.domain = document.domain;
-  
-  // Property: jQuery.fn.hashchange.src
-  // 
-  // If, for some reason, you need to specify an Iframe src file (for example,
-  // when setting document.domain as in <jQuery.fn.hashchange.domain>), you can
-  // do so using this property. Note that when using this property, history
-  // won't be recorded in IE6/7 until the Iframe src file loads. This property
-  // is only applicable if you are supporting IE6/7 (or IE8 operating in "IE7
-  // compatibility" mode).
-  // 
-  // Usage:
-  // 
-  // jQuery.fn.hashchange.src = 'path/to/file.html';
-  
-  $.fn[ str_hashchange ].delay = 50;
-  /*
-  $.fn[ str_hashchange ].domain = null;
-  $.fn[ str_hashchange ].src = null;
-  */
-  
-  // Event: hashchange event
-  // 
-  // Fired when location.hash changes. In browsers that support it, the native
-  // HTML5 window.onhashchange event is used, otherwise a polling loop is
-  // initialized, running every <jQuery.fn.hashchange.delay> milliseconds to
-  // see if the hash has changed. In IE6/7 (and IE8 operating in "IE7
-  // compatibility" mode), a hidden Iframe is created to allow the back button
-  // and hash-based history to work.
-  // 
-  // Usage as described in <jQuery.fn.hashchange>:
-  // 
-  // > // Bind an event handler.
-  // > jQuery(window).hashchange( function(e) {
-  // >   var hash = location.hash;
-  // >   ...
-  // > });
-  // > 
-  // > // Manually trigger the event handler.
-  // > jQuery(window).hashchange();
-  // 
-  // A more verbose usage that allows for event namespacing:
-  // 
-  // > // Bind an event handler.
-  // > jQuery(window).bind( 'hashchange', function(e) {
-  // >   var hash = location.hash;
-  // >   ...
-  // > });
-  // > 
-  // > // Manually trigger the event handler.
-  // > jQuery(window).trigger( 'hashchange' );
-  // 
-  // Additional Notes:
-  // 
-  // * The polling loop and Iframe are not created until at least one handler
-  //   is actually bound to the 'hashchange' event.
-  // * If you need the bound handler(s) to execute immediately, in cases where
-  //   a location.hash exists on page load, via bookmark or page refresh for
-  //   example, use jQuery(window).hashchange() or the more verbose 
-  //   jQuery(window).trigger( 'hashchange' ).
-  // * The event can be bound before DOM ready, but since it won't be usable
-  //   before then in IE6/7 (due to the necessary Iframe), recommended usage is
-  //   to bind it inside a DOM ready handler.
-  
-  // Override existing $.event.special.hashchange methods (allowing this plugin
-  // to be defined after jQuery BBQ in BBQ's source code).
-  special[ str_hashchange ] = $.extend( special[ str_hashchange ], {
-    
-    // Called only when the first 'hashchange' event is bound to window.
-    setup: function() {
-      // If window.onhashchange is supported natively, there's nothing to do..
-      if ( supports_onhashchange ) { return false; }
-      
-      // Otherwise, we need to create our own. And we don't want to call this
-      // until the user binds to the event, just in case they never do, since it
-      // will create a polling loop and possibly even a hidden Iframe.
-      $( fake_onhashchange.start );
-    },
-    
-    // Called only when the last 'hashchange' event is unbound from window.
-    teardown: function() {
-      // If window.onhashchange is supported natively, there's nothing to do..
-      if ( supports_onhashchange ) { return false; }
-      
-      // Otherwise, we need to stop ours (if possible).
-      $( fake_onhashchange.stop );
-    }
-    
-  });
-  
-  // fake_onhashchange does all the work of triggering the window.onhashchange
-  // event for browsers that don't natively support it, including creating a
-  // polling loop to watch for hash changes and in IE 6/7 creating a hidden
-  // Iframe to enable back and forward.
-  fake_onhashchange = (function(){
-    var self = {},
-      timeout_id,
-      
-      // Remember the initial hash so it doesn't get triggered immediately.
-      last_hash = get_fragment(),
-      
-      fn_retval = function(val){ return val; },
-      history_set = fn_retval,
-      history_get = fn_retval;
-    
-    // Start the polling loop.
-    self.start = function() {
-      timeout_id || poll();
-    };
-    
-    // Stop the polling loop.
-    self.stop = function() {
-      timeout_id && clearTimeout( timeout_id );
-      timeout_id = undefined;
-    };
-    
-    // This polling loop checks every $.fn.hashchange.delay milliseconds to see
-    // if location.hash has changed, and triggers the 'hashchange' event on
-    // window when necessary.
-    function poll() {
-      var hash = get_fragment(),
-        history_hash = history_get( last_hash );
-      
-      if ( hash !== last_hash ) {
-        history_set( last_hash = hash, history_hash );
-        
-        $(window).trigger( str_hashchange );
-        
-      } else if ( history_hash !== last_hash ) {
-        location.href = location.href.replace( /#.*/, '' ) + history_hash;
-      }
-      
-      timeout_id = setTimeout( poll, $.fn[ str_hashchange ].delay );
-    };
-    
-    // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-    // vvvvvvvvvvvvvvvvvvv REMOVE IF NOT SUPPORTING IE6/7/8 vvvvvvvvvvvvvvvvvvv
-    // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-    window.attachEvent && !window.addEventListener && !supports_onhashchange && (function(){
-      // Not only do IE6/7 need the "magical" Iframe treatment, but so does IE8
-      // when running in "IE7 compatibility" mode.
-      
-      var iframe,
-        iframe_src;
-      
-      // When the event is bound and polling starts in IE 6/7, create a hidden
-      // Iframe for history handling.
-      self.start = function(){
-        if ( !iframe ) {
-          iframe_src = $.fn[ str_hashchange ].src;
-          iframe_src = iframe_src && iframe_src + get_fragment();
-          
-          // Create hidden Iframe. Attempt to make Iframe as hidden as possible
-          // by using techniques from http://www.paciellogroup.com/blog/?p=604.
-          iframe = $('<iframe tabindex="-1" title="empty"/>').hide()
-            
-            // When Iframe has completely loaded, initialize the history and
-            // start polling.
-            .one( 'load', function(){
-              iframe_src || history_set( get_fragment() );
-              poll();
-            })
-            
-            // Load Iframe src if specified, otherwise nothing.
-            .attr( 'src', iframe_src || 'javascript:0' )
-            
-            // Append Iframe after the end of the body to prevent unnecessary
-            // initial page scrolling (yes, this works).
-            .insertAfter( 'body' )[0].contentWindow;
-          
-          // Whenever `document.title` changes, update the Iframe's title to
-          // prettify the back/next history menu entries. Since IE sometimes
-          // errors with "Unspecified error" the very first time this is set
-          // (yes, very useful) wrap this with a try/catch block.
-          doc.onpropertychange = function(){
-            try {
-              if ( event.propertyName === 'title' ) {
-                iframe.document.title = doc.title;
-              }
-            } catch(e) {}
-          };
-          
-        }
-      };
-      
-      // Override the "stop" method since an IE6/7 Iframe was created. Even
-      // if there are no longer any bound event handlers, the polling loop
-      // is still necessary for back/next to work at all!
-      self.stop = fn_retval;
-      
-      // Get history by looking at the hidden Iframe's location.hash.
-      history_get = function() {
-        return get_fragment( iframe.location.href );
-      };
-      
-      // Set a new history item by opening and then closing the Iframe
-      // document, *then* setting its location.hash. If document.domain has
-      // been set, update that as well.
-      history_set = function( hash, history_hash ) {
-        var iframe_doc = iframe.document,
-          domain = $.fn[ str_hashchange ].domain;
-        
-        if ( hash !== history_hash ) {
-          // Update Iframe with any initial `document.title` that might be set.
-          iframe_doc.title = doc.title;
-          
-          // Opening the Iframe's document after it has been closed is what
-          // actually adds a history entry.
-          iframe_doc.open();
-          
-          // Set document.domain for the Iframe document as well, if necessary.
-          domain && iframe_doc.write( '\x3cscript>document.domain="' + domain + '"\x3c/script>' );
-          
-          iframe_doc.close();
-          
-          // Update the Iframe's hash, for great justice.
-          iframe.location.hash = hash;
-        }
-      };
-      
-    })();
-    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // ^^^^^^^^^^^^^^^^^^^ REMOVE IF NOT SUPPORTING IE6/7/8 ^^^^^^^^^^^^^^^^^^^
-    // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    
-    return self;
-  })();
-  
-})(jQuery,this);
-
-
-(function( $, undefined ) {
-
-	/*! matchMedia() polyfill - Test a CSS media type/query in JS. Authors & copyright (c) 2012: Scott Jehl, Paul Irish, Nicholas Zakas. Dual MIT/BSD license */
-	window.matchMedia = window.matchMedia || (function( doc, undefined ) {
-
-		var bool,
-			docElem = doc.documentElement,
-			refNode = docElem.firstElementChild || docElem.firstChild,
-			// fakeBody required for <FF4 when executed in <head>
-			fakeBody = doc.createElement( "body" ),
-			div = doc.createElement( "div" );
-
-		div.id = "mq-test-1";
-		div.style.cssText = "position:absolute;top:-100em";
-		fakeBody.style.background = "none";
-		fakeBody.appendChild(div);
-
-		return function(q){
-
-			div.innerHTML = "&shy;<style media=\"" + q + "\"> #mq-test-1 { width: 42px; }</style>";
-
-			docElem.insertBefore( fakeBody, refNode );
-			bool = div.offsetWidth === 42;
-			docElem.removeChild( fakeBody );
-
-			return {
-				matches: bool,
-				media: q
-			};
-
-		};
-
-	}( document ));
-
-	// $.mobile.media uses matchMedia to return a boolean.
-	$.mobile.media = function( q ) {
-		return window.matchMedia( q ).matches;
-	};
-
-})(jQuery);
-
-	(function( $, undefined ) {
-		var support = {
-			touch: "ontouchend" in document
-		};
-
-		$.mobile.support = $.mobile.support || {};
-		$.extend( $.support, support );
-		$.extend( $.mobile.support, support );
-	}( jQuery ));
-
-	(function( $, undefined ) {
-		$.extend( $.support, {
-			orientation: "orientation" in window && "onorientationchange" in window
-		});
-	}( jQuery ));
-
-(function( $, undefined ) {
-
-// thx Modernizr
-function propExists( prop ) {
-	var uc_prop = prop.charAt( 0 ).toUpperCase() + prop.substr( 1 ),
-		props = ( prop + " " + vendors.join( uc_prop + " " ) + uc_prop ).split( " " ),
-		v;
-
-	for ( v in props ) {
-		if ( fbCSS[ props[ v ] ] !== undefined ) {
-			return true;
-		}
-	}
-}
-
-var fakeBody = $( "<body>" ).prependTo( "html" ),
-	fbCSS = fakeBody[ 0 ].style,
-	vendors = [ "Webkit", "Moz", "O" ],
-	webos = "palmGetResource" in window, //only used to rule out scrollTop
-	operamini = window.operamini && ({}).toString.call( window.operamini ) === "[object OperaMini]",
-	bb = window.blackberry && !propExists( "-webkit-transform" ), //only used to rule out box shadow, as it's filled opaque on BB 5 and lower
-	nokiaLTE7_3;
-
-// inline SVG support test
-function inlineSVG() {
-	// Thanks Modernizr & Erik Dahlstrom
-	var w = window,
-		svg = !!w.document.createElementNS && !!w.document.createElementNS( "http://www.w3.org/2000/svg", "svg" ).createSVGRect && !( w.opera && navigator.userAgent.indexOf( "Chrome" ) === -1 ),
-		support = function( data ) {
-			if ( !( data && svg ) ) {
-				$( "html" ).addClass( "ui-nosvg" );
-			}
-		},
-		img = new w.Image();
-
-	img.onerror = function() {
-		support( false );
-	};
-	img.onload = function() {
-		support( img.width === 1 && img.height === 1 );
-	};
-	img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
-}
-
-function transform3dTest() {
-	var mqProp = "transform-3d",
-		// Because the `translate3d` test below throws false positives in Android:
-		ret = $.mobile.media( "(-" + vendors.join( "-" + mqProp + "),(-" ) + "-" + mqProp + "),(" + mqProp + ")" ),
-		el, transforms, t;
-
-	if ( ret ) {
-		return !!ret;
-	}
-
-	el = document.createElement( "div" );
-	transforms = {
-		// We’re omitting Opera for the time being; MS uses unprefixed.
-		"MozTransform": "-moz-transform",
-		"transform": "transform"
-	};
-
-	fakeBody.append( el );
-
-	for ( t in transforms ) {
-		if ( el.style[ t ] !== undefined ) {
-			el.style[ t ] = "translate3d( 100px, 1px, 1px )";
-			ret = window.getComputedStyle( el ).getPropertyValue( transforms[ t ] );
-		}
-	}
-	return ( !!ret && ret !== "none" );
-}
-
-// Test for dynamic-updating base tag support ( allows us to avoid href,src attr rewriting )
-function baseTagTest() {
-	var fauxBase = location.protocol + "//" + location.host + location.pathname + "ui-dir/",
-		base = $( "head base" ),
-		fauxEle = null,
-		href = "",
-		link, rebase;
-
-	if ( !base.length ) {
-		base = fauxEle = $( "<base>", { "href": fauxBase }).appendTo( "head" );
-	} else {
-		href = base.attr( "href" );
-	}
-
-	link = $( "<a href='testurl' />" ).prependTo( fakeBody );
-	rebase = link[ 0 ].href;
-	base[ 0 ].href = href || location.pathname;
-
-	if ( fauxEle ) {
-		fauxEle.remove();
-	}
-	return rebase.indexOf( fauxBase ) === 0;
-}
-
-// Thanks Modernizr
-function cssPointerEventsTest() {
-	var element = document.createElement( "x" ),
-		documentElement = document.documentElement,
-		getComputedStyle = window.getComputedStyle,
-		supports;
-
-	if ( !( "pointerEvents" in element.style ) ) {
-		return false;
-	}
-
-	element.style.pointerEvents = "auto";
-	element.style.pointerEvents = "x";
-	documentElement.appendChild( element );
-	supports = getComputedStyle &&
-	getComputedStyle( element, "" ).pointerEvents === "auto";
-	documentElement.removeChild( element );
-	return !!supports;
-}
-
-function boundingRect() {
-	var div = document.createElement( "div" );
-	return typeof div.getBoundingClientRect !== "undefined";
-}
-
-// non-UA-based IE version check by James Padolsey, modified by jdalton - from http://gist.github.com/527683
-// allows for inclusion of IE 6+, including Windows Mobile 7
-$.extend( $.mobile, { browser: {} } );
-$.mobile.browser.oldIE = (function() {
-	var v = 3,
-		div = document.createElement( "div" ),
-		a = div.all || [];
-
-	do {
-		div.innerHTML = "<!--[if gt IE " + ( ++v ) + "]><br><![endif]-->";
-	} while( a[0] );
-
-	return v > 4 ? v : !v;
-})();
-
-function fixedPosition() {
-	var w = window,
-		ua = navigator.userAgent,
-		platform = navigator.platform,
-		// Rendering engine is Webkit, and capture major version
-		wkmatch = ua.match( /AppleWebKit\/([0-9]+)/ ),
-		wkversion = !!wkmatch && wkmatch[ 1 ],
-		ffmatch = ua.match( /Fennec\/([0-9]+)/ ),
-		ffversion = !!ffmatch && ffmatch[ 1 ],
-		operammobilematch = ua.match( /Opera Mobi\/([0-9]+)/ ),
-		omversion = !!operammobilematch && operammobilematch[ 1 ];
-
-	if (
-		// iOS 4.3 and older : Platform is iPhone/Pad/Touch and Webkit version is less than 534 (ios5)
-		( ( platform.indexOf( "iPhone" ) > -1 || platform.indexOf( "iPad" ) > -1  || platform.indexOf( "iPod" ) > -1 ) && wkversion && wkversion < 534 ) ||
-		// Opera Mini
-		( w.operamini && ({}).toString.call( w.operamini ) === "[object OperaMini]" ) ||
-		( operammobilematch && omversion < 7458 )	||
-		//Android lte 2.1: Platform is Android and Webkit version is less than 533 (Android 2.2)
-		( ua.indexOf( "Android" ) > -1 && wkversion && wkversion < 533 ) ||
-		// Firefox Mobile before 6.0 -
-		( ffversion && ffversion < 6 ) ||
-		// WebOS less than 3
-		( "palmGetResource" in window && wkversion && wkversion < 534 )	||
-		// MeeGo
-		( ua.indexOf( "MeeGo" ) > -1 && ua.indexOf( "NokiaBrowser/8.5.0" ) > -1 ) ) {
-		return false;
-	}
-
-	return true;
-}
-
-$.extend( $.support, {
-	// Note, Chrome for iOS has an extremely quirky implementation of popstate.
-	// We've chosen to take the shortest path to a bug fix here for issue #5426
-	// See the following link for information about the regex chosen
-	// https://developers.google.com/chrome/mobile/docs/user-agent#chrome_for_ios_user-agent
-	pushState: "pushState" in history &&
-		"replaceState" in history &&
-		// When running inside a FF iframe, calling replaceState causes an error
-		!( window.navigator.userAgent.indexOf( "Firefox" ) >= 0 && window.top !== window ) &&
-		( window.navigator.userAgent.search(/CriOS/) === -1 ),
-
-	mediaquery: $.mobile.media( "only all" ),
-	cssPseudoElement: !!propExists( "content" ),
-	touchOverflow: !!propExists( "overflowScrolling" ),
-	cssTransform3d: transform3dTest(),
-	boxShadow: !!propExists( "boxShadow" ) && !bb,
-	fixedPosition: fixedPosition(),
-	scrollTop: ("pageXOffset" in window ||
-		"scrollTop" in document.documentElement ||
-		"scrollTop" in fakeBody[ 0 ]) && !webos && !operamini,
-
-	dynamicBaseTag: baseTagTest(),
-	cssPointerEvents: cssPointerEventsTest(),
-	boundingRect: boundingRect(),
-	inlineSVG: inlineSVG
-});
-
-fakeBody.remove();
-
-// $.mobile.ajaxBlacklist is used to override ajaxEnabled on platforms that have known conflicts with hash history updates (BB5, Symbian)
-// or that generally work better browsing in regular http for full page refreshes (Opera Mini)
-// Note: This detection below is used as a last resort.
-// We recommend only using these detection methods when all other more reliable/forward-looking approaches are not possible
-nokiaLTE7_3 = (function() {
-
-	var ua = window.navigator.userAgent;
-
-	//The following is an attempt to match Nokia browsers that are running Symbian/s60, with webkit, version 7.3 or older
-	return ua.indexOf( "Nokia" ) > -1 &&
-			( ua.indexOf( "Symbian/3" ) > -1 || ua.indexOf( "Series60/5" ) > -1 ) &&
-			ua.indexOf( "AppleWebKit" ) > -1 &&
-			ua.match( /(BrowserNG|NokiaBrowser)\/7\.[0-3]/ );
-})();
-
-// Support conditions that must be met in order to proceed
-// default enhanced qualifications are media query support OR IE 7+
-
-$.mobile.gradeA = function() {
-	return ( ( $.support.mediaquery && $.support.cssPseudoElement ) || $.mobile.browser.oldIE && $.mobile.browser.oldIE >= 8 ) && ( $.support.boundingRect || $.fn.jquery.match(/1\.[0-7+]\.[0-9+]?/) !== null );
-};
-
-$.mobile.ajaxBlacklist =
-			// BlackBerry browsers, pre-webkit
-			window.blackberry && !window.WebKitPoint ||
-			// Opera Mini
-			operamini ||
-			// Symbian webkits pre 7.3
-			nokiaLTE7_3;
-
-// Lastly, this workaround is the only way we've found so far to get pre 7.3 Symbian webkit devices
-// to render the stylesheets when they're referenced before this script, as we'd recommend doing.
-// This simply reappends the CSS in place, which for some reason makes it apply
-if ( nokiaLTE7_3 ) {
-	$(function() {
-		$( "head link[rel='stylesheet']" ).attr( "rel", "alternate stylesheet" ).attr( "rel", "stylesheet" );
-	});
-}
-
-// For ruling out shadows via css
-if ( !$.support.boxShadow ) {
-	$( "html" ).addClass( "ui-noboxshadow" );
-}
-
-})( jQuery );
-
-
-(function( $, undefined ) {
-	var $win = $.mobile.window, self,
-		dummyFnToInitNavigate = function() {
-		};
-
-	$.event.special.beforenavigate = {
-		setup: function() {
-			$win.on( "navigate", dummyFnToInitNavigate );
-		},
-
-		teardown: function() {
-			$win.off( "navigate", dummyFnToInitNavigate );
-		}
-	};
-
-	$.event.special.navigate = self = {
-		bound: false,
-
-		pushStateEnabled: true,
-
-		originalEventName: undefined,
-
-		// If pushstate support is present and push state support is defined to
-		// be true on the mobile namespace.
-		isPushStateEnabled: function() {
-			return $.support.pushState &&
-				$.mobile.pushStateEnabled === true &&
-				this.isHashChangeEnabled();
-		},
-
-		// !! assumes mobile namespace is present
-		isHashChangeEnabled: function() {
-			return $.mobile.hashListeningEnabled === true;
-		},
-
-		// TODO a lot of duplication between popstate and hashchange
-		popstate: function( event ) {
-			var newEvent = new $.Event( "navigate" ),
-				beforeNavigate = new $.Event( "beforenavigate" ),
-				state = event.originalEvent.state || {};
-
-			beforeNavigate.originalEvent = event;
-			$win.trigger( beforeNavigate );
-
-			if ( beforeNavigate.isDefaultPrevented() ) {
-				return;
-			}
-
-			if ( event.historyState ) {
-				$.extend(state, event.historyState);
-			}
-
-			// Make sure the original event is tracked for the end
-			// user to inspect incase they want to do something special
-			newEvent.originalEvent = event;
-
-			// NOTE we let the current stack unwind because any assignment to
-			//      location.hash will stop the world and run this event handler. By
-			//      doing this we create a similar behavior to hashchange on hash
-			//      assignment
-			setTimeout(function() {
-				$win.trigger( newEvent, {
-					state: state
-				});
-			}, 0);
-		},
-
-		hashchange: function( event /*, data */ ) {
-			var newEvent = new $.Event( "navigate" ),
-				beforeNavigate = new $.Event( "beforenavigate" );
-
-			beforeNavigate.originalEvent = event;
-			$win.trigger( beforeNavigate );
-
-			if ( beforeNavigate.isDefaultPrevented() ) {
-				return;
-			}
-
-			// Make sure the original event is tracked for the end
-			// user to inspect incase they want to do something special
-			newEvent.originalEvent = event;
-
-			// Trigger the hashchange with state provided by the user
-			// that altered the hash
-			$win.trigger( newEvent, {
-				// Users that want to fully normalize the two events
-				// will need to do history management down the stack and
-				// add the state to the event before this binding is fired
-				// TODO consider allowing for the explicit addition of callbacks
-				//      to be fired before this value is set to avoid event timing issues
-				state: event.hashchangeState || {}
-			});
-		},
-
-		// TODO We really only want to set this up once
-		//      but I'm not clear if there's a beter way to achieve
-		//      this with the jQuery special event structure
-		setup: function( /* data, namespaces */ ) {
-			if ( self.bound ) {
-				return;
-			}
-
-			self.bound = true;
-
-			if ( self.isPushStateEnabled() ) {
-				self.originalEventName = "popstate";
-				$win.bind( "popstate.navigate", self.popstate );
-			} else if ( self.isHashChangeEnabled() ) {
-				self.originalEventName = "hashchange";
-				$win.bind( "hashchange.navigate", self.hashchange );
-			}
-		}
-	};
-})( jQuery );
-
-
-
-(function( $, undefined ) {
-		var path, $base, dialogHashKey = "&ui-state=dialog";
-
-		$.mobile.path = path = {
-			uiStateKey: "&ui-state",
-
-			// This scary looking regular expression parses an absolute URL or its relative
-			// variants (protocol, site, document, query, and hash), into the various
-			// components (protocol, host, path, query, fragment, etc that make up the
-			// URL as well as some other commonly used sub-parts. When used with RegExp.exec()
-			// or String.match, it parses the URL into a results array that looks like this:
-			//
-			//     [0]: http://jblas:password@mycompany.com:8080/mail/inbox?msg=1234&type=unread#msg-content
-			//     [1]: http://jblas:password@mycompany.com:8080/mail/inbox?msg=1234&type=unread
-			//     [2]: http://jblas:password@mycompany.com:8080/mail/inbox
-			//     [3]: http://jblas:password@mycompany.com:8080
-			//     [4]: http:
-			//     [5]: //
-			//     [6]: jblas:password@mycompany.com:8080
-			//     [7]: jblas:password
-			//     [8]: jblas
-			//     [9]: password
-			//    [10]: mycompany.com:8080
-			//    [11]: mycompany.com
-			//    [12]: 8080
-			//    [13]: /mail/inbox
-			//    [14]: /mail/
-			//    [15]: inbox
-			//    [16]: ?msg=1234&type=unread
-			//    [17]: #msg-content
-			//
-			urlParseRE: /^\s*(((([^:\/#\?]+:)?(?:(\/\/)((?:(([^:@\/#\?]+)(?:\:([^:@\/#\?]+))?)@)?(([^:\/#\?\]\[]+|\[[^\/\]@#?]+\])(?:\:([0-9]+))?))?)?)?((\/?(?:[^\/\?#]+\/+)*)([^\?#]*)))?(\?[^#]+)?)(#.*)?/,
-
-			// Abstraction to address xss (Issue #4787) by removing the authority in
-			// browsers that auto-decode it. All references to location.href should be
-			// replaced with a call to this method so that it can be dealt with properly here
-			getLocation: function( url ) {
-				var parsedUrl = this.parseUrl( url || location.href ),
-					uri = url ? parsedUrl : location,
-
-					// Make sure to parse the url or the location object for the hash because using
-					// location.hash is autodecoded in firefox, the rest of the url should be from
-					// the object (location unless we're testing) to avoid the inclusion of the
-					// authority
-					hash = parsedUrl.hash;
-
-				// mimic the browser with an empty string when the hash is empty
-				hash = hash === "#" ? "" : hash;
-
-				return uri.protocol +
-					parsedUrl.doubleSlash +
-					uri.host +
-
-					// The pathname must start with a slash if there's a protocol, because you
-					// can't have a protocol followed by a relative path. Also, it's impossible to
-					// calculate absolute URLs from relative ones if the absolute one doesn't have
-					// a leading "/".
-					( ( uri.protocol !== "" && uri.pathname.substring( 0, 1 ) !== "/" ) ?
-						"/" : "" ) +
-					uri.pathname +
-					uri.search +
-					hash;
-			},
-
-			//return the original document url
-			getDocumentUrl: function( asParsedObject ) {
-				return asParsedObject ? $.extend( {}, path.documentUrl ) : path.documentUrl.href;
-			},
-
-			parseLocation: function() {
-				return this.parseUrl( this.getLocation() );
-			},
-
-			//Parse a URL into a structure that allows easy access to
-			//all of the URL components by name.
-			parseUrl: function( url ) {
-				// If we're passed an object, we'll assume that it is
-				// a parsed url object and just return it back to the caller.
-				if ( $.type( url ) === "object" ) {
-					return url;
-				}
-
-				var matches = path.urlParseRE.exec( url || "" ) || [];
-
-					// Create an object that allows the caller to access the sub-matches
-					// by name. Note that IE returns an empty string instead of undefined,
-					// like all other browsers do, so we normalize everything so its consistent
-					// no matter what browser we're running on.
-					return {
-						href:         matches[  0 ] || "",
-						hrefNoHash:   matches[  1 ] || "",
-						hrefNoSearch: matches[  2 ] || "",
-						domain:       matches[  3 ] || "",
-						protocol:     matches[  4 ] || "",
-						doubleSlash:  matches[  5 ] || "",
-						authority:    matches[  6 ] || "",
-						username:     matches[  8 ] || "",
-						password:     matches[  9 ] || "",
-						host:         matches[ 10 ] || "",
-						hostname:     matches[ 11 ] || "",
-						port:         matches[ 12 ] || "",
-						pathname:     matches[ 13 ] || "",
-						directory:    matches[ 14 ] || "",
-						filename:     matches[ 15 ] || "",
-						search:       matches[ 16 ] || "",
-						hash:         matches[ 17 ] || ""
-					};
-			},
-
-			//Turn relPath into an asbolute path. absPath is
-			//an optional absolute path which describes what
-			//relPath is relative to.
-			makePathAbsolute: function( relPath, absPath ) {
-				var absStack,
-					relStack,
-					i, d;
-
-				if ( relPath && relPath.charAt( 0 ) === "/" ) {
-					return relPath;
-				}
-
-				relPath = relPath || "";
-				absPath = absPath ? absPath.replace( /^\/|(\/[^\/]*|[^\/]+)$/g, "" ) : "";
-
-				absStack = absPath ? absPath.split( "/" ) : [];
-				relStack = relPath.split( "/" );
-
-				for ( i = 0; i < relStack.length; i++ ) {
-					d = relStack[ i ];
-					switch ( d ) {
-						case ".":
-							break;
-						case "..":
-							if ( absStack.length ) {
-								absStack.pop();
-							}
-							break;
-						default:
-							absStack.push( d );
-							break;
-					}
-				}
-				return "/" + absStack.join( "/" );
-			},
-
-			//Returns true if both urls have the same domain.
-			isSameDomain: function( absUrl1, absUrl2 ) {
-				return path.parseUrl( absUrl1 ).domain.toLowerCase() ===
-					path.parseUrl( absUrl2 ).domain.toLowerCase();
-			},
-
-			//Returns true for any relative variant.
-			isRelativeUrl: function( url ) {
-				// All relative Url variants have one thing in common, no protocol.
-				return path.parseUrl( url ).protocol === "";
-			},
-
-			//Returns true for an absolute url.
-			isAbsoluteUrl: function( url ) {
-				return path.parseUrl( url ).protocol !== "";
-			},
-
-			//Turn the specified realtive URL into an absolute one. This function
-			//can handle all relative variants (protocol, site, document, query, fragment).
-			makeUrlAbsolute: function( relUrl, absUrl ) {
-				if ( !path.isRelativeUrl( relUrl ) ) {
-					return relUrl;
-				}
-
-				if ( absUrl === undefined ) {
-					absUrl = this.documentBase;
-				}
-
-				var relObj = path.parseUrl( relUrl ),
-					absObj = path.parseUrl( absUrl ),
-					protocol = relObj.protocol || absObj.protocol,
-					doubleSlash = relObj.protocol ? relObj.doubleSlash : ( relObj.doubleSlash || absObj.doubleSlash ),
-					authority = relObj.authority || absObj.authority,
-					hasPath = relObj.pathname !== "",
-					pathname = path.makePathAbsolute( relObj.pathname || absObj.filename, absObj.pathname ),
-					search = relObj.search || ( !hasPath && absObj.search ) || "",
-					hash = relObj.hash;
-
-				return protocol + doubleSlash + authority + pathname + search + hash;
-			},
-
-			//Add search (aka query) params to the specified url.
-			addSearchParams: function( url, params ) {
-				var u = path.parseUrl( url ),
-					p = ( typeof params === "object" ) ? $.param( params ) : params,
-					s = u.search || "?";
-				return u.hrefNoSearch + s + ( s.charAt( s.length - 1 ) !== "?" ? "&" : "" ) + p + ( u.hash || "" );
-			},
-
-			convertUrlToDataUrl: function( absUrl ) {
-				var result = absUrl,
-					u = path.parseUrl( absUrl );
-
-				if ( path.isEmbeddedPage( u ) ) {
-					// For embedded pages, remove the dialog hash key as in getFilePath(),
-					// and remove otherwise the Data Url won't match the id of the embedded Page.
-					result = u.hash
-						.split( dialogHashKey )[0]
-						.replace( /^#/, "" )
-						.replace( /\?.*$/, "" );
-				} else if ( path.isSameDomain( u, this.documentBase ) ) {
-					result = u.hrefNoHash.replace( this.documentBase.domain, "" ).split( dialogHashKey )[0];
-				}
-
-				return window.decodeURIComponent( result );
-			},
-
-			//get path from current hash, or from a file path
-			get: function( newPath ) {
-				if ( newPath === undefined ) {
-					newPath = path.parseLocation().hash;
-				}
-				return path.stripHash( newPath ).replace( /[^\/]*\.[^\/*]+$/, "" );
-			},
-
-			//set location hash to path
-			set: function( path ) {
-				location.hash = path;
-			},
-
-			//test if a given url (string) is a path
-			//NOTE might be exceptionally naive
-			isPath: function( url ) {
-				return ( /\// ).test( url );
-			},
-
-			//return a url path with the window's location protocol/hostname/pathname removed
-			clean: function( url ) {
-				return url.replace( this.documentBase.domain, "" );
-			},
-
-			//just return the url without an initial #
-			stripHash: function( url ) {
-				return url.replace( /^#/, "" );
-			},
-
-			stripQueryParams: function( url ) {
-				return url.replace( /\?.*$/, "" );
-			},
-
-			//remove the preceding hash, any query params, and dialog notations
-			cleanHash: function( hash ) {
-				return path.stripHash( hash.replace( /\?.*$/, "" ).replace( dialogHashKey, "" ) );
-			},
-
-			isHashValid: function( hash ) {
-				return ( /^#[^#]+$/ ).test( hash );
-			},
-
-			//check whether a url is referencing the same domain, or an external domain or different protocol
-			//could be mailto, etc
-			isExternal: function( url ) {
-				var u = path.parseUrl( url );
-
-				return !!( u.protocol &&
-					( u.domain.toLowerCase() !== this.documentUrl.domain.toLowerCase() ) );
-			},
-
-			hasProtocol: function( url ) {
-				return ( /^(:?\w+:)/ ).test( url );
-			},
-
-			isEmbeddedPage: function( url ) {
-				var u = path.parseUrl( url );
-
-				//if the path is absolute, then we need to compare the url against
-				//both the this.documentUrl and the documentBase. The main reason for this
-				//is that links embedded within external documents will refer to the
-				//application document, whereas links embedded within the application
-				//document will be resolved against the document base.
-				if ( u.protocol !== "" ) {
-					return ( !this.isPath(u.hash) && u.hash && ( u.hrefNoHash === this.documentUrl.hrefNoHash || ( this.documentBaseDiffers && u.hrefNoHash === this.documentBase.hrefNoHash ) ) );
-				}
-				return ( /^#/ ).test( u.href );
-			},
-
-			squash: function( url, resolutionUrl ) {
-				var href, cleanedUrl, search, stateIndex, docUrl,
-					isPath = this.isPath( url ),
-					uri = this.parseUrl( url ),
-					preservedHash = uri.hash,
-					uiState = "";
-
-				// produce a url against which we can resolve the provided path
-				if ( !resolutionUrl ) {
-					if ( isPath ) {
-						resolutionUrl = path.getLocation();
-					} else {
-						docUrl = path.getDocumentUrl( true );
-						if ( path.isPath( docUrl.hash ) ) {
-							resolutionUrl = path.squash( docUrl.href );
-						} else {
-							resolutionUrl = docUrl.href;
-						}
-					}
-				}
-
-				// If the url is anything but a simple string, remove any preceding hash
-				// eg #foo/bar -> foo/bar
-				//    #foo -> #foo
-				cleanedUrl = isPath ? path.stripHash( url ) : url;
-
-				// If the url is a full url with a hash check if the parsed hash is a path
-				// if it is, strip the #, and use it otherwise continue without change
-				cleanedUrl = path.isPath( uri.hash ) ? path.stripHash( uri.hash ) : cleanedUrl;
-
-				// Split the UI State keys off the href
-				stateIndex = cleanedUrl.indexOf( this.uiStateKey );
-
-				// store the ui state keys for use
-				if ( stateIndex > -1 ) {
-					uiState = cleanedUrl.slice( stateIndex );
-					cleanedUrl = cleanedUrl.slice( 0, stateIndex );
-				}
-
-				// make the cleanedUrl absolute relative to the resolution url
-				href = path.makeUrlAbsolute( cleanedUrl, resolutionUrl );
-
-				// grab the search from the resolved url since parsing from
-				// the passed url may not yield the correct result
-				search = this.parseUrl( href ).search;
-
-				// TODO all this crap is terrible, clean it up
-				if ( isPath ) {
-					// reject the hash if it's a path or it's just a dialog key
-					if ( path.isPath( preservedHash ) || preservedHash.replace("#", "").indexOf( this.uiStateKey ) === 0) {
-						preservedHash = "";
-					}
-
-					// Append the UI State keys where it exists and it's been removed
-					// from the url
-					if ( uiState && preservedHash.indexOf( this.uiStateKey ) === -1) {
-						preservedHash += uiState;
-					}
-
-					// make sure that pound is on the front of the hash
-					if ( preservedHash.indexOf( "#" ) === -1 && preservedHash !== "" ) {
-						preservedHash = "#" + preservedHash;
-					}
-
-					// reconstruct each of the pieces with the new search string and hash
-					href = path.parseUrl( href );
-					href = href.protocol + href.doubleSlash + href.host + href.pathname + search +
-						preservedHash;
-				} else {
-					href += href.indexOf( "#" ) > -1 ? uiState : "#" + uiState;
-				}
-
-				return href;
-			},
-
-			isPreservableHash: function( hash ) {
-				return hash.replace( "#", "" ).indexOf( this.uiStateKey ) === 0;
-			},
-
-			// Escape weird characters in the hash if it is to be used as a selector
-			hashToSelector: function( hash ) {
-				var hasHash = ( hash.substring( 0, 1 ) === "#" );
-				if ( hasHash ) {
-					hash = hash.substring( 1 );
-				}
-				return ( hasHash ? "#" : "" ) + hash.replace( /([!"#$%&'()*+,./:;<=>?@[\]^`{|}~])/g, "\\$1" );
-			},
-
-			// return the substring of a filepath before the dialogHashKey, for making a server
-			// request
-			getFilePath: function( path ) {
-				return path && path.split( dialogHashKey )[0];
-			},
-
-			// check if the specified url refers to the first page in the main
-			// application document.
-			isFirstPageUrl: function( url ) {
-				// We only deal with absolute paths.
-				var u = path.parseUrl( path.makeUrlAbsolute( url, this.documentBase ) ),
-
-					// Does the url have the same path as the document?
-					samePath = u.hrefNoHash === this.documentUrl.hrefNoHash ||
-						( this.documentBaseDiffers &&
-							u.hrefNoHash === this.documentBase.hrefNoHash ),
-
-					// Get the first page element.
-					fp = $.mobile.firstPage,
-
-					// Get the id of the first page element if it has one.
-					fpId = fp && fp[0] ? fp[0].id : undefined;
-
-				// The url refers to the first page if the path matches the document and
-				// it either has no hash value, or the hash is exactly equal to the id
-				// of the first page element.
-				return samePath &&
-					( !u.hash ||
-						u.hash === "#" ||
-						( fpId && u.hash.replace( /^#/, "" ) === fpId ) );
-			},
-
-			// Some embedded browsers, like the web view in Phone Gap, allow
-			// cross-domain XHR requests if the document doing the request was loaded
-			// via the file:// protocol. This is usually to allow the application to
-			// "phone home" and fetch app specific data. We normally let the browser
-			// handle external/cross-domain urls, but if the allowCrossDomainPages
-			// option is true, we will allow cross-domain http/https requests to go
-			// through our page loading logic.
-			isPermittedCrossDomainRequest: function( docUrl, reqUrl ) {
-				return $.mobile.allowCrossDomainPages &&
-					(docUrl.protocol === "file:" || docUrl.protocol === "content:") &&
-					reqUrl.search( /^https?:/ ) !== -1;
-			}
-		};
-
-		path.documentUrl = path.parseLocation();
-
-		$base = $( "head" ).find( "base" );
-
-		path.documentBase = $base.length ?
-			path.parseUrl( path.makeUrlAbsolute( $base.attr( "href" ), path.documentUrl.href ) ) :
-			path.documentUrl;
-
-		path.documentBaseDiffers = (path.documentUrl.hrefNoHash !== path.documentBase.hrefNoHash);
-
-		//return the original document base url
-		path.getDocumentBase = function( asParsedObject ) {
-			return asParsedObject ? $.extend( {}, path.documentBase ) : path.documentBase.href;
-		};
-
-		// DEPRECATED as of 1.4.0 - remove in 1.5.0
-		$.extend( $.mobile, {
-
-			//return the original document url
-			getDocumentUrl: path.getDocumentUrl,
-
-			//return the original document base url
-			getDocumentBase: path.getDocumentBase
-		});
-})( jQuery );
-
-
-
-(function( $, undefined ) {
-	$.mobile.History = function( stack, index ) {
-		this.stack = stack || [];
-		this.activeIndex = index || 0;
-	};
-
-	$.extend($.mobile.History.prototype, {
-		getActive: function() {
-			return this.stack[ this.activeIndex ];
-		},
-
-		getLast: function() {
-			return this.stack[ this.previousIndex ];
-		},
-
-		getNext: function() {
-			return this.stack[ this.activeIndex + 1 ];
-		},
-
-		getPrev: function() {
-			return this.stack[ this.activeIndex - 1 ];
-		},
-
-		// addNew is used whenever a new page is added
-		add: function( url, data ) {
-			data = data || {};
-
-			//if there's forward history, wipe it
-			if ( this.getNext() ) {
-				this.clearForward();
-			}
-
-			// if the hash is included in the data make sure the shape
-			// is consistent for comparison
-			if ( data.hash && data.hash.indexOf( "#" ) === -1) {
-				data.hash = "#" + data.hash;
-			}
-
-			data.url = url;
-			this.stack.push( data );
-			this.activeIndex = this.stack.length - 1;
-		},
-
-		//wipe urls ahead of active index
-		clearForward: function() {
-			this.stack = this.stack.slice( 0, this.activeIndex + 1 );
-		},
-
-		find: function( url, stack, earlyReturn ) {
-			stack = stack || this.stack;
-
-			var entry, i, length = stack.length, index;
-
-			for ( i = 0; i < length; i++ ) {
-				entry = stack[i];
-
-				if ( decodeURIComponent(url) === decodeURIComponent(entry.url) ||
-					decodeURIComponent(url) === decodeURIComponent(entry.hash) ) {
-					index = i;
-
-					if ( earlyReturn ) {
-						return index;
-					}
-				}
-			}
-
-			return index;
-		},
-
-		closest: function( url ) {
-			var closest, a = this.activeIndex;
-
-			// First, take the slice of the history stack before the current index and search
-			// for a url match. If one is found, we'll avoid avoid looking through forward history
-			// NOTE the preference for backward history movement is driven by the fact that
-			//      most mobile browsers only have a dedicated back button, and users rarely use
-			//      the forward button in desktop browser anyhow
-			closest = this.find( url, this.stack.slice(0, a) );
-
-			// If nothing was found in backward history check forward. The `true`
-			// value passed as the third parameter causes the find method to break
-			// on the first match in the forward history slice. The starting index
-			// of the slice must then be added to the result to get the element index
-			// in the original history stack :( :(
-			//
-			// TODO this is hyper confusing and should be cleaned up (ugh so bad)
-			if ( closest === undefined ) {
-				closest = this.find( url, this.stack.slice(a), true );
-				closest = closest === undefined ? closest : closest + a;
-			}
-
-			return closest;
-		},
-
-		direct: function( opts ) {
-			var newActiveIndex = this.closest( opts.url ), a = this.activeIndex;
-
-			// save new page index, null check to prevent falsey 0 result
-			// record the previous index for reference
-			if ( newActiveIndex !== undefined ) {
-				this.activeIndex = newActiveIndex;
-				this.previousIndex = a;
-			}
-
-			// invoke callbacks where appropriate
-			//
-			// TODO this is also convoluted and confusing
-			if ( newActiveIndex < a ) {
-				( opts.present || opts.back || $.noop )( this.getActive(), "back" );
-			} else if ( newActiveIndex > a ) {
-				( opts.present || opts.forward || $.noop )( this.getActive(), "forward" );
-			} else if ( newActiveIndex === undefined && opts.missing ) {
-				opts.missing( this.getActive() );
-			}
-		}
-	});
-})( jQuery );
-
-
-
-(function( $, undefined ) {
-	var path = $.mobile.path,
-		initialHref = location.href;
-
-	$.mobile.Navigator = function( history ) {
-		this.history = history;
-		this.ignoreInitialHashChange = true;
-
-		$.mobile.window.bind({
-			"popstate.history": $.proxy( this.popstate, this ),
-			"hashchange.history": $.proxy( this.hashchange, this )
-		});
-	};
-
-	$.extend($.mobile.Navigator.prototype, {
-		squash: function( url, data ) {
-			var state, href, hash = path.isPath(url) ? path.stripHash(url) : url;
-
-			href = path.squash( url );
-
-			// make sure to provide this information when it isn't explicitly set in the
-			// data object that was passed to the squash method
-			state = $.extend({
-				hash: hash,
-				url: href
-			}, data);
-
-			// replace the current url with the new href and store the state
-			// Note that in some cases we might be replacing an url with the
-			// same url. We do this anyways because we need to make sure that
-			// all of our history entries have a state object associated with
-			// them. This allows us to work around the case where $.mobile.back()
-			// is called to transition from an external page to an embedded page.
-			// In that particular case, a hashchange event is *NOT* generated by the browser.
-			// Ensuring each history entry has a state object means that onPopState()
-			// will always trigger our hashchange callback even when a hashchange event
-			// is not fired.
-			window.history.replaceState( state, state.title || document.title, href );
-
-			return state;
-		},
-
-		hash: function( url, href ) {
-			var parsed, loc, hash, resolved;
-
-			// Grab the hash for recording. If the passed url is a path
-			// we used the parsed version of the squashed url to reconstruct,
-			// otherwise we assume it's a hash and store it directly
-			parsed = path.parseUrl( url );
-			loc = path.parseLocation();
-
-			if ( loc.pathname + loc.search === parsed.pathname + parsed.search ) {
-				// If the pathname and search of the passed url is identical to the current loc
-				// then we must use the hash. Otherwise there will be no event
-				// eg, url = "/foo/bar?baz#bang", location.href = "http://example.com/foo/bar?baz"
-				hash = parsed.hash ? parsed.hash : parsed.pathname + parsed.search;
-			} else if ( path.isPath(url) ) {
-				resolved = path.parseUrl( href );
-				// If the passed url is a path, make it domain relative and remove any trailing hash
-				hash = resolved.pathname + resolved.search + (path.isPreservableHash( resolved.hash )? resolved.hash.replace( "#", "" ) : "");
-			} else {
-				hash = url;
-			}
-
-			return hash;
-		},
-
-		// TODO reconsider name
-		go: function( url, data, noEvents ) {
-			var state, href, hash, popstateEvent,
-				isPopStateEvent = $.event.special.navigate.isPushStateEnabled();
-
-			// Get the url as it would look squashed on to the current resolution url
-			href = path.squash( url );
-
-			// sort out what the hash sould be from the url
-			hash = this.hash( url, href );
-
-			// Here we prevent the next hash change or popstate event from doing any
-			// history management. In the case of hashchange we don't swallow it
-			// if there will be no hashchange fired (since that won't reset the value)
-			// and will swallow the following hashchange
-			if ( noEvents && hash !== path.stripHash(path.parseLocation().hash) ) {
-				this.preventNextHashChange = noEvents;
-			}
-
-			// IMPORTANT in the case where popstate is supported the event will be triggered
-			//      directly, stopping further execution - ie, interupting the flow of this
-			//      method call to fire bindings at this expression. Below the navigate method
-			//      there is a binding to catch this event and stop its propagation.
-			//
-			//      We then trigger a new popstate event on the window with a null state
-			//      so that the navigate events can conclude their work properly
-			//
-			// if the url is a path we want to preserve the query params that are available on
-			// the current url.
-			this.preventHashAssignPopState = true;
-			window.location.hash = hash;
-
-			// If popstate is enabled and the browser triggers `popstate` events when the hash
-			// is set (this often happens immediately in browsers like Chrome), then the
-			// this flag will be set to false already. If it's a browser that does not trigger
-			// a `popstate` on hash assignement or `replaceState` then we need avoid the branch
-			// that swallows the event created by the popstate generated by the hash assignment
-			// At the time of this writing this happens with Opera 12 and some version of IE
-			this.preventHashAssignPopState = false;
-
-			state = $.extend({
-				url: href,
-				hash: hash,
-				title: document.title
-			}, data);
-
-			if ( isPopStateEvent ) {
-				popstateEvent = new $.Event( "popstate" );
-				popstateEvent.originalEvent = {
-					type: "popstate",
-					state: null
-				};
-
-				this.squash( url, state );
-
-				// Trigger a new faux popstate event to replace the one that we
-				// caught that was triggered by the hash setting above.
-				if ( !noEvents ) {
-					this.ignorePopState = true;
-					$.mobile.window.trigger( popstateEvent );
-				}
-			}
-
-			// record the history entry so that the information can be included
-			// in hashchange event driven navigate events in a similar fashion to
-			// the state that's provided by popstate
-			this.history.add( state.url, state );
-		},
-
-		// This binding is intended to catch the popstate events that are fired
-		// when execution of the `$.navigate` method stops at window.location.hash = url;
-		// and completely prevent them from propagating. The popstate event will then be
-		// retriggered after execution resumes
-		//
-		// TODO grab the original event here and use it for the synthetic event in the
-		//      second half of the navigate execution that will follow this binding
-		popstate: function( event ) {
-			var hash, state;
-
-			// Partly to support our test suite which manually alters the support
-			// value to test hashchange. Partly to prevent all around weirdness
-			if ( !$.event.special.navigate.isPushStateEnabled() ) {
-				return;
-			}
-
-			// If this is the popstate triggered by the actual alteration of the hash
-			// prevent it completely. History is tracked manually
-			if ( this.preventHashAssignPopState ) {
-				this.preventHashAssignPopState = false;
-				event.stopImmediatePropagation();
-				return;
-			}
-
-			// if this is the popstate triggered after the `replaceState` call in the go
-			// method, then simply ignore it. The history entry has already been captured
-			if ( this.ignorePopState ) {
-				this.ignorePopState = false;
-				return;
-			}
-
-			// If there is no state, and the history stack length is one were
-			// probably getting the page load popstate fired by browsers like chrome
-			// avoid it and set the one time flag to false.
-			// TODO: Do we really need all these conditions? Comparing location hrefs
-			// should be sufficient.
-			if ( !event.originalEvent.state &&
-				this.history.stack.length === 1 &&
-				this.ignoreInitialHashChange ) {
-				this.ignoreInitialHashChange = false;
-
-				if ( location.href === initialHref ) {
-					event.preventDefault();
-					return;
-				}
-			}
-
-			// account for direct manipulation of the hash. That is, we will receive a popstate
-			// when the hash is changed by assignment, and it won't have a state associated. We
-			// then need to squash the hash. See below for handling of hash assignment that
-			// matches an existing history entry
-			// TODO it might be better to only add to the history stack
-			//      when the hash is adjacent to the active history entry
-			hash = path.parseLocation().hash;
-			if ( !event.originalEvent.state && hash ) {
-				// squash the hash that's been assigned on the URL with replaceState
-				// also grab the resulting state object for storage
-				state = this.squash( hash );
-
-				// record the new hash as an additional history entry
-				// to match the browser's treatment of hash assignment
-				this.history.add( state.url, state );
-
-				// pass the newly created state information
-				// along with the event
-				event.historyState = state;
-
-				// do not alter history, we've added a new history entry
-				// so we know where we are
-				return;
-			}
-
-			// If all else fails this is a popstate that comes from the back or forward buttons
-			// make sure to set the state of our history stack properly, and record the directionality
-			this.history.direct({
-				url: (event.originalEvent.state || {}).url || hash,
-
-				// When the url is either forward or backward in history include the entry
-				// as data on the event object for merging as data in the navigate event
-				present: function( historyEntry, direction ) {
-					// make sure to create a new object to pass down as the navigate event data
-					event.historyState = $.extend({}, historyEntry);
-					event.historyState.direction = direction;
-				}
-			});
-		},
-
-		// NOTE must bind before `navigate` special event hashchange binding otherwise the
-		//      navigation data won't be attached to the hashchange event in time for those
-		//      bindings to attach it to the `navigate` special event
-		// TODO add a check here that `hashchange.navigate` is bound already otherwise it's
-		//      broken (exception?)
-		hashchange: function( event ) {
-			var history, hash;
-
-			// If hashchange listening is explicitly disabled or pushstate is supported
-			// avoid making use of the hashchange handler.
-			if (!$.event.special.navigate.isHashChangeEnabled() ||
-				$.event.special.navigate.isPushStateEnabled() ) {
-				return;
-			}
-
-			// On occasion explicitly want to prevent the next hash from propogating because we only
-			// with to alter the url to represent the new state do so here
-			if ( this.preventNextHashChange ) {
-				this.preventNextHashChange = false;
-				event.stopImmediatePropagation();
-				return;
-			}
-
-			history = this.history;
-			hash = path.parseLocation().hash;
-
-			// If this is a hashchange caused by the back or forward button
-			// make sure to set the state of our history stack properly
-			this.history.direct({
-				url: hash,
-
-				// When the url is either forward or backward in history include the entry
-				// as data on the event object for merging as data in the navigate event
-				present: function( historyEntry, direction ) {
-					// make sure to create a new object to pass down as the navigate event data
-					event.hashchangeState = $.extend({}, historyEntry);
-					event.hashchangeState.direction = direction;
-				},
-
-				// When we don't find a hash in our history clearly we're aiming to go there
-				// record the entry as new for future traversal
-				//
-				// NOTE it's not entirely clear that this is the right thing to do given that we
-				//      can't know the users intention. It might be better to explicitly _not_
-				//      support location.hash assignment in preference to $.navigate calls
-				// TODO first arg to add should be the href, but it causes issues in identifying
-				//      embeded pages
-				missing: function() {
-					history.add( hash, {
-						hash: hash,
-						title: document.title
-					});
-				}
-			});
-		}
-	});
-})( jQuery );
-
-
-
-(function( $, undefined ) {
-	// TODO consider queueing navigation activity until previous activities have completed
-	//      so that end users don't have to think about it. Punting for now
-	// TODO !! move the event bindings into callbacks on the navigate event
-	$.mobile.navigate = function( url, data, noEvents ) {
-		$.mobile.navigate.navigator.go( url, data, noEvents );
-	};
-
-	// expose the history on the navigate method in anticipation of full integration with
-	// existing navigation functionalty that is tightly coupled to the history information
-	$.mobile.navigate.history = new $.mobile.History();
-
-	// instantiate an instance of the navigator for use within the $.navigate method
-	$.mobile.navigate.navigator = new $.mobile.Navigator( $.mobile.navigate.history );
-
-	var loc = $.mobile.path.parseLocation();
-	$.mobile.navigate.history.add( loc.href, {hash: loc.hash} );
-})( jQuery );
-
-
-(function( $, undefined ) {
-	var props = {
-			"animation": {},
-			"transition": {}
-		},
-		testElement = document.createElement( "a" ),
-		vendorPrefixes = [ "", "webkit-", "moz-", "o-" ];
-
-	$.each( [ "animation", "transition" ], function( i, test ) {
-
-		// Get correct name for test
-		var testName = ( i === 0 ) ? test + "-" + "name" : test;
-
-		$.each( vendorPrefixes, function( j, prefix ) {
-			if ( testElement.style[ $.camelCase( prefix + testName ) ] !== undefined ) {
-				 props[ test ][ "prefix" ] = prefix;
-				return false;
-			}
-		});
-
-		// Set event and duration names for later use
-		props[ test ][ "duration" ] =
-			$.camelCase( props[ test ][ "prefix" ] + test + "-" + "duration" );
-		props[ test ][ "event" ] =
-			$.camelCase( props[ test ][ "prefix" ] + test + "-" + "end" );
-
-		// All lower case if not a vendor prop
-		if ( props[ test ][ "prefix" ] === "" ) {
-			props[ test ][ "event" ] = props[ test ][ "event" ].toLowerCase();
-		}
-	});
-
-	// If a valid prefix was found then the it is supported by the browser
-	$.support.cssTransitions = ( props[ "transition" ][ "prefix" ] !== undefined );
-	$.support.cssAnimations = ( props[ "animation" ][ "prefix" ] !== undefined );
-
-	// Remove the testElement
-	$( testElement ).remove();
-
-	// Animation complete callback
-	$.fn.animationComplete = function( callback, type, fallbackTime ) {
-		var timer, duration,
-			that = this,
-			eventBinding = function() {
-
-				// Clear the timer so we don't call callback twice
-				clearTimeout( timer );
-				callback.apply( this, arguments );
-			},
-			animationType = ( !type || type === "animation" ) ? "animation" : "transition";
-
-		// Make sure selected type is supported by browser
-		if ( ( $.support.cssTransitions && animationType === "transition" ) ||
-			( $.support.cssAnimations && animationType === "animation" ) ) {
-
-			// If a fallback time was not passed set one
-			if ( fallbackTime === undefined ) {
-
-				// Make sure the was not bound to document before checking .css
-				if ( $( this ).context !== document ) {
-
-					// Parse the durration since its in second multiple by 1000 for milliseconds
-					// Multiply by 3 to make sure we give the animation plenty of time.
-					duration = parseFloat(
-						$( this ).css( props[ animationType ].duration )
-					) * 3000;
-				}
-
-				// If we could not read a duration use the default
-				if ( duration === 0 || duration === undefined || isNaN( duration ) ) {
-					duration = $.fn.animationComplete.defaultDuration;
-				}
-			}
-
-			// Sets up the fallback if event never comes
-			timer = setTimeout( function() {
-				$( that ).off( props[ animationType ].event, eventBinding );
-				callback.apply( that );
-			}, duration );
-
-			// Bind the event
-			return $( this ).one( props[ animationType ].event, eventBinding );
-		} else {
-
-			// CSS animation / transitions not supported
-			// Defer execution for consistency between webkit/non webkit
-			setTimeout( $.proxy( callback, this ), 0 );
-			return $( this );
-		}
-	};
-
-	// Allow default callback to be configured on mobileInit
-	$.fn.animationComplete.defaultDuration = 1000;
-})( jQuery );
-
-// This plugin is an experiment for abstracting away the touch and mouse
-// events so that developers don't have to worry about which method of input
-// the device their document is loaded on supports.
-//
-// The idea here is to allow the developer to register listeners for the
-// basic mouse events, such as mousedown, mousemove, mouseup, and click,
-// and the plugin will take care of registering the correct listeners
-// behind the scenes to invoke the listener at the fastest possible time
-// for that device, while still retaining the order of event firing in
-// the traditional mouse environment, should multiple handlers be registered
-// on the same element for different events.
-//
-// The current version exposes the following virtual events to jQuery bind methods:
-// "vmouseover vmousedown vmousemove vmouseup vclick vmouseout vmousecancel"
-
-(function( $, window, document, undefined ) {
-
-var dataPropertyName = "virtualMouseBindings",
-	touchTargetPropertyName = "virtualTouchID",
-	virtualEventNames = "vmouseover vmousedown vmousemove vmouseup vclick vmouseout vmousecancel".split( " " ),
-	touchEventProps = "clientX clientY pageX pageY screenX screenY".split( " " ),
-	mouseHookProps = $.event.mouseHooks ? $.event.mouseHooks.props : [],
-	mouseEventProps = $.event.props.concat( mouseHookProps ),
-	activeDocHandlers = {},
-	resetTimerID = 0,
-	startX = 0,
-	startY = 0,
-	didScroll = false,
-	clickBlockList = [],
-	blockMouseTriggers = false,
-	blockTouchTriggers = false,
-	eventCaptureSupported = "addEventListener" in document,
-	$document = $( document ),
-	nextTouchID = 1,
-	lastTouchID = 0, threshold,
-	i;
-
-$.vmouse = {
-	moveDistanceThreshold: 10,
-	clickDistanceThreshold: 10,
-	resetTimerDuration: 1500
-};
-
-function getNativeEvent( event ) {
-
-	while ( event && typeof event.originalEvent !== "undefined" ) {
-		event = event.originalEvent;
-	}
-	return event;
-}
-
-function createVirtualEvent( event, eventType ) {
-
-	var t = event.type,
-		oe, props, ne, prop, ct, touch, i, j, len;
-
-	event = $.Event( event );
-	event.type = eventType;
-
-	oe = event.originalEvent;
-	props = $.event.props;
-
-	// addresses separation of $.event.props in to $.event.mouseHook.props and Issue 3280
-	// https://github.com/jquery/jquery-mobile/issues/3280
-	if ( t.search( /^(mouse|click)/ ) > -1 ) {
-		props = mouseEventProps;
-	}
-
-	// copy original event properties over to the new event
-	// this would happen if we could call $.event.fix instead of $.Event
-	// but we don't have a way to force an event to be fixed multiple times
-	if ( oe ) {
-		for ( i = props.length, prop; i; ) {
-			prop = props[ --i ];
-			event[ prop ] = oe[ prop ];
-		}
-	}
-
-	// make sure that if the mouse and click virtual events are generated
-	// without a .which one is defined
-	if ( t.search(/mouse(down|up)|click/) > -1 && !event.which ) {
-		event.which = 1;
-	}
-
-	if ( t.search(/^touch/) !== -1 ) {
-		ne = getNativeEvent( oe );
-		t = ne.touches;
-		ct = ne.changedTouches;
-		touch = ( t && t.length ) ? t[0] : ( ( ct && ct.length ) ? ct[ 0 ] : undefined );
-
-		if ( touch ) {
-			for ( j = 0, len = touchEventProps.length; j < len; j++) {
-				prop = touchEventProps[ j ];
-				event[ prop ] = touch[ prop ];
-			}
-		}
-	}
-
-	return event;
-}
-
-function getVirtualBindingFlags( element ) {
-
-	var flags = {},
-		b, k;
-
-	while ( element ) {
-
-		b = $.data( element, dataPropertyName );
-
-		for (  k in b ) {
-			if ( b[ k ] ) {
-				flags[ k ] = flags.hasVirtualBinding = true;
-			}
-		}
-		element = element.parentNode;
-	}
-	return flags;
-}
-
-function getClosestElementWithVirtualBinding( element, eventType ) {
-	var b;
-	while ( element ) {
-
-		b = $.data( element, dataPropertyName );
-
-		if ( b && ( !eventType || b[ eventType ] ) ) {
-			return element;
-		}
-		element = element.parentNode;
-	}
-	return null;
-}
-
-function enableTouchBindings() {
-	blockTouchTriggers = false;
-}
-
-function disableTouchBindings() {
-	blockTouchTriggers = true;
-}
-
-function enableMouseBindings() {
-	lastTouchID = 0;
-	clickBlockList.length = 0;
-	blockMouseTriggers = false;
-
-	// When mouse bindings are enabled, our
-	// touch bindings are disabled.
-	disableTouchBindings();
-}
-
-function disableMouseBindings() {
-	// When mouse bindings are disabled, our
-	// touch bindings are enabled.
-	enableTouchBindings();
-}
-
-function startResetTimer() {
-	clearResetTimer();
-	resetTimerID = setTimeout( function() {
-		resetTimerID = 0;
-		enableMouseBindings();
-	}, $.vmouse.resetTimerDuration );
-}
-
-function clearResetTimer() {
-	if ( resetTimerID ) {
-		clearTimeout( resetTimerID );
-		resetTimerID = 0;
-	}
-}
-
-function triggerVirtualEvent( eventType, event, flags ) {
-	var ve;
-
-	if ( ( flags && flags[ eventType ] ) ||
-				( !flags && getClosestElementWithVirtualBinding( event.target, eventType ) ) ) {
-
-		ve = createVirtualEvent( event, eventType );
-
-		$( event.target).trigger( ve );
-	}
-
-	return ve;
-}
-
-function mouseEventCallback( event ) {
-	var touchID = $.data( event.target, touchTargetPropertyName ),
-		ve;
-
-	if ( !blockMouseTriggers && ( !lastTouchID || lastTouchID !== touchID ) ) {
-		ve = triggerVirtualEvent( "v" + event.type, event );
-		if ( ve ) {
-			if ( ve.isDefaultPrevented() ) {
-				event.preventDefault();
-			}
-			if ( ve.isPropagationStopped() ) {
-				event.stopPropagation();
-			}
-			if ( ve.isImmediatePropagationStopped() ) {
-				event.stopImmediatePropagation();
-			}
-		}
-	}
-}
-
-function handleTouchStart( event ) {
-
-	var touches = getNativeEvent( event ).touches,
-		target, flags, t;
-
-	if ( touches && touches.length === 1 ) {
-
-		target = event.target;
-		flags = getVirtualBindingFlags( target );
-
-		if ( flags.hasVirtualBinding ) {
-
-			lastTouchID = nextTouchID++;
-			$.data( target, touchTargetPropertyName, lastTouchID );
-
-			clearResetTimer();
-
-			disableMouseBindings();
-			didScroll = false;
-
-			t = getNativeEvent( event ).touches[ 0 ];
-			startX = t.pageX;
-			startY = t.pageY;
-
-			triggerVirtualEvent( "vmouseover", event, flags );
-			triggerVirtualEvent( "vmousedown", event, flags );
-		}
-	}
-}
-
-function handleScroll( event ) {
-	if ( blockTouchTriggers ) {
-		return;
-	}
-
-	if ( !didScroll ) {
-		triggerVirtualEvent( "vmousecancel", event, getVirtualBindingFlags( event.target ) );
-	}
-
-	didScroll = true;
-	startResetTimer();
-}
-
-function handleTouchMove( event ) {
-	if ( blockTouchTriggers ) {
-		return;
-	}
-
-	var t = getNativeEvent( event ).touches[ 0 ],
-		didCancel = didScroll,
-		moveThreshold = $.vmouse.moveDistanceThreshold,
-		flags = getVirtualBindingFlags( event.target );
-
-		didScroll = didScroll ||
-			( Math.abs( t.pageX - startX ) > moveThreshold ||
-				Math.abs( t.pageY - startY ) > moveThreshold );
-
-	if ( didScroll && !didCancel ) {
-		triggerVirtualEvent( "vmousecancel", event, flags );
-	}
-
-	triggerVirtualEvent( "vmousemove", event, flags );
-	startResetTimer();
-}
-
-function handleTouchEnd( event ) {
-	if ( blockTouchTriggers ) {
-		return;
-	}
-
-	disableTouchBindings();
-
-	var flags = getVirtualBindingFlags( event.target ),
-		ve, t;
-	triggerVirtualEvent( "vmouseup", event, flags );
-
-	if ( !didScroll ) {
-		ve = triggerVirtualEvent( "vclick", event, flags );
-		if ( ve && ve.isDefaultPrevented() ) {
-			// The target of the mouse events that follow the touchend
-			// event don't necessarily match the target used during the
-			// touch. This means we need to rely on coordinates for blocking
-			// any click that is generated.
-			t = getNativeEvent( event ).changedTouches[ 0 ];
-			clickBlockList.push({
-				touchID: lastTouchID,
-				x: t.clientX,
-				y: t.clientY
-			});
-
-			// Prevent any mouse events that follow from triggering
-			// virtual event notifications.
-			blockMouseTriggers = true;
-		}
-	}
-	triggerVirtualEvent( "vmouseout", event, flags);
-	didScroll = false;
-
-	startResetTimer();
-}
-
-function hasVirtualBindings( ele ) {
-	var bindings = $.data( ele, dataPropertyName ),
-		k;
-
-	if ( bindings ) {
-		for ( k in bindings ) {
-			if ( bindings[ k ] ) {
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-function dummyMouseHandler() {}
-
-function getSpecialEventObject( eventType ) {
-	var realType = eventType.substr( 1 );
-
-	return {
-		setup: function(/* data, namespace */) {
-			// If this is the first virtual mouse binding for this element,
-			// add a bindings object to its data.
-
-			if ( !hasVirtualBindings( this ) ) {
-				$.data( this, dataPropertyName, {} );
-			}
-
-			// If setup is called, we know it is the first binding for this
-			// eventType, so initialize the count for the eventType to zero.
-			var bindings = $.data( this, dataPropertyName );
-			bindings[ eventType ] = true;
-
-			// If this is the first virtual mouse event for this type,
-			// register a global handler on the document.
-
-			activeDocHandlers[ eventType ] = ( activeDocHandlers[ eventType ] || 0 ) + 1;
-
-			if ( activeDocHandlers[ eventType ] === 1 ) {
-				$document.bind( realType, mouseEventCallback );
-			}
-
-			// Some browsers, like Opera Mini, won't dispatch mouse/click events
-			// for elements unless they actually have handlers registered on them.
-			// To get around this, we register dummy handlers on the elements.
-
-			$( this ).bind( realType, dummyMouseHandler );
-
-			// For now, if event capture is not supported, we rely on mouse handlers.
-			if ( eventCaptureSupported ) {
-				// If this is the first virtual mouse binding for the document,
-				// register our touchstart handler on the document.
-
-				activeDocHandlers[ "touchstart" ] = ( activeDocHandlers[ "touchstart" ] || 0) + 1;
-
-				if ( activeDocHandlers[ "touchstart" ] === 1 ) {
-					$document.bind( "touchstart", handleTouchStart )
-						.bind( "touchend", handleTouchEnd )
-
-						// On touch platforms, touching the screen and then dragging your finger
-						// causes the window content to scroll after some distance threshold is
-						// exceeded. On these platforms, a scroll prevents a click event from being
-						// dispatched, and on some platforms, even the touchend is suppressed. To
-						// mimic the suppression of the click event, we need to watch for a scroll
-						// event. Unfortunately, some platforms like iOS don't dispatch scroll
-						// events until *AFTER* the user lifts their finger (touchend). This means
-						// we need to watch both scroll and touchmove events to figure out whether
-						// or not a scroll happenens before the touchend event is fired.
-
-						.bind( "touchmove", handleTouchMove )
-						.bind( "scroll", handleScroll );
-				}
-			}
-		},
-
-		teardown: function(/* data, namespace */) {
-			// If this is the last virtual binding for this eventType,
-			// remove its global handler from the document.
-
-			--activeDocHandlers[ eventType ];
-
-			if ( !activeDocHandlers[ eventType ] ) {
-				$document.unbind( realType, mouseEventCallback );
-			}
-
-			if ( eventCaptureSupported ) {
-				// If this is the last virtual mouse binding in existence,
-				// remove our document touchstart listener.
-
-				--activeDocHandlers[ "touchstart" ];
-
-				if ( !activeDocHandlers[ "touchstart" ] ) {
-					$document.unbind( "touchstart", handleTouchStart )
-						.unbind( "touchmove", handleTouchMove )
-						.unbind( "touchend", handleTouchEnd )
-						.unbind( "scroll", handleScroll );
-				}
-			}
-
-			var $this = $( this ),
-				bindings = $.data( this, dataPropertyName );
-
-			// teardown may be called when an element was
-			// removed from the DOM. If this is the case,
-			// jQuery core may have already stripped the element
-			// of any data bindings so we need to check it before
-			// using it.
-			if ( bindings ) {
-				bindings[ eventType ] = false;
-			}
-
-			// Unregister the dummy event handler.
-
-			$this.unbind( realType, dummyMouseHandler );
-
-			// If this is the last virtual mouse binding on the
-			// element, remove the binding data from the element.
-
-			if ( !hasVirtualBindings( this ) ) {
-				$this.removeData( dataPropertyName );
-			}
-		}
-	};
-}
-
-// Expose our custom events to the jQuery bind/unbind mechanism.
-
-for ( i = 0; i < virtualEventNames.length; i++ ) {
-	$.event.special[ virtualEventNames[ i ] ] = getSpecialEventObject( virtualEventNames[ i ] );
-}
-
-// Add a capture click handler to block clicks.
-// Note that we require event capture support for this so if the device
-// doesn't support it, we punt for now and rely solely on mouse events.
-if ( eventCaptureSupported ) {
-	document.addEventListener( "click", function( e ) {
-		var cnt = clickBlockList.length,
-			target = e.target,
-			x, y, ele, i, o, touchID;
-
-		if ( cnt ) {
-			x = e.clientX;
-			y = e.clientY;
-			threshold = $.vmouse.clickDistanceThreshold;
-
-			// The idea here is to run through the clickBlockList to see if
-			// the current click event is in the proximity of one of our
-			// vclick events that had preventDefault() called on it. If we find
-			// one, then we block the click.
-			//
-			// Why do we have to rely on proximity?
-			//
-			// Because the target of the touch event that triggered the vclick
-			// can be different from the target of the click event synthesized
-			// by the browser. The target of a mouse/click event that is synthesized
-			// from a touch event seems to be implementation specific. For example,
-			// some browsers will fire mouse/click events for a link that is near
-			// a touch event, even though the target of the touchstart/touchend event
-			// says the user touched outside the link. Also, it seems that with most
-			// browsers, the target of the mouse/click event is not calculated until the
-			// time it is dispatched, so if you replace an element that you touched
-			// with another element, the target of the mouse/click will be the new
-			// element underneath that point.
-			//
-			// Aside from proximity, we also check to see if the target and any
-			// of its ancestors were the ones that blocked a click. This is necessary
-			// because of the strange mouse/click target calculation done in the
-			// Android 2.1 browser, where if you click on an element, and there is a
-			// mouse/click handler on one of its ancestors, the target will be the
-			// innermost child of the touched element, even if that child is no where
-			// near the point of touch.
-
-			ele = target;
-
-			while ( ele ) {
-				for ( i = 0; i < cnt; i++ ) {
-					o = clickBlockList[ i ];
-					touchID = 0;
-
-					if ( ( ele === target && Math.abs( o.x - x ) < threshold && Math.abs( o.y - y ) < threshold ) ||
-								$.data( ele, touchTargetPropertyName ) === o.touchID ) {
-						// XXX: We may want to consider removing matches from the block list
-						//      instead of waiting for the reset timer to fire.
-						e.preventDefault();
-						e.stopPropagation();
-						return;
-					}
-				}
-				ele = ele.parentNode;
-			}
-		}
-	}, true);
-}
-})( jQuery, window, document );
-
-
-(function( $, window, undefined ) {
-	var $document = $( document ),
-		supportTouch = $.mobile.support.touch,
-		scrollEvent = "touchmove scroll",
-		touchStartEvent = supportTouch ? "touchstart" : "mousedown",
-		touchStopEvent = supportTouch ? "touchend" : "mouseup",
-		touchMoveEvent = supportTouch ? "touchmove" : "mousemove";
-
-	// setup new event shortcuts
-	$.each( ( "touchstart touchmove touchend " +
-		"tap taphold " +
-		"swipe swipeleft swiperight " +
-		"scrollstart scrollstop" ).split( " " ), function( i, name ) {
-
-		$.fn[ name ] = function( fn ) {
-			return fn ? this.bind( name, fn ) : this.trigger( name );
-		};
-
-		// jQuery < 1.8
-		if ( $.attrFn ) {
-			$.attrFn[ name ] = true;
-		}
-	});
-
-	function triggerCustomEvent( obj, eventType, event, bubble ) {
-		var originalType = event.type;
-		event.type = eventType;
-		if ( bubble ) {
-			$.event.trigger( event, undefined, obj );
-		} else {
-			$.event.dispatch.call( obj, event );
-		}
-		event.type = originalType;
-	}
-
-	// also handles scrollstop
-	$.event.special.scrollstart = {
-
-		enabled: true,
-		setup: function() {
-
-			var thisObject = this,
-				$this = $( thisObject ),
-				scrolling,
-				timer;
-
-			function trigger( event, state ) {
-				scrolling = state;
-				triggerCustomEvent( thisObject, scrolling ? "scrollstart" : "scrollstop", event );
-			}
-
-			// iPhone triggers scroll after a small delay; use touchmove instead
-			$this.bind( scrollEvent, function( event ) {
-
-				if ( !$.event.special.scrollstart.enabled ) {
-					return;
-				}
-
-				if ( !scrolling ) {
-					trigger( event, true );
-				}
-
-				clearTimeout( timer );
-				timer = setTimeout( function() {
-					trigger( event, false );
-				}, 50 );
-			});
-		},
-		teardown: function() {
-			$( this ).unbind( scrollEvent );
-		}
-	};
-
-	// also handles taphold
-	$.event.special.tap = {
-		tapholdThreshold: 750,
-		emitTapOnTaphold: true,
-		setup: function() {
-			var thisObject = this,
-				$this = $( thisObject ),
-				isTaphold = false;
-
-			$this.bind( "vmousedown", function( event ) {
-				isTaphold = false;
-				if ( event.which && event.which !== 1 ) {
-					return false;
-				}
-
-				var origTarget = event.target,
-					timer;
-
-				function clearTapTimer() {
-					clearTimeout( timer );
-				}
-
-				function clearTapHandlers() {
-					clearTapTimer();
-
-					$this.unbind( "vclick", clickHandler )
-						.unbind( "vmouseup", clearTapTimer );
-					$document.unbind( "vmousecancel", clearTapHandlers );
-				}
-
-				function clickHandler( event ) {
-					clearTapHandlers();
-
-					// ONLY trigger a 'tap' event if the start target is
-					// the same as the stop target.
-					if ( !isTaphold && origTarget === event.target ) {
-						triggerCustomEvent( thisObject, "tap", event );
-					} else if ( isTaphold ) {
-						event.preventDefault();
-					}
-				}
-
-				$this.bind( "vmouseup", clearTapTimer )
-					.bind( "vclick", clickHandler );
-				$document.bind( "vmousecancel", clearTapHandlers );
-
-				timer = setTimeout( function() {
-					if ( !$.event.special.tap.emitTapOnTaphold ) {
-						isTaphold = true;
-					}
-					triggerCustomEvent( thisObject, "taphold", $.Event( "taphold", { target: origTarget } ) );
-				}, $.event.special.tap.tapholdThreshold );
-			});
-		},
-		teardown: function() {
-			$( this ).unbind( "vmousedown" ).unbind( "vclick" ).unbind( "vmouseup" );
-			$document.unbind( "vmousecancel" );
-		}
-	};
-
-	// Also handles swipeleft, swiperight
-	$.event.special.swipe = {
-
-		// More than this horizontal displacement, and we will suppress scrolling.
-		scrollSupressionThreshold: 30,
-
-		// More time than this, and it isn't a swipe.
-		durationThreshold: 1000,
-
-		// Swipe horizontal displacement must be more than this.
-		horizontalDistanceThreshold: 30,
-
-		// Swipe vertical displacement must be less than this.
-		verticalDistanceThreshold: 30,
-
-		getLocation: function ( event ) {
-			var winPageX = window.pageXOffset,
-				winPageY = window.pageYOffset,
-				x = event.clientX,
-				y = event.clientY;
-
-			if ( event.pageY === 0 && Math.floor( y ) > Math.floor( event.pageY ) ||
-				event.pageX === 0 && Math.floor( x ) > Math.floor( event.pageX ) ) {
-
-				// iOS4 clientX/clientY have the value that should have been
-				// in pageX/pageY. While pageX/page/ have the value 0
-				x = x - winPageX;
-				y = y - winPageY;
-			} else if ( y < ( event.pageY - winPageY) || x < ( event.pageX - winPageX ) ) {
-
-				// Some Android browsers have totally bogus values for clientX/Y
-				// when scrolling/zooming a page. Detectable since clientX/clientY
-				// should never be smaller than pageX/pageY minus page scroll
-				x = event.pageX - winPageX;
-				y = event.pageY - winPageY;
-			}
-
-			return {
-				x: x,
-				y: y
-			};
-		},
-
-		start: function( event ) {
-			var data = event.originalEvent.touches ?
-					event.originalEvent.touches[ 0 ] : event,
-				location = $.event.special.swipe.getLocation( data );
-			return {
-						time: ( new Date() ).getTime(),
-						coords: [ location.x, location.y ],
-						origin: $( event.target )
-					};
-		},
-
-		stop: function( event ) {
-			var data = event.originalEvent.touches ?
-					event.originalEvent.touches[ 0 ] : event,
-				location = $.event.special.swipe.getLocation( data );
-			return {
-						time: ( new Date() ).getTime(),
-						coords: [ location.x, location.y ]
-					};
-		},
-
-		handleSwipe: function( start, stop, thisObject, origTarget ) {
-			if ( stop.time - start.time < $.event.special.swipe.durationThreshold &&
-				Math.abs( start.coords[ 0 ] - stop.coords[ 0 ] ) > $.event.special.swipe.horizontalDistanceThreshold &&
-				Math.abs( start.coords[ 1 ] - stop.coords[ 1 ] ) < $.event.special.swipe.verticalDistanceThreshold ) {
-				var direction = start.coords[0] > stop.coords[ 0 ] ? "swipeleft" : "swiperight";
-
-				triggerCustomEvent( thisObject, "swipe", $.Event( "swipe", { target: origTarget, swipestart: start, swipestop: stop }), true );
-				triggerCustomEvent( thisObject, direction,$.Event( direction, { target: origTarget, swipestart: start, swipestop: stop } ), true );
-				return true;
-			}
-			return false;
-
-		},
-
-		// This serves as a flag to ensure that at most one swipe event event is
-		// in work at any given time
-		eventInProgress: false,
-
-		setup: function() {
-			var events,
-				thisObject = this,
-				$this = $( thisObject ),
-				context = {};
-
-			// Retrieve the events data for this element and add the swipe context
-			events = $.data( this, "mobile-events" );
-			if ( !events ) {
-				events = { length: 0 };
-				$.data( this, "mobile-events", events );
-			}
-			events.length++;
-			events.swipe = context;
-
-			context.start = function( event ) {
-
-				// Bail if we're already working on a swipe event
-				if ( $.event.special.swipe.eventInProgress ) {
-					return;
-				}
-				$.event.special.swipe.eventInProgress = true;
-
-				var stop,
-					start = $.event.special.swipe.start( event ),
-					origTarget = event.target,
-					emitted = false;
-
-				context.move = function( event ) {
-					if ( !start || event.isDefaultPrevented() ) {
-						return;
-					}
-
-					stop = $.event.special.swipe.stop( event );
-					if ( !emitted ) {
-						emitted = $.event.special.swipe.handleSwipe( start, stop, thisObject, origTarget );
-						if ( emitted ) {
-
-							// Reset the context to make way for the next swipe event
-							$.event.special.swipe.eventInProgress = false;
-						}
-					}
-					// prevent scrolling
-					if ( Math.abs( start.coords[ 0 ] - stop.coords[ 0 ] ) > $.event.special.swipe.scrollSupressionThreshold ) {
-						event.preventDefault();
-					}
-				};
-
-				context.stop = function() {
-						emitted = true;
-
-						// Reset the context to make way for the next swipe event
-						$.event.special.swipe.eventInProgress = false;
-						$document.off( touchMoveEvent, context.move );
-						context.move = null;
-				};
-
-				$document.on( touchMoveEvent, context.move )
-					.one( touchStopEvent, context.stop );
-			};
-			$this.on( touchStartEvent, context.start );
-		},
-
-		teardown: function() {
-			var events, context;
-
-			events = $.data( this, "mobile-events" );
-			if ( events ) {
-				context = events.swipe;
-				delete events.swipe;
-				events.length--;
-				if ( events.length === 0 ) {
-					$.removeData( this, "mobile-events" );
-				}
-			}
-
-			if ( context ) {
-				if ( context.start ) {
-					$( this ).off( touchStartEvent, context.start );
-				}
-				if ( context.move ) {
-					$document.off( touchMoveEvent, context.move );
-				}
-				if ( context.stop ) {
-					$document.off( touchStopEvent, context.stop );
-				}
-			}
-		}
-	};
-	$.each({
-		scrollstop: "scrollstart",
-		taphold: "tap",
-		swipeleft: "swipe.left",
-		swiperight: "swipe.right"
-	}, function( event, sourceEvent ) {
-
-		$.event.special[ event ] = {
-			setup: function() {
-				$( this ).bind( sourceEvent, $.noop );
-			},
-			teardown: function() {
-				$( this ).unbind( sourceEvent );
-			}
-		};
-	});
-
-})( jQuery, this );
-
-
-	// throttled resize event
-	(function( $ ) {
-		$.event.special.throttledresize = {
-			setup: function() {
-				$( this ).bind( "resize", handler );
-			},
-			teardown: function() {
-				$( this ).unbind( "resize", handler );
-			}
-		};
-
-		var throttle = 250,
-			handler = function() {
-				curr = ( new Date() ).getTime();
-				diff = curr - lastCall;
-
-				if ( diff >= throttle ) {
-
-					lastCall = curr;
-					$( this ).trigger( "throttledresize" );
-
-				} else {
-
-					if ( heldCall ) {
-						clearTimeout( heldCall );
-					}
-
-					// Promise a held call will still execute
-					heldCall = setTimeout( handler, throttle - diff );
-				}
-			},
-			lastCall = 0,
-			heldCall,
-			curr,
-			diff;
-	})( jQuery );
-
-
-(function( $, window ) {
-	var win = $( window ),
-		event_name = "orientationchange",
-		get_orientation,
-		last_orientation,
-		initial_orientation_is_landscape,
-		initial_orientation_is_default,
-		portrait_map = { "0": true, "180": true },
-		ww, wh, landscape_threshold;
-
-	// It seems that some device/browser vendors use window.orientation values 0 and 180 to
-	// denote the "default" orientation. For iOS devices, and most other smart-phones tested,
-	// the default orientation is always "portrait", but in some Android and RIM based tablets,
-	// the default orientation is "landscape". The following code attempts to use the window
-	// dimensions to figure out what the current orientation is, and then makes adjustments
-	// to the to the portrait_map if necessary, so that we can properly decode the
-	// window.orientation value whenever get_orientation() is called.
-	//
-	// Note that we used to use a media query to figure out what the orientation the browser
-	// thinks it is in:
-	//
-	//     initial_orientation_is_landscape = $.mobile.media("all and (orientation: landscape)");
-	//
-	// but there was an iPhone/iPod Touch bug beginning with iOS 4.2, up through iOS 5.1,
-	// where the browser *ALWAYS* applied the landscape media query. This bug does not
-	// happen on iPad.
-
-	if ( $.support.orientation ) {
-
-		// Check the window width and height to figure out what the current orientation
-		// of the device is at this moment. Note that we've initialized the portrait map
-		// values to 0 and 180, *AND* we purposely check for landscape so that if we guess
-		// wrong, , we default to the assumption that portrait is the default orientation.
-		// We use a threshold check below because on some platforms like iOS, the iPhone
-		// form-factor can report a larger width than height if the user turns on the
-		// developer console. The actual threshold value is somewhat arbitrary, we just
-		// need to make sure it is large enough to exclude the developer console case.
-
-		ww = window.innerWidth || win.width();
-		wh = window.innerHeight || win.height();
-		landscape_threshold = 50;
-
-		initial_orientation_is_landscape = ww > wh && ( ww - wh ) > landscape_threshold;
-
-		// Now check to see if the current window.orientation is 0 or 180.
-		initial_orientation_is_default = portrait_map[ window.orientation ];
-
-		// If the initial orientation is landscape, but window.orientation reports 0 or 180, *OR*
-		// if the initial orientation is portrait, but window.orientation reports 90 or -90, we
-		// need to flip our portrait_map values because landscape is the default orientation for
-		// this device/browser.
-		if ( ( initial_orientation_is_landscape && initial_orientation_is_default ) || ( !initial_orientation_is_landscape && !initial_orientation_is_default ) ) {
-			portrait_map = { "-90": true, "90": true };
-		}
-	}
-
-	$.event.special.orientationchange = $.extend( {}, $.event.special.orientationchange, {
-		setup: function() {
-			// If the event is supported natively, return false so that jQuery
-			// will bind to the event using DOM methods.
-			if ( $.support.orientation && !$.event.special.orientationchange.disabled ) {
-				return false;
-			}
-
-			// Get the current orientation to avoid initial double-triggering.
-			last_orientation = get_orientation();
-
-			// Because the orientationchange event doesn't exist, simulate the
-			// event by testing window dimensions on resize.
-			win.bind( "throttledresize", handler );
-		},
-		teardown: function() {
-			// If the event is not supported natively, return false so that
-			// jQuery will unbind the event using DOM methods.
-			if ( $.support.orientation && !$.event.special.orientationchange.disabled ) {
-				return false;
-			}
-
-			// Because the orientationchange event doesn't exist, unbind the
-			// resize event handler.
-			win.unbind( "throttledresize", handler );
-		},
-		add: function( handleObj ) {
-			// Save a reference to the bound event handler.
-			var old_handler = handleObj.handler;
-
-			handleObj.handler = function( event ) {
-				// Modify event object, adding the .orientation property.
-				event.orientation = get_orientation();
-
-				// Call the originally-bound event handler and return its result.
-				return old_handler.apply( this, arguments );
-			};
-		}
-	});
-
-	// If the event is not supported natively, this handler will be bound to
-	// the window resize event to simulate the orientationchange event.
-	function handler() {
-		// Get the current orientation.
-		var orientation = get_orientation();
-
-		if ( orientation !== last_orientation ) {
-			// The orientation has changed, so trigger the orientationchange event.
-			last_orientation = orientation;
-			win.trigger( event_name );
-		}
-	}
-
-	// Get the current page orientation. This method is exposed publicly, should it
-	// be needed, as jQuery.event.special.orientationchange.orientation()
-	$.event.special.orientationchange.orientation = get_orientation = function() {
-		var isPortrait = true, elem = document.documentElement;
-
-		// prefer window orientation to the calculation based on screensize as
-		// the actual screen resize takes place before or after the orientation change event
-		// has been fired depending on implementation (eg android 2.3 is before, iphone after).
-		// More testing is required to determine if a more reliable method of determining the new screensize
-		// is possible when orientationchange is fired. (eg, use media queries + element + opacity)
-		if ( $.support.orientation ) {
-			// if the window orientation registers as 0 or 180 degrees report
-			// portrait, otherwise landscape
-			isPortrait = portrait_map[ window.orientation ];
-		} else {
-			isPortrait = elem && elem.clientWidth / elem.clientHeight < 1.1;
-		}
-
-		return isPortrait ? "portrait" : "landscape";
-	};
-
-	$.fn[ event_name ] = function( fn ) {
-		return fn ? this.bind( event_name, fn ) : this.trigger( event_name );
-	};
-
-	// jQuery < 1.8
-	if ( $.attrFn ) {
-		$.attrFn[ event_name ] = true;
-	}
-
-}( jQuery, this ));
-
-
-
-
-(function( $, undefined ) {
-
-	// existing base tag?
-	var baseElement = $( "head" ).children( "base" ),
-
-	// base element management, defined depending on dynamic base tag support
-	// TODO move to external widget
-	base = {
-
-		// define base element, for use in routing asset urls that are referenced
-		// in Ajax-requested markup
-		element: ( baseElement.length ? baseElement :
-			$( "<base>", { href: $.mobile.path.documentBase.hrefNoHash } ).prependTo( $( "head" ) ) ),
-
-		linkSelector: "[src], link[href], a[rel='external'], :jqmData(ajax='false'), a[target]",
-
-		// set the generated BASE element's href to a new page's base path
-		set: function( href ) {
-
-			// we should do nothing if the user wants to manage their url base
-			// manually
-			if ( !$.mobile.dynamicBaseEnabled ) {
-				return;
-			}
-
-			// we should use the base tag if we can manipulate it dynamically
-			if ( $.support.dynamicBaseTag ) {
-				base.element.attr( "href",
-					$.mobile.path.makeUrlAbsolute( href, $.mobile.path.documentBase ) );
-			}
-		},
-
-		rewrite: function( href, page ) {
-			var newPath = $.mobile.path.get( href );
-
-			page.find( base.linkSelector ).each(function( i, link ) {
-				var thisAttr = $( link ).is( "[href]" ) ? "href" :
-					$( link ).is( "[src]" ) ? "src" : "action",
-				theLocation = $.mobile.path.parseLocation(),
-				thisUrl = $( link ).attr( thisAttr );
-
-				// XXX_jblas: We need to fix this so that it removes the document
-				//            base URL, and then prepends with the new page URL.
-				// if full path exists and is same, chop it - helps IE out
-				thisUrl = thisUrl.replace( theLocation.protocol + theLocation.doubleSlash +
-					theLocation.host + theLocation.pathname, "" );
-
-				if ( !/^(\w+:|#|\/)/.test( thisUrl ) ) {
-					$( link ).attr( thisAttr, newPath + thisUrl );
-				}
-			});
-		},
-
-		// set the generated BASE element's href to a new page's base path
-		reset: function(/* href */) {
-			base.element.attr( "href", $.mobile.path.documentBase.hrefNoSearch );
-		}
-	};
-
-	$.mobile.base = base;
-
-})( jQuery );
-
-
-(function( $, undefined ) {
-$.mobile.widgets = {};
-
-var originalWidget = $.widget,
-
-	// Record the original, non-mobileinit-modified version of $.mobile.keepNative
-	// so we can later determine whether someone has modified $.mobile.keepNative
-	keepNativeFactoryDefault = $.mobile.keepNative;
-
-$.widget = (function( orig ) {
-	return function() {
-		var constructor = orig.apply( this, arguments ),
-			name = constructor.prototype.widgetName;
-
-		constructor.initSelector = ( ( constructor.prototype.initSelector !== undefined ) ?
-			constructor.prototype.initSelector : ":jqmData(role='" + name + "')" );
-
-		$.mobile.widgets[ name ] = constructor;
-
-		return constructor;
-	};
-})( $.widget );
-
-// Make sure $.widget still has bridge and extend methods
-$.extend( $.widget, originalWidget );
-
-// For backcompat remove in 1.5
-$.mobile.document.on( "create", function( event ) {
-	$( event.target ).enhanceWithin();
-});
-
-$.widget( "mobile.page", {
-	options: {
-		theme: "a",
-		domCache: false,
-
-		// Deprecated in 1.4 remove in 1.5
-		keepNativeDefault: $.mobile.keepNative,
-
-		// Deprecated in 1.4 remove in 1.5
-		contentTheme: null,
-		enhanced: false
-	},
-
-	// DEPRECATED for > 1.4
-	// TODO remove at 1.5
-	_createWidget: function() {
-		$.Widget.prototype._createWidget.apply( this, arguments );
-		this._trigger( "init" );
-	},
-
-	_create: function() {
-		// If false is returned by the callbacks do not create the page
-		if ( this._trigger( "beforecreate" ) === false ) {
-			return false;
-		}
-
-		if ( !this.options.enhanced ) {
-			this._enhance();
-		}
-
-		this._on( this.element, {
-			pagebeforehide: "removeContainerBackground",
-			pagebeforeshow: "_handlePageBeforeShow"
-		});
-
-		this.element.enhanceWithin();
-		// Dialog widget is deprecated in 1.4 remove this in 1.5
-		if ( $.mobile.getAttribute( this.element[0], "role" ) === "dialog" && $.mobile.dialog ) {
-			this.element.dialog();
-		}
-	},
-
-	_enhance: function () {
-		var attrPrefix = "data-" + $.mobile.ns,
-			self = this;
-
-		if ( this.options.role ) {
-			this.element.attr( "data-" + $.mobile.ns + "role", this.options.role );
-		}
-
-		this.element
-			.attr( "tabindex", "0" )
-			.addClass( "ui-page ui-page-theme-" + this.options.theme );
-
-		// Manipulation of content os Deprecated as of 1.4 remove in 1.5
-		this.element.find( "[" + attrPrefix + "role='content']" ).each( function() {
-			var $this = $( this ),
-				theme = this.getAttribute( attrPrefix + "theme" ) || undefined;
-				self.options.contentTheme = theme || self.options.contentTheme || ( self.options.dialog && self.options.theme ) || ( self.element.jqmData("role") === "dialog" &&  self.options.theme );
-				$this.addClass( "ui-content" );
-				if ( self.options.contentTheme ) {
-					$this.addClass( "ui-body-" + ( self.options.contentTheme ) );
-				}
-				// Add ARIA role
-				$this.attr( "role", "main" ).addClass( "ui-content" );
-		});
-	},
-
-	bindRemove: function( callback ) {
-		var page = this.element;
-
-		// when dom caching is not enabled or the page is embedded bind to remove the page on hide
-		if ( !page.data( "mobile-page" ).options.domCache &&
-			page.is( ":jqmData(external-page='true')" ) ) {
-
-			// TODO use _on - that is, sort out why it doesn't work in this case
-			page.bind( "pagehide.remove", callback || function( e, data ) {
-
-				//check if this is a same page transition and if so don't remove the page
-				if( !data.samePage ){
-					var $this = $( this ),
-						prEvent = new $.Event( "pageremove" );
-
-					$this.trigger( prEvent );
-
-					if ( !prEvent.isDefaultPrevented() ) {
-						$this.removeWithDependents();
-					}
-				}
-			});
-		}
-	},
-
-	_setOptions: function( o ) {
-		if ( o.theme !== undefined ) {
-			this.element.removeClass( "ui-page-theme-" + this.options.theme ).addClass( "ui-page-theme-" + o.theme );
-		}
-
-		if ( o.contentTheme !== undefined ) {
-			this.element.find( "[data-" + $.mobile.ns + "='content']" ).removeClass( "ui-body-" + this.options.contentTheme )
-				.addClass( "ui-body-" + o.contentTheme );
-		}
-	},
-
-	_handlePageBeforeShow: function(/* e */) {
-		this.setContainerBackground();
-	},
-	// Deprecated in 1.4 remove in 1.5
-	removeContainerBackground: function() {
-		this.element.closest( ":mobile-pagecontainer" ).pagecontainer({ "theme": "none" });
-	},
-	// Deprecated in 1.4 remove in 1.5
-	// set the page container background to the page theme
-	setContainerBackground: function( theme ) {
-		this.element.parent().pagecontainer( { "theme": theme || this.options.theme } );
-	},
-	// Deprecated in 1.4 remove in 1.5
-	keepNativeSelector: function() {
-		var options = this.options,
-			keepNative = $.trim( options.keepNative || "" ),
-			globalValue = $.trim( $.mobile.keepNative ),
-			optionValue = $.trim( options.keepNativeDefault ),
-
-			// Check if $.mobile.keepNative has changed from the factory default
-			newDefault = ( keepNativeFactoryDefault === globalValue ?
-				"" : globalValue ),
-
-			// If $.mobile.keepNative has not changed, use options.keepNativeDefault
-			oldDefault = ( newDefault === "" ? optionValue : "" );
-
-		// Concatenate keepNative selectors from all sources where the value has
-		// changed or, if nothing has changed, return the default
-		return ( ( keepNative ? [ keepNative ] : [] )
-			.concat( newDefault ? [ newDefault ] : [] )
-			.concat( oldDefault ? [ oldDefault ] : [] )
-			.join( ", " ) );
-	}
-});
-})( jQuery );
-
-(function( $, undefined ) {
-
-	$.widget( "mobile.pagecontainer", {
-		options: {
-			theme: "a"
-		},
-
-		initSelector: false,
-
-		_create: function() {
-			this._trigger( "beforecreate" );
-			this.setLastScrollEnabled = true;
-
-			this._on( this.window, {
-				// disable an scroll setting when a hashchange has been fired,
-				// this only works because the recording of the scroll position
-				// is delayed for 100ms after the browser might have changed the
-				// position because of the hashchange
-				navigate: "_disableRecordScroll",
-
-				// bind to scrollstop for the first page, "pagechange" won't be
-				// fired in that case
-				scrollstop: "_delayedRecordScroll"
-			});
-
-			// TODO consider moving the navigation handler OUT of widget into
-			//      some other object as glue between the navigate event and the
-			//      content widget load and change methods
-			this._on( this.window, { navigate: "_filterNavigateEvents" });
-
-			// TODO move from page* events to content* events
-			this._on({ pagechange: "_afterContentChange" });
-
-			// handle initial hashchange from chrome :(
-			this.window.one( "navigate", $.proxy(function() {
-				this.setLastScrollEnabled = true;
-			}, this));
-		},
-
-		_setOptions: function( options ) {
-			if ( options.theme !== undefined && options.theme !== "none" ) {
-				this.element.removeClass( "ui-overlay-" + this.options.theme )
-					.addClass( "ui-overlay-" + options.theme );
-			} else if ( options.theme !== undefined ) {
-				this.element.removeClass( "ui-overlay-" + this.options.theme );
-			}
-
-			this._super( options );
-		},
-
-		_disableRecordScroll: function() {
-			this.setLastScrollEnabled = false;
-		},
-
-		_enableRecordScroll: function() {
-			this.setLastScrollEnabled = true;
-		},
-
-		// TODO consider the name here, since it's purpose specific
-		_afterContentChange: function() {
-			// once the page has changed, re-enable the scroll recording
-			this.setLastScrollEnabled = true;
-
-			// remove any binding that previously existed on the get scroll
-			// which may or may not be different than the scroll element
-			// determined for this page previously
-			this._off( this.window, "scrollstop" );
-
-			// determine and bind to the current scoll element which may be the
-			// window or in the case of touch overflow the element touch overflow
-			this._on( this.window, { scrollstop: "_delayedRecordScroll" });
-		},
-
-		_recordScroll: function() {
-			// this barrier prevents setting the scroll value based on
-			// the browser scrolling the window based on a hashchange
-			if ( !this.setLastScrollEnabled ) {
-				return;
-			}
-
-			var active = this._getActiveHistory(),
-				currentScroll, minScroll, defaultScroll;
-
-			if ( active ) {
-				currentScroll = this._getScroll();
-				minScroll = this._getMinScroll();
-				defaultScroll = this._getDefaultScroll();
-
-				// Set active page's lastScroll prop. If the location we're
-				// scrolling to is less than minScrollBack, let it go.
-				active.lastScroll = currentScroll < minScroll ? defaultScroll : currentScroll;
-			}
-		},
-
-		_delayedRecordScroll: function() {
-			setTimeout( $.proxy(this, "_recordScroll"), 100 );
-		},
-
-		_getScroll: function() {
-			return this.window.scrollTop();
-		},
-
-		_getMinScroll: function() {
-			return $.mobile.minScrollBack;
-		},
-
-		_getDefaultScroll: function() {
-			return $.mobile.defaultHomeScroll;
-		},
-
-		_filterNavigateEvents: function( e, data ) {
-			var url;
-
-			if ( e.originalEvent && e.originalEvent.isDefaultPrevented() ) {
-				return;
-			}
-
-			url = e.originalEvent.type.indexOf( "hashchange" ) > -1 ? data.state.hash : data.state.url;
-
-			if ( !url ) {
-				url = this._getHash();
-			}
-
-			if ( !url || url === "#" || url.indexOf( "#" + $.mobile.path.uiStateKey ) === 0 ) {
-				url = location.href;
-			}
-
-			this._handleNavigate( url, data.state );
-		},
-
-		_getHash: function() {
-			return $.mobile.path.parseLocation().hash;
-		},
-
-		// TODO active page should be managed by the container (ie, it should be a property)
-		getActivePage: function() {
-			return this.activePage;
-		},
-
-		// TODO the first page should be a property set during _create using the logic
-		//      that currently resides in init
-		_getInitialContent: function() {
-			return $.mobile.firstPage;
-		},
-
-		// TODO each content container should have a history object
-		_getHistory: function() {
-			return $.mobile.navigate.history;
-		},
-
-		_getActiveHistory: function() {
-			return this._getHistory().getActive();
-		},
-
-		// TODO the document base should be determined at creation
-		_getDocumentBase: function() {
-			return $.mobile.path.documentBase;
-		},
-
-		back: function() {
-			this.go( -1 );
-		},
-
-		forward: function() {
-			this.go( 1 );
-		},
-
-		go: function( steps ) {
-
-			//if hashlistening is enabled use native history method
-			if ( $.mobile.hashListeningEnabled ) {
-				window.history.go( steps );
-			} else {
-
-				//we are not listening to the hash so handle history internally
-				var activeIndex = $.mobile.navigate.history.activeIndex,
-					index = activeIndex + parseInt( steps, 10 ),
-					url = $.mobile.navigate.history.stack[ index ].url,
-					direction = ( steps >= 1 )? "forward" : "back";
-
-				//update the history object
-				$.mobile.navigate.history.activeIndex = index;
-				$.mobile.navigate.history.previousIndex = activeIndex;
-
-				//change to the new page
-				this.change( url, { direction: direction, changeHash: false, fromHashChange: true } );
-			}
-		},
-
-		// TODO rename _handleDestination
-		_handleDestination: function( to ) {
-			var history;
-
-			// clean the hash for comparison if it's a url
-			if ( $.type(to) === "string" ) {
-				to = $.mobile.path.stripHash( to );
-			}
-
-			if ( to ) {
-				history = this._getHistory();
-
-				// At this point, 'to' can be one of 3 things, a cached page
-				// element from a history stack entry, an id, or site-relative /
-				// absolute URL. If 'to' is an id, we need to resolve it against
-				// the documentBase, not the location.href, since the hashchange
-				// could've been the result of a forward/backward navigation
-				// that crosses from an external page/dialog to an internal
-				// page/dialog.
-				//
-				// TODO move check to history object or path object?
-				to = !$.mobile.path.isPath( to ) ? ( $.mobile.path.makeUrlAbsolute( "#" + to, this._getDocumentBase() ) ) : to;
-			}
-			return to || this._getInitialContent();
-		},
-
-		_transitionFromHistory: function( direction, defaultTransition ) {
-			var history = this._getHistory(),
-				entry = ( direction === "back" ? history.getLast() : history.getActive() );
-
-			return ( entry && entry.transition ) || defaultTransition;
-		},
-
-		_handleDialog: function( changePageOptions, data ) {
-			var to, active, activeContent = this.getActivePage();
-
-			// If current active page is not a dialog skip the dialog and continue
-			// in the same direction
-			// Note: The dialog widget is deprecated as of 1.4.0 and will be removed in 1.5.0.
-			// Thus, as of 1.5.0 activeContent.data( "mobile-dialog" ) will always evaluate to
-			// falsy, so the second condition in the if-statement below can be removed altogether.
-			if ( activeContent && !activeContent.data( "mobile-dialog" ) ) {
-				// determine if we're heading forward or backward and continue
-				// accordingly past the current dialog
-				if ( data.direction === "back" ) {
-					this.back();
-				} else {
-					this.forward();
-				}
-
-				// prevent changePage call
-				return false;
-			} else {
-				// if the current active page is a dialog and we're navigating
-				// to a dialog use the dialog objected saved in the stack
-				to = data.pageUrl;
-				active = this._getActiveHistory();
-
-				// make sure to set the role, transition and reversal
-				// as most of this is lost by the domCache cleaning
-				$.extend( changePageOptions, {
-					role: active.role,
-					transition: this._transitionFromHistory(
-						data.direction,
-						changePageOptions.transition ),
-					reverse: data.direction === "back"
-				});
-			}
-
-			return to;
-		},
-
-		_handleNavigate: function( url, data ) {
-			//find first page via hash
-			// TODO stripping the hash twice with handleUrl
-			var to = $.mobile.path.stripHash( url ), history = this._getHistory(),
-
-				// transition is false if it's the first page, undefined
-				// otherwise (and may be overridden by default)
-				transition = history.stack.length === 0 ? "none" :
-					this._transitionFromHistory( data.direction ),
-
-				// default options for the changPage calls made after examining
-				// the current state of the page and the hash, NOTE that the
-				// transition is derived from the previous history entry
-				changePageOptions = {
-					changeHash: false,
-					fromHashChange: true,
-					reverse: data.direction === "back"
-				};
-
-			$.extend( changePageOptions, data, {
-				transition: transition
-			});
-
-			// TODO move to _handleDestination ?
-			// If this isn't the first page, if the current url is a dialog hash
-			// key, and the initial destination isn't equal to the current target
-			// page, use the special dialog handling
-			if ( history.activeIndex > 0 &&
-				to.indexOf( $.mobile.dialogHashKey ) > -1 ) {
-
-				to = this._handleDialog( changePageOptions, data );
-
-				if ( to === false ) {
-					return;
-				}
-			}
-
-			this._changeContent( this._handleDestination( to ), changePageOptions );
-		},
-
-		_changeContent: function( to, opts ) {
-			$.mobile.changePage( to, opts );
-		},
-
-		_getBase: function() {
-			return $.mobile.base;
-		},
-
-		_getNs: function() {
-			return $.mobile.ns;
-		},
-
-		_enhance: function( content, role ) {
-			// TODO consider supporting a custom callback, and passing in
-			// the settings which includes the role
-			return content.page({ role: role });
-		},
-
-		_include: function( page, settings ) {
-			// append to page and enhance
-			page.appendTo( this.element );
-
-			// use the page widget to enhance
-			this._enhance( page, settings.role );
-
-			// remove page on hide
-			page.page( "bindRemove" );
-		},
-
-		_find: function( absUrl ) {
-			// TODO consider supporting a custom callback
-			var fileUrl = this._createFileUrl( absUrl ),
-				dataUrl = this._createDataUrl( absUrl ),
-				page, initialContent = this._getInitialContent();
-
-			// Check to see if the page already exists in the DOM.
-			// NOTE do _not_ use the :jqmData pseudo selector because parenthesis
-			//      are a valid url char and it breaks on the first occurence
-			page = this.element
-				.children( "[data-" + this._getNs() +
-					"url='" + $.mobile.path.hashToSelector( dataUrl ) + "']" );
-
-			// If we failed to find the page, check to see if the url is a
-			// reference to an embedded page. If so, it may have been dynamically
-			// injected by a developer, in which case it would be lacking a
-			// data-url attribute and in need of enhancement.
-			if ( page.length === 0 && dataUrl && !$.mobile.path.isPath( dataUrl ) ) {
-				page = this.element.children( $.mobile.path.hashToSelector("#" + dataUrl) )
-					.attr( "data-" + this._getNs() + "url", dataUrl )
-					.jqmData( "url", dataUrl );
-			}
-
-			// If we failed to find a page in the DOM, check the URL to see if it
-			// refers to the first page in the application. Also check to make sure
-			// our cached-first-page is actually in the DOM. Some user deployed
-			// apps are pruning the first page from the DOM for various reasons.
-			// We check for this case here because we don't want a first-page with
-			// an id falling through to the non-existent embedded page error case.
-			if ( page.length === 0 &&
-				$.mobile.path.isFirstPageUrl( fileUrl ) &&
-				initialContent &&
-				initialContent.parent().length ) {
-				page = $( initialContent );
-			}
-
-			return page;
-		},
-
-		_getLoader: function() {
-			return $.mobile.loading();
-		},
-
-		_showLoading: function( delay, theme, msg, textonly ) {
-			// This configurable timeout allows cached pages a brief
-			// delay to load without showing a message
-			if ( this._loadMsg ) {
-				return;
-			}
-
-			this._loadMsg = setTimeout($.proxy(function() {
-				this._getLoader().loader( "show", theme, msg, textonly );
-				this._loadMsg = 0;
-			}, this), delay );
-		},
-
-		_hideLoading: function() {
-			// Stop message show timer
-			clearTimeout( this._loadMsg );
-			this._loadMsg = 0;
-
-			// Hide loading message
-			this._getLoader().loader( "hide" );
-		},
-
-		_showError: function() {
-			// make sure to remove the current loading message
-			this._hideLoading();
-
-			// show the error message
-			this._showLoading( 0, $.mobile.pageLoadErrorMessageTheme, $.mobile.pageLoadErrorMessage, true );
-
-			// hide the error message after a delay
-			// TODO configuration
-			setTimeout( $.proxy(this, "_hideLoading"), 1500 );
-		},
-
-		_parse: function( html, fileUrl ) {
-			// TODO consider allowing customization of this method. It's very JQM specific
-			var page, all = $( "<div></div>" );
-
-			//workaround to allow scripts to execute when included in page divs
-			all.get( 0 ).innerHTML = html;
-
-			page = all.find( ":jqmData(role='page'), :jqmData(role='dialog')" ).first();
-
-			//if page elem couldn't be found, create one and insert the body element's contents
-			if ( !page.length ) {
-				page = $( "<div data-" + this._getNs() + "role='page'>" +
-					( html.split( /<\/?body[^>]*>/gmi )[1] || "" ) +
-					"</div>" );
-			}
-
-			// TODO tagging a page with external to make sure that embedded pages aren't
-			// removed by the various page handling code is bad. Having page handling code
-			// in many places is bad. Solutions post 1.0
-			page.attr( "data-" + this._getNs() + "url", this._createDataUrl( fileUrl ) )
-				.attr( "data-" + this._getNs() + "external-page", true );
-
-			return page;
-		},
-
-		_setLoadedTitle: function( page, html ) {
-			//page title regexp
-			var newPageTitle = html.match( /<title[^>]*>([^<]*)/ ) && RegExp.$1;
-
-			if ( newPageTitle && !page.jqmData("title") ) {
-				newPageTitle = $( "<div>" + newPageTitle + "</div>" ).text();
-				page.jqmData( "title", newPageTitle );
-			}
-		},
-
-		_isRewritableBaseTag: function() {
-			return $.mobile.dynamicBaseEnabled && !$.support.dynamicBaseTag;
-		},
-
-		_createDataUrl: function( absoluteUrl ) {
-			return $.mobile.path.convertUrlToDataUrl( absoluteUrl );
-		},
-
-		_createFileUrl: function( absoluteUrl ) {
-			return $.mobile.path.getFilePath( absoluteUrl );
-		},
-
-		_triggerWithDeprecated: function( name, data, page ) {
-			var deprecatedEvent = $.Event( "page" + name ),
-				newEvent = $.Event( this.widgetName + name );
-
-			// DEPRECATED
-			// trigger the old deprecated event on the page if it's provided
-			( page || this.element ).trigger( deprecatedEvent, data );
-
-			// use the widget trigger method for the new content* event
-			this._trigger( name, newEvent, data );
-
-			return {
-				deprecatedEvent: deprecatedEvent,
-				event: newEvent
-			};
-		},
-
-		// TODO it would be nice to split this up more but everything appears to be "one off"
-		//      or require ordering such that other bits are sprinkled in between parts that
-		//      could be abstracted out as a group
-		_loadSuccess: function( absUrl, triggerData, settings, deferred ) {
-			var fileUrl = this._createFileUrl( absUrl );
-
-			return $.proxy(function( html, textStatus, xhr ) {
-				//pre-parse html to check for a data-url,
-				//use it as the new fileUrl, base path, etc
-				var content,
-
-					// TODO handle dialogs again
-					pageElemRegex = new RegExp( "(<[^>]+\\bdata-" + this._getNs() + "role=[\"']?page[\"']?[^>]*>)" ),
-
-					dataUrlRegex = new RegExp( "\\bdata-" + this._getNs() + "url=[\"']?([^\"'>]*)[\"']?" );
-
-				// data-url must be provided for the base tag so resource requests
-				// can be directed to the correct url. loading into a temprorary
-				// element makes these requests immediately
-				if ( pageElemRegex.test( html ) &&
-					RegExp.$1 &&
-					dataUrlRegex.test( RegExp.$1 ) &&
-					RegExp.$1 ) {
-					fileUrl = $.mobile.path.getFilePath( $("<div>" + RegExp.$1 + "</div>").text() );
-
-					// We specify that, if a data-url attribute is given on the page div, its value
-					// must be given non-URL-encoded. However, in this part of the code, fileUrl is
-					// assumed to be URL-encoded, so we URL-encode the retrieved value here
-					fileUrl = this.window[ 0 ].encodeURIComponent( fileUrl );
-				}
-
-				//dont update the base tag if we are prefetching
-				if ( settings.prefetch === undefined ) {
-					this._getBase().set( fileUrl );
-				}
-
-				content = this._parse( html, fileUrl );
-
-				this._setLoadedTitle( content, html );
-
-				// Add the content reference and xhr to our triggerData.
-				triggerData.xhr = xhr;
-				triggerData.textStatus = textStatus;
-
-				// DEPRECATED
-				triggerData.page = content;
-
-				triggerData.content = content;
-
-				triggerData.toPage = content;
-
-				// If the default behavior is prevented, stop here!
-				// Note that it is the responsibility of the listener/handler
-				// that called preventDefault(), to resolve/reject the
-				// deferred object within the triggerData.
-				if ( this._triggerWithDeprecated( "load", triggerData ).event.isDefaultPrevented() ) {
-					return;
-				}
-
-				// rewrite src and href attrs to use a base url if the base tag won't work
-				if ( this._isRewritableBaseTag() && content ) {
-					this._getBase().rewrite( fileUrl, content );
-				}
-
-				this._include( content, settings );
-
-				// Remove loading message.
-				if ( settings.showLoadMsg ) {
-					this._hideLoading();
-				}
-
-				deferred.resolve( absUrl, settings, content );
-			}, this);
-		},
-
-		_loadDefaults: {
-			type: "get",
-			data: undefined,
-
-			// DEPRECATED
-			reloadPage: false,
-
-			reload: false,
-
-			// By default we rely on the role defined by the @data-role attribute.
-			role: undefined,
-
-			showLoadMsg: false,
-
-			// This delay allows loads that pull from browser cache to
-			// occur without showing the loading message.
-			loadMsgDelay: 50
-		},
-
-		load: function( url, options ) {
-			// This function uses deferred notifications to let callers
-			// know when the content is done loading, or if an error has occurred.
-			var deferred = ( options && options.deferred ) || $.Deferred(),
-
-				// Examining the option "reloadPage" passed by the user is deprecated as of 1.4.0
-				// and will be removed in 1.5.0.
-				// Copy option "reloadPage" to "reload", but only if option "reload" is not present
-				reloadOptionExtension =
-					( ( options && options.reload === undefined &&
-						options.reloadPage !== undefined ) ?
-							{ reload: options.reloadPage } : {} ),
-
-				// The default load options with overrides specified by the caller.
-				settings = $.extend( {}, this._loadDefaults, options, reloadOptionExtension ),
-
-				// The DOM element for the content after it has been loaded.
-				content = null,
-
-				// The absolute version of the URL passed into the function. This
-				// version of the URL may contain dialog/subcontent params in it.
-				absUrl = $.mobile.path.makeUrlAbsolute( url, this._findBaseWithDefault() ),
-				fileUrl, dataUrl, pblEvent, triggerData;
-
-			// If the caller provided data, and we're using "get" request,
-			// append the data to the URL.
-			if ( settings.data && settings.type === "get" ) {
-				absUrl = $.mobile.path.addSearchParams( absUrl, settings.data );
-				settings.data = undefined;
-			}
-
-			// If the caller is using a "post" request, reload must be true
-			if ( settings.data && settings.type === "post" ) {
-				settings.reload = true;
-			}
-
-			// The absolute version of the URL minus any dialog/subcontent params.
-			// In otherwords the real URL of the content to be loaded.
-			fileUrl = this._createFileUrl( absUrl );
-
-			// The version of the Url actually stored in the data-url attribute of
-			// the content. For embedded content, it is just the id of the page. For
-			// content within the same domain as the document base, it is the site
-			// relative path. For cross-domain content (Phone Gap only) the entire
-			// absolute Url is used to load the content.
-			dataUrl = this._createDataUrl( absUrl );
-
-			content = this._find( absUrl );
-
-			// If it isn't a reference to the first content and refers to missing
-			// embedded content reject the deferred and return
-			if ( content.length === 0 &&
-				$.mobile.path.isEmbeddedPage(fileUrl) &&
-				!$.mobile.path.isFirstPageUrl(fileUrl) ) {
-				deferred.reject( absUrl, settings );
-				return deferred.promise();
-			}
-
-			// Reset base to the default document base
-			// TODO figure out why we doe this
-			this._getBase().reset();
-
-			// If the content we are interested in is already in the DOM,
-			// and the caller did not indicate that we should force a
-			// reload of the file, we are done. Resolve the deferrred so that
-			// users can bind to .done on the promise
-			if ( content.length && !settings.reload ) {
-				this._enhance( content, settings.role );
-				deferred.resolve( absUrl, settings, content );
-
-				//if we are reloading the content make sure we update
-				// the base if its not a prefetch
-				if ( !settings.prefetch ) {
-					this._getBase().set(url);
-				}
-
-				return deferred.promise();
-			}
-
-			triggerData = {
-				url: url,
-				absUrl: absUrl,
-				toPage: url,
-				prevPage: options ? options.fromPage : undefined,
-				dataUrl: dataUrl,
-				deferred: deferred,
-				options: settings
-			};
-
-			// Let listeners know we're about to load content.
-			pblEvent = this._triggerWithDeprecated( "beforeload", triggerData );
-
-			// If the default behavior is prevented, stop here!
-			if ( pblEvent.deprecatedEvent.isDefaultPrevented() ||
-				pblEvent.event.isDefaultPrevented() ) {
-				return deferred.promise();
-			}
-
-			if ( settings.showLoadMsg ) {
-				this._showLoading( settings.loadMsgDelay );
-			}
-
-			// Reset base to the default document base.
-			// only reset if we are not prefetching
-			if ( settings.prefetch === undefined ) {
-				this._getBase().reset();
-			}
-
-			if ( !( $.mobile.allowCrossDomainPages ||
-				$.mobile.path.isSameDomain($.mobile.path.documentUrl, absUrl ) ) ) {
-				deferred.reject( absUrl, settings );
-				return deferred.promise();
-			}
-
-			// Load the new content.
-			$.ajax({
-				url: fileUrl,
-				type: settings.type,
-				data: settings.data,
-				contentType: settings.contentType,
-				dataType: "html",
-				success: this._loadSuccess( absUrl, triggerData, settings, deferred ),
-				error: this._loadError( absUrl, triggerData, settings, deferred )
-			});
-
-			return deferred.promise();
-		},
-
-		_loadError: function( absUrl, triggerData, settings, deferred ) {
-			return $.proxy(function( xhr, textStatus, errorThrown ) {
-				//set base back to current path
-				this._getBase().set( $.mobile.path.get() );
-
-				// Add error info to our triggerData.
-				triggerData.xhr = xhr;
-				triggerData.textStatus = textStatus;
-				triggerData.errorThrown = errorThrown;
-
-				// Let listeners know the page load failed.
-				var plfEvent = this._triggerWithDeprecated( "loadfailed", triggerData );
-
-				// If the default behavior is prevented, stop here!
-				// Note that it is the responsibility of the listener/handler
-				// that called preventDefault(), to resolve/reject the
-				// deferred object within the triggerData.
-				if ( plfEvent.deprecatedEvent.isDefaultPrevented() ||
-					plfEvent.event.isDefaultPrevented() ) {
-					return;
-				}
-
-				// Remove loading message.
-				if ( settings.showLoadMsg ) {
-					this._showError();
-				}
-
-				deferred.reject( absUrl, settings );
-			}, this);
-		},
-
-		_getTransitionHandler: function( transition ) {
-			transition = $.mobile._maybeDegradeTransition( transition );
-
-			//find the transition handler for the specified transition. If there
-			//isn't one in our transitionHandlers dictionary, use the default one.
-			//call the handler immediately to kick-off the transition.
-			return $.mobile.transitionHandlers[ transition ] || $.mobile.defaultTransitionHandler;
-		},
-
-		// TODO move into transition handlers?
-		_triggerCssTransitionEvents: function( to, from, prefix ) {
-			var samePage = false;
-
-			prefix = prefix || "";
-
-			// TODO decide if these events should in fact be triggered on the container
-			if ( from ) {
-
-				//Check if this is a same page transition and tell the handler in page
-				if( to[0] === from[0] ){
-					samePage = true;
-				}
-
-				//trigger before show/hide events
-				// TODO deprecate nextPage in favor of next
-				this._triggerWithDeprecated( prefix + "hide", {
-
-					// Deprecated in 1.4 remove in 1.5
-					nextPage: to,
-					toPage: to,
-					prevPage: from,
-					samePage: samePage
-				}, from );
-			}
-
-			// TODO deprecate prevPage in favor of previous
-			this._triggerWithDeprecated( prefix + "show", {
-				prevPage: from || $( "" ),
-				toPage: to
-			}, to );
-		},
-
-		// TODO make private once change has been defined in the widget
-		_cssTransition: function( to, from, options ) {
-			var transition = options.transition,
-				reverse = options.reverse,
-				deferred = options.deferred,
-				TransitionHandler,
-				promise;
-
-			this._triggerCssTransitionEvents( to, from, "before" );
-
-			// TODO put this in a binding to events *outside* the widget
-			this._hideLoading();
-
-			TransitionHandler = this._getTransitionHandler( transition );
-
-			promise = ( new TransitionHandler( transition, reverse, to, from ) ).transition();
-
-			promise.done( $.proxy( function() {
-				this._triggerCssTransitionEvents( to, from );
-			}, this ));
-
-			// TODO temporary accomodation of argument deferred
-			promise.done(function() {
-				deferred.resolve.apply( deferred, arguments );
-			});
-		},
-
-		_releaseTransitionLock: function() {
-			//release transition lock so navigation is free again
-			isPageTransitioning = false;
-			if ( pageTransitionQueue.length > 0 ) {
-				$.mobile.changePage.apply( null, pageTransitionQueue.pop() );
-			}
-		},
-
-		_removeActiveLinkClass: function( force ) {
-			//clear out the active button state
-			$.mobile.removeActiveLinkClass( force );
-		},
-
-		_loadUrl: function( to, triggerData, settings ) {
-			// preserve the original target as the dataUrl value will be
-			// simplified eg, removing ui-state, and removing query params
-			// from the hash this is so that users who want to use query
-			// params have access to them in the event bindings for the page
-			// life cycle See issue #5085
-			settings.target = to;
-			settings.deferred = $.Deferred();
-
-			this.load( to, settings );
-
-			settings.deferred.done($.proxy(function( url, options, content ) {
-				isPageTransitioning = false;
-
-				// store the original absolute url so that it can be provided
-				// to events in the triggerData of the subsequent changePage call
-				options.absUrl = triggerData.absUrl;
-
-				this.transition( content, triggerData, options );
-			}, this));
-
-			settings.deferred.fail($.proxy(function(/* url, options */) {
-				this._removeActiveLinkClass( true );
-				this._releaseTransitionLock();
-				this._triggerWithDeprecated( "changefailed", triggerData );
-			}, this));
-		},
-
-		_triggerPageBeforeChange: function( to, triggerData, settings ) {
-			var returnEvents;
-
-			triggerData.prevPage = this.activePage;
-			$.extend( triggerData, {
-				toPage: to,
-				options: settings
-			});
-
-			// NOTE: preserve the original target as the dataUrl value will be
-			// simplified eg, removing ui-state, and removing query params from
-			// the hash this is so that users who want to use query params have
-			// access to them in the event bindings for the page life cycle
-			// See issue #5085
-			if ( $.type(to) === "string" ) {
-				// if the toPage is a string simply convert it
-				triggerData.absUrl = $.mobile.path.makeUrlAbsolute( to, this._findBaseWithDefault() );
-			} else {
-				// if the toPage is a jQuery object grab the absolute url stored
-				// in the loadPage callback where it exists
-				triggerData.absUrl = settings.absUrl;
-			}
-
-			// Let listeners know we're about to change the current page.
-			returnEvents = this._triggerWithDeprecated( "beforechange", triggerData );
-
-			// If the default behavior is prevented, stop here!
-			if ( returnEvents.event.isDefaultPrevented() ||
-				returnEvents.deprecatedEvent.isDefaultPrevented() ) {
-				return false;
-			}
-
-			return true;
-		},
-
-		change: function( to, options ) {
-			// If we are in the midst of a transition, queue the current request.
-			// We'll call changePage() once we're done with the current transition
-			// to service the request.
-			if ( isPageTransitioning ) {
-				pageTransitionQueue.unshift( arguments );
-				return;
-			}
-
-			var settings = $.extend( {}, $.mobile.changePage.defaults, options ),
-				triggerData = {};
-
-			// Make sure we have a fromPage.
-			settings.fromPage = settings.fromPage || this.activePage;
-
-			// if the page beforechange default is prevented return early
-			if ( !this._triggerPageBeforeChange(to, triggerData, settings) ) {
-				return;
-			}
-
-			// We allow "pagebeforechange" observers to modify the to in
-			// the trigger data to allow for redirects. Make sure our to is
-			// updated. We also need to re-evaluate whether it is a string,
-			// because an object can also be replaced by a string
-			to = triggerData.toPage;
-
-			// If the caller passed us a url, call loadPage()
-			// to make sure it is loaded into the DOM. We'll listen
-			// to the promise object it returns so we know when
-			// it is done loading or if an error ocurred.
-			if ( $.type(to) === "string" ) {
-				// Set the isPageTransitioning flag to prevent any requests from
-				// entering this method while we are in the midst of loading a page
-				// or transitioning.
-				isPageTransitioning = true;
-
-				this._loadUrl( to, triggerData, settings );
-			} else {
-				this.transition( to, triggerData, settings );
-			}
-		},
-
-		transition: function( toPage, triggerData, settings ) {
-			var fromPage, url, pageUrl, fileUrl,
-				active, activeIsInitialPage,
-				historyDir, pageTitle, isDialog,
-				alreadyThere, newPageTitle,
-				params,	cssTransitionDeferred,
-				beforeTransition;
-
-			// If we are in the midst of a transition, queue the current request.
-			// We'll call changePage() once we're done with the current transition
-			// to service the request.
-			if ( isPageTransitioning ) {
-				// make sure to only queue the to and settings values so the arguments
-				// work with a call to the change method
-				pageTransitionQueue.unshift( [toPage, settings] );
-				return;
-			}
-
-			// DEPRECATED - this call only, in favor of the before transition
-			// if the page beforechange default is prevented return early
-			if ( !this._triggerPageBeforeChange(toPage, triggerData, settings) ) {
-				return;
-			}
-
-			triggerData.prevPage = settings.fromPage;
-			// if the (content|page)beforetransition default is prevented return early
-			// Note, we have to check for both the deprecated and new events
-			beforeTransition = this._triggerWithDeprecated( "beforetransition", triggerData );
-			if (beforeTransition.deprecatedEvent.isDefaultPrevented() ||
-				beforeTransition.event.isDefaultPrevented() ) {
-				return;
-			}
-
-			// Set the isPageTransitioning flag to prevent any requests from
-			// entering this method while we are in the midst of loading a page
-			// or transitioning.
-			isPageTransitioning = true;
-
-			// If we are going to the first-page of the application, we need to make
-			// sure settings.dataUrl is set to the application document url. This allows
-			// us to avoid generating a document url with an id hash in the case where the
-			// first-page of the document has an id attribute specified.
-			if ( toPage[ 0 ] === $.mobile.firstPage[ 0 ] && !settings.dataUrl ) {
-				settings.dataUrl = $.mobile.path.documentUrl.hrefNoHash;
-			}
-
-			// The caller passed us a real page DOM element. Update our
-			// internal state and then trigger a transition to the page.
-			fromPage = settings.fromPage;
-			url = ( settings.dataUrl && $.mobile.path.convertUrlToDataUrl(settings.dataUrl) ) ||
-				toPage.jqmData( "url" );
-
-			// The pageUrl var is usually the same as url, except when url is obscured
-			// as a dialog url. pageUrl always contains the file path
-			pageUrl = url;
-			fileUrl = $.mobile.path.getFilePath( url );
-			active = $.mobile.navigate.history.getActive();
-			activeIsInitialPage = $.mobile.navigate.history.activeIndex === 0;
-			historyDir = 0;
-			pageTitle = document.title;
-			isDialog = ( settings.role === "dialog" ||
-				toPage.jqmData( "role" ) === "dialog" ) &&
-				toPage.jqmData( "dialog" ) !== true;
-
-			// By default, we prevent changePage requests when the fromPage and toPage
-			// are the same element, but folks that generate content
-			// manually/dynamically and reuse pages want to be able to transition to
-			// the same page. To allow this, they will need to change the default
-			// value of allowSamePageTransition to true, *OR*, pass it in as an
-			// option when they manually call changePage(). It should be noted that
-			// our default transition animations assume that the formPage and toPage
-			// are different elements, so they may behave unexpectedly. It is up to
-			// the developer that turns on the allowSamePageTransitiona option to
-			// either turn off transition animations, or make sure that an appropriate
-			// animation transition is used.
-			if ( fromPage && fromPage[0] === toPage[0] &&
-				!settings.allowSamePageTransition ) {
-
-				isPageTransitioning = false;
-				this._triggerWithDeprecated( "transition", triggerData );
-				this._triggerWithDeprecated( "change", triggerData );
-
-				// Even if there is no page change to be done, we should keep the
-				// urlHistory in sync with the hash changes
-				if ( settings.fromHashChange ) {
-					$.mobile.navigate.history.direct({ url: url });
-				}
-
-				return;
-			}
-
-			// We need to make sure the page we are given has already been enhanced.
-			toPage.page({ role: settings.role });
-
-			// If the changePage request was sent from a hashChange event, check to
-			// see if the page is already within the urlHistory stack. If so, we'll
-			// assume the user hit the forward/back button and will try to match the
-			// transition accordingly.
-			if ( settings.fromHashChange ) {
-				historyDir = settings.direction === "back" ? -1 : 1;
-			}
-
-			// Kill the keyboard.
-			// XXX_jblas: We need to stop crawling the entire document to kill focus.
-			//            Instead, we should be tracking focus with a delegate()
-			//            handler so we already have the element in hand at this
-			//            point.
-			// Wrap this in a try/catch block since IE9 throw "Unspecified error" if
-			// document.activeElement is undefined when we are in an IFrame.
-			try {
-				if ( document.activeElement &&
-					document.activeElement.nodeName.toLowerCase() !== "body" ) {
-
-					$( document.activeElement ).blur();
-				} else {
-					$( "input:focus, textarea:focus, select:focus" ).blur();
-				}
-			} catch( e ) {}
-
-			// Record whether we are at a place in history where a dialog used to be -
-			// if so, do not add a new history entry and do not change the hash either
-			alreadyThere = false;
-
-			// If we're displaying the page as a dialog, we don't want the url
-			// for the dialog content to be used in the hash. Instead, we want
-			// to append the dialogHashKey to the url of the current page.
-			if ( isDialog && active ) {
-				// on the initial page load active.url is undefined and in that case
-				// should be an empty string. Moving the undefined -> empty string back
-				// into urlHistory.addNew seemed imprudent given undefined better
-				// represents the url state
-
-				// If we are at a place in history that once belonged to a dialog, reuse
-				// this state without adding to urlHistory and without modifying the
-				// hash. However, if a dialog is already displayed at this point, and
-				// we're about to display another dialog, then we must add another hash
-				// and history entry on top so that one may navigate back to the
-				// original dialog
-				if ( active.url &&
-					active.url.indexOf( $.mobile.dialogHashKey ) > -1 &&
-					this.activePage &&
-					!this.activePage.hasClass( "ui-dialog" ) &&
-					$.mobile.navigate.history.activeIndex > 0 ) {
-
-					settings.changeHash = false;
-					alreadyThere = true;
-				}
-
-				// Normally, we tack on a dialog hash key, but if this is the location
-				// of a stale dialog, we reuse the URL from the entry
-				url = ( active.url || "" );
-
-				// account for absolute urls instead of just relative urls use as hashes
-				if ( !alreadyThere && url.indexOf("#") > -1 ) {
-					url += $.mobile.dialogHashKey;
-				} else {
-					url += "#" + $.mobile.dialogHashKey;
-				}
-			}
-
-			// if title element wasn't found, try the page div data attr too
-			// If this is a deep-link or a reload ( active === undefined ) then just
-			// use pageTitle
-			newPageTitle = ( !active ) ? pageTitle : toPage.jqmData( "title" ) ||
-				toPage.children( ":jqmData(role='header')" ).find( ".ui-title" ).text();
-			if ( !!newPageTitle && pageTitle === document.title ) {
-				pageTitle = newPageTitle;
-			}
-			if ( !toPage.jqmData( "title" ) ) {
-				toPage.jqmData( "title", pageTitle );
-			}
-
-			// Make sure we have a transition defined.
-			settings.transition = settings.transition ||
-				( ( historyDir && !activeIsInitialPage ) ? active.transition : undefined ) ||
-				( isDialog ? $.mobile.defaultDialogTransition : $.mobile.defaultPageTransition );
-
-			//add page to history stack if it's not back or forward
-			if ( !historyDir && alreadyThere ) {
-				$.mobile.navigate.history.getActive().pageUrl = pageUrl;
-			}
-
-			// Set the location hash.
-			if ( url && !settings.fromHashChange ) {
-
-				// rebuilding the hash here since we loose it earlier on
-				// TODO preserve the originally passed in path
-				if ( !$.mobile.path.isPath( url ) && url.indexOf( "#" ) < 0 ) {
-					url = "#" + url;
-				}
-
-				// TODO the property names here are just silly
-				params = {
-					transition: settings.transition,
-					title: pageTitle,
-					pageUrl: pageUrl,
-					role: settings.role
-				};
-
-				if ( settings.changeHash !== false && $.mobile.hashListeningEnabled ) {
-					$.mobile.navigate( this.window[ 0 ].encodeURI( url ), params, true);
-				} else if ( toPage[ 0 ] !== $.mobile.firstPage[ 0 ] ) {
-					$.mobile.navigate.history.add( url, params );
-				}
-			}
-
-			//set page title
-			document.title = pageTitle;
-
-			//set "toPage" as activePage deprecated in 1.4 remove in 1.5
-			$.mobile.activePage = toPage;
-
-			//new way to handle activePage
-			this.activePage = toPage;
-
-			// If we're navigating back in the URL history, set reverse accordingly.
-			settings.reverse = settings.reverse || historyDir < 0;
-
-			cssTransitionDeferred = $.Deferred();
-
-			this._cssTransition(toPage, fromPage, {
-				transition: settings.transition,
-				reverse: settings.reverse,
-				deferred: cssTransitionDeferred
-			});
-
-			cssTransitionDeferred.done($.proxy(function( name, reverse, $to, $from, alreadyFocused ) {
-				$.mobile.removeActiveLinkClass();
-
-				//if there's a duplicateCachedPage, remove it from the DOM now that it's hidden
-				if ( settings.duplicateCachedPage ) {
-					settings.duplicateCachedPage.remove();
-				}
-
-				// despite visibility: hidden addresses issue #2965
-				// https://github.com/jquery/jquery-mobile/issues/2965
-				if ( !alreadyFocused ) {
-					$.mobile.focusPage( toPage );
-				}
-
-				this._releaseTransitionLock();
-				this._triggerWithDeprecated( "transition", triggerData );
-				this._triggerWithDeprecated( "change", triggerData );
-			}, this));
-		},
-
-		// determine the current base url
-		_findBaseWithDefault: function() {
-			var closestBase = ( this.activePage &&
-			$.mobile.getClosestBaseUrl( this.activePage ) );
-		return closestBase || $.mobile.path.documentBase.hrefNoHash;
-		}
-	});
-
-	// The following handlers should be bound after mobileinit has been triggered
-	// the following deferred is resolved in the init file
-	$.mobile.navreadyDeferred = $.Deferred();
-
-	//these variables make all page containers use the same queue and only navigate one at a time
-	// queue to hold simultanious page transitions
-	var pageTransitionQueue = [],
-
-		// indicates whether or not page is in process of transitioning
-		isPageTransitioning = false;
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-		// resolved on domready
-	var domreadyDeferred = $.Deferred(),
-
-		// resolved and nulled on window.load()
-		loadDeferred = $.Deferred(),
-
-		// function that resolves the above deferred
-		pageIsFullyLoaded = function() {
-
-			// Resolve and null the deferred
-			loadDeferred.resolve();
-			loadDeferred = null;
-		},
-
-		documentUrl = $.mobile.path.documentUrl,
-
-		// used to track last vclicked element to make sure its value is added to form data
-		$lastVClicked = null;
-
-	/* Event Bindings - hashchange, submit, and click */
-	function findClosestLink( ele )	{
-		while ( ele ) {
-			// Look for the closest element with a nodeName of "a".
-			// Note that we are checking if we have a valid nodeName
-			// before attempting to access it. This is because the
-			// node we get called with could have originated from within
-			// an embedded SVG document where some symbol instance elements
-			// don't have nodeName defined on them, or strings are of type
-			// SVGAnimatedString.
-			if ( ( typeof ele.nodeName === "string" ) && ele.nodeName.toLowerCase() === "a" ) {
-				break;
-			}
-			ele = ele.parentNode;
-		}
-		return ele;
-	}
-
-	$.mobile.loadPage = function( url, opts ) {
-		var container;
-
-		opts = opts || {};
-		container = ( opts.pageContainer || $.mobile.pageContainer );
-
-		// create the deferred that will be supplied to loadPage callers
-		// and resolved by the content widget's load method
-		opts.deferred = $.Deferred();
-
-		// Preferring to allow exceptions for uninitialized opts.pageContainer
-		// widgets so we know if we need to force init here for users
-		container.pagecontainer( "load", url, opts );
-
-		// provide the deferred
-		return opts.deferred.promise();
-	};
-
-	//define vars for interal use
-
-	/* internal utility functions */
-
-	// NOTE Issue #4950 Android phonegap doesn't navigate back properly
-	//      when a full page refresh has taken place. It appears that hashchange
-	//      and replacestate history alterations work fine but we need to support
-	//      both forms of history traversal in our code that uses backward history
-	//      movement
-	$.mobile.back = function() {
-		var nav = window.navigator;
-
-		// if the setting is on and the navigator object is
-		// available use the phonegap navigation capability
-		if ( this.phonegapNavigationEnabled &&
-			nav &&
-			nav.app &&
-			nav.app.backHistory ) {
-			nav.app.backHistory();
-		} else {
-			$.mobile.pageContainer.pagecontainer( "back" );
-		}
-	};
-
-	// Direct focus to the page title, or otherwise first focusable element
-	$.mobile.focusPage = function ( page ) {
-		var autofocus = page.find( "[autofocus]" ),
-			pageTitle = page.find( ".ui-title:eq(0)" );
-
-		if ( autofocus.length ) {
-			autofocus.focus();
-			return;
-		}
-
-		if ( pageTitle.length ) {
-			pageTitle.focus();
-		} else{
-			page.focus();
-		}
-	};
-
-	// No-op implementation of transition degradation
-	$.mobile._maybeDegradeTransition = $.mobile._maybeDegradeTransition || function( transition ) {
-		return transition;
-	};
-
-	// Exposed $.mobile methods
-
-	$.mobile.changePage = function( to, options ) {
-		$.mobile.pageContainer.pagecontainer( "change", to, options );
-	};
-
-	$.mobile.changePage.defaults = {
-		transition: undefined,
-		reverse: false,
-		changeHash: true,
-		fromHashChange: false,
-		role: undefined, // By default we rely on the role defined by the @data-role attribute.
-		duplicateCachedPage: undefined,
-		pageContainer: undefined,
-		showLoadMsg: true, //loading message shows by default when pages are being fetched during changePage
-		dataUrl: undefined,
-		fromPage: undefined,
-		allowSamePageTransition: false
-	};
-
-	$.mobile._registerInternalEvents = function() {
-		var getAjaxFormData = function( $form, calculateOnly ) {
-			var url, ret = true, formData, vclickedName, method;
-			if ( !$.mobile.ajaxEnabled ||
-					// test that the form is, itself, ajax false
-					$form.is( ":jqmData(ajax='false')" ) ||
-					// test that $.mobile.ignoreContentEnabled is set and
-					// the form or one of it's parents is ajax=false
-					!$form.jqmHijackable().length ||
-					$form.attr( "target" ) ) {
-				return false;
-			}
-
-			url = ( $lastVClicked && $lastVClicked.attr( "formaction" ) ) ||
-				$form.attr( "action" );
-			method = ( $form.attr( "method" ) || "get" ).toLowerCase();
-
-			// If no action is specified, browsers default to using the
-			// URL of the document containing the form. Since we dynamically
-			// pull in pages from external documents, the form should submit
-			// to the URL for the source document of the page containing
-			// the form.
-			if ( !url ) {
-				// Get the @data-url for the page containing the form.
-				url = $.mobile.getClosestBaseUrl( $form );
-
-				// NOTE: If the method is "get", we need to strip off the query string
-				// because it will get replaced with the new form data. See issue #5710.
-				if ( method === "get" ) {
-					url = $.mobile.path.parseUrl( url ).hrefNoSearch;
-				}
-
-				if ( url === $.mobile.path.documentBase.hrefNoHash ) {
-					// The url we got back matches the document base,
-					// which means the page must be an internal/embedded page,
-					// so default to using the actual document url as a browser
-					// would.
-					url = documentUrl.hrefNoSearch;
-				}
-			}
-
-			url = $.mobile.path.makeUrlAbsolute(  url, $.mobile.getClosestBaseUrl( $form ) );
-
-			if ( ( $.mobile.path.isExternal( url ) && !$.mobile.path.isPermittedCrossDomainRequest( documentUrl, url ) ) ) {
-				return false;
-			}
-
-			if ( !calculateOnly ) {
-				formData = $form.serializeArray();
-
-				if ( $lastVClicked && $lastVClicked[ 0 ].form === $form[ 0 ] ) {
-					vclickedName = $lastVClicked.attr( "name" );
-					if ( vclickedName ) {
-						// Make sure the last clicked element is included in the form
-						$.each( formData, function( key, value ) {
-							if ( value.name === vclickedName ) {
-								// Unset vclickedName - we've found it in the serialized data already
-								vclickedName = "";
-								return false;
-							}
-						});
-						if ( vclickedName ) {
-							formData.push( { name: vclickedName, value: $lastVClicked.attr( "value" ) } );
-						}
-					}
-				}
-
-				ret = {
-					url: url,
-					options: {
-						type:		method,
-						data:		$.param( formData ),
-						transition:	$form.jqmData( "transition" ),
-						reverse:	$form.jqmData( "direction" ) === "reverse",
-						reloadPage:	true
-					}
-				};
-			}
-
-			return ret;
-		};
-
-		//bind to form submit events, handle with Ajax
-		$.mobile.document.delegate( "form", "submit", function( event ) {
-			var formData;
-
-			if ( !event.isDefaultPrevented() ) {
-				formData = getAjaxFormData( $( this ) );
-				if ( formData ) {
-					$.mobile.changePage( formData.url, formData.options );
-					event.preventDefault();
-				}
-			}
-		});
-
-		//add active state on vclick
-		$.mobile.document.bind( "vclick", function( event ) {
-			var $btn, btnEls, target = event.target, needClosest = false;
-			// if this isn't a left click we don't care. Its important to note
-			// that when the virtual event is generated it will create the which attr
-			if ( event.which > 1 || !$.mobile.linkBindingEnabled ) {
-				return;
-			}
-
-			// Record that this element was clicked, in case we need it for correct
-			// form submission during the "submit" handler above
-			$lastVClicked = $( target );
-
-			// Try to find a target element to which the active class will be applied
-			if ( $.data( target, "mobile-button" ) ) {
-				// If the form will not be submitted via AJAX, do not add active class
-				if ( !getAjaxFormData( $( target ).closest( "form" ), true ) ) {
-					return;
-				}
-				// We will apply the active state to this button widget - the parent
-				// of the input that was clicked will have the associated data
-				if ( target.parentNode ) {
-					target = target.parentNode;
-				}
-			} else {
-				target = findClosestLink( target );
-				if ( !( target && $.mobile.path.parseUrl( target.getAttribute( "href" ) || "#" ).hash !== "#" ) ) {
-					return;
-				}
-
-				// TODO teach $.mobile.hijackable to operate on raw dom elements so the
-				// link wrapping can be avoided
-				if ( !$( target ).jqmHijackable().length ) {
-					return;
-				}
-			}
-
-			// Avoid calling .closest by using the data set during .buttonMarkup()
-			// List items have the button data in the parent of the element clicked
-			if ( !!~target.className.indexOf( "ui-link-inherit" ) ) {
-				if ( target.parentNode ) {
-					btnEls = $.data( target.parentNode, "buttonElements" );
-				}
-			// Otherwise, look for the data on the target itself
-			} else {
-				btnEls = $.data( target, "buttonElements" );
-			}
-			// If found, grab the button's outer element
-			if ( btnEls ) {
-				target = btnEls.outer;
-			} else {
-				needClosest = true;
-			}
-
-			$btn = $( target );
-			// If the outer element wasn't found by the our heuristics, use .closest()
-			if ( needClosest ) {
-				$btn = $btn.closest( ".ui-btn" );
-			}
-
-			if ( $btn.length > 0 &&
-				!( $btn.hasClass( "ui-state-disabled" ||
-
-					// DEPRECATED as of 1.4.0 - remove after 1.4.0 release
-					// only ui-state-disabled should be present thereafter
-					$btn.hasClass( "ui-disabled" ) ) ) ) {
-				$.mobile.removeActiveLinkClass( true );
-				$.mobile.activeClickedLink = $btn;
-				$.mobile.activeClickedLink.addClass( $.mobile.activeBtnClass );
-			}
-		});
-
-		// click routing - direct to HTTP or Ajax, accordingly
-		$.mobile.document.bind( "click", function( event ) {
-			if ( !$.mobile.linkBindingEnabled || event.isDefaultPrevented() ) {
-				return;
-			}
-
-			var link = findClosestLink( event.target ),
-				$link = $( link ),
-
-				//remove active link class if external (then it won't be there if you come back)
-				httpCleanup = function() {
-					window.setTimeout(function() { $.mobile.removeActiveLinkClass( true ); }, 200 );
-				},
-				baseUrl, href,
-				useDefaultUrlHandling, isExternal,
-				transition, reverse, role;
-
-			// If a button was clicked, clean up the active class added by vclick above
-			if ( $.mobile.activeClickedLink &&
-				$.mobile.activeClickedLink[ 0 ] === event.target.parentNode ) {
-				httpCleanup();
-			}
-
-			// If there is no link associated with the click or its not a left
-			// click we want to ignore the click
-			// TODO teach $.mobile.hijackable to operate on raw dom elements so the link wrapping
-			// can be avoided
-			if ( !link || event.which > 1 || !$link.jqmHijackable().length ) {
-				return;
-			}
-
-			//if there's a data-rel=back attr, go back in history
-			if ( $link.is( ":jqmData(rel='back')" ) ) {
-				$.mobile.back();
-				return false;
-			}
-
-			baseUrl = $.mobile.getClosestBaseUrl( $link );
-
-			//get href, if defined, otherwise default to empty hash
-			href = $.mobile.path.makeUrlAbsolute( $link.attr( "href" ) || "#", baseUrl );
-
-			//if ajax is disabled, exit early
-			if ( !$.mobile.ajaxEnabled && !$.mobile.path.isEmbeddedPage( href ) ) {
-				httpCleanup();
-				//use default click handling
-				return;
-			}
-
-			// XXX_jblas: Ideally links to application pages should be specified as
-			//            an url to the application document with a hash that is either
-			//            the site relative path or id to the page. But some of the
-			//            internal code that dynamically generates sub-pages for nested
-			//            lists and select dialogs, just write a hash in the link they
-			//            create. This means the actual URL path is based on whatever
-			//            the current value of the base tag is at the time this code
-			//            is called.
-			if ( href.search( "#" ) !== -1 &&
-				!( $.mobile.path.isExternal( href ) && $.mobile.path.isAbsoluteUrl( href ) ) ) {
-
-				href = href.replace( /[^#]*#/, "" );
-				if ( !href ) {
-					//link was an empty hash meant purely
-					//for interaction, so we ignore it.
-					event.preventDefault();
-					return;
-				} else if ( $.mobile.path.isPath( href ) ) {
-					//we have apath so make it the href we want to load.
-					href = $.mobile.path.makeUrlAbsolute( href, baseUrl );
-				} else {
-					//we have a simple id so use the documentUrl as its base.
-					href = $.mobile.path.makeUrlAbsolute( "#" + href, documentUrl.hrefNoHash );
-				}
-			}
-
-			// Should we handle this link, or let the browser deal with it?
-			useDefaultUrlHandling = $link.is( "[rel='external']" ) || $link.is( ":jqmData(ajax='false')" ) || $link.is( "[target]" );
-
-			// Some embedded browsers, like the web view in Phone Gap, allow cross-domain XHR
-			// requests if the document doing the request was loaded via the file:// protocol.
-			// This is usually to allow the application to "phone home" and fetch app specific
-			// data. We normally let the browser handle external/cross-domain urls, but if the
-			// allowCrossDomainPages option is true, we will allow cross-domain http/https
-			// requests to go through our page loading logic.
-
-			//check for protocol or rel and its not an embedded page
-			//TODO overlap in logic from isExternal, rel=external check should be
-			//     moved into more comprehensive isExternalLink
-			isExternal = useDefaultUrlHandling || ( $.mobile.path.isExternal( href ) && !$.mobile.path.isPermittedCrossDomainRequest( documentUrl, href ) );
-
-			if ( isExternal ) {
-				httpCleanup();
-				//use default click handling
-				return;
-			}
-
-			//use ajax
-			transition = $link.jqmData( "transition" );
-			reverse = $link.jqmData( "direction" ) === "reverse" ||
-						// deprecated - remove by 1.0
-						$link.jqmData( "back" );
-
-			//this may need to be more specific as we use data-rel more
-			role = $link.attr( "data-" + $.mobile.ns + "rel" ) || undefined;
-
-			$.mobile.changePage( href, { transition: transition, reverse: reverse, role: role, link: $link } );
-			event.preventDefault();
-		});
-
-		//prefetch pages when anchors with data-prefetch are encountered
-		$.mobile.document.delegate( ".ui-page", "pageshow.prefetch", function() {
-			var urls = [];
-			$( this ).find( "a:jqmData(prefetch)" ).each(function() {
-				var $link = $( this ),
-					url = $link.attr( "href" );
-
-				if ( url && $.inArray( url, urls ) === -1 ) {
-					urls.push( url );
-
-					$.mobile.loadPage( url, { role: $link.attr( "data-" + $.mobile.ns + "rel" ),prefetch: true } );
-				}
-			});
-		});
-
-		// TODO ensure that the navigate binding in the content widget happens at the right time
-		$.mobile.pageContainer.pagecontainer();
-
-		//set page min-heights to be device specific
-		$.mobile.document.bind( "pageshow", function() {
-
-			// We need to wait for window.load to make sure that styles have already been rendered,
-			// otherwise heights of external toolbars will have the wrong value
-			if ( loadDeferred ) {
-				loadDeferred.done( $.mobile.resetActivePageHeight );
-			} else {
-				$.mobile.resetActivePageHeight();
-			}
-		});
-		$.mobile.window.bind( "throttledresize", $.mobile.resetActivePageHeight );
-
-	};//navreadyDeferred done callback
-
-	$( function() { domreadyDeferred.resolve(); } );
-
-	// Account for the possibility that the load event has already fired
-	if ( document.readyState === "complete" ) {
-		pageIsFullyLoaded();
-	} else {
-		$.mobile.window.load( pageIsFullyLoaded );
-	}
-
-	$.when( domreadyDeferred, $.mobile.navreadyDeferred ).done( function() { $.mobile._registerInternalEvents(); } );
-})( jQuery );
-
-
-(function( $, window, undefined ) {
-
-	// TODO remove direct references to $.mobile and properties, we should
-	//      favor injection with params to the constructor
-	$.mobile.Transition = function() {
-		this.init.apply( this, arguments );
-	};
-
-	$.extend($.mobile.Transition.prototype, {
-		toPreClass: " ui-page-pre-in",
-
-		init: function( name, reverse, $to, $from ) {
-			$.extend(this, {
-				name: name,
-				reverse: reverse,
-				$to: $to,
-				$from: $from,
-				deferred: new $.Deferred()
-			});
-		},
-
-		cleanFrom: function() {
-			this.$from
-				.removeClass( $.mobile.activePageClass + " out in reverse " + this.name )
-				.height( "" );
-		},
-
-		// NOTE overridden by child object prototypes, noop'd here as defaults
-		beforeDoneIn: function() {},
-		beforeDoneOut: function() {},
-		beforeStartOut: function() {},
-
-		doneIn: function() {
-			this.beforeDoneIn();
-
-			this.$to.removeClass( "out in reverse " + this.name ).height( "" );
-
-			this.toggleViewportClass();
-
-			// In some browsers (iOS5), 3D transitions block the ability to scroll to the desired location during transition
-			// This ensures we jump to that spot after the fact, if we aren't there already.
-			if ( $.mobile.window.scrollTop() !== this.toScroll ) {
-				this.scrollPage();
-			}
-			if ( !this.sequential ) {
-				this.$to.addClass( $.mobile.activePageClass );
-			}
-			this.deferred.resolve( this.name, this.reverse, this.$to, this.$from, true );
-		},
-
-		doneOut: function( screenHeight, reverseClass, none, preventFocus ) {
-			this.beforeDoneOut();
-			this.startIn( screenHeight, reverseClass, none, preventFocus );
-		},
-
-		hideIn: function( callback ) {
-			// Prevent flickering in phonegap container: see comments at #4024 regarding iOS
-			this.$to.css( "z-index", -10 );
-			callback.call( this );
-			this.$to.css( "z-index", "" );
-		},
-
-		scrollPage: function() {
-			// By using scrollTo instead of silentScroll, we can keep things better in order
-			// Just to be precautios, disable scrollstart listening like silentScroll would
-			$.event.special.scrollstart.enabled = false;
-			//if we are hiding the url bar or the page was previously scrolled scroll to hide or return to position
-			if ( $.mobile.hideUrlBar || this.toScroll !== $.mobile.defaultHomeScroll ) {
-				window.scrollTo( 0, this.toScroll );
-			}
-
-			// reenable scrollstart listening like silentScroll would
-			setTimeout( function() {
-				$.event.special.scrollstart.enabled = true;
-			}, 150 );
-		},
-
-		startIn: function( screenHeight, reverseClass, none, preventFocus ) {
-			this.hideIn(function() {
-				this.$to.addClass( $.mobile.activePageClass + this.toPreClass );
-
-				// Send focus to page as it is now display: block
-				if ( !preventFocus ) {
-					$.mobile.focusPage( this.$to );
-				}
-
-				// Set to page height
-				this.$to.height( screenHeight + this.toScroll );
-
-                if ( !none ) {
-                    this.scrollPage();
-                }
-			});
-
-			this.$to
-				.removeClass( this.toPreClass )
-				.addClass( this.name + " in " + reverseClass );
-
-			if ( !none ) {
-				this.$to.animationComplete( $.proxy(function() {
-					this.doneIn();
-				}, this ));
-			} else {
-				this.doneIn();
-			}
-
-		},
-
-		startOut: function( screenHeight, reverseClass, none ) {
-			this.beforeStartOut( screenHeight, reverseClass, none );
-
-			// Set the from page's height and start it transitioning out
-			// Note: setting an explicit height helps eliminate tiling in the transitions
-			this.$from
-				.height( screenHeight + $.mobile.window.scrollTop() )
-				.addClass( this.name + " out" + reverseClass );
-		},
-
-		toggleViewportClass: function() {
-			$.mobile.pageContainer.toggleClass( "ui-mobile-viewport-transitioning viewport-" + this.name );
-		},
-
-		transition: function() {
-			// NOTE many of these could be calculated/recorded in the constructor, it's my
-			//      opinion that binding them as late as possible has value with regards to
-			//      better transitions with fewer bugs. Ie, it's not guaranteed that the
-			//      object will be created and transition will be run immediately after as
-			//      it is today. So we wait until transition is invoked to gather the following
-			var none,
-				reverseClass = this.reverse ? " reverse" : "",
-				screenHeight = $.mobile.getScreenHeight(),
-				maxTransitionOverride = $.mobile.maxTransitionWidth !== false &&
-					$.mobile.window.width() > $.mobile.maxTransitionWidth;
-
-			this.toScroll = $.mobile.navigate.history.getActive().lastScroll || $.mobile.defaultHomeScroll;
-
-			none = !$.support.cssTransitions || !$.support.cssAnimations ||
-				maxTransitionOverride || !this.name || this.name === "none" ||
-				Math.max( $.mobile.window.scrollTop(), this.toScroll ) >
-					$.mobile.getMaxScrollForTransition();
-
-			this.toggleViewportClass();
-
-			if ( this.$from && !none ) {
-				this.startOut( screenHeight, reverseClass, none );
-			} else {
-				this.doneOut( screenHeight, reverseClass, none, true );
-			}
-
-			return this.deferred.promise();
-		}
-	});
-})( jQuery, this );
-
-
-(function( $ ) {
-
-	$.mobile.SerialTransition = function() {
-		this.init.apply(this, arguments);
-	};
-
-	$.extend($.mobile.SerialTransition.prototype, $.mobile.Transition.prototype, {
-		sequential: true,
-
-		beforeDoneOut: function() {
-			if ( this.$from ) {
-				this.cleanFrom();
-			}
-		},
-
-		beforeStartOut: function( screenHeight, reverseClass, none ) {
-			this.$from.animationComplete($.proxy(function() {
-				this.doneOut( screenHeight, reverseClass, none );
-			}, this ));
-		}
-	});
-
-})( jQuery );
-
-
-(function( $ ) {
-
-	$.mobile.ConcurrentTransition = function() {
-		this.init.apply(this, arguments);
-	};
-
-	$.extend($.mobile.ConcurrentTransition.prototype, $.mobile.Transition.prototype, {
-		sequential: false,
-
-		beforeDoneIn: function() {
-			if ( this.$from ) {
-				this.cleanFrom();
-			}
-		},
-
-		beforeStartOut: function( screenHeight, reverseClass, none ) {
-			this.doneOut( screenHeight, reverseClass, none );
-		}
-	});
-
-})( jQuery );
-
-
-(function( $ ) {
-
-	// generate the handlers from the above
-	var defaultGetMaxScrollForTransition = function() {
-		return $.mobile.getScreenHeight() * 3;
-	};
-
-	//transition handler dictionary for 3rd party transitions
-	$.mobile.transitionHandlers = {
-		"sequential": $.mobile.SerialTransition,
-		"simultaneous": $.mobile.ConcurrentTransition
-	};
-
-	// Make our transition handler the public default.
-	$.mobile.defaultTransitionHandler = $.mobile.transitionHandlers.sequential;
-
-	$.mobile.transitionFallbacks = {};
-
-	// If transition is defined, check if css 3D transforms are supported, and if not, if a fallback is specified
-	$.mobile._maybeDegradeTransition = function( transition ) {
-		if ( transition && !$.support.cssTransform3d && $.mobile.transitionFallbacks[ transition ] ) {
-			transition = $.mobile.transitionFallbacks[ transition ];
-		}
-
-		return transition;
-	};
-
-	// Set the getMaxScrollForTransition to default if no implementation was set by user
-	$.mobile.getMaxScrollForTransition = $.mobile.getMaxScrollForTransition || defaultGetMaxScrollForTransition;
-
-})( jQuery );
-
-/*
-* fallback transition for flip in non-3D supporting browsers (which tend to handle complex transitions poorly in general
-*/
-
-(function( $, window, undefined ) {
-
-$.mobile.transitionFallbacks.flip = "fade";
-
-})( jQuery, this );
-
-/*
-* fallback transition for flow in non-3D supporting browsers (which tend to handle complex transitions poorly in general
-*/
-
-(function( $, window, undefined ) {
-
-$.mobile.transitionFallbacks.flow = "fade";
-
-})( jQuery, this );
-
-/*
-* fallback transition for pop in non-3D supporting browsers (which tend to handle complex transitions poorly in general
-*/
-
-(function( $, window, undefined ) {
-
-$.mobile.transitionFallbacks.pop = "fade";
-
-})( jQuery, this );
-
-/*
-* fallback transition for slide in non-3D supporting browsers (which tend to handle complex transitions poorly in general
-*/
-
-(function( $, window, undefined ) {
-
-// Use the simultaneous transitions handler for slide transitions
-$.mobile.transitionHandlers.slide = $.mobile.transitionHandlers.simultaneous;
-
-// Set the slide transitions's fallback to "fade"
-$.mobile.transitionFallbacks.slide = "fade";
-
-})( jQuery, this );
-
-/*
-* fallback transition for slidedown in non-3D supporting browsers (which tend to handle complex transitions poorly in general
-*/
-
-(function( $, window, undefined ) {
-
-$.mobile.transitionFallbacks.slidedown = "fade";
-
-})( jQuery, this );
-
-/*
-* fallback transition for slidefade in non-3D supporting browsers (which tend to handle complex transitions poorly in general
-*/
-
-(function( $, window, undefined ) {
-
-// Set the slide transitions's fallback to "fade"
-$.mobile.transitionFallbacks.slidefade = "fade";
-
-})( jQuery, this );
-
-/*
-* fallback transition for slideup in non-3D supporting browsers (which tend to handle complex transitions poorly in general
-*/
-
-(function( $, window, undefined ) {
-
-$.mobile.transitionFallbacks.slideup = "fade";
-
-})( jQuery, this );
-
-/*
-* fallback transition for turn in non-3D supporting browsers (which tend to handle complex transitions poorly in general
-*/
-
-(function( $, window, undefined ) {
-
-$.mobile.transitionFallbacks.turn = "fade";
-
-})( jQuery, this );
-
-
-(function( $, undefined ) {
-
-$.mobile.degradeInputs = {
-	color: false,
-	date: false,
-	datetime: false,
-	"datetime-local": false,
-	email: false,
-	month: false,
-	number: false,
-	range: "number",
-	search: "text",
-	tel: false,
-	time: false,
-	url: false,
-	week: false
-};
-// Backcompat remove in 1.5
-$.mobile.page.prototype.options.degradeInputs = $.mobile.degradeInputs;
-
-// Auto self-init widgets
-$.mobile.degradeInputsWithin = function( target ) {
-
-	target = $( target );
-
-	// Degrade inputs to avoid poorly implemented native functionality
-	target.find( "input" ).not( $.mobile.page.prototype.keepNativeSelector() ).each(function() {
-		var element = $( this ),
-			type = this.getAttribute( "type" ),
-			optType = $.mobile.degradeInputs[ type ] || "text",
-			html, hasType, findstr, repstr;
-
-		if ( $.mobile.degradeInputs[ type ] ) {
-			html = $( "<div>" ).html( element.clone() ).html();
-			// In IE browsers, the type sometimes doesn't exist in the cloned markup, so we replace the closing tag instead
-			hasType = html.indexOf( " type=" ) > -1;
-			findstr = hasType ? /\s+type=["']?\w+['"]?/ : /\/?>/;
-			repstr = " type=\"" + optType + "\" data-" + $.mobile.ns + "type=\"" + type + "\"" + ( hasType ? "" : ">" );
-
-			element.replaceWith( html.replace( findstr, repstr ) );
-		}
-	});
-
-};
-
-})( jQuery );
-
-(function( $, window, undefined ) {
-
-$.widget( "mobile.page", $.mobile.page, {
-	options: {
-
-		// Accepts left, right and none
-		closeBtn: "left",
-		closeBtnText: "Close",
-		overlayTheme: "a",
-		corners: true,
-		dialog: false
-	},
-
-	_create: function() {
-		this._super();
-		if ( this.options.dialog ) {
-
-			$.extend( this, {
-				_inner: this.element.children(),
-				_headerCloseButton: null
-			});
-
-			if ( !this.options.enhanced ) {
-				this._setCloseBtn( this.options.closeBtn );
-			}
-		}
-	},
-
-	_enhance: function() {
-		this._super();
-
-		// Class the markup for dialog styling and wrap interior
-		if ( this.options.dialog ) {
-			this.element.addClass( "ui-dialog" )
-				.wrapInner( $( "<div/>", {
-
-					// ARIA role
-					"role" : "dialog",
-					"class" : "ui-dialog-contain ui-overlay-shadow" +
-						( this.options.corners ? " ui-corner-all" : "" )
-				}));
-		}
-	},
-
-	_setOptions: function( options ) {
-		var closeButtonLocation, closeButtonText,
-			currentOpts = this.options;
-
-		if ( options.corners !== undefined ) {
-			this._inner.toggleClass( "ui-corner-all", !!options.corners );
-		}
-
-		if ( options.overlayTheme !== undefined ) {
-			if ( $.mobile.activePage[ 0 ] === this.element[ 0 ] ) {
-				currentOpts.overlayTheme = options.overlayTheme;
-				this._handlePageBeforeShow();
-			}
-		}
-
-		if ( options.closeBtnText !== undefined ) {
-			closeButtonLocation = currentOpts.closeBtn;
-			closeButtonText = options.closeBtnText;
-		}
-
-		if ( options.closeBtn !== undefined ) {
-			closeButtonLocation = options.closeBtn;
-		}
-
-		if ( closeButtonLocation ) {
-			this._setCloseBtn( closeButtonLocation, closeButtonText );
-		}
-
-		this._super( options );
-	},
-
-	_handlePageBeforeShow: function () {
-		if ( this.options.overlayTheme && this.options.dialog ) {
-			this.removeContainerBackground();
-			this.setContainerBackground( this.options.overlayTheme );
-		} else {
-			this._super();
-		}
-	},
-
-	_setCloseBtn: function( location, text ) {
-		var dst,
-			btn = this._headerCloseButton;
-
-		// Sanitize value
-		location = "left" === location ? "left" : "right" === location ? "right" : "none";
-
-		if ( "none" === location ) {
-			if ( btn ) {
-				btn.remove();
-				btn = null;
-			}
-		} else if ( btn ) {
-			btn.removeClass( "ui-btn-left ui-btn-right" ).addClass( "ui-btn-" + location );
-			if ( text ) {
-				btn.text( text );
-			}
-		} else {
-			dst = this._inner.find( ":jqmData(role='header')" ).first();
-			btn = $( "<a></a>", {
-					"href": "#",
-					"class": "ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-" + location
-				})
-				.attr( "data-" + $.mobile.ns + "rel", "back" )
-				.text( text || this.options.closeBtnText || "" )
-				.prependTo( dst );
-		}
-
-		this._headerCloseButton = btn;
-	}
-});
-
-})( jQuery, this );
-
-(function( $, window, undefined ) {
-
-$.widget( "mobile.dialog", {
-	options: {
-
-		// Accepts left, right and none
-		closeBtn: "left",
-		closeBtnText: "Close",
-		overlayTheme: "a",
-		corners: true
-	},
-
-	// Override the theme set by the page plugin on pageshow
-	_handlePageBeforeShow: function() {
-		this._isCloseable = true;
-		if ( this.options.overlayTheme ) {
-			this.element
-				.page( "removeContainerBackground" )
-				.page( "setContainerBackground", this.options.overlayTheme );
-		}
-	},
-
-	_handlePageBeforeHide: function() {
-		this._isCloseable = false;
-	},
-
-	// click and submit events:
-	// - clicks and submits should use the closing transition that the dialog
-	//   opened with unless a data-transition is specified on the link/form
-	// - if the click was on the close button, or the link has a data-rel="back"
-	//   it'll go back in history naturally
-	_handleVClickSubmit: function( event ) {
-		var attrs,
-			$target = $( event.target ).closest( event.type === "vclick" ? "a" : "form" );
-
-		if ( $target.length && !$target.jqmData( "transition" ) ) {
-			attrs = {};
-			attrs[ "data-" + $.mobile.ns + "transition" ] =
-				( $.mobile.navigate.history.getActive() || {} )[ "transition" ] ||
-				$.mobile.defaultDialogTransition;
-			attrs[ "data-" + $.mobile.ns + "direction" ] = "reverse";
-			$target.attr( attrs );
-		}
-	},
-
-	_create: function() {
-		var elem = this.element,
-			opts = this.options;
-
-		// Class the markup for dialog styling and wrap interior
-		elem.addClass( "ui-dialog" )
-			.wrapInner( $( "<div/>", {
-
-				// ARIA role
-				"role" : "dialog",
-				"class" : "ui-dialog-contain ui-overlay-shadow" +
-					( !!opts.corners ? " ui-corner-all" : "" )
-			}));
-
-		$.extend( this, {
-			_isCloseable: false,
-			_inner: elem.children(),
-			_headerCloseButton: null
-		});
-
-		this._on( elem, {
-			vclick: "_handleVClickSubmit",
-			submit: "_handleVClickSubmit",
-			pagebeforeshow: "_handlePageBeforeShow",
-			pagebeforehide: "_handlePageBeforeHide"
-		});
-
-		this._setCloseBtn( opts.closeBtn );
-	},
-
-	_setOptions: function( options ) {
-		var closeButtonLocation, closeButtonText,
-			currentOpts = this.options;
-
-		if ( options.corners !== undefined ) {
-			this._inner.toggleClass( "ui-corner-all", !!options.corners );
-		}
-
-		if ( options.overlayTheme !== undefined ) {
-			if ( $.mobile.activePage[ 0 ] === this.element[ 0 ] ) {
-				currentOpts.overlayTheme = options.overlayTheme;
-				this._handlePageBeforeShow();
-			}
-		}
-
-		if ( options.closeBtnText !== undefined ) {
-			closeButtonLocation = currentOpts.closeBtn;
-			closeButtonText = options.closeBtnText;
-		}
-
-		if ( options.closeBtn !== undefined ) {
-			closeButtonLocation = options.closeBtn;
-		}
-
-		if ( closeButtonLocation ) {
-			this._setCloseBtn( closeButtonLocation, closeButtonText );
-		}
-
-		this._super( options );
-	},
-
-	_setCloseBtn: function( location, text ) {
-		var dst,
-			btn = this._headerCloseButton;
-
-		// Sanitize value
-		location = "left" === location ? "left" : "right" === location ? "right" : "none";
-
-		if ( "none" === location ) {
-			if ( btn ) {
-				btn.remove();
-				btn = null;
-			}
-		} else if ( btn ) {
-			btn.removeClass( "ui-btn-left ui-btn-right" ).addClass( "ui-btn-" + location );
-			if ( text ) {
-				btn.text( text );
-			}
-		} else {
-			dst = this._inner.find( ":jqmData(role='header')" ).first();
-			btn = $( "<a></a>", {
-					"role": "button",
-					"href": "#",
-					"class": "ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-" + location
-				})
-				.text( text || this.options.closeBtnText || "" )
-				.prependTo( dst );
-			this._on( btn, { click: "close" } );
-		}
-
-		this._headerCloseButton = btn;
-	},
-
-	// Close method goes back in history
-	close: function() {
-		var hist = $.mobile.navigate.history;
-
-		if ( this._isCloseable ) {
-			this._isCloseable = false;
-			// If the hash listening is enabled and there is at least one preceding history
-			// entry it's ok to go back. Initial pages with the dialog hash state are an example
-			// where the stack check is necessary
-			if ( $.mobile.hashListeningEnabled && hist.activeIndex > 0 ) {
-				$.mobile.back();
-			} else {
-				$.mobile.pageContainer.pagecontainer( "back" );
-			}
-		}
-	}
-});
-
-})( jQuery, this );
-
-(function( $, undefined ) {
-
-var rInitialLetter = /([A-Z])/g,
-
-	// Construct iconpos class from iconpos value
-	iconposClass = function( iconpos ) {
-		return ( "ui-btn-icon-" + ( iconpos === null ? "left" : iconpos ) );
-	};
-
-$.widget( "mobile.collapsible", {
-	options: {
-		enhanced: false,
-		expandCueText: null,
-		collapseCueText: null,
-		collapsed: true,
-		heading: "h1,h2,h3,h4,h5,h6,legend",
-		collapsedIcon: null,
-		expandedIcon: null,
-		iconpos: null,
-		theme: null,
-		contentTheme: null,
-		inset: null,
-		corners: null,
-		mini: null
-	},
-
-	_create: function() {
-		var elem = this.element,
-			ui = {
-				accordion: elem
-					.closest( ":jqmData(role='collapsible-set')," +
-						":jqmData(role='collapsibleset')" +
-						( $.mobile.collapsibleset ? ", :mobile-collapsibleset" :
-							"" ) )
-					.addClass( "ui-collapsible-set" )
-			};
-
-		this._ui = ui;
-		this._renderedOptions = this._getOptions( this.options );
-
-		if ( this.options.enhanced ) {
-			ui.heading = this.element.children( ".ui-collapsible-heading" );
-			ui.content = ui.heading.next();
-			ui.anchor = ui.heading.children();
-			ui.status = ui.anchor.children( ".ui-collapsible-heading-status" );
-		} else {
-			this._enhance( elem, ui );
-		}
-
-		this._on( ui.heading, {
-			"tap": function() {
-				ui.heading.find( "a" ).first().addClass( $.mobile.activeBtnClass );
-			},
-
-			"click": function( event ) {
-				this._handleExpandCollapse( !ui.heading.hasClass( "ui-collapsible-heading-collapsed" ) );
-				event.preventDefault();
-				event.stopPropagation();
-			}
-		});
-	},
-
-	// Adjust the keys inside options for inherited values
-	_getOptions: function( options ) {
-		var key,
-			accordion = this._ui.accordion,
-			accordionWidget = this._ui.accordionWidget;
-
-		// Copy options
-		options = $.extend( {}, options );
-
-		if ( accordion.length && !accordionWidget ) {
-			this._ui.accordionWidget =
-			accordionWidget = accordion.data( "mobile-collapsibleset" );
-		}
-
-		for ( key in options ) {
-
-			// Retrieve the option value first from the options object passed in and, if
-			// null, from the parent accordion or, if that's null too, or if there's no
-			// parent accordion, then from the defaults.
-			options[ key ] =
-				( options[ key ] != null ) ? options[ key ] :
-				( accordionWidget ) ? accordionWidget.options[ key ] :
-				accordion.length ? $.mobile.getAttribute( accordion[ 0 ],
-					key.replace( rInitialLetter, "-$1" ).toLowerCase() ):
-				null;
-
-			if ( null == options[ key ] ) {
-				options[ key ] = $.mobile.collapsible.defaults[ key ];
-			}
-		}
-
-		return options;
-	},
-
-	_themeClassFromOption: function( prefix, value ) {
-		return ( value ? ( value === "none" ? "" : prefix + value ) : "" );
-	},
-
-	_enhance: function( elem, ui ) {
-		var iconclass,
-			opts = this._renderedOptions,
-			contentThemeClass = this._themeClassFromOption( "ui-body-", opts.contentTheme );
-
-		elem.addClass( "ui-collapsible " +
-			( opts.inset ? "ui-collapsible-inset " : "" ) +
-			( opts.inset && opts.corners ? "ui-corner-all " : "" ) +
-			( contentThemeClass ? "ui-collapsible-themed-content " : "" ) );
-		ui.originalHeading = elem.children( this.options.heading ).first(),
-		ui.content = elem
-			.wrapInner( "<div " +
-				"class='ui-collapsible-content " +
-				contentThemeClass + "'></div>" )
-			.children( ".ui-collapsible-content" ),
-		ui.heading = ui.originalHeading;
-
-		// Replace collapsibleHeading if it's a legend
-		if ( ui.heading.is( "legend" ) ) {
-			ui.heading = $( "<div role='heading'>"+ ui.heading.html() +"</div>" );
-			ui.placeholder = $( "<div><!-- placeholder for legend --></div>" ).insertBefore( ui.originalHeading );
-			ui.originalHeading.remove();
-		}
-
-		iconclass = ( opts.collapsed ? ( opts.collapsedIcon ? "ui-icon-" + opts.collapsedIcon : "" ):
-			( opts.expandedIcon ? "ui-icon-" + opts.expandedIcon : "" ) );
-
-		ui.status = $( "<span class='ui-collapsible-heading-status'></span>" );
-		ui.anchor = ui.heading
-			.detach()
-			//modify markup & attributes
-			.addClass( "ui-collapsible-heading" )
-			.append( ui.status )
-			.wrapInner( "<a href='#' class='ui-collapsible-heading-toggle'></a>" )
-			.find( "a" )
-				.first()
-				.addClass( "ui-btn " +
-					( iconclass ? iconclass + " " : "" ) +
-					( iconclass ? iconposClass( opts.iconpos ) +
-						" " : "" ) +
-					this._themeClassFromOption( "ui-btn-", opts.theme ) + " " +
-					( opts.mini ? "ui-mini " : "" ) );
-
-		//drop heading in before content
-		ui.heading.insertBefore( ui.content );
-
-		this._handleExpandCollapse( this.options.collapsed );
-
-		return ui;
-	},
-
-	refresh: function() {
-		this._applyOptions( this.options );
-		this._renderedOptions = this._getOptions( this.options );
-	},
-
-	_applyOptions: function( options ) {
-		var isCollapsed, newTheme, oldTheme, hasCorners, hasIcon,
-			elem = this.element,
-			currentOpts = this._renderedOptions,
-			ui = this._ui,
-			anchor = ui.anchor,
-			status = ui.status,
-			opts = this._getOptions( options );
-
-		// First and foremost we need to make sure the collapsible is in the proper
-		// state, in case somebody decided to change the collapsed option at the
-		// same time as another option
-		if ( options.collapsed !== undefined ) {
-			this._handleExpandCollapse( options.collapsed );
-		}
-
-		isCollapsed = elem.hasClass( "ui-collapsible-collapsed" );
-
-		// We only need to apply the cue text for the current state right away.
-		// The cue text for the alternate state will be stored in the options
-		// and applied the next time the collapsible's state is toggled
-		if ( isCollapsed ) {
-			if ( opts.expandCueText !== undefined ) {
-				status.text( opts.expandCueText );
-			}
-		} else {
-			if ( opts.collapseCueText !== undefined ) {
-				status.text( opts.collapseCueText );
-			}
-		}
-
-		// Update icon
-
-		// Is it supposed to have an icon?
-		hasIcon =
-
-			// If the collapsedIcon is being set, consult that
-			( opts.collapsedIcon !== undefined ? opts.collapsedIcon !== false :
-
-				// Otherwise consult the existing option value
-				currentOpts.collapsedIcon !== false );
-
-
-		// If any icon-related options have changed, make sure the new icon
-		// state is reflected by first removing all icon-related classes
-		// reflecting the current state and then adding all icon-related
-		// classes for the new state
-		if ( !( opts.iconpos === undefined &&
-			opts.collapsedIcon === undefined &&
-			opts.expandedIcon === undefined ) ) {
-
-			// Remove all current icon-related classes
-			anchor.removeClass( [ iconposClass( currentOpts.iconpos ) ]
-				.concat( ( currentOpts.expandedIcon ?
-					[ "ui-icon-" + currentOpts.expandedIcon ] : [] ) )
-				.concat( ( currentOpts.collapsedIcon ?
-					[ "ui-icon-" + currentOpts.collapsedIcon ] : [] ) )
-				.join( " " ) );
-
-			// Add new classes if an icon is supposed to be present
-			if ( hasIcon ) {
-				anchor.addClass(
-					[ iconposClass( opts.iconpos !== undefined ?
-						opts.iconpos : currentOpts.iconpos ) ]
-						.concat( isCollapsed ?
-							[ "ui-icon-" + ( opts.collapsedIcon !== undefined ?
-								opts.collapsedIcon :
-								currentOpts.collapsedIcon ) ] :
-							[ "ui-icon-" + ( opts.expandedIcon !== undefined ?
-								opts.expandedIcon :
-								currentOpts.expandedIcon ) ] )
-						.join( " " ) );
-			}
-		}
-
-		if ( opts.theme !== undefined ) {
-			oldTheme = this._themeClassFromOption( "ui-btn-", currentOpts.theme );
-			newTheme = this._themeClassFromOption( "ui-btn-", opts.theme );
-			anchor.removeClass( oldTheme ).addClass( newTheme );
-		}
-
-		if ( opts.contentTheme !== undefined ) {
-			oldTheme = this._themeClassFromOption( "ui-body-",
-				currentOpts.contentTheme );
-			newTheme = this._themeClassFromOption( "ui-body-",
-				opts.contentTheme );
-			ui.content.removeClass( oldTheme ).addClass( newTheme );
-		}
-
-		if ( opts.inset !== undefined ) {
-			elem.toggleClass( "ui-collapsible-inset", opts.inset );
-			hasCorners = !!( opts.inset && ( opts.corners || currentOpts.corners ) );
-		}
-
-		if ( opts.corners !== undefined ) {
-			hasCorners = !!( opts.corners && ( opts.inset || currentOpts.inset ) );
-		}
-
-		if ( hasCorners !== undefined ) {
-			elem.toggleClass( "ui-corner-all", hasCorners );
-		}
-
-		if ( opts.mini !== undefined ) {
-			anchor.toggleClass( "ui-mini", opts.mini );
-		}
-	},
-
-	_setOptions: function( options ) {
-		this._applyOptions( options );
-		this._super( options );
-		this._renderedOptions = this._getOptions( this.options );
-	},
-
-	_handleExpandCollapse: function( isCollapse ) {
-		var opts = this._renderedOptions,
-			ui = this._ui;
-
-		ui.status.text( isCollapse ? opts.expandCueText : opts.collapseCueText );
-		ui.heading
-			.toggleClass( "ui-collapsible-heading-collapsed", isCollapse )
-			.find( "a" ).first()
-			.toggleClass( "ui-icon-" + opts.expandedIcon, !isCollapse )
-
-			// logic or cause same icon for expanded/collapsed state would remove the ui-icon-class
-			.toggleClass( "ui-icon-" + opts.collapsedIcon, ( isCollapse || opts.expandedIcon === opts.collapsedIcon ) )
-			.removeClass( $.mobile.activeBtnClass );
-
-		this.element.toggleClass( "ui-collapsible-collapsed", isCollapse );
-		ui.content
-			.toggleClass( "ui-collapsible-content-collapsed", isCollapse )
-			.attr( "aria-hidden", isCollapse )
-			.trigger( "updatelayout" );
-		this.options.collapsed = isCollapse;
-		this._trigger( isCollapse ? "collapse" : "expand" );
-	},
-
-	expand: function() {
-		this._handleExpandCollapse( false );
-	},
-
-	collapse: function() {
-		this._handleExpandCollapse( true );
-	},
-
-	_destroy: function() {
-		var ui = this._ui,
-			opts = this.options;
-
-		if ( opts.enhanced ) {
-			return;
-		}
-
-		if ( ui.placeholder ) {
-			ui.originalHeading.insertBefore( ui.placeholder );
-			ui.placeholder.remove();
-			ui.heading.remove();
-		} else {
-			ui.status.remove();
-			ui.heading
-				.removeClass( "ui-collapsible-heading ui-collapsible-heading-collapsed" )
-				.children()
-					.contents()
-						.unwrap();
-		}
-
-		ui.anchor.contents().unwrap();
-		ui.content.contents().unwrap();
-		this.element
-			.removeClass( "ui-collapsible ui-collapsible-collapsed " +
-				"ui-collapsible-themed-content ui-collapsible-inset ui-corner-all" );
-	}
-});
-
-// Defaults to be used by all instances of collapsible if per-instance values
-// are unset or if nothing is specified by way of inheritance from an accordion.
-// Note that this hash does not contain options "collapsed" or "heading",
-// because those are not inheritable.
-$.mobile.collapsible.defaults = {
-	expandCueText: " click to expand contents",
-	collapseCueText: " click to collapse contents",
-	collapsedIcon: "plus",
-	contentTheme: "inherit",
-	expandedIcon: "minus",
-	iconpos: "left",
-	inset: true,
-	corners: true,
-	theme: "inherit",
-	mini: false
-};
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-var uiScreenHiddenRegex = /\bui-screen-hidden\b/;
-function noHiddenClass( elements ) {
-	var index,
-		length = elements.length,
-		result = [];
-
-	for ( index = 0; index < length; index++ ) {
-		if ( !elements[ index ].className.match( uiScreenHiddenRegex ) ) {
-			result.push( elements[ index ] );
-		}
-	}
-
-	return $( result );
-}
-
-$.mobile.behaviors.addFirstLastClasses = {
-	_getVisibles: function( $els, create ) {
-		var visibles;
-
-		if ( create ) {
-			visibles = noHiddenClass( $els );
-		} else {
-			visibles = $els.filter( ":visible" );
-			if ( visibles.length === 0 ) {
-				visibles = noHiddenClass( $els );
-			}
-		}
-
-		return visibles;
-	},
-
-	_addFirstLastClasses: function( $els, $visibles, create ) {
-		$els.removeClass( "ui-first-child ui-last-child" );
-		$visibles.eq( 0 ).addClass( "ui-first-child" ).end().last().addClass( "ui-last-child" );
-		if ( !create ) {
-			this.element.trigger( "updatelayout" );
-		}
-	},
-
-	_removeFirstLastClasses: function( $els ) {
-		$els.removeClass( "ui-first-child ui-last-child" );
-	}
-};
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-var childCollapsiblesSelector = ":mobile-collapsible, " + $.mobile.collapsible.initSelector;
-
-$.widget( "mobile.collapsibleset", $.extend( {
-
-	// The initSelector is deprecated as of 1.4.0. In 1.5.0 we will use
-	// :jqmData(role='collapsibleset') which will allow us to get rid of the line
-	// below altogether, because the autoinit will generate such an initSelector
-	initSelector: ":jqmData(role='collapsible-set'),:jqmData(role='collapsibleset')",
-
-	options: $.extend( {
-		enhanced: false
-	}, $.mobile.collapsible.defaults ),
-
-	_handleCollapsibleExpand: function( event ) {
-		var closestCollapsible = $( event.target ).closest( ".ui-collapsible" );
-
-		if ( closestCollapsible.parent().is( ":mobile-collapsibleset, :jqmData(role='collapsible-set')" ) ) {
-			closestCollapsible
-				.siblings( ".ui-collapsible:not(.ui-collapsible-collapsed)" )
-				.collapsible( "collapse" );
-		}
-	},
-
-	_create: function() {
-		var elem = this.element,
-			opts = this.options;
-
-		$.extend( this, {
-			_classes: ""
-		});
-
-		if ( !opts.enhanced ) {
-			elem.addClass( "ui-collapsible-set " +
-				this._themeClassFromOption( "ui-group-theme-", opts.theme ) + " " +
-				( opts.corners && opts.inset ? "ui-corner-all " : "" ) );
-			this.element.find( $.mobile.collapsible.initSelector ).collapsible();
-		}
-
-		this._on( elem, { collapsibleexpand: "_handleCollapsibleExpand" } );
-	},
-
-	_themeClassFromOption: function( prefix, value ) {
-		return ( value ? ( value === "none" ? "" : prefix + value ) : "" );
-	},
-
-	_init: function() {
-		this._refresh( true );
-
-		// Because the corners are handled by the collapsible itself and the default state is collapsed
-		// That was causing https://github.com/jquery/jquery-mobile/issues/4116
-		this.element
-			.children( childCollapsiblesSelector )
-			.filter( ":jqmData(collapsed='false')" )
-			.collapsible( "expand" );
-	},
-
-	_setOptions: function( options ) {
-		var ret, hasCorners,
-			elem = this.element,
-			themeClass = this._themeClassFromOption( "ui-group-theme-", options.theme );
-
-		if ( themeClass ) {
-			elem
-				.removeClass( this._themeClassFromOption( "ui-group-theme-", this.options.theme ) )
-				.addClass( themeClass );
-		}
-
-		if ( options.inset !== undefined ) {
-			hasCorners = !!( options.inset && ( options.corners || this.options.corners ) );
-		}
-
-		if ( options.corners !== undefined ) {
-			hasCorners = !!( options.corners && ( options.inset || this.options.inset ) );
-		}
-
-		if ( hasCorners !== undefined ) {
-			elem.toggleClass( "ui-corner-all", hasCorners );
-		}
-
-		ret = this._super( options );
-		this.element.children( ":mobile-collapsible" ).collapsible( "refresh" );
-		return ret;
-	},
-
-	_destroy: function() {
-		var el = this.element;
-
-		this._removeFirstLastClasses( el.children( childCollapsiblesSelector ) );
-		el
-			.removeClass( "ui-collapsible-set ui-corner-all " +
-				this._themeClassFromOption( "ui-group-theme-", this.options.theme ) )
-			.children( ":mobile-collapsible" )
-			.collapsible( "destroy" );
-	},
-
-	_refresh: function( create ) {
-		var collapsiblesInSet = this.element.children( childCollapsiblesSelector );
-
-		this.element.find( $.mobile.collapsible.initSelector ).not( ".ui-collapsible" ).collapsible();
-
-		this._addFirstLastClasses( collapsiblesInSet, this._getVisibles( collapsiblesInSet, create ), create );
-	},
-
-	refresh: function() {
-		this._refresh( false );
-	}
-}, $.mobile.behaviors.addFirstLastClasses ) );
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-// Deprecated in 1.4
-$.fn.fieldcontain = function(/* options */) {
-	return this.addClass( "ui-field-contain" );
-};
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-$.fn.grid = function( options ) {
-	return this.each(function() {
-
-		var $this = $( this ),
-			o = $.extend({
-				grid: null
-			}, options ),
-			$kids = $this.children(),
-			gridCols = { solo:1, a:2, b:3, c:4, d:5 },
-			grid = o.grid,
-			iterator,
-			letter;
-
-			if ( !grid ) {
-				if ( $kids.length <= 5 ) {
-					for ( letter in gridCols ) {
-						if ( gridCols[ letter ] === $kids.length ) {
-							grid = letter;
-						}
-					}
-				} else {
-					grid = "a";
-					$this.addClass( "ui-grid-duo" );
-				}
-			}
-			iterator = gridCols[grid];
-
-		$this.addClass( "ui-grid-" + grid );
-
-		$kids.filter( ":nth-child(" + iterator + "n+1)" ).addClass( "ui-block-a" );
-
-		if ( iterator > 1 ) {
-			$kids.filter( ":nth-child(" + iterator + "n+2)" ).addClass( "ui-block-b" );
-		}
-		if ( iterator > 2 ) {
-			$kids.filter( ":nth-child(" + iterator + "n+3)" ).addClass( "ui-block-c" );
-		}
-		if ( iterator > 3 ) {
-			$kids.filter( ":nth-child(" + iterator + "n+4)" ).addClass( "ui-block-d" );
-		}
-		if ( iterator > 4 ) {
-			$kids.filter( ":nth-child(" + iterator + "n+5)" ).addClass( "ui-block-e" );
-		}
-	});
-};
-})( jQuery );
-
-(function( $, undefined ) {
-
-$.widget( "mobile.navbar", {
-	options: {
-		iconpos: "top",
-		grid: null
-	},
-
-	_create: function() {
-
-		var $navbar = this.element,
-			$navbtns = $navbar.find( "a, button" ),
-			iconpos = $navbtns.filter( ":jqmData(icon)" ).length ? this.options.iconpos : undefined;
-
-		$navbar.addClass( "ui-navbar" )
-			.attr( "role", "navigation" )
-			.find( "ul" )
-			.jqmEnhanceable()
-			.grid({ grid: this.options.grid });
-
-		$navbtns
-			.each( function() {
-				var icon = $.mobile.getAttribute( this, "icon" ),
-					theme = $.mobile.getAttribute( this, "theme" ),
-					classes = "ui-btn";
-
-				if ( theme ) {
-					classes += " ui-btn-" + theme;
-				}
-				if ( icon ) {
-					classes += " ui-icon-" + icon + " ui-btn-icon-" + iconpos;
-				}
-				$( this ).addClass( classes );
-			});
-
-		$navbar.delegate( "a", "vclick", function( /* event */ ) {
-			var activeBtn = $( this );
-
-			if ( !( activeBtn.hasClass( "ui-state-disabled" ) ||
-
-				// DEPRECATED as of 1.4.0 - remove after 1.4.0 release
-				// only ui-state-disabled should be present thereafter
-				activeBtn.hasClass( "ui-disabled" ) ||
-				activeBtn.hasClass( $.mobile.activeBtnClass ) ) ) {
-
-				$navbtns.removeClass( $.mobile.activeBtnClass );
-				activeBtn.addClass( $.mobile.activeBtnClass );
-
-				// The code below is a workaround to fix #1181
-				$( document ).one( "pagehide", function() {
-					activeBtn.removeClass( $.mobile.activeBtnClass );
-				});
-			}
-		});
-
-		// Buttons in the navbar with ui-state-persist class should regain their active state before page show
-		$navbar.closest( ".ui-page" ).bind( "pagebeforeshow", function() {
-			$navbtns.filter( ".ui-state-persist" ).addClass( $.mobile.activeBtnClass );
-		});
-	}
-});
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-var getAttr = $.mobile.getAttribute;
-
-$.widget( "mobile.listview", $.extend( {
-
-	options: {
-		theme: null,
-		countTheme: null, /* Deprecated in 1.4 */
-		dividerTheme: null,
-		icon: "carat-r",
-		splitIcon: "carat-r",
-		splitTheme: null,
-		corners: true,
-		shadow: true,
-		inset: false
-	},
-
-	_create: function() {
-		var t = this,
-			listviewClasses = "";
-
-		listviewClasses += t.options.inset ? " ui-listview-inset" : "";
-
-		if ( !!t.options.inset ) {
-			listviewClasses += t.options.corners ? " ui-corner-all" : "";
-			listviewClasses += t.options.shadow ? " ui-shadow" : "";
-		}
-
-		// create listview markup
-		t.element.addClass( " ui-listview" + listviewClasses );
-
-		t.refresh( true );
-	},
-
-	// TODO: Remove in 1.5
-	_findFirstElementByTagName: function( ele, nextProp, lcName, ucName ) {
-		var dict = {};
-		dict[ lcName ] = dict[ ucName ] = true;
-		while ( ele ) {
-			if ( dict[ ele.nodeName ] ) {
-				return ele;
-			}
-			ele = ele[ nextProp ];
-		}
-		return null;
-	},
-	// TODO: Remove in 1.5
-	_addThumbClasses: function( containers ) {
-		var i, img, len = containers.length;
-		for ( i = 0; i < len; i++ ) {
-			img = $( this._findFirstElementByTagName( containers[ i ].firstChild, "nextSibling", "img", "IMG" ) );
-			if ( img.length ) {
-				$( this._findFirstElementByTagName( img[ 0 ].parentNode, "parentNode", "li", "LI" ) ).addClass( img.hasClass( "ui-li-icon" ) ? "ui-li-has-icon" : "ui-li-has-thumb" );
-			}
-		}
-	},
-
-	_getChildrenByTagName: function( ele, lcName, ucName ) {
-		var results = [],
-			dict = {};
-		dict[ lcName ] = dict[ ucName ] = true;
-		ele = ele.firstChild;
-		while ( ele ) {
-			if ( dict[ ele.nodeName ] ) {
-				results.push( ele );
-			}
-			ele = ele.nextSibling;
-		}
-		return $( results );
-	},
-
-	_beforeListviewRefresh: $.noop,
-	_afterListviewRefresh: $.noop,
-
-	refresh: function( create ) {
-		var buttonClass, pos, numli, item, itemClass, itemTheme, itemIcon, icon, a,
-			isDivider, startCount, newStartCount, value, last, splittheme, splitThemeClass, spliticon,
-			altButtonClass, dividerTheme, li,
-			o = this.options,
-			$list = this.element,
-			ol = !!$.nodeName( $list[ 0 ], "ol" ),
-			start = $list.attr( "start" ),
-			itemClassDict = {},
-			countBubbles = $list.find( ".ui-li-count" ),
-			countTheme = getAttr( $list[ 0 ], "counttheme" ) || this.options.countTheme,
-			countThemeClass = countTheme ? "ui-body-" + countTheme : "ui-body-inherit";
-
-		if ( o.theme ) {
-			$list.addClass( "ui-group-theme-" + o.theme );
-		}
-
-		// Check if a start attribute has been set while taking a value of 0 into account
-		if ( ol && ( start || start === 0 ) ) {
-			startCount = parseInt( start, 10 ) - 1;
-			$list.css( "counter-reset", "listnumbering " + startCount );
-		}
-
-		this._beforeListviewRefresh();
-
-		li = this._getChildrenByTagName( $list[ 0 ], "li", "LI" );
-
-		for ( pos = 0, numli = li.length; pos < numli; pos++ ) {
-			item = li.eq( pos );
-			itemClass = "";
-
-			if ( create || item[ 0 ].className.search( /\bui-li-static\b|\bui-li-divider\b/ ) < 0 ) {
-				a = this._getChildrenByTagName( item[ 0 ], "a", "A" );
-				isDivider = ( getAttr( item[ 0 ], "role" ) === "list-divider" );
-				value = item.attr( "value" );
-				itemTheme = getAttr( item[ 0 ], "theme" );
-
-				if ( a.length && a[ 0 ].className.search( /\bui-btn\b/ ) < 0 && !isDivider ) {
-					itemIcon = getAttr( item[ 0 ], "icon" );
-					icon = ( itemIcon === false ) ? false : ( itemIcon || o.icon );
-
-					// TODO: Remove in 1.5 together with links.js (links.js / .ui-link deprecated in 1.4)
-					a.removeClass( "ui-link" );
-
-					buttonClass = "ui-btn";
-
-					if ( itemTheme ) {
-						buttonClass += " ui-btn-" + itemTheme;
-					}
-
-					if ( a.length > 1 ) {
-						itemClass = "ui-li-has-alt";
-
-						last = a.last();
-						splittheme = getAttr( last[ 0 ], "theme" ) || o.splitTheme || getAttr( item[ 0 ], "theme", true );
-						splitThemeClass = splittheme ? " ui-btn-" + splittheme : "";
-						spliticon = getAttr( last[ 0 ], "icon" ) || getAttr( item[ 0 ], "icon" ) || o.splitIcon;
-						altButtonClass = "ui-btn ui-btn-icon-notext ui-icon-" + spliticon + splitThemeClass;
-
-						last
-							.attr( "title", $.trim( last.getEncodedText() ) )
-							.addClass( altButtonClass )
-							.empty();
-
-						// Reduce to the first anchor, because only the first gets the buttonClass
-						a = a.first();
-					} else if ( icon ) {
-						buttonClass += " ui-btn-icon-right ui-icon-" + icon;
-					}
-
-					// Apply buttonClass to the (first) anchor
-					a.addClass( buttonClass );
-				} else if ( isDivider ) {
-					dividerTheme = ( getAttr( item[ 0 ], "theme" ) || o.dividerTheme || o.theme );
-
-					itemClass = "ui-li-divider ui-bar-" + ( dividerTheme ? dividerTheme : "inherit" );
-
-					item.attr( "role", "heading" );
-				} else if ( a.length <= 0 ) {
-					itemClass = "ui-li-static ui-body-" + ( itemTheme ? itemTheme : "inherit" );
-				}
-				if ( ol && value ) {
-					newStartCount = parseInt( value , 10 ) - 1;
-
-					item.css( "counter-reset", "listnumbering " + newStartCount );
-				}
-			}
-
-			// Instead of setting item class directly on the list item
-			// at this point in time, push the item into a dictionary
-			// that tells us what class to set on it so we can do this after this
-			// processing loop is finished.
-
-			if ( !itemClassDict[ itemClass ] ) {
-				itemClassDict[ itemClass ] = [];
-			}
-
-			itemClassDict[ itemClass ].push( item[ 0 ] );
-		}
-
-		// Set the appropriate listview item classes on each list item.
-		// The main reason we didn't do this
-		// in the for-loop above is because we can eliminate per-item function overhead
-		// by calling addClass() and children() once or twice afterwards. This
-		// can give us a significant boost on platforms like WP7.5.
-
-		for ( itemClass in itemClassDict ) {
-			$( itemClassDict[ itemClass ] ).addClass( itemClass );
-		}
-
-		countBubbles.each( function() {
-			$( this ).closest( "li" ).addClass( "ui-li-has-count" );
-		});
-		if ( countThemeClass ) {
-			countBubbles.not( "[class*='ui-body-']" ).addClass( countThemeClass );
-		}
-
-		// Deprecated in 1.4. From 1.5 you have to add class ui-li-has-thumb or ui-li-has-icon to the LI.
-		this._addThumbClasses( li );
-		this._addThumbClasses( li.find( ".ui-btn" ) );
-
-		this._afterListviewRefresh();
-
-		this._addFirstLastClasses( li, this._getVisibles( li, create ), create );
-	}
-}, $.mobile.behaviors.addFirstLastClasses ) );
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-function defaultAutodividersSelector( elt ) {
-	// look for the text in the given element
-	var text = $.trim( elt.text() ) || null;
-
-	if ( !text ) {
-		return null;
-	}
-
-	// create the text for the divider (first uppercased letter)
-	text = text.slice( 0, 1 ).toUpperCase();
-
-	return text;
-}
-
-$.widget( "mobile.listview", $.mobile.listview, {
-	options: {
-		autodividers: false,
-		autodividersSelector: defaultAutodividersSelector
-	},
-
-	_beforeListviewRefresh: function() {
-		if ( this.options.autodividers ) {
-			this._replaceDividers();
-			this._superApply( arguments );
-		}
-	},
-
-	_replaceDividers: function() {
-		var i, lis, li, dividerText,
-			lastDividerText = null,
-			list = this.element,
-			divider;
-
-		list.children( "li:jqmData(role='list-divider')" ).remove();
-
-		lis = list.children( "li" );
-
-		for ( i = 0; i < lis.length ; i++ ) {
-			li = lis[ i ];
-			dividerText = this.options.autodividersSelector( $( li ) );
-
-			if ( dividerText && lastDividerText !== dividerText ) {
-				divider = document.createElement( "li" );
-				divider.appendChild( document.createTextNode( dividerText ) );
-				divider.setAttribute( "data-" + $.mobile.ns + "role", "list-divider" );
-				li.parentNode.insertBefore( divider, li );
-			}
-
-			lastDividerText = dividerText;
-		}
-	}
-});
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-var rdivider = /(^|\s)ui-li-divider($|\s)/,
-	rhidden = /(^|\s)ui-screen-hidden($|\s)/;
-
-$.widget( "mobile.listview", $.mobile.listview, {
-	options: {
-		hideDividers: false
-	},
-
-	_afterListviewRefresh: function() {
-		var items, idx, item, hideDivider = true;
-
-		this._superApply( arguments );
-
-		if ( this.options.hideDividers ) {
-			items = this._getChildrenByTagName( this.element[ 0 ], "li", "LI" );
-			for ( idx = items.length - 1 ; idx > -1 ; idx-- ) {
-				item = items[ idx ];
-				if ( item.className.match( rdivider ) ) {
-					if ( hideDivider ) {
-						item.className = item.className + " ui-screen-hidden";
-					}
-					hideDivider = true;
-				} else {
-					if ( !item.className.match( rhidden ) ) {
-						hideDivider = false;
-					}
-				}
-			}
-		}
-	}
-});
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-$.mobile.nojs = function( target ) {
-	$( ":jqmData(role='nojs')", target ).addClass( "ui-nojs" );
-};
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-$.mobile.behaviors.formReset = {
-	_handleFormReset: function() {
-		this._on( this.element.closest( "form" ), {
-			reset: function() {
-				this._delay( "_reset" );
-			}
-		});
-	}
-};
-
-})( jQuery );
-
-/*
-* "checkboxradio" plugin
-*/
-
-(function( $, undefined ) {
-
-var escapeId = $.mobile.path.hashToSelector;
-
-$.widget( "mobile.checkboxradio", $.extend( {
-
-	initSelector: "input:not( :jqmData(role='flipswitch' ) )[type='checkbox'],input[type='radio']:not( :jqmData(role='flipswitch' ))",
-
-	options: {
-		theme: "inherit",
-		mini: false,
-		wrapperClass: null,
-		enhanced: false,
-		iconpos: "left"
-
-	},
-	_create: function() {
-		var input = this.element,
-			o = this.options,
-			inheritAttr = function( input, dataAttr ) {
-				return input.jqmData( dataAttr ) ||
-					input.closest( "form, fieldset" ).jqmData( dataAttr );
-			},
-			label = this.options.enhanced ?
-				{
-					element: this.element.siblings( "label" ),
-					isParent: false
-				} :
-				this._findLabel(),
-			inputtype = input[0].type,
-			checkedClass = "ui-" + inputtype + "-on",
-			uncheckedClass = "ui-" + inputtype + "-off";
-
-		if ( inputtype !== "checkbox" && inputtype !== "radio" ) {
-			return;
-		}
-
-		if ( this.element[0].disabled ) {
-			this.options.disabled = true;
-		}
-
-		o.iconpos = inheritAttr( input, "iconpos" ) ||
-			label.element.attr( "data-" + $.mobile.ns + "iconpos" ) || o.iconpos,
-
-		// Establish options
-		o.mini = inheritAttr( input, "mini" ) || o.mini;
-
-		// Expose for other methods
-		$.extend( this, {
-			input: input,
-			label: label.element,
-			labelIsParent: label.isParent,
-			inputtype: inputtype,
-			checkedClass: checkedClass,
-			uncheckedClass: uncheckedClass
-		});
-
-		if ( !this.options.enhanced ) {
-			this._enhance();
-		}
-
-		this._on( label.element, {
-			vmouseover: "_handleLabelVMouseOver",
-			vclick: "_handleLabelVClick"
-		});
-
-		this._on( input, {
-			vmousedown: "_cacheVals",
-			vclick: "_handleInputVClick",
-			focus: "_handleInputFocus",
-			blur: "_handleInputBlur"
-		});
-
-		this._handleFormReset();
-		this.refresh();
-	},
-
-	_findLabel: function() {
-		var parentLabel, label, isParent,
-			input = this.element,
-			labelsList = input[ 0 ].labels;
-
-		if( labelsList && labelsList.length > 0 ) {
-			label = $( labelsList[ 0 ] );
-			isParent = $.contains( label[ 0 ], input[ 0 ] );
-		} else {
-			parentLabel = input.closest( "label" );
-			isParent = ( parentLabel.length > 0 );
-
-			// NOTE: Windows Phone could not find the label through a selector
-			// filter works though.
-			label = isParent ? parentLabel :
-				$( this.document[ 0 ].getElementsByTagName( "label" ) )
-					.filter( "[for='" + escapeId( input[ 0 ].id ) + "']" )
-					.first();
-		}
-
-		return {
-			element: label,
-			isParent: isParent
-		};
-	},
-
-	_enhance: function() {
-		this.label.addClass( "ui-btn ui-corner-all");
-
-		if ( this.labelIsParent ) {
-			this.input.add( this.label ).wrapAll( this._wrapper() );
-		} else {
-			//this.element.replaceWith( this.input.add( this.label ).wrapAll( this._wrapper() ) );
-			this.element.wrap( this._wrapper() );
-			this.element.parent().prepend( this.label );
-		}
-
-		// Wrap the input + label in a div
-
-		this._setOptions({
-			"theme": this.options.theme,
-			"iconpos": this.options.iconpos,
-			"mini": this.options.mini
-		});
-
-	},
-
-	_wrapper: function() {
-		return $( "<div class='"  +
-			( this.options.wrapperClass ? this.options.wrapperClass : "" ) +
-			" ui-" + this.inputtype +
-			( this.options.disabled ? " ui-state-disabled" : "" ) + "' ></div>" );
-	},
-
-	_handleInputFocus: function() {
-		this.label.addClass( $.mobile.focusClass );
-	},
-
-	_handleInputBlur: function() {
-		this.label.removeClass( $.mobile.focusClass );
-	},
-
-	_handleInputVClick: function() {
-		// Adds checked attribute to checked input when keyboard is used
-		this.element.prop( "checked", this.element.is( ":checked" ) );
-		this._getInputSet().not( this.element ).prop( "checked", false );
-		this._updateAll( true );
-	},
-
-	_handleLabelVMouseOver: function( event ) {
-		if ( this.label.parent().hasClass( "ui-state-disabled" ) ) {
-			event.stopPropagation();
-		}
-	},
-
-	_handleLabelVClick: function( event ) {
-		var input = this.element;
-
-		if ( input.is( ":disabled" ) ) {
-			event.preventDefault();
-			return;
-		}
-
-		this._cacheVals();
-
-		input.prop( "checked", this.inputtype === "radio" && true || !input.prop( "checked" ) );
-
-		// trigger click handler's bound directly to the input as a substitute for
-		// how label clicks behave normally in the browsers
-		// TODO: it would be nice to let the browser's handle the clicks and pass them
-		//       through to the associate input. we can swallow that click at the parent
-		//       wrapper element level
-		input.triggerHandler( "click" );
-
-		// Input set for common radio buttons will contain all the radio
-		// buttons, but will not for checkboxes. clearing the checked status
-		// of other radios ensures the active button state is applied properly
-		this._getInputSet().not( input ).prop( "checked", false );
-
-		this._updateAll();
-		return false;
-	},
-
-	_cacheVals: function() {
-		this._getInputSet().each( function() {
-			$( this ).attr("data-" + $.mobile.ns + "cacheVal", this.checked );
-		});
-	},
-
-	// Returns those radio buttons that are supposed to be in the same group as
-	// this radio button. In the case of a checkbox or a radio lacking a name
-	// attribute, it returns this.element.
-	_getInputSet: function() {
-		var selector, formId,
-			radio = this.element[ 0 ],
-			name = radio.name,
-			form = radio.form,
-			doc = this.element.parents().last().get( 0 ),
-
-			// A radio is always a member of its own group
-			radios = this.element;
-
-		// Only start running selectors if this is an attached radio button with a name
-		if ( name && this.inputtype === "radio" && doc ) {
-			selector = "input[type='radio'][name='" + escapeId( name ) + "']";
-
-			// If we're inside a form
-			if ( form ) {
-				formId = form.getAttribute( "id" );
-
-				// If the form has an ID, collect radios scattered throught the document which
-				// nevertheless are part of the form by way of the value of their form attribute
-				if ( formId ) {
-					radios = $( selector + "[form='" + escapeId( formId ) + "']", doc );
-				}
-
-				// Also add to those the radios in the form itself
-				radios = $( form ).find( selector ).filter( function() {
-
-					// Some radios inside the form may belong to some other form by virtue of
-					// having a form attribute defined on them, so we must filter them out here
-					return ( this.form === form );
-				}).add( radios );
-
-			// If we're outside a form
-			} else {
-
-				// Collect all those radios which are also outside of a form and match our name
-				radios = $( selector, doc ).filter( function() {
-					return !this.form;
-				});
-			}
-		}
-		return radios;
-	},
-
-	_updateAll: function( changeTriggered ) {
-		var self = this;
-
-		this._getInputSet().each( function() {
-			var $this = $( this );
-
-			if ( ( this.checked || self.inputtype === "checkbox" ) && !changeTriggered ) {
-				$this.trigger( "change" );
-			}
-		})
-		.checkboxradio( "refresh" );
-	},
-
-	_reset: function() {
-		this.refresh();
-	},
-
-	// Is the widget supposed to display an icon?
-	_hasIcon: function() {
-		var controlgroup, controlgroupWidget,
-			controlgroupConstructor = $.mobile.controlgroup;
-
-		// If the controlgroup widget is defined ...
-		if ( controlgroupConstructor ) {
-			controlgroup = this.element.closest(
-				":mobile-controlgroup," +
-				controlgroupConstructor.prototype.initSelector );
-
-			// ... and the checkbox is in a controlgroup ...
-			if ( controlgroup.length > 0 ) {
-
-				// ... look for a controlgroup widget instance, and ...
-				controlgroupWidget = $.data( controlgroup[ 0 ], "mobile-controlgroup" );
-
-				// ... if found, decide based on the option value, ...
-				return ( ( controlgroupWidget ? controlgroupWidget.options.type :
-
-					// ... otherwise decide based on the "type" data attribute.
-					controlgroup.attr( "data-" + $.mobile.ns + "type" ) ) !== "horizontal" );
-			}
-		}
-
-		// Normally, the widget displays an icon.
-		return true;
-	},
-
-	refresh: function() {
-		var isChecked = this.element[ 0 ].checked,
-			active = $.mobile.activeBtnClass,
-			iconposClass = "ui-btn-icon-" + this.options.iconpos,
-			addClasses = [],
-			removeClasses = [];
-
-		if ( this._hasIcon() ) {
-			removeClasses.push( active );
-			addClasses.push( iconposClass );
-		} else {
-			removeClasses.push( iconposClass );
-			( isChecked ? addClasses : removeClasses ).push( active );
-		}
-
-		if ( isChecked ) {
-			addClasses.push( this.checkedClass );
-			removeClasses.push( this.uncheckedClass );
-		} else {
-			addClasses.push( this.uncheckedClass );
-			removeClasses.push( this.checkedClass );
-		}
-
-		this.widget().toggleClass( "ui-state-disabled", this.element.prop( "disabled" ) );
-
-		this.label
-			.addClass( addClasses.join( " " ) )
-			.removeClass( removeClasses.join( " " ) );
-	},
-
-	widget: function() {
-		return this.label.parent();
-	},
-
-	_setOptions: function( options ) {
-		var label = this.label,
-			currentOptions = this.options,
-			outer = this.widget(),
-			hasIcon = this._hasIcon();
-
-		if ( options.disabled !== undefined ) {
-			this.input.prop( "disabled", !!options.disabled );
-			outer.toggleClass( "ui-state-disabled", !!options.disabled );
-		}
-		if ( options.mini !== undefined ) {
-			outer.toggleClass( "ui-mini", !!options.mini );
-		}
-		if ( options.theme !== undefined ) {
-			label
-				.removeClass( "ui-btn-" + currentOptions.theme )
-				.addClass( "ui-btn-" + options.theme );
-		}
-		if ( options.wrapperClass !== undefined ) {
-			outer
-				.removeClass( currentOptions.wrapperClass )
-				.addClass( options.wrapperClass );
-		}
-		if ( options.iconpos !== undefined && hasIcon ) {
-			label.removeClass( "ui-btn-icon-" + currentOptions.iconpos ).addClass( "ui-btn-icon-" + options.iconpos );
-		} else if ( !hasIcon ) {
-			label.removeClass( "ui-btn-icon-" + currentOptions.iconpos );
-		}
-		this._super( options );
-	}
-
-}, $.mobile.behaviors.formReset ) );
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-$.widget( "mobile.button", {
-
-	initSelector: "input[type='button'], input[type='submit'], input[type='reset']",
-
-	options: {
-		theme: null,
-		icon: null,
-		iconpos: "left",
-		iconshadow: false, /* TODO: Deprecated in 1.4, remove in 1.5. */
-		corners: true,
-		shadow: true,
-		inline: null,
-		mini: null,
-		wrapperClass: null,
-		enhanced: false
-	},
-
-	_create: function() {
-
-		if ( this.element.is( ":disabled" ) ) {
-			this.options.disabled = true;
-		}
-
-		if ( !this.options.enhanced ) {
-			this._enhance();
-		}
-
-		$.extend( this, {
-			wrapper: this.element.parent()
-		});
-
-		this._on( {
-			focus: function() {
-				this.widget().addClass( $.mobile.focusClass );
-			},
-
-			blur: function() {
-				this.widget().removeClass( $.mobile.focusClass );
-			}
-		});
-
-		this.refresh( true );
-	},
-
-	_enhance: function() {
-		this.element.wrap( this._button() );
-	},
-
-	_button: function() {
-		var options = this.options,
-			iconClasses = this._getIconClasses( this.options );
-
-		return $("<div class='ui-btn ui-input-btn" +
-			( options.wrapperClass ? " " + options.wrapperClass : "" ) +
-			( options.theme ? " ui-btn-" + options.theme : "" ) +
-			( options.corners ? " ui-corner-all" : "" ) +
-			( options.shadow ? " ui-shadow" : "" ) +
-			( options.inline ? " ui-btn-inline" : "" ) +
-			( options.mini ? " ui-mini" : "" ) +
-			( options.disabled ? " ui-state-disabled" : "" ) +
-			( iconClasses ? ( " " + iconClasses ) : "" ) +
-			"' >" + this.element.val() + "</div>" );
-	},
-
-	widget: function() {
-		return this.wrapper;
-	},
-
-	_destroy: function() {
-			this.element.insertBefore( this.wrapper );
-			this.wrapper.remove();
-	},
-
-	_getIconClasses: function( options ) {
-		return ( options.icon ? ( "ui-icon-" + options.icon +
-			( options.iconshadow ? " ui-shadow-icon" : "" ) + /* TODO: Deprecated in 1.4, remove in 1.5. */
-			" ui-btn-icon-" + options.iconpos ) : "" );
-	},
-
-	_setOptions: function( options ) {
-		var outer = this.widget();
-
-		if ( options.theme !== undefined ) {
-			outer
-				.removeClass( this.options.theme )
-				.addClass( "ui-btn-" + options.theme );
-		}
-		if ( options.corners !== undefined ) {
-			outer.toggleClass( "ui-corner-all", options.corners );
-		}
-		if ( options.shadow !== undefined ) {
-			outer.toggleClass( "ui-shadow", options.shadow );
-		}
-		if ( options.inline !== undefined ) {
-			outer.toggleClass( "ui-btn-inline", options.inline );
-		}
-		if ( options.mini !== undefined ) {
-			outer.toggleClass( "ui-mini", options.mini );
-		}
-		if ( options.disabled !== undefined ) {
-			this.element.prop( "disabled", options.disabled );
-			outer.toggleClass( "ui-state-disabled", options.disabled );
-		}
-
-		if ( options.icon !== undefined ||
-				options.iconshadow !== undefined || /* TODO: Deprecated in 1.4, remove in 1.5. */
-				options.iconpos !== undefined ) {
-			outer
-				.removeClass( this._getIconClasses( this.options ) )
-				.addClass( this._getIconClasses(
-					$.extend( {}, this.options, options ) ) );
-		}
-
-		this._super( options );
-	},
-
-	refresh: function( create ) {
-		var originalElement,
-			isDisabled = this.element.prop( "disabled" );
-
-		if ( this.options.icon && this.options.iconpos === "notext" && this.element.attr( "title" ) ) {
-			this.element.attr( "title", this.element.val() );
-		}
-		if ( !create ) {
-			originalElement = this.element.detach();
-			$( this.wrapper ).text( this.element.val() ).append( originalElement );
-		}
-		if ( this.options.disabled !== isDisabled ) {
-			this._setOptions({ disabled: isDisabled });
-		}
-	}
-});
-
-})( jQuery );
-
-(function( $ ) {
-	var	meta = $( "meta[name=viewport]" ),
-		initialContent = meta.attr( "content" ),
-		disabledZoom = initialContent + ",maximum-scale=1, user-scalable=no",
-		enabledZoom = initialContent + ",maximum-scale=10, user-scalable=yes",
-		disabledInitially = /(user-scalable[\s]*=[\s]*no)|(maximum-scale[\s]*=[\s]*1)[$,\s]/.test( initialContent );
-
-	$.mobile.zoom = $.extend( {}, {
-		enabled: !disabledInitially,
-		locked: false,
-		disable: function( lock ) {
-			if ( !disabledInitially && !$.mobile.zoom.locked ) {
-				meta.attr( "content", disabledZoom );
-				$.mobile.zoom.enabled = false;
-				$.mobile.zoom.locked = lock || false;
-			}
-		},
-		enable: function( unlock ) {
-			if ( !disabledInitially && ( !$.mobile.zoom.locked || unlock === true ) ) {
-				meta.attr( "content", enabledZoom );
-				$.mobile.zoom.enabled = true;
-				$.mobile.zoom.locked = false;
-			}
-		},
-		restore: function() {
-			if ( !disabledInitially ) {
-				meta.attr( "content", initialContent );
-				$.mobile.zoom.enabled = true;
-			}
-		}
-	});
-
-}( jQuery ));
-
-(function( $, undefined ) {
-
-$.widget( "mobile.textinput", {
-	initSelector: "input[type='text']," +
-		"input[type='search']," +
-		":jqmData(type='search')," +
-		"input[type='number']," +
-		":jqmData(type='number')," +
-		"input[type='password']," +
-		"input[type='email']," +
-		"input[type='url']," +
-		"input[type='tel']," +
-		"textarea," +
-		"input[type='time']," +
-		"input[type='date']," +
-		"input[type='month']," +
-		"input[type='week']," +
-		"input[type='datetime']," +
-		"input[type='datetime-local']," +
-		"input[type='color']," +
-		"input:not([type])," +
-		"input[type='file']",
-
-	options: {
-		theme: null,
-		corners: true,
-		mini: false,
-		// This option defaults to true on iOS devices.
-		preventFocusZoom: /iPhone|iPad|iPod/.test( navigator.platform ) && navigator.userAgent.indexOf( "AppleWebKit" ) > -1,
-		wrapperClass: "",
-		enhanced: false
-	},
-
-	_create: function() {
-
-		var options = this.options,
-			isSearch = this.element.is( "[type='search'], :jqmData(type='search')" ),
-			isTextarea = this.element[ 0 ].tagName === "TEXTAREA",
-			isRange = this.element.is( "[data-" + ( $.mobile.ns || "" ) + "type='range']" ),
-			inputNeedsWrap = ( (this.element.is( "input" ) ||
-				this.element.is( "[data-" + ( $.mobile.ns || "" ) + "type='search']" ) ) &&
-					!isRange );
-
-		if ( this.element.prop( "disabled" ) ) {
-			options.disabled = true;
-		}
-
-		$.extend( this, {
-			classes: this._classesFromOptions(),
-			isSearch: isSearch,
-			isTextarea: isTextarea,
-			isRange: isRange,
-			inputNeedsWrap: inputNeedsWrap
-		});
-
-		this._autoCorrect();
-
-		if ( !options.enhanced ) {
-			this._enhance();
-		}
-
-		this._on( {
-			"focus": "_handleFocus",
-			"blur": "_handleBlur"
-		});
-
-	},
-
-	refresh: function() {
-		this.setOptions({
-			"disabled" : this.element.is( ":disabled" )
-		});
-	},
-
-	_enhance: function() {
-		var elementClasses = [];
-
-		if ( this.isTextarea ) {
-			elementClasses.push( "ui-input-text" );
-		}
-
-		if ( this.isTextarea || this.isRange ) {
-			elementClasses.push( "ui-shadow-inset" );
-		}
-
-		//"search" and "text" input widgets
-		if ( this.inputNeedsWrap ) {
-			this.element.wrap( this._wrap() );
-		} else {
-			elementClasses = elementClasses.concat( this.classes );
-		}
-
-		this.element.addClass( elementClasses.join( " " ) );
-	},
-
-	widget: function() {
-		return ( this.inputNeedsWrap ) ? this.element.parent() : this.element;
-	},
-
-	_classesFromOptions: function() {
-		var options = this.options,
-			classes = [];
-
-		classes.push( "ui-body-" + ( ( options.theme === null ) ? "inherit" : options.theme ) );
-		if ( options.corners ) {
-			classes.push( "ui-corner-all" );
-		}
-		if ( options.mini ) {
-			classes.push( "ui-mini" );
-		}
-		if ( options.disabled ) {
-			classes.push( "ui-state-disabled" );
-		}
-		if ( options.wrapperClass ) {
-			classes.push( options.wrapperClass );
-		}
-
-		return classes;
-	},
-
-	_wrap: function() {
-		return $( "<div class='" +
-			( this.isSearch ? "ui-input-search " : "ui-input-text " ) +
-			this.classes.join( " " ) + " " +
-			"ui-shadow-inset'></div>" );
-	},
-
-	_autoCorrect: function() {
-		// XXX: Temporary workaround for issue 785 (Apple bug 8910589).
-		//      Turn off autocorrect and autocomplete on non-iOS 5 devices
-		//      since the popup they use can't be dismissed by the user. Note
-		//      that we test for the presence of the feature by looking for
-		//      the autocorrect property on the input element. We currently
-		//      have no test for iOS 5 or newer so we're temporarily using
-		//      the touchOverflow support flag for jQM 1.0. Yes, I feel dirty.
-		//      - jblas
-		if ( typeof this.element[0].autocorrect !== "undefined" &&
-			!$.support.touchOverflow ) {
-
-			// Set the attribute instead of the property just in case there
-			// is code that attempts to make modifications via HTML.
-			this.element[0].setAttribute( "autocorrect", "off" );
-			this.element[0].setAttribute( "autocomplete", "off" );
-		}
-	},
-
-	_handleBlur: function() {
-		this.widget().removeClass( $.mobile.focusClass );
-		if ( this.options.preventFocusZoom ) {
-			$.mobile.zoom.enable( true );
-		}
-	},
-
-	_handleFocus: function() {
-		// In many situations, iOS will zoom into the input upon tap, this
-		// prevents that from happening
-		if ( this.options.preventFocusZoom ) {
-			$.mobile.zoom.disable( true );
-		}
-		this.widget().addClass( $.mobile.focusClass );
-	},
-
-	_setOptions: function ( options ) {
-		var outer = this.widget();
-
-		this._super( options );
-
-		if ( !( options.disabled === undefined &&
-			options.mini === undefined &&
-			options.corners === undefined &&
-			options.theme === undefined &&
-			options.wrapperClass === undefined ) ) {
-
-			outer.removeClass( this.classes.join( " " ) );
-			this.classes = this._classesFromOptions();
-			outer.addClass( this.classes.join( " " ) );
-		}
-
-		if ( options.disabled !== undefined ) {
-			this.element.prop( "disabled", !!options.disabled );
-		}
-	},
-
-	_destroy: function() {
-		if ( this.options.enhanced ) {
-			return;
-		}
-		if ( this.inputNeedsWrap ) {
-			this.element.unwrap();
-		}
-		this.element.removeClass( "ui-input-text " + this.classes.join( " " ) );
-	}
-});
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-$.widget( "mobile.slider", $.extend( {
-	initSelector: "input[type='range'], :jqmData(type='range'), :jqmData(role='slider')",
-
-	widgetEventPrefix: "slide",
-
-	options: {
-		theme: null,
-		trackTheme: null,
-		corners: true,
-		mini: false,
-		highlight: false
-	},
-
-	_create: function() {
-
-		// TODO: Each of these should have comments explain what they're for
-		var self = this,
-			control = this.element,
-			trackTheme = this.options.trackTheme || $.mobile.getAttribute( control[ 0 ], "theme" ),
-			trackThemeClass = trackTheme ? " ui-bar-" + trackTheme : " ui-bar-inherit",
-			cornerClass = ( this.options.corners || control.jqmData( "corners" ) ) ? " ui-corner-all" : "",
-			miniClass = ( this.options.mini || control.jqmData( "mini" ) ) ? " ui-mini" : "",
-			cType = control[ 0 ].nodeName.toLowerCase(),
-			isToggleSwitch = ( cType === "select" ),
-			isRangeslider = control.parent().is( ":jqmData(role='rangeslider')" ),
-			selectClass = ( isToggleSwitch ) ? "ui-slider-switch" : "",
-			controlID = control.attr( "id" ),
-			$label = $( "[for='" + controlID + "']" ),
-			labelID = $label.attr( "id" ) || controlID + "-label",
-			min = !isToggleSwitch ? parseFloat( control.attr( "min" ) ) : 0,
-			max =  !isToggleSwitch ? parseFloat( control.attr( "max" ) ) : control.find( "option" ).length-1,
-			step = window.parseFloat( control.attr( "step" ) || 1 ),
-			domHandle = document.createElement( "a" ),
-			handle = $( domHandle ),
-			domSlider = document.createElement( "div" ),
-			slider = $( domSlider ),
-			valuebg = this.options.highlight && !isToggleSwitch ? (function() {
-				var bg = document.createElement( "div" );
-				bg.className = "ui-slider-bg " + $.mobile.activeBtnClass;
-				return $( bg ).prependTo( slider );
-			})() : false,
-			options,
-			wrapper,
-			j, length,
-			i, optionsCount, origTabIndex,
-			side, activeClass, sliderImg;
-
-		$label.attr( "id", labelID );
-		this.isToggleSwitch = isToggleSwitch;
-
-		domHandle.setAttribute( "href", "#" );
-		domSlider.setAttribute( "role", "application" );
-		domSlider.className = [ this.isToggleSwitch ? "ui-slider ui-slider-track ui-shadow-inset " : "ui-slider-track ui-shadow-inset ", selectClass, trackThemeClass, cornerClass, miniClass ].join( "" );
-		domHandle.className = "ui-slider-handle";
-		domSlider.appendChild( domHandle );
-
-		handle.attr({
-			"role": "slider",
-			"aria-valuemin": min,
-			"aria-valuemax": max,
-			"aria-valuenow": this._value(),
-			"aria-valuetext": this._value(),
-			"title": this._value(),
-			"aria-labelledby": labelID
-		});
-
-		$.extend( this, {
-			slider: slider,
-			handle: handle,
-			control: control,
-			type: cType,
-			step: step,
-			max: max,
-			min: min,
-			valuebg: valuebg,
-			isRangeslider: isRangeslider,
-			dragging: false,
-			beforeStart: null,
-			userModified: false,
-			mouseMoved: false
-		});
-
-		if ( isToggleSwitch ) {
-			// TODO: restore original tabindex (if any) in a destroy method
-			origTabIndex = control.attr( "tabindex" );
-			if ( origTabIndex ) {
-				handle.attr( "tabindex", origTabIndex );
-			}
-			control.attr( "tabindex", "-1" ).focus(function() {
-				$( this ).blur();
-				handle.focus();
-			});
-
-			wrapper = document.createElement( "div" );
-			wrapper.className = "ui-slider-inneroffset";
-
-			for ( j = 0, length = domSlider.childNodes.length; j < length; j++ ) {
-				wrapper.appendChild( domSlider.childNodes[j] );
-			}
-
-			domSlider.appendChild( wrapper );
-
-			// slider.wrapInner( "<div class='ui-slider-inneroffset'></div>" );
-
-			// make the handle move with a smooth transition
-			handle.addClass( "ui-slider-handle-snapping" );
-
-			options = control.find( "option" );
-
-			for ( i = 0, optionsCount = options.length; i < optionsCount; i++ ) {
-				side = !i ? "b" : "a";
-				activeClass = !i ? "" : " " + $.mobile.activeBtnClass;
-				sliderImg = document.createElement( "span" );
-
-				sliderImg.className = [ "ui-slider-label ui-slider-label-", side, activeClass ].join( "" );
-				sliderImg.setAttribute( "role", "img" );
-				sliderImg.appendChild( document.createTextNode( options[i].innerHTML ) );
-				$( sliderImg ).prependTo( slider );
-			}
-
-			self._labels = $( ".ui-slider-label", slider );
-
-		}
-
-		// monitor the input for updated values
-		control.addClass( isToggleSwitch ? "ui-slider-switch" : "ui-slider-input" );
-
-		this._on( control, {
-			"change": "_controlChange",
-			"keyup": "_controlKeyup",
-			"blur": "_controlBlur",
-			"vmouseup": "_controlVMouseUp"
-		});
-
-		slider.bind( "vmousedown", $.proxy( this._sliderVMouseDown, this ) )
-			.bind( "vclick", false );
-
-		// We have to instantiate a new function object for the unbind to work properly
-		// since the method itself is defined in the prototype (causing it to unbind everything)
-		this._on( document, { "vmousemove": "_preventDocumentDrag" });
-		this._on( slider.add( document ), { "vmouseup": "_sliderVMouseUp" });
-
-		slider.insertAfter( control );
-
-		// wrap in a div for styling purposes
-		if ( !isToggleSwitch && !isRangeslider ) {
-			wrapper = this.options.mini ? "<div class='ui-slider ui-mini'>" : "<div class='ui-slider'>";
-
-			control.add( slider ).wrapAll( wrapper );
-		}
-
-		// bind the handle event callbacks and set the context to the widget instance
-		this._on( this.handle, {
-			"vmousedown": "_handleVMouseDown",
-			"keydown": "_handleKeydown",
-			"keyup": "_handleKeyup"
-		});
-
-		this.handle.bind( "vclick", false );
-
-		this._handleFormReset();
-
-		this.refresh( undefined, undefined, true );
-	},
-
-	_setOptions: function( options ) {
-		if ( options.theme !== undefined ) {
-			this._setTheme( options.theme );
-		}
-
-		if ( options.trackTheme !== undefined ) {
-			this._setTrackTheme( options.trackTheme );
-		}
-
-		if ( options.corners !== undefined ) {
-			this._setCorners( options.corners );
-		}
-
-		if ( options.mini !== undefined ) {
-			this._setMini( options.mini );
-		}
-
-		if ( options.highlight !== undefined ) {
-			this._setHighlight( options.highlight );
-		}
-
-		if ( options.disabled !== undefined ) {
-			this._setDisabled( options.disabled );
-		}
-		this._super( options );
-	},
-
-	_controlChange: function( event ) {
-		// if the user dragged the handle, the "change" event was triggered from inside refresh(); don't call refresh() again
-		if ( this._trigger( "controlchange", event ) === false ) {
-			return false;
-		}
-		if ( !this.mouseMoved ) {
-			this.refresh( this._value(), true );
-		}
-	},
-
-	_controlKeyup: function(/* event */) { // necessary?
-		this.refresh( this._value(), true, true );
-	},
-
-	_controlBlur: function(/* event */) {
-		this.refresh( this._value(), true );
-	},
-
-	// it appears the clicking the up and down buttons in chrome on
-	// range/number inputs doesn't trigger a change until the field is
-	// blurred. Here we check thif the value has changed and refresh
-	_controlVMouseUp: function(/* event */) {
-		this._checkedRefresh();
-	},
-
-	// NOTE force focus on handle
-	_handleVMouseDown: function(/* event */) {
-		this.handle.focus();
-	},
-
-	_handleKeydown: function( event ) {
-		var index = this._value();
-		if ( this.options.disabled ) {
-			return;
-		}
-
-		// In all cases prevent the default and mark the handle as active
-		switch ( event.keyCode ) {
-			case $.mobile.keyCode.HOME:
-			case $.mobile.keyCode.END:
-			case $.mobile.keyCode.PAGE_UP:
-			case $.mobile.keyCode.PAGE_DOWN:
-			case $.mobile.keyCode.UP:
-			case $.mobile.keyCode.RIGHT:
-			case $.mobile.keyCode.DOWN:
-			case $.mobile.keyCode.LEFT:
-				event.preventDefault();
-
-				if ( !this._keySliding ) {
-					this._keySliding = true;
-					this.handle.addClass( "ui-state-active" ); /* TODO: We don't use this class for styling. Do we need to add it? */
-				}
-
-				break;
-		}
-
-		// move the slider according to the keypress
-		switch ( event.keyCode ) {
-			case $.mobile.keyCode.HOME:
-				this.refresh( this.min );
-				break;
-			case $.mobile.keyCode.END:
-				this.refresh( this.max );
-				break;
-			case $.mobile.keyCode.PAGE_UP:
-			case $.mobile.keyCode.UP:
-			case $.mobile.keyCode.RIGHT:
-				this.refresh( index + this.step );
-				break;
-			case $.mobile.keyCode.PAGE_DOWN:
-			case $.mobile.keyCode.DOWN:
-			case $.mobile.keyCode.LEFT:
-				this.refresh( index - this.step );
-				break;
-		}
-	}, // remove active mark
-
-	_handleKeyup: function(/* event */) {
-		if ( this._keySliding ) {
-			this._keySliding = false;
-			this.handle.removeClass( "ui-state-active" ); /* See comment above. */
-		}
-	},
-
-	_sliderVMouseDown: function( event ) {
-		// NOTE: we don't do this in refresh because we still want to
-		//       support programmatic alteration of disabled inputs
-		if ( this.options.disabled || !( event.which === 1 || event.which === 0 || event.which === undefined ) ) {
-			return false;
-		}
-		if ( this._trigger( "beforestart", event ) === false ) {
-			return false;
-		}
-		this.dragging = true;
-		this.userModified = false;
-		this.mouseMoved = false;
-
-		if ( this.isToggleSwitch ) {
-			this.beforeStart = this.element[0].selectedIndex;
-		}
-
-		this.refresh( event );
-		this._trigger( "start" );
-		return false;
-	},
-
-	_sliderVMouseUp: function() {
-		if ( this.dragging ) {
-			this.dragging = false;
-
-			if ( this.isToggleSwitch ) {
-				// make the handle move with a smooth transition
-				this.handle.addClass( "ui-slider-handle-snapping" );
-
-				if ( this.mouseMoved ) {
-					// this is a drag, change the value only if user dragged enough
-					if ( this.userModified ) {
-						this.refresh( this.beforeStart === 0 ? 1 : 0 );
-					} else {
-						this.refresh( this.beforeStart );
-					}
-				} else {
-					// this is just a click, change the value
-					this.refresh( this.beforeStart === 0 ? 1 : 0 );
-				}
-			}
-
-			this.mouseMoved = false;
-			this._trigger( "stop" );
-			return false;
-		}
-	},
-
-	_preventDocumentDrag: function( event ) {
-			// NOTE: we don't do this in refresh because we still want to
-			//       support programmatic alteration of disabled inputs
-			if ( this._trigger( "drag", event ) === false) {
-				return false;
-			}
-			if ( this.dragging && !this.options.disabled ) {
-
-				// this.mouseMoved must be updated before refresh() because it will be used in the control "change" event
-				this.mouseMoved = true;
-
-				if ( this.isToggleSwitch ) {
-					// make the handle move in sync with the mouse
-					this.handle.removeClass( "ui-slider-handle-snapping" );
-				}
-
-				this.refresh( event );
-
-				// only after refresh() you can calculate this.userModified
-				this.userModified = this.beforeStart !== this.element[0].selectedIndex;
-				return false;
-			}
-		},
-
-	_checkedRefresh: function() {
-		if ( this.value !== this._value() ) {
-			this.refresh( this._value() );
-		}
-	},
-
-	_value: function() {
-		return  this.isToggleSwitch ? this.element[0].selectedIndex : parseFloat( this.element.val() ) ;
-	},
-
-	_reset: function() {
-		this.refresh( undefined, false, true );
-	},
-
-	refresh: function( val, isfromControl, preventInputUpdate ) {
-		// NOTE: we don't return here because we want to support programmatic
-		//       alteration of the input value, which should still update the slider
-
-		var self = this,
-			parentTheme = $.mobile.getAttribute( this.element[ 0 ], "theme" ),
-			theme = this.options.theme || parentTheme,
-			themeClass =  theme ? " ui-btn-" + theme : "",
-			trackTheme = this.options.trackTheme || parentTheme,
-			trackThemeClass = trackTheme ? " ui-bar-" + trackTheme : " ui-bar-inherit",
-			cornerClass = this.options.corners ? " ui-corner-all" : "",
-			miniClass = this.options.mini ? " ui-mini" : "",
-			left, width, data, tol,
-			pxStep, percent,
-			control, isInput, optionElements, min, max, step,
-			newval, valModStep, alignValue, percentPerStep,
-			handlePercent, aPercent, bPercent,
-			valueChanged;
-
-		self.slider[0].className = [ this.isToggleSwitch ? "ui-slider ui-slider-switch ui-slider-track ui-shadow-inset" : "ui-slider-track ui-shadow-inset", trackThemeClass, cornerClass, miniClass ].join( "" );
-		if ( this.options.disabled || this.element.prop( "disabled" ) ) {
-			this.disable();
-		}
-
-		// set the stored value for comparison later
-		this.value = this._value();
-		if ( this.options.highlight && !this.isToggleSwitch && this.slider.find( ".ui-slider-bg" ).length === 0 ) {
-			this.valuebg = (function() {
-				var bg = document.createElement( "div" );
-				bg.className = "ui-slider-bg " + $.mobile.activeBtnClass;
-				return $( bg ).prependTo( self.slider );
-			})();
-		}
-		this.handle.addClass( "ui-btn" + themeClass + " ui-shadow" );
-
-		control = this.element;
-		isInput = !this.isToggleSwitch;
-		optionElements = isInput ? [] : control.find( "option" );
-		min =  isInput ? parseFloat( control.attr( "min" ) ) : 0;
-		max = isInput ? parseFloat( control.attr( "max" ) ) : optionElements.length - 1;
-		step = ( isInput && parseFloat( control.attr( "step" ) ) > 0 ) ? parseFloat( control.attr( "step" ) ) : 1;
-
-		if ( typeof val === "object" ) {
-			data = val;
-			// a slight tolerance helped get to the ends of the slider
-			tol = 8;
-
-			left = this.slider.offset().left;
-			width = this.slider.width();
-			pxStep = width/((max-min)/step);
-			if ( !this.dragging ||
-					data.pageX < left - tol ||
-					data.pageX > left + width + tol ) {
-				return;
-			}
-			if ( pxStep > 1 ) {
-				percent = ( ( data.pageX - left ) / width ) * 100;
-			} else {
-				percent = Math.round( ( ( data.pageX - left ) / width ) * 100 );
-			}
-		} else {
-			if ( val == null ) {
-				val = isInput ? parseFloat( control.val() || 0 ) : control[0].selectedIndex;
-			}
-			percent = ( parseFloat( val ) - min ) / ( max - min ) * 100;
-		}
-
-		if ( isNaN( percent ) ) {
-			return;
-		}
-
-		newval = ( percent / 100 ) * ( max - min ) + min;
-
-		//from jQuery UI slider, the following source will round to the nearest step
-		valModStep = ( newval - min ) % step;
-		alignValue = newval - valModStep;
-
-		if ( Math.abs( valModStep ) * 2 >= step ) {
-			alignValue += ( valModStep > 0 ) ? step : ( -step );
-		}
-
-		percentPerStep = 100/((max-min)/step);
-		// Since JavaScript has problems with large floats, round
-		// the final value to 5 digits after the decimal point (see jQueryUI: #4124)
-		newval = parseFloat( alignValue.toFixed(5) );
-
-		if ( typeof pxStep === "undefined" ) {
-			pxStep = width / ( (max-min) / step );
-		}
-		if ( pxStep > 1 && isInput ) {
-			percent = ( newval - min ) * percentPerStep * ( 1 / step );
-		}
-		if ( percent < 0 ) {
-			percent = 0;
-		}
-
-		if ( percent > 100 ) {
-			percent = 100;
-		}
-
-		if ( newval < min ) {
-			newval = min;
-		}
-
-		if ( newval > max ) {
-			newval = max;
-		}
-
-		this.handle.css( "left", percent + "%" );
-
-		this.handle[0].setAttribute( "aria-valuenow", isInput ? newval : optionElements.eq( newval ).attr( "value" ) );
-
-		this.handle[0].setAttribute( "aria-valuetext", isInput ? newval : optionElements.eq( newval ).getEncodedText() );
-
-		this.handle[0].setAttribute( "title", isInput ? newval : optionElements.eq( newval ).getEncodedText() );
-
-		if ( this.valuebg ) {
-			this.valuebg.css( "width", percent + "%" );
-		}
-
-		// drag the label widths
-		if ( this._labels ) {
-			handlePercent = this.handle.width() / this.slider.width() * 100;
-			aPercent = percent && handlePercent + ( 100 - handlePercent ) * percent / 100;
-			bPercent = percent === 100 ? 0 : Math.min( handlePercent + 100 - aPercent, 100 );
-
-			this._labels.each(function() {
-				var ab = $( this ).hasClass( "ui-slider-label-a" );
-				$( this ).width( ( ab ? aPercent : bPercent  ) + "%" );
-			});
-		}
-
-		if ( !preventInputUpdate ) {
-			valueChanged = false;
-
-			// update control"s value
-			if ( isInput ) {
-				valueChanged = parseFloat( control.val() ) !== newval;
-				control.val( newval );
-			} else {
-				valueChanged = control[ 0 ].selectedIndex !== newval;
-				control[ 0 ].selectedIndex = newval;
-			}
-			if ( this._trigger( "beforechange", val ) === false) {
-					return false;
-			}
-			if ( !isfromControl && valueChanged ) {
-				control.trigger( "change" );
-			}
-		}
-	},
-
-	_setHighlight: function( value ) {
-		value = !!value;
-		if ( value ) {
-			this.options.highlight = !!value;
-			this.refresh();
-		} else if ( this.valuebg ) {
-			this.valuebg.remove();
-			this.valuebg = false;
-		}
-	},
-
-	_setTheme: function( value ) {
-		this.handle
-			.removeClass( "ui-btn-" + this.options.theme )
-			.addClass( "ui-btn-" + value );
-
-		var currentTheme = this.options.theme ? this.options.theme : "inherit",
-			newTheme = value ? value : "inherit";
-
-		this.control
-			.removeClass( "ui-body-" + currentTheme )
-			.addClass( "ui-body-" + newTheme );
-	},
-
-	_setTrackTheme: function( value ) {
-		var currentTrackTheme = this.options.trackTheme ? this.options.trackTheme : "inherit",
-			newTrackTheme = value ? value : "inherit";
-
-		this.slider
-			.removeClass( "ui-body-" + currentTrackTheme )
-			.addClass( "ui-body-" + newTrackTheme );
-	},
-
-	_setMini: function( value ) {
-		value = !!value;
-		if ( !this.isToggleSwitch && !this.isRangeslider ) {
-			this.slider.parent().toggleClass( "ui-mini", value );
-			this.element.toggleClass( "ui-mini", value );
-		}
-		this.slider.toggleClass( "ui-mini", value );
-	},
-
-	_setCorners: function( value ) {
-		this.slider.toggleClass( "ui-corner-all", value );
-
-		if ( !this.isToggleSwitch ) {
-			this.control.toggleClass( "ui-corner-all", value );
-		}
-	},
-
-	_setDisabled: function( value ) {
-		value = !!value;
-		this.element.prop( "disabled", value );
-		this.slider
-			.toggleClass( "ui-state-disabled", value )
-			.attr( "aria-disabled", value );
-
-		this.element.toggleClass( "ui-state-disabled", value );
-	}
-
-}, $.mobile.behaviors.formReset ) );
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-var popup;
-
-function getPopup() {
-	if ( !popup ) {
-		popup = $( "<div></div>", {
-			"class": "ui-slider-popup ui-shadow ui-corner-all"
-		});
-	}
-	return popup.clone();
-}
-
-$.widget( "mobile.slider", $.mobile.slider, {
-	options: {
-		popupEnabled: false,
-		showValue: false
-	},
-
-	_create: function() {
-		this._super();
-
-		$.extend( this, {
-			_currentValue: null,
-			_popup: null,
-			_popupVisible: false
-		});
-
-		this._setOption( "popupEnabled", this.options.popupEnabled );
-
-		this._on( this.handle, { "vmousedown" : "_showPopup" } );
-		this._on( this.slider.add( this.document ), { "vmouseup" : "_hidePopup" } );
-		this._refresh();
-	},
-
-	// position the popup centered 5px above the handle
-	_positionPopup: function() {
-		var dstOffset = this.handle.offset();
-
-		this._popup.offset( {
-			left: dstOffset.left + ( this.handle.width() - this._popup.width() ) / 2,
-			top: dstOffset.top - this._popup.outerHeight() - 5
-		});
-	},
-
-	_setOption: function( key, value ) {
-		this._super( key, value );
-
-		if ( key === "showValue" ) {
-			this.handle.html( value && !this.options.mini ? this._value() : "" );
-		} else if ( key === "popupEnabled" ) {
-			if ( value && !this._popup ) {
-				this._popup = getPopup()
-					.addClass( "ui-body-" + ( this.options.theme || "a" ) )
-					.hide()
-					.insertBefore( this.element );
-			}
-		}
-	},
-
-	// show value on the handle and in popup
-	refresh: function() {
-		this._super.apply( this, arguments );
-		this._refresh();
-	},
-
-	_refresh: function() {
-		var o = this.options, newValue;
-
-		if ( o.popupEnabled ) {
-			// remove the title attribute from the handle (which is
-			// responsible for the annoying tooltip); NB we have
-			// to do it here as the jqm slider sets it every time
-			// the slider's value changes :(
-			this.handle.removeAttr( "title" );
-		}
-
-		newValue = this._value();
-		if ( newValue === this._currentValue ) {
-			return;
-		}
-		this._currentValue = newValue;
-
-		if ( o.popupEnabled && this._popup ) {
-			this._positionPopup();
-			this._popup.html( newValue );
-		}
-
-		if ( o.showValue && !this.options.mini ) {
-			this.handle.html( newValue );
-		}
-	},
-
-	_showPopup: function() {
-		if ( this.options.popupEnabled && !this._popupVisible ) {
-			this.handle.html( "" );
-			this._popup.show();
-			this._positionPopup();
-			this._popupVisible = true;
-		}
-	},
-
-	_hidePopup: function() {
-		var o = this.options;
-
-		if ( o.popupEnabled && this._popupVisible ) {
-			if ( o.showValue && !o.mini ) {
-				this.handle.html( this._value() );
-			}
-			this._popup.hide();
-			this._popupVisible = false;
-		}
-	}
-});
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-$.widget( "mobile.flipswitch", $.extend({
-
-	options: {
-		onText: "On",
-		offText: "Off",
-		theme: null,
-		enhanced: false,
-		wrapperClass: null,
-		corners: true,
-		mini: false
-	},
-
-	_create: function() {
-			if ( !this.options.enhanced ) {
-				this._enhance();
-			} else {
-				$.extend( this, {
-					flipswitch: this.element.parent(),
-					on: this.element.find( ".ui-flipswitch-on" ).eq( 0 ),
-					off: this.element.find( ".ui-flipswitch-off" ).eq(0),
-					type: this.element.get( 0 ).tagName
-				});
-			}
-
-			this._handleFormReset();
-
-			// Transfer tabindex to "on" element and make input unfocusable
-			this._originalTabIndex = this.element.attr( "tabindex" );
-			if ( this._originalTabIndex != null ) {
-				this.on.attr( "tabindex", this._originalTabIndex );
-			}
-			this.element.attr( "tabindex", "-1" );
-			this._on({
-				"focus" : "_handleInputFocus"
-			});
-
-			if ( this.element.is( ":disabled" ) ) {
-				this._setOptions({
-					"disabled": true
-				});
-			}
-
-			this._on( this.flipswitch, {
-				"click": "_toggle",
-				"swipeleft": "_left",
-				"swiperight": "_right"
-			});
-
-			this._on( this.on, {
-				"keydown": "_keydown"
-			});
-
-			this._on( {
-				"change": "refresh"
-			});
-	},
-
-	_handleInputFocus: function() {
-		this.on.focus();
-	},
-
-	widget: function() {
-		return this.flipswitch;
-	},
-
-	_left: function() {
-		this.flipswitch.removeClass( "ui-flipswitch-active" );
-		if ( this.type === "SELECT" ) {
-			this.element.get( 0 ).selectedIndex = 0;
-		} else {
-			this.element.prop( "checked", false );
-		}
-		this.element.trigger( "change" );
-	},
-
-	_right: function() {
-		this.flipswitch.addClass( "ui-flipswitch-active" );
-		if ( this.type === "SELECT" ) {
-			this.element.get( 0 ).selectedIndex = 1;
-		} else {
-			this.element.prop( "checked", true );
-		}
-		this.element.trigger( "change" );
-	},
-
-	_enhance: function() {
-		var flipswitch = $( "<div>" ),
-			options = this.options,
-			element = this.element,
-			theme = options.theme ? options.theme : "inherit",
-
-			// The "on" button is an anchor so it's focusable
-			on = $( "<a></a>", {
-				"href": "#"
-			}),
-			off = $( "<span></span>" ),
-			type = element.get( 0 ).tagName,
-			onText = ( type === "INPUT" ) ?
-				options.onText : element.find( "option" ).eq( 1 ).text(),
-			offText = ( type === "INPUT" ) ?
-				options.offText : element.find( "option" ).eq( 0 ).text();
-
-			on
-				.addClass( "ui-flipswitch-on ui-btn ui-shadow ui-btn-inherit" )
-				.text( onText );
-			off
-				.addClass( "ui-flipswitch-off" )
-				.text( offText );
-
-			flipswitch
-				.addClass( "ui-flipswitch ui-shadow-inset " +
-					"ui-bar-" + theme + " " +
-					( options.wrapperClass ? options.wrapperClass : "" ) + " " +
-					( ( element.is( ":checked" ) ||
-						element
-							.find( "option" )
-							.eq( 1 )
-							.is( ":selected" ) ) ? "ui-flipswitch-active" : "" ) +
-					( element.is(":disabled") ? " ui-state-disabled": "") +
-					( options.corners ? " ui-corner-all": "" ) +
-					( options.mini ? " ui-mini": "" ) )
-				.append( on, off );
-
-			element
-				.addClass( "ui-flipswitch-input" )
-				.after( flipswitch )
-				.appendTo( flipswitch );
-
-		$.extend( this, {
-			flipswitch: flipswitch,
-			on: on,
-			off: off,
-			type: type
-		});
-	},
-
-	_reset: function() {
-		this.refresh();
-	},
-
-	refresh: function() {
-		var direction,
-			existingDirection = this.flipswitch.hasClass( "ui-flipswitch-active" ) ? "_right" : "_left";
-
-		if ( this.type === "SELECT" ) {
-			direction = ( this.element.get( 0 ).selectedIndex > 0 ) ? "_right": "_left";
-		} else {
-			direction = this.element.prop( "checked" ) ? "_right": "_left";
-		}
-
-		if ( direction !== existingDirection ) {
-			this[ direction ]();
-		}
-	},
-
-	_toggle: function() {
-		var direction = this.flipswitch.hasClass( "ui-flipswitch-active" ) ? "_left" : "_right";
-
-		this[ direction ]();
-	},
-
-	_keydown: function( e ) {
-		if ( e.which === $.mobile.keyCode.LEFT ) {
-			this._left();
-		} else if ( e.which === $.mobile.keyCode.RIGHT ) {
-			this._right();
-		} else if ( e.which === $.mobile.keyCode.SPACE ) {
-			this._toggle();
-			e.preventDefault();
-		}
-	},
-
-	_setOptions: function( options ) {
-		if ( options.theme !== undefined ) {
-			var currentTheme = options.theme ? options.theme : "inherit",
-				newTheme = options.theme ? options.theme : "inherit";
-
-			this.widget()
-				.removeClass( "ui-bar-" + currentTheme )
-				.addClass( "ui-bar-" + newTheme );
-		}
-		if ( options.onText !== undefined ) {
-			this.on.text( options.onText );
-		}
-		if ( options.offText !== undefined ) {
-			this.off.text( options.offText );
-		}
-		if ( options.disabled !== undefined ) {
-			this.widget().toggleClass( "ui-state-disabled", options.disabled );
-		}
-		if ( options.mini !== undefined ) {
-			this.widget().toggleClass( "ui-mini", options.mini );
-		}
-		if ( options.corners !== undefined ) {
-			this.widget().toggleClass( "ui-corner-all", options.corners );
-		}
-
-		this._super( options );
-	},
-
-	_destroy: function() {
-		if ( this.options.enhanced ) {
-			return;
-		}
-		if ( this._originalTabIndex != null ) {
-			this.element.attr( "tabindex", this._originalTabIndex );
-		} else {
-			this.element.removeAttr( "tabindex" );
-		}
-		this.on.remove();
-		this.off.remove();
-		this.element.unwrap();
-		this.flipswitch.remove();
-		this.removeClass( "ui-flipswitch-input" );
-	}
-
-}, $.mobile.behaviors.formReset ) );
-
-})( jQuery );
-
-(function( $, undefined ) {
-	$.widget( "mobile.rangeslider", $.extend( {
-
-		options: {
-			theme: null,
-			trackTheme: null,
-			corners: true,
-			mini: false,
-			highlight: true
-		},
-
-		_create: function() {
-			var $el = this.element,
-			elClass = this.options.mini ? "ui-rangeslider ui-mini" : "ui-rangeslider",
-			_inputFirst = $el.find( "input" ).first(),
-			_inputLast = $el.find( "input" ).last(),
-			_label = $el.find( "label" ).first(),
-			_sliderWidgetFirst = $.data( _inputFirst.get( 0 ), "mobile-slider" ) ||
-				$.data( _inputFirst.slider().get( 0 ), "mobile-slider" ),
-			_sliderWidgetLast = $.data( _inputLast.get(0), "mobile-slider" ) ||
-				$.data( _inputLast.slider().get( 0 ), "mobile-slider" ),
-			_sliderFirst = _sliderWidgetFirst.slider,
-			_sliderLast = _sliderWidgetLast.slider,
-			firstHandle = _sliderWidgetFirst.handle,
-			_sliders = $( "<div class='ui-rangeslider-sliders' />" ).appendTo( $el );
-
-			_inputFirst.addClass( "ui-rangeslider-first" );
-			_inputLast.addClass( "ui-rangeslider-last" );
-			$el.addClass( elClass );
-
-			_sliderFirst.appendTo( _sliders );
-			_sliderLast.appendTo( _sliders );
-			_label.insertBefore( $el );
-			firstHandle.prependTo( _sliderLast );
-
-			$.extend( this, {
-				_inputFirst: _inputFirst,
-				_inputLast: _inputLast,
-				_sliderFirst: _sliderFirst,
-				_sliderLast: _sliderLast,
-				_label: _label,
-				_targetVal: null,
-				_sliderTarget: false,
-				_sliders: _sliders,
-				_proxy: false
-			});
-
-			this.refresh();
-			this._on( this.element.find( "input.ui-slider-input" ), {
-				"slidebeforestart": "_slidebeforestart",
-				"slidestop": "_slidestop",
-				"slidedrag": "_slidedrag",
-				"slidebeforechange": "_change",
-				"blur": "_change",
-				"keyup": "_change"
-			});
-			this._on({
-				"mousedown":"_change"
-			});
-			this._on( this.element.closest( "form" ), {
-				"reset":"_handleReset"
-			});
-			this._on( firstHandle, {
-				"vmousedown": "_dragFirstHandle"
-			});
-		},
-		_handleReset: function() {
-			var self = this;
-			//we must wait for the stack to unwind before updateing other wise sliders will not have updated yet
-			setTimeout( function() {
-				self._updateHighlight();
-			},0);
-		},
-
-		_dragFirstHandle: function( event ) {
-			//if the first handle is dragged send the event to the first slider
-			$.data( this._inputFirst.get(0), "mobile-slider" ).dragging = true;
-			$.data( this._inputFirst.get(0), "mobile-slider" ).refresh( event );
-			$.data( this._inputFirst.get(0), "mobile-slider" )._trigger( "start" );
-			return false;
-		},
-
-		_slidedrag: function( event ) {
-			var first = $( event.target ).is( this._inputFirst ),
-				otherSlider = ( first ) ? this._inputLast : this._inputFirst;
-
-			this._sliderTarget = false;
-			//if the drag was initiated on an extreme and the other handle is focused send the events to
-			//the closest handle
-			if ( ( this._proxy === "first" && first ) || ( this._proxy === "last" && !first ) ) {
-				$.data( otherSlider.get(0), "mobile-slider" ).dragging = true;
-				$.data( otherSlider.get(0), "mobile-slider" ).refresh( event );
-				return false;
-			}
-		},
-
-		_slidestop: function( event ) {
-			var first = $( event.target ).is( this._inputFirst );
-
-			this._proxy = false;
-			//this stops dragging of the handle and brings the active track to the front
-			//this makes clicks on the track go the the last handle used
-			this.element.find( "input" ).trigger( "vmouseup" );
-			this._sliderFirst.css( "z-index", first ? 1 : "" );
-		},
-
-		_slidebeforestart: function( event ) {
-			this._sliderTarget = false;
-			//if the track is the target remember this and the original value
-			if ( $( event.originalEvent.target ).hasClass( "ui-slider-track" ) ) {
-				this._sliderTarget = true;
-				this._targetVal = $( event.target ).val();
-			}
-		},
-
-		_setOptions: function( options ) {
-			if ( options.theme !== undefined ) {
-				this._setTheme( options.theme );
-			}
-
-			if ( options.trackTheme !== undefined ) {
-				this._setTrackTheme( options.trackTheme );
-			}
-
-			if ( options.mini !== undefined ) {
-				this._setMini( options.mini );
-			}
-
-			if ( options.highlight !== undefined ) {
-				this._setHighlight( options.highlight );
-			}
-
-			if ( options.disabled !== undefined ) {
-				this._setDisabled( options.disabled );
-			}
-
-			this._super( options );
-			this.refresh();
-		},
-
-		refresh: function() {
-			var $el = this.element,
-				o = this.options;
-
-			if ( this._inputFirst.is( ":disabled" ) || this._inputLast.is( ":disabled" ) ) {
-				this.options.disabled = true;
-			}
-
-			$el.find( "input" ).slider({
-				theme: o.theme,
-				trackTheme: o.trackTheme,
-				disabled: o.disabled,
-				corners: o.corners,
-				mini: o.mini,
-				highlight: o.highlight
-			}).slider( "refresh" );
-			this._updateHighlight();
-		},
-
-		_change: function( event ) {
-			if ( event.type === "keyup" ) {
-				this._updateHighlight();
-				return false;
-			}
-
-			var self = this,
-				min = parseFloat( this._inputFirst.val(), 10 ),
-				max = parseFloat( this._inputLast.val(), 10 ),
-				first = $( event.target ).hasClass( "ui-rangeslider-first" ),
-				thisSlider = first ? this._inputFirst : this._inputLast,
-				otherSlider = first ? this._inputLast : this._inputFirst;
-
-			if ( ( this._inputFirst.val() > this._inputLast.val() && event.type === "mousedown" && !$(event.target).hasClass("ui-slider-handle")) ) {
-				thisSlider.blur();
-			} else if ( event.type === "mousedown" ) {
-				return;
-			}
-			if ( min > max && !this._sliderTarget ) {
-				//this prevents min from being greater then max
-				thisSlider.val( first ? max: min ).slider( "refresh" );
-				this._trigger( "normalize" );
-			} else if ( min > max ) {
-				//this makes it so clicks on the target on either extreme go to the closest handle
-				thisSlider.val( this._targetVal ).slider( "refresh" );
-
-				//You must wait for the stack to unwind so first slider is updated before updating second
-				setTimeout( function() {
-					otherSlider.val( first ? min: max ).slider( "refresh" );
-					$.data( otherSlider.get(0), "mobile-slider" ).handle.focus();
-					self._sliderFirst.css( "z-index", first ? "" : 1 );
-					self._trigger( "normalize" );
-				}, 0 );
-				this._proxy = ( first ) ? "first" : "last";
-			}
-			//fixes issue where when both _sliders are at min they cannot be adjusted
-			if ( min === max ) {
-				$.data( thisSlider.get(0), "mobile-slider" ).handle.css( "z-index", 1 );
-				$.data( otherSlider.get(0), "mobile-slider" ).handle.css( "z-index", 0 );
-			} else {
-				$.data( otherSlider.get(0), "mobile-slider" ).handle.css( "z-index", "" );
-				$.data( thisSlider.get(0), "mobile-slider" ).handle.css( "z-index", "" );
-			}
-
-			this._updateHighlight();
-
-			if ( min >= max ) {
-				return false;
-			}
-		},
-
-		_updateHighlight: function() {
-			var min = parseInt( $.data( this._inputFirst.get(0), "mobile-slider" ).handle.get(0).style.left, 10 ),
-				max = parseInt( $.data( this._inputLast.get(0), "mobile-slider" ).handle.get(0).style.left, 10 ),
-				width = (max - min);
-
-			this.element.find( ".ui-slider-bg" ).css({
-				"margin-left": min + "%",
-				"width": width + "%"
-			});
-		},
-
-		_setTheme: function( value ) {
-			this._inputFirst.slider( "option", "theme", value );
-			this._inputLast.slider( "option", "theme", value );
-		},
-
-		_setTrackTheme: function( value ) {
-			this._inputFirst.slider( "option", "trackTheme", value );
-			this._inputLast.slider( "option", "trackTheme", value );
-		},
-
-		_setMini: function( value ) {
-			this._inputFirst.slider( "option", "mini", value );
-			this._inputLast.slider( "option", "mini", value );
-			this.element.toggleClass( "ui-mini", !!value );
-		},
-
-		_setHighlight: function( value ) {
-			this._inputFirst.slider( "option", "highlight", value );
-			this._inputLast.slider( "option", "highlight", value );
-		},
-
-		_setDisabled: function( value ) {
-			this._inputFirst.prop( "disabled", value );
-			this._inputLast.prop( "disabled", value );
-		},
-
-		_destroy: function() {
-			this._label.prependTo( this.element );
-			this.element.removeClass( "ui-rangeslider ui-mini" );
-			this._inputFirst.after( this._sliderFirst );
-			this._inputLast.after( this._sliderLast );
-			this._sliders.remove();
-			this.element.find( "input" ).removeClass( "ui-rangeslider-first ui-rangeslider-last" ).slider( "destroy" );
-		}
-
-	}, $.mobile.behaviors.formReset ) );
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-	$.widget( "mobile.textinput", $.mobile.textinput, {
-		options: {
-			clearBtn: false,
-			clearBtnText: "Clear text"
-		},
-
-		_create: function() {
-			this._super();
-
-			if ( this.isSearch ) {
-				this.options.clearBtn = true;
-			}
-
-			if ( !!this.options.clearBtn && this.inputNeedsWrap ) {
-				this._addClearBtn();
-			}
-		},
-
-		clearButton: function() {
-			return $( "<a href='#' tabindex='-1' aria-hidden='true' " +
-				"class='ui-input-clear ui-btn ui-icon-delete ui-btn-icon-notext ui-corner-all'>" +
-				"</a>" )
-					.attr( "title", this.options.clearBtnText )
-					.text( this.options.clearBtnText );
-		},
-
-		_clearBtnClick: function( event ) {
-			this.element.val( "" )
-					.focus()
-					.trigger( "change" );
-
-			this._clearBtn.addClass( "ui-input-clear-hidden" );
-			event.preventDefault();
-		},
-
-		_addClearBtn: function() {
-
-			if ( !this.options.enhanced ) {
-				this._enhanceClear();
-			}
-
-			$.extend( this, {
-				_clearBtn: this.widget().find("a.ui-input-clear")
-			});
-
-			this._bindClearEvents();
-
-			this._toggleClear();
-
-		},
-
-		_enhanceClear: function() {
-
-			this.clearButton().appendTo( this.widget() );
-			this.widget().addClass( "ui-input-has-clear" );
-
-		},
-
-		_bindClearEvents: function() {
-
-			this._on( this._clearBtn, {
-				"click": "_clearBtnClick"
-			});
-
-			this._on({
-				"keyup": "_toggleClear",
-				"change": "_toggleClear",
-				"input": "_toggleClear",
-				"focus": "_toggleClear",
-				"blur": "_toggleClear",
-				"cut": "_toggleClear",
-				"paste": "_toggleClear"
-
-			});
-
-		},
-
-		_unbindClear: function() {
-			this._off( this._clearBtn, "click");
-			this._off( this.element, "keyup change input focus blur cut paste" );
-		},
-
-		_setOptions: function( options ) {
-			this._super( options );
-
-			if ( options.clearBtn !== undefined &&
-				!this.element.is( "textarea, :jqmData(type='range')" ) ) {
-				if ( options.clearBtn ) {
-					this._addClearBtn();
-				} else {
-					this._destroyClear();
-				}
-			}
-
-			if ( options.clearBtnText !== undefined && this._clearBtn !== undefined ) {
-				this._clearBtn.text( options.clearBtnText )
-					.attr("title", options.clearBtnText);
-			}
-		},
-
-		_toggleClear: function() {
-			this._delay( "_toggleClearClass", 0 );
-		},
-
-		_toggleClearClass: function() {
-			this._clearBtn.toggleClass( "ui-input-clear-hidden", !this.element.val() );
-		},
-
-		_destroyClear: function() {
-			this.widget().removeClass( "ui-input-has-clear" );
-			this._unbindClear();
-			this._clearBtn.remove();
-		},
-
-		_destroy: function() {
-			this._super();
-			if ( this.options.clearBtn ) {
-				this._destroyClear();
-			}
-		}
-
-	});
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-	$.widget( "mobile.textinput", $.mobile.textinput, {
-		options: {
-			autogrow:true,
-			keyupTimeoutBuffer: 100
-		},
-
-		_create: function() {
-			this._super();
-
-			if ( this.options.autogrow && this.isTextarea ) {
-				this._autogrow();
-			}
-		},
-
-		_autogrow: function() {
-			this.element.addClass( "ui-textinput-autogrow" );
-
-			this._on({
-				"keyup": "_timeout",
-				"change": "_timeout",
-				"input": "_timeout",
-				"paste": "_timeout"
-			});
-
-			// Attach to the various you-have-become-visible notifications that the
-			// various framework elements emit.
-			// TODO: Remove all but the updatelayout handler once #6426 is fixed.
-			this._on( true, this.document, {
-
-				// TODO: Move to non-deprecated event
-				"pageshow": "_handleShow",
-				"popupbeforeposition": "_handleShow",
-				"updatelayout": "_handleShow",
-				"panelopen": "_handleShow"
-			});
-		},
-
-		// Synchronously fix the widget height if this widget's parents are such
-		// that they show/hide content at runtime. We still need to check whether
-		// the widget is actually visible in case it is contained inside multiple
-		// such containers. For example: panel contains collapsible contains
-		// autogrow textinput. The panel may emit "panelopen" indicating that its
-		// content has become visible, but the collapsible is still collapsed, so
-		// the autogrow textarea is still not visible.
-		_handleShow: function( event ) {
-			if ( $.contains( event.target, this.element[ 0 ] ) &&
-				this.element.is( ":visible" ) ) {
-
-				if ( event.type !== "popupbeforeposition" ) {
-					this.element
-						.addClass( "ui-textinput-autogrow-resize" )
-						.animationComplete(
-							$.proxy( function() {
-								this.element.removeClass( "ui-textinput-autogrow-resize" );
-							}, this ),
-						"transition" );
-				}
-				this._prepareHeightUpdate();
-			}
-		},
-
-		_unbindAutogrow: function() {
-			this.element.removeClass( "ui-textinput-autogrow" );
-			this._off( this.element, "keyup change input paste" );
-			this._off( this.document,
-				"pageshow popupbeforeposition updatelayout panelopen" );
-		},
-
-		keyupTimeout: null,
-
-		_prepareHeightUpdate: function( delay ) {
-			if ( this.keyupTimeout ) {
-				clearTimeout( this.keyupTimeout );
-			}
-			if ( delay === undefined ) {
-				this._updateHeight();
-			} else {
-				this.keyupTimeout = this._delay( "_updateHeight", delay );
-			}
-		},
-
-		_timeout: function() {
-			this._prepareHeightUpdate( this.options.keyupTimeoutBuffer );
-		},
-
-		_updateHeight: function() {
-			var paddingTop, paddingBottom, paddingHeight, scrollHeight, clientHeight,
-				borderTop, borderBottom, borderHeight, height,
-				scrollTop = this.window.scrollTop();
-			this.keyupTimeout = 0;
-
-			// IE8 textareas have the onpage property - others do not
-			if ( !( "onpage" in this.element[ 0 ] ) ) {
-				this.element.css({
-					"height": 0,
-					"min-height": 0,
-					"max-height": 0
-				});
-			}
-
-			scrollHeight = this.element[ 0 ].scrollHeight;
-			clientHeight = this.element[ 0 ].clientHeight;
-			borderTop = parseFloat( this.element.css( "border-top-width" ) );
-			borderBottom = parseFloat( this.element.css( "border-bottom-width" ) );
-			borderHeight = borderTop + borderBottom;
-			height = scrollHeight + borderHeight + 15;
-
-			// Issue 6179: Padding is not included in scrollHeight and
-			// clientHeight by Firefox if no scrollbar is visible. Because
-			// textareas use the border-box box-sizing model, padding should be
-			// included in the new (assigned) height. Because the height is set
-			// to 0, clientHeight == 0 in Firefox. Therefore, we can use this to
-			// check if padding must be added.
-			if ( clientHeight === 0 ) {
-				paddingTop = parseFloat( this.element.css( "padding-top" ) );
-				paddingBottom = parseFloat( this.element.css( "padding-bottom" ) );
-				paddingHeight = paddingTop + paddingBottom;
-
-				height += paddingHeight;
-			}
-
-			this.element.css({
-				"height": height,
-				"min-height": "",
-				"max-height": ""
-			});
-
-			this.window.scrollTop( scrollTop );
-		},
-
-		refresh: function() {
-			if ( this.options.autogrow && this.isTextarea ) {
-				this._updateHeight();
-			}
-		},
-
-		_setOptions: function( options ) {
-
-			this._super( options );
-
-			if ( options.autogrow !== undefined && this.isTextarea ) {
-				if ( options.autogrow ) {
-					this._autogrow();
-				} else {
-					this._unbindAutogrow();
-				}
-			}
-		}
-
-	});
-})( jQuery );
-
-(function( $, undefined ) {
-
-$.widget( "mobile.selectmenu", $.extend( {
-	initSelector: "select:not( :jqmData(role='slider')):not( :jqmData(role='flipswitch') )",
-
-	options: {
-		theme: null,
-		icon: "carat-d",
-		iconpos: "right",
-		inline: false,
-		corners: true,
-		shadow: true,
-		iconshadow: false, /* TODO: Deprecated in 1.4, remove in 1.5. */
-		overlayTheme: null,
-		dividerTheme: null,
-		hidePlaceholderMenuItems: true,
-		closeText: "Close",
-		nativeMenu: true,
-		// This option defaults to true on iOS devices.
-		preventFocusZoom: /iPhone|iPad|iPod/.test( navigator.platform ) && navigator.userAgent.indexOf( "AppleWebKit" ) > -1,
-		mini: false
-	},
-
-	_button: function() {
-		return $( "<div/>" );
-	},
-
-	_setDisabled: function( value ) {
-		this.element.attr( "disabled", value );
-		this.button.attr( "aria-disabled", value );
-		return this._setOption( "disabled", value );
-	},
-
-	_focusButton : function() {
-		var self = this;
-
-		setTimeout( function() {
-			self.button.focus();
-		}, 40);
-	},
-
-	_selectOptions: function() {
-		return this.select.find( "option" );
-	},
-
-	// setup items that are generally necessary for select menu extension
-	_preExtension: function() {
-		var inline = this.options.inline || this.element.jqmData( "inline" ),
-			mini = this.options.mini || this.element.jqmData( "mini" ),
-			classes = "";
-		// TODO: Post 1.1--once we have time to test thoroughly--any classes manually applied to the original element should be carried over to the enhanced element, with an `-enhanced` suffix. See https://github.com/jquery/jquery-mobile/issues/3577
-		/* if ( $el[0].className.length ) {
-			classes = $el[0].className;
-		} */
-		if ( !!~this.element[0].className.indexOf( "ui-btn-left" ) ) {
-			classes = " ui-btn-left";
-		}
-
-		if (  !!~this.element[0].className.indexOf( "ui-btn-right" ) ) {
-			classes = " ui-btn-right";
-		}
-
-		if ( inline ) {
-			classes += " ui-btn-inline";
-		}
-		if ( mini ) {
-			classes += " ui-mini";
-		}
-
-		this.select = this.element.removeClass( "ui-btn-left ui-btn-right" ).wrap( "<div class='ui-select" + classes + "'>" );
-		this.selectId  = this.select.attr( "id" ) || ( "select-" + this.uuid );
-		this.buttonId = this.selectId + "-button";
-		this.label = $( "label[for='"+ this.selectId +"']" );
-		this.isMultiple = this.select[ 0 ].multiple;
-	},
-
-	_destroy: function() {
-		var wrapper = this.element.parents( ".ui-select" );
-		if ( wrapper.length > 0 ) {
-			if ( wrapper.is( ".ui-btn-left, .ui-btn-right" ) ) {
-				this.element.addClass( wrapper.hasClass( "ui-btn-left" ) ? "ui-btn-left" : "ui-btn-right" );
-			}
-			this.element.insertAfter( wrapper );
-			wrapper.remove();
-		}
-	},
-
-	_create: function() {
-		this._preExtension();
-
-		this.button = this._button();
-
-		var self = this,
-
-			options = this.options,
-
-			iconpos = options.icon ? ( options.iconpos || this.select.jqmData( "iconpos" ) ) : false,
-
-			button = this.button
-				.insertBefore( this.select )
-				.attr( "id", this.buttonId )
-				.addClass( "ui-btn" +
-					( options.icon ? ( " ui-icon-" + options.icon + " ui-btn-icon-" + iconpos +
-					( options.iconshadow ? " ui-shadow-icon" : "" ) ) :	"" ) + /* TODO: Remove in 1.5. */
-					( options.theme ? " ui-btn-" + options.theme : "" ) +
-					( options.corners ? " ui-corner-all" : "" ) +
-					( options.shadow ? " ui-shadow" : "" ) );
-
-		this.setButtonText();
-
-		// Opera does not properly support opacity on select elements
-		// In Mini, it hides the element, but not its text
-		// On the desktop,it seems to do the opposite
-		// for these reasons, using the nativeMenu option results in a full native select in Opera
-		if ( options.nativeMenu && window.opera && window.opera.version ) {
-			button.addClass( "ui-select-nativeonly" );
-		}
-
-		// Add counter for multi selects
-		if ( this.isMultiple ) {
-			this.buttonCount = $( "<span>" )
-				.addClass( "ui-li-count ui-body-inherit" )
-				.hide()
-				.appendTo( button.addClass( "ui-li-has-count" ) );
-		}
-
-		// Disable if specified
-		if ( options.disabled || this.element.attr( "disabled" )) {
-			this.disable();
-		}
-
-		// Events on native select
-		this.select.change(function() {
-			self.refresh();
-
-			if ( !!options.nativeMenu ) {
-				self._delay( function() {
-					self.select.blur();
-				});
-			}
-		});
-
-		this._handleFormReset();
-
-		this._on( this.button, {
-			keydown: "_handleKeydown"
-		});
-
-		this.build();
-	},
-
-	build: function() {
-		var self = this;
-
-		this.select
-			.appendTo( self.button )
-			.bind( "vmousedown", function() {
-				// Add active class to button
-				self.button.addClass( $.mobile.activeBtnClass );
-			})
-			.bind( "focus", function() {
-				self.button.addClass( $.mobile.focusClass );
-			})
-			.bind( "blur", function() {
-				self.button.removeClass( $.mobile.focusClass );
-			})
-			.bind( "focus vmouseover", function() {
-				self.button.trigger( "vmouseover" );
-			})
-			.bind( "vmousemove", function() {
-				// Remove active class on scroll/touchmove
-				self.button.removeClass( $.mobile.activeBtnClass );
-			})
-			.bind( "change blur vmouseout", function() {
-				self.button.trigger( "vmouseout" )
-					.removeClass( $.mobile.activeBtnClass );
-			});
-
-		// In many situations, iOS will zoom into the select upon tap, this prevents that from happening
-		self.button.bind( "vmousedown", function() {
-			if ( self.options.preventFocusZoom ) {
-					$.mobile.zoom.disable( true );
-			}
-		});
-		self.label.bind( "click focus", function() {
-			if ( self.options.preventFocusZoom ) {
-					$.mobile.zoom.disable( true );
-			}
-		});
-		self.select.bind( "focus", function() {
-			if ( self.options.preventFocusZoom ) {
-					$.mobile.zoom.disable( true );
-			}
-		});
-		self.button.bind( "mouseup", function() {
-			if ( self.options.preventFocusZoom ) {
-				setTimeout(function() {
-					$.mobile.zoom.enable( true );
-				}, 0 );
-			}
-		});
-		self.select.bind( "blur", function() {
-			if ( self.options.preventFocusZoom ) {
-				$.mobile.zoom.enable( true );
-			}
-		});
-
-	},
-
-	selected: function() {
-		return this._selectOptions().filter( ":selected" );
-	},
-
-	selectedIndices: function() {
-		var self = this;
-
-		return this.selected().map(function() {
-			return self._selectOptions().index( this );
-		}).get();
-	},
-
-	setButtonText: function() {
-		var self = this,
-			selected = this.selected(),
-			text = this.placeholder,
-			span = $( document.createElement( "span" ) );
-
-		this.button.children( "span" ).not( ".ui-li-count" ).remove().end().end().prepend( (function() {
-			if ( selected.length ) {
-				text = selected.map(function() {
-					return $( this ).text();
-				}).get().join( ", " );
-			} else {
-				text = self.placeholder;
-			}
-
-			if ( text ) {
-				span.text( text );
-			} else {
-
-				// Set the contents to &nbsp; which we write as &#160; to be XHTML compliant - see gh-6699
-				span.html( "&#160;" );
-			}
-
-			// TODO possibly aggregate multiple select option classes
-			return span
-				.addClass( self.select.attr( "class" ) )
-				.addClass( selected.attr( "class" ) )
-				.removeClass( "ui-screen-hidden" );
-		})());
-	},
-
-	setButtonCount: function() {
-		var selected = this.selected();
-
-		// multiple count inside button
-		if ( this.isMultiple ) {
-			this.buttonCount[ selected.length > 1 ? "show" : "hide" ]().text( selected.length );
-		}
-	},
-
-	_handleKeydown: function( /* event */ ) {
-		this._delay( "_refreshButton" );
-	},
-
-	_reset: function() {
-		this.refresh();
-	},
-
-	_refreshButton: function() {
-		this.setButtonText();
-		this.setButtonCount();
-	},
-
-	refresh: function() {
-		this._refreshButton();
-	},
-
-	// open and close preserved in native selects
-	// to simplify users code when looping over selects
-	open: $.noop,
-	close: $.noop,
-
-	disable: function() {
-		this._setDisabled( true );
-		this.button.addClass( "ui-state-disabled" );
-	},
-
-	enable: function() {
-		this._setDisabled( false );
-		this.button.removeClass( "ui-state-disabled" );
-	}
-}, $.mobile.behaviors.formReset ) );
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-$.mobile.links = function( target ) {
-
-	//links within content areas, tests included with page
-	$( target )
-		.find( "a" )
-		.jqmEnhanceable()
-		.filter( ":jqmData(rel='popup')[href][href!='']" )
-		.each( function() {
-			// Accessibility info for popups
-			var element = this,
-				idref = element.getAttribute( "href" ).substring( 1 );
-
-			if ( idref ) {
-				element.setAttribute( "aria-haspopup", true );
-				element.setAttribute( "aria-owns", idref );
-				element.setAttribute( "aria-expanded", false );
-			}
-		})
-		.end()
-		.not( ".ui-btn, :jqmData(role='none'), :jqmData(role='nojs')" )
-		.addClass( "ui-link" );
-
-};
-
-})( jQuery );
-
-
-(function( $, undefined ) {
-
-function fitSegmentInsideSegment( windowSize, segmentSize, offset, desired ) {
-	var returnValue = desired;
-
-	if ( windowSize < segmentSize ) {
-		// Center segment if it's bigger than the window
-		returnValue = offset + ( windowSize - segmentSize ) / 2;
-	} else {
-		// Otherwise center it at the desired coordinate while keeping it completely inside the window
-		returnValue = Math.min( Math.max( offset, desired - segmentSize / 2 ), offset + windowSize - segmentSize );
-	}
-
-	return returnValue;
-}
-
-function getWindowCoordinates( theWindow ) {
-	return {
-		x: theWindow.scrollLeft(),
-		y: theWindow.scrollTop(),
-		cx: ( theWindow[ 0 ].innerWidth || theWindow.width() ),
-		cy: ( theWindow[ 0 ].innerHeight || theWindow.height() )
-	};
-}
-
-$.widget( "mobile.popup", {
-	options: {
-		wrapperClass: null,
-		theme: null,
-		overlayTheme: null,
-		shadow: true,
-		corners: true,
-		transition: "none",
-		positionTo: "origin",
-		tolerance: null,
-		closeLinkSelector: "a:jqmData(rel='back')",
-		closeLinkEvents: "click.popup",
-		navigateEvents: "navigate.popup",
-		closeEvents: "navigate.popup pagebeforechange.popup",
-		dismissible: true,
-		enhanced: false,
-
-		// NOTE Windows Phone 7 has a scroll position caching issue that
-		//      requires us to disable popup history management by default
-		//      https://github.com/jquery/jquery-mobile/issues/4784
-		//
-		// NOTE this option is modified in _create!
-		history: !$.mobile.browser.oldIE
-	},
-
-	// When the user depresses the mouse/finger on an element inside the popup while the popup is
-	// open, we ignore resize events for a short while. This prevents #6961.
-	_handleDocumentVmousedown: function( theEvent ) {
-		if ( this._isOpen && $.contains( this._ui.container[ 0 ], theEvent.target ) ) {
-			this._ignoreResizeEvents();
-		}
-	},
-
-	_create: function() {
-		var theElement = this.element,
-			myId = theElement.attr( "id" ),
-			currentOptions = this.options;
-
-		// We need to adjust the history option to be false if there's no AJAX nav.
-		// We can't do it in the option declarations because those are run before
-		// it is determined whether there shall be AJAX nav.
-		currentOptions.history = currentOptions.history && $.mobile.ajaxEnabled && $.mobile.hashListeningEnabled;
-
-		this._on( this.document, {
-			"vmousedown": "_handleDocumentVmousedown"
-		});
-
-		// Define instance variables
-		$.extend( this, {
-			_scrollTop: 0,
-			_page: theElement.closest( ".ui-page" ),
-			_ui: null,
-			_fallbackTransition: "",
-			_currentTransition: false,
-			_prerequisites: null,
-			_isOpen: false,
-			_tolerance: null,
-			_resizeData: null,
-			_ignoreResizeTo: 0,
-			_orientationchangeInProgress: false
-		});
-
-		if ( this._page.length === 0 ) {
-			this._page = $( "body" );
-		}
-
-		if ( currentOptions.enhanced ) {
-			this._ui = {
-				container: theElement.parent(),
-				screen: theElement.parent().prev(),
-				placeholder: $( this.document[ 0 ].getElementById( myId + "-placeholder" ) )
-			};
-		} else {
-			this._ui = this._enhance( theElement, myId );
-			this._applyTransition( currentOptions.transition );
-		}
-		this
-			._setTolerance( currentOptions.tolerance )
-			._ui.focusElement = this._ui.container;
-
-		// Event handlers
-		this._on( this._ui.screen, { "vclick": "_eatEventAndClose" } );
-		this._on( this.window, {
-			orientationchange: $.proxy( this, "_handleWindowOrientationchange" ),
-			resize: $.proxy( this, "_handleWindowResize" ),
-			keyup: $.proxy( this, "_handleWindowKeyUp" )
-		});
-		this._on( this.document, { "focusin": "_handleDocumentFocusIn" } );
-	},
-
-	_enhance: function( theElement, myId ) {
-		var currentOptions = this.options,
-			wrapperClass = currentOptions.wrapperClass,
-			ui = {
-				screen: $( "<div class='ui-screen-hidden ui-popup-screen " +
-				this._themeClassFromOption( "ui-overlay-", currentOptions.overlayTheme ) + "'></div>" ),
-				placeholder: $( "<div style='display: none;'><!-- placeholder --></div>" ),
-				container: $( "<div class='ui-popup-container ui-popup-hidden ui-popup-truncate" +
-					( wrapperClass ? ( " " + wrapperClass ) : "" ) + "'></div>" )
-			},
-			fragment = this.document[ 0 ].createDocumentFragment();
-
-		fragment.appendChild( ui.screen[ 0 ] );
-		fragment.appendChild( ui.container[ 0 ] );
-
-		if ( myId ) {
-			ui.screen.attr( "id", myId + "-screen" );
-			ui.container.attr( "id", myId + "-popup" );
-			ui.placeholder
-				.attr( "id", myId + "-placeholder" )
-				.html( "<!-- placeholder for " + myId + " -->" );
-		}
-
-		// Apply the proto
-		this._page[ 0 ].appendChild( fragment );
-		// Leave a placeholder where the element used to be
-		ui.placeholder.insertAfter( theElement );
-		theElement
-			.detach()
-			.addClass( "ui-popup " +
-				this._themeClassFromOption( "ui-body-", currentOptions.theme ) + " " +
-				( currentOptions.shadow ? "ui-overlay-shadow " : "" ) +
-				( currentOptions.corners ? "ui-corner-all " : "" ) )
-			.appendTo( ui.container );
-
-		return ui;
-	},
-
-	_eatEventAndClose: function( theEvent ) {
-		theEvent.preventDefault();
-		theEvent.stopImmediatePropagation();
-		if ( this.options.dismissible ) {
-			this.close();
-		}
-		return false;
-	},
-
-	// Make sure the screen covers the entire document - CSS is sometimes not
-	// enough to accomplish this.
-	_resizeScreen: function() {
-		var screen = this._ui.screen,
-			popupHeight = this._ui.container.outerHeight( true ),
-			screenHeight = screen.removeAttr( "style" ).height(),
-
-			// Subtracting 1 here is necessary for an obscure Andrdoid 4.0 bug where
-			// the browser hangs if the screen covers the entire document :/
-			documentHeight = this.document.height() - 1;
-
-		if ( screenHeight < documentHeight ) {
-			screen.height( documentHeight );
-		} else if ( popupHeight > screenHeight ) {
-			screen.height( popupHeight );
-		}
-	},
-
-	_handleWindowKeyUp: function( theEvent ) {
-		if ( this._isOpen && theEvent.keyCode === $.mobile.keyCode.ESCAPE ) {
-			return this._eatEventAndClose( theEvent );
-		}
-	},
-
-	_expectResizeEvent: function() {
-		var windowCoordinates = getWindowCoordinates( this.window );
-
-		if ( this._resizeData ) {
-			if ( windowCoordinates.x === this._resizeData.windowCoordinates.x &&
-				windowCoordinates.y === this._resizeData.windowCoordinates.y &&
-				windowCoordinates.cx === this._resizeData.windowCoordinates.cx &&
-				windowCoordinates.cy === this._resizeData.windowCoordinates.cy ) {
-				// timeout not refreshed
-				return false;
-			} else {
-				// clear existing timeout - it will be refreshed below
-				clearTimeout( this._resizeData.timeoutId );
-			}
-		}
-
-		this._resizeData = {
-			timeoutId: this._delay( "_resizeTimeout", 200 ),
-			windowCoordinates: windowCoordinates
-		};
-
-		return true;
-	},
-
-	_resizeTimeout: function() {
-		if ( this._isOpen ) {
-			if ( !this._expectResizeEvent() ) {
-				if ( this._ui.container.hasClass( "ui-popup-hidden" ) ) {
-					// effectively rapid-open the popup while leaving the screen intact
-					this._ui.container.removeClass( "ui-popup-hidden ui-popup-truncate" );
-					this.reposition( { positionTo: "window" } );
-					this._ignoreResizeEvents();
-				}
-
-				this._resizeScreen();
-				this._resizeData = null;
-				this._orientationchangeInProgress = false;
-			}
-		} else {
-			this._resizeData = null;
-			this._orientationchangeInProgress = false;
-		}
-	},
-
-	_stopIgnoringResizeEvents: function() {
-		this._ignoreResizeTo = 0;
-	},
-
-	_ignoreResizeEvents: function() {
-		if ( this._ignoreResizeTo ) {
-			clearTimeout( this._ignoreResizeTo );
-		}
-		this._ignoreResizeTo = this._delay( "_stopIgnoringResizeEvents", 1000 );
-	},
-
-	_handleWindowResize: function(/* theEvent */) {
-		if ( this._isOpen && this._ignoreResizeTo === 0 ) {
-			if ( ( this._expectResizeEvent() || this._orientationchangeInProgress ) &&
-				!this._ui.container.hasClass( "ui-popup-hidden" ) ) {
-				// effectively rapid-close the popup while leaving the screen intact
-				this._ui.container
-					.addClass( "ui-popup-hidden ui-popup-truncate" )
-					.removeAttr( "style" );
-			}
-		}
-	},
-
-	_handleWindowOrientationchange: function(/* theEvent */) {
-		if ( !this._orientationchangeInProgress && this._isOpen && this._ignoreResizeTo === 0 ) {
-			this._expectResizeEvent();
-			this._orientationchangeInProgress = true;
-		}
-	},
-
-	// When the popup is open, attempting to focus on an element that is not a
-	// child of the popup will redirect focus to the popup
-	_handleDocumentFocusIn: function( theEvent ) {
-		var target,
-			targetElement = theEvent.target,
-			ui = this._ui;
-
-		if ( !this._isOpen ) {
-			return;
-		}
-
-		if ( targetElement !== ui.container[ 0 ] ) {
-			target = $( targetElement );
-			if ( !$.contains( ui.container[ 0 ], targetElement ) ) {
-				$( this.document[ 0 ].activeElement ).one( "focus", $.proxy( function() {
-					this._safelyBlur( targetElement );
-				}, this ) );
-				ui.focusElement.focus();
-				theEvent.preventDefault();
-				theEvent.stopImmediatePropagation();
-				return false;
-			} else if ( ui.focusElement[ 0 ] === ui.container[ 0 ] ) {
-				ui.focusElement = target;
-			}
-		}
-
-		this._ignoreResizeEvents();
-	},
-
-	_themeClassFromOption: function( prefix, value ) {
-		return ( value ? ( value === "none" ? "" : ( prefix + value ) ) : ( prefix + "inherit" ) );
-	},
-
-	_applyTransition: function( value ) {
-		if ( value ) {
-			this._ui.container.removeClass( this._fallbackTransition );
-			if ( value !== "none" ) {
-				this._fallbackTransition = $.mobile._maybeDegradeTransition( value );
-				if ( this._fallbackTransition === "none" ) {
-					this._fallbackTransition = "";
-				}
-				this._ui.container.addClass( this._fallbackTransition );
-			}
-		}
-
-		return this;
-	},
-
-	_setOptions: function( newOptions ) {
-		var currentOptions = this.options,
-			theElement = this.element,
-			screen = this._ui.screen;
-
-		if ( newOptions.wrapperClass !== undefined ) {
-			this._ui.container
-				.removeClass( currentOptions.wrapperClass )
-				.addClass( newOptions.wrapperClass );
-		}
-
-		if ( newOptions.theme !== undefined ) {
-			theElement
-				.removeClass( this._themeClassFromOption( "ui-body-", currentOptions.theme ) )
-				.addClass( this._themeClassFromOption( "ui-body-", newOptions.theme ) );
-		}
-
-		if ( newOptions.overlayTheme !== undefined ) {
-			screen
-				.removeClass( this._themeClassFromOption( "ui-overlay-", currentOptions.overlayTheme ) )
-				.addClass( this._themeClassFromOption( "ui-overlay-", newOptions.overlayTheme ) );
-
-			if ( this._isOpen ) {
-				screen.addClass( "in" );
-			}
-		}
-
-		if ( newOptions.shadow !== undefined ) {
-			theElement.toggleClass( "ui-overlay-shadow", newOptions.shadow );
-		}
-
-		if ( newOptions.corners !== undefined ) {
-			theElement.toggleClass( "ui-corner-all", newOptions.corners );
-		}
-
-		if ( newOptions.transition !== undefined ) {
-			if ( !this._currentTransition ) {
-				this._applyTransition( newOptions.transition );
-			}
-		}
-
-		if ( newOptions.tolerance !== undefined ) {
-			this._setTolerance( newOptions.tolerance );
-		}
-
-		if ( newOptions.disabled !== undefined ) {
-			if ( newOptions.disabled ) {
-				this.close();
-			}
-		}
-
-		return this._super( newOptions );
-	},
-
-	_setTolerance: function( value ) {
-		var tol = { t: 30, r: 15, b: 30, l: 15 },
-			ar;
-
-		if ( value !== undefined ) {
-			ar = String( value ).split( "," );
-
-			$.each( ar, function( idx, val ) { ar[ idx ] = parseInt( val, 10 ); } );
-
-			switch( ar.length ) {
-				// All values are to be the same
-				case 1:
-					if ( !isNaN( ar[ 0 ] ) ) {
-						tol.t = tol.r = tol.b = tol.l = ar[ 0 ];
-					}
-					break;
-
-				// The first value denotes top/bottom tolerance, and the second value denotes left/right tolerance
-				case 2:
-					if ( !isNaN( ar[ 0 ] ) ) {
-						tol.t = tol.b = ar[ 0 ];
-					}
-					if ( !isNaN( ar[ 1 ] ) ) {
-						tol.l = tol.r = ar[ 1 ];
-					}
-					break;
-
-				// The array contains values in the order top, right, bottom, left
-				case 4:
-					if ( !isNaN( ar[ 0 ] ) ) {
-						tol.t = ar[ 0 ];
-					}
-					if ( !isNaN( ar[ 1 ] ) ) {
-						tol.r = ar[ 1 ];
-					}
-					if ( !isNaN( ar[ 2 ] ) ) {
-						tol.b = ar[ 2 ];
-					}
-					if ( !isNaN( ar[ 3 ] ) ) {
-						tol.l = ar[ 3 ];
-					}
-					break;
-
-				default:
-					break;
-			}
-		}
-
-		this._tolerance = tol;
-		return this;
-	},
-
-	_clampPopupWidth: function( infoOnly ) {
-		var menuSize,
-			windowCoordinates = getWindowCoordinates( this.window ),
-			// rectangle within which the popup must fit
-			rectangle = {
-				x: this._tolerance.l,
-				y: windowCoordinates.y + this._tolerance.t,
-				cx: windowCoordinates.cx - this._tolerance.l - this._tolerance.r,
-				cy: windowCoordinates.cy - this._tolerance.t - this._tolerance.b
-			};
-
-		if ( !infoOnly ) {
-			// Clamp the width of the menu before grabbing its size
-			this._ui.container.css( "max-width", rectangle.cx );
-		}
-
-		menuSize = {
-			cx: this._ui.container.outerWidth( true ),
-			cy: this._ui.container.outerHeight( true )
-		};
-
-		return { rc: rectangle, menuSize: menuSize };
-	},
-
-	_calculateFinalLocation: function( desired, clampInfo ) {
-		var returnValue,
-			rectangle = clampInfo.rc,
-			menuSize = clampInfo.menuSize;
-
-		// Center the menu over the desired coordinates, while not going outside
-		// the window tolerances. This will center wrt. the window if the popup is
-		// too large.
-		returnValue = {
-			left: fitSegmentInsideSegment( rectangle.cx, menuSize.cx, rectangle.x, desired.x ),
-			top: fitSegmentInsideSegment( rectangle.cy, menuSize.cy, rectangle.y, desired.y )
-		};
-
-		// Make sure the top of the menu is visible
-		returnValue.top = Math.max( 0, returnValue.top );
-
-		// If the height of the menu is smaller than the height of the document
-		// align the bottom with the bottom of the document
-
-		returnValue.top -= Math.min( returnValue.top,
-			Math.max( 0, returnValue.top + menuSize.cy - this.document.height() ) );
-
-		return returnValue;
-	},
-
-	// Try and center the overlay over the given coordinates
-	_placementCoords: function( desired ) {
-		return this._calculateFinalLocation( desired, this._clampPopupWidth() );
-	},
-
-	_createPrerequisites: function( screenPrerequisite, containerPrerequisite, whenDone ) {
-		var prerequisites,
-			self = this;
-
-		// It is important to maintain both the local variable prerequisites and
-		// self._prerequisites. The local variable remains in the closure of the
-		// functions which call the callbacks passed in. The comparison between the
-		// local variable and self._prerequisites is necessary, because once a
-		// function has been passed to .animationComplete() it will be called next
-		// time an animation completes, even if that's not the animation whose end
-		// the function was supposed to catch (for example, if an abort happens
-		// during the opening animation, the .animationComplete handler is not
-		// called for that animation anymore, but the handler remains attached, so
-		// it is called the next time the popup is opened - making it stale.
-		// Comparing the local variable prerequisites to the widget-level variable
-		// self._prerequisites ensures that callbacks triggered by a stale
-		// .animationComplete will be ignored.
-
-		prerequisites = {
-			screen: $.Deferred(),
-			container: $.Deferred()
-		};
-
-		prerequisites.screen.then( function() {
-			if ( prerequisites === self._prerequisites ) {
-				screenPrerequisite();
-			}
-		});
-
-		prerequisites.container.then( function() {
-			if ( prerequisites === self._prerequisites ) {
-				containerPrerequisite();
-			}
-		});
-
-		$.when( prerequisites.screen, prerequisites.container ).done( function() {
-			if ( prerequisites === self._prerequisites ) {
-				self._prerequisites = null;
-				whenDone();
-			}
-		});
-
-		self._prerequisites = prerequisites;
-	},
-
-	_animate: function( args ) {
-		// NOTE before removing the default animation of the screen
-		//      this had an animate callback that would resolve the deferred
-		//      now the deferred is resolved immediately
-		// TODO remove the dependency on the screen deferred
-		this._ui.screen
-			.removeClass( args.classToRemove )
-			.addClass( args.screenClassToAdd );
-
-		args.prerequisites.screen.resolve();
-
-		if ( args.transition && args.transition !== "none" ) {
-			if ( args.applyTransition ) {
-				this._applyTransition( args.transition );
-			}
-			if ( this._fallbackTransition ) {
-				this._ui.container
-					.addClass( args.containerClassToAdd )
-					.removeClass( args.classToRemove )
-					.animationComplete( $.proxy( args.prerequisites.container, "resolve" ) );
-				return;
-			}
-		}
-		this._ui.container.removeClass( args.classToRemove );
-		args.prerequisites.container.resolve();
-	},
-
-	// The desired coordinates passed in will be returned untouched if no reference element can be identified via
-	// desiredPosition.positionTo. Nevertheless, this function ensures that its return value always contains valid
-	// x and y coordinates by specifying the center middle of the window if the coordinates are absent.
-	// options: { x: coordinate, y: coordinate, positionTo: string: "origin", "window", or jQuery selector
-	_desiredCoords: function( openOptions ) {
-		var offset,
-			dst = null,
-			windowCoordinates = getWindowCoordinates( this.window ),
-			x = openOptions.x,
-			y = openOptions.y,
-			pTo = openOptions.positionTo;
-
-		// Establish which element will serve as the reference
-		if ( pTo && pTo !== "origin" ) {
-			if ( pTo === "window" ) {
-				x = windowCoordinates.cx / 2 + windowCoordinates.x;
-				y = windowCoordinates.cy / 2 + windowCoordinates.y;
-			} else {
-				try {
-					dst = $( pTo );
-				} catch( err ) {
-					dst = null;
-				}
-				if ( dst ) {
-					dst.filter( ":visible" );
-					if ( dst.length === 0 ) {
-						dst = null;
-					}
-				}
-			}
-		}
-
-		// If an element was found, center over it
-		if ( dst ) {
-			offset = dst.offset();
-			x = offset.left + dst.outerWidth() / 2;
-			y = offset.top + dst.outerHeight() / 2;
-		}
-
-		// Make sure x and y are valid numbers - center over the window
-		if ( $.type( x ) !== "number" || isNaN( x ) ) {
-			x = windowCoordinates.cx / 2 + windowCoordinates.x;
-		}
-		if ( $.type( y ) !== "number" || isNaN( y ) ) {
-			y = windowCoordinates.cy / 2 + windowCoordinates.y;
-		}
-
-		return { x: x, y: y };
-	},
-
-	_reposition: function( openOptions ) {
-		// We only care about position-related parameters for repositioning
-		openOptions = {
-			x: openOptions.x,
-			y: openOptions.y,
-			positionTo: openOptions.positionTo
-		};
-		this._trigger( "beforeposition", undefined, openOptions );
-		this._ui.container.offset( this._placementCoords( this._desiredCoords( openOptions ) ) );
-	},
-
-	reposition: function( openOptions ) {
-		if ( this._isOpen ) {
-			this._reposition( openOptions );
-		}
-	},
-
-	_safelyBlur: function( currentElement ){
-		if ( currentElement !== this.window[ 0 ] &&
-			currentElement.nodeName.toLowerCase() !== "body" ) {
-				$( currentElement ).blur();
-		}
-	},
-
-	_openPrerequisitesComplete: function() {
-		var id = this.element.attr( "id" ),
-			firstFocus = this._ui.container.find( ":focusable" ).first();
-
-		this._ui.container.addClass( "ui-popup-active" );
-		this._isOpen = true;
-		this._resizeScreen();
-
-		// Check to see if currElement is not a child of the container.  If it's not, blur
-		if ( !$.contains( this._ui.container[ 0 ], this.document[ 0 ].activeElement ) ) {
-			this._safelyBlur( this.document[ 0 ].activeElement );
-		}
-		if ( firstFocus.length > 0 ) {
-			this._ui.focusElement = firstFocus;
-		}
-		this._ignoreResizeEvents();
-		if ( id ) {
-			this.document.find( "[aria-haspopup='true'][aria-owns='" +  id + "']" ).attr( "aria-expanded", true );
-		}
-		this._trigger( "afteropen" );
-	},
-
-	_open: function( options ) {
-		var openOptions = $.extend( {}, this.options, options ),
-			// TODO move blacklist to private method
-			androidBlacklist = ( function() {
-				var ua = navigator.userAgent,
-					// Rendering engine is Webkit, and capture major version
-					wkmatch = ua.match( /AppleWebKit\/([0-9\.]+)/ ),
-					wkversion = !!wkmatch && wkmatch[ 1 ],
-					androidmatch = ua.match( /Android (\d+(?:\.\d+))/ ),
-					andversion = !!androidmatch && androidmatch[ 1 ],
-					chromematch = ua.indexOf( "Chrome" ) > -1;
-
-				// Platform is Android, WebKit version is greater than 534.13 ( Android 3.2.1 ) and not Chrome.
-				if ( androidmatch !== null && andversion === "4.0" && wkversion && wkversion > 534.13 && !chromematch ) {
-					return true;
-				}
-				return false;
-			}());
-
-		// Count down to triggering "popupafteropen" - we have two prerequisites:
-		// 1. The popup window animation completes (container())
-		// 2. The screen opacity animation completes (screen())
-		this._createPrerequisites(
-			$.noop,
-			$.noop,
-			$.proxy( this, "_openPrerequisitesComplete" ) );
-
-		this._currentTransition = openOptions.transition;
-		this._applyTransition( openOptions.transition );
-
-		this._ui.screen.removeClass( "ui-screen-hidden" );
-		this._ui.container.removeClass( "ui-popup-truncate" );
-
-		// Give applications a chance to modify the contents of the container before it appears
-		this._reposition( openOptions );
-
-		this._ui.container.removeClass( "ui-popup-hidden" );
-
-		if ( this.options.overlayTheme && androidBlacklist ) {
-			/* TODO: The native browser on Android 4.0.X ("Ice Cream Sandwich") suffers from an issue where the popup overlay appears to be z-indexed above the popup itself when certain other styles exist on the same page -- namely, any element set to `position: fixed` and certain types of input. These issues are reminiscent of previously uncovered bugs in older versions of Android's native browser: https://github.com/scottjehl/Device-Bugs/issues/3
-			This fix closes the following bugs ( I use "closes" with reluctance, and stress that this issue should be revisited as soon as possible ):
-			https://github.com/jquery/jquery-mobile/issues/4816
-			https://github.com/jquery/jquery-mobile/issues/4844
-			https://github.com/jquery/jquery-mobile/issues/4874
-			*/
-
-			// TODO sort out why this._page isn't working
-			this.element.closest( ".ui-page" ).addClass( "ui-popup-open" );
-		}
-		this._animate({
-			additionalCondition: true,
-			transition: openOptions.transition,
-			classToRemove: "",
-			screenClassToAdd: "in",
-			containerClassToAdd: "in",
-			applyTransition: false,
-			prerequisites: this._prerequisites
-		});
-	},
-
-	_closePrerequisiteScreen: function() {
-		this._ui.screen
-			.removeClass( "out" )
-			.addClass( "ui-screen-hidden" );
-	},
-
-	_closePrerequisiteContainer: function() {
-		this._ui.container
-			.removeClass( "reverse out" )
-			.addClass( "ui-popup-hidden ui-popup-truncate" )
-			.removeAttr( "style" );
-	},
-
-	_closePrerequisitesDone: function() {
-		var container = this._ui.container,
-			id = this.element.attr( "id" );
-
-		// remove the global mutex for popups
-		$.mobile.popup.active = undefined;
-
-		// Blur elements inside the container, including the container
-		$( ":focus", container[ 0 ] ).add( container[ 0 ] ).blur();
-
-		if ( id ) {
-			this.document.find( "[aria-haspopup='true'][aria-owns='" +  id + "']" ).attr( "aria-expanded", false );
-		}
-
-		// alert users that the popup is closed
-		this._trigger( "afterclose" );
-	},
-
-	_close: function( immediate ) {
-		this._ui.container.removeClass( "ui-popup-active" );
-		this._page.removeClass( "ui-popup-open" );
-
-		this._isOpen = false;
-
-		// Count down to triggering "popupafterclose" - we have two prerequisites:
-		// 1. The popup window reverse animation completes (container())
-		// 2. The screen opacity animation completes (screen())
-		this._createPrerequisites(
-			$.proxy( this, "_closePrerequisiteScreen" ),
-			$.proxy( this, "_closePrerequisiteContainer" ),
-			$.proxy( this, "_closePrerequisitesDone" ) );
-
-		this._animate( {
-			additionalCondition: this._ui.screen.hasClass( "in" ),
-			transition: ( immediate ? "none" : ( this._currentTransition ) ),
-			classToRemove: "in",
-			screenClassToAdd: "out",
-			containerClassToAdd: "reverse out",
-			applyTransition: true,
-			prerequisites: this._prerequisites
-		});
-	},
-
-	_unenhance: function() {
-		if ( this.options.enhanced ) {
-			return;
-		}
-
-		// Put the element back to where the placeholder was and remove the "ui-popup" class
-		this._setOptions( { theme: $.mobile.popup.prototype.options.theme } );
-		this.element
-			// Cannot directly insertAfter() - we need to detach() first, because
-			// insertAfter() will do nothing if the payload div was not attached
-			// to the DOM at the time the widget was created, and so the payload
-			// will remain inside the container even after we call insertAfter().
-			// If that happens and we remove the container a few lines below, we
-			// will cause an infinite recursion - #5244
-			.detach()
-			.insertAfter( this._ui.placeholder )
-			.removeClass( "ui-popup ui-overlay-shadow ui-corner-all ui-body-inherit" );
-		this._ui.screen.remove();
-		this._ui.container.remove();
-		this._ui.placeholder.remove();
-	},
-
-	_destroy: function() {
-		if ( $.mobile.popup.active === this ) {
-			this.element.one( "popupafterclose", $.proxy( this, "_unenhance" ) );
-			this.close();
-		} else {
-			this._unenhance();
-		}
-
-		return this;
-	},
-
-	_closePopup: function( theEvent, data ) {
-		var parsedDst, toUrl,
-			currentOptions = this.options,
-			immediate = false;
-
-		if ( ( theEvent && theEvent.isDefaultPrevented() ) || $.mobile.popup.active !== this ) {
-			return;
-		}
-
-		// restore location on screen
-		window.scrollTo( 0, this._scrollTop );
-
-		if ( theEvent && theEvent.type === "pagebeforechange" && data ) {
-			// Determine whether we need to rapid-close the popup, or whether we can
-			// take the time to run the closing transition
-			if ( typeof data.toPage === "string" ) {
-				parsedDst = data.toPage;
-			} else {
-				parsedDst = data.toPage.jqmData( "url" );
-			}
-			parsedDst = $.mobile.path.parseUrl( parsedDst );
-			toUrl = parsedDst.pathname + parsedDst.search + parsedDst.hash;
-
-			if ( this._myUrl !== $.mobile.path.makeUrlAbsolute( toUrl ) ) {
-				// Going to a different page - close immediately
-				immediate = true;
-			} else {
-				theEvent.preventDefault();
-			}
-		}
-
-		// remove nav bindings
-		this.window.off( currentOptions.closeEvents );
-		// unbind click handlers added when history is disabled
-		this.element.undelegate( currentOptions.closeLinkSelector, currentOptions.closeLinkEvents );
-
-		this._close( immediate );
-	},
-
-	// any navigation event after a popup is opened should close the popup
-	// NOTE the pagebeforechange is bound to catch navigation events that don't
-	//      alter the url (eg, dialogs from popups)
-	_bindContainerClose: function() {
-		this.window
-			.on( this.options.closeEvents, $.proxy( this, "_closePopup" ) );
-	},
-
-	widget: function() {
-		return this._ui.container;
-	},
-
-	// TODO no clear deliniation of what should be here and
-	// what should be in _open. Seems to be "visual" vs "history" for now
-	open: function( options ) {
-		var url, hashkey, activePage, currentIsDialog, hasHash, urlHistory,
-			self = this,
-			currentOptions = this.options;
-
-		// make sure open is idempotent
-		if ( $.mobile.popup.active || currentOptions.disabled ) {
-			return this;
-		}
-
-		// set the global popup mutex
-		$.mobile.popup.active = this;
-		this._scrollTop = this.window.scrollTop();
-
-		// if history alteration is disabled close on navigate events
-		// and leave the url as is
-		if ( !( currentOptions.history ) ) {
-			self._open( options );
-			self._bindContainerClose();
-
-			// When histoy is disabled we have to grab the data-rel
-			// back link clicks so we can close the popup instead of
-			// relying on history to do it for us
-			self.element
-				.delegate( currentOptions.closeLinkSelector, currentOptions.closeLinkEvents, function( theEvent ) {
-					self.close();
-					theEvent.preventDefault();
-				});
-
-			return this;
-		}
-
-		// cache some values for min/readability
-		urlHistory = $.mobile.navigate.history;
-		hashkey = $.mobile.dialogHashKey;
-		activePage = $.mobile.activePage;
-		currentIsDialog = ( activePage ? activePage.hasClass( "ui-dialog" ) : false );
-		this._myUrl = url = urlHistory.getActive().url;
-		hasHash = ( url.indexOf( hashkey ) > -1 ) && !currentIsDialog && ( urlHistory.activeIndex > 0 );
-
-		if ( hasHash ) {
-			self._open( options );
-			self._bindContainerClose();
-			return this;
-		}
-
-		// if the current url has no dialog hash key proceed as normal
-		// otherwise, if the page is a dialog simply tack on the hash key
-		if ( url.indexOf( hashkey ) === -1 && !currentIsDialog ) {
-			url = url + (url.indexOf( "#" ) > -1 ? hashkey : "#" + hashkey);
-		} else {
-			url = $.mobile.path.parseLocation().hash + hashkey;
-		}
-
-		// swallow the the initial navigation event, and bind for the next
-		this.window.one( "beforenavigate", function( theEvent ) {
-			theEvent.preventDefault();
-			self._open( options );
-			self._bindContainerClose();
-		});
-
-		this.urlAltered = true;
-		$.mobile.navigate( url, { role: "dialog" } );
-
-		return this;
-	},
-
-	close: function() {
-		// make sure close is idempotent
-		if ( $.mobile.popup.active !== this ) {
-			return this;
-		}
-
-		this._scrollTop = this.window.scrollTop();
-
-		if ( this.options.history && this.urlAltered ) {
-			$.mobile.back();
-			this.urlAltered = false;
-		} else {
-			// simulate the nav bindings having fired
-			this._closePopup();
-		}
-
-		return this;
-	}
-});
-
-// TODO this can be moved inside the widget
-$.mobile.popup.handleLink = function( $link ) {
-	var offset,
-		path = $.mobile.path,
-
-		// NOTE make sure to get only the hash from the href because ie7 (wp7)
-		//      returns the absolute href in this case ruining the element selection
-		popup = $( path.hashToSelector( path.parseUrl( $link.attr( "href" ) ).hash ) ).first();
-
-	if ( popup.length > 0 && popup.data( "mobile-popup" ) ) {
-		offset = $link.offset();
-		popup.popup( "open", {
-			x: offset.left + $link.outerWidth() / 2,
-			y: offset.top + $link.outerHeight() / 2,
-			transition: $link.jqmData( "transition" ),
-			positionTo: $link.jqmData( "position-to" )
-		});
-	}
-
-	//remove after delay
-	setTimeout( function() {
-		$link.removeClass( $.mobile.activeBtnClass );
-	}, 300 );
-};
-
-// TODO move inside _create
-$.mobile.document.on( "pagebeforechange", function( theEvent, data ) {
-	if ( data.options.role === "popup" ) {
-		$.mobile.popup.handleLink( data.options.link );
-		theEvent.preventDefault();
-	}
-});
-
-})( jQuery );
-
-/*
-* custom "selectmenu" plugin
-*/
-
-(function( $, undefined ) {
-
-var unfocusableItemSelector = ".ui-disabled,.ui-state-disabled,.ui-li-divider,.ui-screen-hidden,:jqmData(role='placeholder')",
-	goToAdjacentItem = function( item, target, direction ) {
-		var adjacent = item[ direction + "All" ]()
-			.not( unfocusableItemSelector )
-			.first();
-
-		// if there's a previous option, focus it
-		if ( adjacent.length ) {
-			target
-				.blur()
-				.attr( "tabindex", "-1" );
-
-			adjacent.find( "a" ).first().focus();
-		}
-	};
-
-$.widget( "mobile.selectmenu", $.mobile.selectmenu, {
-	_create: function() {
-		var o = this.options;
-
-		// Custom selects cannot exist inside popups, so revert the "nativeMenu"
-		// option to true if a parent is a popup
-		o.nativeMenu = o.nativeMenu || ( this.element.parents( ":jqmData(role='popup'),:mobile-popup" ).length > 0 );
-
-		return this._super();
-	},
-
-	_handleSelectFocus: function() {
-		this.element.blur();
-		this.button.focus();
-	},
-
-	_handleKeydown: function( event ) {
-		this._super( event );
-		this._handleButtonVclickKeydown( event );
-	},
-
-	_handleButtonVclickKeydown: function( event ) {
-		if ( this.options.disabled || this.isOpen || this.options.nativeMenu ) {
-			return;
-		}
-
-		if (event.type === "vclick" ||
-				event.keyCode && (event.keyCode === $.mobile.keyCode.ENTER || event.keyCode === $.mobile.keyCode.SPACE)) {
-
-			this._decideFormat();
-			if ( this.menuType === "overlay" ) {
-				this.button.attr( "href", "#" + this.popupId ).attr( "data-" + ( $.mobile.ns || "" ) + "rel", "popup" );
-			} else {
-				this.button.attr( "href", "#" + this.dialogId ).attr( "data-" + ( $.mobile.ns || "" ) + "rel", "dialog" );
-			}
-			this.isOpen = true;
-			// Do not prevent default, so the navigation may have a chance to actually open the chosen format
-		}
-	},
-
-	_handleListFocus: function( e ) {
-		var params = ( e.type === "focusin" ) ?
-			{ tabindex: "0", event: "vmouseover" }:
-			{ tabindex: "-1", event: "vmouseout" };
-
-		$( e.target )
-			.attr( "tabindex", params.tabindex )
-			.trigger( params.event );
-	},
-
-	_handleListKeydown: function( event ) {
-		var target = $( event.target ),
-			li = target.closest( "li" );
-
-		// switch logic based on which key was pressed
-		switch ( event.keyCode ) {
-			// up or left arrow keys
-		case 38:
-			goToAdjacentItem( li, target, "prev" );
-			return false;
-			// down or right arrow keys
-		case 40:
-			goToAdjacentItem( li, target, "next" );
-			return false;
-			// If enter or space is pressed, trigger click
-		case 13:
-		case 32:
-			target.trigger( "click" );
-			return false;
-		}
-	},
-
-	_handleMenuPageHide: function() {
-
-		// After the dialog's done, we may want to trigger change if the value has actually changed
-		this._delayedTrigger();
-
-		// TODO centralize page removal binding / handling in the page plugin.
-		// Suggestion from @jblas to do refcounting
-		//
-		// TODO extremely confusing dependency on the open method where the pagehide.remove
-		// bindings are stripped to prevent the parent page from disappearing. The way
-		// we're keeping pages in the DOM right now sucks
-		//
-		// rebind the page remove that was unbound in the open function
-		// to allow for the parent page removal from actions other than the use
-		// of a dialog sized custom select
-		//
-		// doing this here provides for the back button on the custom select dialog
-		this.thisPage.page( "bindRemove" );
-	},
-
-	_handleHeaderCloseClick: function() {
-		if ( this.menuType === "overlay" ) {
-			this.close();
-			return false;
-		}
-	},
-
-	_handleListItemClick: function( event ) {
-		var listItem = $( event.target ).closest( "li" ),
-
-			// Index of option tag to be selected
-			oldIndex = this.select[ 0 ].selectedIndex,
-			newIndex = $.mobile.getAttribute( listItem, "option-index" ),
-			option = this._selectOptions().eq( newIndex )[ 0 ];
-
-		// Toggle selected status on the tag for multi selects
-		option.selected = this.isMultiple ? !option.selected : true;
-
-		// Toggle checkbox class for multiple selects
-		if ( this.isMultiple ) {
-			listItem.find( "a" )
-				.toggleClass( "ui-checkbox-on", option.selected )
-				.toggleClass( "ui-checkbox-off", !option.selected );
-		}
-
-		// If it's not a multiple select, trigger change after it has finished closing
-		if ( !this.isMultiple && oldIndex !== newIndex ) {
-			this._triggerChange = true;
-		}
-
-		// Trigger change if it's a multiple select
-		// Hide custom select for single selects only - otherwise focus clicked item
-		// We need to grab the clicked item the hard way, because the list may have been rebuilt
-		if ( this.isMultiple ) {
-			this.select.trigger( "change" );
-			this.list.find( "li:not(.ui-li-divider)" ).eq( newIndex )
-				.find( "a" ).first().focus();
-		}
-		else {
-			this.close();
-		}
-
-		event.preventDefault();
-	},
-
-	build: function() {
-		var selectId, popupId, dialogId, label, thisPage, isMultiple, menuId,
-			themeAttr, overlayTheme, overlayThemeAttr, dividerThemeAttr,
-			menuPage, listbox, list, header, headerTitle, menuPageContent,
-			menuPageClose, headerClose,
-			o = this.options;
-
-		if ( o.nativeMenu ) {
-			return this._super();
-		}
-
-		selectId = this.selectId;
-		popupId = selectId + "-listbox";
-		dialogId = selectId + "-dialog";
-		label = this.label;
-		thisPage = this.element.closest( ".ui-page" );
-		isMultiple = this.element[ 0 ].multiple;
-		menuId = selectId + "-menu";
-		themeAttr = o.theme ? ( " data-" + $.mobile.ns + "theme='" + o.theme + "'" ) : "";
-		overlayTheme = o.overlayTheme || o.theme || null;
-		overlayThemeAttr = overlayTheme ? ( " data-" + $.mobile.ns +
-			"overlay-theme='" + overlayTheme + "'" ) : "";
-		dividerThemeAttr = ( o.dividerTheme && isMultiple ) ? ( " data-" + $.mobile.ns + "divider-theme='" + o.dividerTheme + "'" ) : "";
-		menuPage = $( "<div data-" + $.mobile.ns + "role='dialog' class='ui-selectmenu' id='" + dialogId + "'" + themeAttr + overlayThemeAttr + ">" +
-			"<div data-" + $.mobile.ns + "role='header'>" +
-			"<div class='ui-title'></div>"+
-			"</div>"+
-			"<div data-" + $.mobile.ns + "role='content'></div>"+
-			"</div>" );
-		listbox = $( "<div" + themeAttr + overlayThemeAttr + " id='" + popupId +
-				"' class='ui-selectmenu'></div>" )
-			.insertAfter( this.select )
-			.popup();
-		list = $( "<ul class='ui-selectmenu-list' id='" + menuId + "' role='listbox' aria-labelledby='" + this.buttonId + "'" + themeAttr + dividerThemeAttr + "></ul>" ).appendTo( listbox );
-		header = $( "<div class='ui-header ui-bar-" + ( o.theme ? o.theme : "inherit" ) + "'></div>" ).prependTo( listbox );
-		headerTitle = $( "<h1 class='ui-title'></h1>" ).appendTo( header );
-
-		if ( this.isMultiple ) {
-			headerClose = $( "<a>", {
-				"role": "button",
-				"text": o.closeText,
-				"href": "#",
-				"class": "ui-btn ui-corner-all ui-btn-left ui-btn-icon-notext ui-icon-delete"
-			}).appendTo( header );
-		}
-
-		$.extend( this, {
-			selectId: selectId,
-			menuId: menuId,
-			popupId: popupId,
-			dialogId: dialogId,
-			thisPage: thisPage,
-			menuPage: menuPage,
-			label: label,
-			isMultiple: isMultiple,
-			theme: o.theme,
-			listbox: listbox,
-			list: list,
-			header: header,
-			headerTitle: headerTitle,
-			headerClose: headerClose,
-			menuPageContent: menuPageContent,
-			menuPageClose: menuPageClose,
-			placeholder: ""
-		});
-
-		// Create list from select, update state
-		this.refresh();
-
-		if ( this._origTabIndex === undefined ) {
-			// Map undefined to false, because this._origTabIndex === undefined
-			// indicates that we have not yet checked whether the select has
-			// originally had a tabindex attribute, whereas false indicates that
-			// we have checked the select for such an attribute, and have found
-			// none present.
-			this._origTabIndex = ( this.select[ 0 ].getAttribute( "tabindex" ) === null ) ? false : this.select.attr( "tabindex" );
-		}
-		this.select.attr( "tabindex", "-1" );
-		this._on( this.select, { focus : "_handleSelectFocus" } );
-
-		// Button events
-		this._on( this.button, {
-			vclick: "_handleButtonVclickKeydown"
-		});
-
-		// Events for list items
-		this.list.attr( "role", "listbox" );
-		this._on( this.list, {
-			"focusin": "_handleListFocus",
-			"focusout": "_handleListFocus",
-			"keydown": "_handleListKeydown",
-			"click li:not(.ui-disabled,.ui-state-disabled,.ui-li-divider)": "_handleListItemClick"
-		});
-
-		// button refocus ensures proper height calculation
-		// by removing the inline style and ensuring page inclusion
-		this._on( this.menuPage, { pagehide: "_handleMenuPageHide" } );
-
-		// Events on the popup
-		this._on( this.listbox, { popupafterclose: "_popupClosed" } );
-
-		// Close button on small overlays
-		if ( this.isMultiple ) {
-			this._on( this.headerClose, { click: "_handleHeaderCloseClick" } );
-		}
-
-		return this;
-	},
-
-	_popupClosed: function() {
-		this.close();
-		this._delayedTrigger();
-	},
-
-	_delayedTrigger: function() {
-		if ( this._triggerChange ) {
-			this.element.trigger( "change" );
-		}
-		this._triggerChange = false;
-	},
-
-	_isRebuildRequired: function() {
-		var list = this.list.find( "li" ),
-			options = this._selectOptions().not( ".ui-screen-hidden" );
-
-		// TODO exceedingly naive method to determine difference
-		// ignores value changes etc in favor of a forcedRebuild
-		// from the user in the refresh method
-		return options.text() !== list.text();
-	},
-
-	selected: function() {
-		return this._selectOptions().filter( ":selected:not( :jqmData(placeholder='true') )" );
-	},
-
-	refresh: function( force ) {
-		var self, indices;
-
-		if ( this.options.nativeMenu ) {
-			return this._super( force );
-		}
-
-		self = this;
-		if ( force || this._isRebuildRequired() ) {
-			self._buildList();
-		}
-
-		indices = this.selectedIndices();
-
-		self.setButtonText();
-		self.setButtonCount();
-
-		self.list.find( "li:not(.ui-li-divider)" )
-			.find( "a" ).removeClass( $.mobile.activeBtnClass ).end()
-			.attr( "aria-selected", false )
-			.each(function( i ) {
-				var item = $( this );
-				if ( $.inArray( i, indices ) > -1 ) {
-
-					// Aria selected attr
-					item.attr( "aria-selected", true );
-
-					// Multiple selects: add the "on" checkbox state to the icon
-					if ( self.isMultiple ) {
-						item.find( "a" ).removeClass( "ui-checkbox-off" ).addClass( "ui-checkbox-on" );
-					} else {
-						if ( item.hasClass( "ui-screen-hidden" ) ) {
-							item.next().find( "a" ).addClass( $.mobile.activeBtnClass );
-						} else {
-							item.find( "a" ).addClass( $.mobile.activeBtnClass );
-						}
-					}
-				} else if ( self.isMultiple ) {
-					item.find( "a" ).removeClass( "ui-checkbox-on" ).addClass( "ui-checkbox-off" );
-				}
-			});
-	},
-
-	close: function() {
-		if ( this.options.disabled || !this.isOpen ) {
-			return;
-		}
-
-		var self = this;
-
-		if ( self.menuType === "page" ) {
-			self.menuPage.dialog( "close" );
-			self.list.appendTo( self.listbox );
-		} else {
-			self.listbox.popup( "close" );
-		}
-
-		self._focusButton();
-		// allow the dialog to be closed again
-		self.isOpen = false;
-	},
-
-	open: function() {
-		this.button.click();
-	},
-
-	_focusMenuItem: function() {
-		var selector = this.list.find( "a." + $.mobile.activeBtnClass );
-		if ( selector.length === 0 ) {
-			selector = this.list.find( "li:not(" + unfocusableItemSelector + ") a.ui-btn" );
-		}
-		selector.first().focus();
-	},
-
-	_decideFormat: function() {
-		var self = this,
-			$window = this.window,
-			selfListParent = self.list.parent(),
-			menuHeight = selfListParent.outerHeight(),
-			scrollTop = $window.scrollTop(),
-			btnOffset = self.button.offset().top,
-			screenHeight = $window.height();
-
-		if ( menuHeight > screenHeight - 80 || !$.support.scrollTop ) {
-
-			self.menuPage.appendTo( $.mobile.pageContainer ).page();
-			self.menuPageContent = self.menuPage.find( ".ui-content" );
-			self.menuPageClose = self.menuPage.find( ".ui-header a" );
-
-			// prevent the parent page from being removed from the DOM,
-			// otherwise the results of selecting a list item in the dialog
-			// fall into a black hole
-			self.thisPage.unbind( "pagehide.remove" );
-
-			//for WebOS/Opera Mini (set lastscroll using button offset)
-			if ( scrollTop === 0 && btnOffset > screenHeight ) {
-				self.thisPage.one( "pagehide", function() {
-					$( this ).jqmData( "lastScroll", btnOffset );
-				});
-			}
-
-			self.menuPage.one( {
-				pageshow: $.proxy( this, "_focusMenuItem" ),
-				pagehide: $.proxy( this, "close" )
-			});
-
-			self.menuType = "page";
-			self.menuPageContent.append( self.list );
-			self.menuPage
-				.find( "div .ui-title" )
-					.text( self.label.getEncodedText() || self.placeholder );
-		} else {
-			self.menuType = "overlay";
-
-			self.listbox.one( { popupafteropen: $.proxy( this, "_focusMenuItem" ) } );
-		}
-	},
-
-	_buildList: function() {
-		var self = this,
-			o = this.options,
-			placeholder = this.placeholder,
-			needPlaceholder = true,
-			dataIcon = "false",
-			$options, numOptions, select,
-			dataPrefix = "data-" + $.mobile.ns,
-			dataIndexAttr = dataPrefix + "option-index",
-			dataIconAttr = dataPrefix + "icon",
-			dataRoleAttr = dataPrefix + "role",
-			dataPlaceholderAttr = dataPrefix + "placeholder",
-			fragment = document.createDocumentFragment(),
-			isPlaceholderItem = false,
-			optGroup,
-			i,
-			option, $option, parent, text, anchor, classes,
-			optLabel, divider, item;
-
-		self.list.empty().filter( ".ui-listview" ).listview( "destroy" );
-		$options = this._selectOptions();
-		numOptions = $options.length;
-		select = this.select[ 0 ];
-
-		for ( i = 0; i < numOptions;i++, isPlaceholderItem = false) {
-			option = $options[i];
-			$option = $( option );
-
-			// Do not create options based on ui-screen-hidden select options
-			if ( $option.hasClass( "ui-screen-hidden" ) ) {
-				continue;
-			}
-
-			parent = option.parentNode;
-			classes = [];
-
-			// Although using .text() here raises the risk that, when we later paste this into the
-			// list item we end up pasting possibly malicious things like <script> tags, that risk
-			// only arises if we do something like $( "<li><a href='#'>" + text + "</a></li>" ). We
-			// don't do that. We do document.createTextNode( text ) instead, which guarantees that
-			// whatever we paste in will end up as text, with characters like <, > and & escaped.
-			text = $option.text();
-			anchor = document.createElement( "a" );
-			anchor.setAttribute( "href", "#" );
-			anchor.appendChild( document.createTextNode( text ) );
-
-			// Are we inside an optgroup?
-			if ( parent !== select && parent.nodeName.toLowerCase() === "optgroup" ) {
-				optLabel = parent.getAttribute( "label" );
-				if ( optLabel !== optGroup ) {
-					divider = document.createElement( "li" );
-					divider.setAttribute( dataRoleAttr, "list-divider" );
-					divider.setAttribute( "role", "option" );
-					divider.setAttribute( "tabindex", "-1" );
-					divider.appendChild( document.createTextNode( optLabel ) );
-					fragment.appendChild( divider );
-					optGroup = optLabel;
-				}
-			}
-
-			if ( needPlaceholder && ( !option.getAttribute( "value" ) || text.length === 0 || $option.jqmData( "placeholder" ) ) ) {
-				needPlaceholder = false;
-				isPlaceholderItem = true;
-
-				// If we have identified a placeholder, record the fact that it was
-				// us who have added the placeholder to the option and mark it
-				// retroactively in the select as well
-				if ( null === option.getAttribute( dataPlaceholderAttr ) ) {
-					this._removePlaceholderAttr = true;
-				}
-				option.setAttribute( dataPlaceholderAttr, true );
-				if ( o.hidePlaceholderMenuItems ) {
-					classes.push( "ui-screen-hidden" );
-				}
-				if ( placeholder !== text ) {
-					placeholder = self.placeholder = text;
-				}
-			}
-
-			item = document.createElement( "li" );
-			if ( option.disabled ) {
-				classes.push( "ui-state-disabled" );
-				item.setAttribute( "aria-disabled", true );
-			}
-			item.setAttribute( dataIndexAttr, i );
-			item.setAttribute( dataIconAttr, dataIcon );
-			if ( isPlaceholderItem ) {
-				item.setAttribute( dataPlaceholderAttr, true );
-			}
-			item.className = classes.join( " " );
-			item.setAttribute( "role", "option" );
-			anchor.setAttribute( "tabindex", "-1" );
-			if ( this.isMultiple ) {
-				$( anchor ).addClass( "ui-btn ui-checkbox-off ui-btn-icon-right" );
-			}
-
-			item.appendChild( anchor );
-			fragment.appendChild( item );
-		}
-
-		self.list[0].appendChild( fragment );
-
-		// Hide header if it's not a multiselect and there's no placeholder
-		if ( !this.isMultiple && !placeholder.length ) {
-			this.header.addClass( "ui-screen-hidden" );
-		} else {
-			this.headerTitle.text( this.placeholder );
-		}
-
-		// Now populated, create listview
-		self.list.listview();
-	},
-
-	_button: function() {
-		return this.options.nativeMenu ?
-			this._super() :
-			$( "<a>", {
-				"href": "#",
-				"role": "button",
-				// TODO value is undefined at creation
-				"id": this.buttonId,
-				"aria-haspopup": "true",
-
-				// TODO value is undefined at creation
-				"aria-owns": this.menuId
-			});
-	},
-
-	_destroy: function() {
-
-		if ( !this.options.nativeMenu ) {
-			this.close();
-
-			// Restore the tabindex attribute to its original value
-			if ( this._origTabIndex !== undefined ) {
-				if ( this._origTabIndex !== false ) {
-					this.select.attr( "tabindex", this._origTabIndex );
-				} else {
-					this.select.removeAttr( "tabindex" );
-				}
-			}
-
-			// Remove the placeholder attribute if we were the ones to add it
-			if ( this._removePlaceholderAttr ) {
-				this._selectOptions().removeAttr( "data-" + $.mobile.ns + "placeholder" );
-			}
-
-			// Remove the popup
-			this.listbox.remove();
-
-			// Remove the dialog
-			this.menuPage.remove();
-		}
-
-		// Chain up
-		this._super();
-	}
-});
-
-})( jQuery );
-
-
-// buttonMarkup is deprecated as of 1.4.0 and will be removed in 1.5.0.
-
-(function( $, undefined ) {
-
-// General policy: Do not access data-* attributes except during enhancement.
-// In all other cases we determine the state of the button exclusively from its
-// className. That's why optionsToClasses expects a full complement of options,
-// and the jQuery plugin completes the set of options from the default values.
-
-// Map classes to buttonMarkup boolean options - used in classNameToOptions()
-var reverseBoolOptionMap = {
-		"ui-shadow" : "shadow",
-		"ui-corner-all" : "corners",
-		"ui-btn-inline" : "inline",
-		"ui-shadow-icon" : "iconshadow", /* TODO: Remove in 1.5 */
-		"ui-mini" : "mini"
-	},
-	getAttrFixed = function() {
-		var ret = $.mobile.getAttribute.apply( this, arguments );
-
-		return ( ret == null ? undefined : ret );
-	},
-	capitalLettersRE = /[A-Z]/g;
-
-// optionsToClasses:
-// @options: A complete set of options to convert to class names.
-// @existingClasses: extra classes to add to the result
-//
-// Converts @options to buttonMarkup classes and returns the result as an array
-// that can be converted to an element's className with .join( " " ). All
-// possible options must be set inside @options. Use $.fn.buttonMarkup.defaults
-// to get a complete set and use $.extend to override your choice of options
-// from that set.
-function optionsToClasses( options, existingClasses ) {
-	var classes = existingClasses ? existingClasses : [];
-
-	// Add classes to the array - first ui-btn
-	classes.push( "ui-btn" );
-
-	// If there is a theme
-	if ( options.theme ) {
-		classes.push( "ui-btn-" + options.theme );
-	}
-
-	// If there's an icon, add the icon-related classes
-	if ( options.icon ) {
-		classes = classes.concat([
-			"ui-icon-" + options.icon,
-			"ui-btn-icon-" + options.iconpos
-		]);
-		if ( options.iconshadow ) {
-			classes.push( "ui-shadow-icon" ); /* TODO: Remove in 1.5 */
-		}
-	}
-
-	// Add the appropriate class for each boolean option
-	if ( options.inline ) {
-		classes.push( "ui-btn-inline" );
-	}
-	if ( options.shadow ) {
-		classes.push( "ui-shadow" );
-	}
-	if ( options.corners ) {
-		classes.push( "ui-corner-all" );
-	}
-	if ( options.mini ) {
-		classes.push( "ui-mini" );
-	}
-
-	// Create a string from the array and return it
-	return classes;
-}
-
-// classNameToOptions:
-// @classes: A string containing a .className-style space-separated class list
-//
-// Loops over @classes and calculates an options object based on the
-// buttonMarkup-related classes it finds. It records unrecognized classes in an
-// array.
-//
-// Returns: An object containing the following items:
-//
-// "options": buttonMarkup options found to be present because of the
-// presence/absence of corresponding classes
-//
-// "unknownClasses": a string containing all the non-buttonMarkup-related
-// classes found in @classes
-//
-// "alreadyEnhanced": A boolean indicating whether the ui-btn class was among
-// those found to be present
-function classNameToOptions( classes ) {
-	var idx, map, unknownClass,
-		alreadyEnhanced = false,
-		noIcon = true,
-		o = {
-			icon: "",
-			inline: false,
-			shadow: false,
-			corners: false,
-			iconshadow: false,
-			mini: false
-		},
-		unknownClasses = [];
-
-	classes = classes.split( " " );
-
-	// Loop over the classes
-	for ( idx = 0 ; idx < classes.length ; idx++ ) {
-
-		// Assume it's an unrecognized class
-		unknownClass = true;
-
-		// Recognize boolean options from the presence of classes
-		map = reverseBoolOptionMap[ classes[ idx ] ];
-		if ( map !== undefined ) {
-			unknownClass = false;
-			o[ map ] = true;
-
-		// Recognize the presence of an icon and establish the icon position
-		} else if ( classes[ idx ].indexOf( "ui-btn-icon-" ) === 0 ) {
-			unknownClass = false;
-			noIcon = false;
-			o.iconpos = classes[ idx ].substring( 12 );
-
-		// Establish which icon is present
-		} else if ( classes[ idx ].indexOf( "ui-icon-" ) === 0 ) {
-			unknownClass = false;
-			o.icon = classes[ idx ].substring( 8 );
-
-		// Establish the theme - this recognizes one-letter theme swatch names
-		} else if ( classes[ idx ].indexOf( "ui-btn-" ) === 0 && classes[ idx ].length === 8 ) {
-			unknownClass = false;
-			o.theme = classes[ idx ].substring( 7 );
-
-		// Recognize that this element has already been buttonMarkup-enhanced
-		} else if ( classes[ idx ] === "ui-btn" ) {
-			unknownClass = false;
-			alreadyEnhanced = true;
-		}
-
-		// If this class has not been recognized, add it to the list
-		if ( unknownClass ) {
-			unknownClasses.push( classes[ idx ] );
-		}
-	}
-
-	// If a "ui-btn-icon-*" icon position class is absent there cannot be an icon
-	if ( noIcon ) {
-		o.icon = "";
-	}
-
-	return {
-		options: o,
-		unknownClasses: unknownClasses,
-		alreadyEnhanced: alreadyEnhanced
-	};
-}
-
-function camelCase2Hyphenated( c ) {
-	return "-" + c.toLowerCase();
-}
-
-// $.fn.buttonMarkup:
-// DOM: gets/sets .className
-//
-// @options: options to apply to the elements in the jQuery object
-// @overwriteClasses: boolean indicating whether to honour existing classes
-//
-// Calculates the classes to apply to the elements in the jQuery object based on
-// the options passed in. If @overwriteClasses is true, it sets the className
-// property of each element in the jQuery object to the buttonMarkup classes
-// it calculates based on the options passed in.
-//
-// If you wish to preserve any classes that are already present on the elements
-// inside the jQuery object, including buttonMarkup-related classes that were
-// added by a previous call to $.fn.buttonMarkup() or during page enhancement
-// then you should omit @overwriteClasses or set it to false.
-$.fn.buttonMarkup = function( options, overwriteClasses ) {
-	var idx, data, el, retrievedOptions, optionKey,
-		defaults = $.fn.buttonMarkup.defaults;
-
-	for ( idx = 0 ; idx < this.length ; idx++ ) {
-		el = this[ idx ];
-		data = overwriteClasses ?
-
-			// Assume this element is not enhanced and ignore its classes
-			{ alreadyEnhanced: false, unknownClasses: [] } :
-
-			// Otherwise analyze existing classes to establish existing options and
-			// classes
-			classNameToOptions( el.className );
-
-		retrievedOptions = $.extend( {},
-
-			// If the element already has the class ui-btn, then we assume that
-			// it has passed through buttonMarkup before - otherwise, the options
-			// returned by classNameToOptions do not correctly reflect the state of
-			// the element
-			( data.alreadyEnhanced ? data.options : {} ),
-
-			// Finally, apply the options passed in
-			options );
-
-		// If this is the first call on this element, retrieve remaining options
-		// from the data-attributes
-		if ( !data.alreadyEnhanced ) {
-			for ( optionKey in defaults ) {
-				if ( retrievedOptions[ optionKey ] === undefined ) {
-					retrievedOptions[ optionKey ] = getAttrFixed( el,
-						optionKey.replace( capitalLettersRE, camelCase2Hyphenated )
-					);
-				}
-			}
-		}
-
-		el.className = optionsToClasses(
-
-			// Merge all the options and apply them as classes
-			$.extend( {},
-
-				// The defaults form the basis
-				defaults,
-
-				// Add the computed options
-				retrievedOptions
-			),
-
-			// ... and re-apply any unrecognized classes that were found
-			data.unknownClasses ).join( " " );
-		if ( el.tagName.toLowerCase() !== "button" ) {
-			el.setAttribute( "role", "button" );
-		}
-	}
-
-	return this;
-};
-
-// buttonMarkup defaults. This must be a complete set, i.e., a value must be
-// given here for all recognized options
-$.fn.buttonMarkup.defaults = {
-	icon: "",
-	iconpos: "left",
-	theme: null,
-	inline: false,
-	shadow: true,
-	corners: true,
-	iconshadow: false, /* TODO: Remove in 1.5. Option deprecated in 1.4. */
-	mini: false
-};
-
-$.extend( $.fn.buttonMarkup, {
-	initSelector: "a:jqmData(role='button'), .ui-bar > a, .ui-bar > :jqmData(role='controlgroup') > a, button:not(:jqmData(role='navbar') button)"
-});
-
-})( jQuery );
-
-
-(function( $, undefined ) {
-
-$.widget( "mobile.controlgroup", $.extend( {
-	options: {
-		enhanced: false,
-		theme: null,
-		shadow: false,
-		corners: true,
-		excludeInvisible: true,
-		type: "vertical",
-		mini: false
-	},
-
-	_create: function() {
-		var elem = this.element,
-			opts = this.options,
-			keepNative = $.mobile.page.prototype.keepNativeSelector();
-
-		// Run buttonmarkup
-		if ( $.fn.buttonMarkup ) {
-			this.element
-				.find( $.fn.buttonMarkup.initSelector )
-				.not( keepNative )
-				.buttonMarkup();
-		}
-		// Enhance child widgets
-		$.each( this._childWidgets, $.proxy( function( number, widgetName ) {
-			if ( $.mobile[ widgetName ] ) {
-				this.element
-					.find( $.mobile[ widgetName ].initSelector )
-					.not( keepNative )[ widgetName ]();
-			}
-		}, this ));
-
-		$.extend( this, {
-			_ui: null,
-			_initialRefresh: true
-		});
-
-		if ( opts.enhanced ) {
-			this._ui = {
-				groupLegend: elem.children( ".ui-controlgroup-label" ).children(),
-				childWrapper: elem.children( ".ui-controlgroup-controls" )
-			};
-		} else {
-			this._ui = this._enhance();
-		}
-
-	},
-
-	_childWidgets: [ "checkboxradio", "selectmenu", "button" ],
-
-	_themeClassFromOption: function( value ) {
-		return ( value ? ( value === "none" ? "" : "ui-group-theme-" + value ) : "" );
-	},
-
-	_enhance: function() {
-		var elem = this.element,
-			opts = this.options,
-			ui = {
-				groupLegend: elem.children( "legend" ),
-				childWrapper: elem
-					.addClass( "ui-controlgroup " +
-						"ui-controlgroup-" +
-							( opts.type === "horizontal" ? "horizontal" : "vertical" ) + " " +
-						this._themeClassFromOption( opts.theme ) + " " +
-						( opts.corners ? "ui-corner-all " : "" ) +
-						( opts.mini ? "ui-mini " : "" ) )
-					.wrapInner( "<div " +
-						"class='ui-controlgroup-controls " +
-							( opts.shadow === true ? "ui-shadow" : "" ) + "'></div>" )
-					.children()
-			};
-
-		if ( ui.groupLegend.length > 0 ) {
-			$( "<div role='heading' class='ui-controlgroup-label'></div>" )
-				.append( ui.groupLegend )
-				.prependTo( elem );
-		}
-
-		return ui;
-	},
-
-	_init: function() {
-		this.refresh();
-	},
-
-	_setOptions: function( options ) {
-		var callRefresh, returnValue,
-			elem = this.element;
-
-		// Must have one of horizontal or vertical
-		if ( options.type !== undefined ) {
-			elem
-				.removeClass( "ui-controlgroup-horizontal ui-controlgroup-vertical" )
-				.addClass( "ui-controlgroup-" + ( options.type === "horizontal" ? "horizontal" : "vertical" ) );
-			callRefresh = true;
-		}
-
-		if ( options.theme !== undefined ) {
-			elem
-				.removeClass( this._themeClassFromOption( this.options.theme ) )
-				.addClass( this._themeClassFromOption( options.theme ) );
-		}
-
-		if ( options.corners !== undefined ) {
-			elem.toggleClass( "ui-corner-all", options.corners );
-		}
-
-		if ( options.mini !== undefined ) {
-			elem.toggleClass( "ui-mini", options.mini );
-		}
-
-		if ( options.shadow !== undefined ) {
-			this._ui.childWrapper.toggleClass( "ui-shadow", options.shadow );
-		}
-
-		if ( options.excludeInvisible !== undefined ) {
-			this.options.excludeInvisible = options.excludeInvisible;
-			callRefresh = true;
-		}
-
-		returnValue = this._super( options );
-
-		if ( callRefresh ) {
-			this.refresh();
-		}
-
-		return returnValue;
-	},
-
-	container: function() {
-		return this._ui.childWrapper;
-	},
-
-	refresh: function() {
-		var $el = this.container(),
-			els = $el.find( ".ui-btn" ).not( ".ui-slider-handle" ),
-			create = this._initialRefresh;
-		if ( $.mobile.checkboxradio ) {
-			$el.find( ":mobile-checkboxradio" ).checkboxradio( "refresh" );
-		}
-		this._addFirstLastClasses( els,
-			this.options.excludeInvisible ? this._getVisibles( els, create ) : els,
-			create );
-		this._initialRefresh = false;
-	},
-
-	// Caveat: If the legend is not the first child of the controlgroup at enhance
-	// time, it will be after _destroy().
-	_destroy: function() {
-		var ui, buttons,
-			opts = this.options;
-
-		if ( opts.enhanced ) {
-			return this;
-		}
-
-		ui = this._ui;
-		buttons = this.element
-			.removeClass( "ui-controlgroup " +
-				"ui-controlgroup-horizontal ui-controlgroup-vertical ui-corner-all ui-mini " +
-				this._themeClassFromOption( opts.theme ) )
-			.find( ".ui-btn" )
-			.not( ".ui-slider-handle" );
-
-		this._removeFirstLastClasses( buttons );
-
-		ui.groupLegend.unwrap();
-		ui.childWrapper.children().unwrap();
-	}
-}, $.mobile.behaviors.addFirstLastClasses ) );
-
-})(jQuery);
-
-(function( $, undefined ) {
-
-	$.widget( "mobile.toolbar", {
-		initSelector: ":jqmData(role='footer'), :jqmData(role='header')",
-
-		options: {
-			theme: null,
-			addBackBtn: false,
-			backBtnTheme: null,
-			backBtnText: "Back"
-		},
-
-		_create: function() {
-			var leftbtn, rightbtn,
-				role =  this.element.is( ":jqmData(role='header')" ) ? "header" : "footer",
-				page = this.element.closest( ".ui-page" );
-			if ( page.length === 0 ) {
-				page = false;
-				this._on( this.document, {
-					"pageshow": "refresh"
-				});
-			}
-			$.extend( this, {
-				role: role,
-				page: page,
-				leftbtn: leftbtn,
-				rightbtn: rightbtn
-			});
-			this.element.attr( "role", role === "header" ? "banner" : "contentinfo" ).addClass( "ui-" + role );
-			this.refresh();
-			this._setOptions( this.options );
-		},
-		_setOptions: function( o ) {
-			if ( o.addBackBtn !== undefined ) {
-				this._updateBackButton();
-			}
-			if ( o.backBtnTheme != null ) {
-				this.element
-					.find( ".ui-toolbar-back-btn" )
-					.addClass( "ui-btn ui-btn-" + o.backBtnTheme );
-			}
-			if ( o.backBtnText !== undefined ) {
-				this.element.find( ".ui-toolbar-back-btn .ui-btn-text" ).text( o.backBtnText );
-			}
-			if ( o.theme !== undefined ) {
-				var currentTheme = this.options.theme ? this.options.theme : "inherit",
-					newTheme = o.theme ? o.theme : "inherit";
-
-				this.element.removeClass( "ui-bar-" + currentTheme ).addClass( "ui-bar-" + newTheme );
-			}
-
-			this._super( o );
-		},
-		refresh: function() {
-			if ( this.role === "header" ) {
-				this._addHeaderButtonClasses();
-			}
-			if ( !this.page ) {
-				this._setRelative();
-				if ( this.role === "footer" ) {
-					this.element.appendTo( "body" );
-				} else if ( this.role === "header" ) {
-					this._updateBackButton();
-				}
-			}
-			this._addHeadingClasses();
-			this._btnMarkup();
-		},
-
-		//we only want this to run on non fixed toolbars so make it easy to override
-		_setRelative: function() {
-			$( "[data-"+ $.mobile.ns + "role='page']" ).css({ "position": "relative" });
-		},
-
-		// Deprecated in 1.4. As from 1.5 button classes have to be present in the markup.
-		_btnMarkup: function() {
-			this.element
-				.children( "a" )
-				.filter( ":not([data-" + $.mobile.ns + "role='none'])" )
-				.attr( "data-" + $.mobile.ns + "role", "button" );
-			this.element.trigger( "create" );
-		},
-		// Deprecated in 1.4. As from 1.5 ui-btn-left/right classes have to be present in the markup.
-		_addHeaderButtonClasses: function() {
-			var headerAnchors = this.element.children( "a, button" );
-
-			// Do not mistake a back button for a left toolbar button
-			this.leftbtn = headerAnchors.hasClass( "ui-btn-left" ) &&
-				!headerAnchors.hasClass( "ui-toolbar-back-btn" );
-
-			this.rightbtn = headerAnchors.hasClass( "ui-btn-right" );
-
-			// Filter out right buttons and back buttons
-			this.leftbtn = this.leftbtn ||
-				headerAnchors.eq( 0 )
-					.not( ".ui-btn-right,.ui-toolbar-back-btn" )
-					.addClass( "ui-btn-left" )
-					.length;
-
-			this.rightbtn = this.rightbtn || headerAnchors.eq( 1 ).addClass( "ui-btn-right" ).length;
-		},
-		_updateBackButton: function() {
-			var backButton,
-				options = this.options,
-				theme = options.backBtnTheme || options.theme;
-
-			// Retrieve the back button or create a new, empty one
-			backButton = this._backButton = ( this._backButton || {} );
-
-			// We add a back button only if the option to do so is on
-			if ( this.options.addBackBtn &&
-
-					// This must also be a header toolbar
-					this.role === "header" &&
-
-					// There must be multiple pages in the DOM
-					$( ".ui-page" ).length > 1 &&
-					( this.page ?
-
-						// If the toolbar is internal the page's URL must differ from the hash
-						( this.page[ 0 ].getAttribute( "data-" + $.mobile.ns + "url" ) !==
-							$.mobile.path.stripHash( location.hash ) ) :
-
-						// Otherwise, if the toolbar is external there must be at least one
-						// history item to which one can go back
-						( $.mobile.navigate && $.mobile.navigate.history &&
-							$.mobile.navigate.history.activeIndex > 0 ) ) &&
-
-					// The toolbar does not have a left button
-					!this.leftbtn ) {
-
-				// Skip back button creation if one is already present
-				if ( !backButton.attached ) {
-					this.backButton = backButton.element = ( backButton.element ||
-						$( "<a role='button' href='javascript:void(0);' " +
-							"class='ui-btn ui-corner-all ui-shadow ui-btn-left " +
-								( theme ? "ui-btn-" + theme + " " : "" ) +
-								"ui-toolbar-back-btn ui-icon-carat-l ui-btn-icon-left' " +
-							"data-" + $.mobile.ns + "rel='back'>" + options.backBtnText +
-							"</a>" ) )
-							.prependTo( this.element );
-					backButton.attached = true;
-				}
-
-			// If we are not adding a back button, then remove the one present, if any
-			} else if ( backButton.element ) {
-				backButton.element.detach();
-				backButton.attached = false;
-			}
-		},
-		_addHeadingClasses: function() {
-			this.element.children( "h1, h2, h3, h4, h5, h6" )
-				.addClass( "ui-title" )
-				// Regardless of h element number in src, it becomes h1 for the enhanced page
-				.attr({
-					"role": "heading",
-					"aria-level": "1"
-				});
-		},
-		_destroy: function() {
-			var currentTheme;
-
-			this.element.children( "h1, h2, h3, h4, h5, h6" )
-				.removeClass( "ui-title" )
-				.removeAttr( "role" )
-				.removeAttr( "aria-level" );
-
-			if ( this.role === "header" ) {
-				this.element.children( "a, button" )
-					.removeClass( "ui-btn-left ui-btn-right ui-btn ui-shadow ui-corner-all" );
-				if ( this.backButton) {
-					this.backButton.remove();
-				}
-			}
-
-			currentTheme = this.options.theme ? this.options.theme : "inherit";
-			this.element.removeClass( "ui-bar-" + currentTheme );
-
-			this.element.removeClass( "ui-" + this.role ).removeAttr( "role" );
-		}
-	});
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-	$.widget( "mobile.toolbar", $.mobile.toolbar, {
-		options: {
-			position:null,
-			visibleOnPageShow: true,
-			disablePageZoom: true,
-			transition: "slide", //can be none, fade, slide (slide maps to slideup or slidedown)
-			fullscreen: false,
-			tapToggle: true,
-			tapToggleBlacklist: "a, button, input, select, textarea, .ui-header-fixed, .ui-footer-fixed, .ui-flipswitch, .ui-popup, .ui-panel, .ui-panel-dismiss-open",
-			hideDuringFocus: "input, textarea, select",
-			updatePagePadding: true,
-			trackPersistentToolbars: true,
-
-			// Browser detection! Weeee, here we go...
-			// Unfortunately, position:fixed is costly, not to mention probably impossible, to feature-detect accurately.
-			// Some tests exist, but they currently return false results in critical devices and browsers, which could lead to a broken experience.
-			// Testing fixed positioning is also pretty obtrusive to page load, requiring injected elements and scrolling the window
-			// The following function serves to rule out some popular browsers with known fixed-positioning issues
-			// This is a plugin option like any other, so feel free to improve or overwrite it
-			supportBlacklist: function() {
-				return !$.support.fixedPosition;
-			}
-		},
-
-		_create: function() {
-			this._super();
-			this.pagecontainer = $( ":mobile-pagecontainer" );
-			if ( this.options.position === "fixed" && !this.options.supportBlacklist() ) {
-				this._makeFixed();
-			}
-		},
-
-		_makeFixed: function() {
-			this.element.addClass( "ui-"+ this.role +"-fixed" );
-			this.updatePagePadding();
-			this._addTransitionClass();
-			this._bindPageEvents();
-			this._bindToggleHandlers();
-		},
-
-		_setOptions: function( o ) {
-			if ( o.position === "fixed" && this.options.position !== "fixed" ) {
-				this._makeFixed();
-			}
-			if ( this.options.position === "fixed" && !this.options.supportBlacklist() ) {
-				var $page = ( !!this.page )? this.page: ( $(".ui-page-active").length > 0 )? $(".ui-page-active"): $(".ui-page").eq(0);
-
-				if ( o.fullscreen !== undefined) {
-					if ( o.fullscreen ) {
-						this.element.addClass( "ui-"+ this.role +"-fullscreen" );
-						$page.addClass( "ui-page-" + this.role + "-fullscreen" );
-					}
-					// If not fullscreen, add class to page to set top or bottom padding
-					else {
-						this.element.removeClass( "ui-"+ this.role +"-fullscreen" );
-						$page.removeClass( "ui-page-" + this.role + "-fullscreen" ).addClass( "ui-page-" + this.role+ "-fixed" );
-					}
-				}
-			}
-			this._super(o);
-		},
-
-		_addTransitionClass: function() {
-			var tclass = this.options.transition;
-
-			if ( tclass && tclass !== "none" ) {
-				// use appropriate slide for header or footer
-				if ( tclass === "slide" ) {
-					tclass = this.element.hasClass( "ui-header" ) ? "slidedown" : "slideup";
-				}
-
-				this.element.addClass( tclass );
-			}
-		},
-
-		_bindPageEvents: function() {
-			var page = ( !!this.page )? this.element.closest( ".ui-page" ): this.document;
-			//page event bindings
-			// Fixed toolbars require page zoom to be disabled, otherwise usability issues crop up
-			// This method is meant to disable zoom while a fixed-positioned toolbar page is visible
-			this._on( page , {
-				"pagebeforeshow": "_handlePageBeforeShow",
-				"webkitAnimationStart":"_handleAnimationStart",
-				"animationstart":"_handleAnimationStart",
-				"updatelayout": "_handleAnimationStart",
-				"pageshow": "_handlePageShow",
-				"pagebeforehide": "_handlePageBeforeHide"
-			});
-		},
-
-		_handlePageBeforeShow: function( ) {
-			var o = this.options;
-			if ( o.disablePageZoom ) {
-				$.mobile.zoom.disable( true );
-			}
-			if ( !o.visibleOnPageShow ) {
-				this.hide( true );
-			}
-		},
-
-		_handleAnimationStart: function() {
-			if ( this.options.updatePagePadding ) {
-				this.updatePagePadding( ( !!this.page )? this.page: ".ui-page-active" );
-			}
-		},
-
-		_handlePageShow: function() {
-			this.updatePagePadding( ( !!this.page )? this.page: ".ui-page-active" );
-			if ( this.options.updatePagePadding ) {
-				this._on( this.window, { "throttledresize": "updatePagePadding" } );
-			}
-		},
-
-		_handlePageBeforeHide: function( e, ui ) {
-			var o = this.options,
-				thisFooter, thisHeader, nextFooter, nextHeader;
-
-			if ( o.disablePageZoom ) {
-				$.mobile.zoom.enable( true );
-			}
-			if ( o.updatePagePadding ) {
-				this._off( this.window, "throttledresize" );
-			}
-
-			if ( o.trackPersistentToolbars ) {
-				thisFooter = $( ".ui-footer-fixed:jqmData(id)", this.page );
-				thisHeader = $( ".ui-header-fixed:jqmData(id)", this.page );
-				nextFooter = thisFooter.length && ui.nextPage && $( ".ui-footer-fixed:jqmData(id='" + thisFooter.jqmData( "id" ) + "')", ui.nextPage ) || $();
-				nextHeader = thisHeader.length && ui.nextPage && $( ".ui-header-fixed:jqmData(id='" + thisHeader.jqmData( "id" ) + "')", ui.nextPage ) || $();
-
-				if ( nextFooter.length || nextHeader.length ) {
-
-					nextFooter.add( nextHeader ).appendTo( $.mobile.pageContainer );
-
-					ui.nextPage.one( "pageshow", function() {
-						nextHeader.prependTo( this );
-						nextFooter.appendTo( this );
-					});
-				}
-			}
-		},
-
-		_visible: true,
-
-		// This will set the content element's top or bottom padding equal to the toolbar's height
-		updatePagePadding: function( tbPage ) {
-			var $el = this.element,
-				header = ( this.role ==="header" ),
-				pos = parseFloat( $el.css( header ? "top" : "bottom" ) );
-
-			// This behavior only applies to "fixed", not "fullscreen"
-			if ( this.options.fullscreen ) { return; }
-			// tbPage argument can be a Page object or an event, if coming from throttled resize.
-			tbPage = ( tbPage && tbPage.type === undefined && tbPage ) || this.page || $el.closest( ".ui-page" );
-			tbPage = ( !!this.page )? this.page: ".ui-page-active";
-			$( tbPage ).css( "padding-" + ( header ? "top" : "bottom" ), $el.outerHeight() + pos );
-		},
-
-		_useTransition: function( notransition ) {
-			var $win = this.window,
-				$el = this.element,
-				scroll = $win.scrollTop(),
-				elHeight = $el.height(),
-				pHeight = ( !!this.page )? $el.closest( ".ui-page" ).height():$(".ui-page-active").height(),
-				viewportHeight = $.mobile.getScreenHeight();
-
-			return !notransition &&
-				( this.options.transition && this.options.transition !== "none" &&
-				(
-					( this.role === "header" && !this.options.fullscreen && scroll > elHeight ) ||
-					( this.role === "footer" && !this.options.fullscreen && scroll + viewportHeight < pHeight - elHeight )
-				) || this.options.fullscreen
-				);
-		},
-
-		show: function( notransition ) {
-			var hideClass = "ui-fixed-hidden",
-				$el = this.element;
-
-			if ( this._useTransition( notransition ) ) {
-				$el
-					.removeClass( "out " + hideClass )
-					.addClass( "in" )
-					.animationComplete(function () {
-						$el.removeClass( "in" );
-					});
-			}
-			else {
-				$el.removeClass( hideClass );
-			}
-			this._visible = true;
-		},
-
-		hide: function( notransition ) {
-			var hideClass = "ui-fixed-hidden",
-				$el = this.element,
-				// if it's a slide transition, our new transitions need the reverse class as well to slide outward
-				outclass = "out" + ( this.options.transition === "slide" ? " reverse" : "" );
-
-			if ( this._useTransition( notransition ) ) {
-				$el
-					.addClass( outclass )
-					.removeClass( "in" )
-					.animationComplete(function() {
-						$el.addClass( hideClass ).removeClass( outclass );
-					});
-			}
-			else {
-				$el.addClass( hideClass ).removeClass( outclass );
-			}
-			this._visible = false;
-		},
-
-		toggle: function() {
-			this[ this._visible ? "hide" : "show" ]();
-		},
-
-		_bindToggleHandlers: function() {
-			var self = this,
-				o = self.options,
-				delayShow, delayHide,
-				isVisible = true,
-				page = ( !!this.page )? this.page: $(".ui-page");
-
-			// tap toggle
-			page
-				.bind( "vclick", function( e ) {
-					if ( o.tapToggle && !$( e.target ).closest( o.tapToggleBlacklist ).length ) {
-						self.toggle();
-					}
-				})
-				.bind( "focusin focusout", function( e ) {
-					//this hides the toolbars on a keyboard pop to give more screen room and prevent ios bug which
-					//positions fixed toolbars in the middle of the screen on pop if the input is near the top or
-					//bottom of the screen addresses issues #4410 Footer navbar moves up when clicking on a textbox in an Android environment
-					//and issue #4113 Header and footer change their position after keyboard popup - iOS
-					//and issue #4410 Footer navbar moves up when clicking on a textbox in an Android environment
-					if ( screen.width < 1025 && $( e.target ).is( o.hideDuringFocus ) && !$( e.target ).closest( ".ui-header-fixed, .ui-footer-fixed" ).length ) {
-						//Fix for issue #4724 Moving through form in Mobile Safari with "Next" and "Previous" system
-						//controls causes fixed position, tap-toggle false Header to reveal itself
-						// isVisible instead of self._visible because the focusin and focusout events fire twice at the same time
-						// Also use a delay for hiding the toolbars because on Android native browser focusin is direclty followed
-						// by a focusout when a native selects opens and the other way around when it closes.
-						if ( e.type === "focusout" && !isVisible ) {
-							isVisible = true;
-							//wait for the stack to unwind and see if we have jumped to another input
-							clearTimeout( delayHide );
-							delayShow = setTimeout( function() {
-								self.show();
-							}, 0 );
-						} else if ( e.type === "focusin" && !!isVisible ) {
-							//if we have jumped to another input clear the time out to cancel the show.
-							clearTimeout( delayShow );
-							isVisible = false;
-							delayHide = setTimeout( function() {
-								self.hide();
-							}, 0 );
-						}
-					}
-				});
-		},
-
-		_setRelative: function() {
-			if( this.options.position !== "fixed" ){
-				$( "[data-"+ $.mobile.ns + "role='page']" ).css({ "position": "relative" });
-			}
-		},
-
-		_destroy: function() {
-			var pageClasses, toolbarClasses, hasFixed, header, hasFullscreen,
-				page = this.pagecontainer.pagecontainer( "getActivePage" );
-
-			this._super();
-			if ( this.options.position === "fixed" ) {
-				hasFixed = $(  "body>.ui-" + this.role + "-fixed" )
-							.add( page.find( ".ui-" + this.options.role + "-fixed" ) )
-							.not( this.element ).length > 0;
-				hasFullscreen = $(  "body>.ui-" + this.role + "-fixed" )
-							.add( page.find( ".ui-" + this.options.role + "-fullscreen" ) )
-							.not( this.element ).length > 0;
-				toolbarClasses =  "ui-header-fixed ui-footer-fixed ui-header-fullscreen in out" +
-					" ui-footer-fullscreen fade slidedown slideup ui-fixed-hidden";
-				this.element.removeClass( toolbarClasses );
-				if ( !hasFullscreen ) {
-					pageClasses = "ui-page-" + this.role + "-fullscreen";
-				}
-				if ( !hasFixed ) {
-					header = this.role === "header";
-					pageClasses += " ui-page-" + this.role + "-fixed";
-					page.css( "padding-" + ( header ? "top" : "bottom" ), "" );
-				}
-				page.removeClass( pageClasses );
-			}
-		}
-
-	});
-})( jQuery );
-
-(function( $, undefined ) {
-	$.widget( "mobile.toolbar", $.mobile.toolbar, {
-
-		_makeFixed: function() {
-			this._super();
-			this._workarounds();
-		},
-
-		//check the browser and version and run needed workarounds
-		_workarounds: function() {
-			var ua = navigator.userAgent,
-			platform = navigator.platform,
-			// Rendering engine is Webkit, and capture major version
-			wkmatch = ua.match( /AppleWebKit\/([0-9]+)/ ),
-			wkversion = !!wkmatch && wkmatch[ 1 ],
-			os = null,
-			self = this;
-			//set the os we are working in if it dosent match one with workarounds return
-			if ( platform.indexOf( "iPhone" ) > -1 || platform.indexOf( "iPad" ) > -1  || platform.indexOf( "iPod" ) > -1 ) {
-				os = "ios";
-			} else if ( ua.indexOf( "Android" ) > -1 ) {
-				os = "android";
-			} else {
-				return;
-			}
-			//check os version if it dosent match one with workarounds return
-			if ( os === "ios" ) {
-				//iOS  workarounds
-				self._bindScrollWorkaround();
-			} else if ( os === "android" && wkversion && wkversion < 534 ) {
-				//Android 2.3 run all Android 2.3 workaround
-				self._bindScrollWorkaround();
-				self._bindListThumbWorkaround();
-			} else {
-				return;
-			}
-		},
-
-		//Utility class for checking header and footer positions relative to viewport
-		_viewportOffset: function() {
-			var $el = this.element,
-				header = $el.hasClass( "ui-header" ),
-				offset = Math.abs( $el.offset().top - this.window.scrollTop() );
-			if ( !header ) {
-				offset = Math.round( offset - this.window.height() + $el.outerHeight() ) - 60;
-			}
-			return offset;
-		},
-
-		//bind events for _triggerRedraw() function
-		_bindScrollWorkaround: function() {
-			var self = this;
-			//bind to scrollstop and check if the toolbars are correctly positioned
-			this._on( this.window, { scrollstop: function() {
-				var viewportOffset = self._viewportOffset();
-				//check if the header is visible and if its in the right place
-				if ( viewportOffset > 2 && self._visible ) {
-					self._triggerRedraw();
-				}
-			}});
-		},
-
-		//this addresses issue #4250 Persistent footer instability in v1.1 with long select lists in Android 2.3.3
-		//and issue #3748 Android 2.x: Page transitions broken when fixed toolbars used
-		//the absolutely positioned thumbnail in a list view causes problems with fixed position buttons above in a nav bar
-		//setting the li's to -webkit-transform:translate3d(0,0,0); solves this problem to avoide potential issues in other
-		//platforms we scope this with the class ui-android-2x-fix
-		_bindListThumbWorkaround: function() {
-			this.element.closest( ".ui-page" ).addClass( "ui-android-2x-fixed" );
-		},
-		//this addresses issues #4337 Fixed header problem after scrolling content on iOS and Android
-		//and device bugs project issue #1 Form elements can lose click hit area in position: fixed containers.
-		//this also addresses not on fixed toolbars page in docs
-		//adding 1px of padding to the bottom then removing it causes a "redraw"
-		//which positions the toolbars correctly (they will always be visually correct)
-		_triggerRedraw: function() {
-			var paddingBottom = parseFloat( $( ".ui-page-active" ).css( "padding-bottom" ) );
-			//trigger page redraw to fix incorrectly positioned fixed elements
-			$( ".ui-page-active" ).css( "padding-bottom", ( paddingBottom + 1 ) + "px" );
-			//if the padding is reset with out a timeout the reposition will not occure.
-			//this is independant of JQM the browser seems to need the time to react.
-			setTimeout( function() {
-				$( ".ui-page-active" ).css( "padding-bottom", paddingBottom + "px" );
-			}, 0 );
-		},
-
-		destroy: function() {
-			this._super();
-			//Remove the class we added to the page previously in android 2.x
-			this.element.closest( ".ui-page-active" ).removeClass( "ui-android-2x-fix" );
-		}
-	});
-
-})( jQuery );
-
-
-( function( $, undefined ) {
-
-var ieHack = ( $.mobile.browser.oldIE && $.mobile.browser.oldIE <= 8 ),
-	uiTemplate = $(
-		"<div class='ui-popup-arrow-guide'></div>" +
-		"<div class='ui-popup-arrow-container" + ( ieHack ? " ie" : "" ) + "'>" +
-			"<div class='ui-popup-arrow'></div>" +
-		"</div>"
-	);
-
-function getArrow() {
-	var clone = uiTemplate.clone(),
-		gd = clone.eq( 0 ),
-		ct = clone.eq( 1 ),
-		ar = ct.children();
-
-	return { arEls: ct.add( gd ), gd: gd, ct: ct, ar: ar };
-}
-
-$.widget( "mobile.popup", $.mobile.popup, {
-	options: {
-
-		arrow: ""
-	},
-
-	_create: function() {
-		var ar,
-			ret = this._super();
-
-		if ( this.options.arrow ) {
-			this._ui.arrow = ar = this._addArrow();
-		}
-
-		return ret;
-	},
-
-	_addArrow: function() {
-		var theme,
-			opts = this.options,
-			ar = getArrow();
-
-		theme = this._themeClassFromOption( "ui-body-", opts.theme );
-		ar.ar.addClass( theme + ( opts.shadow ? " ui-overlay-shadow" : "" ) );
-		ar.arEls.hide().appendTo( this.element );
-
-		return ar;
-	},
-
-	_unenhance: function() {
-		var ar = this._ui.arrow;
-
-		if ( ar ) {
-			ar.arEls.remove();
-		}
-
-		return this._super();
-	},
-
-	// Pretend to show an arrow described by @p and @dir and calculate the
-	// distance from the desired point. If a best-distance is passed in, return
-	// the minimum of the one passed in and the one calculated.
-	_tryAnArrow: function( p, dir, desired, s, best ) {
-		var result, r, diff, desiredForArrow = {}, tip = {};
-
-		// If the arrow has no wiggle room along the edge of the popup, it cannot
-		// be displayed along the requested edge without it sticking out.
-		if ( s.arFull[ p.dimKey ] > s.guideDims[ p.dimKey ] ) {
-			return best;
-		}
-
-		desiredForArrow[ p.fst ] = desired[ p.fst ] +
-			( s.arHalf[ p.oDimKey ] + s.menuHalf[ p.oDimKey ] ) * p.offsetFactor -
-			s.contentBox[ p.fst ] + ( s.clampInfo.menuSize[ p.oDimKey ] - s.contentBox[ p.oDimKey ] ) * p.arrowOffsetFactor;
-		desiredForArrow[ p.snd ] = desired[ p.snd ];
-
-		result = s.result || this._calculateFinalLocation( desiredForArrow, s.clampInfo );
-		r = { x: result.left, y: result.top };
-
-		tip[ p.fst ] = r[ p.fst ] + s.contentBox[ p.fst ] + p.tipOffset;
-		tip[ p.snd ] = Math.max( result[ p.prop ] + s.guideOffset[ p.prop ] + s.arHalf[ p.dimKey ],
-			Math.min( result[ p.prop ] + s.guideOffset[ p.prop ] + s.guideDims[ p.dimKey ] - s.arHalf[ p.dimKey ],
-				desired[ p.snd ] ) );
-
-		diff = Math.abs( desired.x - tip.x ) + Math.abs( desired.y - tip.y );
-		if ( !best || diff < best.diff ) {
-			// Convert tip offset to coordinates inside the popup
-			tip[ p.snd ] -= s.arHalf[ p.dimKey ] + result[ p.prop ] + s.contentBox[ p.snd ];
-			best = { dir: dir, diff: diff, result: result, posProp: p.prop, posVal: tip[ p.snd ] };
-		}
-
-		return best;
-	},
-
-	_getPlacementState: function( clamp ) {
-		var offset, gdOffset,
-			ar = this._ui.arrow,
-			state = {
-				clampInfo: this._clampPopupWidth( !clamp ),
-				arFull: { cx: ar.ct.width(), cy: ar.ct.height() },
-				guideDims: { cx: ar.gd.width(), cy: ar.gd.height() },
-				guideOffset: ar.gd.offset()
-			};
-
-		offset = this.element.offset();
-
-		ar.gd.css( { left: 0, top: 0, right: 0, bottom: 0 } );
-		gdOffset = ar.gd.offset();
-		state.contentBox = {
-			x: gdOffset.left - offset.left,
-			y: gdOffset.top - offset.top,
-			cx: ar.gd.width(),
-			cy: ar.gd.height()
-		};
-		ar.gd.removeAttr( "style" );
-
-		// The arrow box moves between guideOffset and guideOffset + guideDims - arFull
-		state.guideOffset = { left: state.guideOffset.left - offset.left, top: state.guideOffset.top - offset.top };
-		state.arHalf = { cx: state.arFull.cx / 2, cy: state.arFull.cy / 2 };
-		state.menuHalf = { cx: state.clampInfo.menuSize.cx / 2, cy: state.clampInfo.menuSize.cy / 2 };
-
-		return state;
-	},
-
-	_placementCoords: function( desired ) {
-		var state, best, params, elOffset, bgRef,
-			optionValue = this.options.arrow,
-			ar = this._ui.arrow;
-
-		if ( !ar ) {
-			return this._super( desired );
-		}
-
-		ar.arEls.show();
-
-		bgRef = {};
-		state = this._getPlacementState( true );
-		params = {
-			"l": { fst: "x", snd: "y", prop: "top", dimKey: "cy", oDimKey: "cx", offsetFactor: 1, tipOffset:  -state.arHalf.cx, arrowOffsetFactor: 0 },
-			"r": { fst: "x", snd: "y", prop: "top", dimKey: "cy", oDimKey: "cx", offsetFactor: -1, tipOffset: state.arHalf.cx + state.contentBox.cx, arrowOffsetFactor: 1 },
-			"b": { fst: "y", snd: "x", prop: "left", dimKey: "cx", oDimKey: "cy", offsetFactor: -1, tipOffset: state.arHalf.cy + state.contentBox.cy, arrowOffsetFactor: 1 },
-			"t": { fst: "y", snd: "x", prop: "left", dimKey: "cx", oDimKey: "cy", offsetFactor: 1, tipOffset: -state.arHalf.cy, arrowOffsetFactor: 0 }
-		};
-
-		// Try each side specified in the options to see on which one the arrow
-		// should be placed such that the distance between the tip of the arrow and
-		// the desired coordinates is the shortest.
-		$.each( ( optionValue === true ? "l,t,r,b" : optionValue ).split( "," ),
-			$.proxy( function( key, value ) {
-				best = this._tryAnArrow( params[ value ], value, desired, state, best );
-			}, this ) );
-
-		// Could not place the arrow along any of the edges - behave as if showing
-		// the arrow was turned off.
-		if ( !best ) {
-			ar.arEls.hide();
-			return this._super( desired );
-		}
-
-		// Move the arrow into place
-		ar.ct
-			.removeClass( "ui-popup-arrow-l ui-popup-arrow-t ui-popup-arrow-r ui-popup-arrow-b" )
-			.addClass( "ui-popup-arrow-" + best.dir )
-			.removeAttr( "style" ).css( best.posProp, best.posVal )
-			.show();
-
-		// Do not move/size the background div on IE, because we use the arrow div for background as well.
-		if ( !ieHack ) {
-			elOffset = this.element.offset();
-			bgRef[ params[ best.dir ].fst ] = ar.ct.offset();
-			bgRef[ params[ best.dir ].snd ] = {
-				left: elOffset.left + state.contentBox.x,
-				top: elOffset.top + state.contentBox.y
-			};
-		}
-
-		return best.result;
-	},
-
-	_setOptions: function( opts ) {
-		var newTheme,
-			oldTheme = this.options.theme,
-			ar = this._ui.arrow,
-			ret = this._super( opts );
-
-		if ( opts.arrow !== undefined ) {
-			if ( !ar && opts.arrow ) {
-				this._ui.arrow = this._addArrow();
-
-				// Important to return here so we don't set the same options all over
-				// again below.
-				return;
-			} else if ( ar && !opts.arrow ) {
-				ar.arEls.remove();
-				this._ui.arrow = null;
-			}
-		}
-
-		// Reassign with potentially new arrow
-		ar = this._ui.arrow;
-
-		if ( ar ) {
-			if ( opts.theme !== undefined ) {
-				oldTheme = this._themeClassFromOption( "ui-body-", oldTheme );
-				newTheme = this._themeClassFromOption( "ui-body-", opts.theme );
-				ar.ar.removeClass( oldTheme ).addClass( newTheme );
-			}
-
-			if ( opts.shadow !== undefined ) {
-				ar.ar.toggleClass( "ui-overlay-shadow", opts.shadow );
-			}
-		}
-
-		return ret;
-	},
-
-	_destroy: function() {
-		var ar = this._ui.arrow;
-
-		if ( ar ) {
-			ar.arEls.remove();
-		}
-
-		return this._super();
-	}
-});
-
-})( jQuery );
-
-
-(function( $, undefined ) {
-
-$.widget( "mobile.panel", {
-	options: {
-		classes: {
-			panel: "ui-panel",
-			panelOpen: "ui-panel-open",
-			panelClosed: "ui-panel-closed",
-			panelFixed: "ui-panel-fixed",
-			panelInner: "ui-panel-inner",
-			modal: "ui-panel-dismiss",
-			modalOpen: "ui-panel-dismiss-open",
-			pageContainer: "ui-panel-page-container",
-			pageWrapper: "ui-panel-wrapper",
-			pageFixedToolbar: "ui-panel-fixed-toolbar",
-			pageContentPrefix: "ui-panel-page-content", /* Used for wrapper and fixed toolbars position, display and open classes. */
-			animate: "ui-panel-animate"
-		},
-		animate: true,
-		theme: null,
-		position: "left",
-		dismissible: true,
-		display: "reveal", //accepts reveal, push, overlay
-		swipeClose: true,
-		positionFixed: false
-	},
-
-	_closeLink: null,
-	_parentPage: null,
-	_page: null,
-	_modal: null,
-	_panelInner: null,
-	_wrapper: null,
-	_fixedToolbars: null,
-
-	_create: function() {
-		var el = this.element,
-			parentPage = el.closest( ".ui-page, :jqmData(role='page')" );
-
-		// expose some private props to other methods
-		$.extend( this, {
-			_closeLink: el.find( ":jqmData(rel='close')" ),
-			_parentPage: ( parentPage.length > 0 ) ? parentPage : false,
-			_openedPage: null,
-			_page: this._getPage,
-			_panelInner: this._getPanelInner(),
-			_fixedToolbars: this._getFixedToolbars
-		});
-		if ( this.options.display !== "overlay" ){
-			this._getWrapper();
-		}
-		this._addPanelClasses();
-
-		// if animating, add the class to do so
-		if ( $.support.cssTransform3d && !!this.options.animate ) {
-			this.element.addClass( this.options.classes.animate );
-		}
-
-		this._bindUpdateLayout();
-		this._bindCloseEvents();
-		this._bindLinkListeners();
-		this._bindPageEvents();
-
-		if ( !!this.options.dismissible ) {
-			this._createModal();
-		}
-
-		this._bindSwipeEvents();
-	},
-
-	_getPanelInner: function() {
-		var panelInner = this.element.find( "." + this.options.classes.panelInner );
-
-		if ( panelInner.length === 0 ) {
-			panelInner = this.element.children().wrapAll( "<div class='" + this.options.classes.panelInner + "' />" ).parent();
-		}
-
-		return panelInner;
-	},
-
-	_createModal: function() {
-		var self = this,
-			target = self._parentPage ? self._parentPage.parent() : self.element.parent();
-
-		self._modal = $( "<div class='" + self.options.classes.modal + "'></div>" )
-			.on( "mousedown", function() {
-				self.close();
-			})
-			.appendTo( target );
-	},
-
-	_getPage: function() {
-		var page = this._openedPage || this._parentPage || $( "." + $.mobile.activePageClass );
-
-		return page;
-	},
-
-	_getWrapper: function() {
-		var wrapper = this._page().find( "." + this.options.classes.pageWrapper );
-		if ( wrapper.length === 0 ) {
-			wrapper = this._page().children( ".ui-header:not(.ui-header-fixed), .ui-content:not(.ui-popup), .ui-footer:not(.ui-footer-fixed)" )
-				.wrapAll( "<div class='" + this.options.classes.pageWrapper + "'></div>" )
-				.parent();
-		}
-
-		this._wrapper = wrapper;
-	},
-
-	_getFixedToolbars: function() {
-		var extFixedToolbars = $( "body" ).children( ".ui-header-fixed, .ui-footer-fixed" ),
-			intFixedToolbars = this._page().find( ".ui-header-fixed, .ui-footer-fixed" ),
-			fixedToolbars = extFixedToolbars.add( intFixedToolbars ).addClass( this.options.classes.pageFixedToolbar );
-
-		return fixedToolbars;
-	},
-
-	_getPosDisplayClasses: function( prefix ) {
-		return prefix + "-position-" + this.options.position + " " + prefix + "-display-" + this.options.display;
-	},
-
-	_getPanelClasses: function() {
-		var panelClasses = this.options.classes.panel +
-			" " + this._getPosDisplayClasses( this.options.classes.panel ) +
-			" " + this.options.classes.panelClosed +
-			" " + "ui-body-" + ( this.options.theme ? this.options.theme : "inherit" );
-
-		if ( !!this.options.positionFixed ) {
-			panelClasses += " " + this.options.classes.panelFixed;
-		}
-
-		return panelClasses;
-	},
-
-	_addPanelClasses: function() {
-		this.element.addClass( this._getPanelClasses() );
-	},
-
-	_handleCloseClick: function( event ) {
-		if ( !event.isDefaultPrevented() ) {
-			this.close();
-		}
-	},
-
-	_bindCloseEvents: function() {
-		this._on( this._closeLink, {
-			"click": "_handleCloseClick"
-		});
-
-		this._on({
-			"click a:jqmData(ajax='false')": "_handleCloseClick"
-		});
-	},
-
-	_positionPanel: function( scrollToTop ) {
-		var self = this,
-			panelInnerHeight = self._panelInner.outerHeight(),
-			expand = panelInnerHeight > $.mobile.getScreenHeight();
-
-		if ( expand || !self.options.positionFixed ) {
-			if ( expand ) {
-				self._unfixPanel();
-				$.mobile.resetActivePageHeight( panelInnerHeight );
-			}
-			if ( scrollToTop ) {
-				this.window[ 0 ].scrollTo( 0, $.mobile.defaultHomeScroll );
-			}
-		} else {
-			self._fixPanel();
-		}
-	},
-
-	_bindFixListener: function() {
-		this._on( $( window ), { "throttledresize": "_positionPanel" });
-	},
-
-	_unbindFixListener: function() {
-		this._off( $( window ), "throttledresize" );
-	},
-
-	_unfixPanel: function() {
-		if ( !!this.options.positionFixed && $.support.fixedPosition ) {
-			this.element.removeClass( this.options.classes.panelFixed );
-		}
-	},
-
-	_fixPanel: function() {
-		if ( !!this.options.positionFixed && $.support.fixedPosition ) {
-			this.element.addClass( this.options.classes.panelFixed );
-		}
-	},
-
-	_bindUpdateLayout: function() {
-		var self = this;
-
-		self.element.on( "updatelayout", function(/* e */) {
-			if ( self._open ) {
-				self._positionPanel();
-			}
-		});
-	},
-
-	_bindLinkListeners: function() {
-		this._on( "body", {
-			"click a": "_handleClick"
-		});
-
-	},
-
-	_handleClick: function( e ) {
-		var link,
-			panelId = this.element.attr( "id" );
-
-		if ( e.currentTarget.href.split( "#" )[ 1 ] === panelId && panelId !== undefined ) {
-
-			e.preventDefault();
-			link = $( e.target );
-			if ( link.hasClass( "ui-btn" ) ) {
-				link.addClass( $.mobile.activeBtnClass );
-				this.element.one( "panelopen panelclose", function() {
-					link.removeClass( $.mobile.activeBtnClass );
-				});
-			}
-			this.toggle();
-		}
-	},
-
-	_bindSwipeEvents: function() {
-		var self = this,
-			area = self._modal ? self.element.add( self._modal ) : self.element;
-
-		// on swipe, close the panel
-		if ( !!self.options.swipeClose ) {
-			if ( self.options.position === "left" ) {
-				area.on( "swipeleft.panel", function(/* e */) {
-					self.close();
-				});
-			} else {
-				area.on( "swiperight.panel", function(/* e */) {
-					self.close();
-				});
-			}
-		}
-	},
-
-	_bindPageEvents: function() {
-		var self = this;
-
-		this.document
-			// Close the panel if another panel on the page opens
-			.on( "panelbeforeopen", function( e ) {
-				if ( self._open && e.target !== self.element[ 0 ] ) {
-					self.close();
-				}
-			})
-			// On escape, close? might need to have a target check too...
-			.on( "keyup.panel", function( e ) {
-				if ( e.keyCode === 27 && self._open ) {
-					self.close();
-				}
-			});
-		if ( !this._parentPage && this.options.display !== "overlay" ) {
-			this._on( this.document, {
-				"pageshow": function() {
-					this._openedPage = null;
-					this._getWrapper();
-				}
-			});
-		}
-		// Clean up open panels after page hide
-		if ( self._parentPage ) {
-			this.document.on( "pagehide", ":jqmData(role='page')", function() {
-				if ( self._open ) {
-					self.close( true );
-				}
-			});
-		} else {
-			this.document.on( "pagebeforehide", function() {
-				if ( self._open ) {
-					self.close( true );
-				}
-			});
-		}
-	},
-
-	// state storage of open or closed
-	_open: false,
-	_pageContentOpenClasses: null,
-	_modalOpenClasses: null,
-
-	open: function( immediate ) {
-		if ( !this._open ) {
-			var self = this,
-				o = self.options,
-
-				_openPanel = function() {
-					self._off( self.document , "panelclose" );
-					self._page().jqmData( "panel", "open" );
-
-					if ( $.support.cssTransform3d && !!o.animate && o.display !== "overlay" ) {
-						self._wrapper.addClass( o.classes.animate );
-						self._fixedToolbars().addClass( o.classes.animate );
-					}
-
-					if ( !immediate && $.support.cssTransform3d && !!o.animate ) {
-						( self._wrapper || self.element )
-							.animationComplete( complete, "transition" );
-					} else {
-						setTimeout( complete, 0 );
-					}
-
-					if ( o.theme && o.display !== "overlay" ) {
-						self._page().parent()
-							.addClass( o.classes.pageContainer + "-themed " + o.classes.pageContainer + "-" + o.theme );
-					}
-
-					self.element
-						.removeClass( o.classes.panelClosed )
-						.addClass( o.classes.panelOpen );
-
-					self._positionPanel( true );
-
-					self._pageContentOpenClasses = self._getPosDisplayClasses( o.classes.pageContentPrefix );
-
-					if ( o.display !== "overlay" ) {
-						self._page().parent().addClass( o.classes.pageContainer );
-						self._wrapper.addClass( self._pageContentOpenClasses );
-						self._fixedToolbars().addClass( self._pageContentOpenClasses );
-					}
-
-					self._modalOpenClasses = self._getPosDisplayClasses( o.classes.modal ) + " " + o.classes.modalOpen;
-					if ( self._modal ) {
-						self._modal
-							.addClass( self._modalOpenClasses )
-							.height( Math.max( self._modal.height(), self.document.height() ) );
-					}
-				},
-				complete = function() {
-
-					// Bail if the panel was closed before the opening animation has completed
-					if ( !self._open ) {
-						return;
-					}
-
-					if ( o.display !== "overlay" ) {
-						self._wrapper.addClass( o.classes.pageContentPrefix + "-open" );
-						self._fixedToolbars().addClass( o.classes.pageContentPrefix + "-open" );
-					}
-
-					self._bindFixListener();
-
-					self._trigger( "open" );
-
-					self._openedPage = self._page();
-				};
-
-			self._trigger( "beforeopen" );
-
-			if ( self._page().jqmData( "panel" ) === "open" ) {
-				self._on( self.document, {
-					"panelclose": _openPanel
-				});
-			} else {
-				_openPanel();
-			}
-
-			self._open = true;
-		}
-	},
-
-	close: function( immediate ) {
-		if ( this._open ) {
-			var self = this,
-				o = this.options,
-
-				_closePanel = function() {
-
-					self.element.removeClass( o.classes.panelOpen );
-
-					if ( o.display !== "overlay" ) {
-						self._wrapper.removeClass( self._pageContentOpenClasses );
-						self._fixedToolbars().removeClass( self._pageContentOpenClasses );
-					}
-
-					if ( !immediate && $.support.cssTransform3d && !!o.animate ) {
-						( self._wrapper || self.element )
-							.animationComplete( complete, "transition" );
-					} else {
-						setTimeout( complete, 0 );
-					}
-
-					if ( self._modal ) {
-						self._modal
-							.removeClass( self._modalOpenClasses )
-							.height( "" );
-					}
-				},
-				complete = function() {
-					if ( o.theme && o.display !== "overlay" ) {
-						self._page().parent().removeClass( o.classes.pageContainer + "-themed " + o.classes.pageContainer + "-" + o.theme );
-					}
-
-					self.element.addClass( o.classes.panelClosed );
-
-					if ( o.display !== "overlay" ) {
-						self._page().parent().removeClass( o.classes.pageContainer );
-						self._wrapper.removeClass( o.classes.pageContentPrefix + "-open" );
-						self._fixedToolbars().removeClass( o.classes.pageContentPrefix + "-open" );
-					}
-
-					if ( $.support.cssTransform3d && !!o.animate && o.display !== "overlay" ) {
-						self._wrapper.removeClass( o.classes.animate );
-						self._fixedToolbars().removeClass( o.classes.animate );
-					}
-
-					self._fixPanel();
-					self._unbindFixListener();
-					$.mobile.resetActivePageHeight();
-
-					self._page().jqmRemoveData( "panel" );
-
-					self._trigger( "close" );
-
-					self._openedPage = null;
-				};
-
-			self._trigger( "beforeclose" );
-
-			_closePanel();
-
-			self._open = false;
-		}
-	},
-
-	toggle: function() {
-		this[ this._open ? "close" : "open" ]();
-	},
-
-	_destroy: function() {
-		var otherPanels,
-		o = this.options,
-		multiplePanels = ( $( "body > :mobile-panel" ).length + $.mobile.activePage.find( ":mobile-panel" ).length ) > 1;
-
-		if ( o.display !== "overlay" ) {
-
-			//  remove the wrapper if not in use by another panel
-			otherPanels = $( "body > :mobile-panel" ).add( $.mobile.activePage.find( ":mobile-panel" ) );
-			if ( otherPanels.not( ".ui-panel-display-overlay" ).not( this.element ).length === 0 ) {
-				this._wrapper.children().unwrap();
-			}
-
-			if ( this._open ) {
-
-				this._fixedToolbars().removeClass( o.classes.pageContentPrefix + "-open" );
-
-				if ( $.support.cssTransform3d && !!o.animate ) {
-					this._fixedToolbars().removeClass( o.classes.animate );
-				}
-
-				this._page().parent().removeClass( o.classes.pageContainer );
-
-				if ( o.theme ) {
-					this._page().parent().removeClass( o.classes.pageContainer + "-themed " + o.classes.pageContainer + "-" + o.theme );
-				}
-			}
-		}
-
-		if ( !multiplePanels ) {
-
-			this.document.off( "panelopen panelclose" );
-
-		}
-
-		if ( this._open ) {
-			this._page().jqmRemoveData( "panel" );
-		}
-
-		this._panelInner.children().unwrap();
-
-		this.element
-			.removeClass( [ this._getPanelClasses(), o.classes.panelOpen, o.classes.animate ].join( " " ) )
-			.off( "swipeleft.panel swiperight.panel" )
-			.off( "panelbeforeopen" )
-			.off( "panelhide" )
-			.off( "keyup.panel" )
-			.off( "updatelayout" );
-
-		if ( this._modal ) {
-			this._modal.remove();
-		}
-	}
-});
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-$.widget( "mobile.table", {
-	options: {
-		classes: {
-			table: "ui-table"
-		},
-		enhanced: false
-	},
-
-	_create: function() {
-		if ( !this.options.enhanced ) {
-			this.element.addClass( this.options.classes.table );
-		}
-
-		// extend here, assign on refresh > _setHeaders
-		$.extend( this, {
-
-			// Expose headers and allHeaders properties on the widget
-			// headers references the THs within the first TR in the table
-			headers: undefined,
-
-			// allHeaders references headers, plus all THs in the thead, which may
-			// include several rows, or not
-			allHeaders: undefined
-		});
-
-		this._refresh( true );
-	},
-
-	_setHeaders: function() {
-		var trs = this.element.find( "thead tr" );
-
-		this.headers = this.element.find( "tr:eq(0)" ).children();
-		this.allHeaders = this.headers.add( trs.children() );
-	},
-
-	refresh: function() {
-		this._refresh();
-	},
-
-	rebuild: $.noop,
-
-	_refresh: function( /* create */ ) {
-		var table = this.element,
-			trs = table.find( "thead tr" );
-
-		// updating headers on refresh (fixes #5880)
-		this._setHeaders();
-
-		// Iterate over the trs
-		trs.each( function() {
-			var columnCount = 0;
-
-			// Iterate over the children of the tr
-			$( this ).children().each( function() {
-				var span = parseInt( this.getAttribute( "colspan" ), 10 ),
-					selector = ":nth-child(" + ( columnCount + 1 ) + ")",
-					j;
-
-				this.setAttribute( "data-" + $.mobile.ns + "colstart", columnCount + 1 );
-
-				if ( span ) {
-					for( j = 0; j < span - 1; j++ ) {
-						columnCount++;
-						selector += ", :nth-child(" + ( columnCount + 1 ) + ")";
-					}
-				}
-
-				// Store "cells" data on header as a reference to all cells in the
-				// same column as this TH
-				$( this ).jqmData( "cells", table.find( "tr" ).not( trs.eq( 0 ) ).not( this ).children( selector ) );
-
-				columnCount++;
-			});
-		});
-	}
-});
-
-})( jQuery );
-
-
-(function( $, undefined ) {
-
-$.widget( "mobile.table", $.mobile.table, {
-	options: {
-		mode: "columntoggle",
-		columnBtnTheme: null,
-		columnPopupTheme: null,
-		columnBtnText: "Columns...",
-		classes: $.extend( $.mobile.table.prototype.options.classes, {
-			popup: "ui-table-columntoggle-popup",
-			columnBtn: "ui-table-columntoggle-btn",
-			priorityPrefix: "ui-table-priority-",
-			columnToggleTable: "ui-table-columntoggle"
-		})
-	},
-
-	_create: function() {
-		this._super();
-
-		if ( this.options.mode !== "columntoggle" ) {
-			return;
-		}
-
-		$.extend( this, {
-			_menu: null
-		});
-
-		if ( this.options.enhanced ) {
-			this._menu = $( this.document[ 0 ].getElementById( this._id() + "-popup" ) ).children().first();
-			this._addToggles( this._menu, true );
-		} else {
-			this._menu = this._enhanceColToggle();
-			this.element.addClass( this.options.classes.columnToggleTable );
-		}
-
-		this._setupEvents();
-
-		this._setToggleState();
-	},
-
-	_id: function() {
-		return ( this.element.attr( "id" ) || ( this.widgetName + this.uuid ) );
-	},
-
-	_setupEvents: function() {
-		//NOTE: inputs are bound in bindToggles,
-		// so it can be called on refresh, too
-
-		// update column toggles on resize
-		this._on( this.window, {
-			throttledresize: "_setToggleState"
-		});
-		this._on( this._menu, {
-			"change input": "_menuInputChange"
-		});
-	},
-
-	_addToggles: function( menu, keep ) {
-		var inputs,
-			checkboxIndex = 0,
-			opts = this.options,
-			container = menu.controlgroup( "container" );
-
-		// allow update of menu on refresh (fixes #5880)
-		if ( keep ) {
-			inputs = menu.find( "input" );
-		} else {
-			container.empty();
-		}
-
-		// create the hide/show toggles
-		this.headers.not( "td" ).each( function() {
-			var input, cells,
-				header = $( this ),
-				priority = $.mobile.getAttribute( this, "priority" );
-
-			if ( priority ) {
-				cells = header.add( header.jqmData( "cells" ) );
-				cells.addClass( opts.classes.priorityPrefix + priority );
-
-				// Make sure the (new?) checkbox is associated with its header via .jqmData() and
-				// that, vice versa, the header is also associated with the checkbox
-				input = ( keep ? inputs.eq( checkboxIndex++ ) :
-					$("<label><input type='checkbox' checked />" +
-						( header.children( "abbr" ).first().attr( "title" ) ||
-							header.text() ) +
-						"</label>" )
-						.appendTo( container )
-						.children( 0 )
-						.checkboxradio( {
-							theme: opts.columnPopupTheme
-						}) )
-
-						// Associate the header with the checkbox
-						.jqmData( "header", header )
-						.jqmData( "cells", cells );
-
-				// Associate the checkbox with the header
-				header.jqmData( "input", input );
-			}
-		});
-
-		// set bindings here
-		if ( !keep ) {
-			menu.controlgroup( "refresh" );
-		}
-	},
-
-	_menuInputChange: function( evt ) {
-		var input = $( evt.target ),
-			checked = input[ 0 ].checked;
-
-		input.jqmData( "cells" )
-			.toggleClass( "ui-table-cell-hidden", !checked )
-			.toggleClass( "ui-table-cell-visible", checked );
-	},
-
-	_unlockCells: function( cells ) {
-		// allow hide/show via CSS only = remove all toggle-locks
-		cells.removeClass( "ui-table-cell-hidden ui-table-cell-visible");
-	},
-
-	_enhanceColToggle: function() {
-		var id , menuButton, popup, menu,
-			table = this.element,
-			opts = this.options,
-			ns = $.mobile.ns,
-			fragment = this.document[ 0 ].createDocumentFragment();
-
-		id = this._id() + "-popup";
-		menuButton = $( "<a href='#" + id + "' " +
-			"class='" + opts.classes.columnBtn + " ui-btn " +
-			"ui-btn-" + ( opts.columnBtnTheme || "a" ) +
-			" ui-corner-all ui-shadow ui-mini' " +
-			"data-" + ns + "rel='popup'>" + opts.columnBtnText + "</a>" );
-		popup = $( "<div class='" + opts.classes.popup + "' id='" + id + "'></div>" );
-		menu = $( "<fieldset></fieldset>" ).controlgroup();
-
-		// set extension here, send "false" to trigger build/rebuild
-		this._addToggles( menu, false );
-
-		menu.appendTo( popup );
-
-		fragment.appendChild( popup[ 0 ] );
-		fragment.appendChild( menuButton[ 0 ] );
-		table.before( fragment );
-
-		popup.popup();
-
-		return menu;
-	},
-
-	rebuild: function() {
-		this._super();
-
-		if ( this.options.mode === "columntoggle" ) {
-			// NOTE: rebuild passes "false", while refresh passes "undefined"
-			// both refresh the table, but inside addToggles, !false will be true,
-			// so a rebuild call can be indentified
-			this._refresh( false );
-		}
-	},
-
-	_refresh: function( create ) {
-		var headers, hiddenColumns, index;
-
-		// Calling _super() here updates this.headers
-		this._super( create );
-
-		if ( !create && this.options.mode === "columntoggle" ) {
-			headers = this.headers;
-			hiddenColumns = [];
-
-			// Find the index of the column header associated with each old checkbox among the
-			// post-refresh headers and, if the header is still there, make sure the corresponding
-			// column will be hidden if the pre-refresh checkbox indicates that the column is
-			// hidden by recording its index in the array of hidden columns.
-			this._menu.find( "input" ).each( function() {
-				var input = $( this ),
-					header = input.jqmData( "header" ),
-					index = headers.index( header[ 0 ] );
-
-				if ( index > -1 && !input.prop( "checked" ) ) {
-
-					// The column header associated with /this/ checkbox is still present in the
-					// post-refresh table and the checkbox is not checked, so the column associated
-					// with this column header is currently hidden. Let's record that.
-					hiddenColumns.push( index );
-				}
-			});
-
-			// columns not being replaced must be cleared from input toggle-locks
-			this._unlockCells( this.element.find( ".ui-table-cell-hidden, " +
-				".ui-table-cell-visible" ) );
-
-			// update columntoggles and cells
-			this._addToggles( this._menu, create );
-
-			// At this point all columns are visible, so uncheck the checkboxes that correspond to
-			// those columns we've found to be hidden
-			for ( index = hiddenColumns.length - 1 ; index > -1 ; index-- ) {
-				headers.eq( hiddenColumns[ index ] ).jqmData( "input" )
-					.prop( "checked", false )
-					.checkboxradio( "refresh" )
-					.trigger( "change" );
-			}
-		}
-	},
-
-	_setToggleState: function() {
-		this._menu.find( "input" ).each( function() {
-			var checkbox = $( this );
-
-			this.checked = checkbox.jqmData( "cells" ).eq( 0 ).css( "display" ) === "table-cell";
-			checkbox.checkboxradio( "refresh" );
-		});
-	},
-
-	_destroy: function() {
-		this._super();
-	}
-});
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-$.widget( "mobile.table", $.mobile.table, {
-	options: {
-		mode: "reflow",
-		classes: $.extend( $.mobile.table.prototype.options.classes, {
-			reflowTable: "ui-table-reflow",
-			cellLabels: "ui-table-cell-label"
-		})
-	},
-
-	_create: function() {
-		this._super();
-
-		// If it's not reflow mode, return here.
-		if ( this.options.mode !== "reflow" ) {
-			return;
-		}
-
-		if ( !this.options.enhanced ) {
-			this.element.addClass( this.options.classes.reflowTable );
-
-			this._updateReflow();
-		}
-	},
-
-	rebuild: function() {
-		this._super();
-
-		if ( this.options.mode === "reflow" ) {
-			this._refresh( false );
-		}
-	},
-
-	_refresh: function( create ) {
-		this._super( create );
-		if ( !create && this.options.mode === "reflow" ) {
-			this._updateReflow( );
-		}
-	},
-
-	_updateReflow: function() {
-		var table = this,
-			opts = this.options;
-
-		// get headers in reverse order so that top-level headers are appended last
-		$( table.allHeaders.get().reverse() ).each( function() {
-			var cells = $( this ).jqmData( "cells" ),
-				colstart = $.mobile.getAttribute( this, "colstart" ),
-				hierarchyClass = cells.not( this ).filter( "thead th" ).length && " ui-table-cell-label-top",
-				contents = $( this ).clone().contents(),
-				iteration, filter;
-
-				if ( contents.length > 0  ) {
-
-					if ( hierarchyClass ) {
-						iteration = parseInt( this.getAttribute( "colspan" ), 10 );
-						filter = "";
-
-						if ( iteration ) {
-							filter = "td:nth-child("+ iteration +"n + " + ( colstart ) +")";
-						}
-
-						table._addLabels( cells.filter( filter ),
-							opts.classes.cellLabels + hierarchyClass, contents );
-					} else {
-						table._addLabels( cells, opts.classes.cellLabels, contents );
-					}
-
-				}
-		});
-	},
-
-	_addLabels: function( cells, label, contents ) {
-		if ( contents.length === 1 && contents[ 0 ].nodeName.toLowerCase() === "abbr" ) {
-			contents = contents.eq( 0 ).attr( "title" );
-		}
-		// .not fixes #6006
-		cells
-			.not( ":has(b." + label + ")" )
-				.prepend( $( "<b class='" + label + "'></b>" ).append( contents ) );
-	}
-});
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-// TODO rename filterCallback/deprecate and default to the item itself as the first argument
-var defaultFilterCallback = function( index, searchValue ) {
-	return ( ( "" + ( $.mobile.getAttribute( this, "filtertext" ) || $( this ).text() ) )
-		.toLowerCase().indexOf( searchValue ) === -1 );
-};
-
-$.widget( "mobile.filterable", {
-
-	initSelector: ":jqmData(filter='true')",
-
-	options: {
-		filterReveal: false,
-		filterCallback: defaultFilterCallback,
-		enhanced: false,
-		input: null,
-		children: "> li, > option, > optgroup option, > tbody tr, > .ui-controlgroup-controls > .ui-btn, > .ui-controlgroup-controls > .ui-checkbox, > .ui-controlgroup-controls > .ui-radio"
-	},
-
-	_create: function() {
-		var opts = this.options;
-
-		$.extend( this, {
-			_search: null,
-			_timer: 0
-		});
-
-		this._setInput( opts.input );
-		if ( !opts.enhanced ) {
-			this._filterItems( ( ( this._search && this._search.val() ) || "" ).toLowerCase() );
-		}
-	},
-
-	_onKeyUp: function() {
-		var val, lastval,
-			search = this._search;
-
-		if ( search ) {
-			val = search.val().toLowerCase(),
-			lastval = $.mobile.getAttribute( search[ 0 ], "lastval" ) + "";
-
-			if ( lastval && lastval === val ) {
-				// Execute the handler only once per value change
-				return;
-			}
-
-			if ( this._timer ) {
-				window.clearTimeout( this._timer );
-				this._timer = 0;
-			}
-
-			this._timer = this._delay( function() {
-				if ( this._trigger( "beforefilter", null, { input: search } ) === false ) {
-					return false;
-				}
-
-				// Change val as lastval for next execution
-				search[ 0 ].setAttribute( "data-" + $.mobile.ns + "lastval", val );
-
-				this._filterItems( val );
-				this._timer = 0;
-			}, 250 );
-		}
-	},
-
-	_getFilterableItems: function() {
-		var elem = this.element,
-			children = this.options.children,
-			items = !children ? { length: 0 }:
-				$.isFunction( children ) ? children():
-				children.nodeName ? $( children ):
-				children.jquery ? children:
-				this.element.find( children );
-
-		if ( items.length === 0 ) {
-			items = elem.children();
-		}
-
-		return items;
-	},
-
-	_filterItems: function( val ) {
-		var idx, callback, length, dst,
-			show = [],
-			hide = [],
-			opts = this.options,
-			filterItems = this._getFilterableItems();
-
-		if ( val != null ) {
-			callback = opts.filterCallback || defaultFilterCallback;
-			length = filterItems.length;
-
-			// Partition the items into those to be hidden and those to be shown
-			for ( idx = 0 ; idx < length ; idx++ ) {
-				dst = ( callback.call( filterItems[ idx ], idx, val ) ) ? hide : show;
-				dst.push( filterItems[ idx ] );
-			}
-		}
-
-		// If nothing is hidden, then the decision whether to hide or show the items
-		// is based on the "filterReveal" option.
-		if ( hide.length === 0 ) {
-			filterItems[ ( opts.filterReveal && val.length === 0 ) ?
-				"addClass" : "removeClass" ]( "ui-screen-hidden" );
-		} else {
-			$( hide ).addClass( "ui-screen-hidden" );
-			$( show ).removeClass( "ui-screen-hidden" );
-		}
-
-		this._refreshChildWidget();
-
-		this._trigger( "filter", null, {
-			items: filterItems
-		});
-	},
-
-	// The Default implementation of _refreshChildWidget attempts to call
-	// refresh on collapsibleset, controlgroup, selectmenu, or listview
-	_refreshChildWidget: function() {
-		var widget, idx,
-			recognizedWidgets = [ "collapsibleset", "selectmenu", "controlgroup", "listview" ];
-
-		for ( idx = recognizedWidgets.length - 1 ; idx > -1 ; idx-- ) {
-			widget = recognizedWidgets[ idx ];
-			if ( $.mobile[ widget ] ) {
-				widget = this.element.data( "mobile-" + widget );
-				if ( widget && $.isFunction( widget.refresh ) ) {
-					widget.refresh();
-				}
-			}
-		}
-	},
-
-	// TODO: When the input is not internal, do not even store it in this._search
-	_setInput: function ( selector ) {
-		var search = this._search;
-
-		// Stop a pending filter operation
-		if ( this._timer ) {
-			window.clearTimeout( this._timer );
-			this._timer = 0;
-		}
-
-		if ( search ) {
-			this._off( search, "keyup change input" );
-			search = null;
-		}
-
-		if ( selector ) {
-			search = selector.jquery ? selector:
-				selector.nodeName ? $( selector ):
-				this.document.find( selector );
-
-			this._on( search, {
-				keydown: "_onKeyDown",
-				keypress: "_onKeyPress",
-				keyup: "_onKeyUp",
-				change: "_onKeyUp",
-				input: "_onKeyUp"
-			});
-		}
-
-		this._search = search;
-	},
-
-	// Prevent form submission
-	_onKeyDown: function( event ) {
-		if ( event.keyCode === $.ui.keyCode.ENTER ) {
-			event.preventDefault();
-			this._preventKeyPress = true;
-		}
-	},
-
-	_onKeyPress: function( event ) {
-		if ( this._preventKeyPress ) {
-			event.preventDefault();
-			this._preventKeyPress = false;
-		}
-	},
-
-	_setOptions: function( options ) {
-		var refilter = !( ( options.filterReveal === undefined ) &&
-				( options.filterCallback === undefined ) &&
-				( options.children === undefined ) );
-
-		this._super( options );
-
-		if ( options.input !== undefined ) {
-			this._setInput( options.input );
-			refilter = true;
-		}
-
-		if ( refilter ) {
-			this.refresh();
-		}
-	},
-
-	_destroy: function() {
-		var opts = this.options,
-			items = this._getFilterableItems();
-
-		if ( opts.enhanced ) {
-			items.toggleClass( "ui-screen-hidden", opts.filterReveal );
-		} else {
-			items.removeClass( "ui-screen-hidden" );
-		}
-	},
-
-	refresh: function() {
-		if ( this._timer ) {
-			window.clearTimeout( this._timer );
-			this._timer = 0;
-		}
-		this._filterItems( ( ( this._search && this._search.val() ) || "" ).toLowerCase() );
-	}
-});
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-// Create a function that will replace the _setOptions function of a widget,
-// and will pass the options on to the input of the filterable.
-var replaceSetOptions = function( self, orig ) {
-		return function( options ) {
-			orig.call( this, options );
-			self._syncTextInputOptions( options );
-		};
-	},
-	rDividerListItem = /(^|\s)ui-li-divider(\s|$)/,
-	origDefaultFilterCallback = $.mobile.filterable.prototype.options.filterCallback;
-
-// Override the default filter callback with one that does not hide list dividers
-$.mobile.filterable.prototype.options.filterCallback = function( index, searchValue ) {
-	return !this.className.match( rDividerListItem ) &&
-		origDefaultFilterCallback.call( this, index, searchValue );
-};
-
-$.widget( "mobile.filterable", $.mobile.filterable, {
-	options: {
-		filterPlaceholder: "Filter items...",
-		filterTheme: null
-	},
-
-	_create: function() {
-		var idx, widgetName,
-			elem = this.element,
-			recognizedWidgets = [ "collapsibleset", "selectmenu", "controlgroup", "listview" ],
-			createHandlers = {};
-
-		this._super();
-
-		$.extend( this, {
-			_widget: null
-		});
-
-		for ( idx = recognizedWidgets.length - 1 ; idx > -1 ; idx-- ) {
-			widgetName = recognizedWidgets[ idx ];
-			if ( $.mobile[ widgetName ] ) {
-				if ( this._setWidget( elem.data( "mobile-" + widgetName ) ) ) {
-					break;
-				} else {
-					createHandlers[ widgetName + "create" ] = "_handleCreate";
-				}
-			}
-		}
-
-		if ( !this._widget ) {
-			this._on( elem, createHandlers );
-		}
-	},
-
-	_handleCreate: function( evt ) {
-		this._setWidget( this.element.data( "mobile-" + evt.type.substring( 0, evt.type.length - 6 ) ) );
-	},
-
-	_trigger: function( type, event, data ) {
-		if ( this._widget && this._widget.widgetFullName === "mobile-listview" &&
-			type === "beforefilter" ) {
-
-			// Also trigger listviewbeforefilter if this widget is also a listview
-			this._widget._trigger( "beforefilter", event, data );
-		}
-
-		// Passing back the response enables calling preventDefault()
-		return this._super( type, event, data );
-	},
-
-	_setWidget: function( widget ) {
-		if ( !this._widget && widget ) {
-			this._widget = widget;
-			this._widget._setOptions = replaceSetOptions( this, this._widget._setOptions );
-		}
-
-		if ( !!this._widget ) {
-			this._syncTextInputOptions( this._widget.options );
-			if ( this._widget.widgetName === "listview" ) {
-				this._widget.options.hideDividers = true;
-				this._widget.element.listview( "refresh" );
-			}
-		}
-
-		return !!this._widget;
-	},
-
-	_isSearchInternal: function() {
-		return ( this._search && this._search.jqmData( "ui-filterable-" + this.uuid + "-internal" ) );
-	},
-
-	_setInput: function( selector ) {
-		var opts = this.options,
-			updatePlaceholder = true,
-			textinputOpts = {};
-
-		if ( !selector ) {
-			if ( this._isSearchInternal() ) {
-
-				// Ignore the call to set a new input if the selector goes to falsy and
-				// the current textinput is already of the internally generated variety.
-				return;
-			} else {
-
-				// Generating a new textinput widget. No need to set the placeholder
-				// further down the function.
-				updatePlaceholder = false;
-				selector = $( "<input " +
-					"data-" + $.mobile.ns + "type='search' " +
-					"placeholder='" + opts.filterPlaceholder + "'></input>" )
-					.jqmData( "ui-filterable-" + this.uuid + "-internal", true );
-				$( "<form class='ui-filterable'></form>" )
-					.append( selector )
-					.submit( function( evt ) {
-						evt.preventDefault();
-						selector.blur();
-					})
-					.insertBefore( this.element );
-				if ( $.mobile.textinput ) {
-					if ( this.options.filterTheme != null ) {
-						textinputOpts[ "theme" ] = opts.filterTheme;
-					}
-
-					selector.textinput( textinputOpts );
-				}
-			}
-		}
-
-		this._super( selector );
-
-		if ( this._isSearchInternal() && updatePlaceholder ) {
-			this._search.attr( "placeholder", this.options.filterPlaceholder );
-		}
-	},
-
-	_setOptions: function( options ) {
-		var ret = this._super( options );
-
-		// Need to set the filterPlaceholder after having established the search input
-		if ( options.filterPlaceholder !== undefined ) {
-			if ( this._isSearchInternal() ) {
-				this._search.attr( "placeholder", options.filterPlaceholder );
-			}
-		}
-
-		if ( options.filterTheme !== undefined && this._search && $.mobile.textinput ) {
-			this._search.textinput( "option", "theme", options.filterTheme );
-		}
-
-		return ret;
-	},
-
-	// The listview implementation accompanying this filterable backcompat layer will call
-	// filterable.refresh() after it's done refreshing the listview to make sure the filterable
-	// filters out any new items added. However, when the listview refresh has been initiated by
-	// the filterable itself, then such filtering has already taken place, and calling the
-	// filterable's refresh() method will cause an infinite recursion. We stop this by setting a
-	// flag that will cause the filterable's refresh() method to short-circuit.
-	_refreshChildWidget: function() {
-		this._refreshingChildWidget = true;
-		this._superApply( arguments );
-		this._refreshingChildWidget = false;
-	},
-
-	refresh: function() {
-		if ( !this._refreshingChildWidget ) {
-			this._superApply( arguments );
-		}
-	},
-
-	_destroy: function() {
-		if ( this._isSearchInternal() ) {
-			this._search.remove();
-		}
-		this._super();
-	},
-
-	_syncTextInputOptions: function( options ) {
-		var idx,
-			textinputOptions = {};
-
-		// We only sync options if the filterable's textinput is of the internally
-		// generated variety, rather than one specified by the user.
-		if ( this._isSearchInternal() && $.mobile.textinput ) {
-
-			// Apply only the options understood by textinput
-			for ( idx in $.mobile.textinput.prototype.options ) {
-				if ( options[ idx ] !== undefined ) {
-					if ( idx === "theme" && this.options.filterTheme != null ) {
-						textinputOptions[ idx ] = this.options.filterTheme;
-					} else {
-						textinputOptions[ idx ] = options[ idx ];
-					}
-				}
-			}
-			this._search.textinput( "option", textinputOptions );
-		}
-	}
-});
-
-// Instantiate a filterable on a listview that has the data-filter="true" attribute
-// This is not necessary for static content, because the auto-enhance takes care of instantiating
-// the filterable upon encountering data-filter="true". However, because of 1.3.x it is expected
-// that a listview with data-filter="true" will be filterable even if you just instantiate a
-// listview on it. The extension below ensures that this continues to happen in 1.4.x.
-$.widget( "mobile.listview", $.mobile.listview, {
-	options: {
-		filter: false
-	},
-	_create: function() {
-		if ( this.options.filter === true &&
-				!this.element.data( "mobile-filterable" ) ) {
-			this.element.filterable();
-		}
-		return this._super();
-	},
-
-	refresh: function() {
-		var filterable;
-
-		this._superApply( arguments );
-
-		if ( this.options.filter === true ) {
-			filterable = this.element.data( "mobile-filterable" );
-
-			if ( filterable ) {
-				filterable.refresh();
-			}
-		}
-	}
-});
-
-})( jQuery );
-
-/*!
- * jQuery UI Tabs fadf2b312a05040436451c64bbfaf4814bc62c56
- * http://jqueryui.com
- *
- * Copyright 2013 jQuery Foundation and other contributors
- * Released under the MIT license.
- * http://jquery.org/license
- *
- * http://api.jqueryui.com/tabs/
- *
- * Depends:
- *	jquery.ui.core.js
- *	jquery.ui.widget.js
- */
-(function( $, undefined ) {
-
-var tabId = 0,
-	rhash = /#.*$/;
-
-function getNextTabId() {
-	return ++tabId;
-}
-
-function isLocal( anchor ) {
-	return anchor.hash.length > 1 &&
-		decodeURIComponent( anchor.href.replace( rhash, "" ) ) ===
-			decodeURIComponent( location.href.replace( rhash, "" ) );
-}
-
-$.widget( "ui.tabs", {
-	version: "fadf2b312a05040436451c64bbfaf4814bc62c56",
-	delay: 300,
-	options: {
-		active: null,
-		collapsible: false,
-		event: "click",
-		heightStyle: "content",
-		hide: null,
-		show: null,
-
-		// callbacks
-		activate: null,
-		beforeActivate: null,
-		beforeLoad: null,
-		load: null
-	},
-
-	_create: function() {
-		var that = this,
-			options = this.options;
-
-		this.running = false;
-
-		this.element
-			.addClass( "ui-tabs ui-widget ui-widget-content ui-corner-all" )
-			.toggleClass( "ui-tabs-collapsible", options.collapsible )
-			// Prevent users from focusing disabled tabs via click
-			.delegate( ".ui-tabs-nav > li", "mousedown" + this.eventNamespace, function( event ) {
-				if ( $( this ).is( ".ui-state-disabled" ) ) {
-					event.preventDefault();
-				}
-			})
-			// support: IE <9
-			// Preventing the default action in mousedown doesn't prevent IE
-			// from focusing the element, so if the anchor gets focused, blur.
-			// We don't have to worry about focusing the previously focused
-			// element since clicking on a non-focusable element should focus
-			// the body anyway.
-			.delegate( ".ui-tabs-anchor", "focus" + this.eventNamespace, function() {
-				if ( $( this ).closest( "li" ).is( ".ui-state-disabled" ) ) {
-					this.blur();
-				}
-			});
-
-		this._processTabs();
-		options.active = this._initialActive();
-
-		// Take disabling tabs via class attribute from HTML
-		// into account and update option properly.
-		if ( $.isArray( options.disabled ) ) {
-			options.disabled = $.unique( options.disabled.concat(
-				$.map( this.tabs.filter( ".ui-state-disabled" ), function( li ) {
-					return that.tabs.index( li );
-				})
-			) ).sort();
-		}
-
-		// check for length avoids error when initializing empty list
-		if ( this.options.active !== false && this.anchors.length ) {
-			this.active = this._findActive( options.active );
-		} else {
-			this.active = $();
-		}
-
-		this._refresh();
-
-		if ( this.active.length ) {
-			this.load( options.active );
-		}
-	},
-
-	_initialActive: function() {
-		var active = this.options.active,
-			collapsible = this.options.collapsible,
-			locationHash = location.hash.substring( 1 );
-
-		if ( active === null ) {
-			// check the fragment identifier in the URL
-			if ( locationHash ) {
-				this.tabs.each(function( i, tab ) {
-					if ( $( tab ).attr( "aria-controls" ) === locationHash ) {
-						active = i;
-						return false;
-					}
-				});
-			}
-
-			// check for a tab marked active via a class
-			if ( active === null ) {
-				active = this.tabs.index( this.tabs.filter( ".ui-tabs-active" ) );
-			}
-
-			// no active tab, set to false
-			if ( active === null || active === -1 ) {
-				active = this.tabs.length ? 0 : false;
-			}
-		}
-
-		// handle numbers: negative, out of range
-		if ( active !== false ) {
-			active = this.tabs.index( this.tabs.eq( active ) );
-			if ( active === -1 ) {
-				active = collapsible ? false : 0;
-			}
-		}
-
-		// don't allow collapsible: false and active: false
-		if ( !collapsible && active === false && this.anchors.length ) {
-			active = 0;
-		}
-
-		return active;
-	},
-
-	_getCreateEventData: function() {
-		return {
-			tab: this.active,
-			panel: !this.active.length ? $() : this._getPanelForTab( this.active )
-		};
-	},
-
-	_tabKeydown: function( event ) {
-		var focusedTab = $( this.document[0].activeElement ).closest( "li" ),
-			selectedIndex = this.tabs.index( focusedTab ),
-			goingForward = true;
-
-		if ( this._handlePageNav( event ) ) {
-			return;
-		}
-
-		switch ( event.keyCode ) {
-			case $.ui.keyCode.RIGHT:
-			case $.ui.keyCode.DOWN:
-				selectedIndex++;
-				break;
-			case $.ui.keyCode.UP:
-			case $.ui.keyCode.LEFT:
-				goingForward = false;
-				selectedIndex--;
-				break;
-			case $.ui.keyCode.END:
-				selectedIndex = this.anchors.length - 1;
-				break;
-			case $.ui.keyCode.HOME:
-				selectedIndex = 0;
-				break;
-			case $.ui.keyCode.SPACE:
-				// Activate only, no collapsing
-				event.preventDefault();
-				clearTimeout( this.activating );
-				this._activate( selectedIndex );
-				return;
-			case $.ui.keyCode.ENTER:
-				// Toggle (cancel delayed activation, allow collapsing)
-				event.preventDefault();
-				clearTimeout( this.activating );
-				// Determine if we should collapse or activate
-				this._activate( selectedIndex === this.options.active ? false : selectedIndex );
-				return;
-			default:
-				return;
-		}
-
-		// Focus the appropriate tab, based on which key was pressed
-		event.preventDefault();
-		clearTimeout( this.activating );
-		selectedIndex = this._focusNextTab( selectedIndex, goingForward );
-
-		// Navigating with control key will prevent automatic activation
-		if ( !event.ctrlKey ) {
-			// Update aria-selected immediately so that AT think the tab is already selected.
-			// Otherwise AT may confuse the user by stating that they need to activate the tab,
-			// but the tab will already be activated by the time the announcement finishes.
-			focusedTab.attr( "aria-selected", "false" );
-			this.tabs.eq( selectedIndex ).attr( "aria-selected", "true" );
-
-			this.activating = this._delay(function() {
-				this.option( "active", selectedIndex );
-			}, this.delay );
-		}
-	},
-
-	_panelKeydown: function( event ) {
-		if ( this._handlePageNav( event ) ) {
-			return;
-		}
-
-		// Ctrl+up moves focus to the current tab
-		if ( event.ctrlKey && event.keyCode === $.ui.keyCode.UP ) {
-			event.preventDefault();
-			this.active.focus();
-		}
-	},
-
-	// Alt+page up/down moves focus to the previous/next tab (and activates)
-	_handlePageNav: function( event ) {
-		if ( event.altKey && event.keyCode === $.ui.keyCode.PAGE_UP ) {
-			this._activate( this._focusNextTab( this.options.active - 1, false ) );
-			return true;
-		}
-		if ( event.altKey && event.keyCode === $.ui.keyCode.PAGE_DOWN ) {
-			this._activate( this._focusNextTab( this.options.active + 1, true ) );
-			return true;
-		}
-	},
-
-	_findNextTab: function( index, goingForward ) {
-		var lastTabIndex = this.tabs.length - 1;
-
-		function constrain() {
-			if ( index > lastTabIndex ) {
-				index = 0;
-			}
-			if ( index < 0 ) {
-				index = lastTabIndex;
-			}
-			return index;
-		}
-
-		while ( $.inArray( constrain(), this.options.disabled ) !== -1 ) {
-			index = goingForward ? index + 1 : index - 1;
-		}
-
-		return index;
-	},
-
-	_focusNextTab: function( index, goingForward ) {
-		index = this._findNextTab( index, goingForward );
-		this.tabs.eq( index ).focus();
-		return index;
-	},
-
-	_setOption: function( key, value ) {
-		if ( key === "active" ) {
-			// _activate() will handle invalid values and update this.options
-			this._activate( value );
-			return;
-		}
-
-		if ( key === "disabled" ) {
-			// don't use the widget factory's disabled handling
-			this._setupDisabled( value );
-			return;
-		}
-
-		this._super( key, value);
-
-		if ( key === "collapsible" ) {
-			this.element.toggleClass( "ui-tabs-collapsible", value );
-			// Setting collapsible: false while collapsed; open first panel
-			if ( !value && this.options.active === false ) {
-				this._activate( 0 );
-			}
-		}
-
-		if ( key === "event" ) {
-			this._setupEvents( value );
-		}
-
-		if ( key === "heightStyle" ) {
-			this._setupHeightStyle( value );
-		}
-	},
-
-	_tabId: function( tab ) {
-		return tab.attr( "aria-controls" ) || "ui-tabs-" + getNextTabId();
-	},
-
-	_sanitizeSelector: function( hash ) {
-		return hash ? hash.replace( /[!"$%&'()*+,.\/:;<=>?@\[\]\^`{|}~]/g, "\\$&" ) : "";
-	},
-
-	refresh: function() {
-		var options = this.options,
-			lis = this.tablist.children( ":has(a[href])" );
-
-		// get disabled tabs from class attribute from HTML
-		// this will get converted to a boolean if needed in _refresh()
-		options.disabled = $.map( lis.filter( ".ui-state-disabled" ), function( tab ) {
-			return lis.index( tab );
-		});
-
-		this._processTabs();
-
-		// was collapsed or no tabs
-		if ( options.active === false || !this.anchors.length ) {
-			options.active = false;
-			this.active = $();
-		// was active, but active tab is gone
-		} else if ( this.active.length && !$.contains( this.tablist[ 0 ], this.active[ 0 ] ) ) {
-			// all remaining tabs are disabled
-			if ( this.tabs.length === options.disabled.length ) {
-				options.active = false;
-				this.active = $();
-			// activate previous tab
-			} else {
-				this._activate( this._findNextTab( Math.max( 0, options.active - 1 ), false ) );
-			}
-		// was active, active tab still exists
-		} else {
-			// make sure active index is correct
-			options.active = this.tabs.index( this.active );
-		}
-
-		this._refresh();
-	},
-
-	_refresh: function() {
-		this._setupDisabled( this.options.disabled );
-		this._setupEvents( this.options.event );
-		this._setupHeightStyle( this.options.heightStyle );
-
-		this.tabs.not( this.active ).attr({
-			"aria-selected": "false",
-			tabIndex: -1
-		});
-		this.panels.not( this._getPanelForTab( this.active ) )
-			.hide()
-			.attr({
-				"aria-expanded": "false",
-				"aria-hidden": "true"
-			});
-
-		// Make sure one tab is in the tab order
-		if ( !this.active.length ) {
-			this.tabs.eq( 0 ).attr( "tabIndex", 0 );
-		} else {
-			this.active
-				.addClass( "ui-tabs-active ui-state-active" )
-				.attr({
-					"aria-selected": "true",
-					tabIndex: 0
-				});
-			this._getPanelForTab( this.active )
-				.show()
-				.attr({
-					"aria-expanded": "true",
-					"aria-hidden": "false"
-				});
-		}
-	},
-
-	_processTabs: function() {
-		var that = this;
-
-		this.tablist = this._getList()
-			.addClass( "ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" )
-			.attr( "role", "tablist" );
-
-		this.tabs = this.tablist.find( "> li:has(a[href])" )
-			.addClass( "ui-state-default ui-corner-top" )
-			.attr({
-				role: "tab",
-				tabIndex: -1
-			});
-
-		this.anchors = this.tabs.map(function() {
-				return $( "a", this )[ 0 ];
-			})
-			.addClass( "ui-tabs-anchor" )
-			.attr({
-				role: "presentation",
-				tabIndex: -1
-			});
-
-		this.panels = $();
-
-		this.anchors.each(function( i, anchor ) {
-			var selector, panel, panelId,
-				anchorId = $( anchor ).uniqueId().attr( "id" ),
-				tab = $( anchor ).closest( "li" ),
-				originalAriaControls = tab.attr( "aria-controls" );
-
-			// inline tab
-			if ( isLocal( anchor ) ) {
-				selector = anchor.hash;
-				panel = that.element.find( that._sanitizeSelector( selector ) );
-			// remote tab
-			} else {
-				panelId = that._tabId( tab );
-				selector = "#" + panelId;
-				panel = that.element.find( selector );
-				if ( !panel.length ) {
-					panel = that._createPanel( panelId );
-					panel.insertAfter( that.panels[ i - 1 ] || that.tablist );
-				}
-				panel.attr( "aria-live", "polite" );
-			}
-
-			if ( panel.length) {
-				that.panels = that.panels.add( panel );
-			}
-			if ( originalAriaControls ) {
-				tab.data( "ui-tabs-aria-controls", originalAriaControls );
-			}
-			tab.attr({
-				"aria-controls": selector.substring( 1 ),
-				"aria-labelledby": anchorId
-			});
-			panel.attr( "aria-labelledby", anchorId );
-		});
-
-		this.panels
-			.addClass( "ui-tabs-panel ui-widget-content ui-corner-bottom" )
-			.attr( "role", "tabpanel" );
-	},
-
-	// allow overriding how to find the list for rare usage scenarios (#7715)
-	_getList: function() {
-		return this.element.find( "ol,ul" ).eq( 0 );
-	},
-
-	_createPanel: function( id ) {
-		return $( "<div>" )
-			.attr( "id", id )
-			.addClass( "ui-tabs-panel ui-widget-content ui-corner-bottom" )
-			.data( "ui-tabs-destroy", true );
-	},
-
-	_setupDisabled: function( disabled ) {
-		if ( $.isArray( disabled ) ) {
-			if ( !disabled.length ) {
-				disabled = false;
-			} else if ( disabled.length === this.anchors.length ) {
-				disabled = true;
-			}
-		}
-
-		// disable tabs
-		for ( var i = 0, li; ( li = this.tabs[ i ] ); i++ ) {
-			if ( disabled === true || $.inArray( i, disabled ) !== -1 ) {
-				$( li )
-					.addClass( "ui-state-disabled" )
-					.attr( "aria-disabled", "true" );
-			} else {
-				$( li )
-					.removeClass( "ui-state-disabled" )
-					.removeAttr( "aria-disabled" );
-			}
-		}
-
-		this.options.disabled = disabled;
-	},
-
-	_setupEvents: function( event ) {
-		var events = {
-			click: function( event ) {
-				event.preventDefault();
-			}
-		};
-		if ( event ) {
-			$.each( event.split(" "), function( index, eventName ) {
-				events[ eventName ] = "_eventHandler";
-			});
-		}
-
-		this._off( this.anchors.add( this.tabs ).add( this.panels ) );
-		this._on( this.anchors, events );
-		this._on( this.tabs, { keydown: "_tabKeydown" } );
-		this._on( this.panels, { keydown: "_panelKeydown" } );
-
-		this._focusable( this.tabs );
-		this._hoverable( this.tabs );
-	},
-
-	_setupHeightStyle: function( heightStyle ) {
-		var maxHeight,
-			parent = this.element.parent();
-
-		if ( heightStyle === "fill" ) {
-			maxHeight = parent.height();
-			maxHeight -= this.element.outerHeight() - this.element.height();
-
-			this.element.siblings( ":visible" ).each(function() {
-				var elem = $( this ),
-					position = elem.css( "position" );
-
-				if ( position === "absolute" || position === "fixed" ) {
-					return;
-				}
-				maxHeight -= elem.outerHeight( true );
-			});
-
-			this.element.children().not( this.panels ).each(function() {
-				maxHeight -= $( this ).outerHeight( true );
-			});
-
-			this.panels.each(function() {
-				$( this ).height( Math.max( 0, maxHeight -
-					$( this ).innerHeight() + $( this ).height() ) );
-			})
-			.css( "overflow", "auto" );
-		} else if ( heightStyle === "auto" ) {
-			maxHeight = 0;
-			this.panels.each(function() {
-				maxHeight = Math.max( maxHeight, $( this ).height( "" ).height() );
-			}).height( maxHeight );
-		}
-	},
-
-	_eventHandler: function( event ) {
-		var options = this.options,
-			active = this.active,
-			anchor = $( event.currentTarget ),
-			tab = anchor.closest( "li" ),
-			clickedIsActive = tab[ 0 ] === active[ 0 ],
-			collapsing = clickedIsActive && options.collapsible,
-			toShow = collapsing ? $() : this._getPanelForTab( tab ),
-			toHide = !active.length ? $() : this._getPanelForTab( active ),
-			eventData = {
-				oldTab: active,
-				oldPanel: toHide,
-				newTab: collapsing ? $() : tab,
-				newPanel: toShow
-			};
-
-		event.preventDefault();
-
-		if ( tab.hasClass( "ui-state-disabled" ) ||
-				// tab is already loading
-				tab.hasClass( "ui-tabs-loading" ) ||
-				// can't switch durning an animation
-				this.running ||
-				// click on active header, but not collapsible
-				( clickedIsActive && !options.collapsible ) ||
-				// allow canceling activation
-				( this._trigger( "beforeActivate", event, eventData ) === false ) ) {
-			return;
-		}
-
-		options.active = collapsing ? false : this.tabs.index( tab );
-
-		this.active = clickedIsActive ? $() : tab;
-		if ( this.xhr ) {
-			this.xhr.abort();
-		}
-
-		if ( !toHide.length && !toShow.length ) {
-			$.error( "jQuery UI Tabs: Mismatching fragment identifier." );
-		}
-
-		if ( toShow.length ) {
-			this.load( this.tabs.index( tab ), event );
-		}
-		this._toggle( event, eventData );
-	},
-
-	// handles show/hide for selecting tabs
-	_toggle: function( event, eventData ) {
-		var that = this,
-			toShow = eventData.newPanel,
-			toHide = eventData.oldPanel;
-
-		this.running = true;
-
-		function complete() {
-			that.running = false;
-			that._trigger( "activate", event, eventData );
-		}
-
-		function show() {
-			eventData.newTab.closest( "li" ).addClass( "ui-tabs-active ui-state-active" );
-
-			if ( toShow.length && that.options.show ) {
-				that._show( toShow, that.options.show, complete );
-			} else {
-				toShow.show();
-				complete();
-			}
-		}
-
-		// start out by hiding, then showing, then completing
-		if ( toHide.length && this.options.hide ) {
-			this._hide( toHide, this.options.hide, function() {
-				eventData.oldTab.closest( "li" ).removeClass( "ui-tabs-active ui-state-active" );
-				show();
-			});
-		} else {
-			eventData.oldTab.closest( "li" ).removeClass( "ui-tabs-active ui-state-active" );
-			toHide.hide();
-			show();
-		}
-
-		toHide.attr({
-			"aria-expanded": "false",
-			"aria-hidden": "true"
-		});
-		eventData.oldTab.attr( "aria-selected", "false" );
-		// If we're switching tabs, remove the old tab from the tab order.
-		// If we're opening from collapsed state, remove the previous tab from the tab order.
-		// If we're collapsing, then keep the collapsing tab in the tab order.
-		if ( toShow.length && toHide.length ) {
-			eventData.oldTab.attr( "tabIndex", -1 );
-		} else if ( toShow.length ) {
-			this.tabs.filter(function() {
-				return $( this ).attr( "tabIndex" ) === 0;
-			})
-			.attr( "tabIndex", -1 );
-		}
-
-		toShow.attr({
-			"aria-expanded": "true",
-			"aria-hidden": "false"
-		});
-		eventData.newTab.attr({
-			"aria-selected": "true",
-			tabIndex: 0
-		});
-	},
-
-	_activate: function( index ) {
-		var anchor,
-			active = this._findActive( index );
-
-		// trying to activate the already active panel
-		if ( active[ 0 ] === this.active[ 0 ] ) {
-			return;
-		}
-
-		// trying to collapse, simulate a click on the current active header
-		if ( !active.length ) {
-			active = this.active;
-		}
-
-		anchor = active.find( ".ui-tabs-anchor" )[ 0 ];
-		this._eventHandler({
-			target: anchor,
-			currentTarget: anchor,
-			preventDefault: $.noop
-		});
-	},
-
-	_findActive: function( index ) {
-		return index === false ? $() : this.tabs.eq( index );
-	},
-
-	_getIndex: function( index ) {
-		// meta-function to give users option to provide a href string instead of a numerical index.
-		if ( typeof index === "string" ) {
-			index = this.anchors.index( this.anchors.filter( "[href$='" + index + "']" ) );
-		}
-
-		return index;
-	},
-
-	_destroy: function() {
-		if ( this.xhr ) {
-			this.xhr.abort();
-		}
-
-		this.element.removeClass( "ui-tabs ui-widget ui-widget-content ui-corner-all ui-tabs-collapsible" );
-
-		this.tablist
-			.removeClass( "ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" )
-			.removeAttr( "role" );
-
-		this.anchors
-			.removeClass( "ui-tabs-anchor" )
-			.removeAttr( "role" )
-			.removeAttr( "tabIndex" )
-			.removeUniqueId();
-
-		this.tabs.add( this.panels ).each(function() {
-			if ( $.data( this, "ui-tabs-destroy" ) ) {
-				$( this ).remove();
-			} else {
-				$( this )
-					.removeClass( "ui-state-default ui-state-active ui-state-disabled " +
-						"ui-corner-top ui-corner-bottom ui-widget-content ui-tabs-active ui-tabs-panel" )
-					.removeAttr( "tabIndex" )
-					.removeAttr( "aria-live" )
-					.removeAttr( "aria-busy" )
-					.removeAttr( "aria-selected" )
-					.removeAttr( "aria-labelledby" )
-					.removeAttr( "aria-hidden" )
-					.removeAttr( "aria-expanded" )
-					.removeAttr( "role" );
-			}
-		});
-
-		this.tabs.each(function() {
-			var li = $( this ),
-				prev = li.data( "ui-tabs-aria-controls" );
-			if ( prev ) {
-				li
-					.attr( "aria-controls", prev )
-					.removeData( "ui-tabs-aria-controls" );
-			} else {
-				li.removeAttr( "aria-controls" );
-			}
-		});
-
-		this.panels.show();
-
-		if ( this.options.heightStyle !== "content" ) {
-			this.panels.css( "height", "" );
-		}
-	},
-
-	enable: function( index ) {
-		var disabled = this.options.disabled;
-		if ( disabled === false ) {
-			return;
-		}
-
-		if ( index === undefined ) {
-			disabled = false;
-		} else {
-			index = this._getIndex( index );
-			if ( $.isArray( disabled ) ) {
-				disabled = $.map( disabled, function( num ) {
-					return num !== index ? num : null;
-				});
-			} else {
-				disabled = $.map( this.tabs, function( li, num ) {
-					return num !== index ? num : null;
-				});
-			}
-		}
-		this._setupDisabled( disabled );
-	},
-
-	disable: function( index ) {
-		var disabled = this.options.disabled;
-		if ( disabled === true ) {
-			return;
-		}
-
-		if ( index === undefined ) {
-			disabled = true;
-		} else {
-			index = this._getIndex( index );
-			if ( $.inArray( index, disabled ) !== -1 ) {
-				return;
-			}
-			if ( $.isArray( disabled ) ) {
-				disabled = $.merge( [ index ], disabled ).sort();
-			} else {
-				disabled = [ index ];
-			}
-		}
-		this._setupDisabled( disabled );
-	},
-
-	load: function( index, event ) {
-		index = this._getIndex( index );
-		var that = this,
-			tab = this.tabs.eq( index ),
-			anchor = tab.find( ".ui-tabs-anchor" ),
-			panel = this._getPanelForTab( tab ),
-			eventData = {
-				tab: tab,
-				panel: panel
-			};
-
-		// not remote
-		if ( isLocal( anchor[ 0 ] ) ) {
-			return;
-		}
-
-		this.xhr = $.ajax( this._ajaxSettings( anchor, event, eventData ) );
-
-		// support: jQuery <1.8
-		// jQuery <1.8 returns false if the request is canceled in beforeSend,
-		// but as of 1.8, $.ajax() always returns a jqXHR object.
-		if ( this.xhr && this.xhr.statusText !== "canceled" ) {
-			tab.addClass( "ui-tabs-loading" );
-			panel.attr( "aria-busy", "true" );
-
-			this.xhr
-				.success(function( response ) {
-					// support: jQuery <1.8
-					// http://bugs.jquery.com/ticket/11778
-					setTimeout(function() {
-						panel.html( response );
-						that._trigger( "load", event, eventData );
-					}, 1 );
-				})
-				.complete(function( jqXHR, status ) {
-					// support: jQuery <1.8
-					// http://bugs.jquery.com/ticket/11778
-					setTimeout(function() {
-						if ( status === "abort" ) {
-							that.panels.stop( false, true );
-						}
-
-						tab.removeClass( "ui-tabs-loading" );
-						panel.removeAttr( "aria-busy" );
-
-						if ( jqXHR === that.xhr ) {
-							delete that.xhr;
-						}
-					}, 1 );
-				});
-		}
-	},
-
-	_ajaxSettings: function( anchor, event, eventData ) {
-		var that = this;
-		return {
-			url: anchor.attr( "href" ),
-			beforeSend: function( jqXHR, settings ) {
-				return that._trigger( "beforeLoad", event,
-					$.extend( { jqXHR : jqXHR, ajaxSettings: settings }, eventData ) );
-			}
-		};
-	},
-
-	_getPanelForTab: function( tab ) {
-		var id = $( tab ).attr( "aria-controls" );
-		return this.element.find( this._sanitizeSelector( "#" + id ) );
-	}
-});
-
-})( jQuery );
-
-(function( $, undefined ) {
-
-})( jQuery );
-
-(function( $, window ) {
-
-	$.mobile.iosorientationfixEnabled = true;
-
-	// This fix addresses an iOS bug, so return early if the UA claims it's something else.
-	var ua = navigator.userAgent,
-		zoom,
-		evt, x, y, z, aig;
-	if ( !( /iPhone|iPad|iPod/.test( navigator.platform ) && /OS [1-5]_[0-9_]* like Mac OS X/i.test( ua ) && ua.indexOf( "AppleWebKit" ) > -1 ) ) {
-		$.mobile.iosorientationfixEnabled = false;
-		return;
-	}
-
-	zoom = $.mobile.zoom;
-
-	function checkTilt( e ) {
-		evt = e.originalEvent;
-		aig = evt.accelerationIncludingGravity;
-
-		x = Math.abs( aig.x );
-		y = Math.abs( aig.y );
-		z = Math.abs( aig.z );
-
-		// If portrait orientation and in one of the danger zones
-		if ( !window.orientation && ( x > 7 || ( ( z > 6 && y < 8 || z < 8 && y > 6 ) && x > 5 ) ) ) {
-				if ( zoom.enabled ) {
-					zoom.disable();
-				}
-		}	else if ( !zoom.enabled ) {
-				zoom.enable();
-		}
-	}
-
-	$.mobile.document.on( "mobileinit", function() {
-		if ( $.mobile.iosorientationfixEnabled ) {
-			$.mobile.window
-				.bind( "orientationchange.iosorientationfix", zoom.enable )
-				.bind( "devicemotion.iosorientationfix", checkTilt );
-		}
-	});
-
-}( jQuery, this ));
-
-(function( $, window, undefined ) {
-	var	$html = $( "html" ),
-		$window = $.mobile.window;
-
-	//remove initial build class (only present on first pageshow)
-	function hideRenderingClass() {
-		$html.removeClass( "ui-mobile-rendering" );
-	}
-
-	// trigger mobileinit event - useful hook for configuring $.mobile settings before they're used
-	$( window.document ).trigger( "mobileinit" );
-
-	// support conditions
-	// if device support condition(s) aren't met, leave things as they are -> a basic, usable experience,
-	// otherwise, proceed with the enhancements
-	if ( !$.mobile.gradeA() ) {
-		return;
-	}
-
-	// override ajaxEnabled on platforms that have known conflicts with hash history updates
-	// or generally work better browsing in regular http for full page refreshes (BB5, Opera Mini)
-	if ( $.mobile.ajaxBlacklist ) {
-		$.mobile.ajaxEnabled = false;
-	}
-
-	// Add mobile, initial load "rendering" classes to docEl
-	$html.addClass( "ui-mobile ui-mobile-rendering" );
-
-	// This is a fallback. If anything goes wrong (JS errors, etc), or events don't fire,
-	// this ensures the rendering class is removed after 5 seconds, so content is visible and accessible
-	setTimeout( hideRenderingClass, 5000 );
-
-	$.extend( $.mobile, {
-		// find and enhance the pages in the dom and transition to the first page.
-		initializePage: function() {
-			// find present pages
-			var path = $.mobile.path,
-				$pages = $( ":jqmData(role='page'), :jqmData(role='dialog')" ),
-				hash = path.stripHash( path.stripQueryParams(path.parseLocation().hash) ),
-				theLocation = $.mobile.path.parseLocation(),
-				hashPage = hash ? document.getElementById( hash ) : undefined;
-
-			// if no pages are found, create one with body's inner html
-			if ( !$pages.length ) {
-				$pages = $( "body" ).wrapInner( "<div data-" + $.mobile.ns + "role='page'></div>" ).children( 0 );
-			}
-
-			// add dialogs, set data-url attrs
-			$pages.each(function() {
-				var $this = $( this );
-
-				// unless the data url is already set set it to the pathname
-				if ( !$this[ 0 ].getAttribute( "data-" + $.mobile.ns + "url" ) ) {
-					$this.attr( "data-" + $.mobile.ns + "url", $this.attr( "id" ) ||
-						path.convertUrlToDataUrl( theLocation.pathname + theLocation.search ) );
-				}
-			});
-
-			// define first page in dom case one backs out to the directory root (not always the first page visited, but defined as fallback)
-			$.mobile.firstPage = $pages.first();
-
-			// define page container
-			$.mobile.pageContainer = $.mobile.firstPage
-				.parent()
-				.addClass( "ui-mobile-viewport" )
-				.pagecontainer();
-
-			// initialize navigation events now, after mobileinit has occurred and the page container
-			// has been created but before the rest of the library is alerted to that fact
-			$.mobile.navreadyDeferred.resolve();
-
-			// alert listeners that the pagecontainer has been determined for binding
-			// to events triggered on it
-			$window.trigger( "pagecontainercreate" );
-
-			// cue page loading message
-			$.mobile.loading( "show" );
-
-			//remove initial build class (only present on first pageshow)
-			hideRenderingClass();
-
-			// if hashchange listening is disabled, there's no hash deeplink,
-			// the hash is not valid (contains more than one # or does not start with #)
-			// or there is no page with that hash, change to the first page in the DOM
-			// Remember, however, that the hash can also be a path!
-			if ( ! ( $.mobile.hashListeningEnabled &&
-				$.mobile.path.isHashValid( location.hash ) &&
-				( $( hashPage ).is( ":jqmData(role='page')" ) ||
-					$.mobile.path.isPath( hash ) ||
-					hash === $.mobile.dialogHashKey ) ) ) {
-
-				// make sure to set initial popstate state if it exists
-				// so that navigation back to the initial page works properly
-				if ( $.event.special.navigate.isPushStateEnabled() ) {
-					$.mobile.navigate.navigator.squash( path.parseLocation().href );
-				}
-
-				$.mobile.changePage( $.mobile.firstPage, {
-					transition: "none",
-					reverse: true,
-					changeHash: false,
-					fromHashChange: true
-				});
-			} else {
-				// trigger hashchange or navigate to squash and record the correct
-				// history entry for an initial hash path
-				if ( !$.event.special.navigate.isPushStateEnabled() ) {
-					$window.trigger( "hashchange", [true] );
-				} else {
-					// TODO figure out how to simplify this interaction with the initial history entry
-					// at the bottom js/navigate/navigate.js
-					$.mobile.navigate.history.stack = [];
-					$.mobile.navigate( $.mobile.path.isPath( location.hash ) ? location.hash : location.href );
-				}
-			}
-		}
-	});
-
-	$(function() {
-		//Run inlineSVG support test
-		$.support.inlineSVG();
-
-		// check which scrollTop value should be used by scrolling to 1 immediately at domready
-		// then check what the scroll top is. Android will report 0... others 1
-		// note that this initial scroll won't hide the address bar. It's just for the check.
-
-		// hide iOS browser chrome on load if hideUrlBar is true this is to try and do it as soon as possible
-		if ( $.mobile.hideUrlBar ) {
-			window.scrollTo( 0, 1 );
-		}
-
-		// if defaultHomeScroll hasn't been set yet, see if scrollTop is 1
-		// it should be 1 in most browsers, but android treats 1 as 0 (for hiding addr bar)
-		// so if it's 1, use 0 from now on
-		$.mobile.defaultHomeScroll = ( !$.support.scrollTop || $.mobile.window.scrollTop() === 1 ) ? 0 : 1;
-
-		//dom-ready inits
-		if ( $.mobile.autoInitializePage ) {
-			$.mobile.initializePage();
-		}
-
-		// window load event
-		// hide iOS browser chrome on load if hideUrlBar is true this is as fall back incase we were too early before
-		if ( $.mobile.hideUrlBar ) {
-			$window.load( $.mobile.silentScroll );
-		}
-
-		if ( !$.support.cssPointerEvents ) {
-			// IE and Opera don't support CSS pointer-events: none that we use to disable link-based buttons
-			// by adding the 'ui-disabled' class to them. Using a JavaScript workaround for those browser.
-			// https://github.com/jquery/jquery-mobile/issues/3558
-
-			// DEPRECATED as of 1.4.0 - remove ui-disabled after 1.4.0 release
-			// only ui-state-disabled should be present thereafter
-			$.mobile.document.delegate( ".ui-state-disabled,.ui-disabled", "vclick",
-				function( e ) {
-					e.preventDefault();
-					e.stopImmediatePropagation();
-				}
-			);
-		}
-	});
-}( jQuery, this ));
-
-
-}));
-
-/*
-	Name: autoComplete
-	Authors:
-		Andy Matthews: @commadelimited
-		Raymond Camden: @cfjedimaster
-
-	Website: http://andyMatthews.net
-	Version: 1.5.1
-*/(function(e){"use strict";var t={method:"GET",icon:"arrow-r",cancelRequests:!1,target:e(),source:null,callback:null,link:null,minLength:0,transition:"fade",matchFromStart:!0,labelHTML:function(e){return e},onNoResults:function(){return},onLoading:function(){return},onLoadingFinished:function(){return},termParam:"term",loadingHtml:'<li data-icon="none"><a href="#">Searching...</a></li>',interval:0,builder:null},n={},r=function(t,n,r){var s;if(r.builder)s=r.builder.apply(t.eq(0),[n,r]);else{s=[];n&&e.each(n,function(t,n){e.isPlainObject(n)?s.push("<li data-icon="+r.icon+'><a href="'+r.link+encodeURIComponent(n.value)+'" data-transition="'+r.transition+"\" data-autocomplete='"+JSON.stringify(n)+"'>"+r.labelHTML(n.label)+"</a></li>"):s.push("<li data-icon="+r.icon+'><a href="'+r.link+encodeURIComponent(n)+'" data-transition="'+r.transition+'">'+r.labelHTML(n)+"</a></li>")})}e.isArray(s)&&(s=s.join(""));e(r.target).html(s).listview("refresh");r.callback!==null&&e.isFunction(r.callback)&&i(r);if(s.length>0)t.trigger("targetUpdated.autocomplete");else{t.trigger("targetCleared.autocomplete");r.onNoResults&&r.onNoResults()}},i=function(t){e("li a",e(t.target)).bind("click.autocomplete",function(e){e.stopPropagation();e.preventDefault();t.callback(e)})},s=function(e,t){t.html("").listview("refresh").closest("fieldset").removeClass("ui-search-active");e.trigger("targetCleared.autocomplete")},o=function(t){var i=e(this),u=i.attr("id"),a,f,l=i.jqmData("autocomplete"),c,h;Date.now||(Date.now=function(){return(new Date).valueOf()});t&&(t.keyCode===38?e(".ui-btn-active",e(l.target)).removeClass("ui-btn-active").prevAll("li.ui-btn:eq(0)").addClass("ui-btn-active").length||e(".ui-btn:last",e(l.target)).addClass("ui-btn-active"):t.keyCode===40?e(".ui-btn-active",e(l.target)).removeClass("ui-btn-active").nextAll("li.ui-btn:eq(0)").addClass("ui-btn-active").length||e(".ui-btn:first",e(l.target)).addClass("ui-btn-active"):t.keyCode===13&&(e(".ui-btn-active a",e(l.target)).click().length||e(".ui-btn:first a",e(l.target)).click()));if(l){a=i.val();if(l._lastText===a)return;if(l._retryTimeout){window.clearTimeout(l._retryTimeout);l._retryTimeout=null}if(!(!t||t.keyCode!==13&&t.keyCode!==38&&t.keyCode!==40))return;if(a.length<l.minLength)s(i,e(l.target));else{if(l.interval&&Date.now()-l._lastRequest<l.interval){l._retryTimeout=window.setTimeout(e.proxy(o,this),l.interval-Date.now()+l._lastRequest);return}l._lastRequest=Date.now();l._lastText=a;if(e.isArray(l.source)){f=l.source.sort().filter(function(t){l.matchFromStart?(c,h=new RegExp("^"+a,"i")):(c,h=new RegExp(a,"i"));e.isPlainObject(t)?c=t.label:c=t;return h.test(c)});r(i,f,l)}else if(typeof l.source=="function")l.source(a,function(e){r(i,e,l)});else{var p={type:l.method,data:{},dataType:"json",beforeSend:function(t){if(l.cancelRequests){n[u]&&n[u].abort();n[u]=t}l.onLoading&&l.onLoadingFinished&&l.onLoading();if(l.loadingHtml){e(l.target).html(l.loadingHtml).listview("refresh");e(l.target).closest("fieldset").addClass("ui-search-active")}},success:function(e){r(i,e,l)},complete:function(){l.cancelRequests&&(n[u]=null);l.onLoadingFinished&&l.onLoadingFinished()}};if(e.isPlainObject(l.source)){l.source.callback&&l.source.callback(a,p);for(var d in l.source)d!=="callback"&&(p[d]=l.source[d])}else p.url=l.source;l.termParam&&(p.data[l.termParam]=a);e.ajax(p)}}}},u={init:function(n){var r=this;r.jqmData("autocomplete",e.extend({},t,n));var i=r.jqmData("autocomplete");return r.unbind("keyup.autocomplete").bind("keyup.autocomplete",o).next(".ui-input-clear").bind("click",function(){s(r,e(i.target))})},update:function(t){var n=this.jqmData("autocomplete");n&&this.jqmData("autocomplete",e.extend(n,t));return this},clear:function(){var t=this.jqmData("autocomplete");t&&s(this,e(t.target));return this},destroy:function(){var t=this.jqmData("autocomplete");if(t){s(this,e(t.target));this.jqmRemoveData("autocomplete");this.unbind(".autocomplete")}return this}};e.fn.autocomplete=function(e){if(u[e])return u[e].apply(this,Array.prototype.slice.call(arguments,1));if(typeof e=="object"||!e)return u.init.apply(this,arguments)}})(jQuery);
-
 /*
  * JQuery URL Parser plugin, v2.2.1
  * Developed and maintanined by Mark Perkins, mark@allmarkedup.com
@@ -15734,7 +269,7 @@ $.widget( "ui.tabs", {
 
 });
 
-
+;
 /*
  Leaflet 1.0.2+4bbb16c, a JS library for interactive maps. http://leafletjs.com
  (c) 2010-2016 Vladimir Agafonkin, (c) 2010-2011 CloudMade
@@ -15743,7 +278,7 @@ $.widget( "ui.tabs", {
 this._initControlPos&&this._initControlPos()},_initPanes:function(){var t=this._panes={};this._paneRenderers={},this._mapPane=this.createPane("mapPane",this._container),o.DomUtil.setPosition(this._mapPane,new o.Point(0,0)),this.createPane("tilePane"),this.createPane("shadowPane"),this.createPane("overlayPane"),this.createPane("markerPane"),this.createPane("tooltipPane"),this.createPane("popupPane"),this.options.markerZoomAnimation||(o.DomUtil.addClass(t.markerPane,"leaflet-zoom-hide"),o.DomUtil.addClass(t.shadowPane,"leaflet-zoom-hide"))},_resetView:function(t,e){o.DomUtil.setPosition(this._mapPane,new o.Point(0,0));var i=!this._loaded;this._loaded=!0,e=this._limitZoom(e),this.fire("viewprereset");var n=this._zoom!==e;this._moveStart(n)._move(t,e)._moveEnd(n),this.fire("viewreset"),i&&this.fire("load")},_moveStart:function(t){return t&&this.fire("zoomstart"),this.fire("movestart")},_move:function(t,e,n){e===i&&(e=this._zoom);var o=this._zoom!==e;return this._zoom=e,this._lastCenter=t,this._pixelOrigin=this._getNewPixelOrigin(t),(o||n&&n.pinch)&&this.fire("zoom",n),this.fire("move",n)},_moveEnd:function(t){return t&&this.fire("zoomend"),this.fire("moveend")},_stop:function(){return o.Util.cancelAnimFrame(this._flyToFrame),this._panAnim&&this._panAnim.stop(),this},_rawPanBy:function(t){o.DomUtil.setPosition(this._mapPane,this._getMapPanePos().subtract(t))},_getZoomSpan:function(){return this.getMaxZoom()-this.getMinZoom()},_panInsideMaxBounds:function(){this._enforcingBounds||this.panInsideBounds(this.options.maxBounds)},_checkIfLoaded:function(){if(!this._loaded)throw new Error("Set map center and zoom first.")},_initEvents:function(e){if(o.DomEvent){this._targets={},this._targets[o.stamp(this._container)]=this;var i=e?"off":"on";o.DomEvent[i](this._container,"click dblclick mousedown mouseup mouseover mouseout mousemove contextmenu keypress",this._handleDOMEvent,this),this.options.trackResize&&o.DomEvent[i](t,"resize",this._onResize,this),o.Browser.any3d&&this.options.transform3DLimit&&this[i]("moveend",this._onMoveEnd)}},_onResize:function(){o.Util.cancelAnimFrame(this._resizeRequest),this._resizeRequest=o.Util.requestAnimFrame(function(){this.invalidateSize({debounceMoveend:!0})},this)},_onScroll:function(){this._container.scrollTop=0,this._container.scrollLeft=0},_onMoveEnd:function(){var t=this._getMapPanePos();Math.max(Math.abs(t.x),Math.abs(t.y))>=this.options.transform3DLimit&&this._resetView(this.getCenter(),this.getZoom())},_findEventTargets:function(t,e){for(var i,n=[],s="mouseout"===e||"mouseover"===e,r=t.target||t.srcElement,a=!1;r;){if(i=this._targets[o.stamp(r)],i&&("click"===e||"preclick"===e)&&!t._simulated&&this._draggableMoved(i)){a=!0;break}if(i&&i.listens(e,!0)){if(s&&!o.DomEvent._isExternalTarget(r,t))break;if(n.push(i),s)break}if(r===this._container)break;r=r.parentNode}return n.length||a||s||!o.DomEvent._isExternalTarget(r,t)||(n=[this]),n},_handleDOMEvent:function(t){if(this._loaded&&!o.DomEvent._skipped(t)){var e="keypress"===t.type&&13===t.keyCode?"click":t.type;"mousedown"===e&&o.DomUtil.preventOutline(t.target||t.srcElement),this._fireDOMEvent(t,e)}},_fireDOMEvent:function(t,e,i){if("click"===t.type){var n=o.Util.extend({},t);n.type="preclick",this._fireDOMEvent(n,n.type,i)}if(!t._stopped&&(i=(i||[]).concat(this._findEventTargets(t,e)),i.length)){var s=i[0];"contextmenu"===e&&s.listens(e,!0)&&o.DomEvent.preventDefault(t);var r={originalEvent:t};if("keypress"!==t.type){var a=s instanceof o.Marker;r.containerPoint=a?this.latLngToContainerPoint(s.getLatLng()):this.mouseEventToContainerPoint(t),r.layerPoint=this.containerPointToLayerPoint(r.containerPoint),r.latlng=a?s.getLatLng():this.layerPointToLatLng(r.layerPoint)}for(var h=0;h<i.length;h++)if(i[h].fire(e,r,!0),r.originalEvent._stopped||i[h].options.nonBubblingEvents&&o.Util.indexOf(i[h].options.nonBubblingEvents,e)!==-1)return}},_draggableMoved:function(t){return t=t.dragging&&t.dragging.enabled()?t:this,t.dragging&&t.dragging.moved()||this.boxZoom&&this.boxZoom.moved()},_clearHandlers:function(){for(var t=0,e=this._handlers.length;t<e;t++)this._handlers[t].disable()},whenReady:function(t,e){return this._loaded?t.call(e||this,{target:this}):this.on("load",t,e),this},_getMapPanePos:function(){return o.DomUtil.getPosition(this._mapPane)||new o.Point(0,0)},_moved:function(){var t=this._getMapPanePos();return t&&!t.equals([0,0])},_getTopLeftPoint:function(t,e){var n=t&&e!==i?this._getNewPixelOrigin(t,e):this.getPixelOrigin();return n.subtract(this._getMapPanePos())},_getNewPixelOrigin:function(t,e){var i=this.getSize()._divideBy(2);return this.project(t,e)._subtract(i)._add(this._getMapPanePos())._round()},_latLngToNewLayerPoint:function(t,e,i){var n=this._getNewPixelOrigin(i,e);return this.project(t,e)._subtract(n)},_latLngBoundsToNewLayerBounds:function(t,e,i){var n=this._getNewPixelOrigin(i,e);return o.bounds([this.project(t.getSouthWest(),e)._subtract(n),this.project(t.getNorthWest(),e)._subtract(n),this.project(t.getSouthEast(),e)._subtract(n),this.project(t.getNorthEast(),e)._subtract(n)])},_getCenterLayerPoint:function(){return this.containerPointToLayerPoint(this.getSize()._divideBy(2))},_getCenterOffset:function(t){return this.latLngToLayerPoint(t).subtract(this._getCenterLayerPoint())},_limitCenter:function(t,e,i){if(!i)return t;var n=this.project(t,e),s=this.getSize().divideBy(2),r=new o.Bounds(n.subtract(s),n.add(s)),a=this._getBoundsOffset(r,i,e);return a.round().equals([0,0])?t:this.unproject(n.add(a),e)},_limitOffset:function(t,e){if(!e)return t;var i=this.getPixelBounds(),n=new o.Bounds(i.min.add(t),i.max.add(t));return t.add(this._getBoundsOffset(n,e))},_getBoundsOffset:function(t,e,i){var n=o.bounds(this.project(e.getNorthEast(),i),this.project(e.getSouthWest(),i)),s=n.min.subtract(t.min),r=n.max.subtract(t.max),a=this._rebound(s.x,-r.x),h=this._rebound(s.y,-r.y);return new o.Point(a,h)},_rebound:function(t,e){return t+e>0?Math.round(t-e)/2:Math.max(0,Math.ceil(t))-Math.max(0,Math.floor(e))},_limitZoom:function(t){var e=this.getMinZoom(),i=this.getMaxZoom(),n=o.Browser.any3d?this.options.zoomSnap:1;return n&&(t=Math.round(t/n)*n),Math.max(e,Math.min(i,t))},_onPanTransitionStep:function(){this.fire("move")},_onPanTransitionEnd:function(){o.DomUtil.removeClass(this._mapPane,"leaflet-pan-anim"),this.fire("moveend")},_tryAnimatedPan:function(t,e){var i=this._getCenterOffset(t)._floor();return!((e&&e.animate)!==!0&&!this.getSize().contains(i))&&(this.panBy(i,e),!0)},_createAnimProxy:function(){var t=this._proxy=o.DomUtil.create("div","leaflet-proxy leaflet-zoom-animated");this._panes.mapPane.appendChild(t),this.on("zoomanim",function(e){var i=o.DomUtil.TRANSFORM,n=t.style[i];o.DomUtil.setTransform(t,this.project(e.center,e.zoom),this.getZoomScale(e.zoom,1)),n===t.style[i]&&this._animatingZoom&&this._onZoomTransitionEnd()},this),this.on("load moveend",function(){var e=this.getCenter(),i=this.getZoom();o.DomUtil.setTransform(t,this.project(e,i),this.getZoomScale(i,1))},this)},_catchTransitionEnd:function(t){this._animatingZoom&&t.propertyName.indexOf("transform")>=0&&this._onZoomTransitionEnd()},_nothingToAnimate:function(){return!this._container.getElementsByClassName("leaflet-zoom-animated").length},_tryAnimatedZoom:function(t,e,i){if(this._animatingZoom)return!0;if(i=i||{},!this._zoomAnimated||i.animate===!1||this._nothingToAnimate()||Math.abs(e-this._zoom)>this.options.zoomAnimationThreshold)return!1;var n=this.getZoomScale(e),s=this._getCenterOffset(t)._divideBy(1-1/n);return!(i.animate!==!0&&!this.getSize().contains(s))&&(o.Util.requestAnimFrame(function(){this._moveStart(!0)._animateZoom(t,e,!0)},this),!0)},_animateZoom:function(t,e,i,n){i&&(this._animatingZoom=!0,this._animateToCenter=t,this._animateToZoom=e,o.DomUtil.addClass(this._mapPane,"leaflet-zoom-anim")),this.fire("zoomanim",{center:t,zoom:e,noUpdate:n}),setTimeout(o.bind(this._onZoomTransitionEnd,this),250)},_onZoomTransitionEnd:function(){this._animatingZoom&&(o.DomUtil.removeClass(this._mapPane,"leaflet-zoom-anim"),this._animatingZoom=!1,this._move(this._animateToCenter,this._animateToZoom),o.Util.requestAnimFrame(function(){this._moveEnd(!0)},this))}}),o.map=function(t,e){return new o.Map(t,e)},o.Layer=o.Evented.extend({options:{pane:"overlayPane",nonBubblingEvents:[],attribution:null},addTo:function(t){return t.addLayer(this),this},remove:function(){return this.removeFrom(this._map||this._mapToAdd)},removeFrom:function(t){return t&&t.removeLayer(this),this},getPane:function(t){return this._map.getPane(t?this.options[t]||t:this.options.pane)},addInteractiveTarget:function(t){return this._map._targets[o.stamp(t)]=this,this},removeInteractiveTarget:function(t){return delete this._map._targets[o.stamp(t)],this},getAttribution:function(){return this.options.attribution},_layerAdd:function(t){var e=t.target;if(e.hasLayer(this)){if(this._map=e,this._zoomAnimated=e._zoomAnimated,this.getEvents){var i=this.getEvents();e.on(i,this),this.once("remove",function(){e.off(i,this)},this)}this.onAdd(e),this.getAttribution&&this._map.attributionControl&&this._map.attributionControl.addAttribution(this.getAttribution()),this.fire("add"),e.fire("layeradd",{layer:this})}}}),o.Map.include({addLayer:function(t){var e=o.stamp(t);return this._layers[e]?this:(this._layers[e]=t,t._mapToAdd=this,t.beforeAdd&&t.beforeAdd(this),this.whenReady(t._layerAdd,t),this)},removeLayer:function(t){var e=o.stamp(t);return this._layers[e]?(this._loaded&&t.onRemove(this),t.getAttribution&&this.attributionControl&&this.attributionControl.removeAttribution(t.getAttribution()),delete this._layers[e],this._loaded&&(this.fire("layerremove",{layer:t}),t.fire("remove")),t._map=t._mapToAdd=null,this):this},hasLayer:function(t){return!!t&&o.stamp(t)in this._layers},eachLayer:function(t,e){for(var i in this._layers)t.call(e,this._layers[i]);return this},_addLayers:function(t){t=t?o.Util.isArray(t)?t:[t]:[];for(var e=0,i=t.length;e<i;e++)this.addLayer(t[e])},_addZoomLimit:function(t){!isNaN(t.options.maxZoom)&&isNaN(t.options.minZoom)||(this._zoomBoundLayers[o.stamp(t)]=t,this._updateZoomLevels())},_removeZoomLimit:function(t){var e=o.stamp(t);this._zoomBoundLayers[e]&&(delete this._zoomBoundLayers[e],this._updateZoomLevels())},_updateZoomLevels:function(){var t=1/0,e=-(1/0),n=this._getZoomSpan();for(var o in this._zoomBoundLayers){var s=this._zoomBoundLayers[o].options;t=s.minZoom===i?t:Math.min(t,s.minZoom),e=s.maxZoom===i?e:Math.max(e,s.maxZoom)}this._layersMaxZoom=e===-(1/0)?i:e,this._layersMinZoom=t===1/0?i:t,n!==this._getZoomSpan()&&this.fire("zoomlevelschange"),this.options.maxZoom===i&&this._layersMaxZoom&&this.getZoom()>this._layersMaxZoom&&this.setZoom(this._layersMaxZoom),this.options.minZoom===i&&this._layersMinZoom&&this.getZoom()<this._layersMinZoom&&this.setZoom(this._layersMinZoom)}});var r="_leaflet_events";o.DomEvent={on:function(t,e,i,n){if("object"==typeof e)for(var s in e)this._on(t,s,e[s],i);else{e=o.Util.splitWords(e);for(var r=0,a=e.length;r<a;r++)this._on(t,e[r],i,n)}return this},off:function(t,e,i,n){if("object"==typeof e)for(var s in e)this._off(t,s,e[s],i);else{e=o.Util.splitWords(e);for(var r=0,a=e.length;r<a;r++)this._off(t,e[r],i,n)}return this},_on:function(e,i,n,s){var a=i+o.stamp(n)+(s?"_"+o.stamp(s):"");if(e[r]&&e[r][a])return this;var h=function(i){return n.call(s||e,i||t.event)},l=h;return o.Browser.pointer&&0===i.indexOf("touch")?this.addPointerListener(e,i,h,a):o.Browser.touch&&"dblclick"===i&&this.addDoubleTapListener?this.addDoubleTapListener(e,h,a):"addEventListener"in e?"mousewheel"===i?e.addEventListener("onwheel"in e?"wheel":"mousewheel",h,!1):"mouseenter"===i||"mouseleave"===i?(h=function(i){i=i||t.event,o.DomEvent._isExternalTarget(e,i)&&l(i)},e.addEventListener("mouseenter"===i?"mouseover":"mouseout",h,!1)):("click"===i&&o.Browser.android&&(h=function(t){return o.DomEvent._filterClick(t,l)}),e.addEventListener(i,h,!1)):"attachEvent"in e&&e.attachEvent("on"+i,h),e[r]=e[r]||{},e[r][a]=h,this},_off:function(t,e,i,n){var s=e+o.stamp(i)+(n?"_"+o.stamp(n):""),a=t[r]&&t[r][s];return a?(o.Browser.pointer&&0===e.indexOf("touch")?this.removePointerListener(t,e,s):o.Browser.touch&&"dblclick"===e&&this.removeDoubleTapListener?this.removeDoubleTapListener(t,s):"removeEventListener"in t?"mousewheel"===e?t.removeEventListener("onwheel"in t?"wheel":"mousewheel",a,!1):t.removeEventListener("mouseenter"===e?"mouseover":"mouseleave"===e?"mouseout":e,a,!1):"detachEvent"in t&&t.detachEvent("on"+e,a),t[r][s]=null,this):this},stopPropagation:function(t){return t.stopPropagation?t.stopPropagation():t.originalEvent?t.originalEvent._stopped=!0:t.cancelBubble=!0,o.DomEvent._skipped(t),this},disableScrollPropagation:function(t){return o.DomEvent.on(t,"mousewheel",o.DomEvent.stopPropagation)},disableClickPropagation:function(t){var e=o.DomEvent.stopPropagation;return o.DomEvent.on(t,o.Draggable.START.join(" "),e),o.DomEvent.on(t,{click:o.DomEvent._fakeStop,dblclick:e})},preventDefault:function(t){return t.preventDefault?t.preventDefault():t.returnValue=!1,this},stop:function(t){return o.DomEvent.preventDefault(t).stopPropagation(t)},getMousePosition:function(t,e){if(!e)return new o.Point(t.clientX,t.clientY);var i=e.getBoundingClientRect();return new o.Point(t.clientX-i.left-e.clientLeft,t.clientY-i.top-e.clientTop)},_wheelPxFactor:o.Browser.win&&o.Browser.chrome?2:o.Browser.gecko?t.devicePixelRatio:1,getWheelDelta:function(t){return o.Browser.edge?t.wheelDeltaY/2:t.deltaY&&0===t.deltaMode?-t.deltaY/o.DomEvent._wheelPxFactor:t.deltaY&&1===t.deltaMode?20*-t.deltaY:t.deltaY&&2===t.deltaMode?60*-t.deltaY:t.deltaX||t.deltaZ?0:t.wheelDelta?(t.wheelDeltaY||t.wheelDelta)/2:t.detail&&Math.abs(t.detail)<32765?20*-t.detail:t.detail?t.detail/-32765*60:0},_skipEvents:{},_fakeStop:function(t){o.DomEvent._skipEvents[t.type]=!0},_skipped:function(t){var e=this._skipEvents[t.type];return this._skipEvents[t.type]=!1,e},_isExternalTarget:function(t,e){var i=e.relatedTarget;if(!i)return!0;try{for(;i&&i!==t;)i=i.parentNode}catch(t){return!1}return i!==t},_filterClick:function(t,e){var i=t.timeStamp||t.originalEvent&&t.originalEvent.timeStamp,n=o.DomEvent._lastClick&&i-o.DomEvent._lastClick;return n&&n>100&&n<500||t.target._simulatedClick&&!t._simulated?void o.DomEvent.stop(t):(o.DomEvent._lastClick=i,void e(t))}},o.DomEvent.addListener=o.DomEvent.on,o.DomEvent.removeListener=o.DomEvent.off,o.PosAnimation=o.Evented.extend({run:function(t,e,i,n){this.stop(),this._el=t,this._inProgress=!0,this._duration=i||.25,this._easeOutPower=1/Math.max(n||.5,.2),this._startPos=o.DomUtil.getPosition(t),this._offset=e.subtract(this._startPos),this._startTime=+new Date,this.fire("start"),this._animate()},stop:function(){this._inProgress&&(this._step(!0),this._complete())},_animate:function(){this._animId=o.Util.requestAnimFrame(this._animate,this),this._step()},_step:function(t){var e=+new Date-this._startTime,i=1e3*this._duration;e<i?this._runFrame(this._easeOut(e/i),t):(this._runFrame(1),this._complete())},_runFrame:function(t,e){var i=this._startPos.add(this._offset.multiplyBy(t));e&&i._round(),o.DomUtil.setPosition(this._el,i),this.fire("step")},_complete:function(){o.Util.cancelAnimFrame(this._animId),this._inProgress=!1,this.fire("end")},_easeOut:function(t){return 1-Math.pow(1-t,this._easeOutPower)}}),o.Projection.Mercator={R:6378137,R_MINOR:6356752.314245179,bounds:o.bounds([-20037508.34279,-15496570.73972],[20037508.34279,18764656.23138]),project:function(t){var e=Math.PI/180,i=this.R,n=t.lat*e,s=this.R_MINOR/i,r=Math.sqrt(1-s*s),a=r*Math.sin(n),h=Math.tan(Math.PI/4-n/2)/Math.pow((1-a)/(1+a),r/2);return n=-i*Math.log(Math.max(h,1e-10)),new o.Point(t.lng*e*i,n)},unproject:function(t){for(var e,i=180/Math.PI,n=this.R,s=this.R_MINOR/n,r=Math.sqrt(1-s*s),a=Math.exp(-t.y/n),h=Math.PI/2-2*Math.atan(a),l=0,u=.1;l<15&&Math.abs(u)>1e-7;l++)e=r*Math.sin(h),e=Math.pow((1-e)/(1+e),r/2),u=Math.PI/2-2*Math.atan(a*e)-h,h+=u;return new o.LatLng(h*i,t.x*i/n)}},o.CRS.EPSG3395=o.extend({},o.CRS.Earth,{code:"EPSG:3395",projection:o.Projection.Mercator,transformation:function(){var t=.5/(Math.PI*o.Projection.Mercator.R);return new o.Transformation(t,.5,-t,.5)}()}),o.GridLayer=o.Layer.extend({options:{tileSize:256,opacity:1,updateWhenIdle:o.Browser.mobile,updateWhenZooming:!0,updateInterval:200,zIndex:1,bounds:null,minZoom:0,maxZoom:i,noWrap:!1,pane:"tilePane",className:"",keepBuffer:2},initialize:function(t){o.setOptions(this,t)},onAdd:function(){this._initContainer(),this._levels={},this._tiles={},this._resetView(),this._update()},beforeAdd:function(t){t._addZoomLimit(this)},onRemove:function(t){this._removeAllTiles(),o.DomUtil.remove(this._container),t._removeZoomLimit(this),this._container=null,this._tileZoom=null},bringToFront:function(){return this._map&&(o.DomUtil.toFront(this._container),this._setAutoZIndex(Math.max)),this},bringToBack:function(){return this._map&&(o.DomUtil.toBack(this._container),this._setAutoZIndex(Math.min)),this},getContainer:function(){return this._container},setOpacity:function(t){return this.options.opacity=t,this._updateOpacity(),this},setZIndex:function(t){return this.options.zIndex=t,this._updateZIndex(),this},isLoading:function(){return this._loading},redraw:function(){return this._map&&(this._removeAllTiles(),this._update()),this},getEvents:function(){var t={viewprereset:this._invalidateAll,viewreset:this._resetView,zoom:this._resetView,moveend:this._onMoveEnd};return this.options.updateWhenIdle||(this._onMove||(this._onMove=o.Util.throttle(this._onMoveEnd,this.options.updateInterval,this)),t.move=this._onMove),this._zoomAnimated&&(t.zoomanim=this._animateZoom),t},createTile:function(){return e.createElement("div")},getTileSize:function(){var t=this.options.tileSize;return t instanceof o.Point?t:new o.Point(t,t)},_updateZIndex:function(){this._container&&this.options.zIndex!==i&&null!==this.options.zIndex&&(this._container.style.zIndex=this.options.zIndex)},_setAutoZIndex:function(t){for(var e,i=this.getPane().children,n=-t(-(1/0),1/0),o=0,s=i.length;o<s;o++)e=i[o].style.zIndex,i[o]!==this._container&&e&&(n=t(n,+e));isFinite(n)&&(this.options.zIndex=n+t(-1,1),this._updateZIndex())},_updateOpacity:function(){if(this._map&&!o.Browser.ielt9){o.DomUtil.setOpacity(this._container,this.options.opacity);var t=+new Date,e=!1,i=!1;for(var n in this._tiles){var s=this._tiles[n];if(s.current&&s.loaded){var r=Math.min(1,(t-s.loaded)/200);o.DomUtil.setOpacity(s.el,r),r<1?e=!0:(s.active&&(i=!0),s.active=!0)}}i&&!this._noPrune&&this._pruneTiles(),e&&(o.Util.cancelAnimFrame(this._fadeFrame),this._fadeFrame=o.Util.requestAnimFrame(this._updateOpacity,this))}},_initContainer:function(){this._container||(this._container=o.DomUtil.create("div","leaflet-layer "+(this.options.className||"")),this._updateZIndex(),this.options.opacity<1&&this._updateOpacity(),this.getPane().appendChild(this._container))},_updateLevels:function(){var t=this._tileZoom,e=this.options.maxZoom;if(t===i)return i;for(var n in this._levels)this._levels[n].el.children.length||n===t?this._levels[n].el.style.zIndex=e-Math.abs(t-n):(o.DomUtil.remove(this._levels[n].el),this._removeTilesAtZoom(n),delete this._levels[n]);var s=this._levels[t],r=this._map;return s||(s=this._levels[t]={},s.el=o.DomUtil.create("div","leaflet-tile-container leaflet-zoom-animated",this._container),s.el.style.zIndex=e,s.origin=r.project(r.unproject(r.getPixelOrigin()),t).round(),s.zoom=t,this._setZoomTransform(s,r.getCenter(),r.getZoom()),o.Util.falseFn(s.el.offsetWidth)),this._level=s,s},_pruneTiles:function(){if(this._map){var t,e,i=this._map.getZoom();if(i>this.options.maxZoom||i<this.options.minZoom)return void this._removeAllTiles();for(t in this._tiles)e=this._tiles[t],e.retain=e.current;for(t in this._tiles)if(e=this._tiles[t],e.current&&!e.active){var n=e.coords;this._retainParent(n.x,n.y,n.z,n.z-5)||this._retainChildren(n.x,n.y,n.z,n.z+2)}for(t in this._tiles)this._tiles[t].retain||this._removeTile(t)}},_removeTilesAtZoom:function(t){for(var e in this._tiles)this._tiles[e].coords.z===t&&this._removeTile(e)},_removeAllTiles:function(){for(var t in this._tiles)this._removeTile(t)},_invalidateAll:function(){for(var t in this._levels)o.DomUtil.remove(this._levels[t].el),delete this._levels[t];this._removeAllTiles(),this._tileZoom=null},_retainParent:function(t,e,i,n){var s=Math.floor(t/2),r=Math.floor(e/2),a=i-1,h=new o.Point(+s,+r);h.z=+a;var l=this._tileCoordsToKey(h),u=this._tiles[l];return u&&u.active?(u.retain=!0,!0):(u&&u.loaded&&(u.retain=!0),a>n&&this._retainParent(s,r,a,n))},_retainChildren:function(t,e,i,n){for(var s=2*t;s<2*t+2;s++)for(var r=2*e;r<2*e+2;r++){var a=new o.Point(s,r);a.z=i+1;var h=this._tileCoordsToKey(a),l=this._tiles[h];l&&l.active?l.retain=!0:(l&&l.loaded&&(l.retain=!0),i+1<n&&this._retainChildren(s,r,i+1,n))}},_resetView:function(t){var e=t&&(t.pinch||t.flyTo);this._setView(this._map.getCenter(),this._map.getZoom(),e,e)},_animateZoom:function(t){this._setView(t.center,t.zoom,!0,t.noUpdate)},_setView:function(t,e,n,o){var s=Math.round(e);(this.options.maxZoom!==i&&s>this.options.maxZoom||this.options.minZoom!==i&&s<this.options.minZoom)&&(s=i);var r=this.options.updateWhenZooming&&s!==this._tileZoom;o&&!r||(this._tileZoom=s,this._abortLoading&&this._abortLoading(),this._updateLevels(),this._resetGrid(),s!==i&&this._update(t),n||this._pruneTiles(),this._noPrune=!!n),this._setZoomTransforms(t,e)},_setZoomTransforms:function(t,e){for(var i in this._levels)this._setZoomTransform(this._levels[i],t,e)},_setZoomTransform:function(t,e,i){var n=this._map.getZoomScale(i,t.zoom),s=t.origin.multiplyBy(n).subtract(this._map._getNewPixelOrigin(e,i)).round();o.Browser.any3d?o.DomUtil.setTransform(t.el,s,n):o.DomUtil.setPosition(t.el,s)},_resetGrid:function(){var t=this._map,e=t.options.crs,i=this._tileSize=this.getTileSize(),n=this._tileZoom,o=this._map.getPixelWorldBounds(this._tileZoom);o&&(this._globalTileRange=this._pxBoundsToTileRange(o)),this._wrapX=e.wrapLng&&!this.options.noWrap&&[Math.floor(t.project([0,e.wrapLng[0]],n).x/i.x),Math.ceil(t.project([0,e.wrapLng[1]],n).x/i.y)],this._wrapY=e.wrapLat&&!this.options.noWrap&&[Math.floor(t.project([e.wrapLat[0],0],n).y/i.x),Math.ceil(t.project([e.wrapLat[1],0],n).y/i.y)]},_onMoveEnd:function(){this._map&&!this._map._animatingZoom&&this._update()},_getTiledPixelBounds:function(t){var e=this._map,i=e._animatingZoom?Math.max(e._animateToZoom,e.getZoom()):e.getZoom(),n=e.getZoomScale(i,this._tileZoom),s=e.project(t,this._tileZoom).floor(),r=e.getSize().divideBy(2*n);return new o.Bounds(s.subtract(r),s.add(r))},_update:function(t){var n=this._map;if(n){var s=n.getZoom();if(t===i&&(t=n.getCenter()),this._tileZoom!==i){var r=this._getTiledPixelBounds(t),a=this._pxBoundsToTileRange(r),h=a.getCenter(),l=[],u=this.options.keepBuffer,c=new o.Bounds(a.getBottomLeft().subtract([u,-u]),a.getTopRight().add([u,-u]));for(var d in this._tiles){var _=this._tiles[d].coords;_.z===this._tileZoom&&c.contains(o.point(_.x,_.y))||(this._tiles[d].current=!1)}if(Math.abs(s-this._tileZoom)>1)return void this._setView(t,s);for(var m=a.min.y;m<=a.max.y;m++)for(var p=a.min.x;p<=a.max.x;p++){var f=new o.Point(p,m);if(f.z=this._tileZoom,this._isValidTile(f)){var g=this._tiles[this._tileCoordsToKey(f)];g?g.current=!0:l.push(f)}}if(l.sort(function(t,e){return t.distanceTo(h)-e.distanceTo(h)}),0!==l.length){this._loading||(this._loading=!0,this.fire("loading"));var v=e.createDocumentFragment();for(p=0;p<l.length;p++)this._addTile(l[p],v);this._level.el.appendChild(v)}}}},_isValidTile:function(t){var e=this._map.options.crs;if(!e.infinite){var i=this._globalTileRange;if(!e.wrapLng&&(t.x<i.min.x||t.x>i.max.x)||!e.wrapLat&&(t.y<i.min.y||t.y>i.max.y))return!1}if(!this.options.bounds)return!0;var n=this._tileCoordsToBounds(t);return o.latLngBounds(this.options.bounds).overlaps(n)},_keyToBounds:function(t){return this._tileCoordsToBounds(this._keyToTileCoords(t))},_tileCoordsToBounds:function(t){var e=this._map,i=this.getTileSize(),n=t.scaleBy(i),s=n.add(i),r=e.unproject(n,t.z),a=e.unproject(s,t.z);return this.options.noWrap||(r=e.wrapLatLng(r),a=e.wrapLatLng(a)),new o.LatLngBounds(r,a)},_tileCoordsToKey:function(t){return t.x+":"+t.y+":"+t.z},_keyToTileCoords:function(t){var e=t.split(":"),i=new o.Point(+e[0],+e[1]);return i.z=+e[2],i},_removeTile:function(t){var e=this._tiles[t];e&&(o.DomUtil.remove(e.el),delete this._tiles[t],this.fire("tileunload",{tile:e.el,coords:this._keyToTileCoords(t)}))},_initTile:function(t){o.DomUtil.addClass(t,"leaflet-tile");var e=this.getTileSize();t.style.width=e.x+"px",t.style.height=e.y+"px",t.onselectstart=o.Util.falseFn,t.onmousemove=o.Util.falseFn,o.Browser.ielt9&&this.options.opacity<1&&o.DomUtil.setOpacity(t,this.options.opacity),o.Browser.android&&!o.Browser.android23&&(t.style.WebkitBackfaceVisibility="hidden")},_addTile:function(t,e){var i=this._getTilePos(t),n=this._tileCoordsToKey(t),s=this.createTile(this._wrapCoords(t),o.bind(this._tileReady,this,t));this._initTile(s),this.createTile.length<2&&o.Util.requestAnimFrame(o.bind(this._tileReady,this,t,null,s)),o.DomUtil.setPosition(s,i),this._tiles[n]={el:s,coords:t,current:!0},e.appendChild(s),this.fire("tileloadstart",{tile:s,coords:t})},_tileReady:function(t,e,i){if(this._map){e&&this.fire("tileerror",{error:e,tile:i,coords:t});var n=this._tileCoordsToKey(t);i=this._tiles[n],i&&(i.loaded=+new Date,this._map._fadeAnimated?(o.DomUtil.setOpacity(i.el,0),o.Util.cancelAnimFrame(this._fadeFrame),this._fadeFrame=o.Util.requestAnimFrame(this._updateOpacity,this)):(i.active=!0,this._pruneTiles()),e||(o.DomUtil.addClass(i.el,"leaflet-tile-loaded"),this.fire("tileload",{tile:i.el,coords:t})),this._noTilesToLoad()&&(this._loading=!1,this.fire("load"),o.Browser.ielt9||!this._map._fadeAnimated?o.Util.requestAnimFrame(this._pruneTiles,this):setTimeout(o.bind(this._pruneTiles,this),250)))}},_getTilePos:function(t){return t.scaleBy(this.getTileSize()).subtract(this._level.origin)},_wrapCoords:function(t){var e=new o.Point(this._wrapX?o.Util.wrapNum(t.x,this._wrapX):t.x,this._wrapY?o.Util.wrapNum(t.y,this._wrapY):t.y);return e.z=t.z,e},_pxBoundsToTileRange:function(t){var e=this.getTileSize();return new o.Bounds(t.min.unscaleBy(e).floor(),t.max.unscaleBy(e).ceil().subtract([1,1]))},_noTilesToLoad:function(){for(var t in this._tiles)if(!this._tiles[t].loaded)return!1;return!0}}),o.gridLayer=function(t){return new o.GridLayer(t)},o.TileLayer=o.GridLayer.extend({options:{minZoom:0,maxZoom:18,maxNativeZoom:null,minNativeZoom:null,subdomains:"abc",errorTileUrl:"",zoomOffset:0,tms:!1,zoomReverse:!1,detectRetina:!1,crossOrigin:!1},initialize:function(t,e){this._url=t,e=o.setOptions(this,e),e.detectRetina&&o.Browser.retina&&e.maxZoom>0&&(e.tileSize=Math.floor(e.tileSize/2),e.zoomReverse?(e.zoomOffset--,e.minZoom++):(e.zoomOffset++,e.maxZoom--),e.minZoom=Math.max(0,e.minZoom)),"string"==typeof e.subdomains&&(e.subdomains=e.subdomains.split("")),o.Browser.android||this.on("tileunload",this._onTileRemove)},setUrl:function(t,e){return this._url=t,e||this.redraw(),this},createTile:function(t,i){var n=e.createElement("img");return o.DomEvent.on(n,"load",o.bind(this._tileOnLoad,this,i,n)),o.DomEvent.on(n,"error",o.bind(this._tileOnError,this,i,n)),this.options.crossOrigin&&(n.crossOrigin=""),n.alt="",n.setAttribute("role","presentation"),n.src=this.getTileUrl(t),n},getTileUrl:function(t){var e={r:o.Browser.retina?"@2x":"",s:this._getSubdomain(t),x:t.x,y:t.y,z:this._getZoomForUrl()};if(this._map&&!this._map.options.crs.infinite){var i=this._globalTileRange.max.y-t.y;this.options.tms&&(e.y=i),e["-y"]=i}return o.Util.template(this._url,o.extend(e,this.options))},_tileOnLoad:function(t,e){o.Browser.ielt9?setTimeout(o.bind(t,this,null,e),0):t(null,e)},_tileOnError:function(t,e,i){var n=this.options.errorTileUrl;n&&(e.src=n),t(i,e)},getTileSize:function(){var t=this._map,e=o.GridLayer.prototype.getTileSize.call(this),i=this._tileZoom+this.options.zoomOffset,n=this.options.minNativeZoom,s=this.options.maxNativeZoom;return null!==n&&i<n?e.divideBy(t.getZoomScale(n,i)).round():null!==s&&i>s?e.divideBy(t.getZoomScale(s,i)).round():e},_onTileRemove:function(t){t.tile.onload=null},_getZoomForUrl:function(){var t=this._tileZoom,e=this.options.maxZoom,i=this.options.zoomReverse,n=this.options.zoomOffset,o=this.options.minNativeZoom,s=this.options.maxNativeZoom;return i&&(t=e-t),t+=n,null!==o&&t<o?o:null!==s&&t>s?s:t},_getSubdomain:function(t){var e=Math.abs(t.x+t.y)%this.options.subdomains.length;return this.options.subdomains[e]},_abortLoading:function(){var t,e;for(t in this._tiles)this._tiles[t].coords.z!==this._tileZoom&&(e=this._tiles[t].el,e.onload=o.Util.falseFn,e.onerror=o.Util.falseFn,e.complete||(e.src=o.Util.emptyImageUrl,o.DomUtil.remove(e)))}}),o.tileLayer=function(t,e){return new o.TileLayer(t,e)},o.TileLayer.WMS=o.TileLayer.extend({defaultWmsParams:{service:"WMS",request:"GetMap",layers:"",styles:"",format:"image/jpeg",transparent:!1,version:"1.1.1"},options:{crs:null,uppercase:!1},initialize:function(t,e){this._url=t;var i=o.extend({},this.defaultWmsParams);for(var n in e)n in this.options||(i[n]=e[n]);e=o.setOptions(this,e),i.width=i.height=e.tileSize*(e.detectRetina&&o.Browser.retina?2:1),this.wmsParams=i},onAdd:function(t){this._crs=this.options.crs||t.options.crs,this._wmsVersion=parseFloat(this.wmsParams.version);var e=this._wmsVersion>=1.3?"crs":"srs";this.wmsParams[e]=this._crs.code,o.TileLayer.prototype.onAdd.call(this,t)},getTileUrl:function(t){var e=this._tileCoordsToBounds(t),i=this._crs.project(e.getNorthWest()),n=this._crs.project(e.getSouthEast()),s=(this._wmsVersion>=1.3&&this._crs===o.CRS.EPSG4326?[n.y,i.x,i.y,n.x]:[i.x,n.y,n.x,i.y]).join(","),r=o.TileLayer.prototype.getTileUrl.call(this,t);return r+o.Util.getParamString(this.wmsParams,r,this.options.uppercase)+(this.options.uppercase?"&BBOX=":"&bbox=")+s},setParams:function(t,e){return o.extend(this.wmsParams,t),e||this.redraw(),this}}),o.tileLayer.wms=function(t,e){return new o.TileLayer.WMS(t,e)},o.ImageOverlay=o.Layer.extend({options:{opacity:1,alt:"",interactive:!1,crossOrigin:!1},initialize:function(t,e,i){this._url=t,this._bounds=o.latLngBounds(e),o.setOptions(this,i)},onAdd:function(){this._image||(this._initImage(),this.options.opacity<1&&this._updateOpacity()),this.options.interactive&&(o.DomUtil.addClass(this._image,"leaflet-interactive"),this.addInteractiveTarget(this._image)),this.getPane().appendChild(this._image),this._reset()},onRemove:function(){o.DomUtil.remove(this._image),this.options.interactive&&this.removeInteractiveTarget(this._image)},setOpacity:function(t){return this.options.opacity=t,this._image&&this._updateOpacity(),this},setStyle:function(t){return t.opacity&&this.setOpacity(t.opacity),this},bringToFront:function(){return this._map&&o.DomUtil.toFront(this._image),this},bringToBack:function(){return this._map&&o.DomUtil.toBack(this._image),this},setUrl:function(t){return this._url=t,this._image&&(this._image.src=t),this},setBounds:function(t){return this._bounds=t,this._map&&this._reset(),this},getEvents:function(){var t={zoom:this._reset,viewreset:this._reset};return this._zoomAnimated&&(t.zoomanim=this._animateZoom),t},getBounds:function(){return this._bounds},getElement:function(){return this._image},_initImage:function(){var t=this._image=o.DomUtil.create("img","leaflet-image-layer "+(this._zoomAnimated?"leaflet-zoom-animated":""));t.onselectstart=o.Util.falseFn,t.onmousemove=o.Util.falseFn,t.onload=o.bind(this.fire,this,"load"),this.options.crossOrigin&&(t.crossOrigin=""),t.src=this._url,t.alt=this.options.alt},_animateZoom:function(t){var e=this._map.getZoomScale(t.zoom),i=this._map._latLngBoundsToNewLayerBounds(this._bounds,t.zoom,t.center).min;o.DomUtil.setTransform(this._image,i,e)},_reset:function(){var t=this._image,e=new o.Bounds(this._map.latLngToLayerPoint(this._bounds.getNorthWest()),this._map.latLngToLayerPoint(this._bounds.getSouthEast())),i=e.getSize();o.DomUtil.setPosition(t,e.min),t.style.width=i.x+"px",t.style.height=i.y+"px"},_updateOpacity:function(){
 o.DomUtil.setOpacity(this._image,this.options.opacity)}}),o.imageOverlay=function(t,e,i){return new o.ImageOverlay(t,e,i)},o.Icon=o.Class.extend({initialize:function(t){o.setOptions(this,t)},createIcon:function(t){return this._createIcon("icon",t)},createShadow:function(t){return this._createIcon("shadow",t)},_createIcon:function(t,e){var i=this._getIconUrl(t);if(!i){if("icon"===t)throw new Error("iconUrl not set in Icon options (see the docs).");return null}var n=this._createImg(i,e&&"IMG"===e.tagName?e:null);return this._setIconStyles(n,t),n},_setIconStyles:function(t,e){var i=this.options,n=i[e+"Size"];"number"==typeof n&&(n=[n,n]);var s=o.point(n),r=o.point("shadow"===e&&i.shadowAnchor||i.iconAnchor||s&&s.divideBy(2,!0));t.className="leaflet-marker-"+e+" "+(i.className||""),r&&(t.style.marginLeft=-r.x+"px",t.style.marginTop=-r.y+"px"),s&&(t.style.width=s.x+"px",t.style.height=s.y+"px")},_createImg:function(t,i){return i=i||e.createElement("img"),i.src=t,i},_getIconUrl:function(t){return o.Browser.retina&&this.options[t+"RetinaUrl"]||this.options[t+"Url"]}}),o.icon=function(t){return new o.Icon(t)},o.Icon.Default=o.Icon.extend({options:{iconUrl:"marker-icon.png",iconRetinaUrl:"marker-icon-2x.png",shadowUrl:"marker-shadow.png",iconSize:[25,41],iconAnchor:[12,41],popupAnchor:[1,-34],tooltipAnchor:[16,-28],shadowSize:[41,41]},_getIconUrl:function(t){return o.Icon.Default.imagePath||(o.Icon.Default.imagePath=this._detectIconPath()),(this.options.imagePath||o.Icon.Default.imagePath)+o.Icon.prototype._getIconUrl.call(this,t)},_detectIconPath:function(){var t=o.DomUtil.create("div","leaflet-default-icon-path",e.body),i=o.DomUtil.getStyle(t,"background-image")||o.DomUtil.getStyle(t,"backgroundImage");return e.body.removeChild(t),0===i.indexOf("url")?i.replace(/^url\([\"\']?/,"").replace(/marker-icon\.png[\"\']?\)$/,""):""}}),o.Marker=o.Layer.extend({options:{icon:new o.Icon.Default,interactive:!0,draggable:!1,keyboard:!0,title:"",alt:"",zIndexOffset:0,opacity:1,riseOnHover:!1,riseOffset:250,pane:"markerPane",nonBubblingEvents:["click","dblclick","mouseover","mouseout","contextmenu"]},initialize:function(t,e){o.setOptions(this,e),this._latlng=o.latLng(t)},onAdd:function(t){this._zoomAnimated=this._zoomAnimated&&t.options.markerZoomAnimation,this._zoomAnimated&&t.on("zoomanim",this._animateZoom,this),this._initIcon(),this.update()},onRemove:function(t){this.dragging&&this.dragging.enabled()&&(this.options.draggable=!0,this.dragging.removeHooks()),this._zoomAnimated&&t.off("zoomanim",this._animateZoom,this),this._removeIcon(),this._removeShadow()},getEvents:function(){return{zoom:this.update,viewreset:this.update}},getLatLng:function(){return this._latlng},setLatLng:function(t){var e=this._latlng;return this._latlng=o.latLng(t),this.update(),this.fire("move",{oldLatLng:e,latlng:this._latlng})},setZIndexOffset:function(t){return this.options.zIndexOffset=t,this.update()},setIcon:function(t){return this.options.icon=t,this._map&&(this._initIcon(),this.update()),this._popup&&this.bindPopup(this._popup,this._popup.options),this},getElement:function(){return this._icon},update:function(){if(this._icon){var t=this._map.latLngToLayerPoint(this._latlng).round();this._setPos(t)}return this},_initIcon:function(){var t=this.options,e="leaflet-zoom-"+(this._zoomAnimated?"animated":"hide"),i=t.icon.createIcon(this._icon),n=!1;i!==this._icon&&(this._icon&&this._removeIcon(),n=!0,t.title&&(i.title=t.title),t.alt&&(i.alt=t.alt)),o.DomUtil.addClass(i,e),t.keyboard&&(i.tabIndex="0"),this._icon=i,t.riseOnHover&&this.on({mouseover:this._bringToFront,mouseout:this._resetZIndex});var s=t.icon.createShadow(this._shadow),r=!1;s!==this._shadow&&(this._removeShadow(),r=!0),s&&o.DomUtil.addClass(s,e),this._shadow=s,t.opacity<1&&this._updateOpacity(),n&&this.getPane().appendChild(this._icon),this._initInteraction(),s&&r&&this.getPane("shadowPane").appendChild(this._shadow)},_removeIcon:function(){this.options.riseOnHover&&this.off({mouseover:this._bringToFront,mouseout:this._resetZIndex}),o.DomUtil.remove(this._icon),this.removeInteractiveTarget(this._icon),this._icon=null},_removeShadow:function(){this._shadow&&o.DomUtil.remove(this._shadow),this._shadow=null},_setPos:function(t){o.DomUtil.setPosition(this._icon,t),this._shadow&&o.DomUtil.setPosition(this._shadow,t),this._zIndex=t.y+this.options.zIndexOffset,this._resetZIndex()},_updateZIndex:function(t){this._icon.style.zIndex=this._zIndex+t},_animateZoom:function(t){var e=this._map._latLngToNewLayerPoint(this._latlng,t.zoom,t.center).round();this._setPos(e)},_initInteraction:function(){if(this.options.interactive&&(o.DomUtil.addClass(this._icon,"leaflet-interactive"),this.addInteractiveTarget(this._icon),o.Handler.MarkerDrag)){var t=this.options.draggable;this.dragging&&(t=this.dragging.enabled(),this.dragging.disable()),this.dragging=new o.Handler.MarkerDrag(this),t&&this.dragging.enable()}},setOpacity:function(t){return this.options.opacity=t,this._map&&this._updateOpacity(),this},_updateOpacity:function(){var t=this.options.opacity;o.DomUtil.setOpacity(this._icon,t),this._shadow&&o.DomUtil.setOpacity(this._shadow,t)},_bringToFront:function(){this._updateZIndex(this.options.riseOffset)},_resetZIndex:function(){this._updateZIndex(0)},_getPopupAnchor:function(){return this.options.icon.options.popupAnchor||[0,0]},_getTooltipAnchor:function(){return this.options.icon.options.tooltipAnchor||[0,0]}}),o.marker=function(t,e){return new o.Marker(t,e)},o.DivIcon=o.Icon.extend({options:{iconSize:[12,12],html:!1,bgPos:null,className:"leaflet-div-icon"},createIcon:function(t){var i=t&&"DIV"===t.tagName?t:e.createElement("div"),n=this.options;if(i.innerHTML=n.html!==!1?n.html:"",n.bgPos){var s=o.point(n.bgPos);i.style.backgroundPosition=-s.x+"px "+-s.y+"px"}return this._setIconStyles(i,"icon"),i},createShadow:function(){return null}}),o.divIcon=function(t){return new o.DivIcon(t)},o.DivOverlay=o.Layer.extend({options:{offset:[0,7],className:"",pane:"popupPane"},initialize:function(t,e){o.setOptions(this,t),this._source=e},onAdd:function(t){this._zoomAnimated=t._zoomAnimated,this._container||this._initLayout(),t._fadeAnimated&&o.DomUtil.setOpacity(this._container,0),clearTimeout(this._removeTimeout),this.getPane().appendChild(this._container),this.update(),t._fadeAnimated&&o.DomUtil.setOpacity(this._container,1),this.bringToFront()},onRemove:function(t){t._fadeAnimated?(o.DomUtil.setOpacity(this._container,0),this._removeTimeout=setTimeout(o.bind(o.DomUtil.remove,o.DomUtil,this._container),200)):o.DomUtil.remove(this._container)},getLatLng:function(){return this._latlng},setLatLng:function(t){return this._latlng=o.latLng(t),this._map&&(this._updatePosition(),this._adjustPan()),this},getContent:function(){return this._content},setContent:function(t){return this._content=t,this.update(),this},getElement:function(){return this._container},update:function(){this._map&&(this._container.style.visibility="hidden",this._updateContent(),this._updateLayout(),this._updatePosition(),this._container.style.visibility="",this._adjustPan())},getEvents:function(){var t={zoom:this._updatePosition,viewreset:this._updatePosition};return this._zoomAnimated&&(t.zoomanim=this._animateZoom),t},isOpen:function(){return!!this._map&&this._map.hasLayer(this)},bringToFront:function(){return this._map&&o.DomUtil.toFront(this._container),this},bringToBack:function(){return this._map&&o.DomUtil.toBack(this._container),this},_updateContent:function(){if(this._content){var t=this._contentNode,e="function"==typeof this._content?this._content(this._source||this):this._content;if("string"==typeof e)t.innerHTML=e;else{for(;t.hasChildNodes();)t.removeChild(t.firstChild);t.appendChild(e)}this.fire("contentupdate")}},_updatePosition:function(){if(this._map){var t=this._map.latLngToLayerPoint(this._latlng),e=o.point(this.options.offset),i=this._getAnchor();this._zoomAnimated?o.DomUtil.setPosition(this._container,t.add(i)):e=e.add(t).add(i);var n=this._containerBottom=-e.y,s=this._containerLeft=-Math.round(this._containerWidth/2)+e.x;this._container.style.bottom=n+"px",this._container.style.left=s+"px"}},_getAnchor:function(){return[0,0]}}),o.Popup=o.DivOverlay.extend({options:{maxWidth:300,minWidth:50,maxHeight:null,autoPan:!0,autoPanPaddingTopLeft:null,autoPanPaddingBottomRight:null,autoPanPadding:[5,5],keepInView:!1,closeButton:!0,autoClose:!0,className:""},openOn:function(t){return t.openPopup(this),this},onAdd:function(t){o.DivOverlay.prototype.onAdd.call(this,t),t.fire("popupopen",{popup:this}),this._source&&(this._source.fire("popupopen",{popup:this},!0),this._source instanceof o.Path||this._source.on("preclick",o.DomEvent.stopPropagation))},onRemove:function(t){o.DivOverlay.prototype.onRemove.call(this,t),t.fire("popupclose",{popup:this}),this._source&&(this._source.fire("popupclose",{popup:this},!0),this._source instanceof o.Path||this._source.off("preclick",o.DomEvent.stopPropagation))},getEvents:function(){var t=o.DivOverlay.prototype.getEvents.call(this);return("closeOnClick"in this.options?this.options.closeOnClick:this._map.options.closePopupOnClick)&&(t.preclick=this._close),this.options.keepInView&&(t.moveend=this._adjustPan),t},_close:function(){this._map&&this._map.closePopup(this)},_initLayout:function(){var t="leaflet-popup",e=this._container=o.DomUtil.create("div",t+" "+(this.options.className||"")+" leaflet-zoom-animated");if(this.options.closeButton){var i=this._closeButton=o.DomUtil.create("a",t+"-close-button",e);i.href="#close",i.innerHTML="&#215;",o.DomEvent.on(i,"click",this._onCloseButtonClick,this)}var n=this._wrapper=o.DomUtil.create("div",t+"-content-wrapper",e);this._contentNode=o.DomUtil.create("div",t+"-content",n),o.DomEvent.disableClickPropagation(n).disableScrollPropagation(this._contentNode).on(n,"contextmenu",o.DomEvent.stopPropagation),this._tipContainer=o.DomUtil.create("div",t+"-tip-container",e),this._tip=o.DomUtil.create("div",t+"-tip",this._tipContainer)},_updateLayout:function(){var t=this._contentNode,e=t.style;e.width="",e.whiteSpace="nowrap";var i=t.offsetWidth;i=Math.min(i,this.options.maxWidth),i=Math.max(i,this.options.minWidth),e.width=i+1+"px",e.whiteSpace="",e.height="";var n=t.offsetHeight,s=this.options.maxHeight,r="leaflet-popup-scrolled";s&&n>s?(e.height=s+"px",o.DomUtil.addClass(t,r)):o.DomUtil.removeClass(t,r),this._containerWidth=this._container.offsetWidth},_animateZoom:function(t){var e=this._map._latLngToNewLayerPoint(this._latlng,t.zoom,t.center),i=this._getAnchor();o.DomUtil.setPosition(this._container,e.add(i))},_adjustPan:function(){if(!(!this.options.autoPan||this._map._panAnim&&this._map._panAnim._inProgress)){var t=this._map,e=parseInt(o.DomUtil.getStyle(this._container,"marginBottom"),10)||0,i=this._container.offsetHeight+e,n=this._containerWidth,s=new o.Point(this._containerLeft,-i-this._containerBottom);s._add(o.DomUtil.getPosition(this._container));var r=t.layerPointToContainerPoint(s),a=o.point(this.options.autoPanPadding),h=o.point(this.options.autoPanPaddingTopLeft||a),l=o.point(this.options.autoPanPaddingBottomRight||a),u=t.getSize(),c=0,d=0;r.x+n+l.x>u.x&&(c=r.x+n-u.x+l.x),r.x-c-h.x<0&&(c=r.x-h.x),r.y+i+l.y>u.y&&(d=r.y+i-u.y+l.y),r.y-d-h.y<0&&(d=r.y-h.y),(c||d)&&t.fire("autopanstart").panBy([c,d])}},_onCloseButtonClick:function(t){this._close(),o.DomEvent.stop(t)},_getAnchor:function(){return o.point(this._source&&this._source._getPopupAnchor?this._source._getPopupAnchor():[0,0])}}),o.popup=function(t,e){return new o.Popup(t,e)},o.Map.mergeOptions({closePopupOnClick:!0}),o.Map.include({openPopup:function(t,e,i){return t instanceof o.Popup||(t=new o.Popup(i).setContent(t)),e&&t.setLatLng(e),this.hasLayer(t)?this:(this._popup&&this._popup.options.autoClose&&this.closePopup(),this._popup=t,this.addLayer(t))},closePopup:function(t){return t&&t!==this._popup||(t=this._popup,this._popup=null),t&&this.removeLayer(t),this}}),o.Layer.include({bindPopup:function(t,e){return t instanceof o.Popup?(o.setOptions(t,e),this._popup=t,t._source=this):(this._popup&&!e||(this._popup=new o.Popup(e,this)),this._popup.setContent(t)),this._popupHandlersAdded||(this.on({click:this._openPopup,remove:this.closePopup,move:this._movePopup}),this._popupHandlersAdded=!0),this},unbindPopup:function(){return this._popup&&(this.off({click:this._openPopup,remove:this.closePopup,move:this._movePopup}),this._popupHandlersAdded=!1,this._popup=null),this},openPopup:function(t,e){if(t instanceof o.Layer||(e=t,t=this),t instanceof o.FeatureGroup)for(var i in this._layers){t=this._layers[i];break}return e||(e=t.getCenter?t.getCenter():t.getLatLng()),this._popup&&this._map&&(this._popup._source=t,this._popup.update(),this._map.openPopup(this._popup,e)),this},closePopup:function(){return this._popup&&this._popup._close(),this},togglePopup:function(t){return this._popup&&(this._popup._map?this.closePopup():this.openPopup(t)),this},isPopupOpen:function(){return this._popup.isOpen()},setPopupContent:function(t){return this._popup&&this._popup.setContent(t),this},getPopup:function(){return this._popup},_openPopup:function(t){var e=t.layer||t.target;if(this._popup&&this._map)return o.DomEvent.stop(t),e instanceof o.Path?void this.openPopup(t.layer||t.target,t.latlng):void(this._map.hasLayer(this._popup)&&this._popup._source===e?this.closePopup():this.openPopup(e,t.latlng))},_movePopup:function(t){this._popup.setLatLng(t.latlng)}}),o.Tooltip=o.DivOverlay.extend({options:{pane:"tooltipPane",offset:[0,0],direction:"auto",permanent:!1,sticky:!1,interactive:!1,opacity:.9},onAdd:function(t){o.DivOverlay.prototype.onAdd.call(this,t),this.setOpacity(this.options.opacity),t.fire("tooltipopen",{tooltip:this}),this._source&&this._source.fire("tooltipopen",{tooltip:this},!0)},onRemove:function(t){o.DivOverlay.prototype.onRemove.call(this,t),t.fire("tooltipclose",{tooltip:this}),this._source&&this._source.fire("tooltipclose",{tooltip:this},!0)},getEvents:function(){var t=o.DivOverlay.prototype.getEvents.call(this);return o.Browser.touch&&!this.options.permanent&&(t.preclick=this._close),t},_close:function(){this._map&&this._map.closeTooltip(this)},_initLayout:function(){var t="leaflet-tooltip",e=t+" "+(this.options.className||"")+" leaflet-zoom-"+(this._zoomAnimated?"animated":"hide");this._contentNode=this._container=o.DomUtil.create("div",e)},_updateLayout:function(){},_adjustPan:function(){},_setPosition:function(t){var e=this._map,i=this._container,n=e.latLngToContainerPoint(e.getCenter()),s=e.layerPointToContainerPoint(t),r=this.options.direction,a=i.offsetWidth,h=i.offsetHeight,l=o.point(this.options.offset),u=this._getAnchor();"top"===r?t=t.add(o.point(-a/2+l.x,-h+l.y+u.y,!0)):"bottom"===r?t=t.subtract(o.point(a/2-l.x,-l.y,!0)):"center"===r?t=t.subtract(o.point(a/2+l.x,h/2-u.y+l.y,!0)):"right"===r||"auto"===r&&s.x<n.x?(r="right",t=t.add(o.point(l.x+u.x,u.y-h/2+l.y,!0))):(r="left",t=t.subtract(o.point(a+u.x-l.x,h/2-u.y-l.y,!0))),o.DomUtil.removeClass(i,"leaflet-tooltip-right"),o.DomUtil.removeClass(i,"leaflet-tooltip-left"),o.DomUtil.removeClass(i,"leaflet-tooltip-top"),o.DomUtil.removeClass(i,"leaflet-tooltip-bottom"),o.DomUtil.addClass(i,"leaflet-tooltip-"+r),o.DomUtil.setPosition(i,t)},_updatePosition:function(){var t=this._map.latLngToLayerPoint(this._latlng);this._setPosition(t)},setOpacity:function(t){this.options.opacity=t,this._container&&o.DomUtil.setOpacity(this._container,t)},_animateZoom:function(t){var e=this._map._latLngToNewLayerPoint(this._latlng,t.zoom,t.center);this._setPosition(e)},_getAnchor:function(){return o.point(this._source&&this._source._getTooltipAnchor&&!this.options.sticky?this._source._getTooltipAnchor():[0,0])}}),o.tooltip=function(t,e){return new o.Tooltip(t,e)},o.Map.include({openTooltip:function(t,e,i){return t instanceof o.Tooltip||(t=new o.Tooltip(i).setContent(t)),e&&t.setLatLng(e),this.hasLayer(t)?this:this.addLayer(t)},closeTooltip:function(t){return t&&this.removeLayer(t),this}}),o.Layer.include({bindTooltip:function(t,e){return t instanceof o.Tooltip?(o.setOptions(t,e),this._tooltip=t,t._source=this):(this._tooltip&&!e||(this._tooltip=o.tooltip(e,this)),this._tooltip.setContent(t)),this._initTooltipInteractions(),this._tooltip.options.permanent&&this._map&&this._map.hasLayer(this)&&this.openTooltip(),this},unbindTooltip:function(){return this._tooltip&&(this._initTooltipInteractions(!0),this.closeTooltip(),this._tooltip=null),this},_initTooltipInteractions:function(t){if(t||!this._tooltipHandlersAdded){var e=t?"off":"on",i={remove:this.closeTooltip,move:this._moveTooltip};this._tooltip.options.permanent?i.add=this._openTooltip:(i.mouseover=this._openTooltip,i.mouseout=this.closeTooltip,this._tooltip.options.sticky&&(i.mousemove=this._moveTooltip),o.Browser.touch&&(i.click=this._openTooltip)),this[e](i),this._tooltipHandlersAdded=!t}},openTooltip:function(t,e){if(t instanceof o.Layer||(e=t,t=this),t instanceof o.FeatureGroup)for(var i in this._layers){t=this._layers[i];break}return e||(e=t.getCenter?t.getCenter():t.getLatLng()),this._tooltip&&this._map&&(this._tooltip._source=t,this._tooltip.update(),this._map.openTooltip(this._tooltip,e),this._tooltip.options.interactive&&this._tooltip._container&&(o.DomUtil.addClass(this._tooltip._container,"leaflet-clickable"),this.addInteractiveTarget(this._tooltip._container))),this},closeTooltip:function(){return this._tooltip&&(this._tooltip._close(),this._tooltip.options.interactive&&this._tooltip._container&&(o.DomUtil.removeClass(this._tooltip._container,"leaflet-clickable"),this.removeInteractiveTarget(this._tooltip._container))),this},toggleTooltip:function(t){return this._tooltip&&(this._tooltip._map?this.closeTooltip():this.openTooltip(t)),this},isTooltipOpen:function(){return this._tooltip.isOpen()},setTooltipContent:function(t){return this._tooltip&&this._tooltip.setContent(t),this},getTooltip:function(){return this._tooltip},_openTooltip:function(t){var e=t.layer||t.target;this._tooltip&&this._map&&this.openTooltip(e,this._tooltip.options.sticky?t.latlng:i)},_moveTooltip:function(t){var e,i,n=t.latlng;this._tooltip.options.sticky&&t.originalEvent&&(e=this._map.mouseEventToContainerPoint(t.originalEvent),i=this._map.containerPointToLayerPoint(e),n=this._map.layerPointToLatLng(i)),this._tooltip.setLatLng(n)}}),o.LayerGroup=o.Layer.extend({initialize:function(t){this._layers={};var e,i;if(t)for(e=0,i=t.length;e<i;e++)this.addLayer(t[e])},addLayer:function(t){var e=this.getLayerId(t);return this._layers[e]=t,this._map&&this._map.addLayer(t),this},removeLayer:function(t){var e=t in this._layers?t:this.getLayerId(t);return this._map&&this._layers[e]&&this._map.removeLayer(this._layers[e]),delete this._layers[e],this},hasLayer:function(t){return!!t&&(t in this._layers||this.getLayerId(t)in this._layers)},clearLayers:function(){for(var t in this._layers)this.removeLayer(this._layers[t]);return this},invoke:function(t){var e,i,n=Array.prototype.slice.call(arguments,1);for(e in this._layers)i=this._layers[e],i[t]&&i[t].apply(i,n);return this},onAdd:function(t){for(var e in this._layers)t.addLayer(this._layers[e])},onRemove:function(t){for(var e in this._layers)t.removeLayer(this._layers[e])},eachLayer:function(t,e){for(var i in this._layers)t.call(e,this._layers[i]);return this},getLayer:function(t){return this._layers[t]},getLayers:function(){var t=[];for(var e in this._layers)t.push(this._layers[e]);return t},setZIndex:function(t){return this.invoke("setZIndex",t)},getLayerId:function(t){return o.stamp(t)}}),o.layerGroup=function(t){return new o.LayerGroup(t)},o.FeatureGroup=o.LayerGroup.extend({addLayer:function(t){return this.hasLayer(t)?this:(t.addEventParent(this),o.LayerGroup.prototype.addLayer.call(this,t),this.fire("layeradd",{layer:t}))},removeLayer:function(t){return this.hasLayer(t)?(t in this._layers&&(t=this._layers[t]),t.removeEventParent(this),o.LayerGroup.prototype.removeLayer.call(this,t),this.fire("layerremove",{layer:t})):this},setStyle:function(t){return this.invoke("setStyle",t)},bringToFront:function(){return this.invoke("bringToFront")},bringToBack:function(){return this.invoke("bringToBack")},getBounds:function(){var t=new o.LatLngBounds;for(var e in this._layers){var i=this._layers[e];t.extend(i.getBounds?i.getBounds():i.getLatLng())}return t}}),o.featureGroup=function(t){return new o.FeatureGroup(t)},o.Renderer=o.Layer.extend({options:{padding:.1},initialize:function(t){o.setOptions(this,t),o.stamp(this),this._layers=this._layers||{}},onAdd:function(){this._container||(this._initContainer(),this._zoomAnimated&&o.DomUtil.addClass(this._container,"leaflet-zoom-animated")),this.getPane().appendChild(this._container),this._update(),this.on("update",this._updatePaths,this)},onRemove:function(){o.DomUtil.remove(this._container),this.off("update",this._updatePaths,this)},getEvents:function(){var t={viewreset:this._reset,zoom:this._onZoom,moveend:this._update,zoomend:this._onZoomEnd};return this._zoomAnimated&&(t.zoomanim=this._onAnimZoom),t},_onAnimZoom:function(t){this._updateTransform(t.center,t.zoom)},_onZoom:function(){this._updateTransform(this._map.getCenter(),this._map.getZoom())},_updateTransform:function(t,e){var i=this._map.getZoomScale(e,this._zoom),n=o.DomUtil.getPosition(this._container),s=this._map.getSize().multiplyBy(.5+this.options.padding),r=this._map.project(this._center,e),a=this._map.project(t,e),h=a.subtract(r),l=s.multiplyBy(-i).add(n).add(s).subtract(h);o.Browser.any3d?o.DomUtil.setTransform(this._container,l,i):o.DomUtil.setPosition(this._container,l)},_reset:function(){this._update(),this._updateTransform(this._center,this._zoom);for(var t in this._layers)this._layers[t]._reset()},_onZoomEnd:function(){for(var t in this._layers)this._layers[t]._project()},_updatePaths:function(){for(var t in this._layers)this._layers[t]._update()},_update:function(){var t=this.options.padding,e=this._map.getSize(),i=this._map.containerPointToLayerPoint(e.multiplyBy(-t)).round();this._bounds=new o.Bounds(i,i.add(e.multiplyBy(1+2*t)).round()),this._center=this._map.getCenter(),this._zoom=this._map.getZoom()}}),o.Map.include({getRenderer:function(t){var e=t.options.renderer||this._getPaneRenderer(t.options.pane)||this.options.renderer||this._renderer;return e||(e=this._renderer=this.options.preferCanvas&&o.canvas()||o.svg()),this.hasLayer(e)||this.addLayer(e),e},_getPaneRenderer:function(t){if("overlayPane"===t||t===i)return!1;var e=this._paneRenderers[t];return e===i&&(e=o.SVG&&o.svg({pane:t})||o.Canvas&&o.canvas({pane:t}),this._paneRenderers[t]=e),e}}),o.Path=o.Layer.extend({options:{stroke:!0,color:"#3388ff",weight:3,opacity:1,lineCap:"round",lineJoin:"round",dashArray:null,dashOffset:null,fill:!1,fillColor:null,fillOpacity:.2,fillRule:"evenodd",interactive:!0},beforeAdd:function(t){this._renderer=t.getRenderer(this)},onAdd:function(){this._renderer._initPath(this),this._reset(),this._renderer._addPath(this)},onRemove:function(){this._renderer._removePath(this)},redraw:function(){return this._map&&this._renderer._updatePath(this),this},setStyle:function(t){return o.setOptions(this,t),this._renderer&&this._renderer._updateStyle(this),this},bringToFront:function(){return this._renderer&&this._renderer._bringToFront(this),this},bringToBack:function(){return this._renderer&&this._renderer._bringToBack(this),this},getElement:function(){return this._path},_reset:function(){this._project(),this._update()},_clickTolerance:function(){return(this.options.stroke?this.options.weight/2:0)+(o.Browser.touch?10:0)}}),o.LineUtil={simplify:function(t,e){if(!e||!t.length)return t.slice();var i=e*e;return t=this._reducePoints(t,i),t=this._simplifyDP(t,i)},pointToSegmentDistance:function(t,e,i){return Math.sqrt(this._sqClosestPointOnSegment(t,e,i,!0))},closestPointOnSegment:function(t,e,i){return this._sqClosestPointOnSegment(t,e,i)},_simplifyDP:function(t,e){var n=t.length,o=typeof Uint8Array!=i+""?Uint8Array:Array,s=new o(n);s[0]=s[n-1]=1,this._simplifyDPStep(t,s,e,0,n-1);var r,a=[];for(r=0;r<n;r++)s[r]&&a.push(t[r]);return a},_simplifyDPStep:function(t,e,i,n,o){var s,r,a,h=0;for(r=n+1;r<=o-1;r++)a=this._sqClosestPointOnSegment(t[r],t[n],t[o],!0),a>h&&(s=r,h=a);h>i&&(e[s]=1,this._simplifyDPStep(t,e,i,n,s),this._simplifyDPStep(t,e,i,s,o))},_reducePoints:function(t,e){for(var i=[t[0]],n=1,o=0,s=t.length;n<s;n++)this._sqDist(t[n],t[o])>e&&(i.push(t[n]),o=n);return o<s-1&&i.push(t[s-1]),i},clipSegment:function(t,e,i,n,o){var s,r,a,h=n?this._lastCode:this._getBitCode(t,i),l=this._getBitCode(e,i);for(this._lastCode=l;;){if(!(h|l))return[t,e];if(h&l)return!1;s=h||l,r=this._getEdgeIntersection(t,e,s,i,o),a=this._getBitCode(r,i),s===h?(t=r,h=a):(e=r,l=a)}},_getEdgeIntersection:function(t,e,i,n,s){var r,a,h=e.x-t.x,l=e.y-t.y,u=n.min,c=n.max;return 8&i?(r=t.x+h*(c.y-t.y)/l,a=c.y):4&i?(r=t.x+h*(u.y-t.y)/l,a=u.y):2&i?(r=c.x,a=t.y+l*(c.x-t.x)/h):1&i&&(r=u.x,a=t.y+l*(u.x-t.x)/h),new o.Point(r,a,s)},_getBitCode:function(t,e){var i=0;return t.x<e.min.x?i|=1:t.x>e.max.x&&(i|=2),t.y<e.min.y?i|=4:t.y>e.max.y&&(i|=8),i},_sqDist:function(t,e){var i=e.x-t.x,n=e.y-t.y;return i*i+n*n},_sqClosestPointOnSegment:function(t,e,i,n){var s,r=e.x,a=e.y,h=i.x-r,l=i.y-a,u=h*h+l*l;return u>0&&(s=((t.x-r)*h+(t.y-a)*l)/u,s>1?(r=i.x,a=i.y):s>0&&(r+=h*s,a+=l*s)),h=t.x-r,l=t.y-a,n?h*h+l*l:new o.Point(r,a)}},o.Polyline=o.Path.extend({options:{smoothFactor:1,noClip:!1},initialize:function(t,e){o.setOptions(this,e),this._setLatLngs(t)},getLatLngs:function(){return this._latlngs},setLatLngs:function(t){return this._setLatLngs(t),this.redraw()},isEmpty:function(){return!this._latlngs.length},closestLayerPoint:function(t){for(var e,i,n=1/0,s=null,r=o.LineUtil._sqClosestPointOnSegment,a=0,h=this._parts.length;a<h;a++)for(var l=this._parts[a],u=1,c=l.length;u<c;u++){e=l[u-1],i=l[u];var d=r(t,e,i,!0);d<n&&(n=d,s=r(t,e,i))}return s&&(s.distance=Math.sqrt(n)),s},getCenter:function(){if(!this._map)throw new Error("Must add layer to map before using getCenter()");var t,e,i,n,o,s,r,a=this._rings[0],h=a.length;if(!h)return null;for(t=0,e=0;t<h-1;t++)e+=a[t].distanceTo(a[t+1])/2;if(0===e)return this._map.layerPointToLatLng(a[0]);for(t=0,n=0;t<h-1;t++)if(o=a[t],s=a[t+1],i=o.distanceTo(s),n+=i,n>e)return r=(n-e)/i,this._map.layerPointToLatLng([s.x-r*(s.x-o.x),s.y-r*(s.y-o.y)])},getBounds:function(){return this._bounds},addLatLng:function(t,e){return e=e||this._defaultShape(),t=o.latLng(t),e.push(t),this._bounds.extend(t),this.redraw()},_setLatLngs:function(t){this._bounds=new o.LatLngBounds,this._latlngs=this._convertLatLngs(t)},_defaultShape:function(){return o.Polyline._flat(this._latlngs)?this._latlngs:this._latlngs[0]},_convertLatLngs:function(t){for(var e=[],i=o.Polyline._flat(t),n=0,s=t.length;n<s;n++)i?(e[n]=o.latLng(t[n]),this._bounds.extend(e[n])):e[n]=this._convertLatLngs(t[n]);return e},_project:function(){var t=new o.Bounds;this._rings=[],this._projectLatlngs(this._latlngs,this._rings,t);var e=this._clickTolerance(),i=new o.Point(e,e);this._bounds.isValid()&&t.isValid()&&(t.min._subtract(i),t.max._add(i),this._pxBounds=t)},_projectLatlngs:function(t,e,i){var n,s,r=t[0]instanceof o.LatLng,a=t.length;if(r){for(s=[],n=0;n<a;n++)s[n]=this._map.latLngToLayerPoint(t[n]),i.extend(s[n]);e.push(s)}else for(n=0;n<a;n++)this._projectLatlngs(t[n],e,i)},_clipPoints:function(){var t=this._renderer._bounds;if(this._parts=[],this._pxBounds&&this._pxBounds.intersects(t)){if(this.options.noClip)return void(this._parts=this._rings);var e,i,n,s,r,a,h,l=this._parts;for(e=0,n=0,s=this._rings.length;e<s;e++)for(h=this._rings[e],i=0,r=h.length;i<r-1;i++)a=o.LineUtil.clipSegment(h[i],h[i+1],t,i,!0),a&&(l[n]=l[n]||[],l[n].push(a[0]),a[1]===h[i+1]&&i!==r-2||(l[n].push(a[1]),n++))}},_simplifyPoints:function(){for(var t=this._parts,e=this.options.smoothFactor,i=0,n=t.length;i<n;i++)t[i]=o.LineUtil.simplify(t[i],e)},_update:function(){this._map&&(this._clipPoints(),this._simplifyPoints(),this._updatePath())},_updatePath:function(){this._renderer._updatePoly(this)}}),o.polyline=function(t,e){return new o.Polyline(t,e)},o.Polyline._flat=function(t){return!o.Util.isArray(t[0])||"object"!=typeof t[0][0]&&"undefined"!=typeof t[0][0]},o.PolyUtil={},o.PolyUtil.clipPolygon=function(t,e,i){var n,s,r,a,h,l,u,c,d,_=[1,4,2,8],m=o.LineUtil;for(s=0,u=t.length;s<u;s++)t[s]._code=m._getBitCode(t[s],e);for(a=0;a<4;a++){for(c=_[a],n=[],s=0,u=t.length,r=u-1;s<u;r=s++)h=t[s],l=t[r],h._code&c?l._code&c||(d=m._getEdgeIntersection(l,h,c,e,i),d._code=m._getBitCode(d,e),n.push(d)):(l._code&c&&(d=m._getEdgeIntersection(l,h,c,e,i),d._code=m._getBitCode(d,e),n.push(d)),n.push(h));t=n}return t},o.Polygon=o.Polyline.extend({options:{fill:!0},isEmpty:function(){return!this._latlngs.length||!this._latlngs[0].length},getCenter:function(){if(!this._map)throw new Error("Must add layer to map before using getCenter()");var t,e,i,n,o,s,r,a,h,l=this._rings[0],u=l.length;if(!u)return null;for(s=r=a=0,t=0,e=u-1;t<u;e=t++)i=l[t],n=l[e],o=i.y*n.x-n.y*i.x,r+=(i.x+n.x)*o,a+=(i.y+n.y)*o,s+=3*o;return h=0===s?l[0]:[r/s,a/s],this._map.layerPointToLatLng(h)},_convertLatLngs:function(t){var e=o.Polyline.prototype._convertLatLngs.call(this,t),i=e.length;return i>=2&&e[0]instanceof o.LatLng&&e[0].equals(e[i-1])&&e.pop(),e},_setLatLngs:function(t){o.Polyline.prototype._setLatLngs.call(this,t),o.Polyline._flat(this._latlngs)&&(this._latlngs=[this._latlngs])},_defaultShape:function(){return o.Polyline._flat(this._latlngs[0])?this._latlngs[0]:this._latlngs[0][0]},_clipPoints:function(){var t=this._renderer._bounds,e=this.options.weight,i=new o.Point(e,e);if(t=new o.Bounds(t.min.subtract(i),t.max.add(i)),this._parts=[],this._pxBounds&&this._pxBounds.intersects(t)){if(this.options.noClip)return void(this._parts=this._rings);for(var n,s=0,r=this._rings.length;s<r;s++)n=o.PolyUtil.clipPolygon(this._rings[s],t,!0),n.length&&this._parts.push(n)}},_updatePath:function(){this._renderer._updatePoly(this,!0)}}),o.polygon=function(t,e){return new o.Polygon(t,e)},o.Rectangle=o.Polygon.extend({initialize:function(t,e){o.Polygon.prototype.initialize.call(this,this._boundsToLatLngs(t),e)},setBounds:function(t){return this.setLatLngs(this._boundsToLatLngs(t))},_boundsToLatLngs:function(t){return t=o.latLngBounds(t),[t.getSouthWest(),t.getNorthWest(),t.getNorthEast(),t.getSouthEast()]}}),o.rectangle=function(t,e){return new o.Rectangle(t,e)},o.CircleMarker=o.Path.extend({options:{fill:!0,radius:10},initialize:function(t,e){o.setOptions(this,e),this._latlng=o.latLng(t),this._radius=this.options.radius},setLatLng:function(t){return this._latlng=o.latLng(t),this.redraw(),this.fire("move",{latlng:this._latlng})},getLatLng:function(){return this._latlng},setRadius:function(t){return this.options.radius=this._radius=t,this.redraw()},getRadius:function(){return this._radius},setStyle:function(t){var e=t&&t.radius||this._radius;return o.Path.prototype.setStyle.call(this,t),this.setRadius(e),this},_project:function(){this._point=this._map.latLngToLayerPoint(this._latlng),this._updateBounds()},_updateBounds:function(){var t=this._radius,e=this._radiusY||t,i=this._clickTolerance(),n=[t+i,e+i];this._pxBounds=new o.Bounds(this._point.subtract(n),this._point.add(n))},_update:function(){this._map&&this._updatePath()},_updatePath:function(){this._renderer._updateCircle(this)},_empty:function(){return this._radius&&!this._renderer._bounds.intersects(this._pxBounds)}}),o.circleMarker=function(t,e){return new o.CircleMarker(t,e)},o.Circle=o.CircleMarker.extend({initialize:function(t,e,i){if("number"==typeof e&&(e=o.extend({},i,{radius:e})),o.setOptions(this,e),this._latlng=o.latLng(t),isNaN(this.options.radius))throw new Error("Circle radius cannot be NaN");this._mRadius=this.options.radius},setRadius:function(t){return this._mRadius=t,this.redraw()},getRadius:function(){return this._mRadius},getBounds:function(){var t=[this._radius,this._radiusY||this._radius];return new o.LatLngBounds(this._map.layerPointToLatLng(this._point.subtract(t)),this._map.layerPointToLatLng(this._point.add(t)))},setStyle:o.Path.prototype.setStyle,_project:function(){var t=this._latlng.lng,e=this._latlng.lat,i=this._map,n=i.options.crs;
 if(n.distance===o.CRS.Earth.distance){var s=Math.PI/180,r=this._mRadius/o.CRS.Earth.R/s,a=i.project([e+r,t]),h=i.project([e-r,t]),l=a.add(h).divideBy(2),u=i.unproject(l).lat,c=Math.acos((Math.cos(r*s)-Math.sin(e*s)*Math.sin(u*s))/(Math.cos(e*s)*Math.cos(u*s)))/s;(isNaN(c)||0===c)&&(c=r/Math.cos(Math.PI/180*e)),this._point=l.subtract(i.getPixelOrigin()),this._radius=isNaN(c)?0:Math.max(Math.round(l.x-i.project([u,t-c]).x),1),this._radiusY=Math.max(Math.round(l.y-a.y),1)}else{var d=n.unproject(n.project(this._latlng).subtract([this._mRadius,0]));this._point=i.latLngToLayerPoint(this._latlng),this._radius=this._point.x-i.latLngToLayerPoint(d).x}this._updateBounds()}}),o.circle=function(t,e,i){return new o.Circle(t,e,i)},o.SVG=o.Renderer.extend({getEvents:function(){var t=o.Renderer.prototype.getEvents.call(this);return t.zoomstart=this._onZoomStart,t},_initContainer:function(){this._container=o.SVG.create("svg"),this._container.setAttribute("pointer-events","none"),this._rootGroup=o.SVG.create("g"),this._container.appendChild(this._rootGroup)},_onZoomStart:function(){this._update()},_update:function(){if(!this._map._animatingZoom||!this._bounds){o.Renderer.prototype._update.call(this);var t=this._bounds,e=t.getSize(),i=this._container;this._svgSize&&this._svgSize.equals(e)||(this._svgSize=e,i.setAttribute("width",e.x),i.setAttribute("height",e.y)),o.DomUtil.setPosition(i,t.min),i.setAttribute("viewBox",[t.min.x,t.min.y,e.x,e.y].join(" ")),this.fire("update")}},_initPath:function(t){var e=t._path=o.SVG.create("path");t.options.className&&o.DomUtil.addClass(e,t.options.className),t.options.interactive&&o.DomUtil.addClass(e,"leaflet-interactive"),this._updateStyle(t),this._layers[o.stamp(t)]=t},_addPath:function(t){this._rootGroup.appendChild(t._path),t.addInteractiveTarget(t._path)},_removePath:function(t){o.DomUtil.remove(t._path),t.removeInteractiveTarget(t._path),delete this._layers[o.stamp(t)]},_updatePath:function(t){t._project(),t._update()},_updateStyle:function(t){var e=t._path,i=t.options;e&&(i.stroke?(e.setAttribute("stroke",i.color),e.setAttribute("stroke-opacity",i.opacity),e.setAttribute("stroke-width",i.weight),e.setAttribute("stroke-linecap",i.lineCap),e.setAttribute("stroke-linejoin",i.lineJoin),i.dashArray?e.setAttribute("stroke-dasharray",i.dashArray):e.removeAttribute("stroke-dasharray"),i.dashOffset?e.setAttribute("stroke-dashoffset",i.dashOffset):e.removeAttribute("stroke-dashoffset")):e.setAttribute("stroke","none"),i.fill?(e.setAttribute("fill",i.fillColor||i.color),e.setAttribute("fill-opacity",i.fillOpacity),e.setAttribute("fill-rule",i.fillRule||"evenodd")):e.setAttribute("fill","none"))},_updatePoly:function(t,e){this._setPath(t,o.SVG.pointsToPath(t._parts,e))},_updateCircle:function(t){var e=t._point,i=t._radius,n=t._radiusY||i,o="a"+i+","+n+" 0 1,0 ",s=t._empty()?"M0 0":"M"+(e.x-i)+","+e.y+o+2*i+",0 "+o+2*-i+",0 ";this._setPath(t,s)},_setPath:function(t,e){t._path.setAttribute("d",e)},_bringToFront:function(t){o.DomUtil.toFront(t._path)},_bringToBack:function(t){o.DomUtil.toBack(t._path)}}),o.extend(o.SVG,{create:function(t){return e.createElementNS("http://www.w3.org/2000/svg",t)},pointsToPath:function(t,e){var i,n,s,r,a,h,l="";for(i=0,s=t.length;i<s;i++){for(a=t[i],n=0,r=a.length;n<r;n++)h=a[n],l+=(n?"L":"M")+h.x+" "+h.y;l+=e?o.Browser.svg?"z":"x":""}return l||"M0 0"}}),o.Browser.svg=!(!e.createElementNS||!o.SVG.create("svg").createSVGRect),o.svg=function(t){return o.Browser.svg||o.Browser.vml?new o.SVG(t):null},o.Browser.vml=!o.Browser.svg&&function(){try{var t=e.createElement("div");t.innerHTML='<v:shape adj="1"/>';var i=t.firstChild;return i.style.behavior="url(#default#VML)",i&&"object"==typeof i.adj}catch(t){return!1}}(),o.SVG.include(o.Browser.vml?{_initContainer:function(){this._container=o.DomUtil.create("div","leaflet-vml-container")},_update:function(){this._map._animatingZoom||(o.Renderer.prototype._update.call(this),this.fire("update"))},_initPath:function(t){var e=t._container=o.SVG.create("shape");o.DomUtil.addClass(e,"leaflet-vml-shape "+(this.options.className||"")),e.coordsize="1 1",t._path=o.SVG.create("path"),e.appendChild(t._path),this._updateStyle(t)},_addPath:function(t){var e=t._container;this._container.appendChild(e),t.options.interactive&&t.addInteractiveTarget(e)},_removePath:function(t){var e=t._container;o.DomUtil.remove(e),t.removeInteractiveTarget(e)},_updateStyle:function(t){var e=t._stroke,i=t._fill,n=t.options,s=t._container;s.stroked=!!n.stroke,s.filled=!!n.fill,n.stroke?(e||(e=t._stroke=o.SVG.create("stroke")),s.appendChild(e),e.weight=n.weight+"px",e.color=n.color,e.opacity=n.opacity,n.dashArray?e.dashStyle=o.Util.isArray(n.dashArray)?n.dashArray.join(" "):n.dashArray.replace(/( *, *)/g," "):e.dashStyle="",e.endcap=n.lineCap.replace("butt","flat"),e.joinstyle=n.lineJoin):e&&(s.removeChild(e),t._stroke=null),n.fill?(i||(i=t._fill=o.SVG.create("fill")),s.appendChild(i),i.color=n.fillColor||n.color,i.opacity=n.fillOpacity):i&&(s.removeChild(i),t._fill=null)},_updateCircle:function(t){var e=t._point.round(),i=Math.round(t._radius),n=Math.round(t._radiusY||i);this._setPath(t,t._empty()?"M0 0":"AL "+e.x+","+e.y+" "+i+","+n+" 0,23592600")},_setPath:function(t,e){t._path.v=e},_bringToFront:function(t){o.DomUtil.toFront(t._container)},_bringToBack:function(t){o.DomUtil.toBack(t._container)}}:{}),o.Browser.vml&&(o.SVG.create=function(){try{return e.namespaces.add("lvml","urn:schemas-microsoft-com:vml"),function(t){return e.createElement("<lvml:"+t+' class="lvml">')}}catch(t){return function(t){return e.createElement("<"+t+' xmlns="urn:schemas-microsoft.com:vml" class="lvml">')}}}()),o.Canvas=o.Renderer.extend({onAdd:function(){o.Renderer.prototype.onAdd.call(this),this._draw()},_initContainer:function(){var t=this._container=e.createElement("canvas");o.DomEvent.on(t,"mousemove",o.Util.throttle(this._onMouseMove,32,this),this).on(t,"click dblclick mousedown mouseup contextmenu",this._onClick,this).on(t,"mouseout",this._handleMouseOut,this),this._ctx=t.getContext("2d")},_updatePaths:function(){var t;this._redrawBounds=null;for(var e in this._layers)t=this._layers[e],t._update();this._redraw()},_update:function(){if(!this._map._animatingZoom||!this._bounds){this._drawnLayers={},o.Renderer.prototype._update.call(this);var t=this._bounds,e=this._container,i=t.getSize(),n=o.Browser.retina?2:1;o.DomUtil.setPosition(e,t.min),e.width=n*i.x,e.height=n*i.y,e.style.width=i.x+"px",e.style.height=i.y+"px",o.Browser.retina&&this._ctx.scale(2,2),this._ctx.translate(-t.min.x,-t.min.y),this.fire("update")}},_initPath:function(t){this._updateDashArray(t),this._layers[o.stamp(t)]=t;var e=t._order={layer:t,prev:this._drawLast,next:null};this._drawLast&&(this._drawLast.next=e),this._drawLast=e,this._drawFirst=this._drawFirst||this._drawLast},_addPath:function(t){this._requestRedraw(t)},_removePath:function(t){var e=t._order,i=e.next,n=e.prev;i?i.prev=n:this._drawLast=n,n?n.next=i:this._drawFirst=i,delete t._order,delete this._layers[o.stamp(t)],this._requestRedraw(t)},_updatePath:function(t){this._extendRedrawBounds(t),t._project(),t._update(),this._requestRedraw(t)},_updateStyle:function(t){this._updateDashArray(t),this._requestRedraw(t)},_updateDashArray:function(t){if(t.options.dashArray){var e,i=t.options.dashArray.split(","),n=[];for(e=0;e<i.length;e++)n.push(Number(i[e]));t.options._dashArray=n}},_requestRedraw:function(t){this._map&&(this._extendRedrawBounds(t),this._redrawRequest=this._redrawRequest||o.Util.requestAnimFrame(this._redraw,this))},_extendRedrawBounds:function(t){var e=(t.options.weight||0)+1;this._redrawBounds=this._redrawBounds||new o.Bounds,this._redrawBounds.extend(t._pxBounds.min.subtract([e,e])),this._redrawBounds.extend(t._pxBounds.max.add([e,e]))},_redraw:function(){this._redrawRequest=null,this._clear(),this._draw(),this._redrawBounds=null},_clear:function(){var t=this._redrawBounds;if(t){var e=t.getSize();this._ctx.clearRect(t.min.x,t.min.y,e.x,e.y)}else this._ctx.clearRect(0,0,this._container.width,this._container.height)},_draw:function(){var t,e=this._redrawBounds;if(this._ctx.save(),e){var i=e.getSize();this._ctx.beginPath(),this._ctx.rect(e.min.x,e.min.y,i.x,i.y),this._ctx.clip()}this._drawing=!0;for(var n=this._drawFirst;n;n=n.next)t=n.layer,(!e||t._pxBounds&&t._pxBounds.intersects(e))&&t._updatePath();this._drawing=!1,this._ctx.restore()},_updatePoly:function(t,e){if(this._drawing){var i,n,o,s,r=t._parts,a=r.length,h=this._ctx;if(a){for(this._drawnLayers[t._leaflet_id]=t,h.beginPath(),h.setLineDash&&h.setLineDash(t.options&&t.options._dashArray||[]),i=0;i<a;i++){for(n=0,o=r[i].length;n<o;n++)s=r[i][n],h[n?"lineTo":"moveTo"](s.x,s.y);e&&h.closePath()}this._fillStroke(h,t)}}},_updateCircle:function(t){if(this._drawing&&!t._empty()){var e=t._point,i=this._ctx,n=t._radius,o=(t._radiusY||n)/n;this._drawnLayers[t._leaflet_id]=t,1!==o&&(i.save(),i.scale(1,o)),i.beginPath(),i.arc(e.x,e.y/o,n,0,2*Math.PI,!1),1!==o&&i.restore(),this._fillStroke(i,t)}},_fillStroke:function(t,e){var i=e.options;i.fill&&(t.globalAlpha=i.fillOpacity,t.fillStyle=i.fillColor||i.color,t.fill(i.fillRule||"evenodd")),i.stroke&&0!==i.weight&&(t.globalAlpha=i.opacity,t.lineWidth=i.weight,t.strokeStyle=i.color,t.lineCap=i.lineCap,t.lineJoin=i.lineJoin,t.stroke())},_onClick:function(t){for(var e,i,n=this._map.mouseEventToLayerPoint(t),s=this._drawFirst;s;s=s.next)e=s.layer,e.options.interactive&&e._containsPoint(n)&&!this._map._draggableMoved(e)&&(i=e);i&&(o.DomEvent._fakeStop(t),this._fireEvent([i],t))},_onMouseMove:function(t){if(this._map&&!this._map.dragging.moving()&&!this._map._animatingZoom){var e=this._map.mouseEventToLayerPoint(t);this._handleMouseHover(t,e)}},_handleMouseOut:function(t){var e=this._hoveredLayer;e&&(o.DomUtil.removeClass(this._container,"leaflet-interactive"),this._fireEvent([e],t,"mouseout"),this._hoveredLayer=null)},_handleMouseHover:function(t,e){for(var i,n,s=this._drawFirst;s;s=s.next)i=s.layer,i.options.interactive&&i._containsPoint(e)&&(n=i);n!==this._hoveredLayer&&(this._handleMouseOut(t),n&&(o.DomUtil.addClass(this._container,"leaflet-interactive"),this._fireEvent([n],t,"mouseover"),this._hoveredLayer=n)),this._hoveredLayer&&this._fireEvent([this._hoveredLayer],t)},_fireEvent:function(t,e,i){this._map._fireDOMEvent(e,i||e.type,t)},_bringToFront:function(t){var e=t._order,i=e.next,n=e.prev;i&&(i.prev=n,n?n.next=i:i&&(this._drawFirst=i),e.prev=this._drawLast,this._drawLast.next=e,e.next=null,this._drawLast=e,this._requestRedraw(t))},_bringToBack:function(t){var e=t._order,i=e.next,n=e.prev;n&&(n.next=i,i?i.prev=n:n&&(this._drawLast=n),e.prev=null,e.next=this._drawFirst,this._drawFirst.prev=e,this._drawFirst=e,this._requestRedraw(t))}}),o.Browser.canvas=function(){return!!e.createElement("canvas").getContext}(),o.canvas=function(t){return o.Browser.canvas?new o.Canvas(t):null},o.Polyline.prototype._containsPoint=function(t,e){var i,n,s,r,a,h,l=this._clickTolerance();if(!this._pxBounds.contains(t))return!1;for(i=0,r=this._parts.length;i<r;i++)for(h=this._parts[i],n=0,a=h.length,s=a-1;n<a;s=n++)if((e||0!==n)&&o.LineUtil.pointToSegmentDistance(t,h[s],h[n])<=l)return!0;return!1},o.Polygon.prototype._containsPoint=function(t){var e,i,n,s,r,a,h,l,u=!1;if(!this._pxBounds.contains(t))return!1;for(s=0,h=this._parts.length;s<h;s++)for(e=this._parts[s],r=0,l=e.length,a=l-1;r<l;a=r++)i=e[r],n=e[a],i.y>t.y!=n.y>t.y&&t.x<(n.x-i.x)*(t.y-i.y)/(n.y-i.y)+i.x&&(u=!u);return u||o.Polyline.prototype._containsPoint.call(this,t,!0)},o.CircleMarker.prototype._containsPoint=function(t){return t.distanceTo(this._point)<=this._radius+this._clickTolerance()},o.GeoJSON=o.FeatureGroup.extend({initialize:function(t,e){o.setOptions(this,e),this._layers={},t&&this.addData(t)},addData:function(t){var e,i,n,s=o.Util.isArray(t)?t:t.features;if(s){for(e=0,i=s.length;e<i;e++)n=s[e],(n.geometries||n.geometry||n.features||n.coordinates)&&this.addData(n);return this}var r=this.options;if(r.filter&&!r.filter(t))return this;var a=o.GeoJSON.geometryToLayer(t,r);return a?(a.feature=o.GeoJSON.asFeature(t),a.defaultOptions=a.options,this.resetStyle(a),r.onEachFeature&&r.onEachFeature(t,a),this.addLayer(a)):this},resetStyle:function(t){return t.options=o.Util.extend({},t.defaultOptions),this._setLayerStyle(t,this.options.style),this},setStyle:function(t){return this.eachLayer(function(e){this._setLayerStyle(e,t)},this)},_setLayerStyle:function(t,e){"function"==typeof e&&(e=e(t.feature)),t.setStyle&&t.setStyle(e)}}),o.extend(o.GeoJSON,{geometryToLayer:function(t,e){var i,n,s,r,a="Feature"===t.type?t.geometry:t,h=a?a.coordinates:null,l=[],u=e&&e.pointToLayer,c=e&&e.coordsToLatLng||this.coordsToLatLng;if(!h&&!a)return null;switch(a.type){case"Point":return i=c(h),u?u(t,i):new o.Marker(i);case"MultiPoint":for(s=0,r=h.length;s<r;s++)i=c(h[s]),l.push(u?u(t,i):new o.Marker(i));return new o.FeatureGroup(l);case"LineString":case"MultiLineString":return n=this.coordsToLatLngs(h,"LineString"===a.type?0:1,c),new o.Polyline(n,e);case"Polygon":case"MultiPolygon":return n=this.coordsToLatLngs(h,"Polygon"===a.type?1:2,c),new o.Polygon(n,e);case"GeometryCollection":for(s=0,r=a.geometries.length;s<r;s++){var d=this.geometryToLayer({geometry:a.geometries[s],type:"Feature",properties:t.properties},e);d&&l.push(d)}return new o.FeatureGroup(l);default:throw new Error("Invalid GeoJSON object.")}},coordsToLatLng:function(t){return new o.LatLng(t[1],t[0],t[2])},coordsToLatLngs:function(t,e,i){for(var n,o=[],s=0,r=t.length;s<r;s++)n=e?this.coordsToLatLngs(t[s],e-1,i):(i||this.coordsToLatLng)(t[s]),o.push(n);return o},latLngToCoords:function(t){return t.alt!==i?[t.lng,t.lat,t.alt]:[t.lng,t.lat]},latLngsToCoords:function(t,e,i){for(var n=[],s=0,r=t.length;s<r;s++)n.push(e?o.GeoJSON.latLngsToCoords(t[s],e-1,i):o.GeoJSON.latLngToCoords(t[s]));return!e&&i&&n.push(n[0]),n},getFeature:function(t,e){return t.feature?o.extend({},t.feature,{geometry:e}):o.GeoJSON.asFeature(e)},asFeature:function(t){return"Feature"===t.type||"FeatureCollection"===t.type?t:{type:"Feature",properties:{},geometry:t}}});var a={toGeoJSON:function(){return o.GeoJSON.getFeature(this,{type:"Point",coordinates:o.GeoJSON.latLngToCoords(this.getLatLng())})}};o.Marker.include(a),o.Circle.include(a),o.CircleMarker.include(a),o.Polyline.prototype.toGeoJSON=function(){var t=!o.Polyline._flat(this._latlngs),e=o.GeoJSON.latLngsToCoords(this._latlngs,t?1:0);return o.GeoJSON.getFeature(this,{type:(t?"Multi":"")+"LineString",coordinates:e})},o.Polygon.prototype.toGeoJSON=function(){var t=!o.Polyline._flat(this._latlngs),e=t&&!o.Polyline._flat(this._latlngs[0]),i=o.GeoJSON.latLngsToCoords(this._latlngs,e?2:t?1:0,!0);return t||(i=[i]),o.GeoJSON.getFeature(this,{type:(e?"Multi":"")+"Polygon",coordinates:i})},o.LayerGroup.include({toMultiPoint:function(){var t=[];return this.eachLayer(function(e){t.push(e.toGeoJSON().geometry.coordinates)}),o.GeoJSON.getFeature(this,{type:"MultiPoint",coordinates:t})},toGeoJSON:function(){var t=this.feature&&this.feature.geometry&&this.feature.geometry.type;if("MultiPoint"===t)return this.toMultiPoint();var e="GeometryCollection"===t,i=[];return this.eachLayer(function(t){if(t.toGeoJSON){var n=t.toGeoJSON();i.push(e?n.geometry:o.GeoJSON.asFeature(n))}}),e?o.GeoJSON.getFeature(this,{geometries:i,type:"GeometryCollection"}):{type:"FeatureCollection",features:i}}}),o.geoJSON=function(t,e){return new o.GeoJSON(t,e)},o.geoJson=o.geoJSON,o.Draggable=o.Evented.extend({options:{clickTolerance:3},statics:{START:o.Browser.touch?["touchstart","mousedown"]:["mousedown"],END:{mousedown:"mouseup",touchstart:"touchend",pointerdown:"touchend",MSPointerDown:"touchend"},MOVE:{mousedown:"mousemove",touchstart:"touchmove",pointerdown:"touchmove",MSPointerDown:"touchmove"}},initialize:function(t,e,i){this._element=t,this._dragStartTarget=e||t,this._preventOutline=i},enable:function(){this._enabled||(o.DomEvent.on(this._dragStartTarget,o.Draggable.START.join(" "),this._onDown,this),this._enabled=!0)},disable:function(){this._enabled&&(o.Draggable._dragging===this&&this.finishDrag(),o.DomEvent.off(this._dragStartTarget,o.Draggable.START.join(" "),this._onDown,this),this._enabled=!1,this._moved=!1)},_onDown:function(t){if(!t._simulated&&this._enabled&&(this._moved=!1,!o.DomUtil.hasClass(this._element,"leaflet-zoom-anim")&&!(o.Draggable._dragging||t.shiftKey||1!==t.which&&1!==t.button&&!t.touches||(o.Draggable._dragging=this,this._preventOutline&&o.DomUtil.preventOutline(this._element),o.DomUtil.disableImageDrag(),o.DomUtil.disableTextSelection(),this._moving)))){this.fire("down");var i=t.touches?t.touches[0]:t;this._startPoint=new o.Point(i.clientX,i.clientY),o.DomEvent.on(e,o.Draggable.MOVE[t.type],this._onMove,this).on(e,o.Draggable.END[t.type],this._onUp,this)}},_onMove:function(i){if(!i._simulated&&this._enabled){if(i.touches&&i.touches.length>1)return void(this._moved=!0);var n=i.touches&&1===i.touches.length?i.touches[0]:i,s=new o.Point(n.clientX,n.clientY),r=s.subtract(this._startPoint);(r.x||r.y)&&(Math.abs(r.x)+Math.abs(r.y)<this.options.clickTolerance||(o.DomEvent.preventDefault(i),this._moved||(this.fire("dragstart"),this._moved=!0,this._startPos=o.DomUtil.getPosition(this._element).subtract(r),o.DomUtil.addClass(e.body,"leaflet-dragging"),this._lastTarget=i.target||i.srcElement,t.SVGElementInstance&&this._lastTarget instanceof SVGElementInstance&&(this._lastTarget=this._lastTarget.correspondingUseElement),o.DomUtil.addClass(this._lastTarget,"leaflet-drag-target")),this._newPos=this._startPos.add(r),this._moving=!0,o.Util.cancelAnimFrame(this._animRequest),this._lastEvent=i,this._animRequest=o.Util.requestAnimFrame(this._updatePosition,this,!0)))}},_updatePosition:function(){var t={originalEvent:this._lastEvent};this.fire("predrag",t),o.DomUtil.setPosition(this._element,this._newPos),this.fire("drag",t)},_onUp:function(t){!t._simulated&&this._enabled&&this.finishDrag()},finishDrag:function(){o.DomUtil.removeClass(e.body,"leaflet-dragging"),this._lastTarget&&(o.DomUtil.removeClass(this._lastTarget,"leaflet-drag-target"),this._lastTarget=null);for(var t in o.Draggable.MOVE)o.DomEvent.off(e,o.Draggable.MOVE[t],this._onMove,this).off(e,o.Draggable.END[t],this._onUp,this);o.DomUtil.enableImageDrag(),o.DomUtil.enableTextSelection(),this._moved&&this._moving&&(o.Util.cancelAnimFrame(this._animRequest),this.fire("dragend",{distance:this._newPos.distanceTo(this._startPos)})),this._moving=!1,o.Draggable._dragging=!1}}),o.Handler=o.Class.extend({initialize:function(t){this._map=t},enable:function(){return this._enabled?this:(this._enabled=!0,this.addHooks(),this)},disable:function(){return this._enabled?(this._enabled=!1,this.removeHooks(),this):this},enabled:function(){return!!this._enabled}}),o.Map.mergeOptions({dragging:!0,inertia:!o.Browser.android23,inertiaDeceleration:3400,inertiaMaxSpeed:1/0,easeLinearity:.2,worldCopyJump:!1,maxBoundsViscosity:0}),o.Map.Drag=o.Handler.extend({addHooks:function(){if(!this._draggable){var t=this._map;this._draggable=new o.Draggable(t._mapPane,t._container),this._draggable.on({down:this._onDown,dragstart:this._onDragStart,drag:this._onDrag,dragend:this._onDragEnd},this),this._draggable.on("predrag",this._onPreDragLimit,this),t.options.worldCopyJump&&(this._draggable.on("predrag",this._onPreDragWrap,this),t.on("zoomend",this._onZoomEnd,this),t.whenReady(this._onZoomEnd,this))}o.DomUtil.addClass(this._map._container,"leaflet-grab leaflet-touch-drag"),this._draggable.enable(),this._positions=[],this._times=[]},removeHooks:function(){o.DomUtil.removeClass(this._map._container,"leaflet-grab"),o.DomUtil.removeClass(this._map._container,"leaflet-touch-drag"),this._draggable.disable()},moved:function(){return this._draggable&&this._draggable._moved},moving:function(){return this._draggable&&this._draggable._moving},_onDown:function(){this._map._stop()},_onDragStart:function(){var t=this._map;if(this._map.options.maxBounds&&this._map.options.maxBoundsViscosity){var e=o.latLngBounds(this._map.options.maxBounds);this._offsetLimit=o.bounds(this._map.latLngToContainerPoint(e.getNorthWest()).multiplyBy(-1),this._map.latLngToContainerPoint(e.getSouthEast()).multiplyBy(-1).add(this._map.getSize())),this._viscosity=Math.min(1,Math.max(0,this._map.options.maxBoundsViscosity))}else this._offsetLimit=null;t.fire("movestart").fire("dragstart"),t.options.inertia&&(this._positions=[],this._times=[])},_onDrag:function(t){if(this._map.options.inertia){var e=this._lastTime=+new Date,i=this._lastPos=this._draggable._absPos||this._draggable._newPos;this._positions.push(i),this._times.push(e),e-this._times[0]>50&&(this._positions.shift(),this._times.shift())}this._map.fire("move",t).fire("drag",t)},_onZoomEnd:function(){var t=this._map.getSize().divideBy(2),e=this._map.latLngToLayerPoint([0,0]);this._initialWorldOffset=e.subtract(t).x,this._worldWidth=this._map.getPixelWorldBounds().getSize().x},_viscousLimit:function(t,e){return t-(t-e)*this._viscosity},_onPreDragLimit:function(){if(this._viscosity&&this._offsetLimit){var t=this._draggable._newPos.subtract(this._draggable._startPos),e=this._offsetLimit;t.x<e.min.x&&(t.x=this._viscousLimit(t.x,e.min.x)),t.y<e.min.y&&(t.y=this._viscousLimit(t.y,e.min.y)),t.x>e.max.x&&(t.x=this._viscousLimit(t.x,e.max.x)),t.y>e.max.y&&(t.y=this._viscousLimit(t.y,e.max.y)),this._draggable._newPos=this._draggable._startPos.add(t)}},_onPreDragWrap:function(){var t=this._worldWidth,e=Math.round(t/2),i=this._initialWorldOffset,n=this._draggable._newPos.x,o=(n-e+i)%t+e-i,s=(n+e+i)%t-e-i,r=Math.abs(o+i)<Math.abs(s+i)?o:s;this._draggable._absPos=this._draggable._newPos.clone(),this._draggable._newPos.x=r},_onDragEnd:function(t){var e=this._map,i=e.options,n=!i.inertia||this._times.length<2;if(e.fire("dragend",t),n)e.fire("moveend");else{var s=this._lastPos.subtract(this._positions[0]),r=(this._lastTime-this._times[0])/1e3,a=i.easeLinearity,h=s.multiplyBy(a/r),l=h.distanceTo([0,0]),u=Math.min(i.inertiaMaxSpeed,l),c=h.multiplyBy(u/l),d=u/(i.inertiaDeceleration*a),_=c.multiplyBy(-d/2).round();_.x||_.y?(_=e._limitOffset(_,e.options.maxBounds),o.Util.requestAnimFrame(function(){e.panBy(_,{duration:d,easeLinearity:a,noMoveStart:!0,animate:!0})})):e.fire("moveend")}}}),o.Map.addInitHook("addHandler","dragging",o.Map.Drag),o.Map.mergeOptions({doubleClickZoom:!0}),o.Map.DoubleClickZoom=o.Handler.extend({addHooks:function(){this._map.on("dblclick",this._onDoubleClick,this)},removeHooks:function(){this._map.off("dblclick",this._onDoubleClick,this)},_onDoubleClick:function(t){var e=this._map,i=e.getZoom(),n=e.options.zoomDelta,o=t.originalEvent.shiftKey?i-n:i+n;"center"===e.options.doubleClickZoom?e.setZoom(o):e.setZoomAround(t.containerPoint,o)}}),o.Map.addInitHook("addHandler","doubleClickZoom",o.Map.DoubleClickZoom),o.Map.mergeOptions({scrollWheelZoom:!0,wheelDebounceTime:40,wheelPxPerZoomLevel:60}),o.Map.ScrollWheelZoom=o.Handler.extend({addHooks:function(){o.DomEvent.on(this._map._container,"mousewheel",this._onWheelScroll,this),this._delta=0},removeHooks:function(){o.DomEvent.off(this._map._container,"mousewheel",this._onWheelScroll,this)},_onWheelScroll:function(t){var e=o.DomEvent.getWheelDelta(t),i=this._map.options.wheelDebounceTime;this._delta+=e,this._lastMousePos=this._map.mouseEventToContainerPoint(t),this._startTime||(this._startTime=+new Date);var n=Math.max(i-(+new Date-this._startTime),0);clearTimeout(this._timer),this._timer=setTimeout(o.bind(this._performZoom,this),n),o.DomEvent.stop(t)},_performZoom:function(){var t=this._map,e=t.getZoom(),i=this._map.options.zoomSnap||0;t._stop();var n=this._delta/(4*this._map.options.wheelPxPerZoomLevel),o=4*Math.log(2/(1+Math.exp(-Math.abs(n))))/Math.LN2,s=i?Math.ceil(o/i)*i:o,r=t._limitZoom(e+(this._delta>0?s:-s))-e;this._delta=0,this._startTime=null,r&&("center"===t.options.scrollWheelZoom?t.setZoom(e+r):t.setZoomAround(this._lastMousePos,e+r))}}),o.Map.addInitHook("addHandler","scrollWheelZoom",o.Map.ScrollWheelZoom),o.extend(o.DomEvent,{_touchstart:o.Browser.msPointer?"MSPointerDown":o.Browser.pointer?"pointerdown":"touchstart",_touchend:o.Browser.msPointer?"MSPointerUp":o.Browser.pointer?"pointerup":"touchend",addDoubleTapListener:function(t,e,i){function n(t){var e;if(e=o.Browser.pointer?o.DomEvent._pointersCount:t.touches.length,!(e>1)){var i=Date.now(),n=i-(r||i);a=t.touches?t.touches[0]:t,h=n>0&&n<=l,r=i}}function s(){if(h&&!a.cancelBubble){if(o.Browser.pointer){var t,i,n={};for(i in a)t=a[i],n[i]=t&&t.bind?t.bind(a):t;a=n}a.type="dblclick",e(a),r=null}}var r,a,h=!1,l=250,u="_leaflet_",c=this._touchstart,d=this._touchend;return t[u+c+i]=n,t[u+d+i]=s,t[u+"dblclick"+i]=e,t.addEventListener(c,n,!1),t.addEventListener(d,s,!1),o.Browser.edge||t.addEventListener("dblclick",e,!1),this},removeDoubleTapListener:function(t,e){var i="_leaflet_",n=t[i+this._touchstart+e],s=t[i+this._touchend+e],r=t[i+"dblclick"+e];return t.removeEventListener(this._touchstart,n,!1),t.removeEventListener(this._touchend,s,!1),o.Browser.edge||t.removeEventListener("dblclick",r,!1),this}}),o.extend(o.DomEvent,{POINTER_DOWN:o.Browser.msPointer?"MSPointerDown":"pointerdown",POINTER_MOVE:o.Browser.msPointer?"MSPointerMove":"pointermove",POINTER_UP:o.Browser.msPointer?"MSPointerUp":"pointerup",POINTER_CANCEL:o.Browser.msPointer?"MSPointerCancel":"pointercancel",TAG_WHITE_LIST:["INPUT","SELECT","OPTION"],_pointers:{},_pointersCount:0,addPointerListener:function(t,e,i,n){return"touchstart"===e?this._addPointerStart(t,i,n):"touchmove"===e?this._addPointerMove(t,i,n):"touchend"===e&&this._addPointerEnd(t,i,n),this},removePointerListener:function(t,e,i){var n=t["_leaflet_"+e+i];return"touchstart"===e?t.removeEventListener(this.POINTER_DOWN,n,!1):"touchmove"===e?t.removeEventListener(this.POINTER_MOVE,n,!1):"touchend"===e&&(t.removeEventListener(this.POINTER_UP,n,!1),t.removeEventListener(this.POINTER_CANCEL,n,!1)),this},_addPointerStart:function(t,i,n){var s=o.bind(function(t){if("mouse"!==t.pointerType&&t.pointerType!==t.MSPOINTER_TYPE_MOUSE){if(!(this.TAG_WHITE_LIST.indexOf(t.target.tagName)<0))return;o.DomEvent.preventDefault(t)}this._handlePointer(t,i)},this);if(t["_leaflet_touchstart"+n]=s,t.addEventListener(this.POINTER_DOWN,s,!1),!this._pointerDocListener){var r=o.bind(this._globalPointerUp,this);e.documentElement.addEventListener(this.POINTER_DOWN,o.bind(this._globalPointerDown,this),!0),e.documentElement.addEventListener(this.POINTER_MOVE,o.bind(this._globalPointerMove,this),!0),e.documentElement.addEventListener(this.POINTER_UP,r,!0),e.documentElement.addEventListener(this.POINTER_CANCEL,r,!0),this._pointerDocListener=!0}},_globalPointerDown:function(t){this._pointers[t.pointerId]=t,this._pointersCount++},_globalPointerMove:function(t){this._pointers[t.pointerId]&&(this._pointers[t.pointerId]=t)},_globalPointerUp:function(t){delete this._pointers[t.pointerId],this._pointersCount--},_handlePointer:function(t,e){t.touches=[];for(var i in this._pointers)t.touches.push(this._pointers[i]);t.changedTouches=[t],e(t)},_addPointerMove:function(t,e,i){var n=o.bind(function(t){(t.pointerType!==t.MSPOINTER_TYPE_MOUSE&&"mouse"!==t.pointerType||0!==t.buttons)&&this._handlePointer(t,e)},this);t["_leaflet_touchmove"+i]=n,t.addEventListener(this.POINTER_MOVE,n,!1)},_addPointerEnd:function(t,e,i){var n=o.bind(function(t){this._handlePointer(t,e)},this);t["_leaflet_touchend"+i]=n,t.addEventListener(this.POINTER_UP,n,!1),t.addEventListener(this.POINTER_CANCEL,n,!1)}}),o.Map.mergeOptions({touchZoom:o.Browser.touch&&!o.Browser.android23,bounceAtZoomLimits:!0}),o.Map.TouchZoom=o.Handler.extend({addHooks:function(){o.DomUtil.addClass(this._map._container,"leaflet-touch-zoom"),o.DomEvent.on(this._map._container,"touchstart",this._onTouchStart,this)},removeHooks:function(){o.DomUtil.removeClass(this._map._container,"leaflet-touch-zoom"),o.DomEvent.off(this._map._container,"touchstart",this._onTouchStart,this)},_onTouchStart:function(t){var i=this._map;if(t.touches&&2===t.touches.length&&!i._animatingZoom&&!this._zooming){var n=i.mouseEventToContainerPoint(t.touches[0]),s=i.mouseEventToContainerPoint(t.touches[1]);this._centerPoint=i.getSize()._divideBy(2),this._startLatLng=i.containerPointToLatLng(this._centerPoint),"center"!==i.options.touchZoom&&(this._pinchStartLatLng=i.containerPointToLatLng(n.add(s)._divideBy(2))),this._startDist=n.distanceTo(s),this._startZoom=i.getZoom(),this._moved=!1,this._zooming=!0,i._stop(),o.DomEvent.on(e,"touchmove",this._onTouchMove,this).on(e,"touchend",this._onTouchEnd,this),o.DomEvent.preventDefault(t)}},_onTouchMove:function(t){if(t.touches&&2===t.touches.length&&this._zooming){var e=this._map,i=e.mouseEventToContainerPoint(t.touches[0]),n=e.mouseEventToContainerPoint(t.touches[1]),s=i.distanceTo(n)/this._startDist;if(this._zoom=e.getScaleZoom(s,this._startZoom),!e.options.bounceAtZoomLimits&&(this._zoom<e.getMinZoom()&&s<1||this._zoom>e.getMaxZoom()&&s>1)&&(this._zoom=e._limitZoom(this._zoom)),"center"===e.options.touchZoom){if(this._center=this._startLatLng,1===s)return}else{var r=i._add(n)._divideBy(2)._subtract(this._centerPoint);if(1===s&&0===r.x&&0===r.y)return;this._center=e.unproject(e.project(this._pinchStartLatLng,this._zoom).subtract(r),this._zoom)}this._moved||(e._moveStart(!0),this._moved=!0),o.Util.cancelAnimFrame(this._animRequest);var a=o.bind(e._move,e,this._center,this._zoom,{pinch:!0,round:!1});this._animRequest=o.Util.requestAnimFrame(a,this,!0),o.DomEvent.preventDefault(t)}},_onTouchEnd:function(){return this._moved&&this._zooming?(this._zooming=!1,o.Util.cancelAnimFrame(this._animRequest),o.DomEvent.off(e,"touchmove",this._onTouchMove).off(e,"touchend",this._onTouchEnd),void(this._map.options.zoomAnimation?this._map._animateZoom(this._center,this._map._limitZoom(this._zoom),!0,this._map.options.zoomSnap):this._map._resetView(this._center,this._map._limitZoom(this._zoom)))):void(this._zooming=!1)}}),o.Map.addInitHook("addHandler","touchZoom",o.Map.TouchZoom),o.Map.mergeOptions({tap:!0,tapTolerance:15}),o.Map.Tap=o.Handler.extend({addHooks:function(){o.DomEvent.on(this._map._container,"touchstart",this._onDown,this)},removeHooks:function(){o.DomEvent.off(this._map._container,"touchstart",this._onDown,this)},_onDown:function(t){if(t.touches){if(o.DomEvent.preventDefault(t),this._fireClick=!0,t.touches.length>1)return this._fireClick=!1,void clearTimeout(this._holdTimeout);var i=t.touches[0],n=i.target;this._startPos=this._newPos=new o.Point(i.clientX,i.clientY),n.tagName&&"a"===n.tagName.toLowerCase()&&o.DomUtil.addClass(n,"leaflet-active"),this._holdTimeout=setTimeout(o.bind(function(){this._isTapValid()&&(this._fireClick=!1,this._onUp(),this._simulateEvent("contextmenu",i))},this),1e3),this._simulateEvent("mousedown",i),o.DomEvent.on(e,{touchmove:this._onMove,touchend:this._onUp},this)}},_onUp:function(t){if(clearTimeout(this._holdTimeout),o.DomEvent.off(e,{touchmove:this._onMove,touchend:this._onUp},this),this._fireClick&&t&&t.changedTouches){var i=t.changedTouches[0],n=i.target;n&&n.tagName&&"a"===n.tagName.toLowerCase()&&o.DomUtil.removeClass(n,"leaflet-active"),this._simulateEvent("mouseup",i),this._isTapValid()&&this._simulateEvent("click",i)}},_isTapValid:function(){return this._newPos.distanceTo(this._startPos)<=this._map.options.tapTolerance},_onMove:function(t){var e=t.touches[0];this._newPos=new o.Point(e.clientX,e.clientY),this._simulateEvent("mousemove",e)},_simulateEvent:function(i,n){var o=e.createEvent("MouseEvents");o._simulated=!0,n.target._simulatedClick=!0,o.initMouseEvent(i,!0,!0,t,1,n.screenX,n.screenY,n.clientX,n.clientY,!1,!1,!1,!1,0,null),n.target.dispatchEvent(o)}}),o.Browser.touch&&!o.Browser.pointer&&o.Map.addInitHook("addHandler","tap",o.Map.Tap),o.Map.mergeOptions({boxZoom:!0}),o.Map.BoxZoom=o.Handler.extend({initialize:function(t){this._map=t,this._container=t._container,this._pane=t._panes.overlayPane},addHooks:function(){o.DomEvent.on(this._container,"mousedown",this._onMouseDown,this)},removeHooks:function(){o.DomEvent.off(this._container,"mousedown",this._onMouseDown,this)},moved:function(){return this._moved},_resetState:function(){
-this._moved=!1},_onMouseDown:function(t){return!(!t.shiftKey||1!==t.which&&1!==t.button)&&(this._resetState(),o.DomUtil.disableTextSelection(),o.DomUtil.disableImageDrag(),this._startPoint=this._map.mouseEventToContainerPoint(t),void o.DomEvent.on(e,{contextmenu:o.DomEvent.stop,mousemove:this._onMouseMove,mouseup:this._onMouseUp,keydown:this._onKeyDown},this))},_onMouseMove:function(t){this._moved||(this._moved=!0,this._box=o.DomUtil.create("div","leaflet-zoom-box",this._container),o.DomUtil.addClass(this._container,"leaflet-crosshair"),this._map.fire("boxzoomstart")),this._point=this._map.mouseEventToContainerPoint(t);var e=new o.Bounds(this._point,this._startPoint),i=e.getSize();o.DomUtil.setPosition(this._box,e.min),this._box.style.width=i.x+"px",this._box.style.height=i.y+"px"},_finish:function(){this._moved&&(o.DomUtil.remove(this._box),o.DomUtil.removeClass(this._container,"leaflet-crosshair")),o.DomUtil.enableTextSelection(),o.DomUtil.enableImageDrag(),o.DomEvent.off(e,{contextmenu:o.DomEvent.stop,mousemove:this._onMouseMove,mouseup:this._onMouseUp,keydown:this._onKeyDown},this)},_onMouseUp:function(t){if((1===t.which||1===t.button)&&(this._finish(),this._moved)){setTimeout(o.bind(this._resetState,this),0);var e=new o.LatLngBounds(this._map.containerPointToLatLng(this._startPoint),this._map.containerPointToLatLng(this._point));this._map.fitBounds(e).fire("boxzoomend",{boxZoomBounds:e})}},_onKeyDown:function(t){27===t.keyCode&&this._finish()}}),o.Map.addInitHook("addHandler","boxZoom",o.Map.BoxZoom),o.Map.mergeOptions({keyboard:!0,keyboardPanDelta:80}),o.Map.Keyboard=o.Handler.extend({keyCodes:{left:[37],right:[39],down:[40],up:[38],zoomIn:[187,107,61,171],zoomOut:[189,109,54,173]},initialize:function(t){this._map=t,this._setPanDelta(t.options.keyboardPanDelta),this._setZoomDelta(t.options.zoomDelta)},addHooks:function(){var t=this._map._container;t.tabIndex<=0&&(t.tabIndex="0"),o.DomEvent.on(t,{focus:this._onFocus,blur:this._onBlur,mousedown:this._onMouseDown},this),this._map.on({focus:this._addHooks,blur:this._removeHooks},this)},removeHooks:function(){this._removeHooks(),o.DomEvent.off(this._map._container,{focus:this._onFocus,blur:this._onBlur,mousedown:this._onMouseDown},this),this._map.off({focus:this._addHooks,blur:this._removeHooks},this)},_onMouseDown:function(){if(!this._focused){var i=e.body,n=e.documentElement,o=i.scrollTop||n.scrollTop,s=i.scrollLeft||n.scrollLeft;this._map._container.focus(),t.scrollTo(s,o)}},_onFocus:function(){this._focused=!0,this._map.fire("focus")},_onBlur:function(){this._focused=!1,this._map.fire("blur")},_setPanDelta:function(t){var e,i,n=this._panKeys={},o=this.keyCodes;for(e=0,i=o.left.length;e<i;e++)n[o.left[e]]=[-1*t,0];for(e=0,i=o.right.length;e<i;e++)n[o.right[e]]=[t,0];for(e=0,i=o.down.length;e<i;e++)n[o.down[e]]=[0,t];for(e=0,i=o.up.length;e<i;e++)n[o.up[e]]=[0,-1*t]},_setZoomDelta:function(t){var e,i,n=this._zoomKeys={},o=this.keyCodes;for(e=0,i=o.zoomIn.length;e<i;e++)n[o.zoomIn[e]]=t;for(e=0,i=o.zoomOut.length;e<i;e++)n[o.zoomOut[e]]=-t},_addHooks:function(){o.DomEvent.on(e,"keydown",this._onKeyDown,this)},_removeHooks:function(){o.DomEvent.off(e,"keydown",this._onKeyDown,this)},_onKeyDown:function(t){if(!(t.altKey||t.ctrlKey||t.metaKey)){var e,i=t.keyCode,n=this._map;if(i in this._panKeys){if(n._panAnim&&n._panAnim._inProgress)return;e=this._panKeys[i],t.shiftKey&&(e=o.point(e).multiplyBy(3)),n.panBy(e),n.options.maxBounds&&n.panInsideBounds(n.options.maxBounds)}else if(i in this._zoomKeys)n.setZoom(n.getZoom()+(t.shiftKey?3:1)*this._zoomKeys[i]);else{if(27!==i)return;n.closePopup()}o.DomEvent.stop(t)}}}),o.Map.addInitHook("addHandler","keyboard",o.Map.Keyboard),o.Handler.MarkerDrag=o.Handler.extend({initialize:function(t){this._marker=t},addHooks:function(){var t=this._marker._icon;this._draggable||(this._draggable=new o.Draggable(t,t,!0)),this._draggable.on({dragstart:this._onDragStart,drag:this._onDrag,dragend:this._onDragEnd},this).enable(),o.DomUtil.addClass(t,"leaflet-marker-draggable")},removeHooks:function(){this._draggable.off({dragstart:this._onDragStart,drag:this._onDrag,dragend:this._onDragEnd},this).disable(),this._marker._icon&&o.DomUtil.removeClass(this._marker._icon,"leaflet-marker-draggable")},moved:function(){return this._draggable&&this._draggable._moved},_onDragStart:function(){this._oldLatLng=this._marker.getLatLng(),this._marker.closePopup().fire("movestart").fire("dragstart")},_onDrag:function(t){var e=this._marker,i=e._shadow,n=o.DomUtil.getPosition(e._icon),s=e._map.layerPointToLatLng(n);i&&o.DomUtil.setPosition(i,n),e._latlng=s,t.latlng=s,t.oldLatLng=this._oldLatLng,e.fire("move",t).fire("drag",t)},_onDragEnd:function(t){delete this._oldLatLng,this._marker.fire("moveend").fire("dragend",t)}}),o.Control=o.Class.extend({options:{position:"topright"},initialize:function(t){o.setOptions(this,t)},getPosition:function(){return this.options.position},setPosition:function(t){var e=this._map;return e&&e.removeControl(this),this.options.position=t,e&&e.addControl(this),this},getContainer:function(){return this._container},addTo:function(t){this.remove(),this._map=t;var e=this._container=this.onAdd(t),i=this.getPosition(),n=t._controlCorners[i];return o.DomUtil.addClass(e,"leaflet-control"),i.indexOf("bottom")!==-1?n.insertBefore(e,n.firstChild):n.appendChild(e),this},remove:function(){return this._map?(o.DomUtil.remove(this._container),this.onRemove&&this.onRemove(this._map),this._map=null,this):this},_refocusOnMap:function(t){this._map&&t&&t.screenX>0&&t.screenY>0&&this._map.getContainer().focus()}}),o.control=function(t){return new o.Control(t)},o.Map.include({addControl:function(t){return t.addTo(this),this},removeControl:function(t){return t.remove(),this},_initControlPos:function(){function t(t,s){var r=i+t+" "+i+s;e[t+s]=o.DomUtil.create("div",r,n)}var e=this._controlCorners={},i="leaflet-",n=this._controlContainer=o.DomUtil.create("div",i+"control-container",this._container);t("top","left"),t("top","right"),t("bottom","left"),t("bottom","right")},_clearControlPos:function(){o.DomUtil.remove(this._controlContainer)}}),o.Control.Zoom=o.Control.extend({options:{position:"topleft",zoomInText:"+",zoomInTitle:"Zoom in",zoomOutText:"-",zoomOutTitle:"Zoom out"},onAdd:function(t){var e="leaflet-control-zoom",i=o.DomUtil.create("div",e+" leaflet-bar"),n=this.options;return this._zoomInButton=this._createButton(n.zoomInText,n.zoomInTitle,e+"-in",i,this._zoomIn),this._zoomOutButton=this._createButton(n.zoomOutText,n.zoomOutTitle,e+"-out",i,this._zoomOut),this._updateDisabled(),t.on("zoomend zoomlevelschange",this._updateDisabled,this),i},onRemove:function(t){t.off("zoomend zoomlevelschange",this._updateDisabled,this)},disable:function(){return this._disabled=!0,this._updateDisabled(),this},enable:function(){return this._disabled=!1,this._updateDisabled(),this},_zoomIn:function(t){!this._disabled&&this._map._zoom<this._map.getMaxZoom()&&this._map.zoomIn(this._map.options.zoomDelta*(t.shiftKey?3:1))},_zoomOut:function(t){!this._disabled&&this._map._zoom>this._map.getMinZoom()&&this._map.zoomOut(this._map.options.zoomDelta*(t.shiftKey?3:1))},_createButton:function(t,e,i,n,s){var r=o.DomUtil.create("a",i,n);return r.innerHTML=t,r.href="#",r.title=e,r.setAttribute("role","button"),r.setAttribute("aria-label",e),o.DomEvent.on(r,"mousedown dblclick",o.DomEvent.stopPropagation).on(r,"click",o.DomEvent.stop).on(r,"click",s,this).on(r,"click",this._refocusOnMap,this),r},_updateDisabled:function(){var t=this._map,e="leaflet-disabled";o.DomUtil.removeClass(this._zoomInButton,e),o.DomUtil.removeClass(this._zoomOutButton,e),(this._disabled||t._zoom===t.getMinZoom())&&o.DomUtil.addClass(this._zoomOutButton,e),(this._disabled||t._zoom===t.getMaxZoom())&&o.DomUtil.addClass(this._zoomInButton,e)}}),o.Map.mergeOptions({zoomControl:!0}),o.Map.addInitHook(function(){this.options.zoomControl&&(this.zoomControl=new o.Control.Zoom,this.addControl(this.zoomControl))}),o.control.zoom=function(t){return new o.Control.Zoom(t)},o.Control.Attribution=o.Control.extend({options:{position:"bottomright",prefix:'<a href="http://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>'},initialize:function(t){o.setOptions(this,t),this._attributions={}},onAdd:function(t){t.attributionControl=this,this._container=o.DomUtil.create("div","leaflet-control-attribution"),o.DomEvent&&o.DomEvent.disableClickPropagation(this._container);for(var e in t._layers)t._layers[e].getAttribution&&this.addAttribution(t._layers[e].getAttribution());return this._update(),this._container},setPrefix:function(t){return this.options.prefix=t,this._update(),this},addAttribution:function(t){return t?(this._attributions[t]||(this._attributions[t]=0),this._attributions[t]++,this._update(),this):this},removeAttribution:function(t){return t?(this._attributions[t]&&(this._attributions[t]--,this._update()),this):this},_update:function(){if(this._map){var t=[];for(var e in this._attributions)this._attributions[e]&&t.push(e);var i=[];this.options.prefix&&i.push(this.options.prefix),t.length&&i.push(t.join(", ")),this._container.innerHTML=i.join(" | ")}}}),o.Map.mergeOptions({attributionControl:!0}),o.Map.addInitHook(function(){this.options.attributionControl&&(new o.Control.Attribution).addTo(this)}),o.control.attribution=function(t){return new o.Control.Attribution(t)},o.Control.Scale=o.Control.extend({options:{position:"bottomleft",maxWidth:100,metric:!0,imperial:!0},onAdd:function(t){var e="leaflet-control-scale",i=o.DomUtil.create("div",e),n=this.options;return this._addScales(n,e+"-line",i),t.on(n.updateWhenIdle?"moveend":"move",this._update,this),t.whenReady(this._update,this),i},onRemove:function(t){t.off(this.options.updateWhenIdle?"moveend":"move",this._update,this)},_addScales:function(t,e,i){t.metric&&(this._mScale=o.DomUtil.create("div",e,i)),t.imperial&&(this._iScale=o.DomUtil.create("div",e,i))},_update:function(){var t=this._map,e=t.getSize().y/2,i=t.distance(t.containerPointToLatLng([0,e]),t.containerPointToLatLng([this.options.maxWidth,e]));this._updateScales(i)},_updateScales:function(t){this.options.metric&&t&&this._updateMetric(t),this.options.imperial&&t&&this._updateImperial(t)},_updateMetric:function(t){var e=this._getRoundNum(t),i=e<1e3?e+" m":e/1e3+" km";this._updateScale(this._mScale,i,e/t)},_updateImperial:function(t){var e,i,n,o=3.2808399*t;o>5280?(e=o/5280,i=this._getRoundNum(e),this._updateScale(this._iScale,i+" mi",i/e)):(n=this._getRoundNum(o),this._updateScale(this._iScale,n+" ft",n/o))},_updateScale:function(t,e,i){t.style.width=Math.round(this.options.maxWidth*i)+"px",t.innerHTML=e},_getRoundNum:function(t){var e=Math.pow(10,(Math.floor(t)+"").length-1),i=t/e;return i=i>=10?10:i>=5?5:i>=3?3:i>=2?2:1,e*i}}),o.control.scale=function(t){return new o.Control.Scale(t)},o.Control.Layers=o.Control.extend({options:{collapsed:!0,position:"topright",autoZIndex:!0,hideSingleBase:!1,sortLayers:!1,sortFunction:function(t,e,i,n){return i<n?-1:n<i?1:0}},initialize:function(t,e,i){o.setOptions(this,i),this._layers=[],this._lastZIndex=0,this._handlingClick=!1;for(var n in t)this._addLayer(t[n],n);for(n in e)this._addLayer(e[n],n,!0)},onAdd:function(t){return this._initLayout(),this._update(),this._map=t,t.on("zoomend",this._checkDisabledLayers,this),this._container},onRemove:function(){this._map.off("zoomend",this._checkDisabledLayers,this);for(var t=0;t<this._layers.length;t++)this._layers[t].layer.off("add remove",this._onLayerChange,this)},addBaseLayer:function(t,e){return this._addLayer(t,e),this._map?this._update():this},addOverlay:function(t,e){return this._addLayer(t,e,!0),this._map?this._update():this},removeLayer:function(t){t.off("add remove",this._onLayerChange,this);var e=this._getLayer(o.stamp(t));return e&&this._layers.splice(this._layers.indexOf(e),1),this._map?this._update():this},expand:function(){o.DomUtil.addClass(this._container,"leaflet-control-layers-expanded"),this._form.style.height=null;var t=this._map.getSize().y-(this._container.offsetTop+50);return t<this._form.clientHeight?(o.DomUtil.addClass(this._form,"leaflet-control-layers-scrollbar"),this._form.style.height=t+"px"):o.DomUtil.removeClass(this._form,"leaflet-control-layers-scrollbar"),this._checkDisabledLayers(),this},collapse:function(){return o.DomUtil.removeClass(this._container,"leaflet-control-layers-expanded"),this},_initLayout:function(){var t="leaflet-control-layers",e=this._container=o.DomUtil.create("div",t);e.setAttribute("aria-haspopup",!0),o.DomEvent.disableClickPropagation(e),o.Browser.touch||o.DomEvent.disableScrollPropagation(e);var i=this._form=o.DomUtil.create("form",t+"-list");o.Browser.android||o.DomEvent.on(e,{mouseenter:this.expand,mouseleave:this.collapse},this);var n=this._layersLink=o.DomUtil.create("a",t+"-toggle",e);n.href="#",n.title="Layers",o.Browser.touch?o.DomEvent.on(n,"click",o.DomEvent.stop).on(n,"click",this.expand,this):o.DomEvent.on(n,"focus",this.expand,this),o.DomEvent.on(i,"click",function(){setTimeout(o.bind(this._onInputClick,this),0)},this),this._map.on("click",this.collapse,this),this.options.collapsed||this.expand(),this._baseLayersList=o.DomUtil.create("div",t+"-base",i),this._separator=o.DomUtil.create("div",t+"-separator",i),this._overlaysList=o.DomUtil.create("div",t+"-overlays",i),e.appendChild(i)},_getLayer:function(t){for(var e=0;e<this._layers.length;e++)if(this._layers[e]&&o.stamp(this._layers[e].layer)===t)return this._layers[e]},_addLayer:function(t,e,i){t.on("add remove",this._onLayerChange,this),this._layers.push({layer:t,name:e,overlay:i}),this.options.sortLayers&&this._layers.sort(o.bind(function(t,e){return this.options.sortFunction(t.layer,e.layer,t.name,e.name)},this)),this.options.autoZIndex&&t.setZIndex&&(this._lastZIndex++,t.setZIndex(this._lastZIndex))},_update:function(){if(!this._container)return this;o.DomUtil.empty(this._baseLayersList),o.DomUtil.empty(this._overlaysList);var t,e,i,n,s=0;for(i=0;i<this._layers.length;i++)n=this._layers[i],this._addItem(n),e=e||n.overlay,t=t||!n.overlay,s+=n.overlay?0:1;return this.options.hideSingleBase&&(t=t&&s>1,this._baseLayersList.style.display=t?"":"none"),this._separator.style.display=e&&t?"":"none",this},_onLayerChange:function(t){this._handlingClick||this._update();var e=this._getLayer(o.stamp(t.target)),i=e.overlay?"add"===t.type?"overlayadd":"overlayremove":"add"===t.type?"baselayerchange":null;i&&this._map.fire(i,e)},_createRadioElement:function(t,i){var n='<input type="radio" class="leaflet-control-layers-selector" name="'+t+'"'+(i?' checked="checked"':"")+"/>",o=e.createElement("div");return o.innerHTML=n,o.firstChild},_addItem:function(t){var i,n=e.createElement("label"),s=this._map.hasLayer(t.layer);t.overlay?(i=e.createElement("input"),i.type="checkbox",i.className="leaflet-control-layers-selector",i.defaultChecked=s):i=this._createRadioElement("leaflet-base-layers",s),i.layerId=o.stamp(t.layer),o.DomEvent.on(i,"click",this._onInputClick,this);var r=e.createElement("span");r.innerHTML=" "+t.name;var a=e.createElement("div");n.appendChild(a),a.appendChild(i),a.appendChild(r);var h=t.overlay?this._overlaysList:this._baseLayersList;return h.appendChild(n),this._checkDisabledLayers(),n},_onInputClick:function(){var t,e,i,n=this._form.getElementsByTagName("input"),o=[],s=[];this._handlingClick=!0;for(var r=n.length-1;r>=0;r--)t=n[r],e=this._getLayer(t.layerId).layer,i=this._map.hasLayer(e),t.checked&&!i?o.push(e):!t.checked&&i&&s.push(e);for(r=0;r<s.length;r++)this._map.removeLayer(s[r]);for(r=0;r<o.length;r++)this._map.addLayer(o[r]);this._handlingClick=!1,this._refocusOnMap()},_checkDisabledLayers:function(){for(var t,e,n=this._form.getElementsByTagName("input"),o=this._map.getZoom(),s=n.length-1;s>=0;s--)t=n[s],e=this._getLayer(t.layerId).layer,t.disabled=e.options.minZoom!==i&&o<e.options.minZoom||e.options.maxZoom!==i&&o>e.options.maxZoom},_expand:function(){return this.expand()},_collapse:function(){return this.collapse()}}),o.control.layers=function(t,e,i){return new o.Control.Layers(t,e,i)}}(window,document);
+this._moved=!1},_onMouseDown:function(t){return!(!t.shiftKey||1!==t.which&&1!==t.button)&&(this._resetState(),o.DomUtil.disableTextSelection(),o.DomUtil.disableImageDrag(),this._startPoint=this._map.mouseEventToContainerPoint(t),void o.DomEvent.on(e,{contextmenu:o.DomEvent.stop,mousemove:this._onMouseMove,mouseup:this._onMouseUp,keydown:this._onKeyDown},this))},_onMouseMove:function(t){this._moved||(this._moved=!0,this._box=o.DomUtil.create("div","leaflet-zoom-box",this._container),o.DomUtil.addClass(this._container,"leaflet-crosshair"),this._map.fire("boxzoomstart")),this._point=this._map.mouseEventToContainerPoint(t);var e=new o.Bounds(this._point,this._startPoint),i=e.getSize();o.DomUtil.setPosition(this._box,e.min),this._box.style.width=i.x+"px",this._box.style.height=i.y+"px"},_finish:function(){this._moved&&(o.DomUtil.remove(this._box),o.DomUtil.removeClass(this._container,"leaflet-crosshair")),o.DomUtil.enableTextSelection(),o.DomUtil.enableImageDrag(),o.DomEvent.off(e,{contextmenu:o.DomEvent.stop,mousemove:this._onMouseMove,mouseup:this._onMouseUp,keydown:this._onKeyDown},this)},_onMouseUp:function(t){if((1===t.which||1===t.button)&&(this._finish(),this._moved)){setTimeout(o.bind(this._resetState,this),0);var e=new o.LatLngBounds(this._map.containerPointToLatLng(this._startPoint),this._map.containerPointToLatLng(this._point));this._map.fitBounds(e).fire("boxzoomend",{boxZoomBounds:e})}},_onKeyDown:function(t){27===t.keyCode&&this._finish()}}),o.Map.addInitHook("addHandler","boxZoom",o.Map.BoxZoom),o.Map.mergeOptions({keyboard:!0,keyboardPanDelta:80}),o.Map.Keyboard=o.Handler.extend({keyCodes:{left:[37],right:[39],down:[40],up:[38],zoomIn:[187,107,61,171],zoomOut:[189,109,54,173]},initialize:function(t){this._map=t,this._setPanDelta(t.options.keyboardPanDelta),this._setZoomDelta(t.options.zoomDelta)},addHooks:function(){var t=this._map._container;t.tabIndex<=0&&(t.tabIndex="0"),o.DomEvent.on(t,{focus:this._onFocus,blur:this._onBlur,mousedown:this._onMouseDown},this),this._map.on({focus:this._addHooks,blur:this._removeHooks},this)},removeHooks:function(){this._removeHooks(),o.DomEvent.off(this._map._container,{focus:this._onFocus,blur:this._onBlur,mousedown:this._onMouseDown},this),this._map.off({focus:this._addHooks,blur:this._removeHooks},this)},_onMouseDown:function(){if(!this._focused){var i=e.body,n=e.documentElement,o=i.scrollTop||n.scrollTop,s=i.scrollLeft||n.scrollLeft;this._map._container.focus(),t.scrollTo(s,o)}},_onFocus:function(){this._focused=!0,this._map.fire("focus")},_onBlur:function(){this._focused=!1,this._map.fire("blur")},_setPanDelta:function(t){var e,i,n=this._panKeys={},o=this.keyCodes;for(e=0,i=o.left.length;e<i;e++)n[o.left[e]]=[-1*t,0];for(e=0,i=o.right.length;e<i;e++)n[o.right[e]]=[t,0];for(e=0,i=o.down.length;e<i;e++)n[o.down[e]]=[0,t];for(e=0,i=o.up.length;e<i;e++)n[o.up[e]]=[0,-1*t]},_setZoomDelta:function(t){var e,i,n=this._zoomKeys={},o=this.keyCodes;for(e=0,i=o.zoomIn.length;e<i;e++)n[o.zoomIn[e]]=t;for(e=0,i=o.zoomOut.length;e<i;e++)n[o.zoomOut[e]]=-t},_addHooks:function(){o.DomEvent.on(e,"keydown",this._onKeyDown,this)},_removeHooks:function(){o.DomEvent.off(e,"keydown",this._onKeyDown,this)},_onKeyDown:function(t){if(!(t.altKey||t.ctrlKey||t.metaKey)){var e,i=t.keyCode,n=this._map;if(i in this._panKeys){if(n._panAnim&&n._panAnim._inProgress)return;e=this._panKeys[i],t.shiftKey&&(e=o.point(e).multiplyBy(3)),n.panBy(e),n.options.maxBounds&&n.panInsideBounds(n.options.maxBounds)}else if(i in this._zoomKeys)n.setZoom(n.getZoom()+(t.shiftKey?3:1)*this._zoomKeys[i]);else{if(27!==i)return;n.closePopup()}o.DomEvent.stop(t)}}}),o.Map.addInitHook("addHandler","keyboard",o.Map.Keyboard),o.Handler.MarkerDrag=o.Handler.extend({initialize:function(t){this._marker=t},addHooks:function(){var t=this._marker._icon;this._draggable||(this._draggable=new o.Draggable(t,t,!0)),this._draggable.on({dragstart:this._onDragStart,drag:this._onDrag,dragend:this._onDragEnd},this).enable(),o.DomUtil.addClass(t,"leaflet-marker-draggable")},removeHooks:function(){this._draggable.off({dragstart:this._onDragStart,drag:this._onDrag,dragend:this._onDragEnd},this).disable(),this._marker._icon&&o.DomUtil.removeClass(this._marker._icon,"leaflet-marker-draggable")},moved:function(){return this._draggable&&this._draggable._moved},_onDragStart:function(){this._oldLatLng=this._marker.getLatLng(),this._marker.closePopup().fire("movestart").fire("dragstart")},_onDrag:function(t){var e=this._marker,i=e._shadow,n=o.DomUtil.getPosition(e._icon),s=e._map.layerPointToLatLng(n);i&&o.DomUtil.setPosition(i,n),e._latlng=s,t.latlng=s,t.oldLatLng=this._oldLatLng,e.fire("move",t).fire("drag",t)},_onDragEnd:function(t){delete this._oldLatLng,this._marker.fire("moveend").fire("dragend",t)}}),o.Control=o.Class.extend({options:{position:"topright"},initialize:function(t){o.setOptions(this,t)},getPosition:function(){return this.options.position},setPosition:function(t){var e=this._map;return e&&e.removeControl(this),this.options.position=t,e&&e.addControl(this),this},getContainer:function(){return this._container},addTo:function(t){this.remove(),this._map=t;var e=this._container=this.onAdd(t),i=this.getPosition(),n=t._controlCorners[i];return o.DomUtil.addClass(e,"leaflet-control"),i.indexOf("bottom")!==-1?n.insertBefore(e,n.firstChild):n.appendChild(e),this},remove:function(){return this._map?(o.DomUtil.remove(this._container),this.onRemove&&this.onRemove(this._map),this._map=null,this):this},_refocusOnMap:function(t){this._map&&t&&t.screenX>0&&t.screenY>0&&this._map.getContainer().focus()}}),o.control=function(t){return new o.Control(t)},o.Map.include({addControl:function(t){return t.addTo(this),this},removeControl:function(t){return t.remove(),this},_initControlPos:function(){function t(t,s){var r=i+t+" "+i+s;e[t+s]=o.DomUtil.create("div",r,n)}var e=this._controlCorners={},i="leaflet-",n=this._controlContainer=o.DomUtil.create("div",i+"control-container",this._container);t("top","left"),t("top","right"),t("bottom","left"),t("bottom","right")},_clearControlPos:function(){o.DomUtil.remove(this._controlContainer)}}),o.Control.Zoom=o.Control.extend({options:{position:"topleft",zoomInText:"+",zoomInTitle:"Zoom in",zoomOutText:"-",zoomOutTitle:"Zoom out"},onAdd:function(t){var e="leaflet-control-zoom",i=o.DomUtil.create("div",e+" leaflet-bar"),n=this.options;return this._zoomInButton=this._createButton(n.zoomInText,n.zoomInTitle,e+"-in",i,this._zoomIn),this._zoomOutButton=this._createButton(n.zoomOutText,n.zoomOutTitle,e+"-out",i,this._zoomOut),this._updateDisabled(),t.on("zoomend zoomlevelschange",this._updateDisabled,this),i},onRemove:function(t){t.off("zoomend zoomlevelschange",this._updateDisabled,this)},disable:function(){return this._disabled=!0,this._updateDisabled(),this},enable:function(){return this._disabled=!1,this._updateDisabled(),this},_zoomIn:function(t){!this._disabled&&this._map._zoom<this._map.getMaxZoom()&&this._map.zoomIn(this._map.options.zoomDelta*(t.shiftKey?3:1))},_zoomOut:function(t){!this._disabled&&this._map._zoom>this._map.getMinZoom()&&this._map.zoomOut(this._map.options.zoomDelta*(t.shiftKey?3:1))},_createButton:function(t,e,i,n,s){var r=o.DomUtil.create("a",i,n);return r.innerHTML=t,r.href="#",r.title=e,r.setAttribute("role","button"),r.setAttribute("aria-label",e),o.DomEvent.on(r,"mousedown dblclick",o.DomEvent.stopPropagation).on(r,"click",o.DomEvent.stop).on(r,"click",s,this).on(r,"click",this._refocusOnMap,this),r},_updateDisabled:function(){var t=this._map,e="leaflet-disabled";o.DomUtil.removeClass(this._zoomInButton,e),o.DomUtil.removeClass(this._zoomOutButton,e),(this._disabled||t._zoom===t.getMinZoom())&&o.DomUtil.addClass(this._zoomOutButton,e),(this._disabled||t._zoom===t.getMaxZoom())&&o.DomUtil.addClass(this._zoomInButton,e)}}),o.Map.mergeOptions({zoomControl:!0}),o.Map.addInitHook(function(){this.options.zoomControl&&(this.zoomControl=new o.Control.Zoom,this.addControl(this.zoomControl))}),o.control.zoom=function(t){return new o.Control.Zoom(t)},o.Control.Attribution=o.Control.extend({options:{position:"bottomright",prefix:'<a href="http://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>'},initialize:function(t){o.setOptions(this,t),this._attributions={}},onAdd:function(t){t.attributionControl=this,this._container=o.DomUtil.create("div","leaflet-control-attribution"),o.DomEvent&&o.DomEvent.disableClickPropagation(this._container);for(var e in t._layers)t._layers[e].getAttribution&&this.addAttribution(t._layers[e].getAttribution());return this._update(),this._container},setPrefix:function(t){return this.options.prefix=t,this._update(),this},addAttribution:function(t){return t?(this._attributions[t]||(this._attributions[t]=0),this._attributions[t]++,this._update(),this):this},removeAttribution:function(t){return t?(this._attributions[t]&&(this._attributions[t]--,this._update()),this):this},_update:function(){if(this._map){var t=[];for(var e in this._attributions)this._attributions[e]&&t.push(e);var i=[];this.options.prefix&&i.push(this.options.prefix),t.length&&i.push(t.join(", ")),this._container.innerHTML=i.join(" | ")}}}),o.Map.mergeOptions({attributionControl:!0}),o.Map.addInitHook(function(){this.options.attributionControl&&(new o.Control.Attribution).addTo(this)}),o.control.attribution=function(t){return new o.Control.Attribution(t)},o.Control.Scale=o.Control.extend({options:{position:"bottomleft",maxWidth:100,metric:!0,imperial:!0},onAdd:function(t){var e="leaflet-control-scale",i=o.DomUtil.create("div",e),n=this.options;return this._addScales(n,e+"-line",i),t.on(n.updateWhenIdle?"moveend":"move",this._update,this),t.whenReady(this._update,this),i},onRemove:function(t){t.off(this.options.updateWhenIdle?"moveend":"move",this._update,this)},_addScales:function(t,e,i){t.metric&&(this._mScale=o.DomUtil.create("div",e,i)),t.imperial&&(this._iScale=o.DomUtil.create("div",e,i))},_update:function(){var t=this._map,e=t.getSize().y/2,i=t.distance(t.containerPointToLatLng([0,e]),t.containerPointToLatLng([this.options.maxWidth,e]));this._updateScales(i)},_updateScales:function(t){this.options.metric&&t&&this._updateMetric(t),this.options.imperial&&t&&this._updateImperial(t)},_updateMetric:function(t){var e=this._getRoundNum(t),i=e<1e3?e+" m":e/1e3+" km";this._updateScale(this._mScale,i,e/t)},_updateImperial:function(t){var e,i,n,o=3.2808399*t;o>5280?(e=o/5280,i=this._getRoundNum(e),this._updateScale(this._iScale,i+" mi",i/e)):(n=this._getRoundNum(o),this._updateScale(this._iScale,n+" ft",n/o))},_updateScale:function(t,e,i){t.style.width=Math.round(this.options.maxWidth*i)+"px",t.innerHTML=e},_getRoundNum:function(t){var e=Math.pow(10,(Math.floor(t)+"").length-1),i=t/e;return i=i>=10?10:i>=5?5:i>=3?3:i>=2?2:1,e*i}}),o.control.scale=function(t){return new o.Control.Scale(t)},o.Control.Layers=o.Control.extend({options:{collapsed:!0,position:"topright",autoZIndex:!0,hideSingleBase:!1,sortLayers:!1,sortFunction:function(t,e,i,n){return i<n?-1:n<i?1:0}},initialize:function(t,e,i){o.setOptions(this,i),this._layers=[],this._lastZIndex=0,this._handlingClick=!1;for(var n in t)this._addLayer(t[n],n);for(n in e)this._addLayer(e[n],n,!0)},onAdd:function(t){return this._initLayout(),this._update(),this._map=t,t.on("zoomend",this._checkDisabledLayers,this),this._container},onRemove:function(){this._map.off("zoomend",this._checkDisabledLayers,this);for(var t=0;t<this._layers.length;t++)this._layers[t].layer.off("add remove",this._onLayerChange,this)},addBaseLayer:function(t,e){return this._addLayer(t,e),this._map?this._update():this},addOverlay:function(t,e){return this._addLayer(t,e,!0),this._map?this._update():this},removeLayer:function(t){t.off("add remove",this._onLayerChange,this);var e=this._getLayer(o.stamp(t));return e&&this._layers.splice(this._layers.indexOf(e),1),this._map?this._update():this},expand:function(){o.DomUtil.addClass(this._container,"leaflet-control-layers-expanded"),this._form.style.height=null;var t=this._map.getSize().y-(this._container.offsetTop+50);return t<this._form.clientHeight?(o.DomUtil.addClass(this._form,"leaflet-control-layers-scrollbar"),this._form.style.height=t+"px"):o.DomUtil.removeClass(this._form,"leaflet-control-layers-scrollbar"),this._checkDisabledLayers(),this},collapse:function(){return o.DomUtil.removeClass(this._container,"leaflet-control-layers-expanded"),this},_initLayout:function(){var t="leaflet-control-layers",e=this._container=o.DomUtil.create("div",t);e.setAttribute("aria-haspopup",!0),o.DomEvent.disableClickPropagation(e),o.Browser.touch||o.DomEvent.disableScrollPropagation(e);var i=this._form=o.DomUtil.create("form",t+"-list");o.Browser.android||o.DomEvent.on(e,{mouseenter:this.expand,mouseleave:this.collapse},this);var n=this._layersLink=o.DomUtil.create("a",t+"-toggle",e);n.href="#",n.title="Layers",o.Browser.touch?o.DomEvent.on(n,"click",o.DomEvent.stop).on(n,"click",this.expand,this):o.DomEvent.on(n,"focus",this.expand,this),o.DomEvent.on(i,"click",function(){setTimeout(o.bind(this._onInputClick,this),0)},this),this._map.on("click",this.collapse,this),this.options.collapsed||this.expand(),this._baseLayersList=o.DomUtil.create("div",t+"-base",i),this._separator=o.DomUtil.create("div",t+"-separator",i),this._overlaysList=o.DomUtil.create("div",t+"-overlays",i),e.appendChild(i)},_getLayer:function(t){for(var e=0;e<this._layers.length;e++)if(this._layers[e]&&o.stamp(this._layers[e].layer)===t)return this._layers[e]},_addLayer:function(t,e,i){t.on("add remove",this._onLayerChange,this),this._layers.push({layer:t,name:e,overlay:i}),this.options.sortLayers&&this._layers.sort(o.bind(function(t,e){return this.options.sortFunction(t.layer,e.layer,t.name,e.name)},this)),this.options.autoZIndex&&t.setZIndex&&(this._lastZIndex++,t.setZIndex(this._lastZIndex))},_update:function(){if(!this._container)return this;o.DomUtil.empty(this._baseLayersList),o.DomUtil.empty(this._overlaysList);var t,e,i,n,s=0;for(i=0;i<this._layers.length;i++)n=this._layers[i],this._addItem(n),e=e||n.overlay,t=t||!n.overlay,s+=n.overlay?0:1;return this.options.hideSingleBase&&(t=t&&s>1,this._baseLayersList.style.display=t?"":"none"),this._separator.style.display=e&&t?"":"none",this},_onLayerChange:function(t){this._handlingClick||this._update();var e=this._getLayer(o.stamp(t.target)),i=e.overlay?"add"===t.type?"overlayadd":"overlayremove":"add"===t.type?"baselayerchange":null;i&&this._map.fire(i,e)},_createRadioElement:function(t,i){var n='<input type="radio" class="leaflet-control-layers-selector" name="'+t+'"'+(i?' checked="checked"':"")+"/>",o=e.createElement("div");return o.innerHTML=n,o.firstChild},_addItem:function(t){var i,n=e.createElement("label"),s=this._map.hasLayer(t.layer);t.overlay?(i=e.createElement("input"),i.type="checkbox",i.className="leaflet-control-layers-selector",i.defaultChecked=s):i=this._createRadioElement("leaflet-base-layers",s),i.layerId=o.stamp(t.layer),o.DomEvent.on(i,"click",this._onInputClick,this);var r=e.createElement("span");r.innerHTML=" "+t.name;var a=e.createElement("div");n.appendChild(a),a.appendChild(i),a.appendChild(r);var h=t.overlay?this._overlaysList:this._baseLayersList;return h.appendChild(n),this._checkDisabledLayers(),n},_onInputClick:function(){var t,e,i,n=this._form.getElementsByTagName("input"),o=[],s=[];this._handlingClick=!0;for(var r=n.length-1;r>=0;r--)t=n[r],e=this._getLayer(t.layerId).layer,i=this._map.hasLayer(e),t.checked&&!i?o.push(e):!t.checked&&i&&s.push(e);for(r=0;r<s.length;r++)this._map.removeLayer(s[r]);for(r=0;r<o.length;r++)this._map.addLayer(o[r]);this._handlingClick=!1,this._refocusOnMap()},_checkDisabledLayers:function(){for(var t,e,n=this._form.getElementsByTagName("input"),o=this._map.getZoom(),s=n.length-1;s>=0;s--)t=n[s],e=this._getLayer(t.layerId).layer,t.disabled=e.options.minZoom!==i&&o<e.options.minZoom||e.options.maxZoom!==i&&o>e.options.maxZoom},_expand:function(){return this.expand()},_collapse:function(){return this.collapse()}}),o.control.layers=function(t,e,i){return new o.Control.Layers(t,e,i)}}(window,document);;
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 function corslite(n,t,o){function e(n){return n>=200&&300>n||304===n}function i(){void 0===r.status||e(r.status)?t.call(r,null,r):t.call(r,r,null)}var l=!1;if("undefined"==typeof window.XMLHttpRequest)return t(Error("Browser not supported"));if("undefined"==typeof o){var u=n.match(/^\s*https?:\/\/[^\/]*/);o=u&&u[0]!==location.protocol+"//"+location.domain+(location.port?":"+location.port:"")}var r=new window.XMLHttpRequest;if(o&&!("withCredentials"in r)){r=new window.XDomainRequest;var a=t;t=function(){if(l)a.apply(this,arguments);else{var n=this,t=arguments;setTimeout(function(){a.apply(n,t)},0)}}}return"onload"in r?r.onload=i:r.onreadystatechange=function(){4===r.readyState&&i()},r.onerror=function(n){t.call(this,n||!0,null),t=function(){}},r.onprogress=function(){},r.ontimeout=function(n){t.call(this,n,null),t=function(){}},r.onabort=function(n){t.call(this,n,null),t=function(){}},r.open("GET",n,!0),r.send(null),l=!0,r}"undefined"!=typeof module&&(module.exports=corslite);
 },{}],2:[function(require,module,exports){
@@ -15803,7 +338,7 @@ module.exports={"author":"Mapbox","name":"mapbox.js","description":"mapbox javas
 },{}]},{},[20]);
 
 
-//# sourceMappingURL=mapbox.standalone.js.map
+//# sourceMappingURL=mapbox.standalone.js.map;
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.mapboxgl = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";function serializePaintVertexArrays(r,e){var t={};for(var a in r){var n=r[a].paintVertexArray;if(0!==n.length){var i=n.serialize(e),s=n.constructor.serialize();t[a]={array:i,type:s}}}return t}var ProgramConfiguration=require("./program_configuration"),Segment=function(r,e){this.vertexOffset=r,this.primitiveOffset=e,this.vertexLength=0,this.primitiveLength=0},ArrayGroup=function(r,e,t){var a=this;this.globalProperties={zoom:t};var n=r.layoutVertexArrayType;this.layoutVertexArray=new n;var i=r.elementArrayType;i&&(this.elementArray=new i);var s=r.elementArrayType2;s&&(this.elementArray2=new s),this.layerData={};for(var y=0,o=e;y<o.length;y+=1){var l=o[y],h=ProgramConfiguration.createDynamic(r.paintAttributes||[],l,t);a.layerData[l.id]={layer:l,programConfiguration:h,paintVertexArray:new h.PaintVertexArray}}this.segments=[],this.segments2=[]};ArrayGroup.prototype.prepareSegment=function(r){var e=this.segments[this.segments.length-1];return(!e||e.vertexLength+r>ArrayGroup.MAX_VERTEX_ARRAY_LENGTH)&&(e=new Segment(this.layoutVertexArray.length,this.elementArray.length),this.segments.push(e)),e},ArrayGroup.prototype.prepareSegment2=function(r){var e=this.segments2[this.segments2.length-1];return(!e||e.vertexLength+r>ArrayGroup.MAX_VERTEX_ARRAY_LENGTH)&&(e=new Segment(this.layoutVertexArray.length,this.elementArray2.length),this.segments2.push(e)),e},ArrayGroup.prototype.populatePaintArrays=function(r){var e=this;for(var t in this.layerData){var a=e.layerData[t];0!==a.paintVertexArray.bytesPerElement&&a.programConfiguration.populatePaintArray(a.layer,a.paintVertexArray,e.layoutVertexArray.length,e.globalProperties,r)}},ArrayGroup.prototype.isEmpty=function(){return 0===this.layoutVertexArray.length},ArrayGroup.prototype.serialize=function(r){return{layoutVertexArray:this.layoutVertexArray.serialize(r),elementArray:this.elementArray&&this.elementArray.serialize(r),elementArray2:this.elementArray2&&this.elementArray2.serialize(r),paintVertexArrays:serializePaintVertexArrays(this.layerData,r),segments:this.segments,segments2:this.segments2}},ArrayGroup.MAX_VERTEX_ARRAY_LENGTH=Math.pow(2,16)-1,module.exports=ArrayGroup;
 },{"./program_configuration":15}],2:[function(require,module,exports){
@@ -16246,7 +781,7 @@ module.exports={"version":"0.28.0"}
 });
 
 
-//# sourceMappingURL=mapbox-gl.js.map
+//# sourceMappingURL=mapbox-gl.js.map;
 L.MapboxGL = L.Layer.extend({
     options: {
       updateInterval: 32
@@ -16460,7 +995,7 @@ L.MapboxGL = L.Layer.extend({
 L.mapboxGL = function (options) {
     return new L.MapboxGL(options);
 };
-
+;
 /*
 Script Name: Javascript Cookie Script
 Author: Public Domain, with some modifications
@@ -16570,7 +1105,1877 @@ function cookieDelete( name, path, domain ) {
 			( ( domain ) ? ";domain=" + domain : "" ) +
 			";expires=Thu, 01-Jan-1970 00:00:01 GMT";
 }
+;
+ /**
+ * constants.js
+ *
+ * JS constants.
+ *
+ * Cleveland Metroparks
+ */
 
-var MAP=null,BBOX_SOUTHWEST=L.latLng(41.11816,-82.08504),BBOX_NORTHEAST=L.latLng(41.70009,-81.28029),MAX_BOUNDS=L.latLngBounds(BBOX_SOUTHWEST,BBOX_NORTHEAST),MIN_ZOOM=11,MAX_ZOOM=18,GEOCODE_BIAS_BOX="41.202048178648,-81.9627793163304,41.5885467839419,-81.386224018357",PRINT_URL="/pdf/create.json",PRINT_PICKUP_BASEURL="/pdf/",BING_API_KEY="AjBuYw8goYn_CWiqk65Rbf_Cm-j1QFPH-gGfOxjBipxuEB2N3n9yACKu5s8Dl18N",PRINT_SIZES={"Letter portrait":[580,714],"Letter landscape":[762,526],"Ledger portrait":[744,1126],"Ledger landscape":[1178,690]},LAYER_TILESTACHE_SAT=new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/satphoto_mobilestack/{z}/{x}/{y}.jpg",{name:"photo",subdomains:"123"}),LAYER_TILESTACHE_MAP=new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/basemap_mobilestack/{z}/{x}/{y}.jpg",{name:"terrain",subdomains:"123"});const MAPBOX_TOKEN="pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiWHRKaDhuRSJ9.FGqNSOHwiCr2dmTH2JTMAA";L.mapbox.accessToken=MAPBOX_TOKEN;const MAPBOX_MAP_URL_FRAG="cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn";var LAYER_MAPBOX_MAP=L.tileLayer("https://api.mapbox.com/styles/v1/"+MAPBOX_MAP_URL_FRAG+"/tiles/{z}/{x}/{y}?access_token="+L.mapbox.accessToken,{tileSize:512,zoomOffset:-1,attribution:'© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'});const MAPBOX_SAT_URL_FRAG="cleveland-metroparks/cit0kaw3v000k2xpi18payeig";var LAYER_MAPBOX_SAT=L.tileLayer("https://api.mapbox.com/styles/v1/"+MAPBOX_SAT_URL_FRAG+"/tiles/{z}/{x}/{y}?access_token="+L.mapbox.accessToken,{tileSize:512,zoomOffset:-1,attribution:'© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'}),LAYER_MAPBOX_GL_MAP=L.mapboxGL({accessToken:MAPBOX_TOKEN,style:"mapbox://styles/"+MAPBOX_MAP_URL_FRAG});const ALL_LAYERS=[LAYER_TILESTACHE_MAP,LAYER_TILESTACHE_SAT,LAYER_MAPBOX_MAP,LAYER_MAPBOX_SAT,LAYER_MAPBOX_GL_MAP],AVAILABLE_LAYERS={map:LAYER_MAPBOX_MAP,photo:LAYER_MAPBOX_SAT,vector:LAYER_MAPBOX_GL_MAP};
-function initMap(){MOBILE&&$("#pane-settings").page();var a=URL_PARAMS.param("base");a||(a="vector");var b;switch(a){case"photo":var c=$('input[name="basemap"][value="photo"]').prop("checked",!0);MOBILE&&c.checkboxradio("refresh"),b=LAYER_MAPBOX_SAT;break;case"map":var c=$('input[name="basemap"][value="map"]').prop("checked",!0);MOBILE&&c.checkboxradio("refresh"),b=LAYER_MAPBOX_MAP;break;case"vector":var c=$('input[name="basemap"][value="vector"]').prop("checked",!0);MOBILE&&c.checkboxradio("refresh"),b=LAYER_MAPBOX_GL_MAP;break;default:throw"Invalid basemap given?"}var d={attributionControl:!1,zoomControl:!0,dragging:!0,closePopupOnClick:!1,crs:L.CRS.EPSG3857,minZoom:MIN_ZOOM,maxZoom:MAX_ZOOM,layers:[b]},e=navigator.userAgent.match(/Android (4|5)/);if(e&&(d.fadeAnimation=!0,d.zoomAnimation=!0,d.markerZoomAnimation=!0),MAP=new L.Map("map_canvas",d),URL_PARAMS.param("x")&&URL_PARAMS.param("y")&&URL_PARAMS.param("z")){var f=parseFloat(URL_PARAMS.param("x")),g=parseFloat(URL_PARAMS.param("y")),h=parseInt(URL_PARAMS.param("z"));MAP.setView(L.latLng(g,f),h),MAP.addLayer(MARKER_TARGET),MARKER_TARGET.setLatLng(L.latLng(g,f))}else MAP.fitBounds(MAX_BOUNDS);if(L.control.scale().addTo(MAP),MAP.on("click",function(a){if(ENABLE_MAPCLICK)return $(".leaflet-popup").length?MAP.closePopup():void wmsGetFeatureInfoByPoint(a.layerPoint)}),URL_PARAMS.param("type")&&URL_PARAMS.param("name")){var i={type:URL_PARAMS.param("type"),name:URL_PARAMS.param("name")};$.get("../ajax/exactnamesearch",i,function(a){if(!(a&&a.s&&a.w&&a.n&&a.e))return alert("Cound not find that feature.");var b=L.latLngBounds(L.latLng(a.s,a.w),L.latLng(a.n,a.e));MAP.fitBounds(b),a.lat&&a.lng?placeTargetMarker(a.lat,a.lng):a.wkt&&(HIGHLIGHT_LINE=lineWKTtoFeature(a.wkt,HIGHLIGHT_LINE_STYLE),MAP.addLayer(HIGHLIGHT_LINE))},"json")}if(URL_PARAMS.param("routefrom")&&URL_PARAMS.param("routeto")&&URL_PARAMS.param("routevia")){var j=URL_PARAMS.param("routefrom").split(",")[0],k=URL_PARAMS.param("routefrom").split(",")[1],l=URL_PARAMS.param("routeto").split(",")[0],m=URL_PARAMS.param("routeto").split(",")[1],n=URL_PARAMS.param("routevia"),o="to";MOBILE&&$("#pane-getdirections").page(),$("#getdirections_disabled").hide(),$("#getdirections_enabled").show(),$("#directions_target_title").text(URL_PARAMS.param("routetitle")),$("#directions_via").val(URL_PARAMS.param("routevia")),MOBILE&&$("#directions_via").selectmenu("refresh"),$("#directions_type").val("geocode"),MOBILE&&$("#directions_type").selectmenu("refresh"),MOBILE?$("#directions_type_geocode_wrap").show():$("#directions_type").change(),$("#directions_address").val(URL_PARAMS.param("routefrom")),$("#directions_target_lat").val(l),$("#directions_target_lng").val(m),$("#directions_via").trigger("change"),$("#directions_address").val(URL_PARAMS.param("fromaddr")),$("#directions_reverse").val(URL_PARAMS.param("whichway")),$("#directions_via_bike").val(URL_PARAMS.param("routevia_bike")),setTimeout(function(){$("#directions_reverse").trigger("change")},1e3),$("#directions_type").val(URL_PARAMS.param("loctype")),getDirections(j,k,l,m,o,n)}$("#share_url").click(function(){$(this).select()}),MAP.on("moveend",updateShareUrl),MAP.on("zoomend",updateShareUrl),MAP.on("layerremove",updateShareUrl),MAP.on("layeradd",updateShareUrl),updateShareUrl()}function lineWKTtoFeature(a,b){var c=new Wkt.Wkt;return c.read(a),c.toObject(b)}function WSENtoBounds(a,b,c,d){return L.latLngBounds([[b,a],[d,c]])}function selectBasemap(a){for(active_layer=AVAILABLE_LAYERS[a],i=0;i<ALL_LAYERS.length;i++)ALL_LAYERS[i]==active_layer?(MAP.hasLayer(ALL_LAYERS[i])||MAP.addLayer(ALL_LAYERS[i],!0),"vector"!=a&&active_layer.bringToBack()):MAP.hasLayer(ALL_LAYERS[i])&&MAP.removeLayer(ALL_LAYERS[i])}function placeTargetMarker(a,b){MAP.addLayer(MARKER_TARGET),MARKER_TARGET.setLatLng(L.latLng(a,b))}function clearTargetMarker(){MAP.removeLayer(MARKER_TARGET)}function placeGPSMarker(a,b){MAP.addLayer(MARKER_GPS),MARKER_GPS.setLatLng(L.latLng(a,b))}function clearGPSMarker(){MAP.removeLayer(MARKER_GPS)}function placeCircle(a,b,c){MAP.removeLayer(CIRCLE),CIRCLE.setLatLng(L.latLng(a,b)),CIRCLE.setRadius(c),MAP.addLayer(CIRCLE)}function clearCircle(){CIRCLE.setLatLng(L.latLng(0,0)),CIRCLE.setRadius(1),MAP.removeLayer(CIRCLE)}function strToLatLng(a){var a=a.replace(/\s+$/,"").replace(/^\s+/,"");if(a.match(/^[\d\.\-\,\s]+$/)){var b=a.split(/[\s\,]+/);if(2==b.length&&(b[0]=parseFloat(b[0]),b[1]=parseFloat(b[1]),b[0]&&b[1])){var c,d;return b[0]<0?(c=b[1],d=b[0]):(c=b[0],d=b[1]),L.latLng([c,d])}}var e=a.match(/^N\s*(\d\d)\s+(\d\d\.\d\d\d)\s+W\s*(\d\d\d)\s+(\d\d\.\d\d\d)$/i);if(e){var f=parseInt(e[1]),g=parseInt(e[2]),h=parseInt(e[3]),i=parseInt(e[4]),c=f+g/60,d=-h-i/60;return L.latLng([c,d])}return null}function zoomToAddress(a){if(!a)return!1;var b={};b.address=a,b.bing_key=BING_API_KEY,b.bbox=GEOCODE_BIAS_BOX,$.get("../ajax/geocode",b,function(a){if(!a)return alert("We couldn't find that address or city.\nPlease try again.");var b=L.latLng(a.lat,a.lng);return MAX_BOUNDS.contains(b)?void switchToMap(function(){MAP.setView(b,16),placeTargetMarker(a.lat,a.lng);var c="";c+='<h3 class="popup_title">'+a.title+"</h3>",c+='<span class="fakelink zoom" title="'+a.title+'" lat="'+a.lat+'" lng="'+a.lng+'" w="'+a.w+'" s="'+a.s+'" e="'+a.e+'" n="'+a.n+'" onClick="zoomElementClick( $(this) );">Directions</span>';var d=new L.Popup;d.setLatLng(b),d.setContent(c),MAP.openPopup(d)}):alert("The only results we could find are too far away to zoom the map there.")},"json")}function wmsGetFeatureInfoByPoint(a){var b=20,c=MAP.layerPointToLatLng(new L.Point(a.x-b,a.y+b)),d=MAP.layerPointToLatLng(new L.Point(a.x+b,a.y-b)),e={w:c.lng,s:c.lat,e:d.lng,n:d.lat},f=MAP.layerPointToLatLng(new L.Point(a.x,a.y));wmsGetFeatureInfoByLatLngBBOX(e,f)}function wmsGetFeatureInfoByLatLng(a){var b={w:a.lng,s:a.lat,e:a.lng,n:a.lat},c=a;wmsGetFeatureInfoByLatLngBBOX(b,c)}function wmsGetFeatureInfoByLatLngBBOX(a,b){var c=a;c.zoom=MAP.getZoom(),$.get("../ajax/query",c,function(a){if(a){var c={};c.maxHeight=parseInt($("#map_canvas").height()),c.maxWidth=parseInt($("#map_canvas").width());var d=new L.Popup(c);d.setLatLng(b),d.setContent(a),MAP.openPopup(d)}},"html")}function processGetDirectionsForm(){var a=$("#directions_reverse").val(),b=$("#directions_via").val();switch(b){case"hike":b="hike";break;case"bike":b=$("#directions_via_bike").val()}$("#directions_source_gid").val(""),$("#directions_source_type").val(""),$.ajaxSetup({async:!1});var c,d,e=$("#directions_type").val();switch(e){case"gps":c=LAST_KNOWN_LOCATION.lat,d=LAST_KNOWN_LOCATION.lng;break;case"geocode":var f=$("#directions_address").val();if(!f)return alert("Please enter an address, city, or landmark.");var g=/^(\d+\.\d+)\,(\-\d+\.\d+)$/.exec(f);if(g)c=parseFloat(g[1]),d=parseFloat(g[2]),getDirections(c,d,i,j,a,b);else{disableDirectionsButton();var h={};h.address=f,h.bing_key=BING_API_KEY,h.bbox=GEOCODE_BIAS_BOX,$.get("../ajax/geocode",h,function(a){if(enableDirectionsButton(),!a)return alert("We couldn't find that address or city.\nPlease try again.");if(c=a.lat,d=a.lng,!MAX_BOUNDS.contains(L.latLng(c,d))){var b="adr."+f,e="pos."+i+"_"+j,g={rtp:b+"~"+e},h="http://bing.com/maps/default.aspx?"+$.param(g),k=$("#directions_steps");return k.empty(),k.append($("<div></div>").html("The address you have chosen is outside of the covered area.<br/>Click the link below to go to Bing Maps for directions.")),void k.append($("<a></a>").text("Click here for directions from Bing Maps").prop("href",h).prop("target","_blank"))}},"json")}break;case"features":disableDirectionsButton();var h={};if(h.keyword=$("#directions_address").val(),h.limit=30,h.lat=MOBILE?LAST_KNOWN_LOCATION.lat:MAP.getCenter().lat,h.lng=MOBILE?LAST_KNOWN_LOCATION.lng:MAP.getCenter().lng,h.via=b,$.get("../ajax/keyword",h,function(a){if(enableDirectionsButton(),!a||!a.length)return alert("We couldn't find any matching landmarks.");for(var b=$("#directions_address").val().replace(/\W/g,"").toLowerCase(),e=0,f=a.length;e<f;e++){var g=a[e].name.replace(/\W/g,"").toLowerCase();if(g==b){a=[a[e]];break}}if(a.length>1)return c=null,d=null,void populateDidYouMean(a);var h=a[0].name.replace(/^\s*/,"").replace(/\s*$/,"");$("#directions_address").val(h),$("#directions_source_gid").val(a[0].gid),$("#directions_source_type").val(a[0].type),c=parseFloat(a[0].lat),d=parseFloat(a[0].lng)},"json"),!c||!d)return}var i=parseFloat($("#directions_target_lat").val()),j=parseFloat($("#directions_target_lng").val()),k=$("#directions_source_gid").val(),l=$("#directions_source_type").val();if("poi"==l||"reservation"==l||"building"==l||"trail"==l){var h={};h.type=l,h.gid=k,h.lat=i,h.lng=j,h.via=b,$.get("../ajax/geocode_for_directions",h,function(a){c=a.lat,d=a.lng,$("#directions_source_lat").val(a.lat),$("#directions_source_lng").val(a.lng)},"json")}var m=$("#directions_target_gid").val(),n=$("#directions_target_type").val();if("poi"==n||"reservation"==n||"building"==n||"trail"==n){var h={};h.type=n,h.gid=m,h.lat=c,h.lng=d,h.via=b,$.get("../ajax/geocode_for_directions",h,function(a){i=a.lat,j=a.lng,$("#directions_target_lat").val(a.lat),$("#directions_target_lng").val(a.lng)},"json")}return i&&j?($.ajaxSetup({async:!0}),void getDirections(c,d,i,j,a,b)):alert("Please close the directions panel, and pick a location.")}function populateDidYouMean(a){var b=$("#directions_steps");b.empty();var c=$("<li></li>").append($("<span></span>").addClass("ui-li-heading").text("Did you mean one of these?"));b.append(c);for(var d=0,e=a.length;d<e;d++){var f=a[d],g=f.name.replace(/^\s*/,"").replace(/\s*$/,""),c=$("<li></li>");c.append($("<span></span>").addClass("ui-li-heading").text(g)).attr("type",f.type).attr("gid",f.gid);var h=function(){$("#directions_address").val($(this).text()),$("#directions_source_gid").val($(this).attr("gid")),$("#directions_source_type").val($(this).attr("type")),$("#directions_button").click()};MOBILE?c.tap(h):c.click(h),c.css({cursor:"pointer"}),b.append(c)}MOBILE&&b.listview("refresh")}function getDirections(a,b,c,d,e,f){$("#directions_steps").empty(),disableDirectionsButton(),$("#directions_source_lat").val(a),$("#directions_source_lng").val(b);var g=$("#directions_prefer").val(),h={sourcelat:a,sourcelng:b,targetlat:c,targetlng:d,tofrom:e,via:f,prefer:g,bing_key:BING_API_KEY};$.get("../ajax/directions",h,function(a){if(enableDirectionsButton(),!a||!a.wkt){var b="Could not find directions.";return"hike"!=f&&(b+="\nTry a different type of trail, terrain, or difficulty."),alert(b)}renderDirectionsStructure(a)},"json")}function disableDirectionsButton(){var a=$("#directions_button");MOBILE?(a.button("disable"),a.closest(".ui-btn").find(".ui-btn-text").text(a.attr("value0"))):(a.prop("disabled",!0),a.val(a.attr("value0")))}function enableDirectionsButton(){var a=$("#directions_button");MOBILE?(a.button("enable"),a.closest(".ui-btn").find(".ui-btn-text").text(a.attr("value1"))):(a.prop("disabled",!1),a.val(a.attr("value1")))}function renderDirectionsStructure(a,b,c){c||(c={}),clearDirectionsLine();var d=lineWKTtoFeature(a.wkt,DIRECTIONS_LINE_STYLE),e=L.latLng(a.start.lat,a.start.lng),f=L.latLng(a.end.lat,a.end.lng);placeDirectionsLine(d,e,f),DIRECTIONS_LINE.extent=WSENtoBounds(a.bounds.west,a.bounds.south,a.bounds.east,a.bounds.north);var g=DIRECTIONS_LINE.extent.pad(.15);MAP.fitBounds(g),b||(b=$("#directions_steps")),b.empty();for(var h=0,i=a.steps.length;h<i;h++){var j=a.steps[h],k=$("<li></li>"),l=j.stepnumber?j.stepnumber+". "+(j.turnword?j.turnword:"")+" "+j.text:j.turnword+" "+j.text;if(k.append($("<span></span>").addClass("ui-li-heading").text(l)),j.distance&&j.duration&&"0"!=j.distance.substr(0,1)){var m=j.distance+", "+j.duration;k.append($("<span></span>").addClass("ui-li-desc").text(m))}b.append(k)}var n=$("<span></span>").addClass("ui-li-desc").html("");a.retries&&a.retries>3&&n.html("Route may be approximated.");var o=$("<span></span>").addClass("ui-li-heading").html("<b>Total:</b> "+a.totals.distance+", "+a.totals.duration);b.append($("<li></li>").append(o).append(n));var p=$("<div></div>").addClass("directions_functions");if(a.elevationprofile){var q=$("<a></a>").addClass("ui-btn").addClass("ui-btn-inline").addClass("ui-corner-all").prop("id","elevationprofile_button").text("Elevation Profile");q.attr("value1","Elevation Profile").attr("value0","Loading"),q.tap(function(){openElevationProfileBySegments()}),p.append(q)}var r=$("<a></a>").addClass("ui-btn").addClass("ui-btn-inline").addClass("ui-corner-all").text("Clear");if(r.tap(function(){$("#directions_steps").empty(),clearDirectionsLine(),$(".directions_functions").empty()}),p.append(r),!c.noshare){var s=$("<a></a>").addClass("ui-btn").addClass("ui-btn-inline").addClass("ui-corner-all").prop("id","share_route_button").text("Share");s.click(function(){updateShareUrlByDirections(),populateShareBox(),sidebar.open("pane-share")}),p.append(s)}if(!MOBILE){var t=$("<a></a>").addClass("ui-btn").addClass("ui-btn-inline").addClass("ui-corner-all").text("Print");t.click(function(){$("#button_print").click()}),p.append(t)}b.after(p),ELEVATION_PROFILE=[],a.elevationprofile&&(ELEVATION_PROFILE=a.elevationprofile),MOBILE&&(b.listview("refresh"),$(".directions_functions img:first").removeClass("ui-li-thumb"))}function clearDirectionsLine(){DIRECTIONS_LINE&&(MAP.removeLayer(DIRECTIONS_LINE),DIRECTIONS_LINE=null),MAP.hasLayer(MARKER_FROM)&&(MARKER_FROM.setLatLng(L.latLng(0,0)),MAP.removeLayer(MARKER_FROM)),MAP.hasLayer(MARKER_TO)&&(MARKER_TO.setLatLng(L.latLng(0,0)),MAP.removeLayer(MARKER_TO)),$("#directions_steps").empty(),$("#measure_steps").empty()}function placeDirectionsLine(a,b,c){DIRECTIONS_LINE=a,MAP.addLayer(DIRECTIONS_LINE),MARKER_FROM.setLatLng(b),MAP.addLayer(MARKER_FROM),MARKER_TO.setLatLng(c),MAP.addLayer(MARKER_TO),MARKER_FROM.dragging.disable(),MARKER_TO.dragging.disable()}function openElevationProfileBySegments(){if(ELEVATION_PROFILE){for(var a=[],b=[],c=0,d=ELEVATION_PROFILE.length;c<d;c++)a[a.length]=ELEVATION_PROFILE[c].x,b[b.length]=ELEVATION_PROFILE[c].y;a=a.join(","),b=b.join(","),$.post("../ajax/elevationprofilebysegments",{x:a,y:b},function(a){return 0!=a.indexOf("http")?alert(a):void showElevation(a)})}}function disableKeywordButton(){var a=$("#search_keyword_button");MOBILE?(a.button("disable"),a.closest(".ui-btn").find(".ui-btn-text").text(a.attr("value0"))):(a.prop("disabled",!0),a.val(a.attr("value0")))}function enableKeywordButton(){var a=$("#search_keyword_button");MOBILE?(a.button("enable"),a.closest(".ui-btn").find(".ui-btn-text").text(a.attr("value1"))):(a.prop("disabled",!1),a.val(a.attr("value1")))}function printMapPrepare(){$("#print_waiting").show(),$("#print_ready").hide()}function printMapDone(a){$("#print_waiting").hide(),a&&($("#print_link").prop("href",a),$("#print_ready").show())}function printMap(){var a=$("#print_comment").val(),b=$("#print_paper").val(),c="",d="",e="",f=PRINT_SIZES[b][0],g=PRINT_SIZES[b][1],h=MAP.latLngToLayerPoint(MAP.getCenter()),i=wgsToLocalSRS(MAP.layerPointToLatLng(new L.Point(h.x-f/2,h.y+g/2))),j=wgsToLocalSRS(MAP.layerPointToLatLng(new L.Point(h.x+f/2,h.y-g/2))),k=[i[0],i[1],j[0],j[1]],l={format_options:"dpi:300"},m=[];if(MAP.hasLayer(AVAILABLE_LAYERS.photo)){if(MAP.getZoom()<14)return alert("Before printing, zoom in closer.");m[m.length]={baseURL:"http://maps.clevelandmetroparks.com/proxy/ohioimagery",opacity:1,singleTile:!1,type:"WMS",layers:["0"],format:"image/png",styles:[""]}}if((MAP.hasLayer(AVAILABLE_LAYERS.photo)||MAP.hasLayer(AVAILABLE_LAYERS.vector))&&(m[m.length]={baseURL:"http://maps.clevelandmetroparks.com/gwms",opacity:1,singleTile:!0,type:"WMS",layers:["group_basemap"],format:"image/jpeg",styles:[""],customParams:l},m[m.length]={baseURL:"http://maps.clevelandmetroparks.com/gwms",opacity:1,singleTile:!0,type:"WMS",layers:["cm:trails","cm:closures","cm:markers_other","cm:markers_swgh"],format:"image/png",styles:"",customParams:l}),DIRECTIONS_LINE&&MAP.hasLayer(DIRECTIONS_LINE)){var n=[];for(var o in DIRECTIONS_LINE._layers){for(var p=DIRECTIONS_LINE._layers[o],q=[],r=0,s=p._latlngs.length;r<s;r++)q[q.length]=wgsToLocalSRS([p._latlngs[r].lng,p._latlngs[r].lat]);n[n.length]=q}var t=DIRECTIONS_LINE_STYLE.opacity,u=DIRECTIONS_LINE_STYLE.color,v=3;m[m.length]={type:"Vector",name:"Directions Line",opacity:t,styles:{default:{strokeColor:u,strokeWidth:v,strokeLinecap:"round"}},styleProperty:"style_index",geoJson:{type:"FeatureCollection",features:[{type:"Feature",properties:{style_index:"default"},geometry:{type:"MultiLineString",coordinates:n}}]}};var w=ICON_FROM.options.iconUrl.replace("maps.clevelandmetroparks.com","10.0.0.23").replace("https:","http:"),x=wgsToLocalSRS(MARKER_FROM.getLatLng()),y=-10,z=0,A=15;m[m.length]={type:"Vector",name:"Target Marker",opacity:1,styleProperty:"style_index",styles:{default:{externalGraphic:w,fillOpacity:1,pointRadius:A,graphicXOffset:y,graphicYOffset:z}},geoJson:{type:"FeatureCollection",features:[{type:"Feature",properties:{style_index:"default"},geometry:{type:"Point",coordinates:x}}]}};var w=ICON_TO.options.iconUrl.replace("maps.clevelandmetroparks.com","10.0.0.23").replace("https:","http:"),x=wgsToLocalSRS(MARKER_TO.getLatLng()),y=-10,z=0,A=15;m[m.length]={type:"Vector",name:"Target Marker",opacity:1,styleProperty:"style_index",styles:{default:{externalGraphic:w,fillOpacity:1,pointRadius:A,graphicXOffset:y,graphicYOffset:z}},geoJson:{type:"FeatureCollection",features:[{type:"Feature",properties:{style_index:"default"},geometry:{type:"Point",coordinates:x}}]}},b+=" with directions";var B,C=$("#directions_reverse").val(),D="to"==C?"from":"to",E=$("#directions_target_title").text(),F=$("#directions_address").val(),G=$("#directions_via option:selected").text().toLowerCase();C&&D&&E&&F?(c="Directions\n"+C+" "+E+"\n"+D+" "+F+"\n"+G,B=$("#directions_steps li")):(c="Measurement directions",B=$("#measure_steps li"));var H=25;switch(b){case"Letter portrait with directions":H=40;break;case"Letter landscape with directions":H=31;break;case"Ledger portrait with directions":H=65;break;case"Ledger landscape with directions":H=45}d=[],e=[],B.each(function(){var a=$(this).find(".ui-li-heading").eq(0).text(),b=$(this).find(".ui-li-desc").eq(0).text(),c=a+"\n     "+b;d.length<H?d[d.length]=c:e[e.length]=c}),d=d.join("\n"),e=e.join("\n")}if(HIGHLIGHT_LINE&&MAP.hasLayer(HIGHLIGHT_LINE)){for(var n=[],I=HIGHLIGHT_LINE.getLatLngs(),o=0,J=I.length;o<J;o++){var K=[];for(vi=0,vl=I[o].length;vi<vl;vi++)K[K.length]=wgsToLocalSRS([I[o][vi].lng,I[o][vi].lat]);n[n.length]=K}var t=HIGHLIGHT_LINE_STYLE.opacity,u=HIGHLIGHT_LINE_STYLE.color,v=3;m[m.length]={type:"Vector",name:"Highlight Line",opacity:t,styles:{default:{strokeColor:u,strokeWidth:v,strokeLinecap:"round"}},styleProperty:"style_index",geoJson:{type:"FeatureCollection",features:[{type:"Feature",properties:{style_index:"default"},geometry:{type:"MultiLineString",coordinates:n}}]}};var M=$("#show_on_map").data("zoomelement").attr("type");if("loop"==M){var B=$("#moreinfo_steps li");b+=" with directions",c=$("#show_on_map").data("zoomelement").attr("title");var H=25;switch(b){case"Letter portrait with directions":H=40;break;case"Letter landscape with directions":H=31;break;case"Ledger portrait with directions":H=65;break;case"Ledger landscape with directions":H=45}d=[],e=[],B.each(function(){var a=$(this).find(".ui-li-heading").eq(0).text(),b=$(this).find(".ui-li-desc").eq(0).text(),c=a+"\n     "+b;d.length<H?d[d.length]=c:e[e.length]=c}),d=d.join("\n"),e=e.join("\n")}}if(MARKER_TARGET&&MAP.hasLayer(MARKER_TARGET)){var w=ICON_TARGET.options.iconUrl,x=wgsToLocalSRS(MARKER_TARGET.getLatLng()),y=-10,z=0,A=15;m[m.length]={type:"Vector",name:"Target Marker",opacity:1,styleProperty:"style_index",styles:{default:{externalGraphic:w,fillOpacity:1,pointRadius:A,graphicXOffset:y,graphicYOffset:z}},geoJson:{type:"FeatureCollection",features:[{type:"Feature",properties:{style_index:"default"},geometry:{type:"Point",coordinates:x}}]}}}var N={units:"feet",srs:"EPSG:3734",layout:b,dpi:300,layers:m,pages:[{bbox:k,rotation:"0",comment:a}],layersMerging:!0,page2title:c,page2text1:d,page2text2:e};printMapPrepare(),$.ajax({url:PRINT_URL,type:"POST",data:JSON.stringify(N),processData:!1,contentType:"application/json",success:function(a){var b=a.getURL;b=b.split("/"),b=b[b.length-1],b=PRINT_PICKUP_BASEURL+b,printMapDone(b)},error:function(a,b,c){alert("Printing failed. Please try again."),printMapDone()}})}function wgsToLocalSRS(a){var b=new Proj4js.Proj("EPSG:4326"),c=new Proj4js.Proj("EPSG:3734"),d=a.lat?new Proj4js.Point(a.lng,a.lat):new Proj4js.Point(a[0],a[1]);return Proj4js.transform(b,c,d),[d.x,d.y]}function loadTwitter(){var a=$("#tweets");a.empty(),a.append($("<tr></tr>").append($("<td></td>").text("Loading...")));var b={};$.get("../ajax/fetch_tweets",b,function(b){a.empty();for(var c=0,d=b.length;c<d;c++){var e=b[c],f=$("<tr></tr>"),g=$("<td></td>").addClass("twitter_lhs"),h=$("<img></img>").prop("src",e.picture),i=$("<a></a>").prop("target","_blank").text(e.username).prop("href","http://twitter.com/"+e.username);g.append(h),g.append($("<br></br>")),g.append(i);var j=$("<td></td>").addClass("twitter_rhs"),k=$("<span></span>").html(e.prettydate+": "+e.content);j.append(k),f.append(g),f.append(j),a.append(f)}},"json")}function trailfinderUpdate(){var a={};a.reservation=$('select[name="trailfinder_reservation"]').val(),a.paved=$('select[name="trailfinder_paved"]').val(),a.uses=[],$('input[name="trailfinder_uses"]:checked').each(function(){a.uses[a.uses.length]=$(this).val()}),a.uses=a.uses.join(","),searchTrails(a)}function searchTrails(a){var b=$("#trailfinder_results");b.empty(),$.get("../ajax/search_trails",a,function(a){if(a.length)for(var c=0,d=a.length;c<d;c++){var e=a[c],f=$("<li></li>").addClass("zoom");f.attr("title",e.name).attr("gid",e.gid).attr("type",e.type).attr("w",e.w).attr("s",e.s).attr("e",e.e).attr("n",e.n).attr("lat",e.lat).attr("lng",e.lng),f.attr("backbutton","#pane-trailfinder"),link=$("<a></a>"),link.attr("class","ui-btn ui-btn-text"),f.append(link),f.click(function(){zoomElementClick($(this))}),link.append($("<h4></h4>").addClass("ui-li-heading").text(e.name)),e.note&&link.append($("<span></span>").addClass("ui-li-desc").html(e.note)),link.append($("<span></span>").addClass("zoom_distance").addClass("ui-li-count").addClass("ui-btn-up-c").addClass("ui-btn-corner-all").text("0 mi")),f.append(link),b.append(f)}else b.append($("<li></li>").text("No results."));MOBILE&&b.listview("refresh"),MOBILE&&sortLists(b)},"json")}function populateShareBox(){var a={uri:URL_PARAMS.attr("path"),querystring:SHARE_URL_STRING};$.get("../ajax/make_shorturl",a,function(a){if(!a)return alert("Unable to fetch a short URL.\nPlease try again.");var b=URL_PARAMS.attr("protocol")+"://"+URL_PARAMS.attr("host")+"/url/"+a;$("#share_url").text(b)})}function updateShareUrl(){var a={};a.z=MAP.getZoom(),a.x=MAP.getCenter().lng,a.y=MAP.getCenter().lat,MAP.hasLayer(LAYER_MAPBOX_SAT)&&(a.base="photo"),MAP.hasLayer(LAYER_MAPBOX_MAP)&&(a.base="map"),SHARE_URL_STRING=$.param(a)}function updateShareUrlByFeature(a){var b={};b.type=a.attr("type"),b.name=a.attr("title"),SHARE_URL_STRING=$.param(b)}function updateShareUrlByDirections(){if($("#directions_source_lat").val()){var a={};MAP.hasLayer(AVAILABLE_LAYERS.photo)?a.base="photo":MAP.hasLayer(AVAILABLE_LAYERS.vector)?a.base="vector":MAP.hasLayer(AVAILABLE_LAYERS.map)&&(a.base="map"),a.routevia=$("#directions_via").val(),a.routevia_bike=$("#directions_via_bike").val(),a.routefrom=$("#directions_source_lat").val()+","+$("#directions_source_lng").val(),a.routeto=$("#directions_target_lat").val()+","+$("#directions_target_lng").val(),a.routetitle=$("#directions_target_title").text(),a.whichway=$("#directions_reverse").val(),a.loctype=$("#directions_type").val(),a.fromaddr=$("#directions_address").val(),"trail"==a.routevia&&(a.routevia=$("#directions_via_trail").val()),SHARE_URL_STRING=$.param(a)}}function toggleWelcome(a){a?cookieSet("show_welcome",1):cookieDelete("show_welcome")}var MOBILE,ICON_TARGET=L.icon({iconUrl:"/static/common/images/markers/marker-target.png",iconSize:[25,41],iconAnchor:[13,41]}),MARKER_TARGET=L.marker(L.latLng(0,0),{clickable:!1,draggable:!1,icon:ICON_TARGET}),ICON_GPS=L.icon({iconUrl:"/static/common/images/markers/marker-gps.png",iconSize:[25,41],iconAnchor:[13,41]}),MARKER_GPS=L.marker(L.latLng(0,0),{clickable:!1,draggable:!1,icon:ICON_GPS}),ICON_FROM=L.icon({iconUrl:"/static/desktop/measure1.png",iconSize:[20,34],iconAnchor:[10,34]}),ICON_TO=L.icon({iconUrl:"/static/desktop/measure2.png",iconSize:[20,34],iconAnchor:[10,34]}),MARKER_FROM=L.marker(L.latLng(0,0),{clickable:!0,draggable:!0,icon:ICON_FROM}),MARKER_TO=L.marker(L.latLng(0,0),{clickable:!0,draggable:!0,icon:ICON_TO}),CIRCLE=new L.Circle(L.latLng(0,0),1),ELEVATION_PROFILE=null,DIRECTIONS_TARGET=L.latLng(0,0),DIRECTIONS_LINE=null,DIRECTIONS_LINE_STYLE={color:"#0000FF",weight:5,opacity:1,clickable:!1,smoothFactor:.25},HIGHLIGHT_LINE=null,HIGHLIGHT_LINE_STYLE={color:"#FF00FF",weight:3,opacity:.75,clickable:!1,smoothFactor:.25},URL_PARAMS=null,SHARE_URL_STRING=null,ENABLE_MAPCLICK=!0,SKIP_TO_DIRECTIONS=!1;L.LatLng.prototype.bearingTo=function(a){var b=L.LatLng.DEG_TO_RAD,c=L.LatLng.RAD_TO_DEG,d=this.lat*b,e=a.lat*b,f=(a.lng-this.lng)*b,g=Math.sin(f)*Math.cos(e),h=Math.cos(d)*Math.sin(e)-Math.sin(d)*Math.cos(e)*Math.cos(f),i=Math.atan2(g,h);return i=parseInt(i*c),i=(i+360)%360},L.LatLng.prototype.bearingWordTo=function(a){var b=this.bearingTo(a),c="";return b>=22&&b<=67?c="NE":b>=67&&b<=112?c="E":b>=112&&b<=157?c="SE":b>=157&&b<=202?c="S":b>=202&&b<=247?c="SW":b>=247&&b<=292?c="W":b>=292&&b<=337?c="NW":(b>=337||b<=22)&&(c="N"),c},jQuery.fn.tap?jQuery.fn.click=jQuery.fn.tap:jQuery.fn.tap=jQuery.fn.click,$(window).resize(function(){MAP.invalidateSize()}),$(window).load(function(){var a=function(){var a=$("#geocode_text").val();zoomToAddress(a)};$("#geocode_button").tap(a),$("#geocode_text").keydown(function(a){13==a.keyCode&&$("#geocode_button").tap()})}),$(window).load(function(){var a=function(){zoomElementClick($(this))};$(".zoom").tap(a);var b=function(){var a=$(this).data("zoomelement");if(a){var b=a.attr("w"),c=a.attr("s"),d=a.attr("e"),e=a.attr("n"),f=a.attr("lng"),g=a.attr("lat"),h=a.attr("type"),i=$(this).data("wkt");switchToMap(function(){var a=L.latLngBounds(L.latLng(c,b),L.latLng(e,d));a=a.pad(.15),MAP.fitBounds(a),"poi"!=h&&"loop"!=h||placeTargetMarker(g,f),i&&(HIGHLIGHT_LINE&&(MAP.removeLayer(HIGHLIGHT_LINE),HIGHLIGHT_LINE=null),HIGHLIGHT_LINE=lineWKTtoFeature(i,HIGHLIGHT_LINE_STYLE),MAP.addLayer(HIGHLIGHT_LINE))})}};$("#show_on_map").tap(b)}),$(window).load(function(){$('input[type="radio"][name="basemap"]').change(function(){var a=$(this).val();selectBasemap(a)})}),$(window).load(function(){$("#getdirections_clear").click(function(){clearDirectionsLine(),$("#directions_steps").empty()}),$("#directions_via").change(function(){$("#directions_via_bike_wrap").hide();var a=$(this).val();switch(a){case"bike":$("#directions_via_bike_wrap").show();break;case"hike":break;case"car":}})}),$(window).load(function(){$("#trailfinder_typeicons img").tap(function(){var a=$(this),b=a.attr("data-value");$('input[name="trailfinder_uses"]').removeAttr("checked").filter('[value="'+b+'"]').attr("checked","checked"),$("#trailfinder_typeicons img").each(function(){var b=$(this).prop("src");b=$(this).is(a)?b.replace("_off.png","_on.png"):b.replace("_on.png","_off.png"),$(this).prop("src",b)}),trailfinderUpdate()}),$("#trailfinder_go").click(function(){trailfinderUpdate()}),$('select[name="trailfinder_reservation"]').change(function(){trailfinderUpdate()}),$('select[name="trailfinder_paved"]').change(function(){trailfinderUpdate()})}),$(window).load(function(){MOBILE&&($("#pane-settings").page(),$("#pane-welcome").page());var a=cookieGet("show_welcome");a?($("#settings_show_welcome").prop("checked","checked"),MOBILE&&$("#settings_show_welcome").checkboxradio("refresh"),$("#show_welcome").prop("checked","checked"),MOBILE&&$("#show_welcome").checkboxradio("refresh")):($("#settings_show_welcome").removeAttr("checked"),MOBILE&&$("#settings_show_welcome").checkboxradio("refresh"),$("#show_welcome").prop("checked","checked"),MOBILE&&$("#show_welcome").checkboxradio("refresh")),$("#show_welcome").change(function(){toggleWelcome($(this).is(":checked"))}),$("#settings_show_welcome").change(function(){toggleWelcome($(this).is(":checked"))})}),$(window).load(function(){$("#share_feature").click(function(){var a=$("#show_on_map").data("zoomelement");a&&(updateShareUrlByFeature(a),populateShareBox(),sidebar.open("pane-share"))})});
-function disableClicksMomentarily(){}function disableClicks(){MAP&&(ENABLE_MAPCLICK=!1,MAP.dragging.removeHooks(),MAP.touchZoom.removeHooks())}function enableClicks(){MAP&&(ENABLE_MAPCLICK=!0,MAP.dragging.addHooks(),MAP.touchZoom.addHooks())}function switchToMap(a){$.mobile.changePage("#pane-map"),a&&setTimeout(a,1e3)}function updateNearYouNow(){for(var a=$("#alerts"),b=0,c=ALL_POIS.length;b<c;b++){var d=ALL_POIS[b],e=L.latLng(d.lat,d.lng);d.meters=LAST_KNOWN_LOCATION.distanceTo(e),d.miles=d.meters/1609.344,d.feet=3.2808399*d.meters,d.range=d.feet>900?d.miles.toFixed(1)+" mi":d.feet.toFixed(0)+" ft",d.bearing=LAST_KNOWN_LOCATION.bearingWordTo(e)}ALL_POIS.sort(function(a,b){return a.meters-b.meters});var f=ALL_POIS.slice(0,25);a.empty();for(var b=0,c=f.length;b<c;b++){var d=f[b],g=$("<li></li>").addClass("zoom").addClass("ui-li-has-count");g.attr("title",d.title),g.attr("category",d.categories),g.attr("type","poi").attr("gid",d.gid),g.attr("w",d.w).attr("s",d.s).attr("e",d.e).attr("n",d.n),g.attr("lat",d.lat).attr("lng",d.lng);var h=$("<div></div>").addClass("ui-btn-text");h.append($("<h2></h2>").text(d.title)),h.append($("<p></p>").text(d.categories)),h.append($("<span></span>").addClass("zoom_distance").addClass("ui-li-count").addClass("ui-btn-up-c").addClass("ui-btn-corner-all").text(d.range+" "+d.bearing)),g.tap(function(){zoomElementClick($(this))}),g.append(h),a.append(g)}a.listview("refresh")}function checkRadar(a,b,c){b=parseFloat(b);for(var d=[],e=0,f=ALL_POIS.length;e<f;e++){var g=ALL_POIS[e],h=a.distanceTo(L.latLng(g.lat,g.lng));if(!(h>b)){if(c){for(var i=g.categories.split("; "),j=!1,k=0,l=i.length;k<l;k++)for(var m=0,n=c.length;m<n;m++)if(c[m]==i[k]){j=!0;break}if(!j)continue}var o=h/1609.344,p=3.2808399*h,q=p>900?o.toFixed(1)+" mi":p.toFixed(0)+" ft";d[d.length]={gid:g.gid,title:g.title,range:q}}}for(var r=!1,e=0,f=d.length;e<f;e++){var s=parseInt(d[e].gid);if(LAST_BEEP_IDS.indexOf(s)==-1){r=!0;break}}LAST_BEEP_IDS=[];for(var e=0,f=d.length;e<f;e++){var s=parseInt(d[e].gid);LAST_BEEP_IDS[LAST_BEEP_IDS.length]=s}if(LAST_BEEP_IDS.sort(),r){document.getElementById("alert_beep").play();for(var t=[],e=0,f=d.length;e<f;e++)t[t.length]=d[e].title+", "+d[e].range;setTimeout(function(){alert(t.join("\n"))},1e3)}}function showPhoto(a){$("#photo").prop("src",a),$.mobile.changePage("#pane-photo")}function showElevation(a){$("#elevation").prop("src",a),$.mobile.changePage("#pane-elevationprofile")}function searchByKeyword(a){var b=strToLatLng(a);if(b)return MAP.setView(b,16),void placeTargetMarker(b.lat,b.lng);var c=$("#keyword_results");c.empty(),disableKeywordButton(),$("#pane-search .sortpicker").hide(),$.get("../ajax/keyword",{keyword:a,limit:100},function(b){if(enableKeywordButton(),$("#pane-search .sortpicker").show(),!b.length)return $("<li></li>").text("No Cleveland Metroparks results found. Trying an address search.").appendTo(c),void zoomToAddress(a);for(var d=0,e=b.length;d<e;d++){var f=b[d],g=$("<span></span>").addClass("ui-li-heading").text(f.name),h=$("<span></span>").addClass("ui-li-desc").text(f.description),i=$("<span></span>").addClass("zoom_distance").addClass("ui-li-count").addClass("ui-btn-up-c").addClass("ui-btn-corner-all").text("0 mi"),j=$("<div></div>").addClass("ui-btn-text").append(g).append(h).append(i),k=$("<li></li>").addClass("zoom").addClass("ui-li-has-count").append(j);k.attr("backbutton","#pane-browse"),k.attr("w",f.w),k.attr("s",f.s),k.attr("e",f.e),k.attr("n",f.n),k.attr("lat",f.lat),k.attr("lng",f.lng),k.attr("type",f.type),k.attr("gid",f.gid),k.attr("title",f.name),c.append(k),k.tap(function(){zoomElementClick($(this))})}c.listview("refresh"),sortLists(c)},"json")}function zoomElementClick(a){if(ENABLE_MAPCLICK){disableClicksMomentarily();var b=a.attr("type"),c=a.attr("gid");$("#show_on_map").data("zoomelement",a),$("#directions_target_lat").val(a.attr("lat")),$("#directions_target_lng").val(a.attr("lng")),$("#directions_target_type").val(a.attr("type")),$("#directions_target_gid").val(a.attr("gid")),$("#directions_target_title").text(a.attr("title")),sidebar.open("pane-info");var d=a.attr("backbutton");if(d||(d="#pane-browse"),$("#pane-info .sidebar-back").prop("href",d),$("#getdirections_disabled").hide(),$("#getdirections_enabled").show(),$("#show_on_map").data("wkt",null),$("#info-content").text("Loading..."),b&&c){var e={};e.type=b,e.gid=c,e.lat=LAST_KNOWN_LOCATION.lat,e.lng=LAST_KNOWN_LOCATION.lng,$.get("../ajax/moreinfo",e,function(a){$("#info-content").html(a);var b=$("#info-content").find("div.wkt");b&&($("#show_on_map").data("wkt",b.text()),b.remove()),SKIP_TO_DIRECTIONS&&($("#directions_car").click(),SKIP_TO_DIRECTIONS=!1)},"html")}else $("#info-content").html($("<h1></h1>").text(a.attr("title"))),$("#directions_car").click()}}function filterLoops(){$("#loops_list li").show();var a={};a.filter_type=$("#loops_filter_type").val(),a.filter_paved=$("#loops_filter_paved").val(),a.minseconds=60*parseInt($("#loops_filter_duration_min").val()),a.maxseconds=60*parseInt($("#loops_filter_duration_max").val()),a.minfeet=5280*parseInt($("#loops_filter_distance_min").val()),a.maxfeet=5280*parseInt($("#loops_filter_distance_max").val()),a.reservation=$("#loops_filter_reservation").val();var b=$("#loops_filter_button");b.button("disable"),b.closest(".ui-btn").find(".ui-btn-text").text(b.attr("value0")),$.get("../ajax/search_loops",a,function(a){b.button("enable"),b.closest(".ui-btn").find(".ui-btn-text").text(b.attr("value1"));var c=$("#loops_list");if(c.empty(),!a||!a.length)return alert("No matches found.");for(var d=0,e=a.length;d<e;d++){var f=a[d],g=$("<li></li>").addClass("zoom").addClass("ui-li-has-count");g.attr("title",f.title).attr("gid",f.gid).attr("type","loop").attr("w",f.w).attr("s",f.s).attr("e",f.e).attr("n",f.n).attr("lat",f.lat).attr("lng",f.lng),g.attr("backbutton","#pane-loops-search"),link=$("<a></a>"),link.attr("class","ui-btn ui-btn-text"),g.click(function(){zoomElementClick($(this))}),g.append(link),link.append($("<h4></h4>").addClass("ui-li-heading").text(f.title)),link.append($("<span></span>").addClass("ui-li-desc").html(f.distance+" &nbsp;&nbsp; "+f.duration)),link.append($("<span></span>").addClass("zoom_distance").addClass("ui-li-count").addClass("ui-btn-up-c").addClass("ui-btn-corner-all").text("0 mi")),g.append(link),c.append(g)}$("#pane-loops-search .sortpicker").show(),c.listview("refresh"),sortLists(c)},"json")}function sortLists(a){if(a||(a=$(".sidebar-pane.active ul.distance_sortable").eq(0),a.length))switch(a.find(".zoom_distance").each(function(){var a=$(this).parent().parent(),b=L.latLng(a.attr("lat"),a.attr("lng")),c=LAST_KNOWN_LOCATION.distanceTo(b),d=LAST_KNOWN_LOCATION.bearingWordTo(b),e=c/1609.344,f=3.2808399*c,g=f>900?e.toFixed(1)+" mi":f.toFixed(0)+" ft";g+=" "+d,$(this).text(g),a.data("meters",c)}),DEFAULT_SORT){case"distance":a.children("li").sort(function(a,b){return $(a).data("meters")>$(b).data("meters")?1:-1});break;case"alphabetical":a.children("li").sort(function(a,b){return $(a).attr("title")>$(b).attr("title")?1:-1})}}function is_ios(){return/(iPad|iPhone|iPod)/g.test(navigator.userAgent)}function toggleGPS(){AUTO_CENTER_ON_LOCATION?toggleGPSOff():toggleGPSOn()}function toggleGPSOn(){AUTO_CENTER_ON_LOCATION=!0;var a=is_ios()?"/static/mobile/mapbutton_gps_ios_on.png":"/static/mobile/mapbutton_gps_on.png";$("#mapbutton_gps img").prop("src",a)}function toggleGPSOff(){AUTO_CENTER_ON_LOCATION=!1;var a=is_ios()?"/static/mobile/mapbutton_gps_ios_off.png":"/static/mobile/mapbutton_gps_off.png";$("#mapbutton_gps img").prop("src",a)}var LAST_BEEP_IDS=[],ALL_POIS=[],MOBILE=!0,LAST_KNOWN_LOCATION=L.latLng(41.3953,-81.673),AUTO_CENTER_ON_LOCATION=!1,DEFAULT_SORT="distance";$(window).bind("orientationchange pageshow resize",function(){var a=$(":jqmData(role='page'):visible"),b=$(":jqmData(role='header'):visible"),c=($(":jqmData(role='c=ontent'):visible"),$(window).height()),d=c-b.outerHeight();a.height(d+1),$(":jqmData(role='content')").first().height(d),$("#map_canvas").is(":visible")&&($("#map_canvas").height(d),MAP&&MAP.invalidateSize())}),$(document).bind("pagebeforechange",function(a,b){disableClicksMomentarily()}),$(document).ready(function(){$(".sidebar-pane-link").click(function(){link=$(this).attr("href"),"#"==link.charAt(0)&&(pane=link.substr(1)),sidebar.open(pane)}),$('a.sidebar-pane-link[href="#pane-trailfinder"]').click(function(){trailfinderUpdate(),$("#pane-trailfinder .sortpicker").show()}),$("#pane-browse li a").click(function(){}),$('.sidebar-tabs li a[href="#pane-radar"]').click(function(){updateNearYouNow()}),$("#pane-browse-pois-activity li a").click(function(){var a=this.hash.replace(/.*category=/,"");sidebar.open("pane-browse-results");var b=$("ul#browse_results");b.empty();var c="#pane-browse";0==a.indexOf("pois_usetype_")&&(c="#pane-browse-pois-activity"),0==a.indexOf("pois_reservation_")&&(c="#pane-browse-pois-reservation"),0==a.indexOf("loops_res_")&&(c="#pane-browse-loops-byres"),$("#pane-browse-results .sidebar-back").prop("href",c);var d=c;a&&(d="#pane-browse-results"),$.get("../ajax/browse_items",{category:a},function(a){var c=$("#pane-browse-results h1.sidebar-header .title-text");c.text(a.title);for(var e=0,f=a.results.length;e<f;e++){var g=a.results[e],h=$("<li></li>").addClass("zoom");h.attr("title",g.name),h.attr("gid",g.gid).attr("type",g.type).attr("w",g.w).attr("s",g.s).attr("e",g.e).attr("n",g.n).attr("lat",g.lat).attr("lng",g.lng),h.attr("backbutton",d),link=$("<a></a>"),link.attr("class","ui-btn ui-btn-text"),h.append(link),h.click(function(){zoomElementClick($(this))}),link.append($("<span></span>").addClass("ui-li-heading").text(g.name)),g.note&&link.append($("<span></span>").addClass("ui-li-desc").html(g.note)),link.append($("<span></span>").addClass("zoom_distance").addClass("ui-li-count").addClass("ui-btn-up-c").addClass("ui-btn-corner-all").text("0 mi")),h.append(link),b.append(h)}b.listview("refresh"),sortLists(b)},"json")}),$('.sidebar-tabs a[href="#pane-share"]').click(function(){populateShareBox()}),$("#share_facebook").tap(function(){var a=$("#share_url").val()||$("#share_url").text();return a="http://www.facebook.com/share.php?u="+encodeURIComponent(a),$("#share_facebook").prop("href",a),!0}),$("#share_twitter").tap(function(){var a=$("#share_url").val()||$("#share_url").text();return a="http://twitter.com/home?status="+encodeURIComponent(a),$("#share_twitter").prop("href",a),!0})}),$(document).bind("pagechange",function(a,b){}),$(window).load(function(){URL_PARAMS=$.url(),MIN_ZOOM=10,initMap();var a=cookieGet("show_welcome");if(URL_PARAMS.attr("query")&&(a=!1),URL_PARAMS.attr("fragment")&&(a=!1),a&&$.mobile.changePage("#pane-welcome"),MAP.on("locationfound",function(a){if(LAST_KNOWN_LOCATION=a.latlng,placeGPSMarker(a.latlng.lat,a.latlng.lng),AUTO_CENTER_ON_LOCATION){var b=MAX_BOUNDS.contains(a.latlng);b?(MAP.panTo(a.latlng),MAP.getZoom()<12&&MAP.setZoom(16)):MAP.fitBounds(MAX_BOUNDS)}if(updateNearYouNow(),$("#radar_enabled").is(":checked")){var c=$("#radar_radius").val(),d=[];$('input[name="radar_category"]:checked').each(function(){d[d.length]=$(this).val()}),placeCircle(a.latlng.lat,a.latlng.lng,c),checkRadar(a.latlng,c,d)}var e=a.latlng.lat,f=a.latlng.lng,g=e<0?"S":"N",h=f<0?"W":"E",i=Math.abs(parseInt(e)),j=Math.abs(parseInt(f)),k=(60*(Math.abs(e)-Math.abs(parseInt(e)))).toFixed(3),l=(60*(Math.abs(f)-Math.abs(parseInt(f)))).toFixed(3),m=g+" "+i+" "+k+" "+h+" "+j+" "+l;$("#gps_location").text(m)}),!URL_PARAMS.attr("query")){AUTO_CENTER_ON_LOCATION=!0;var b=function(a){AUTO_CENTER_ON_LOCATION=!1,MAP.off("locationfound",b)};MAP.on("locationfound",b)}MAP.locate({watch:!0,enableHighAccuracy:!0})}),$(window).load(function(){$("div.sortpicker span").tap(function(){DEFAULT_SORT=$(this).attr("value"),sortLists()})}),$(window).load(function(){$("#browse_keyword_button").tap(function(){$.mobile.changePage("#pane-search"),$("#search_keyword").val($("#browse_keyword").val()),$("#search_keyword_button").tap()}),$("#browse_keyword").keydown(function(a){13==a.keyCode&&$("#browse_keyword_button").tap()}),$("#search_keyword_button").tap(function(){var a=$("#search_keyword").val();searchByKeyword(a)}),$("#search_keyword").keydown(function(a){13==a.keyCode&&$("#search_keyword_button").tap()})}),$(window).load(function(){$.get("../ajax/load_pois",{},function(a){for(var b=0,c=a.length;b<c;b++)ALL_POIS[ALL_POIS.length]=a[b];updateNearYouNow()},"json")}),$(window).load(function(){$("#radar_enabled").change(function(){var a=$(this).is(":checked");a?$("#radar_config").show():$("#radar_config").hide(),a||($("#alerts li").slice(0,25).show(),$("#alerts li").slice(25).hide(),clearCircle())})}),$(window).load(function(){$.get("../ajax/autocomplete_keywords",{},function(a){$("#browse_keyword").autocomplete({target:$("#browse_keyword_autocomplete"),source:a,callback:function(a){var b=$(a.currentTarget);$("#browse_keyword").val(b.text()),$("#browse_keyword").autocomplete("clear"),$("#browse_keyword_button").click()},minLength:3,matchFromStart:!1}),$("#search_keyword").autocomplete({target:$("#search_keyword_autocomplete"),source:a,callback:function(a){var b=$(a.currentTarget);$("#search_keyword").val(b.text()),$("#search_keyword").autocomplete("clear"),$("#search_keyword_button").click()},minLength:3,matchFromStart:!1})},"json")}),$(window).load(function(){function a(a){$("#directions_via").val(a),$("#directions_via").trigger("change"),$("#pane-getdirections").page(),$("#directions_via").selectmenu("refresh"),sidebar.open("pane-getdirections")}$("#directions_hike").tap(function(){a("hike")}),$("#directions_bike").tap(function(){a("bike")}),$("#directions_bridle").tap(function(){a("bridle")}),$("#directions_car").tap(function(){a("car")}),$("#directions_bus").tap(function(){a("bus")}),$("#directions_type").change(function(){var a=$(this).val(),b=$("#directions_type_geocode_wrap");"gps"==a?b.hide():b.show()}),$("#directions_reverse").change(function(){var a="to"==$(this).val()?"from":"to";$("#directions_type option").each(function(){var b=$(this).text();b=a+" "+b.replace(/^to /,"").replace(/^from /,""),$(this).text(b)}),$("#directions_type").selectmenu("refresh",!0)}),$("#directions_button").tap(function(){$("#directions_steps").empty(),processGetDirectionsForm()}),$("#directions_address").keydown(function(a){13==a.keyCode&&$("#directions_button").tap()}),$("#change_directions_target2").tap(function(){$.mobile.changePage("#pane-browse"),SKIP_TO_DIRECTIONS=!0})}),$(window).load(function(){toggleGPSOff()}),$(window).load(function(){$("#pane-loops-search").page(),$("#loops_typeicons img").tap(function(){var a=$(this),b=a.attr("data-value");$("#loops_filter_type").val(b).trigger("change"),$("#loops_typeicons img").each(function(){var b=$(this).prop("src");b=$(this).is(a)?b.replace("_off.png","_on.png"):b.replace("_on.png","_off.png"),$(this).prop("src",b)})}).first().tap(),$("#loops_filter_distancepicker img").tap(function(){var a=$(this),b=a.attr("data-min"),c=a.attr("data-max");$("#loops_filter_distance_min").val(b),$("#loops_filter_distance_max").val(c),$("#loops_filter_distancepicker img").each(function(){var b=$(this).prop("src");b=$(this).is(a)?b.replace("_off.png","_on.png"):b.replace("_on.png","_off.png"),$(this).prop("src",b)}),filterLoops()}),$("#loops_filter_distance_min").change(),$("#loops_filter_distance_max").change(),$("#loops_filter_duration_min").change(),$("#loops_filter_duration_max").change(),$("#loops_filter_button").tap(filterLoops),$("#loops_filter_type").change(function(){var a=$(this).val();switch(a){case"hike":$(".time_estimate").hide(),$(".time_hike").show(),$(".time_estimate_prefix").hide();break;case"bridle":$(".time_estimate").hide(),$(".time_bridle").show(),$(".time_estimate_prefix").hide();break;case"bike":$(".time_estimate").hide(),$(".time_bike").show(),$(".time_estimate_prefix").hide();break;case"bike_Novice":$(".time_estimate").hide(),$(".time_bike").show(),$(".time_estimate_prefix").hide();break;case"bike_Beginner":$(".time_estimate").hide(),$(".time_bike").show(),$(".time_estimate_prefix").hide();break;case"bike_Intermediate":$(".time_estimate").hide(),$(".time_bike").show(),$(".time_estimate_prefix").hide();break;case"bike_Advanced":$(".time_estimate").hide(),$(".time_bike").show(),$(".time_estimate_prefix").hide();break;case"mountainbike":$(".time_estimate").hide(),$(".time_bike").show(),$(".time_estimate_prefix").hide();break;case"exercise":$(".time_estimate").hide(),$(".time_hike").show(),$(".time_estimate_prefix").hide();break;default:$(".time_estimate").show(),$(".time_estimate_prefix").show()}filterLoops()})});
+///// constants about all maps, Desktop and Mobile as well as Admin and Contributor
+///// The Admin and Contributor have their own versions too, which override the map URLs with SSL URLs
+///// for Admin and Contributors maps, see admin.js and contributors.js
+
+var MAP = null;
+
+// the bounding box of the mappable area, for setting the initial view
+// and potentially for restricting the map from zooming away (not enforced)
+var BBOX_SOUTHWEST = L.latLng(41.11816, -82.08504);
+var BBOX_NORTHEAST = L.latLng(41.70009, -81.28029);
+var MAX_BOUNDS = L.latLngBounds(BBOX_SOUTHWEST,BBOX_NORTHEAST);
+
+// the min and max zoom level: min (low) is further out and max (high) is further in
+// level 11 covers the Cleveland region at full desktop size, level 18 is street level
+var MIN_ZOOM = 11;
+var MAX_ZOOM = 18;
+
+// for focusing Bing's geocoder, so we don't find so we don't find Cleveland, Oregon
+// tip: this doesn't in fact work; wishful thinking for when Bing does support it
+var GEOCODE_BIAS_BOX = "41.202048178648,-81.9627793163304,41.5885467839419,-81.386224018357";
+
+// the URL to the MapFish Print system
+//var PRINT_URL = "http://maps.clemetparks.com:48182/geoserver/pdf/create.json";
+var PRINT_URL = "/pdf/create.json";
+var PRINT_PICKUP_BASEURL = "/pdf/";
+
+// our Bing Maps API key, used for the basemap, geocoding, and directions
+var BING_API_KEY = "AjBuYw8goYn_CWiqk65Rbf_Cm-j1QFPH-gGfOxjBipxuEB2N3n9yACKu5s8Dl18N";
+
+// for printing, the size of the map in each layout;
+// used to calculate a bounding box for printing the map so it looks the same as on a monitor.
+// These must match (or at least be very close) to the sizes given in MapFish Print's config.yaml
+var PRINT_SIZES = {
+    'Letter portrait' : [ 580, 714 ],
+    'Letter landscape' : [ 762, 526 ],
+    'Ledger portrait' : [ 744, 1126 ],
+    'Ledger landscape' : [ 1178, 690 ]
+};
+
+// these basemaps are really basemaps WITH baked-in labels and features, so the map can function with only one overlay visible
+var LAYER_TILESTACHE_SAT = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/satphoto_mobilestack/{z}/{x}/{y}.jpg", { name:'photo', subdomains:'123' });
+var LAYER_TILESTACHE_MAP = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/basemap_mobilestack/{z}/{x}/{y}.jpg", { name:'terrain', subdomains:'123' });
+
+// Mapbox access token
+const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiWHRKaDhuRSJ9.FGqNSOHwiCr2dmTH2JTMAA';
+L.mapbox.accessToken = MAPBOX_TOKEN;
+
+// Mapbox map tiles baselayer
+const MAPBOX_MAP_URL_FRAG = 'cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
+var LAYER_MAPBOX_MAP = L.tileLayer(
+    'https://api.mapbox.com/styles/v1/' + MAPBOX_MAP_URL_FRAG + '/tiles/{z}/{x}/{y}?access_token=' + L.mapbox.accessToken, {
+        tileSize: 512,
+        zoomOffset: -1,
+        attribution: '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    });
+
+// Mapbox satellite baselayer
+const MAPBOX_SAT_URL_FRAG = 'cleveland-metroparks/cit0kaw3v000k2xpi18payeig';
+var LAYER_MAPBOX_SAT = L.tileLayer(
+    'https://api.mapbox.com/styles/v1/' + MAPBOX_SAT_URL_FRAG + '/tiles/{z}/{x}/{y}?access_token=' + L.mapbox.accessToken, {
+        tileSize: 512,
+        zoomOffset: -1,
+        attribution: '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    });
+
+// Mapbox GL-Leaflet map tiles baselayer
+// Experimental GL+Leaflet binding - https://github.com/mapbox/mapbox-gl-leaflet
+var LAYER_MAPBOX_GL_MAP = L.mapboxGL({
+    accessToken: MAPBOX_TOKEN,
+    style: 'mapbox://styles/' + MAPBOX_MAP_URL_FRAG
+});
+
+const ALL_LAYERS = [
+    LAYER_TILESTACHE_MAP,
+    LAYER_TILESTACHE_SAT,
+    LAYER_MAPBOX_MAP,
+    LAYER_MAPBOX_SAT,
+    LAYER_MAPBOX_GL_MAP
+];
+
+const AVAILABLE_LAYERS = {
+    'map' : LAYER_MAPBOX_MAP,
+    'photo' : LAYER_MAPBOX_SAT,
+    'vector' : LAYER_MAPBOX_GL_MAP
+};
+
+/* to add route debugging into the map as it is running, paste this into the JavaScript console */
+/*
+var routedebug = L.tileLayer.wms("http://maps1.clemetparks.com/wms", { layers:'cm:routing_barriers,cm:routing_segments,cm:routing_nodes,cm:route_problem_intersections', format:'image/png', transparent:'TRUE' });
+MAP.addLayer(routedebug);
+*/
+;
+ /**
+ * common.js
+ *
+ * JS for common app functionality.
+ *
+ * Cleveland Metroparks
+ */
+
+var MOBILE; // set in desktop.js and mobile.js, so we can work around some things in shared code
+
+var ICON_TARGET = L.icon({
+    iconUrl: '/static/common/images/markers/marker-target.png',
+    iconSize: [ 25, 41 ],
+    iconAnchor: [ 13, 41 ]
+});
+var MARKER_TARGET = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_TARGET });
+
+var ICON_GPS = L.icon({
+    iconUrl: '/static/common/images/markers/marker-gps.png',
+    iconSize: [ 25, 41 ],
+    iconAnchor: [ 13, 41 ]
+});
+var MARKER_GPS     = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_GPS });
+
+var ICON_FROM = L.icon({
+    iconUrl: '/static/desktop/measure1.png',
+    iconSize: [ 20, 34 ],
+    iconAnchor: [ 10, 34 ]
+});
+var ICON_TO = L.icon({
+    iconUrl: '/static/desktop/measure2.png',
+    iconSize: [ 20, 34 ],
+    iconAnchor: [ 10, 34 ]
+});
+var MARKER_FROM  = L.marker(L.latLng(0,0), { clickable:true, draggable:true, icon:ICON_FROM });
+var MARKER_TO    = L.marker(L.latLng(0,0), { clickable:true, draggable:true, icon:ICON_TO });
+
+var CIRCLE         = new L.Circle(L.latLng(0,0), 1);
+
+var ELEVATION_PROFILE     = null;
+
+var DIRECTIONS_TARGET     = L.latLng(0,0);
+
+var DIRECTIONS_LINE       = null;
+var DIRECTIONS_LINE_STYLE = { color:"#0000FF", weight:5, opacity:1.00, clickable:false, smoothFactor:0.25 };
+
+var HIGHLIGHT_LINE       = null;
+var HIGHLIGHT_LINE_STYLE = { color:"#FF00FF", weight:3, opacity:0.75, clickable:false, smoothFactor:0.25 };
+
+var URL_PARAMS = null; // this becomes a pURL object for fetching URL params
+var SHARE_URL_STRING = null; // a query string for sharing the map in the current state, updated by updateShareUrl() and later minified by populateShareBox()
+
+var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; on Mobile we disable it after switchToMap()
+
+var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
+
+///// JavaScript code common to both Mobile and Desktop maps
+
+
+// extend Leaflet: add to LatLng the ability to calculate the bearing to another LatLng
+L.LatLng.prototype.bearingTo= function(other) {
+    var d2r  = L.LatLng.DEG_TO_RAD;
+    var r2d  = L.LatLng.RAD_TO_DEG;
+    var lat1 = this.lat * d2r;
+    var lat2 = other.lat * d2r;
+    var dLon = (other.lng-this.lng) * d2r;
+    var y    = Math.sin(dLon) * Math.cos(lat2);
+    var x    = Math.cos(lat1)*Math.sin(lat2) - Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLon);
+    var brng = Math.atan2(y, x);
+    brng = parseInt( brng * r2d );
+    brng = (brng + 360) % 360;
+    return brng;
+};
+L.LatLng.prototype.bearingWordTo = function(other) {
+    var bearing = this.bearingTo(other);
+    var bearingword = '';
+     if (bearing >= 22  && bearing <= 67)  bearingword = 'NE';
+    else if (bearing >= 67 && bearing <= 112)  bearingword = 'E';
+    else if (bearing >= 112 && bearing <= 157) bearingword = 'SE';
+    else if (bearing >= 157 && bearing <= 202) bearingword = 'S';
+    else if (bearing >= 202 && bearing <= 247) bearingword = 'SW';
+    else if (bearing >= 247 && bearing <= 292) bearingword = 'W';
+    else if (bearing >= 292 && bearing <= 337) bearingword = 'NW';
+    else if (bearing >= 337 || bearing <= 22)  bearingword = 'N';
+    return bearingword;
+};
+
+
+
+
+
+// compatibility: make click and tap events equivalent so we don't have to "if mobile tap, else click"
+// While jQM has a .click() handler, it specifically has a half-second delay built in, which makes the app feel slow.
+if (! jQuery.fn.tap ) {
+    jQuery.fn.tap = jQuery.fn.click;
+} else {
+    jQuery.fn.click = jQuery.fn.tap;
+}
+
+
+// on page load: start the map
+function initMap () {
+    // in mobile mode, render the Settings panel because we may need to check checkboxes in it
+    if (MOBILE) $('#pane-settings').page();
+
+    // URL param: the base map; defaults to the (Mapbox) map tiles
+    var base = URL_PARAMS.param('base');
+    if (! base) base = 'vector';
+    var basemap; // which L.TileLayer instance to use?
+    switch (base) {
+        case 'photo':
+            var checkbox = $('input[name="basemap"][value="photo"]').prop('checked',true);
+            if (MOBILE) checkbox.checkboxradio('refresh');
+            basemap = LAYER_MAPBOX_SAT;
+            break;
+        case 'map':
+            var checkbox = $('input[name="basemap"][value="map"]').prop('checked',true);
+            if (MOBILE) checkbox.checkboxradio('refresh');
+            basemap = LAYER_MAPBOX_MAP;
+            break;
+        case 'vector':
+            var checkbox = $('input[name="basemap"][value="vector"]').prop('checked',true);
+            if (MOBILE) checkbox.checkboxradio('refresh');
+            basemap = LAYER_MAPBOX_GL_MAP;
+            break;
+        default:
+            throw "Invalid basemap given?";
+            break;
+    }
+
+    // start the map, only the basemap for starters
+    // do some detection of browser to find Android 4+ and override the animation settings, hoping to enable pinch-zoom without breaking the app entirely
+    // this is specifically contraindicated by Leaflet's own feature detection
+    var options = {
+        attributionControl: false, zoomControl: true, dragging: true,
+        closePopupOnClick: false,
+        crs: L.CRS.EPSG3857,
+        minZoom: MIN_ZOOM, maxZoom: MAX_ZOOM,
+        layers : [ basemap ]
+    };
+    var android4 = navigator.userAgent.match(/Android (4|5)/);
+    if (android4) {
+        options.fadeAnimation       = true;
+        options.zoomAnimation       = true;
+        options.markerZoomAnimation = true;
+    }
+
+    MAP = new L.Map('map_canvas', options);
+
+    // zoom to the XYZ given in the URL, or else to the max extent
+    if (URL_PARAMS.param('x') && URL_PARAMS.param('y') && URL_PARAMS.param('z')) {
+        var x = parseFloat( URL_PARAMS.param('x') );
+        var y = parseFloat( URL_PARAMS.param('y') );
+        var z = parseInt( URL_PARAMS.param('z') );
+        MAP.setView( L.latLng(y,x),z);
+
+        MAP.addLayer(MARKER_TARGET);
+        MARKER_TARGET.setLatLng(L.latLng(y,x));
+    } else {
+        MAP.fitBounds(MAX_BOUNDS);
+    }
+
+    // additional Controls
+    L.control.scale().addTo(MAP);
+
+    // debugging: when the viewport changes, log the current bbox and zoom
+    function debugBoundsOutput() {
+        console.log([ 'zoom', MAP.getZoom() ]);
+        console.log([ 'center', MAP.getCenter() ]);
+        console.log([ 'bounds', MAP.getBounds() ]);
+    }
+    function debugScaleZoomOutput() {
+        var DOTS_PER_INCH    = 72;
+        var INCHES_PER_METER = 1.0 / 0.02540005080010160020;
+        var INCHES_PER_KM    = INCHES_PER_METER * 1000.0;
+        var sw       = MAP.getBounds().getSouthWest();
+        var ne       = MAP.getBounds().getNorthEast();
+        var halflng   = ( sw.lng + ne.lng ) / 2.0;
+        var midBottom = L.latLng(sw.lat,halflng);
+        var midTop    = L.latLng(ne.lat,halflng);
+        var mheight   = midTop.distanceTo(midBottom);
+        var pxheight  = MAP.getSize().x;
+        var kmperpx   = mheight / pxheight / 1000.0;
+        var scale    = Math.round( (kmperpx || 0.000001) * INCHES_PER_KM * DOTS_PER_INCH );
+        scale *= 2.0; // no idea why but it's doubled
+        scale = 1000 * Math.round(scale / 1000.0); // round to the nearest 100 so we can fit MapFish print's finite set of scales
+        console.log([ 'zoom & scale' , MAP.getZoom(), scale ]);
+    }
+    //MAP.on('moveend', debugBoundsOutput);
+    //MAP.on('zoomend', debugBoundsOutput);
+    //MAP.on('moveend', debugScaleZoomOutput);
+    //MAP.on('zoomend', debugScaleZoomOutput);
+
+    // our version of a WMS GetFeatureInfo control: a map click calls query.php to get JSON info, and we construct a bubble
+    // BUT, we only call this if a popup is not open: if one is open, we instead close it
+    MAP.on('click', function (event) {
+        // are we ignoring click behaviors for the moment?
+        if (! ENABLE_MAPCLICK) return;
+
+        // is there a popup currently visible? If so, no query at all but close the popup and bail
+        // sorry, Leaflet: closePopupOnClick doesn't work for this cuz it clears the popup before we get the click
+        if ($('.leaflet-popup').length) {
+            return MAP.closePopup();
+        }
+
+        // got here? good, do a query
+        wmsGetFeatureInfoByPoint(event.layerPoint);
+    });
+
+    // URL param: if they search for a type and a name, do that search via AJAX now
+    if (URL_PARAMS.param('type') && URL_PARAMS.param('name') ) {
+        var params = {
+            type: URL_PARAMS.param('type'),
+            name: URL_PARAMS.param('name')
+        };
+        $.get('../ajax/exactnamesearch', params, function (reply) {
+            if (!reply || ! reply.s || ! reply.w || ! reply.n || ! reply.e) return alert("Cound not find that feature.");
+
+            // zoom to the location
+            var box = L.latLngBounds( L.latLng(reply.s,reply.w) , L.latLng(reply.n,reply.e) );
+            MAP.fitBounds(box);
+
+            // lay down the WKT or a marker to highlight it
+            if (reply.lat && reply.lng) {
+                placeTargetMarker(reply.lat,reply.lng);
+            }
+            else if (reply.wkt) {
+                HIGHLIGHT_LINE = lineWKTtoFeature(reply.wkt, HIGHLIGHT_LINE_STYLE);
+                MAP.addLayer(HIGHLIGHT_LINE);
+            }
+        }, 'json');
+    }
+
+    // URL param: if they give a route in the params, fill in the boxes and run it now
+    if (URL_PARAMS.param('routefrom') && URL_PARAMS.param('routeto') && URL_PARAMS.param('routevia') ) {
+        // split out the params
+        var sourcelat = URL_PARAMS.param('routefrom').split(",")[0];
+        var sourcelng = URL_PARAMS.param('routefrom').split(",")[1];
+        var targetlat = URL_PARAMS.param('routeto').split(",")[0];
+        var targetlng = URL_PARAMS.param('routeto').split(",")[1];
+        var via       = URL_PARAMS.param('routevia');
+        var tofrom    = 'to';
+
+        // toggle the directions panel so it shows directions instead of Select A Destination
+        if (MOBILE) $('#pane-getdirections').page();
+        $('#getdirections_disabled').hide();
+        $('#getdirections_enabled').show();
+
+        // fill in the directions field: the title, route via, the target type and coordinate, the starting coordinates
+        $('#directions_target_title').text(URL_PARAMS.param('routetitle'));
+        $('#directions_via').val(URL_PARAMS.param('routevia'));
+        if (MOBILE) $("#directions_via").selectmenu('refresh');
+        $('#directions_type').val('geocode');
+        if (MOBILE) $("#directions_type").selectmenu('refresh');
+        if (MOBILE) $('#directions_type_geocode_wrap').show();
+        else        $('#directions_type').change();
+        $('#directions_address').val(URL_PARAMS.param('routefrom'));
+        $('#directions_target_lat').val(targetlat);
+        $('#directions_target_lng').val(targetlng);
+        $('#directions_via').trigger('change');
+        $('#directions_address').val( URL_PARAMS.param('fromaddr') );
+        $('#directions_reverse').val( URL_PARAMS.param('whichway') );
+        $('#directions_via_bike').val( URL_PARAMS.param('routevia_bike') );
+
+        setTimeout(function () {
+            $('#directions_reverse').trigger('change');
+        },1000);
+        $('#directions_type').val( URL_PARAMS.param('loctype') );
+
+        // make the Directions request
+        getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via);
+    }
+
+    // on map activity, update the Share box
+    // have the Share box highlight when it is selected, and update the Share box right off
+    $('#share_url').click(function () {
+        $(this).select();
+    });
+    MAP.on('moveend', updateShareUrl);
+    MAP.on('zoomend', updateShareUrl);
+    MAP.on('layerremove', updateShareUrl);
+    MAP.on('layeradd', updateShareUrl);
+    updateShareUrl();
+}
+
+
+
+
+// decode a WKT geometry into a feature, e.g. LINESTRING(12 34, 56 78) to L.Polyline instance
+// params are the WKT string, and the other options to pass to the constructor (e.g. color style and other Path options)
+function lineWKTtoFeature(wkt,style) {
+    var parser = new Wkt.Wkt();
+    parser.read(wkt);
+    return parser.toObject(style);
+}
+
+// given a WSEN set of ordinates, construct a L.LatLngBounds
+function WSENtoBounds(west,south,east,north) {
+    return L.latLngBounds([ [south,west] , [north,east] ]);
+}
+
+/**
+ * Enable the given base map layer.
+ *
+ * @param layer_key: Must refer to the key of an available layer (in AVAILABLE_LAYERS constant).
+ */
+function selectBasemap(layer_key) {
+    //if (!(layer_key in AVAILABLE_LAYERS)) {
+    //    layer_key = 'vector'; // Default, if non-sane value provided
+    //}
+    active_layer = AVAILABLE_LAYERS[layer_key];
+
+    // Go through all layers, adding the intended one and removing others.
+    for (i=0; i<ALL_LAYERS.length; i++) {
+        if (ALL_LAYERS[i] == active_layer) {
+            // Add the active layer
+            if (! MAP.hasLayer(ALL_LAYERS[i])) {
+                MAP.addLayer(ALL_LAYERS[i], true);
+            }
+            if (layer_key != 'vector') {
+                // Mapbox GL+Leaflet layers don't implement bringToBack()
+                active_layer.bringToBack();
+            }
+        } else {
+            // Remove the inactive layer
+            if (MAP.hasLayer(ALL_LAYERS[i])) {
+                MAP.removeLayer(ALL_LAYERS[i]);
+            }
+        }
+    }
+}
+
+
+
+
+function placeTargetMarker(lat,lon) {
+    MAP.addLayer(MARKER_TARGET);
+    MARKER_TARGET.setLatLng(L.latLng(lat,lon));
+}
+function clearTargetMarker() {
+    MAP.removeLayer(MARKER_TARGET);
+}
+
+function placeGPSMarker(lat,lon) {
+    MAP.addLayer(MARKER_GPS);
+    MARKER_GPS.setLatLng(L.latLng(lat,lon));
+}
+function clearGPSMarker() {
+    MAP.removeLayer(MARKER_GPS);
+}
+
+function placeCircle(lat,lon,meters) {
+    MAP.removeLayer(CIRCLE);
+    CIRCLE.setLatLng(L.latLng(lat,lon));
+    CIRCLE.setRadius(meters);
+    MAP.addLayer(CIRCLE);
+}
+function clearCircle() {
+    CIRCLE.setLatLng(L.latLng(0,0));
+    CIRCLE.setRadius(1);
+    MAP.removeLayer(CIRCLE);
+}
+
+
+// given a string, try to parse it as coordinates and return a L.LatLng instance
+// currently supports these formats:
+//      N 44 35.342 W 123 15.669
+//      44.589033 -123.26115
+function strToLatLng(text) {
+    var text = text.replace(/\s+$/,'').replace(/^\s+/,'');
+
+    // simplest format is decimal numbers and minus signs and that's about it
+    // one of them must be negative, which means it's the longitude here in North America
+    if (text.match(/^[\d\.\-\,\s]+$/)) {
+        var dd = text.split(/[\s\,]+/);
+        if (dd.length == 2) {
+            dd[0] = parseFloat(dd[0]);
+            dd[1] = parseFloat(dd[1]);
+            if (dd[0] && dd[1]) {
+                var lat,lng;
+                if (dd[0] < 0) {
+                    lat = dd[1];
+                    lng = dd[0];
+                } else {
+                    lat = dd[0];
+                    lng = dd[1];
+                }
+                return L.latLng([lat,lng]);
+            }
+        }
+    }
+
+    // okay, how about GPS/geocaching format:   N xx xx.xxx W xxx xx.xxx
+    var gps = text.match(/^N\s*(\d\d)\s+(\d\d\.\d\d\d)\s+W\s*(\d\d\d)\s+(\d\d\.\d\d\d)$/i);
+    if (gps) {
+        var latd = parseInt(gps[1]);
+        var latm = parseInt(gps[2]);
+        var lond = parseInt(gps[3]);
+        var lonm = parseInt(gps[4]);
+
+        var lat = latd + (latm/60);
+        var lng = -lond - (lonm/60);
+
+        return L.latLng([lat,lng]);
+    }
+
+    //if we got here then nothing matched, so bail
+    return null;
+}
+
+
+function zoomToAddress(searchtext) {
+    if (!searchtext) return false;
+
+    var params = {};
+    params.address  = searchtext;
+    params.bing_key = BING_API_KEY;
+    params.bbox     = GEOCODE_BIAS_BOX;
+
+    $.get('../ajax/geocode', params, function (result) {
+        if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
+        var latlng = L.latLng(result.lat,result.lng);
+
+        // if this point isn't even in the service area, complain and bail
+        // tip: "post office" finds Post Office, India
+        if (! MAX_BOUNDS.contains(latlng) ) {
+            return alert("The only results we could find are too far away to zoom the map there.");
+        }
+
+        // zoom the point location, nice and close, and add a marker
+        switchToMap(function () {
+            MAP.setView(latlng,16);
+            placeTargetMarker(result.lat,result.lng);
+
+            // add a bubble at the location indicating their interpretation of the address, so we can see how bad the match was
+            // also add a specially-crafted span element with lat= lng= and title= for use with zoomElementClick()
+            var html = "";
+            html += '<h3 class="popup_title">' + result.title + '</h3>';
+            html += '<span class="fakelink zoom" title="' + result.title + '" lat="' + result.lat + '" lng="' + result.lng + '" w="' + result.w + '" s="' + result.s + '" e="' + result.e + '" n="' + result.n + '" onClick="zoomElementClick( $(this) );">Directions</span>';
+            var popup = new L.Popup();
+            popup.setLatLng(latlng);
+            popup.setContent(html);
+            MAP.openPopup(popup);
+        });
+    }, 'json');
+};
+
+function wmsGetFeatureInfoByPoint(pixel) {
+    var pixelbuffer = 20;
+    var sw = MAP.layerPointToLatLng(new L.Point(pixel.x - pixelbuffer , pixel.y + pixelbuffer));
+    var ne = MAP.layerPointToLatLng(new L.Point(pixel.x + pixelbuffer , pixel.y - pixelbuffer));
+    var bbox   = { w:sw.lng, s: sw.lat, e:ne.lng , n:ne.lat };
+    var anchor = MAP.layerPointToLatLng(new L.Point(pixel.x,pixel.y));
+    wmsGetFeatureInfoByLatLngBBOX(bbox,anchor);
+}
+
+
+function wmsGetFeatureInfoByLatLng(latlng) {
+    var bbox   = { w:latlng.lng, s: latlng.lat, e:latlng.lng , n:latlng.lat };
+    var anchor = latlng;
+    wmsGetFeatureInfoByLatLngBBOX(bbox,anchor);
+}
+
+function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
+    var data = bbox;
+    data.zoom = MAP.getZoom();
+
+    $.get('../ajax/query', data, function (html) {
+        if (!html) return;
+
+        // set up the Popup and load its content
+        // beware of very-lengthy content and force a max height on the bubble
+        var options = {};
+        options.maxHeight = parseInt( $('#map_canvas').height() );
+        options.maxWidth = parseInt( $('#map_canvas').width() );
+        var popup = new L.Popup(options);
+        popup.setLatLng(anchor);
+        popup.setContent(html);
+        MAP.openPopup(popup);
+    }, 'html');
+}
+
+
+
+
+// Event handler on the map canvas:
+// When it is resized, trigger a refresh.
+$(window).resize(function () {
+    MAP.invalidateSize();
+});
+
+
+
+
+
+
+///// on page load
+///// event handlers for the geocoder
+$(window).load(function () {
+    var thisCallback = function () {
+        var address = $('#geocode_text').val();
+        zoomToAddress(address);
+    };
+    $('#geocode_button').tap(thisCallback);
+
+    $('#geocode_text').keydown(function (key) {
+        if(key.keyCode == 13) $('#geocode_button').tap();
+    });
+});
+
+
+
+///// on page load
+///// event handlers for the .zoom buttons: click it to bring up info window, configure the Show On Map button
+$(window).load(function () {
+    // zoomElementClick() is defined by mobile.js and desktop.js
+    // typically it goes to a Details page and sets up various event handlers
+    var openDetailsPanel = function () {
+        zoomElementClick( $(this) );
+    };
+    $('.zoom').tap(openDetailsPanel);
+
+    // when Show On Map is clicked (in the detals panel) it has associated data:
+    // an element with w,s,e,n,lat,lng,type,gid etc. for fetching more info or adjusting the map to zoom
+    var showOnMap = function () {
+        // zoom the map to the feature's bounds, and place a marker if appropriate
+        var element = $(this).data('zoomelement');
+        if (element) {
+            //console.log(element);
+            var w = element.attr('w');
+            var s = element.attr('s');
+            var e = element.attr('e');
+            var n = element.attr('n');
+            var x = element.attr('lng');
+            var y = element.attr('lat');
+            var type = element.attr('type');
+            var wkt  = $(this).data('wkt');
+            switchToMap(function () {
+                // zoom the map into the stated bbox
+                var bounds = L.latLngBounds( L.latLng(s,w) , L.latLng(n,e) );
+                bounds = bounds.pad(0.15);
+                MAP.fitBounds(bounds);
+
+                // lay down a marker if this is a point feature
+                if (type == 'poi' || type == 'loop') placeTargetMarker(y,x);
+
+                // draw the line geometry onto the map, if this is a point feature
+                if (wkt) {
+                    if (HIGHLIGHT_LINE) { MAP.removeLayer(HIGHLIGHT_LINE); HIGHLIGHT_LINE = null; }
+                    HIGHLIGHT_LINE = lineWKTtoFeature(wkt, HIGHLIGHT_LINE_STYLE);
+                    MAP.addLayer(HIGHLIGHT_LINE);
+                }
+            });
+        }
+    };
+    $('#show_on_map').tap(showOnMap);
+});
+
+
+
+///// on page load
+///// event handlers for the basemap picker on the Settings page
+$(window).load(function () {
+    $('input[type="radio"][name="basemap"]').change(function () {
+        var which = $(this).val();
+        selectBasemap(which);
+    });
+});
+
+
+
+///// the directions button does an async geocode on the address,
+///// then an async directions lookup between the points,
+///// then draws the polyline path and prints the directions
+
+$(window).load(function () {
+    $('#getdirections_clear').click(function () {
+        clearDirectionsLine();
+        $('#directions_steps').empty();
+    });
+
+    // selecting By Trail, By Car, etc. shows & hides the second filter, e.g. paved/unpaved for "By foot" only
+    $('#directions_via').change(function () {
+        // hide all secondaries
+        $('#directions_via_bike_wrap').hide();
+
+        // now show the appropriate one (if any, only for Bike: basic/advanced; formerly Hike had paved status as a picker)
+        var which = $(this).val();
+        switch (which) {
+            case 'bike':
+                $('#directions_via_bike_wrap').show();
+                break;
+            case 'hike':
+                break;
+            case 'car':
+                break;
+            default:
+                break;
+        }
+    });
+});
+
+// this wrapper checks the directions_type field and other Get Directions fields,
+// decides what to use for the address field and the other params,
+// then calls either getDirections() et al
+function processGetDirectionsForm() {
+    // which transportation mode?
+    // separated into a switch so we can fuss with them separately, e.g. originally hike and bike had a secondary selector for paved/unpaved status
+    var tofrom    = $('#directions_reverse').val();
+    var via       = $('#directions_via').val();
+    switch (via) {
+        case 'hike':
+            via = 'hike';
+            //via = $('#directions_via_hike').val();
+            break;
+        case 'bike':
+            via = $('#directions_via_bike').val();
+            break;
+    }
+
+    // empty these fields because we probably don't need them
+    // they will be repopulated in the 'feature' switch below if we're routing to a Park Feature
+    $('#directions_source_gid').val('');
+    $('#directions_source_type').val('');
+
+    // we must do some AJAX for the target location and the origin location, but it must be done precisely in this sequence
+    // so, have jQuery use synchronous AJAX calls (yeah, the A in AJAX, I know) so we can do things in proper order
+    $.ajaxSetup({ async:false });
+
+    // figure out the target: address geocode, latlon already properly formatted, current GPS location, etc.
+    // this must be done before the target is resolved (below) because resolving the target can mean weighting based on the starting point
+    // e.g. directions to parks/reservations pick the closest entry point to our starting location
+    var sourcelat, sourcelng;
+    var addresstype = $('#directions_type').val();
+    switch (addresstype) {
+        case 'gps':
+            sourcelat = LAST_KNOWN_LOCATION.lat;
+            sourcelng = LAST_KNOWN_LOCATION.lng;
+            break;
+        case 'geocode':
+            var address  = $('#directions_address').val();
+            if (! address) return alert("Please enter an address, city, or landmark.");
+            var is_coords = /^(\d+\.\d+)\,(\-\d+\.\d+)$/.exec(address); // regional assumption in this regular expression: negative lng, positive lat
+            if (is_coords) {
+                sourcelat = parseFloat( is_coords[1] );
+                sourcelng = parseFloat( is_coords[2] );
+                getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via);
+            } else {
+                disableDirectionsButton();
+                var params = {};
+                params.address  = address;
+                params.bing_key = BING_API_KEY;
+                params.bbox     = GEOCODE_BIAS_BOX;
+                $.get('../ajax/geocode', params, function (result) {
+                    enableDirectionsButton();
+                    if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
+                    sourcelat = result.lat;
+                    sourcelng = result.lng;
+
+                    // if the address is outside of our max bounds, then we can't possibly do a Trails
+                    // search, and driving routing would still be goofy since it would traverse area well off the map
+                    // in this case, warn them that they should use Bing Maps, and send them there
+                    if (! MAX_BOUNDS.contains(L.latLng(sourcelat,sourcelng)) ) {
+                        var from = 'adr.' + address;
+                        var to   = 'pos.' + targetlat + '_' + targetlng;
+                        var params = {
+                            rtp : from+'~'+to,
+                        };
+                        var gmapsurl = 'http://bing.com/maps/default.aspx' + '?' + $.param(params);
+                        var target = $('#directions_steps');
+                        target.empty();
+                        target.append( $('<div></div>').html("The address you have chosen is outside of the covered area.<br/>Click the link below to go to Bing Maps for directions.") );
+                        target.append( $('<a></a>').text("Click here for directions from Bing Maps").prop('href',gmapsurl).prop('target','_blank') );
+                        return;
+                    }
+                },'json');
+            }
+            break;
+        case 'features':
+            disableDirectionsButton();
+            var params = {};
+            params.keyword = $('#directions_address').val();
+            params.limit   = 30 ;
+            params.lat     = MOBILE ? LAST_KNOWN_LOCATION.lat : MAP.getCenter().lat;
+            params.lng     = MOBILE ? LAST_KNOWN_LOCATION.lng : MAP.getCenter().lng;
+            params.via     = via;
+
+            $.get('../ajax/keyword', params, function (reply) {
+                enableDirectionsButton();
+                if (! reply || !reply.length) return alert("We couldn't find any matching landmarks.");
+
+                // go over the results and see if any have an exact match for this name; if so, then call that our one and only result
+                // if there's still more than 1 match,  then multiple ambiguous results. print a Did You Mean listing
+                var matchme = $('#directions_address').val().replace(/\W/g,'').toLowerCase();
+                for (var i=0, l=reply.length; i<l; i++) {
+                    var stripped = reply[i].name.replace(/\W/g,'').toLowerCase();
+                    if (stripped == matchme) {
+                        reply = [ reply[i] ];
+                        break;
+                    }
+                }
+                if (reply.length > 1) {
+                    sourcelat = null;
+                    sourcelng = null;
+                    populateDidYouMean(reply);
+                    return;
+                }
+
+                // great, one single match
+                // swap out their stated location name for this one, so they know where we're taking them
+                // then populate the location from the reply
+                var placename = reply[0].name.replace(/^\s*/,'').replace(/\s*$/,'');
+                $('#directions_address').val(placename);
+
+                // fill in the GID and Type so we can do more intelligent routing, e.g. destination points for POIs
+                $('#directions_source_gid').val( reply[0].gid );
+                $('#directions_source_type').val( reply[0].type );
+
+                sourcelat = parseFloat(reply[0].lat);
+                sourcelng = parseFloat(reply[0].lng);
+            },'json');
+            if (! sourcelat || ! sourcelng) return;
+            break;
+    } // end of switch for address type
+
+    // now get this: sometimes we don't actually route between these two points, but use the type&gid to
+    // find the closest target points, e.g. the closest entry gate at a Reservation, or a parking lot for a POI or Building
+    // do this for both the Target (the chosen location before the Directions panel opened)
+    // and for the Source (whatever address or park feature they entered/selected as the other endpoint)
+    var targetlat = parseFloat( $('#directions_target_lat').val() );
+    var targetlng = parseFloat( $('#directions_target_lng').val() );
+
+    var source_gid  = $('#directions_source_gid').val();
+    var source_type = $('#directions_source_type').val();
+    if (source_type == 'poi' || source_type == 'reservation' || source_type == 'building' || source_type == 'trail') {
+        var params = {};
+        params.type = source_type;
+        params.gid  = source_gid;
+        params.lat  = targetlat; // if this data source uses weighting, this will pick the closest one to our starting location
+        params.lng  = targetlng; // if this data source uses weighting, this will pick the closest one to our starting location
+        params.via  = via;
+        $.get('../ajax/geocode_for_directions', params, function (reply) {
+            sourcelat = reply.lat;
+            sourcelng = reply.lng;
+
+            // save them into the input fields too, so they'd get shared
+            $('#directions_source_lat').val(reply.lat);
+            $('#directions_source_lng').val(reply.lng);
+        }, 'json');
+    }
+
+    var target_gid  = $('#directions_target_gid').val();
+    var target_type = $('#directions_target_type').val();
+    if (target_type == 'poi' || target_type == 'reservation' || target_type == 'building' || target_type == 'trail') {
+        var params = {};
+        params.type = target_type;
+        params.gid  = target_gid;
+        params.lat  = sourcelat; // if this data source uses weighting, this will pick the closest one to our starting location
+        params.lng  = sourcelng; // if this data source uses weighting, this will pick the closest one to our starting location
+        params.via  = via;
+        $.get('../ajax/geocode_for_directions', params, function (reply) {
+            targetlat = reply.lat;
+            targetlng = reply.lng;
+
+            // save them into the input fields too, so they'd get shared
+            $('#directions_target_lat').val(reply.lat);
+            $('#directions_target_lng').val(reply.lng);
+        }, 'json');
+    }
+
+    if (! targetlat || ! targetlng) return alert("Please close the directions panel, and pick a location.");
+
+    // great! we have resolved the targetlat and targetlng from the best possible location,
+    // and resolved the sourcelat and sourcelng from a combination of data source and current location
+    // re-enable asynchronous AJAX and request directions
+    $.ajaxSetup({ async:true });
+    getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via);
+}
+
+function populateDidYouMean(results) {
+    var target = $('#directions_steps');
+    target.empty();
+
+    // item 0 is not a result, but the words "Did you mean..."
+    var item = $('<li></li>').append( $('<span></span>').addClass('ui-li-heading').text("Did you mean one of these?") );
+    target.append(item);
+
+    // add the results as a list; each item has a click handler, to populate the address box with the proper name
+    for (var i=0, l=results.length; i<l; i++) {
+        var result = results[i];
+        var placename = result.name.replace(/^\s*/,'').replace(/\s*$/,'');
+
+        var item = $('<li></li>');
+        item.append( $('<span></span>').addClass('ui-li-heading').text(placename) ).attr('type',result.type).attr('gid',result.gid);
+
+        var tapToFill = function () {
+            $('#directions_address').val( $(this).text() );
+            $('#directions_source_gid').val( $(this).attr('gid') );
+            $('#directions_source_type').val( $(this).attr('type') );
+            $('#directions_button').click();
+        };
+        if (MOBILE) item.tap(tapToFill);
+        else        item.click(tapToFill);
+
+        item.css({ cursor:'pointer' }); // more for Desktop
+
+        target.append(item);
+    }
+
+    // now if we're mobile, do the styling
+    if (MOBILE) target.listview('refresh');
+}
+
+
+// part of the Get Directions system: given lat,lng and lat,lng and route params, request directions from the server
+// then render them to the screen and to the map
+function getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via) {
+    // empty out the old directions and disable the button as a visual effect
+    $('#directions_steps').empty();
+    disableDirectionsButton();
+
+    // store the source coordinates
+    $('#directions_source_lat').val(sourcelat);
+    $('#directions_source_lng').val(sourcelng);
+
+    // do they prefer fast, short, or weighted?
+    var prefer = $('#directions_prefer').val();
+
+    // make up the params and run the request
+    var params = {
+        sourcelat:sourcelat, sourcelng:sourcelng,
+        targetlat:targetlat, targetlng:targetlng,
+        tofrom:tofrom,
+        via:via,
+        prefer:prefer,
+        bing_key: BING_API_KEY
+    };
+    //console.log(params);
+    $.get('../ajax/directions', params, function (reply) {
+        enableDirectionsButton();
+
+        if (! reply || ! reply.wkt) {
+            var message = "Could not find directions.";
+            if (via != 'hike') message += "\nTry a different type of trail, terrain, or difficulty.";
+            return alert(message);
+        }
+        renderDirectionsStructure(reply);
+    }, 'json');
+}
+
+function disableDirectionsButton() {
+    var button = $('#directions_button');
+    if (MOBILE) {
+        button.button('disable');
+        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
+    }
+    else {
+        button.prop('disabled',true);
+        button.val( button.attr('value0') );
+    }
+}
+
+function enableDirectionsButton() {
+    var button = $('#directions_button');
+    if (MOBILE) {
+        button.button('enable');
+        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
+    }
+    else {
+        button.prop('disabled',false);
+        button.val( button.attr('value1') );
+    }
+}
+
+function renderDirectionsStructure(directions,target,options) {
+    // no options, no problem
+    if (! options) options = {};
+
+    // phase 1: remove any old route line, draw the route on the map
+    clearDirectionsLine();
+    var polyline   = lineWKTtoFeature(directions.wkt, DIRECTIONS_LINE_STYLE);
+    var startpoint = L.latLng(directions.start.lat,directions.start.lng);
+    var endpoint   = L.latLng(directions.end.lat,directions.end.lng);
+    placeDirectionsLine(polyline, startpoint, endpoint);
+
+    // for the bounding box, we save the bbox LatLngBounds into DIRECTIONS_LINE
+    // because on Mobile, zooming the map now is an error and the map must be zoomed later, using the DIRECTIONS_LINE global
+    DIRECTIONS_LINE.extent = WSENtoBounds(directions.bounds.west,directions.bounds.south,directions.bounds.east,directions.bounds.north);
+    var bbox = DIRECTIONS_LINE.extent.pad(0.15);
+    MAP.fitBounds(bbox);
+
+    // phase 2: put the directions into the panel
+    if (! target) target = $('#directions_steps');
+    target.empty();
+    for (var i=0, l=directions.steps.length; i<l; i++) {
+        var step     = directions.steps[i];
+        var li       = $('<li></li>');
+        var title    = step.stepnumber ? step.stepnumber + '. ' + ( step.turnword ? step.turnword : '') + ' ' + step.text : step.turnword + ' ' + step.text;
+        li.append( $('<span></span>').addClass('ui-li-heading').text(title) );
+        if (step.distance && step.duration && step.distance.substr(0,1)!='0') {
+            var subtitle = step.distance + ', ' + step.duration;
+            li.append( $('<span></span>').addClass('ui-li-desc').text(subtitle) );
+        }
+        target.append(li);
+    }
+
+    // phase 2b: the final part of the direction steps: a total, link to elevation profile, note about the route quality
+    var note = $('<span></span>').addClass('ui-li-desc').html('');
+    if (directions.retries && directions.retries > 3) {
+        note.html("Route may be approximated.");
+    }
+    var total = $('<span></span>').addClass('ui-li-heading').html('<b>Total:</b> ' + directions.totals.distance + ', ' + directions.totals.duration);
+    target.append( $('<li></li>').append(total).append(note) );
+
+    var directionsFunctions = $('<div></div>').addClass('directions_functions');
+
+    // Elevation Profile button
+    if (directions.elevationprofile) {
+        var elevationProfileBtn = $('<a></a>')
+            .addClass('ui-btn')
+            .addClass('ui-btn-inline')
+            .addClass('ui-corner-all')
+            .prop('id','elevationprofile_button')
+            .text('Elevation Profile');
+        elevationProfileBtn
+            .attr('value1', 'Elevation Profile')
+            .attr('value0', 'Loading');
+        elevationProfileBtn
+            .tap(function () {
+                openElevationProfileBySegments();
+            });
+
+        directionsFunctions.append(elevationProfileBtn);
+    }
+
+    // Clear button
+    var clearMapBtn = $('<a></a>')
+        .addClass('ui-btn')
+        .addClass('ui-btn-inline')
+        .addClass('ui-corner-all')
+        .text('Clear');
+    clearMapBtn.tap(function () {
+        $('#directions_steps').empty();
+        clearDirectionsLine();
+        $('.directions_functions').empty();
+    });
+    directionsFunctions.append(clearMapBtn);
+
+    // Share button
+    if (! options.noshare) {
+        // if there are options given, check for noshare:true and skip on the Share link
+        var shareRouteBtn = $('<a></a>')
+            .addClass('ui-btn')
+            .addClass('ui-btn-inline')
+            .addClass('ui-corner-all')
+            .prop('id','share_route_button')
+            .text('Share');
+        shareRouteBtn.click(function () {
+            updateShareUrlByDirections();
+            populateShareBox();
+            sidebar.open('pane-share');
+        });
+        directionsFunctions.append(shareRouteBtn);
+    }
+
+    // Print button
+    if (! MOBILE) {
+        var printMeBtn = $('<a></a>')
+            .addClass('ui-btn')
+            .addClass('ui-btn-inline')
+            .addClass('ui-corner-all')
+            .text('Print');
+        printMeBtn.click(function () {
+            $('#button_print').click();
+        });
+        directionsFunctions.append(printMeBtn);
+    }
+    target.after(directionsFunctions);
+
+    // phase 3: save the elevation profile given, if any, so it can be recalled later
+    ELEVATION_PROFILE = [];
+    if (directions.elevationprofile) {
+        ELEVATION_PROFILE = directions.elevationprofile;
+    }
+
+    // phase 4: any additional postprocessing
+    // give the list that jQuery Mobile magic
+    if (MOBILE) {
+        target.listview('refresh');
+        $('.directions_functions img:first').removeClass('ui-li-thumb'); // jQM assigns this class, screwing up the position & size of the first button IMG
+    }
+}
+
+function clearDirectionsLine() {
+    // this line actually gets deleted
+    if (DIRECTIONS_LINE) {
+        MAP.removeLayer(DIRECTIONS_LINE);
+        DIRECTIONS_LINE = null;
+    }
+    // the markers get set to 0,0 and removed from the map
+    if (MAP.hasLayer(MARKER_FROM)) {
+        MARKER_FROM.setLatLng( L.latLng(0,0) );
+        MAP.removeLayer(MARKER_FROM);
+    }
+    if (MAP.hasLayer(MARKER_TO)) {
+        MARKER_TO.setLatLng( L.latLng(0,0) );
+        MAP.removeLayer(MARKER_TO);
+    }
+
+    // and both the Directions and Measure need their content erased, so they aren't confused with each other
+    // don't worry, clearDirectionsLine() is always a prelude to repopulating one of these
+    $('#directions_steps').empty();
+    $('#measure_steps').empty();
+}
+
+function placeDirectionsLine(polyline,startll,endll) {
+    // save the polyline to the global
+    DIRECTIONS_LINE = polyline;
+
+    // lay down the polyline as-is
+    MAP.addLayer(DIRECTIONS_LINE);
+
+    // place the markers on the start and end vertices, and disable their dragging
+    MARKER_FROM.setLatLng(startll);
+    MAP.addLayer(MARKER_FROM);
+    MARKER_TO.setLatLng(endll);
+    MAP.addLayer(MARKER_TO);
+    MARKER_FROM.dragging.disable();
+    MARKER_TO.dragging.disable();
+}
+
+function openElevationProfileBySegments() {
+    if (! ELEVATION_PROFILE) return;
+
+    // the vertices have horizontal and vertical info (feet and elev). make a pair of arrays
+    var x = [];
+    var y = [];
+    for (var i=0, l=ELEVATION_PROFILE.length; i<l; i++) {
+        x[x.length] = ELEVATION_PROFILE[i].x;
+        y[y.length] = ELEVATION_PROFILE[i].y;
+    }
+    x = x.join(',');
+    y = y.join(',');
+
+    $.post('../ajax/elevationprofilebysegments', { 'x':x, 'y':y }, function (url) {
+        if (url.indexOf('http') != 0) return alert(url);
+        showElevation(url);
+    });
+}
+
+
+
+function disableKeywordButton() {
+    var button = $('#search_keyword_button');
+    if (MOBILE) {
+        button.button('disable');
+        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
+    }
+    else {
+        button.prop('disabled',true);
+        button.val( button.attr('value0') );
+    }
+}
+
+function enableKeywordButton() {
+    var button = $('#search_keyword_button');
+    if (MOBILE) {
+        button.button('enable');
+        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
+    }
+    else {
+        button.prop('disabled',false);
+        button.val( button.attr('value1') );
+    }
+}
+
+
+
+
+
+///// functions and supporting code regarding printing
+// printMap() is in common.js; it loads the various form values and POSTs them to MapFish, and receives back an URL.
+// It then passes the URL to printMapDone(url) which is defined in desktop.js and mobile.js separately
+function printMapPrepare() {
+    $('#print_waiting').show();
+    $('#print_ready').hide();
+}
+function printMapDone(url) {
+    $('#print_waiting').hide();
+
+    if (url) {
+        $('#print_link').prop('href', url);
+        $('#print_ready').show();
+    }
+}
+function printMap() {
+    // their printing options
+    var comment    = $('#print_comment').val();
+    var paper      = $('#print_paper').val();
+    var page2title  = ""; // the title for Page 2, if any
+    var page2text1  = ""; // the text content for Page 2, if any, column 1 (left-hand)
+    var page2text2  = ""; // the text content for Page 2, if any, column 2 (right-hand)
+
+    // compose the bounding box of the print
+    // we can't just use the map's bbox since the monitor and the "paper" aren't the same size,
+    // so the resulting maps are completely dissimilar
+    // strategy:
+    // - fetch the map size for their chosen layout ("paper") so we know the target width & height
+    // - create a bounding box from the map's center, plus and minus half the width & height
+    // - reproject to EPSG:3734 so the output looks good
+    var mapwidth  = PRINT_SIZES[paper][0];
+    var mapheight = PRINT_SIZES[paper][1];
+    var pixelcenter = MAP.latLngToLayerPoint(MAP.getCenter());
+    var sw = wgsToLocalSRS( MAP.layerPointToLatLng( new L.Point(pixelcenter.x - (mapwidth/2), pixelcenter.y + (mapheight/2) ) ) );
+    var ne = wgsToLocalSRS( MAP.layerPointToLatLng( new L.Point(pixelcenter.x + (mapwidth/2), pixelcenter.y - (mapheight/2) ) ) );
+    var projbbox = [ sw[0], sw[1], ne[0], ne[1] ];
+
+    // the layers to include into the map: WMS, vectors for markers
+    // we effectively emulate the OpenLayers-centric structure for each Layer
+    /*
+    {"baseURL":"http://labs.metacarta.com/wms/vmap0","opacity":1,"singleTile":false,"type":"WMS","layers":["basic"],"format":"image/jpeg","styles":[""],"customParams":{}},
+    {"type":"Vector",
+        "styles":{
+            "1":{"externalGraphic":"http://openlayers.org/dev/img/marker-blue.png","strokeColor":"red","fillColor":"red","fillOpacity":0.7,"strokeWidth":2,"pointRadius":12}
+        },
+        "styleProperty":"_gx_style",
+        "geoJson":{"type":"FeatureCollection",
+        "features":[
+            {"type":"Feature","id":"OpenLayers.Feature.Vector_52","properties":{"_gx_style":1},"geometry":{"type":"Polygon","coordinates":[[[15,47],[16,48],[14,49],[15,47]]]}},
+            {"type":"Feature","id":"OpenLayers.Feature.Vector_61","properties":{"_gx_style":1},"geometry":{"type":"LineString","coordinates":[[15,48],[16,47],[17,46]]}},
+            {"type":"Feature","id":"OpenLayers.Feature.Vector_64","properties":{"_gx_style":1},"geometry":{"type":"Point","coordinates":[16,46]}}]}
+        ],
+        "name":"vector","opacity":1}
+    }
+    */
+    var wmsparams = {
+        format_options : "dpi:300"
+    };
+    var layers = [];
+    if ( MAP.hasLayer(AVAILABLE_LAYERS['photo']) ) {
+        if ( MAP.getZoom() < 14 ) return alert("Before printing, zoom in closer.");
+
+        // the photo base layer is a GeoServer cascade to a State of Ohio WMS service, but the Ohio WMS doesn't support large requests for printing
+        // swap in the URL of a proxy service which fixes that
+        layers[layers.length] = { baseURL:"http://maps.clevelandmetroparks.com/proxy/ohioimagery", opacity:1, singleTile:false, type:"WMS", layers:["0"], format:"image/png", styles:[""]  };
+    }
+    if ( MAP.hasLayer(AVAILABLE_LAYERS['photo']) || MAP.hasLayer(AVAILABLE_LAYERS['vector'])) {
+        // the basemap is a tile service from TileStache, but printing can't do tile services
+        // so we use the GeoServer WMS version, which does lack a bit in the image quality but does get the job done
+        layers[layers.length] = { baseURL:"http://maps.clevelandmetroparks.com/gwms", opacity:1, singleTile:true, type:"WMS", layers:["group_basemap"], format:"image/jpeg", styles:[""], customParams:wmsparams };
+        layers[layers.length] = { baseURL:"http://maps.clevelandmetroparks.com/gwms", opacity:1, singleTile:true, type:"WMS", layers:["cm:trails","cm:closures","cm:markers_other","cm:markers_swgh"], format:"image/png", styles:"", customParams:wmsparams };
+    }
+    if (DIRECTIONS_LINE && MAP.hasLayer(DIRECTIONS_LINE) ) {
+        // Construct a list-of-lists multilinestring. Remember that OpenLayers and MFP do lng,lat instead of lat,lng
+            // use non-API methods to iterate over the line components, collecting them into "vertices" to form a list of lists
+        var vertices = [];
+        for (var li in DIRECTIONS_LINE._layers) {
+            var subline = DIRECTIONS_LINE._layers[li];
+            var subverts = [];
+            for (var i=0, l=subline._latlngs.length; i<l; i++) {
+                subverts[subverts.length] = wgsToLocalSRS([ subline._latlngs[i].lng, subline._latlngs[i].lat ]);
+            }
+            vertices[vertices.length] = subverts;
+        }
+
+        // the styling is simply pulled from the styling constant
+        var opacity = DIRECTIONS_LINE_STYLE.opacity;
+        var color   = DIRECTIONS_LINE_STYLE.color;
+        var weight  = 3;
+
+        layers[layers.length] = {
+            type:"Vector", name:"Directions Line", opacity:opacity,
+            styles:{
+                "default":{ strokeColor:color, strokeWidth:weight, strokeLinecap:"round" }
+            },
+            styleProperty:"style_index",
+            geoJson:{
+                type: "FeatureCollection",
+                features:[
+                    { type:"Feature", properties:{"style_index":"default"}, geometry:{ type:"MultiLineString", coordinates:vertices } }
+                ]
+            }
+        };
+
+        // now the Start marker, which will always be present if there's a line
+        //var iconurl  = ICON_FROM.options.iconUrl;
+        var iconurl  = ICON_FROM.options.iconUrl.replace('maps.clevelandmetroparks.com','10.0.0.23').replace('https:','http:');
+        var projdot  = wgsToLocalSRS(MARKER_FROM.getLatLng());
+        var iconxoff = -10; // offset to place the marker; MFP drifts it for some reason
+        var iconyoff = 0; // offset to place the marker; MFP drifts it for some reason
+        var iconsize = 15; // the scaling factor for the icon; like the xoff and yoff this is determined through trial and error
+        // all of this is required: styleProperty and properties form the link to a style index, fillOpacity really works
+        layers[layers.length] = {
+            type:"Vector", name:"Target Marker", opacity:1.0,
+            styleProperty: "style_index",
+            styles:{
+                "default":{ externalGraphic:iconurl, fillOpacity:1.0, pointRadius:iconsize, graphicXOffset: iconxoff, graphicYOffset: iconyoff }
+            },
+            geoJson:{
+                type:"FeatureCollection",
+                features:[
+                    { type:"Feature", properties:{ style_index:"default" }, geometry:{ type:"Point", coordinates:projdot } }
+                ]
+            }
+        };
+
+        // and the End marker, which will always be present if there's a line; copied from the Start marker above
+        //var iconurl  = ICON_TO.options.iconUrl;
+        var iconurl  = ICON_TO.options.iconUrl.replace('maps.clevelandmetroparks.com','10.0.0.23').replace('https:','http:');
+        var projdot  = wgsToLocalSRS(MARKER_TO.getLatLng());
+        var iconxoff = -10; // offset to place the marker; MFP drifts it for some reason
+        var iconyoff = 0; // offset to place the marker; MFP drifts it for some reason
+        var iconsize = 15; // the scaling factor for the icon; like the xoff and yoff this is determined through trial and error
+        // all of this is required: styleProperty and properties form the link to a style index, fillOpacity really works
+        layers[layers.length] = {
+            type:"Vector", name:"Target Marker", opacity:1.0,
+            styleProperty: "style_index",
+            styles:{
+                "default":{ externalGraphic:iconurl, fillOpacity:1.0, pointRadius:iconsize, graphicXOffset: iconxoff, graphicYOffset: iconyoff }
+            },
+            geoJson:{
+                type:"FeatureCollection",
+                features:[
+                    { type:"Feature", properties:{ style_index:"default" }, geometry:{ type:"Point", coordinates:projdot } }
+                ]
+            }
+        };
+
+        // and as an afterthought, the text directions: try the Directions first, then see if there are Measure directions
+        paper += " with directions";
+        var tofrom1   = $('#directions_reverse').val()
+        var tofrom2   = tofrom1 == 'to' ? 'from' : 'to';
+        var placename = $('#directions_target_title').text();
+        var addrname  = $('#directions_address').val();
+        var via       = $('#directions_via option:selected').text().toLowerCase();
+        var steps;
+        if (tofrom1 && tofrom2 && placename && addrname) {
+            page2title = "Directions\n" + tofrom1 + " " + placename + "\n" + tofrom2 + " " + addrname + "\n" + via;
+            steps = $('#directions_steps li');
+        } else {
+            page2title = "Measurement directions";
+            steps = $('#measure_steps li');
+        }
+
+        // process the directions steps into a plain text output
+        // first question: which paper layout, so how many directions fit onto a page, so how much do we pad the steps ot fit the page nicely?
+        var maxstepsperpage = 25;
+        switch (paper) {
+            case 'Letter portrait with directions':
+                maxstepsperpage = 40;
+                break;
+            case 'Letter landscape with directions':
+                maxstepsperpage = 31;
+                break;
+            case 'Ledger portrait with directions':
+                maxstepsperpage = 65;
+                break;
+            case 'Ledger landscape with directions':
+                maxstepsperpage = 45;
+                break;
+        }
+        page2text1 = [];
+        page2text2 = [];
+
+        steps.each(function () {
+            var steptext = $(this).find('.ui-li-heading').eq(0).text();
+            var timedist = $(this).find('.ui-li-desc').eq(0).text();
+            var linetext = steptext + "\n" + "     " + timedist;
+            if (page2text1.length < maxstepsperpage) page2text1[page2text1.length] = linetext;
+            else                                     page2text2[page2text2.length] = linetext;
+        });
+        page2text1 = page2text1.join("\n");
+        page2text2 = page2text2.join("\n");
+    }
+    if (HIGHLIGHT_LINE && MAP.hasLayer(HIGHLIGHT_LINE) ) {
+        // the highlighting line, which we know to be a multilinestring
+        // Remember that OpenLayers and MFP do lng,lat instead of lat,lng
+        var vertices = [];
+        var lines = HIGHLIGHT_LINE.getLatLngs();
+        for (var li=0, ll=lines.length; li<ll; li++) {
+            var thisline = [];
+            for (vi=0, vl=lines[li].length; vi<vl; vi++) {
+                thisline[thisline.length] = wgsToLocalSRS([ lines[li][vi].lng , lines[li][vi].lat ]);
+            }
+            vertices[vertices.length] = thisline;
+        }
+
+        // the styling is simply pulled from the styling constant
+        var opacity = HIGHLIGHT_LINE_STYLE.opacity;
+        var color   = HIGHLIGHT_LINE_STYLE.color;
+        var weight  = 3;
+
+        layers[layers.length] = {
+            type:"Vector", name:"Highlight Line", opacity:opacity,
+            styles:{
+                "default":{ strokeColor:color, strokeWidth:weight, strokeLinecap:"round" }
+            },
+            styleProperty:"style_index",
+            geoJson:{
+                type: "FeatureCollection",
+                features:[
+                    { type:"Feature", properties:{"style_index":"default"}, geometry:{ type:"MultiLineString", coordinates:vertices } }
+                ]
+            }
+        };
+
+        // if we're adding the HIGHLIGHT_LINE then perhaps this is a Loop we're showing
+        // in which case add the directions text
+        // the View On Map button, as usual, is our clearinghouse for the "last item of interest"
+        var whats_showing = $('#show_on_map').data('zoomelement').attr('type');
+        if (whats_showing == 'loop') {
+            var steps = $('#moreinfo_steps li');
+            paper += " with directions";
+            page2title = $('#show_on_map').data('zoomelement').attr('title');
+
+            // process the directions steps into a plain text output
+            // first question: which paper layout, so how many directions fit onto a page, so how much do we pad the steps ot fit the page nicely?
+            var maxstepsperpage = 25;
+            switch (paper) {
+                case 'Letter portrait with directions':
+                    maxstepsperpage = 40;
+                    break;
+                case 'Letter landscape with directions':
+                    maxstepsperpage = 31;
+                    break;
+                case 'Ledger portrait with directions':
+                    maxstepsperpage = 65;
+                    break;
+                case 'Ledger landscape with directions':
+                    maxstepsperpage = 45;
+                    break;
+            }
+            page2text1 = [];
+            page2text2 = [];
+
+            steps.each(function () {
+                var steptext = $(this).find('.ui-li-heading').eq(0).text();
+                var timedist = $(this).find('.ui-li-desc').eq(0).text();
+                var linetext = steptext + "\n" + "     " + timedist;
+                if (page2text1.length < maxstepsperpage) page2text1[page2text1.length] = linetext;
+                else                                     page2text2[page2text2.length] = linetext;
+            });
+            page2text1 = page2text1.join("\n");
+            page2text2 = page2text2.join("\n");
+        }
+    }
+    if (MARKER_TARGET && MAP.hasLayer(MARKER_TARGET) ) {
+        var iconurl  = ICON_TARGET.options.iconUrl;
+        var projdot  = wgsToLocalSRS(MARKER_TARGET.getLatLng());
+        var iconxoff = -10; // offset to place the marker; MFP drifts it for some reason
+        var iconyoff = 0; // offset to place the marker; MFP drifts it for some reason
+        var iconsize = 15; // the scaling factor for the icon; like the xoff and yoff this is determined through trial and error
+
+        // all of this is required: styleProperty and properties form the link to a style index, fillOpacity really works
+        layers[layers.length] = {
+            type:"Vector", name:"Target Marker", opacity:1.0,
+            styleProperty: "style_index",
+            styles:{
+                "default":{ externalGraphic:iconurl, fillOpacity:1.0, pointRadius:iconsize, graphicXOffset: iconxoff, graphicYOffset: iconyoff }
+            },
+            geoJson:{
+                type:"FeatureCollection",
+                features:[
+                    { type:"Feature", properties:{ style_index:"default" }, geometry:{ type:"Point", coordinates:projdot } }
+                ]
+            }
+        };
+    }
+
+    // finally done composing layers!
+    // compose the client spec for MapFish Print
+    var params = {
+        "units":"feet",
+        "srs":"EPSG:3734",
+        "layout":paper,
+        "dpi":300,
+        "layers":layers,
+        "pages": [
+            { bbox:projbbox, rotation:"0", comment:comment }
+        ],
+        "layersMerging" : true,
+        page2title:page2title, page2text1:page2text1, page2text2:page2text2
+    };
+
+    printMapPrepare(); // hide the Ready, show a Waiting spinner
+
+    $.ajax({
+        url: PRINT_URL, type:'POST',
+        data: JSON.stringify(params), processData:false, contentType: 'application/json',
+        success: function (reply) {
+            // the returned URL has internal references, e.g. http://localhost/
+            var url = reply.getURL;
+            url = url.split('/'); url = url[url.length-1];
+            url = PRINT_PICKUP_BASEURL + url;
+            printMapDone(url); // hide the spinner, display a link, etc.
+        },
+        error: function (xhr,status,text) {
+            alert("Printing failed. Please try again.");
+            printMapDone(); // hide the spinner, display a link, etc.
+        }
+    });
+}
+
+
+// reproject from WGS84 (Leaflet coordinates) to Web Mercator (primarily for printing)
+// accepts a L.LatLng or a two-item array [lng,lat]    (note that array is X,Y)
+// returns a two-item list:  [ x,y ]  in Web mercator coordinates
+function wgsToLocalSRS(dot) {
+    var srsin    = new Proj4js.Proj('EPSG:4326');
+    var srsout   = new Proj4js.Proj('EPSG:3734');
+    var newdot   = dot.lat ? new Proj4js.Point(dot.lng,dot.lat) : new Proj4js.Point(dot[0],dot[1]);
+    Proj4js.transform(srsin,srsout,newdot);
+    return  [ newdot.x, newdot.y ];
+}
+
+
+
+/////
+///// functions pertaining to the Twitter panel
+/////
+function loadTwitter() {
+    // empty the tweets target, and print a Loading statement
+    var target = $('#tweets');
+    target.empty();
+    target.append( $('<tr></tr>').append( $('<td></td>').text('Loading...') ) );
+
+    // fetch the tweets via AJAX
+    var params = {};
+    $.get('../ajax/fetch_tweets', params, function (tweets) {
+        target.empty();
+        for (var i=0, l=tweets.length; i<l; i++) {
+            var tweet = tweets[i];
+            var row = $('<tr></tr>');
+
+            var cell1 = $('<td></td>').addClass('twitter_lhs');
+            var userpic = $('<img></img>').prop('src', tweet.picture);
+            var userlink = $('<a></a>').prop('target','_blank').text(tweet.username).prop('href','http://twitter.com/' + tweet.username);
+            cell1.append(userpic);
+            cell1.append( $('<br></br>') );
+            cell1.append(userlink);
+
+            var cell2 = $('<td></td>').addClass('twitter_rhs');
+            var content = $('<span></span>').html(tweet.prettydate + ': ' + tweet.content);
+            cell2.append(content);
+
+            // append to the output
+            row.append(cell1);
+            row.append(cell2);
+            target.append(row);
+        }
+    }, 'json');
+}
+
+
+
+/////
+///// on page load: event handlers for Trail Finder
+///// these used to be identical but then they diverged so desktop has these clicky icons, while mobile is still a selector (for now)
+/////
+$(window).load(function () {
+    //if (MOBILE) $('#pane-trailfinder').page();
+
+    // the icons for the trail type, trigger the underlying checkboxes so we're still using real form elements
+    $('#trailfinder_typeicons img').tap(function () {
+        // uncheck all of the invisible checkboxes, then check the one corresponding to this image
+        var $this = $(this);
+        var value = $this.attr('data-value');
+        $('input[name="trailfinder_uses"]').removeAttr('checked').filter('[value="'+value+'"]').attr('checked','checked');
+
+        // adjust the images: change the SRC to the _off version, except this one which gets the _on version
+        $('#trailfinder_typeicons img').each(function () {
+            var src = $(this).prop('src');
+
+            if ( $(this).is($this) ) {
+                src  = src.replace('_off.png', '_on.png');
+            } else {
+                src  = src.replace('_on.png', '_off.png');
+            }
+            $(this).prop('src', src);
+        });
+
+        // Update the listing.
+        trailfinderUpdate();
+
+    //}).first().tap();
+    });
+
+    // The "Search" button on the Trail Finder pane.
+    // We've removed this button from the Trail Finder pane, but it's still on
+    // views/finder/trail.phtml
+    $('#trailfinder_go').click(function () {
+        trailfinderUpdate();
+    });
+
+    // When the selectors change, trigger a list update
+    $('select[name="trailfinder_reservation"]').change(function () {
+        trailfinderUpdate();
+    });
+    $('select[name="trailfinder_paved"]').change(function () {
+        trailfinderUpdate();
+    });
+});
+
+/**
+ * Trail Finder Search/Update
+ *
+ * Build Search params from the form, for passing to searchTrails() --
+ * most notably the difficulty checkboxes, and making sure at least one is checked.
+ */
+function trailfinderUpdate() {
+    var params = {};
+    params.reservation = $('select[name="trailfinder_reservation"]').val();
+    params.paved       = $('select[name="trailfinder_paved"]').val();
+
+    // this is a list of selected trail uses, now only 1 will be checked but it was made to accept a list and that will likely become the case again in the future
+    params.uses = [];
+    $('input[name="trailfinder_uses"]:checked').each(function () {
+        params.uses[params.uses.length] = $(this).val();
+    });
+    params.uses = params.uses.join(",");
+
+    // pass it to the search called
+    searchTrails(params);
+}
+
+/**
+ * "Search" functionality in Trail Finder
+ */
+function searchTrails(params) {
+    // clear out any old search results
+    var target = $('#trailfinder_results');
+    target.empty();
+
+    // AJAX to fetch results, and render them as LIs with .zoom et cetera
+    $.get('../ajax/search_trails', params, function (results) {
+
+        // iterate over the results and add them to the output
+        if (results.length) {
+            for (var i=0, l=results.length; i<l; i++) {
+
+                var result = results[i];
+
+                // List item
+                // A lot of attributes to set pertaining to .zoom handling
+                var li = $('<li></li>').addClass('zoom');
+
+                li.attr('title', result.name)
+                  .attr('gid',result.gid)
+                  .attr('type',result.type)
+                  .attr('w',result.w)
+                  .attr('s',result.s)
+                  .attr('e',result.e)
+                  .attr('n',result.n)
+                  .attr('lat',result.lat)
+                  .attr('lng',result.lng);
+
+                li.attr('backbutton', '#pane-trailfinder');
+
+                // Link (fake, currently)
+                link = $('<a></a>');
+                link.attr('class', 'ui-btn ui-btn-text');
+                //link.attr('href', 'javascript:zoomElementClick($(this)');
+                li.append(link);
+
+                // On click, call zoomElementClick() to load more info
+                li.click(function () {
+                    zoomElementClick( $(this) );
+                });
+
+                // Title
+                link.append(
+                    $('<h4></h4>')
+                        .addClass('ui-li-heading')
+                        .text(result.name)
+                );
+
+                // Inner text
+                if (result.note) {
+                    link.append(
+                        $('<span></span>')
+                            .addClass('ui-li-desc')
+                            .html(result.note)
+                    );
+                }
+    
+                // Distance placeholder, to be populated later
+                link.append(
+                    $('<span></span>')
+                        .addClass('zoom_distance')
+                        .addClass('ui-li-count')
+                        .addClass('ui-btn-up-c')
+                        .addClass('ui-btn-corner-all')
+                        .text('0 mi')
+                );
+
+                // Add to the list
+                li.append(link);
+                target.append(li);
+            }
+        } else {
+            target.append($('<li></li>').text("No results."));
+        }
+
+        // finalize the list, have jQuery Mobile do its styling magic on the newly-loaded content and then sort it
+        if (MOBILE) target.listview('refresh');
+        if (MOBILE) sortLists(target);
+    }, 'json');
+}
+
+
+
+
+/////
+///// pertaining to the Share box and RESTful params for loading map state
+///// The basic workflow is:
+///// - A map movement event triggers a call to udpateShareUrl(() et al,
+///// - which compose the URL string and save it to SHARE_URL_STRING
+///// - At a later time, when the user opens up the appropriate panel or sub-page as defined in mobile.js and desktop.js,
+/////   an AJAX request is made to save the long URL and get a short URL in return
+///// - This short URL is displayed in the #share_url panel for the end user.
+///// We do not want to request a short URL with every single map movement; that would consume network resources unnecessarily.
+/////
+
+// read the globally stored SHARE_URL_STRING and request a shortened URL from the server
+function populateShareBox() {
+    // submit the long URL param string to the server, get back a short param string
+    var params = {
+        uri : URL_PARAMS.attr('path'),
+        querystring : SHARE_URL_STRING
+    };
+
+    $.get('../ajax/make_shorturl', params, function (shortstring) {
+        if (! shortstring) return alert("Unable to fetch a short URL.\nPlease try again.");
+        var url = URL_PARAMS.attr('protocol') + '://' + URL_PARAMS.attr('host') + '/url/' + shortstring;
+
+        $('#share_url').text(url);
+    });
+}
+
+// simple form: collect the X, Y, Z, basemap, etc.
+function updateShareUrl() {
+    // the basic params: center and zoom, basemap
+    var params = {};
+    params.z = MAP.getZoom();
+    params.x = MAP.getCenter().lng;
+    params.y = MAP.getCenter().lat;
+    if (MAP.hasLayer(LAYER_MAPBOX_SAT)) params.base = 'photo';
+    if (MAP.hasLayer(LAYER_MAPBOX_MAP)) params.base = 'map';
+
+    // compile all of the params together and save it to the global. this is later read by populateShareBox()
+    SHARE_URL_STRING = $.param(params);
+}
+
+// element form: take an element compatible with zoomToElement() and create an URL which will load its info on page load
+function updateShareUrlByFeature(element) {
+    // only 2 params, taken from the element: its type and its name
+    var params = {};
+    params.type = element.attr('type');
+    params.name = element.attr('title');
+
+    // compile all of the params together and save it to the global. this is later read by populateShareBox()
+    SHARE_URL_STRING = $.param(params);
+}
+
+// directions form: processes the directions form and fills in the Share to recreate the route
+function updateShareUrlByDirections() {
+    // if the directions aren't filled in, we can't do this
+    if (! $('#directions_source_lat').val() ) return;
+
+    // compose the params to bring up this route at page load: route title, to and from coordinates, via type, etc
+    var params = {};
+    if (MAP.hasLayer(AVAILABLE_LAYERS['photo'])) {
+        params.base = 'photo';
+    } else if (MAP.hasLayer(AVAILABLE_LAYERS['vector'])) {
+        params.base = 'vector';
+    } else if (MAP.hasLayer(AVAILABLE_LAYERS['map'])) {
+        params.base = 'map';
+    }
+    params.routevia        = $('#directions_via').val();
+    params.routevia_bike   = $('#directions_via_bike').val();
+    params.routefrom       = $('#directions_source_lat').val() + ',' + $('#directions_source_lng').val();
+    params.routeto         = $('#directions_target_lat').val() + ',' + $('#directions_target_lng').val();
+    params.routetitle      = $('#directions_target_title').text();
+    params.whichway        = $('#directions_reverse').val();
+    params.loctype         = $('#directions_type').val();
+    params.fromaddr        = $('#directions_address').val();
+    if (params.routevia == 'trail') {
+        params.routevia = $('#directions_via_trail').val();
+    }
+
+    // compile all of the params together and save it to the global. this is later read by populateShareBox()
+    SHARE_URL_STRING = $.param(params);
+}
+
+/**
+ * The Welcome panel
+ * and whether it should be shown, as determined by a cookie.
+ */
+$(window).load(function () {
+    if (MOBILE) {
+        $('#pane-settings').page();
+        $('#pane-welcome').page();
+    }
+
+    // in the Settings panel, check or uncheck the Show Welcome box to match the cookie
+    var show_welcome = cookieGet('show_welcome');
+    if (show_welcome) {
+        $('#settings_show_welcome').prop('checked','checked');
+        if (MOBILE) $('#settings_show_welcome').checkboxradio('refresh');
+        $('#show_welcome').prop('checked','checked');
+        if (MOBILE) $('#show_welcome').checkboxradio('refresh');
+    } else {
+        $('#settings_show_welcome').removeAttr('checked');
+        if (MOBILE) $('#settings_show_welcome').checkboxradio('refresh');
+        $('#show_welcome').prop('checked','checked');
+        if (MOBILE) $('#show_welcome').checkboxradio('refresh');
+    }
+
+    // enable the checkbox in the Welcome panel, to toggle the cookie that suppresses the Welcome panel
+    $('#show_welcome').change(function () {
+        toggleWelcome( $(this).is(':checked') );
+    });
+    $('#settings_show_welcome').change(function () {
+        toggleWelcome( $(this).is(':checked') );
+    });
+});
+
+
+// a wrapper to toggle the Welcome panel, and to adjust the numerous (okay, two) checkboxes that set it
+// and which should update to reflect it
+function toggleWelcome(show_welcome) {
+    if (show_welcome) {
+        cookieSet('show_welcome',1);
+    } else {
+        cookieDelete('show_welcome');
+    }
+}
+
+/**
+ * Share Map button handler
+ *
+ * Reads from the Show On Map button to populate the Share Your Map box.
+ */
+$(window).load(function () {
+    $('#share_feature').click(function () {
+        var element = $('#show_on_map').data('zoomelement');
+        if (! element) {
+            return;
+        }
+        updateShareUrlByFeature(element);
+        populateShareBox();
+        sidebar.open('pane-share');
+    });
+});
+;
+ /**
+ * embedded.js
+ *
+ * JS for external embedded maps.
+ *
+ * Cleveland Metroparks
+ */
+
+$(document).ready(function(){
+    // Load the URL params before the map, as we may need them to configure it.
+    URL_PARAMS = $.url();
+
+    // Load the map.
+    initMap();
+
+    // Disable scrollwheel-driven map zooming so the user can scroll down the page.
+	MAP.scrollWheelZoom.disable();
+});
