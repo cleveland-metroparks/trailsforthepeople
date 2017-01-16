@@ -213,7 +213,7 @@ function initMap () {
             type: URL_PARAMS.param('type'),
             name: URL_PARAMS.param('name')
         };
-        $.get('../ajax/exactnamesearch', params, function (reply) {
+        $.get(APP_BASEPATH + 'ajax/exactnamesearch', params, function (reply) {
             if (!reply || ! reply.s || ! reply.w || ! reply.n || ! reply.e) return alert("Cound not find that feature.");
 
             // zoom to the location
@@ -417,7 +417,7 @@ function zoomToAddress(searchtext) {
     params.bing_key = BING_API_KEY;
     params.bbox     = GEOCODE_BIAS_BOX;
 
-    $.get('../ajax/geocode', params, function (result) {
+    $.get(APP_BASEPATH + 'ajax/geocode', params, function (result) {
         if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
         var latlng = L.latLng(result.lat,result.lng);
 
@@ -465,7 +465,7 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
     var data = bbox;
     data.zoom = MAP.getZoom();
 
-    $.get('../ajax/query', data, function (html) {
+    $.get(APP_BASEPATH + 'ajax/query', data, function (html) {
         if (!html) return;
 
         // set up the Popup and load its content
@@ -651,7 +651,7 @@ function processGetDirectionsForm() {
                 params.address  = address;
                 params.bing_key = BING_API_KEY;
                 params.bbox     = GEOCODE_BIAS_BOX;
-                $.get('../ajax/geocode', params, function (result) {
+                $.get(APP_BASEPATH + 'ajax/geocode', params, function (result) {
                     enableDirectionsButton();
                     if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
                     sourcelat = result.lat;
@@ -685,7 +685,7 @@ function processGetDirectionsForm() {
             params.lng     = MOBILE ? LAST_KNOWN_LOCATION.lng : MAP.getCenter().lng;
             params.via     = via;
 
-            $.get('../ajax/keyword', params, function (reply) {
+            $.get(APP_BASEPATH + 'ajax/keyword', params, function (reply) {
                 enableDirectionsButton();
                 if (! reply || !reply.length) return alert("We couldn't find any matching landmarks.");
 
@@ -739,7 +739,7 @@ function processGetDirectionsForm() {
         params.lat  = targetlat; // if this data source uses weighting, this will pick the closest one to our starting location
         params.lng  = targetlng; // if this data source uses weighting, this will pick the closest one to our starting location
         params.via  = via;
-        $.get('../ajax/geocode_for_directions', params, function (reply) {
+        $.get(APP_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
             sourcelat = reply.lat;
             sourcelng = reply.lng;
 
@@ -758,7 +758,7 @@ function processGetDirectionsForm() {
         params.lat  = sourcelat; // if this data source uses weighting, this will pick the closest one to our starting location
         params.lng  = sourcelng; // if this data source uses weighting, this will pick the closest one to our starting location
         params.via  = via;
-        $.get('../ajax/geocode_for_directions', params, function (reply) {
+        $.get(APP_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
             targetlat = reply.lat;
             targetlng = reply.lng;
 
@@ -836,7 +836,7 @@ function getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via) {
         bing_key: BING_API_KEY
     };
     //console.log(params);
-    $.get('../ajax/directions', params, function (reply) {
+    $.get(APP_BASEPATH + 'ajax/directions', params, function (reply) {
         enableDirectionsButton();
 
         if (! reply || ! reply.wkt) {
@@ -1042,7 +1042,7 @@ function openElevationProfileBySegments() {
     x = x.join(',');
     y = y.join(',');
 
-    $.post('../ajax/elevationprofilebysegments', { 'x':x, 'y':y }, function (url) {
+    $.post(APP_BASEPATH + 'ajax/elevationprofilebysegments', { 'x':x, 'y':y }, function (url) {
         if (url.indexOf('http') != 0) return alert(url);
         showElevation(url);
     });
@@ -1493,7 +1493,7 @@ function searchTrails(params) {
     target.empty();
 
     // AJAX to fetch results, and render them as LIs with .zoom et cetera
-    $.get('../ajax/search_trails', params, function (results) {
+    $.get(APP_BASEPATH + 'ajax/search_trails', params, function (results) {
 
         // iterate over the results and add them to the output
         if (results.length) {
@@ -1590,7 +1590,7 @@ function populateShareBox() {
         querystring : SHARE_URL_STRING
     };
 
-    $.get('../ajax/make_shorturl', params, function (shortstring) {
+    $.get(APP_BASEPATH + 'ajax/make_shorturl', params, function (shortstring) {
         if (! shortstring) return alert("Unable to fetch a short URL.\nPlease try again.");
         var url = URL_PARAMS.attr('protocol') + '://' + URL_PARAMS.attr('host') + '/url/' + shortstring;
 

@@ -43,7 +43,7 @@ MAP.on('contextmenu', function (event) {
     var anchor = new L.LatLng(event.latlng.lat,event.latlng.lng);
 
     // do the AJAX thing
-    $.get('../../ajax/query', data, function (html) {
+    $.get(APP_BASEPATH + 'ajax/query', data, function (html) {
         if (!html) return;
         var popup = new L.Popup();
         popup.setLatLng(anchor);
@@ -246,7 +246,7 @@ $('#recalculate_button').click(function () {
     params.lngs           = lngs.join(",");
     params.terrain_filter = $('select[name="terrain_filter"]').val();
     params.trim_spurs     = $('select[name="trim_spurs"]').val();
-    $.get('../../ajax/routewaypoints', params, function (reply) {
+    $.get(APP_BASEPATH + 'ajax/routewaypoints', params, function (reply) {
         // re-enable the button
         button.val( button.attr('value1') );
         button.removeAttr("disabled");
@@ -281,7 +281,7 @@ $('#random_button').click(function () {
     var closed = parseInt( $('[name="closedloop"]').val() );
     var filter = $('select[name="terrain_filter"]').val();
     var params = { lat:wp0lat, lng:wp0lng, miles:miles, closed:closed, filter:filter };
-    $.get('../../ajax/randomwaypoints', params, function (reply) {
+    $.get(APP_BASEPATH + 'ajax/randomwaypoints', params, function (reply) {
         // re-enable the button
         button.val( button.attr('value1') );
         button.removeAttr("disabled");
@@ -488,7 +488,7 @@ function renderElevationProfile(vpoints) {
     y = y.join(',');
 
     $('#elevation_profile').prop('src','/static/common/images/blank.png');
-    $.post('../../ajax/elevationprofilebysegments', { 'x':x, 'y':y }, function (url) {
+    $.post(APP_BASEPATH + 'ajax/elevationprofilebysegments', { 'x':x, 'y':y }, function (url) {
         if (url.indexOf('http') != 0) return alert(url);
         $('#elevation_profile').prop('src',url);
         $('input[name="elevation_profile_image"]').val(url);

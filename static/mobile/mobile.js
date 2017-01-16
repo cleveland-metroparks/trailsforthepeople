@@ -119,7 +119,7 @@ $(document).ready(function () {
         if (category) backbuttonurl = "#pane-browse-results";
 
         // do the AJAX call: fetch the JSON data, render to UL.zoom in the #pane-browse-results page, switch over to it
-        $.get('../ajax/browse_items', { category:category }, function (reply) {
+        $.get(APP_BASEPATH + 'ajax/browse_items', { category:category }, function (reply) {
             // fetch the title
             var header = $('#pane-browse-results h1.sidebar-header .title-text');
             header.text(reply.title);
@@ -413,7 +413,7 @@ $(window).load(function () {
 ///// on page load: load all POIs (use areas) into memory from AJAX, but do not render them into DOM yet
 ///// Rendering to DOM is done later by updateNearYouNow() to do only the closest few POIs, so we don't overload
 $(window).load(function () {
-    $.get('../ajax/load_pois', {}, function (pois) {
+    $.get(APP_BASEPATH + 'ajax/load_pois', {}, function (pois) {
         for (var i=0, l=pois.length; i<l; i++) {
             ALL_POIS[ALL_POIS.length] = pois[i];
         }
@@ -611,7 +611,7 @@ function searchByKeyword(keyword) {
     disableKeywordButton();
     $('#pane-search .sortpicker').hide();
 
-    $.get('../ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
+    $.get(APP_BASEPATH + 'ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
         enableKeywordButton();
         $('#pane-search .sortpicker').show();
 
@@ -705,7 +705,7 @@ function zoomElementClick(element) {
         params.gid  = gid;
         params.lat  = LAST_KNOWN_LOCATION.lat;
         params.lng  = LAST_KNOWN_LOCATION.lng;
-        $.get('../ajax/moreinfo', params, function (reply) {
+        $.get(APP_BASEPATH + 'ajax/moreinfo', params, function (reply) {
             // grab and display the plain HTML
             $('#info-content').html(reply);
 
@@ -738,7 +738,7 @@ function zoomElementClick(element) {
 ///// on page load
 ///// load the autocomplete keywords via AJAX, and enable autocomplete on the Keyword Search
 $(window).load(function () {
-    $.get('../ajax/autocomplete_keywords', {}, function (words) {
+    $.get(APP_BASEPATH + 'ajax/autocomplete_keywords', {}, function (words) {
 
         $('#browse_keyword').autocomplete({
             target: $('#browse_keyword_autocomplete'),
@@ -1016,7 +1016,7 @@ function filterLoops() {
     button.button('disable');
     button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
 
-    $.get('../ajax/search_loops', params, function (results) {
+    $.get(APP_BASEPATH + 'ajax/search_loops', params, function (results) {
         // re-enable the search button
         button.button('enable');
         button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );

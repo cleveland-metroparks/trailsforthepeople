@@ -118,7 +118,7 @@ $(window).load(function () {
         var button = $('#trailfinder_go');
         button.prop('disabled',true);
         button.val( button.attr('value0') );
-        $.get('../../ajax/search_trails', params, function (results) {
+        $.get(APP_BASEPATH + 'ajax/search_trails', params, function (results) {
             // re-enable the submit button
             button.prop('disabled',false);
             button.val( button.attr('value1') );

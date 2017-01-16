@@ -74,7 +74,7 @@ $(window).load(function () {
         };
         if (!params.lat || !params.lon || !params.miles || !params.usetype) return false;
 
-        $.get('../ajax/autoloop', params, function (reply) {
+        $.get(APP_BASEPATH + 'ajax/autoloop', params, function (reply) {
             var loopid = parseInt(reply);
             if (!loopid) return alert(reply);
             document.location.href = '/contributors/loop/' + loopid;
