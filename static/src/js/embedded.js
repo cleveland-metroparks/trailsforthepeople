@@ -10,6 +10,8 @@ $(document).ready(function(){
     // Load the URL params before the map, as we may need them to configure it.
     URL_PARAMS = $.url();
 
+    MIN_ZOOM = 10;
+
     // Load the map.
     initMap();
 
