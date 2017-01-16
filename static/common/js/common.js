@@ -1414,45 +1414,6 @@ function wgsToLocalSRS(dot) {
 }
 
 
-
-/////
-///// functions pertaining to the Twitter panel
-/////
-function loadTwitter() {
-    // empty the tweets target, and print a Loading statement
-    var target = $('#tweets');
-    target.empty();
-    target.append( $('<tr></tr>').append( $('<td></td>').text('Loading...') ) );
-
-    // fetch the tweets via AJAX
-    var params = {};
-    $.get('../ajax/fetch_tweets', params, function (tweets) {
-        target.empty();
-        for (var i=0, l=tweets.length; i<l; i++) {
-            var tweet = tweets[i];
-            var row = $('<tr></tr>');
-
-            var cell1 = $('<td></td>').addClass('twitter_lhs');
-            var userpic = $('<img></img>').prop('src', tweet.picture);
-            var userlink = $('<a></a>').prop('target','_blank').text(tweet.username).prop('href','http://twitter.com/' + tweet.username);
-            cell1.append(userpic);
-            cell1.append( $('<br></br>') );
-            cell1.append(userlink);
-
-            var cell2 = $('<td></td>').addClass('twitter_rhs');
-            var content = $('<span></span>').html(tweet.prettydate + ': ' + tweet.content);
-            cell2.append(content);
-
-            // append to the output
-            row.append(cell1);
-            row.append(cell2);
-            target.append(row);
-        }
-    }, 'json');
-}
-
-
-
 /////
 ///// on page load: event handlers for Trail Finder
 ///// these used to be identical but then they diverged so desktop has these clicky icons, while mobile is still a selector (for now)

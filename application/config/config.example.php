@@ -92,20 +92,6 @@ $config['hint_maps_dir'] = $config['base_path'] . '/' . $config['hint_maps_dir_r
 
 /*
 |--------------------------------------------------------------------------
-| For loading Twitter tweets, the hashtag for this map/organization
-|--------------------------------------------------------------------------
-*/
-$config['twitter_hashtag']        = '#hashtagofreference';
-$config['twitter_username']       = "username";  // not used; here for reference
-$config['twitter_email']          = "email";  // not used; here for reference
-$config['twitter_password']       = "password";  // not used; here for reference
-$config['twitter_access_token']   = "token";
-$config['twitter_access_secret']  = "secret";
-$config['consumer_key']           = "key";
-$config['consumer_secret']        = "secret";
-
-/*
-|--------------------------------------------------------------------------
 | Index File
 |--------------------------------------------------------------------------
 |

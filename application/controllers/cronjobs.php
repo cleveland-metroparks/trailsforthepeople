@@ -122,110 +122,13 @@ function expired_loops() {
     }
 }
 
-
-function load_twitter() {
-    header("Content-type: text/html; charset=utf-8");
-
-    // start with some maintenance: delete very-old tweets (180 days)
-    $this->db->query("DELETE FROM tweets WHERE current_date - posted::date >= 180");
-
-    // load the ban list, of people whose tweets we don't care to see
-    $banlist = new Twitter();
-    $banlist = $banlist->getBanList();
-
-    // Twitter API 1.1 requires OAuth, so start on that
-    // step 1: compose an auth string similar to that of HTTP Basic auth
-    $auth = sprintf("%s:%s", urlencode($this->config->item('consumer_key')) , urlencode($this->config->item('consumer_secret')) );
-    $auth = base64_encode($auth);
-
-    // step 2: POST to the token service to get back a token
-    $headers = array();
-    $headers[] = "Authorization: Basic $auth";
-    $headers[] = "Content-Type: application/x-www-form-urlencoded;charset=UTF-8";
-    $params = array();
-    $params['grant_type'] = "client_credentials";
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, "https://api.twitter.com/oauth2/token");
-    curl_setopt($curl, CURLOPT_POST, true);
-    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($params) );
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($curl, CURLOPT_VERBOSE, true);
-    $token = curl_exec($curl);
-    $token = @json_decode($token);
-    if (! $token) return print "Failed to login to Twitter. Check the key and secret.";
-    $token = $token->access_token;
-    //return print "T: $token<br/>\n";//GDA
-    curl_close($curl);
-
-    // load the feed for our hashtag
-    // we need to supply the custom Bearer header, so can't just use file_get_contents() anymore
-    $headers = array();
-    $headers[] = "Authorization: Bearer $token";
-    $params = array();
-    $params['result_type'] = "recent";
-    $params['q']           = $this->config->item('twitter_hashtag');
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, "https://api.twitter.com/1.1/search/tweets.json?" . http_build_query($params) );
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($curl, CURLOPT_VERBOSE, true);
-    $reply = curl_exec($curl);
-    $reply = @json_decode($reply);
-    if (! $reply) return print "Failed to fetch tweets.";
-    //return print_r($reply);
-    printf("Found %d tweets<br/>\n", sizeof($reply->statuses) );
-    ob_flush();
-
-    // iterate over the tweets
-    foreach ($reply->statuses as $tweet) {
-        $tid          = (string) $tweet->id;
-        $username     = $tweet->user->screen_name;
-        $posted       = date("Y-m-d H:i:s", strtotime($tweet->created_at) );
-        $prettydate   = date("M d, g:ia", strtotime($tweet->created_at) );
-        $content      = $tweet->text;
-        $picture      = $tweet->user->profile_image_url;
-
-        // data fixes: all hyperlinks in the HTML should go to a new frame with target=_blank
-        $content = str_replace('<a href', '<a target="_blank" href', $content);
-
-        // final checks: is this user on the ban list? if so, skip it
-        if (@$banlist[$username]) {
-            printf("SKIP. User %s is on the ban list.<br/>\n", $username );
-            continue;
-        }
-
-        // final checks: is this tweet ID (tid) already in the database? if so, skip it
-        $already = new Twitter();
-        $already->where('tid',$tid)->get();
-        if ($already->tid) {
-            printf("SKIP. Tweet %s already in database.<br/>\n", $tid );
-            continue;
-        }
-
-        // save it to the database
-        printf("SAVE. %s, %s <br/>\n", $prettydate, $username );
-        $tweet = new Twitter();
-        $tweet->tid        = $tid;
-        $tweet->username   = $username;
-        $tweet->posted     = $posted;
-        $tweet->prettydate = $prettydate;
-        $tweet->content    = $content;
-        $tweet->picture    = $picture;
-        $tweet->save();
-    }
-
-}
-
-
-
+/**
+ *
+ */
 function cms_load_events() {
     return print "events removed October 2012";
 }
+
 /* events removed October 2012
 function cms_load_events() {
     ///// Phase 0: purge the existing CMS Pages and CMS Points

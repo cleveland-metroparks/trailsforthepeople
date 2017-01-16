@@ -295,28 +295,6 @@ $(window).load(function () {
         }
     });
 
-    /*
-    $('#twitter').dialog({
-        modal:false, closeOnEscape: true, resizable:true,
-        autoOpen:false,
-        zIndex: 1000,
-        width: 550, height:500,
-        title:"Twitter",
-        buttons: {
-            'Close': function() {
-                $(this).dialog('close');
-            }
-        },
-        open: function () {
-            highlightToolbarButton('twitter');
-            loadTwitter();
-        },
-        close: function() {
-            highlightToolbarButton(null);
-        }
-    });
-    */
-
     $('#measure').dialog({
         modal:false, closeOnEscape: true, resizable:true,
         autoOpen:false,

@@ -2151,26 +2151,9 @@ function autoloop() {
     print $loop->id;
 }
 
-
-
-function fetch_tweets() {
-    // a straight list of all non-deleted tweets, with a limit
-    $output = array();
-    $tweets = new Twitter();
-    $tweets->where('deleted','f')->limit(100)->get();
-    foreach ($tweets as $t) {
-        $output[] = array(
-            'username' => $t->username,
-            'picture' => $t->picture,
-            'prettydate' => $t->prettydate,
-            'content' => $t->content,
-        );
-    }
-    print json_encode($output);
-}
-
-
-
+/**
+ *
+ */
 function load_pois() {
     $results = array();
 
