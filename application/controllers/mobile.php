@@ -47,6 +47,9 @@ function index() {
         'Viewing Wildlife' => 'wildlife.png',
     );
 
+    // Activities
+    $data['activities'] = ActivityType::getActivityTypesAndIcons();
+
     // ready!
     $this->load->view('mobile/mobile.phtml',$data);
 }

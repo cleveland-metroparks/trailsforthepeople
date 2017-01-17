@@ -253,8 +253,13 @@ div.elevationprofileimage img {
             margin: 0;
         }
         .ui-li-icon {
-            max-height: 40px;
-            max-width: 40px;
+            // Reset jqM
+            max-height: initial !important;
+            max-width: initial !important;
+            top: initial !important;
+
+            height: 20px;
+            width: 20px;
         }
         .ui-li-count {
             background-color: $green_dark;

@@ -84,7 +84,7 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 #sidebar .sidebar-content ul li { padding-left: 0; }
 #sidebar .sidebar-content ul li .fa { padding-right: 10px; font-size: 24px; width: 24px; vertical-align: middle; text-align: center; }
 #sidebar .sidebar-content h4 { margin: 0; }
-#sidebar .sidebar-content .ui-li-icon { max-height: 40px; max-width: 40px; }
+#sidebar .sidebar-content .ui-li-icon { max-height: initial !important; max-width: initial !important; top: initial !important; height: 20px; width: 20px; }
 #sidebar .sidebar-content .ui-li-count { background-color: #1D5C1F; border: none; color: white; font-weight: normal; }
 #sidebar .sidebar-content .distance_sortable a.ui-btn { padding-right: 60px; }
 #sidebar .sidebar-content .distance_sortable a.ui-btn h4.ui-li-heading { margin-top: 0; }
