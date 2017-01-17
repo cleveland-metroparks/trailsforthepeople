@@ -7,7 +7,24 @@ class ActivityType extends DataMapper {
 
 var $table    = 'view_cmp_gisactivitytype';
 
-// @TODO: Move into DB
+var $chosen_activities = array(
+	'Swimming',
+	'Boating & Paddlesports',
+	'Hiking & Walking',
+	'Fishing & Ice Fishing',
+	'Archery',
+	'Horseback Riding',
+	'Mountain Biking',
+	'Picnicking',
+	'Sledding',
+	'Tobogganing',
+	'Exploring Nature',
+	'Exploring Culture & History',
+	'Dining',
+	//'Fitness Circuit',
+	//'Exercising',
+);
+// @TODO: Move this into the DB:
 var $activity_type_icons_by_name = array(
 	'Biking & Cycling' => '',
 	'Swimming' => 'swimming.svg',
@@ -67,43 +84,25 @@ var $activity_type_icons_by_id = array(
 	41 => ''
 );
 
-var $activity_type_icons_old = array(
-    'Archery' => 'archery.png',
-    'Beach' => 'beach.png',
-    'Boating' => 'boat.png',
-    'Drinking Fountain' => 'drinkingfountain.png',
-    'Exploring Culture & History' => 'history.png',
-    'Exploring Nature' => 'nature.png',
-    'Facilities' => 'facility.png',
-    'Fishing & Ice Fishing' => 'fish.png',
-    'Food' => 'food.png',
-    'Geologic Feature' => 'geology.png',
-    'Golfing' => 'golf.png',
-    'Horseback Riding' => 'horse.png',
-    'Kayaking' => 'kayak.png',
-    'Picnicking' => 'picnic.png',
-    'Play Areas' => 'play.png',
-    'Restroom' => 'restroom.png',
-    'Sledding & Tobogganing' => 'sled.png',
-    'Snowshoeing' => 'sled.png',
-    'Swimming' => 'swim.png',
-    'Viewing Wildlife' => 'wildlife.png',
-);
-
 function __construct($id = NULL) {
     parent::__construct($id);
 }
 
 /**
- * List Activity Types
+ * Get activity types and icons
+ *
+ * @param $chosen_only: whether to filter by our sub-set of chosen activities.
  */
-function getActivityTypesAndIcons() {
+function getActivityTypesAndIcons($chosen_only=FALSE) {
     $activity_types = new ActivityType();
     $activity_types->order_by('pagetitle')->get();
 
     $output = array();
 
     foreach($activity_types as $activity) {
+        if ($chosen_only && !in_array($activity->pagetitle, $activity->chosen_activities)) {
+            continue;
+        }
         $record = array(
             'title' => $activity->pagetitle,
             'icon' => $activity_types->getActivityIconByID($activity->eventactivitytypeid)
@@ -124,7 +123,6 @@ function getActivityIconByName($activity_type) {
 		return $this->activity_type_icons_old[$activity_type];
 	} else {
 		// @TODO: Make a default icon
-		//return 'wildlife.png';
 	}
 }
 
@@ -136,7 +134,6 @@ function getActivityIconByID($id) {
 		return $this->activity_type_icons_by_id[$id];
 	} else {
 		// @TODO: Make a default icon
-		//return 'wildlife.png';
 	}
 }
 
