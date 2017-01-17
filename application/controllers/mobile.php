@@ -23,30 +23,6 @@ function index() {
     // the placeholder categories for POIs
     $data['poicategories'] = Usearea::listCategories();
 
-    // tacked on May 2014: the category list should have icons...
-    $data['poicategory_icons'] = array(
-        'Archery' => 'archery.png',
-        'Beach' => 'beach.png',
-        'Boating' => 'boat.png',
-        'Drinking Fountain' => 'drinkingfountain.png',
-        'Exploring Culture & History' => 'history.png',
-        'Exploring Nature' => 'nature.png',
-        'Facilities' => 'facility.png',
-        'Fishing & Ice Fishing' => 'fish.png',
-        'Food' => 'food.png',
-        'Geologic Feature' => 'geology.png',
-        'Golfing' => 'golf.png',
-        'Horseback Riding' => 'horse.png',
-        'Kayaking' => 'kayak.png',
-        'Picnicking' => 'picnic.png',
-        'Play Areas' => 'play.png',
-        'Restroom' => 'restroom.png',
-        'Sledding & Tobogganing' => 'sled.png',
-	    'Snowshoeing' => 'sled.png',
-        'Swimming' => 'swim.png',
-        'Viewing Wildlife' => 'wildlife.png',
-    );
-
     // Activities (chosen sub-set only)
     $data['activities'] = ActivityType::getActivityTypesAndIcons(TRUE);
 
