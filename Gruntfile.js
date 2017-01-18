@@ -134,7 +134,7 @@ module.exports = function(grunt) {
           'static/common/js/constants.js',
           'static/common/js/common.js'
         ],
-        tasks: ['uglify']
+        tasks: ['uglify:dist']
       },
       upload: {
         files: [
@@ -144,7 +144,7 @@ module.exports = function(grunt) {
           'static/common/js/constants.jscompress.js',
           'static/common/js/common.jscompress.js'
         ],
-        tasks: ['sftp']
+        tasks: ['sftp:dist']
       }
     }
   });
