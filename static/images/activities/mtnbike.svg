@@ -9,12 +9,12 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="12.35375"
-   height="12.35375"
+   width="24.708"
+   height="24.708"
    id="svg19793"
    version="1.1"
-   inkscape:version="0.48.4 r"
-   sodipodi:docname="nps_cm_drinkingwater.svg">
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="mtnbike.svg">
   <defs
      id="defs19795" />
   <sodipodi:namedview
@@ -25,8 +25,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="15.839192"
-     inkscape:cx="7.0108851"
-     inkscape:cy="5.8766257"
+     inkscape:cx="-8.5833462"
+     inkscape:cy="5.8766397"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -34,11 +34,11 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:window-width="586"
-     inkscape:window-height="480"
-     inkscape:window-x="219"
-     inkscape:window-y="402"
-     inkscape:window-maximized="0" />
+     inkscape:window-width="1920"
+     inkscape:window-height="1018"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
   <metadata
      id="metadata19798">
     <rdf:RDF>
@@ -55,9 +55,10 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-370.15676,-527.257)">
+     transform="translate(-385.75099,-514.90276)">
     <g
-       id="g62435">
+       id="g62435"
+       transform="matrix(2.0000405,0,0,2.0000405,-354.5775,-539.63259)">
       <path
          d="m 371.63238,527.50762 c -0.67625,0 -1.22501,0.54875 -1.22501,1.225 l 0,9.40251 c 0,0.67624 0.54875,1.225 1.22501,1.225 l 9.40125,0 c 0.67624,0 1.22625,-0.54876 1.22625,-1.225 l 0,-9.40251 c 0,-0.67625 -0.55001,-1.225 -1.22625,-1.225 l -9.40125,0 z"
          style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
@@ -73,17 +74,12 @@
          transform="matrix(0.63001711,0,0,0.63001711,305.85202,445.5927)"
          id="g62383">
         <path
-           d="m 104.023,140.33 v 6.847 h 14.504 c 0,0 -0.417,-0.654 -1.49,-0.811 -1.353,-0.195 -2.156,-0.439 -3.318,-1.019 -1.323,-0.659 -2.325,-0.601 -2.64,-1.307 l -1.098,0.209 c 0,0 -0.598,0.156 -1.475,-0.653 -0.877,-0.809 -1.113,-0.987 -1.113,-0.987 l -1.019,-0.567 -0.705,-0.823 c 0,0 -0.314,-0.22 -0.549,-0.371 -0.235,-0.152 -0.418,-0.596 -0.522,-0.518 -0.105,0.078 -0.575,0 -0.575,0 z"
+           d="m 104.023,140.33 0,6.847 14.504,0 c 0,0 -0.417,-0.654 -1.49,-0.811 -1.353,-0.195 -2.156,-0.439 -3.318,-1.019 -1.323,-0.659 -2.325,-0.601 -2.64,-1.307 l -1.098,0.209 c 0,0 -0.598,0.156 -1.475,-0.653 -0.877,-0.809 -1.113,-0.987 -1.113,-0.987 l -1.019,-0.567 -0.705,-0.823 c 0,0 -0.314,-0.22 -0.549,-0.371 -0.235,-0.152 -0.418,-0.596 -0.522,-0.518 -0.105,0.078 -0.575,0 -0.575,0 z"
            id="path13571"
            inkscape:connector-curvature="0"
            style="fill:#ffffff" />
         <ellipse
-           d="m 117.755,132.8 c 0,0.62188 -0.52651,1.126 -1.176,1.126 -0.64948,0 -1.176,-0.50412 -1.176,-1.126 0,-0.62187 0.52652,-1.126 1.176,-1.126 0.64949,0 1.176,0.50413 1.176,1.126 z"
            style="fill:#ffffff"
-           sodipodi:ry="1.126"
-           sodipodi:rx="1.176"
-           sodipodi:cy="132.8"
-           sodipodi:cx="116.579"
            id="ellipse13575"
            ry="1.126"
            rx="1.176"
