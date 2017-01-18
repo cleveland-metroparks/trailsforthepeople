@@ -9,10 +9,14 @@
     
     <ul data-role="listview" data-inset="true">
     <?php $activity_icons_dir = '/static/images/activities/'; ?>
-        <?php foreach ($activities as $activity) { ?>
-            <?php $icon_url = site_url($activity_icons_dir . $activity['icon']); ?>
+        <?php foreach ($activities as $activity_id => $activity) { ?>
+            <?php
+                $link_param_category = 'pois_usetype_' . urlencode($activity['title']);
+                $link_url = "#browse-results?id=${activity_id}&category=${link_param_category}";
+                $icon_url = site_url($activity_icons_dir . $activity['icon']);
+            ?>
             <li>
-                <a href="#browse-items?category=pois_usetype_<?= urlencode($activity['title']); ?>">
+                <a href="<?= $link_url ?>">
                     <img class="ui-li-icon" src="<?= $icon_url ?>" /> <?= htmlspecialchars($activity['title']) ?>
                 </a>
             </li>

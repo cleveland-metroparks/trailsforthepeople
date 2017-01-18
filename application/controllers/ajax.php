@@ -1881,6 +1881,37 @@ function elevationprofilebysegments($context=null) {
 }
 
 /**
+ * Browse POIs by activity
+ *
+ * @param activity_id
+ */
+function browse_pois_by_activity() {
+    $results = array();
+
+    $attractions = Attraction::getAttractionsByActivity($_GET['activity_id']);
+
+    foreach ($attractions as $attraction) {
+        $results[] = array(
+            'type' => 'poi',
+            'name' => trim($attraction->pagetitle),
+            'gid'  => (integer) $attraction->gis_id,
+            //'gid'  => (integer) $attraction->record_id,
+
+            'w'    => (float) 0,
+            's'    => (float) 0,
+            'e'    => (float) 0,
+            'n'    => (float) 0,
+
+            'lat'  => (float) $attraction->latitude,
+            'lng'  => (float) $attraction->longitude
+        );
+    }
+
+    $output = array('results' => $results);
+    print json_encode($output);
+}
+
+/**
  * Browse items
  *
  * @param search
@@ -2280,6 +2311,10 @@ function autoloop() {
 
 /**
  * Load POIs
+ *
+ * @return array of POIs
+ *     each an associative array including:
+ *         title, categories, gid, n, s, e, w, lat, lng
  */
 function load_pois() {
     $results = array();

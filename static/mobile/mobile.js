@@ -9,8 +9,16 @@
 // used by the radar: sound an alert only if the list has in fact changed
 var LAST_BEEP_IDS = [];
 
+// ALL_POIS:
+//
 // used by Near You Now and then later by Radar, a structure of all POIs
 // we cannot render them all into the Radar page at the same time, but we can store them in memory
+//
+// Each item within has:
+//     from DB:
+//         lat, lng, title, categories, n, s, e, w
+//     and computed:
+//         meters, miles, feet, range, bearing
 var ALL_POIS = [];
 
 // other stuff pertaining to our last known location and auto-centering
@@ -101,30 +109,42 @@ $(document).ready(function () {
     $('#pane-browse-pois-activity li a').click(function() {
         var category = this.hash.replace( /.*category=/, "" );
 
+        // Get Activity ID from query string params
+        // (purl.js apparently doesn't parse query string if URL begins with '#')
+        re = /id=(.*)&category=/;
+        var matches = this.hash.match(re);
+        if (matches.length == 2) {
+            activity_id = matches[1];
+        }
+
         sidebar.open('pane-browse-results');
     
         var target = $('ul#browse_results');
         target.empty();
+
+        activity_title = $(this).text().trim();
     
         // fix the Back button on the target panel, to go Back to the right page
+        // @TODO: Can we consolidate, now that the other two options are gone?
         var backurl = "#pane-browse";
-        if (category.indexOf('pois_usetype_') == 0) backurl = "#pane-browse-pois-activity";
-        if (category.indexOf('pois_reservation_') == 0) backurl = "#pane-browse-pois-reservation";
-        if (category.indexOf('loops_res_') == 0) backurl = "#pane-browse-loops-byres";
-
+        if (category.indexOf('pois_usetype_') == 0) {
+            backurl = "#pane-browse-pois-activity";
+        }
         $('#pane-browse-results .sidebar-back').prop('href', backurl);
-
-        //// for the fetched items, if one follows to the Info panel, where should that Back button go?
+        // for the fetched items, if one follows to the Info panel, where should that Back button go?
         var backbuttonurl = backurl;
         if (category) backbuttonurl = "#pane-browse-results";
 
         // do the AJAX call: fetch the JSON data, render to UL.zoom in the #pane-browse-results page, switch over to it
-        $.get(APP_BASEPATH + 'ajax/browse_items', { category:category }, function (reply) {
-            // fetch the title
+        //$.get(APP_BASEPATH + 'ajax/browse_items', { category:category }, function (reply) {
+        $.get(APP_BASEPATH + 'ajax/browse_pois_by_activity', { activity_id:activity_id }, function (reply) {
+
+            // Header title
             var header = $('#pane-browse-results h1.sidebar-header .title-text');
-            header.text(reply.title);
+            //header.text(reply.title);
+            header.text(activity_title);
     
-            // iterate over the fetched results, render them into the target
+            // Iterate over fetched results and render them into the target
             for (var i=0, l=reply.results.length; i<l; i++) {
                 var result = reply.results[i];
 
@@ -132,7 +152,14 @@ $(document).ready(function () {
                 // A lot of attributes to set pertaining to .zoom handling
                 var li = $('<li></li>').addClass('zoom');
                 li.attr('title', result.name );
-                li.attr('gid',result.gid).attr('type',result.type).attr('w',result.w).attr('s',result.s).attr('e',result.e).attr('n',result.n).attr('lat',result.lat).attr('lng',result.lng);
+                li.attr('gid',result.gid)
+                    .attr('type',result.type)
+                    .attr('w',result.w)
+                    .attr('s',result.s)
+                    .attr('e',result.e)
+                    .attr('n',result.n)
+                    .attr('lat',result.lat)
+                    .attr('lng',result.lng);
                 li.attr('backbutton', backbuttonurl);
 
                 // Link (fake, currently)
@@ -177,7 +204,9 @@ $(document).ready(function () {
                 target.append(li);
             }
     
-            // finalize the list, have jQuery Mobile do its styling magic on the newly-loaded content, then calculate the distances and sort
+            // Finalize the list,
+            // have jQuery Mobile do its styling magic on the newly-loaded content,
+            // then calculate the distances and sort.
             target.listview('refresh');
             sortLists(target);
         }, 'json');
@@ -421,8 +450,6 @@ $(window).load(function () {
         updateNearYouNow();
     }, 'json');
 });
-
-
 
 /**
  * Update Near You Now

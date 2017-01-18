@@ -11,8 +11,26 @@ function __construct($id = NULL) {
     parent::__construct($id);
 }
 
+/**
+ * Get attractions by activity.
+ *
+ * @param $activity_id
+ */
+function getAttractionsByActivity($activity_id) {
+    $attractions = new Attraction();
+
+    $attractions
+      ->where('activities', $activity_id)
+      ->or_like('activities', "$activity_id|%")
+      ->or_like('activities', "%|$activity_id")
+      ->or_like('activities', "%|$activity_id|%")
+      ->order_by('pagetitle')
+      ->get();
+
+    return $attractions;
 }
 
+}
 
 /**
 
