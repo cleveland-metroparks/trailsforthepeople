@@ -366,9 +366,22 @@ div.elevationprofileimage img {
 }
 
 //
-// Sidebar Pane: Info
+// Sidebar Pane: Info (for a POI, etc)
 //
 #pane-info {
+    .activities-icon-list {
+        list-style-type: none;
+        margin-top: 0;
+        padding: 0;
+        li {
+            display: inline-block;
+            padding-right: .5em;
+            img {
+                width: 30px;
+                height: 30px;
+            }
+        }
+    }
     .info-directions {
         margin-top: 1em;
         .ui-btn {

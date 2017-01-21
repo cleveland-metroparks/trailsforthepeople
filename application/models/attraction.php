@@ -20,14 +20,44 @@ function getAttractionsByActivity($activity_id) {
     $attractions = new Attraction();
 
     $attractions
-      ->where('activities', $activity_id)
-      ->or_like('activities', "$activity_id|%")
-      ->or_like('activities', "%|$activity_id")
-      ->or_like('activities', "%|$activity_id|%")
-      ->order_by('pagetitle')
-      ->get();
+        ->where('activities', $activity_id)
+        ->or_like('activities', "$activity_id|%")
+        ->or_like('activities', "%|$activity_id")
+        ->or_like('activities', "%|$activity_id|%")
+        ->order_by('pagetitle')
+        ->get();
 
     return $attractions;
+}
+
+/**
+ * Get the activities for the (this) attraction.
+ *
+ * @return ActivityType object with the activities.
+ */
+function getAttractionActivities() {
+    if (isset($this->activities)) {
+        // Get an array of Activity IDs
+        $activity_ids = $this->parseActivitiesString($this->activities);
+    } else {
+        return;
+    }
+
+    // Get the set of corresponding ActivityType records
+    $activities = new ActivityType();
+    $activities->getActivitiesByID($activity_ids);
+
+    return $activities;
+}
+
+/**
+ * Parse the activities string as its stored in the DB.
+ *
+ * @param $activities_str: like "1|2|3"
+ * @return array
+ */
+public function parseActivitiesString($activities_str) {
+    return explode('|', $activities_str);
 }
 
 }

@@ -99,6 +99,28 @@ function getActivityIconByID($id) {
     }
 }
 
+/**
+ * Get activities by ID
+ *
+ * @param $ids: Activity ID or array of same.
+ */
+function getActivitiesByID($ids) {
+    if (!is_array($ids)) {
+        $ids = array($ids);
+    }
+
+    $this
+        ->where_in('eventactivitytypeid', $ids)
+        ->get();
+
+    // Populate the "icon" property of each of our activities.
+    foreach ($this as $activity) {
+        $activity->icon = $this->getActivityIconByID($activity->eventactivitytypeid);
+    }
+}
+
+
+
 }
 
 /**

@@ -1,30 +1,31 @@
-<h2><?= htmlspecialchars($feature->use_area) ?></h2>
+<h2><?= htmlspecialchars($feature->pagetitle) ?></h2>
 
-<?php if ($feature->activity): ?>
+<?php if (isset($activities)): ?>
 	<h4>Activities:</h4>
-	<div><?= htmlspecialchars($feature->activity) ?></div>
+	<ul class="activities-icon-list">
+	<?php
+		$activity_icons_dir = '/static/images/activities/';
+        foreach ($activities as $activity) {
+            $icon_url = site_url($activity_icons_dir . $activity->icon);
+            $activity_title = htmlspecialchars($activity->pagetitle);
+            print '<li><img src="' . $icon_url . '" title="' . $activity_title . '" class="" /></li>';
+        }
+	?>
+	</ul>
 <?php endif; ?>
 
-<?php if ($feature->description): ?>
-	<div><?= nl2br($feature->description) ?></div>
+<?php if ($feature->descr): ?>
+	<div><?= nl2br($feature->descr) ?></div>
 <?php endif; ?>
 
 <ul class="nobull">
-	<?php if ($feature->link): ?>
-		<li><a href="<?= $feature->link ?>" target="_blank">More Info</a></li>
-	<?php endif; ?>
-	
-	<?php if ($feature->cal_link): ?>
-		<li><a href="<?= $feature->cal_link ?>" target="_blank">Reservations &amp; Events Calendar</a></li>
-	<?php endif; ?>
-	
-	<?php if ($feature->image_url): ?>
-		<li><span class="fakelink paddme" onClick="showPhoto('<?= $feature->image_url ?>');">Photo</span></li>
+	<?php if ($feature->cmp_url): ?>
+		<li><a href="<?= $feature->cmp_url ?>" target="_blank">More Info</a></li>
 	<?php endif; ?>
 </ul>
 
 <h4>GPS coordinates:</h4>
 <div class="small-light">
-	<?= $feature->lat_dms ?><br/>
-	<?= $feature->lng_dms ?>
+	<?= $feature->latitude ?><br/>
+	<?= $feature->longitude ?>
 </div>

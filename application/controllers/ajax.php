@@ -336,30 +336,45 @@ function keyword() {
  */
 function moreinfo() {
     switch(@$_GET['type']) {
+
         case 'trail':
             $result   = new Trail();
             $result->where('gid',$_GET['gid'])->get();
             if (! $result->gid) exit;
             $template = 'ajax/moreinfo_trail.phtml';
             break;
+
         case 'building':
             $result = new Building();
             $result->where('gid',$_GET['gid'])->get();
             if (! $result->gid) exit;
             $template = 'ajax/moreinfo_building.phtml';
             break;
+
         case 'poi':
-            $result = new Usearea();
-            $result->where('gid',$_GET['gid'])->get();
-            if (! $result->gid) exit;
+            $result = new Attraction();
+            $result->where('gis_id', $_GET['gid'])->get();
+            if (!isset($result->gis_id)) exit;
+
             $template = 'ajax/moreinfo_usearea.phtml';
+            // We're breaking the pattern the other cases use so we can store extra data
+            $this->load->view(
+                $template,
+                array(
+                    'feature' => $result->stored,
+                    'activities' => $result->getAttractionActivities()
+                ));
+
+            return;
             break;
+
         case 'reservation':
             $result = new Park();
             $result->where('gid',$_GET['gid'])->get();
             if (! $result->gid) exit;
             $template = 'ajax/moreinfo_reservation.phtml';
             break;
+
         case 'loop':
             $result = new Loop();
             $result->where('id',$_GET['gid'])->get();
@@ -374,6 +389,7 @@ function moreinfo() {
 
             $template = 'ajax/moreinfo_loop.phtml';
             break;
+
         default:
             $result = null;
             break;
