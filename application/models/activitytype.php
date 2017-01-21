@@ -28,26 +28,26 @@ var $chosen_activities = array(
     'Sledding',
     'Snowshoeing',
     'Swimming',
-    'Tobogganing',
+    //'Tobogganing',
 );
 // @TODO: Move this into the DB
 var $activity_type_icons_by_id = array(
-    01 => '',              // Biking & Cycling
-    02 => 'swim.svg',      // Swimming
-    03 => 'boat.svg',      // Boating & Paddlesports
-    04 => 'hike.svg',      // Hiking & Walking
-    05 => 'fish.svg',      // Fishing & Ice Fishing
-    06 => 'archery.svg',   // Archery
-    07 => '',              // Cross-Country Skiing
-    09 => '',              // Geocaching
+     1 => 'bike.svg',      // Biking & Cycling
+     2 => 'swim.svg',      // Swimming
+     3 => 'boat.svg',      // Boating & Paddlesports
+     4 => 'hike.svg',      // Hiking & Walking
+     5 => 'fish.svg',      // Fishing & Ice Fishing
+     6 => 'archery.svg',   // Archery
+     7 => 'xcski.svg',     // Cross-Country Skiing
+     9 => 'geocache.svg',  // Geocaching
     11 => 'horse.svg',     // Horseback Riding
     12 => 'mtnbike.svg',   // Mountain Biking
     13 => 'picnic.svg',    // Picnicking
     14 => '',              // Races & Competitions
     15 => 'sled.svg',      // Sledding
-    16 => '',              // Snowshoeing
+    16 => 'snowshoe.svg',  // Snowshoeing
     17 => '',              // Tobogganing
-    18 => '',              // Rope Courses & Zip Lines
+    18 => 'leafman.svg',   // Rope Courses & Zip Lines
     19 => 'geology.svg',   // Exploring Nature
     20 => 'history.svg',   // Exploring Culture & History
     21 => 'dine.svg',      // Dining
