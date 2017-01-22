@@ -295,28 +295,6 @@ $(window).load(function () {
         }
     });
 
-    /*
-    $('#twitter').dialog({
-        modal:false, closeOnEscape: true, resizable:true,
-        autoOpen:false,
-        zIndex: 1000,
-        width: 550, height:500,
-        title:"Twitter",
-        buttons: {
-            'Close': function() {
-                $(this).dialog('close');
-            }
-        },
-        open: function () {
-            highlightToolbarButton('twitter');
-            loadTwitter();
-        },
-        close: function() {
-            highlightToolbarButton(null);
-        }
-    });
-    */
-
     $('#measure').dialog({
         modal:false, closeOnEscape: true, resizable:true,
         autoOpen:false,
@@ -445,7 +423,7 @@ $(window).load(function () {
         'Viewing Wildlife' : 'wildlife.png',
     };
 
-    $.get('../desktop/fetch_activitypois', {}, function (structure) {
+    $.get(APP_BASEPATH + 'desktop/fetch_activitypois', {}, function (structure) {
         var target = $('#activitypois');
         for (var category in structure) {
             // set up the LI that houses this category within the target UL
@@ -479,7 +457,7 @@ $(window).load(function () {
         }
     }, 'json');
 
-    $.get('../desktop/fetch_loops', {}, function (loops) {
+    $.get(APP_BASEPATH + 'desktop/fetch_loops', {}, function (loops) {
         var target = $('#loops_list');
         for (var i=0, l=loops.length; i<l; i++) {
             var loop = loops[i];
@@ -633,7 +611,7 @@ function searchByKeyword(keyword) {
     target.empty();
 
     disableKeywordButton();
-    $.get('../ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
+    $.get(APP_BASEPATH + 'ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
         enableKeywordButton();
         if (! reply.length) {
             // no matches, means we say so ... and that we pass on to an address search
@@ -707,7 +685,7 @@ function zoomElementClick(element) {
         var params = {};
         params.type = type;
         params.gid  = gid;
-        $.get('../ajax/moreinfo', params, function (reply) {
+        $.get(APP_BASEPATH + 'ajax/moreinfo', params, function (reply) {
             // grab and display the plain HTML
             $('#info-content').html(reply);
             // if there's a <wkt> element in the HTML, it's vector data to be handled by zoomElementHighlight()
@@ -828,7 +806,7 @@ $(window).load(function () {
 ///// on page load
 ///// load the autocomplete keywords via AJAX, and enable autocomplete on the Keyword Search
 $(window).load(function () {
-    $.get('../ajax/autocomplete_keywords', {}, function (words) {
+    $.get(APP_BASEPATH + 'ajax/autocomplete_keywords', {}, function (words) {
         $('#search_keyword').autocomplete({
             source: words,
             select: function (event,ui) {
@@ -1202,7 +1180,7 @@ function performMeasure(ll1,ll2,via) {
 
     // send the request
     var params = { sourcelat:ll1.lat, sourcelng:ll1.lng, targetlat:ll2.lat, targetlng:ll2.lng, tofrom:'to', via:via };
-    $.get('../ajax/directions', params, function (reply) {
+    $.get(APP_BASEPATH + 'ajax/directions', params, function (reply) {
         // re-enable the button
         button.prop('disabled',false);
         button.val( button.attr('value1') );

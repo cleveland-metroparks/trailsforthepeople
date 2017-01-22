@@ -8,12 +8,17 @@
     <a href="#pane-browse" class="sidebar-pane-link sidebar-back ui-btn ui-btn-inline ui-icon-back ui-btn-icon-left ui-corner-all">Back</a>
     
     <ul data-role="listview" data-inset="true">
-        <?php foreach ($poicategories as $category) { ?>
-        	<?php $url = site_url("/static/wms/pois/{$poicategory_icons[$category]}"); ?>
+    <?php $activity_icons_dir = '/static/images/activities/'; ?>
+        <?php foreach ($activities as $activity_id => $activity) { ?>
+            <?php
+                $link_param_category = 'pois_usetype_' . urlencode($activity['title']);
+                $link_url = "#browse-results?id=${activity_id}&category=${link_param_category}";
+                $icon_url = site_url($activity_icons_dir . $activity['icon']);
+            ?>
             <li>
-            	<a href="#browse-items?category=pois_usetype_<?= urlencode($category) ?>">
-            		<img class="ui-li-icon" src="<?= $url ?>" /> <?= htmlspecialchars($category) ?>
-            	</a>
+                <a href="<?= $link_url ?>">
+                    <img class="ui-li-icon" src="<?= $icon_url ?>" /> <?= htmlspecialchars($activity['title']) ?>
+                </a>
             </li>
         <?php } ?>
     </ul>

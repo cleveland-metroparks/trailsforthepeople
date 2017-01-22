@@ -7,7 +7,13 @@ class Ajax extends CI_Controller {
  but uses json_encode() a lot.
 */
 
-
+/**
+ * Geocode
+ *
+ * @param address
+ * @param bing_key
+ * @param bbox
+ */
 function geocode() {
     $url = sprintf("http://dev.virtualearth.net/REST/v1/Locations?query=%s&output=json&key=%s&userMapView=%s",
         urlencode($_GET['address']),
@@ -31,7 +37,15 @@ function geocode() {
     print json_encode($result);
 }
 
-
+/**
+ * Geocode for directions
+ *
+ * @param type
+ * @param gid
+ * @param lat
+ * @param lng
+ * @param via
+ */
 function geocode_for_directions() {
     // the output is a JSON-encoded object of 3 fields
     // the lat and lng of the target location, and a description of what the point is for debugging
@@ -102,7 +116,16 @@ function geocode_for_directions() {
     print json_encode($output);
 }
 
-
+/**
+ * Query
+ *
+ * @param zoom
+ * @param n
+ * @param s
+ * @param e
+ * @param w
+ * @param wkt
+ */
 function query() {
     $result = null; // yes, the first one is an "if" against a known null; enhances readability when we want to bump something up the priority list
     $moreinfo = null; // any additional info beyond the $result, usually nothing
@@ -168,8 +191,15 @@ function query() {
     $this->load->view($template, array('feature'=>$result, 'moreinfo'=>$moreinfo) );
 }
 
-
-
+/**
+ * Admin query
+ *
+ * @param n
+ * @param s
+ * @param e
+ * @param w
+ * @param wkt
+ */
 function adminquery() {
     // a new version of Query with different priorities and output templates
     $result = null; // yes, the first one is an "if" against a known null; enhances readability when we want to bump something up the priority list
@@ -207,9 +237,15 @@ function adminquery() {
     $this->load->view($template, array('feature'=>$result) );
 }
 
-
-
-
+/**
+ * Keyword
+ *
+ * @param keyword
+ * @param type
+ * @param limit
+ * @param lat
+ * @param lng
+ */
 function keyword() {
     $results = array();
 
@@ -292,34 +328,53 @@ function keyword() {
     print json_encode($results);
 }
 
-
-
+/**
+ * More info
+ *
+ * @param type
+ * @param gid
+ */
 function moreinfo() {
     switch(@$_GET['type']) {
+
         case 'trail':
             $result   = new Trail();
             $result->where('gid',$_GET['gid'])->get();
             if (! $result->gid) exit;
             $template = 'ajax/moreinfo_trail.phtml';
             break;
+
         case 'building':
             $result = new Building();
             $result->where('gid',$_GET['gid'])->get();
             if (! $result->gid) exit;
             $template = 'ajax/moreinfo_building.phtml';
             break;
+
         case 'poi':
-            $result = new Usearea();
-            $result->where('gid',$_GET['gid'])->get();
-            if (! $result->gid) exit;
+            $result = new Attraction();
+            $result->where('gis_id', $_GET['gid'])->get();
+            if (!isset($result->gis_id)) exit;
+
             $template = 'ajax/moreinfo_usearea.phtml';
+            // We're breaking the pattern the other cases use so we can store extra data
+            $this->load->view(
+                $template,
+                array(
+                    'feature' => $result->stored,
+                    'activities' => $result->getAttractionActivities()
+                ));
+
+            return;
             break;
+
         case 'reservation':
             $result = new Park();
             $result->where('gid',$_GET['gid'])->get();
             if (! $result->gid) exit;
             $template = 'ajax/moreinfo_reservation.phtml';
             break;
+
         case 'loop':
             $result = new Loop();
             $result->where('id',$_GET['gid'])->get();
@@ -334,6 +389,7 @@ function moreinfo() {
 
             $template = 'ajax/moreinfo_loop.phtml';
             break;
+
         default:
             $result = null;
             break;
@@ -345,8 +401,12 @@ function moreinfo() {
     $this->load->view($template, array('feature'=>$result->stored ) );
 }
 
-
-
+/**
+ * Exact name search
+ *
+ * @param type
+ * @param name
+ */
 function exactnamesearch() {
     switch($_GET['type']) {
         case 'trail':
@@ -383,7 +443,20 @@ function exactnamesearch() {
     print json_encode($result);
 }
 
-
+/**
+ * Directions
+ *
+ * @param via
+ * @param sourcelat
+ * @param sourcelng
+ * @param tofrom
+ * @param sourcelat
+ * @param sourcelng
+ * @param targetlat
+ * @param targetlng
+ * @param tofrom
+ * @param bing_key
+ */
 function directions() {
     switch ($_GET['via']) {
         case 'car':
@@ -401,8 +474,12 @@ function directions() {
     print json_encode($directions);
 }
 
-
-
+/**
+ * Driving Directions via Bing (private)
+ *
+ * @param $params:
+ *        array: sourcelat, sourcelng, targetlat, targetlng, tofrom, bing_key
+ */
 function _directions_bing_driving($params) {
     $output = array();
 
@@ -497,7 +574,12 @@ function _directions_bing_driving($params) {
     return $output;
 }
 
-
+/**
+ * Transit Directions via Bing (private)
+ *
+ * @param $params:
+ *        array: sourcelat, sourcelng, targetlat, targetlng, tofrom, bing_key
+ */
 function _directions_bing_transit($params) {
     $output = array();
 
@@ -623,8 +705,17 @@ function _directions_bing_transit($params) {
 }
 
 
-// not used as of November 2012, due to TOU. Now using Bing.
-// keep this indefinitely anyway, as it's valuable information if we need to change back some day
+
+/**
+ * DEPRECATED
+ * Transit Directions via Google (private)
+ *
+ * @param $params:
+ *        array: via, sourcelat, sourcelng, targetlat, targetlng, tofrom, bing_key
+ *
+ * Not used as of November 2012, due to TOU. Now using Bing.
+ * Keeping this around in case we need to change back some day.
+ */
 function _directions_google($params) {
     $output = array();
 
@@ -715,8 +806,12 @@ function _directions_google($params) {
     return $output;
 }
 
-
-
+/**
+ * Transit Directions via Trails (private)
+ *
+ * @param $params:
+ *        array: via, sourcelat, sourcelng, targetlat, targetlng, tofrom, prefer
+ */
 function _directions_via_trails($params) {
     if (! @$_GET['sourcelng']) return print "Missing params";
     if (! @$_GET['sourcelat']) return print "Missing params";
@@ -1156,11 +1251,14 @@ function _directions_via_trails($params) {
     return $output;
 }
 
-
-
-
-// unlike the directions methods above, this one doesn't need to adhere to an API as it's for admin use only
-// this one is custom-tuned for the admin tool for generating routes and loops
+/**
+ * Route waypoints
+ *
+ * Unlike the directions methods above, this one doesn't need to adhere to an API as it's for admin use only.
+ * This one is custom-tuned for the admin tool for generating routes and loops.
+ *
+ * @param $context
+ */
 function routewaypoints($context=false) {
     // override the $_GET array if we were hand-fed one; this is primarily for internal use such as autoloop()
     if ($context) $_GET = $context;
@@ -1537,10 +1635,15 @@ function routewaypoints($context=false) {
     print json_encode($output);
 }
 
-
-// current version of this heuristic for generating random waypoints (Greg A, July 2012)
-// the technique is to randomly "wander" away from the center, one leg at a time,
-// and then route home from wherever we have landed
+/**
+ * Random waypoints
+ *
+ * Current version of this heuristic for generating random waypoints (Greg A, July 2012).
+ * The technique is to randomly "wander" away from the center, one leg at a time,
+ * and then route home from wherever we have landed
+ *
+ * @param $context
+ */
 //function randomwaypoints_legbased($context=null) {
 function randomwaypoints($context=null) {
     // override the $_GET array if we were hand-fed one; this is primarily for internal use such as autoloop()
@@ -1613,10 +1716,15 @@ function randomwaypoints($context=null) {
     print json_encode($output);
 }
 
-
-// an experimental version of the random waypoint generator.
-// not very good (July 2012, Greg A) except at the center of a park; generates the same loop too often by staying "close to home"
-// unlike the current version which is "wandering leg" based
+/**
+ * Random waypoints, radius-based
+ *
+ * an experimental version of the random waypoint generator.
+ * not very good (July 2012, Greg A) except at the center of a park; generates the same loop too often by staying "close to home"
+ * unlike the current version which is "wandering leg" based
+ *
+ * @param $context
+ */
 //function randomwaypoints($context=null) {
 function randomwaypoints_radiusbased($context=null) {
     // override the $_GET array if we were hand-fed one; this is primarily for internal use such as autoloop()
@@ -1702,8 +1810,11 @@ function randomwaypoints_radiusbased($context=null) {
     print json_encode($output);
 }
 
-
-
+/**
+ * Elevation profile by segments
+ *
+ * @param $context
+ */
 function elevationprofilebysegments($context=null) {
     // check permission on the target directory where we save chart images
     // if it doesn't work, there's no point in making the chart: bail with an error message
@@ -1785,8 +1896,46 @@ function elevationprofilebysegments($context=null) {
     print $tempurl;
 }
 
+/**
+ * Browse POIs by activity
+ *
+ * @param activity_ids
+ */
+function browse_pois_by_activity() {
+    $results = array();
 
+    // Accept either a single Activity ID or an array of them.
+    $activity_ids = is_array($_GET['activity_ids']) ? $_GET['activity_ids'] : array($_GET['activity_ids']);
 
+    $attractions = Attraction::getAttractionsByActivity($activity_ids);
+
+    foreach ($attractions as $attraction) {
+        $results[] = array(
+            'type' => 'poi',
+            'name' => trim($attraction->pagetitle),
+            'gid'  => (integer) $attraction->gis_id,
+            //'gid'  => (integer) $attraction->record_id,
+
+            'w'    => (float) 0,
+            's'    => (float) 0,
+            'e'    => (float) 0,
+            'n'    => (float) 0,
+
+            'lat'  => (float) $attraction->latitude,
+            'lng'  => (float) $attraction->longitude
+        );
+    }
+
+    $output = array('results' => $results);
+    print json_encode($output);
+}
+
+/**
+ * Browse items
+ *
+ * @param search
+ * @param category
+ */
 function browse_items() {
     $results = array();
 
@@ -1850,8 +1999,13 @@ function browse_items() {
     print json_encode($output);
 }
 
-
-
+/**
+ * Search nearby
+ *
+ * @param lat
+ * @param lng
+ * @param meters
+ */
 function search_nearby() {
     // validation: floats, radius too large, categories exist, ...
     $_GET['lat']    = (float) @$_GET['lat']   ; if (! $_GET['lat']   ) return print "Bad params";
@@ -1874,7 +2028,14 @@ function search_nearby() {
     print json_encode($results);
 }
 
-
+/**
+ * Search trails
+ *
+ * @param exuses
+ * @param reservation
+ * @param paved
+ * @param uses
+ */
 function search_trails() {
     $results = array();
 
@@ -1915,9 +2076,17 @@ function search_trails() {
     print json_encode($results);
 }
 
-
-
-
+/**
+ * Search loops
+ *
+ * @param filter_type
+ * @param filter_paved
+ * @param reservation
+ * @param minfeet
+ * @param maxfeet
+ * @param minseconds
+ * @param maxseconds
+ */
 function search_loops() {
     $matches = new Loop();
     $results = array();
@@ -2036,8 +2205,16 @@ function search_loops() {
     print json_encode($results);
 }
 
-
-
+/**
+ * Autoloop
+ *
+ * @param lat
+ * @param lon
+ * @param miles
+ * @param usetype
+ * @param basename
+ * @param creatorid
+ */
 function autoloop() {
     $lat       = $_GET['lat'];
     $lon       = $_GET['lon'];
@@ -2151,26 +2328,13 @@ function autoloop() {
     print $loop->id;
 }
 
-
-
-function fetch_tweets() {
-    // a straight list of all non-deleted tweets, with a limit
-    $output = array();
-    $tweets = new Twitter();
-    $tweets->where('deleted','f')->limit(100)->get();
-    foreach ($tweets as $t) {
-        $output[] = array(
-            'username' => $t->username,
-            'picture' => $t->picture,
-            'prettydate' => $t->prettydate,
-            'content' => $t->content,
-        );
-    }
-    print json_encode($output);
-}
-
-
-
+/**
+ * Load POIs
+ *
+ * @return array of POIs
+ *     each an associative array including:
+ *         title, categories, gid, n, s, e, w, lat, lng
+ */
 function load_pois() {
     $results = array();
 
@@ -2200,9 +2364,14 @@ function load_pois() {
     print json_encode($results);
 }
 
-
-
-// this is used solely by the Tral Closures subsystem of the Contributors, so it's fairly single-purpose in its output
+/**
+ * Trail segments by trail name
+ *
+ * This is used solely by the Trail Closures subsystem of the Contributors,
+ * so it's fairly single-purpose in its output.
+ *
+ * @param trailname
+ */
 function trail_segments_by_trail_name() {
     $output = array();
 
@@ -2241,13 +2410,19 @@ function trail_segments_by_trail_name() {
     print json_encode($output);
 }
 
-
+/**
+ * Make short URL
+ *
+ * @param uri
+ * @param querystring
+ */
 function make_shorturl() {
-    print Shorturl::save_url($_GET['uri'],$_GET['querystring']);
+    print Shorturl::save_url($_GET['uri'], $_GET['querystring']);
 }
 
-
-
+/**
+ * Autocomplete keywords
+ */
 function autocomplete_keywords() {
     $words = array();
     $wx = pg_query('SELECT * FROM autocomplete_words');
@@ -2256,7 +2431,9 @@ function autocomplete_keywords() {
 }
 
 /**
- * To test working with the progress indicator.
+ * Test working with the progress indicator.
+ *
+ * @param job_id
  */
 function test_progress_indicator() {
     header('Content-type: application/json');
@@ -2279,7 +2456,13 @@ function test_progress_indicator() {
 }
 
 /**
- * Create a new system job in the database and return its ID.
+ * Create a new system job in the database
+ *
+ * @param title
+ * @param creator_email
+ * @param status
+ *
+ * @return Job ID
  */
 function create_job() {
     header('Content-type: application/json');
@@ -2297,7 +2480,9 @@ function create_job() {
 }
 
 /**
- * Check on a given job's progress & status.
+ * Check a given job's progress & status.
+ *
+ * @param job_id
  */
 function check_job_progress() {
     header('Content-type: application/json');
@@ -2317,7 +2502,9 @@ function check_job_progress() {
 }
 
 /**
+ * Purge Tilestache
  *
+ * @param job_id
  */
 function purge_tilestache() {
     header('Content-type: application/json');
@@ -2374,7 +2561,9 @@ function purge_tilestache() {
 }
 
 /**
+ * Seed Tilestache
  *
+ * @param job_id
  */
 function seed_tilestache() {
     header('Content-type: application/json');

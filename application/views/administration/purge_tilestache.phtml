@@ -37,7 +37,7 @@
         // Create a system job
         $.ajax({
             type: 'GET',
-            url: '../../ajax/create_job',
+            url: APP_BASEPATH + 'ajax/create_job',
             async: false,
             data: { title: 'purge_tilestache' },
             success: function(reply) {
@@ -51,7 +51,7 @@
         // Start the Purge process
         $.ajax({
             type: 'GET',
-            url: '../../ajax/purge_tilestache',
+            url: APP_BASEPATH + 'ajax/purge_tilestache',
             async: true,
             data: { job_id: job_id },
             success: function(reply) {
@@ -65,7 +65,7 @@
 
         // Check progress of the process and quit when finished
         var progress_checker = setInterval(function() {
-            $.get('../../ajax/check_job_progress', { job_id: job_id }, function (response) {
+            $.get(APP_BASEPATH + 'ajax/check_job_progress', { job_id: job_id }, function (response) {
                 if (!response) return;
 
                 job_progress = jQuery.parseJSON(response);
