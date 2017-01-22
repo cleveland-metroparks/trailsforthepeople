@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Map Embed, w/ Filters</title>
+
+    <meta charset="utf-8" />
+
+    <!-- Scripts already included in CM site Kentico pages: -->
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js?v=1.19"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/js-cookie/2.1.3/js.cookie.js"></script>
+
+    <!-- Concat-aggregated map JS, minus jQuery -->
+    <script type="text/javascript" src="/static/dist/js/map-embedded-nojq.js"></script>
+
+    <!-- Import-aggregated map CSS -->
+    <link rel="stylesheet" type="text/css" href='/static/dist/css/embedded.css' />
+</head>
+
+<body>
+
+<div style="width: 100%; height: 400px;">
+
+    <!-- Filters -->
+    <section class="filters-section" id="filters-section">
+        <div class="expanding-menu-snippet filters-expanding-menu expanded" data-module-id="expanding-menu-snippet" role="tablist">
+            <button class="expanding-menu-button filters-expanding-menu-button" type="button" aria-expanded="true" role="tab" aria-controls="filters-menu">Filters</button>
+            <div class="expanding-menu-outer-content filters-expanding-menu-outer-content fully-open" id="filters-menu" aria-hidden="false" style="height: auto;">
+                <div class="expanding-menu-inner-content">
+                    <div class="filter-control-area">
+                        <div class="large-center-margin-wrap">
+                            <ul class="filter-grid-list">
+
+                                <li class="half-column">
+                                    <span class="filter-field-label">Distance from me</span>
+                                    <div class="location-snippet interactive-form-location" data-module-id="location-snippet">
+                                        <div class="interactive-form-location-column location-column">
+                                            <label for="ctl00_ctl00_MasterPlaceholder_ContentPlaceHolder1_LocationTxt" id="ctl00_ctl00_MasterPlaceholder_ContentPlaceHolder1_LocationLbl" class="interactive-form-self-field-label">Enter a location</label>
+                                            <input name="ctl00$ctl00$MasterPlaceholder$ContentPlaceHolder1$LocationTxt" type="text" id="ctl00_ctl00_MasterPlaceholder_ContentPlaceHolder1_LocationTxt" class="interactive-form-text-field locationTxt">
+                                            <span class="interactive-form-location-or-text small-bold-uppercase-heading">or</span>
+                                        </div>
+                                        <div class="interactive-form-distance-column distance-column">
+                                            <div class="interactive-form-distance-near-me-area distance-near-me-area">
+                                                <input name="ctl00$ctl00$MasterPlaceholder$ContentPlaceHolder1$NearMeChk" type="checkbox" id="ctl00_ctl00_MasterPlaceholder_ContentPlaceHolder1_NearMeChk" class="interactive-form-distance-near-me-input nearMeChk">
+                                                <label for="ctl00_ctl00_MasterPlaceholder_ContentPlaceHolder1_NearMeChk" id="ctl00_ctl00_MasterPlaceholder_ContentPlaceHolder1_NearMeLbl" class="interactive-form-distance-near-me-label">Near me</label>
+                                                <label for="ctl00_ctl00_MasterPlaceholder_ContentPlaceHolder1_DistanceDDL" id="ctl00_ctl00_MasterPlaceholder_ContentPlaceHolder1_DistanceLbl" class="interactive-form-distance-label small-bold-uppercase-heading">within</label>
+                                            </div>
+
+                                            <select name="ctl00$ctl00$MasterPlaceholder$ContentPlaceHolder1$DistanceDDL" id="ctl00_ctl00_MasterPlaceholder_ContentPlaceHolder1_DistanceDDL" class="interactive-form-select-field locationRadiusDDL">
+                                                <option selected="selected" value="10">10 miles</option>
+                                                <option value="20">20 miles</option>
+                                                <option value="30">30 miles</option>
+                                                <option value="40">40 miles</option>
+                                                <option value="50">50 miles</option>
+                                                <option value="60">60 miles</option>
+                                                <option value="70">70 miles</option>
+                                                <option value="80">80 miles</option>
+                                                <option value="90">90 miles</option>
+                                                <option value="100">100 miles</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </li>
+
+                                <li class="full-column">
+                                    <span class="filter-field-label">Activities</span>
+                                    <ul class="filter-subfield-list">
+                                        <li>
+                                            <input class="filter-checkbox-field" type="checkbox" id="field-activities-6" name="field-activities-6" value="6">
+                                            <label class="filter-checkbox-field-label" for="field-activities-6">Archery</label>
+                                        </li>
+                                        <li>
+                                            <input class="filter-checkbox-field" type="checkbox" id="field-activities-1" name="field-activities-1" value="1">
+                                            <label class="filter-checkbox-field-label" for="field-activities-1">Biking &amp; Cycling</label>
+                                        </li>
+                                        <li>
+                                            <input class="filter-checkbox-field" type="checkbox" id="field-activities-3" name="field-activities-3" value="3">
+                                            <label class="filter-checkbox-field-label" for="field-activities-3">Boating &amp; Paddlesports</label>
+                                        </li>
+                                        <li>
+                                            <input class="filter-checkbox-field" type="checkbox" id="field-activities-7" name="field-activities-7" value="7">
+                                            <label class="filter-checkbox-field-label" for="field-activities-7">Cross-Country Skiing</label>
+                                        </li>
+                                        <li>
+                                            <input class="filter-checkbox-field" type="checkbox" id="field-activities-21" name="field-activities-21" value="21">
+                                            <label class="filter-checkbox-field-label" for="field-activities-21">Dining</label>
+                                        </li>
+                                        <li>
+                                            <input class="filter-checkbox-field" type="checkbox" id="field-activities-20" name="field-activities-20" value="20">
+                                            <label class="filter-checkbox-field-label" for="field-activities-20">Exploring Culture &amp; History</label>
+                                        </li>
+                                        <li>
+                                            <input class="filter-checkbox-field" type="checkbox" id="field-activities-19" name="field-activities-19" value="19">
+                                            <label class="filter-checkbox-field-label" for="field-activities-19">Exploring Nature</label>
+                                        </li>
+                                        <li>
+                                            <input class="filter-checkbox-field" type="checkbox" id="field-activities-5" name="field-activities-5" value="5">
+                                            <label class="filter-checkbox-field-label" for="field-activities-5">Fishing &amp; Ice Fishing</label>
+                                        </li>
+                                        <li>
+                                            <input class="filter-checkbox-field" type="checkbox" id="field-activities-4" name="field-activities-4" value="4">
+                                            <label class="filter-checkbox-field-label" for="field-activities-4">Hiking &amp; Walking</label>
+                                        </li>
+                                        <li>
+                                            <input class="filter-checkbox-field" type="checkbox" id="field-activities-11" name="field-activities-11" value="11">
+                                            <label class="filter-checkbox-field-label" for="field-activities-11">Horseback Riding</label>
+                                        </li>
+                                        <li>
+                                            <input class="filter-checkbox-field" type="checkbox" id="field-activities-12" name="field-activities-12" value="12">
+                                            <label class="filter-checkbox-field-label" for="field-activities-12">Mountain Biking</label>
+                                        </li>
+                                        <li>
+                                            <input class="filter-checkbox-field" type="checkbox" id="field-activities-13" name="field-activities-13" value="13">
+                                            <label class="filter-checkbox-field-label" for="field-activities-13">Picnicking</label>
+                                        </li>
+                                        <li>
+                                            <input class="filter-checkbox-field" type="checkbox" id="field-activities-15" name="field-activities-15" value="15">
+                                            <label class="filter-checkbox-field-label" for="field-activities-15">Sledding</label>
+                                        </li>
+                                        <li>
+                                            <input class="filter-checkbox-field" type="checkbox" id="field-activities-16" name="field-activities-16" value="16">
+                                            <label class="filter-checkbox-field-label" for="field-activities-16">Snowshoeing</label>
+                                        </li>
+                                        <li>
+                                            <input class="filter-checkbox-field" type="checkbox" id="field-activities-2" name="field-activities-2" value="2">
+                                            <label class="filter-checkbox-field-label" for="field-activities-2">Swimming</label>
+                                        </li>
+                                        <li>
+                                            <input class="filter-checkbox-field" type="checkbox" id="field-activities-17" name="field-activities-17" value="17">
+                                            <label class="filter-checkbox-field-label" for="field-activities-17">Tobogganing</label>
+                                        </li>
+                                    </ul>
+                                    <input type="hidden" name="ctl00$ctl00$MasterPlaceholder$ContentPlaceHolder1$ActivityValues" id="ActivityValues">
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="filter-action-area">
+                        <div class="large-center-margin-wrap">
+                            <ul class="filter-button-list">
+                                <li>
+                                    <button class="update-results-button" type="submit">Update results</button>
+                                </li>
+                                <li>
+                                    <button class="clear-filters-button" type="button">Clear filters</button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+	<!-- Map -->
+	<div id="map_canvas" style="width: 100%; height: 100%;"></div>
+</div>
+
+</body>
+</html>

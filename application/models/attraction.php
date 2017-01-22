@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS view_cmp_gisattractions (
   southlongitude varchar(255),
   westlatitude varchar(255),
   westlongitude varchar(255),
-  PRIMARY KEY(record_id)
+  PRIMARY KEY(gis_id)
 );
 GRANT ALL PRIVILEGES ON TABLE view_cmp_gisattractions TO trails;
 
