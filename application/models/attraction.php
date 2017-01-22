@@ -12,20 +12,50 @@ function __construct($id = NULL) {
 }
 
 /**
- * Get attractions by activity.
+ * Get attractions that include an activity or activities.
  *
- * @param $activity_id
+ * @param $activity_ids
+ *
+ * @return All attractions that include any of the given activities.
+ *         (Multiple activities are OR'ed.)
  */
-function getAttractionsByActivity($activity_id) {
-    $attractions = new Attraction();
+function getAttractionsByActivity($activity_ids) {
+    // Accept one or multiple
+    if (!is_array($activity_ids)) {
+        $activity_ids = array($activity_ids);
+    }
 
-    $attractions
-        ->where('activities', $activity_id)
-        ->or_like('activities', "$activity_id|%")
-        ->or_like('activities', "%|$activity_id")
-        ->or_like('activities', "%|$activity_id|%")
+    $all_attractions = new Attraction();
+
+    // This way doesn't allow as easily for multiple Activities:
+    //$attractions
+    //    ->where('activities', $activity_id)
+    //    ->or_like('activities', "$activity_id|%")
+    //    ->or_like('activities', "%|$activity_id")
+    //    ->or_like('activities', "%|$activity_id|%")
+    //    ->order_by('pagetitle')
+    //    ->get();
+
+    // Get all attractions first
+    $all_attractions
         ->order_by('pagetitle')
         ->get();
+
+    // Then filter by those that have the activity (or activities)
+    $attractions = array();
+    // Go through all attractions
+    foreach ($all_attractions as $attraction) {
+        $attraction_activities = Attraction::parseActivitiesString($attraction->activities);
+        $found = FALSE;
+        // Look for each provided activity within this Attraction's activity list
+        foreach ($activity_ids as $activity_id) {
+            if (in_array($activity_id, $attraction_activities)) {
+                // Found it; add to our result list
+                $attractions[] = $attraction;
+                continue;
+            }
+        }
+    }
 
     return $attractions;
 }

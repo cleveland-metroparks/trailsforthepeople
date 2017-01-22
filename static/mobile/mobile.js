@@ -135,13 +135,11 @@ $(document).ready(function () {
         var backbuttonurl = backurl;
         if (category) backbuttonurl = "#pane-browse-results";
 
-        // do the AJAX call: fetch the JSON data, render to UL.zoom in the #pane-browse-results page, switch over to it
-        //$.get(APP_BASEPATH + 'ajax/browse_items', { category:category }, function (reply) {
-        $.get(APP_BASEPATH + 'ajax/browse_pois_by_activity', { activity_id:activity_id }, function (reply) {
+        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
+        $.get(APP_BASEPATH + 'ajax/browse_pois_by_activity', { activity_ids: activity_id }, function (reply) {
 
             // Header title
             var header = $('#pane-browse-results h1.sidebar-header .title-text');
-            //header.text(reply.title);
             header.text(activity_title);
     
             // Iterate over fetched results and render them into the target

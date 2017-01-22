@@ -1899,12 +1899,15 @@ function elevationprofilebysegments($context=null) {
 /**
  * Browse POIs by activity
  *
- * @param activity_id
+ * @param activity_ids
  */
 function browse_pois_by_activity() {
     $results = array();
 
-    $attractions = Attraction::getAttractionsByActivity($_GET['activity_id']);
+    // Accept either a single Activity ID or an array of them.
+    $activity_ids = is_array($_GET['activity_ids']) ? $_GET['activity_ids'] : array($_GET['activity_ids']);
+
+    $attractions = Attraction::getAttractionsByActivity($activity_ids);
 
     foreach ($attractions as $attraction) {
         $results[] = array(
