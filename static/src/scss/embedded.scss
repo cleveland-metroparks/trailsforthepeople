@@ -1,5 +1,12 @@
 @import '../../lib/leaflet-1.0.3/leaflet.css';
 
-.leaflet-popup-content * {
-	font-size: inherit !important;
+.leaflet-popup-content {
+    h3 {
+        font-size: 1.3em;
+        font-weight: bold;
+    }
+    p {
+        font-size: inherit !important;
+        margin: 1em 0;
+    }
 }

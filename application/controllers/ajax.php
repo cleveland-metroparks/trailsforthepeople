@@ -1924,7 +1924,9 @@ function browse_pois_by_activity() {
             'lat'   => (float) $attraction->latitude,
             'lng'   => (float) $attraction->longitude,
 
-            'descr' => $attraction->descr
+            'thumbnail' => $attraction->pagethumbnail,
+
+            'description' => $attraction->descr
         );
     }
 

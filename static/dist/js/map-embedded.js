@@ -2941,6 +2941,7 @@ $(window).load(function () {
  */
 
 var APP_BASEPATH = 'https://maps-dev.clevelandmetroparks.com/';
+var CM_SITE_BASEURL = 'http://cmp.thunder-stage2.com/';
 
 var markerLayer = L.featureGroup();
 
@@ -3022,11 +3023,20 @@ $(document).ready(function(){
 function attractionPopupMarkup(attraction) {
     markup = "<h3>" + attraction.name + "</h3>";
 
-    if (attraction.descr) {
-        markup += "<p>" + attraction.descr + "</p>";
+    if (attraction.description) {
+        markup += "<p>" + attraction.description + "</p>";
     }
 
-    map_link = '';
+    if (attraction.thumbnail) {
+        // Remove "~/" and prepend CM site URL
+        thumbnail_path = CM_SITE_BASEURL + attraction.thumbnail.replace('~/', '');
+        // Resize image:
+        thumbnail_height = 150;
+        thumbnail_path = thumbnail_path.replace(/width=\d*\&height=\d*\&/, 'height=' + thumbnail_height + '&');
+        markup += '<img src="' + thumbnail_path + '" height="' + thumbnail_height + '" alt="' + attraction.name + '" />';
+    }
+
+    //map_link = '';
     //markup += '<p><a href="' + map_link + '">See on Metroparks map</a></p>';
 
     return markup;
