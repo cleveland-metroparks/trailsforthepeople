@@ -15,7 +15,7 @@ module.exports = function(grunt) {
         src: [
           'static/common/libraries/jquery-1.12.4.min.js',
           'static/common/libraries/purl.js',
-          'static/common/libraries/leaflet-1.0.2/leaflet.js',
+          'static/lib/leaflet-1.0.3/leaflet.js',
           'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
           'static/lib/mapbox-gl-0.28.0.js',
           'static/common/libraries/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
@@ -30,7 +30,7 @@ module.exports = function(grunt) {
       embedded_nojq: {
         src: [
           'static/common/libraries/purl.js',
-          'static/common/libraries/leaflet-1.0.2/leaflet.js',
+          'static/lib/leaflet-1.0.3/leaflet.js',
           'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
           'static/lib/mapbox-gl-0.28.0.js',
           'static/common/libraries/mapbox-gl-leaflet/leaflet-mapbox-gl.js',

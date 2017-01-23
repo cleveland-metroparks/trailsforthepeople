@@ -1,4 +1,4 @@
-@import url(../../common/libraries/leaflet-1.0.2/leaflet.css);
+@import url(../../lib/leaflet-1.0.3/leaflet.css);
 @import url(../../lib/mapbox.js-2.4.0/mapbox.css);
 .leaflet-popup-content * { font-size: inherit !important; }
 
