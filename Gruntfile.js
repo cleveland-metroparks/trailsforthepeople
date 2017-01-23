@@ -15,7 +15,7 @@ module.exports = function(grunt) {
         src: [
           'static/common/libraries/jquery-1.12.4.min.js',
           'static/common/libraries/purl.js',
-          'static/common/libraries/leaflet-1.0.2/leaflet.js',
+          'static/lib/leaflet-1.0.3/leaflet.js',
           'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
           'static/lib/mapbox-gl-0.28.0.js',
           'static/common/libraries/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
@@ -30,7 +30,7 @@ module.exports = function(grunt) {
       embedded_nojq: {
         src: [
           'static/common/libraries/purl.js',
-          'static/common/libraries/leaflet-1.0.2/leaflet.js',
+          'static/lib/leaflet-1.0.3/leaflet.js',
           'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
           'static/lib/mapbox-gl-0.28.0.js',
           'static/common/libraries/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
@@ -121,14 +121,20 @@ module.exports = function(grunt) {
       }
     },
     watch: {
-      compile_sass: {
+      sass_dist: {
         files: [
           'static/mobile/mobile.scss',
           'static/mobile/jqm-themes/cm-jqm-theme.css'
         ],
-        tasks: ['sass']
+        tasks: ['sass:dist']
       },
-      uglify_js: {
+      sass_embedded: {
+        files: [
+          'static/src/scss/embedded.scss'
+        ],
+        tasks: ['sass:embedded']
+      },
+      uglify_dist: {
         files: [
           'static/mobile/mobile.js',
           'static/common/js/constants.js',
@@ -136,7 +142,20 @@ module.exports = function(grunt) {
         ],
         tasks: ['uglify:dist']
       },
-      upload: {
+      concat_embedded: {
+        files: [
+          'static/src/js/embedded.js'
+        ],
+        tasks: ['concat:embedded', 'concat:embedded_nojq']
+      },
+      uglify_embedded: {
+        files: [
+          'static/dist/js/map-embedded.js',
+          'static/dist/js/map-embedded-nojq.js'
+        ],
+        tasks: ['uglify:embedded', 'uglify:embedded_nojq']
+      },
+      upload_dist: {
         files: [
           'static/mobile/mobile.css',
           'static/mobile/jqm-themes/cm-jqm-theme.css',
@@ -145,6 +164,16 @@ module.exports = function(grunt) {
           'static/common/js/common.jscompress.js'
         ],
         tasks: ['sftp:dist']
+      },
+      upload_embedded: {
+        files: [
+          'static/dist/js/map-embedded.js',
+          'static/dist/js/map-embedded.min.js',
+          'static/dist/js/map-embedded-nojq.js',
+          'static/dist/js/map-embedded-nojq.min.js',
+          'static/dist/css/embedded.css'
+        ],
+        tasks: ['sftp:embedded']
       }
     }
   });
