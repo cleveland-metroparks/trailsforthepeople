@@ -2941,7 +2941,8 @@ var markerLayer = L.featureGroup();
 var markerIcon = L.icon({
     iconUrl: APP_BASEPATH + 'static/common/images/markers/marker-gps.png',
     iconSize: [ 25, 41 ],
-    iconAnchor: [ 13, 41 ]
+    iconAnchor: [ 13, 41 ],
+    popupAnchor: [ 0, -41 ]
 });
 
 
@@ -3020,7 +3021,7 @@ function attractionPopupMarkup(attraction) {
     }
 
     map_link = '';
-    markup += '<p><a href="' + map_link + '">See on Metroparks map</a></p>';
+    //markup += '<p><a href="' + map_link + '">See on Metroparks map</a></p>';
 
     return markup;
 }
