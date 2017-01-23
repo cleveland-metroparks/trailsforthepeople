@@ -1911,18 +1911,20 @@ function browse_pois_by_activity() {
 
     foreach ($attractions as $attraction) {
         $results[] = array(
-            'type' => 'poi',
-            'name' => trim($attraction->pagetitle),
-            'gid'  => (integer) $attraction->gis_id,
-            //'gid'  => (integer) $attraction->record_id,
+            'type'  => 'poi',
+            'name'  => trim($attraction->pagetitle),
+            'gid'   => (integer) $attraction->gis_id,
+            //'gid'   => (integer) $attraction->record_id,
 
-            'w'    => (float) 0,
-            's'    => (float) 0,
-            'e'    => (float) 0,
-            'n'    => (float) 0,
+            'w'     => (float) 0,
+            's'     => (float) 0,
+            'e'     => (float) 0,
+            'n'     => (float) 0,
 
-            'lat'  => (float) $attraction->latitude,
-            'lng'  => (float) $attraction->longitude
+            'lat'   => (float) $attraction->latitude,
+            'lng'   => (float) $attraction->longitude,
+
+            'descr' => $attraction->descr
         );
     }
 
