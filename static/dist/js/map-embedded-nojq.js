@@ -2934,6 +2934,8 @@ $(window).load(function () {
  * Cleveland Metroparks
  */
 
+var APP_BASEPATH = '//maps-dev.clevelandmetroparks.com/';
+
 var markerLayer = L.featureGroup();
 
 $(document).ready(function(){
@@ -2986,5 +2988,16 @@ $(document).ready(function(){
     $('#filters-section .filter-action-area .clear-filters-button').click(function() {
         markerLayer.clearLayers();
     });
+
+    /**
+     * Disable form submission on existing filter buttons.
+     *
+     * TEMPORARY!!!
+     *
+     * @TODO: Let's get the form removed or change the buttons.
+     */
+    $('.update-results-button').attr('type', 'button')
+    $('.update-results-button').attr('onclick', '')
+    $('.clear-filters-button').attr('onclick', '');
 
 });
