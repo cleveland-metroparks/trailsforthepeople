@@ -1221,26 +1221,26 @@ MAP.addLayer(routedebug);
 var MOBILE; // set in desktop.js and mobile.js, so we can work around some things in shared code
 
 var ICON_TARGET = L.icon({
-    iconUrl: '/static/common/images/markers/marker-target.png',
+    iconUrl: APP_BASEPATH + 'static/common/images/markers/marker-target.png',
     iconSize: [ 25, 41 ],
     iconAnchor: [ 13, 41 ]
 });
 var MARKER_TARGET = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_TARGET });
 
 var ICON_GPS = L.icon({
-    iconUrl: '/static/common/images/markers/marker-gps.png',
+    iconUrl: APP_BASEPATH + 'static/common/images/markers/marker-gps.png',
     iconSize: [ 25, 41 ],
     iconAnchor: [ 13, 41 ]
 });
 var MARKER_GPS     = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_GPS });
 
 var ICON_FROM = L.icon({
-    iconUrl: '/static/desktop/measure1.png',
+    iconUrl: APP_BASEPATH + 'static/desktop/measure1.png',
     iconSize: [ 20, 34 ],
     iconAnchor: [ 10, 34 ]
 });
 var ICON_TO = L.icon({
-    iconUrl: '/static/desktop/measure2.png',
+    iconUrl: APP_BASEPATH + 'static/desktop/measure2.png',
     iconSize: [ 20, 34 ],
     iconAnchor: [ 10, 34 ]
 });
@@ -2934,9 +2934,16 @@ $(window).load(function () {
  * Cleveland Metroparks
  */
 
-var APP_BASEPATH = '//maps-dev.clevelandmetroparks.com/';
+var APP_BASEPATH = 'https://maps-dev.clevelandmetroparks.com/';
 
 var markerLayer = L.featureGroup();
+
+var markerIcon = L.icon({
+    iconUrl: APP_BASEPATH + 'static/common/images/markers/marker-gps.png',
+    iconSize: [ 25, 41 ],
+    iconAnchor: [ 13, 41 ]
+});
+
 
 $(document).ready(function(){
     // Load the URL params before the map, as we may need them to configure it.
@@ -2961,15 +2968,17 @@ $(document).ready(function(){
             selectedActivityIDs.push($(this).attr('value'));
         });
 
-        $.get(APP_BASEPATH + 'ajax/browse_pois_by_activity', { activity_ids: selectedActivityIDs }, function (reply) {
+        var data = { activity_ids: selectedActivityIDs };
+        var url = APP_BASEPATH + 'ajax/browse_pois_by_activity';
 
+        $.get(url, data, function (reply) {
             for (var i = 0; i < reply.results.length; i++) {
                 var result = reply.results[i];
 
                 marker = new L.marker([result.lat, result.lng], {
                     clickable: true,
                     draggable: false,
-                    icon: ICON_GPS,
+                    icon: markerIcon,
                 //}).bindPopup(item[1]);
                 });
 
@@ -2978,7 +2987,6 @@ $(document).ready(function(){
             markerLayer.addTo(MAP);
 
             MAP.fitBounds(MAX_BOUNDS);
-
         }, 'json');
     });
 
