@@ -2935,7 +2935,7 @@ $(window).load(function () {
  */
 
 var APP_BASEPATH = 'https://maps-dev.clevelandmetroparks.com/';
-var CM_SITE_BASEURL = 'http://cmp.thunder-stage2.com/';
+var CM_SITE_BASEURL = 'http://cmp.thunder-production.com/';
 
 var markerLayer = L.featureGroup();
 
@@ -2970,42 +2970,28 @@ $(document).ready(function(){
             selectedActivityIDs.push($(this).attr('value'));
         });
 
-        var locationTxt = $('input.locationTxt').val();
-        var latlng = locationTxt.split(",");
-
-        var radius_miles = $('select.locationRadiusDDL').val();
-        var radius_feet = 5280 * radius_miles;
+        var location_searchtext = $('input.locationTxt').val();
 
         var data = { activity_ids: selectedActivityIDs };
-        var url = '';
 
-        if (locationTxt) {
-            // Search nearby
-            url = APP_BASEPATH + 'ajax/get_nearby_pois_with_activities';
-            data.from_lat = latlng[0];
-            data.from_lng = latlng[1];
-            data.within_feet = radius_feet;
+        if (location_searchtext) {
+            // Search nearby activities
+            data.get_activities_url = APP_BASEPATH + 'ajax/get_nearby_pois_with_activities';
+            data.searchtext = location_searchtext;
+            data.within_feet = 5280 * $('select.locationRadiusDDL').val(); // 5280 feet per mile
+
+            callGeocodeAddress(data).then(function(reply, textStatus, jqXHR) {
+                // Add our new lat/lng to the data object.
+                data.lat = reply.lat;
+                data.lng = reply.lng;
+
+                callGetActivities(data);
+            });
         } else {
-            // Search activities, without nearby
-            url = APP_BASEPATH + 'ajax/browse_pois_by_activity';
+            // Search activities, without nearby 
+            data.get_activities_url = APP_BASEPATH + 'ajax/browse_pois_by_activity';
+            callGetActivities(data);
         }
-
-        $.get(url, data, function (reply) {
-            for (var i = 0; i < reply.results.length; i++) {
-                var result = reply.results[i];
-
-                marker = new L.marker([result.lat, result.lng], {
-                    clickable: true,
-                    draggable: false,
-                    icon: markerIcon,
-                }).bindPopup(attractionPopupMarkup(result));
-
-                markerLayer.addLayer(marker);
-            }
-            markerLayer.addTo(MAP);
-
-            MAP.fitBounds(MAX_BOUNDS);
-        }, 'json');
     });
 
     /**
@@ -3027,6 +3013,78 @@ $(document).ready(function(){
     $('.clear-filters-button').attr('onclick', '');
 
 });
+
+/**
+ * Get activities (AJAX)
+ *
+ * Works with Nearby and without.
+ */
+function callGetActivities(params) {
+    return $.ajax({
+        url: params.get_activities_url,
+        dataType: 'json',
+        data: params
+        })
+        .done(function(reply) {
+            displayActivities(reply.results);
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            console.log('callGetActivities error');
+            console.log(textStatus + ': ' + errorThrown);
+        });
+}
+
+/**
+ * Geocode address (AJAX)
+ */
+function callGeocodeAddress(params) {
+    var data = {};
+    data.address  = params.searchtext;
+    data.bing_key = BING_API_KEY;
+    data.bbox     = GEOCODE_BIAS_BOX;
+    
+    return $.ajax({
+        url: APP_BASEPATH + 'ajax/geocode',
+        dataType: 'json',
+        data: data
+        })
+        .done(function(reply) {
+            var latlng = L.latLng(reply.lat, reply.lng);
+            // Point outside service area
+            if (! MAX_BOUNDS.contains(latlng) ) {
+                return alert("The location we found for your address is too far away.");
+            }
+        
+            // Add a marker for their location
+            //MAP.setView(latlng, 16);
+            placeTargetMarker(reply.lat, reply.lng);
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            console.log('callGeocodeAddress error');
+            console.log(textStatus + ': ' + errorThrown);
+            alert("We couldn't find that address or city.\nPlease try again.");
+        });
+}
+
+/**
+ * Display activities on the map.
+ */
+function displayActivities(activities) {
+    for (var i = 0; i < activities.length; i++) {
+        var result = activities[i];
+
+        marker = new L.marker([result.lat, result.lng], {
+            clickable: true,
+            draggable: false,
+            icon: markerIcon,
+        }).bindPopup(attractionPopupMarkup(result));
+
+        markerLayer.addLayer(marker);
+    }
+    markerLayer.addTo(MAP);
+
+    MAP.fitBounds(MAX_BOUNDS);
+}
 
 /**
  * Make marker popup
