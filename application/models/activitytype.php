@@ -8,27 +8,27 @@ class ActivityType extends DataMapper {
 var $table    = 'view_cmp_gisactivitytype';
 
 var $chosen_activities = array(
-    'Archery',
-    'Biking & Cycling',
-    'Boating & Paddlesports',
-    'Cross-Country Skiing',
-    'Dining',
-    //'Exercising',
-    'Exploring Culture & History',
-    'Exploring Nature',
-    'Fishing & Ice Fishing',
-    //'Fitness Circuit',
-    'Geocaching',
-    'Golfing',
-    'Hiking & Walking',
-    'Horseback Riding',
-    'Mountain Biking',
-    'Picnicking',
-    'Rope Courses & Zip Lines',
-    'Sledding',
-    'Snowshoeing',
-    'Swimming',
-    //'Tobogganing',
+    'Archery', // 6
+    'Biking & Cycling', // 1
+    'Boating & Paddlesports', // 3
+    'Cross-Country Skiing', // 7
+    'Dining', // 21
+    //'Exercising', // 39
+    'Exploring Culture & History', // 20
+    'Exploring Nature', // 19
+    'Fishing & Ice Fishing', // 5
+    //'Fitness Circuit', // 25
+    'Geocaching', // 9
+    'Golfing', // 30
+    'Hiking & Walking', // 4
+    'Horseback Riding', // 11
+    'Mountain Biking', // 12
+    'Picnicking', // 13
+    'Rope Courses & Zip Lines', // 18
+    'Sledding', // 15
+    'Snowshoeing', // 16
+    'Swimming', // 2
+    //'Tobogganing', // 17
 );
 // @TODO: Move this into the DB
 var $activity_type_icons_by_id = array(

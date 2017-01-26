@@ -2976,8 +2976,25 @@ $(document).ready(function(){
             selectedActivityIDs.push($(this).attr('value'));
         });
 
+        var locationTxt = $('input.locationTxt').val();
+        var latlng = locationTxt.split(",");
+
+        var radius_miles = $('select.locationRadiusDDL').val();
+        var radius_feet = 5280 * radius_miles;
+
         var data = { activity_ids: selectedActivityIDs };
-        var url = APP_BASEPATH + 'ajax/browse_pois_by_activity';
+        var url = '';
+
+        if (locationTxt) {
+            // Search nearby
+            url = APP_BASEPATH + 'ajax/get_nearby_pois_with_activities';
+            data.from_lat = latlng[0];
+            data.from_lng = latlng[1];
+            data.within_feet = radius_feet;
+        } else {
+            // Search activities, without nearby
+            url = APP_BASEPATH + 'ajax/browse_pois_by_activity';
+        }
 
         $.get(url, data, function (reply) {
             for (var i = 0; i < reply.results.length; i++) {
