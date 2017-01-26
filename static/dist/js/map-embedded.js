@@ -1217,6 +1217,19 @@ MAP.addLayer(routedebug);
 */
 ;
  /**
+ * embedded-constants.js
+ *
+ * Overrides of constants.js and other necessities for embedded maps.
+ *
+ * Cleveland Metroparks
+ */
+
+APP_BASEPATH = 'https://maps-dev.clevelandmetroparks.com/';
+
+var CM_SITE_BASEURL = 'http://cmp.thunder-production.com/';
+
+MIN_ZOOM = 10;;
+ /**
  * common.js
  *
  * JS for common app functionality.
@@ -2940,24 +2953,11 @@ $(window).load(function () {
  * Cleveland Metroparks
  */
 
-var APP_BASEPATH = 'https://maps-dev.clevelandmetroparks.com/';
-var CM_SITE_BASEURL = 'http://cmp.thunder-production.com/';
-
 var markerLayer = L.featureGroup();
-
-var markerIcon = L.icon({
-    iconUrl: APP_BASEPATH + 'static/common/images/markers/marker-gps.png',
-    iconSize: [ 25, 41 ],
-    iconAnchor: [ 13, 41 ],
-    popupAnchor: [ 0, -41 ]
-});
-
 
 $(document).ready(function(){
     // Load the URL params before the map, as we may need them to configure it.
     URL_PARAMS = $.url();
-
-    MIN_ZOOM = 10;
 
     // Load the map.
     initMap();
@@ -3062,7 +3062,6 @@ function callGeocodeAddress(params) {
             }
         
             // Add a marker for their location
-            //MAP.setView(latlng, 16);
             placeTargetMarker(reply.lat, reply.lng);
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
@@ -3082,7 +3081,7 @@ function displayActivities(activities) {
         marker = new L.marker([result.lat, result.lng], {
             clickable: true,
             draggable: false,
-            icon: markerIcon,
+            icon: ICON_GPS,
         }).bindPopup(attractionPopupMarkup(result));
 
         markerLayer.addLayer(marker);

@@ -21,6 +21,7 @@ module.exports = function(grunt) {
           'static/common/libraries/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
           'static/common/libraries/cookie.js',
           'static/common/js/constants.js',
+          'static/src/js/embedded-constants.js',
           'static/common/js/common.js',
           'static/src/js/embedded.js'
         ],
@@ -36,6 +37,7 @@ module.exports = function(grunt) {
           'static/common/libraries/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
           'static/common/libraries/cookie.js',
           'static/common/js/constants.js',
+          'static/src/js/embedded-constants.js',
           'static/common/js/common.js',
           'static/src/js/embedded.js'
         ],
