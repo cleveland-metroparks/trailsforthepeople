@@ -1928,7 +1928,9 @@ function browse_pois_by_activity() {
 
             'thumbnail' => $attraction->pagethumbnail,
 
-            'description' => $attraction->descr
+            'description' => $attraction->descr,
+
+            'cmp_url' => $attraction->cmp_url
         );
     }
 
@@ -1971,7 +1973,9 @@ function get_nearby_pois_with_activities() {
 
             'thumbnail' => $attraction->pagethumbnail,
 
-            'description' => $attraction->descr
+            'description' => $attraction->descr,
+
+            'cmp_url' => $attraction->cmp_url
         );
     }
 
