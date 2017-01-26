@@ -154,6 +154,10 @@ function attractionPopupMarkup(attraction) {
         markup += "<p>" + attraction.description + "</p>";
     }
 
+    if (attraction.cmp_url) {
+        markup += '<p><a href="' + CM_SITE_BASEURL + attraction.cmp_url + '" title="Find out more about ' + attraction.name + '." target="_blank">More info</a></p>';
+    }
+
     if (attraction.thumbnail) {
         // Remove "~/" and prepend CM site URL
         thumbnail_path = CM_SITE_BASEURL + attraction.thumbnail.replace('~/', '');
@@ -163,8 +167,8 @@ function attractionPopupMarkup(attraction) {
         markup += '<img src="' + thumbnail_path + '" height="' + thumbnail_height + '" alt="' + attraction.name + '" />';
     }
 
-    //map_link = '';
-    //markup += '<p><a href="' + map_link + '">See on Metroparks map</a></p>';
+    map_link = '#';
+    markup += '<p><a href="' + APP_BASEPATH + map_link + '" target="_blank">See full map for directions</a></p>';
 
     return markup;
 }
