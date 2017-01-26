@@ -1907,14 +1907,57 @@ function browse_pois_by_activity() {
     // Accept either a single Activity ID or an array of them.
     $activity_ids = is_array($_GET['activity_ids']) ? $_GET['activity_ids'] : array($_GET['activity_ids']);
 
-    $attractions = Attraction::getAttractionsByActivity($activity_ids);
+    $attractions = new Attraction();
+    $attractions = $attractions->getAttractionsByActivity($activity_ids);
 
     foreach ($attractions as $attraction) {
         $results[] = array(
             'type'  => 'poi',
             'name'  => trim($attraction->pagetitle),
             'gid'   => (integer) $attraction->gis_id,
-            //'gid'   => (integer) $attraction->record_id,
+
+            'w'     => (float) 0,
+            's'     => (float) 0,
+            'e'     => (float) 0,
+            'n'     => (float) 0,
+
+            'lat'   => (float) $attraction->latitude,
+            'lng'   => (float) $attraction->longitude,
+
+            'thumbnail' => $attraction->pagethumbnail,
+
+            'description' => $attraction->descr
+        );
+    }
+
+    $output = array('results' => $results);
+    print json_encode($output);
+}
+
+/**
+ * Get nearby POIs with activities
+ *
+ * @param from_lat
+ * @param from_lng
+ * @param within_feet
+ * @param activity_ids
+ */
+function get_nearby_pois_with_activities() {
+    $results = array();
+
+    $attractions = new Attraction();
+    $attractions = $attractions->getNearbyAttractions(
+        $_GET['from_lat'],
+        $_GET['from_lng'],
+        $_GET['within_feet'],
+        $_GET['activity_ids']
+    );
+
+    foreach ($attractions as $attraction) {
+        $results[] = array(
+            'type'  => 'poi',
+            'name'  => trim($attraction->pagetitle),
+            'gid'   => (integer) $attraction->gis_id,
 
             'w'     => (float) 0,
             's'     => (float) 0,

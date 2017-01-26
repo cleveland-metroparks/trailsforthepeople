@@ -19,7 +19,7 @@ function __construct($id = NULL) {
  * @return All attractions that include any of the given activities.
  *         (Multiple activities are OR'ed.)
  */
-function getAttractionsByActivity($activity_ids) {
+function getAttractionsByActivity($activity_ids=array()) {
     // Accept one or multiple
     if (!is_array($activity_ids)) {
         $activity_ids = array($activity_ids);
@@ -27,35 +27,49 @@ function getAttractionsByActivity($activity_ids) {
 
     $all_attractions = new Attraction();
 
-    // This way doesn't allow as easily for multiple Activities:
-    //$attractions
-    //    ->where('activities', $activity_id)
-    //    ->or_like('activities', "$activity_id|%")
-    //    ->or_like('activities', "%|$activity_id")
-    //    ->or_like('activities', "%|$activity_id|%")
-    //    ->order_by('pagetitle')
-    //    ->get();
-
     // Get all attractions first
     $all_attractions
         ->order_by('pagetitle')
         ->get();
 
-    // Then filter by those that have the activity (or activities)
-    $attractions = array();
-    // Go through all attractions
-    foreach ($all_attractions as $attraction) {
-        $attraction_activities = Attraction::parseActivitiesString($attraction->activities);
-        $found = FALSE;
-        // Look for each provided activity within this Attraction's activity list
-        foreach ($activity_ids as $activity_id) {
-            if (in_array($activity_id, $attraction_activities)) {
-                // Found it; add to our result list
-                $attractions[] = $attraction;
-                continue;
-            }
-        }
-    }
+    // Then filter by those that have the activity or activities
+    $attractions = $this->filterAttractionsByActivities($all_attractions, $activity_ids);
+
+    return $attractions;
+}
+
+/**
+ * Get nearby attractions
+ *
+ * @param $from_lat
+ * @param $from_lng
+ * @param $within_feet
+ * @param $with_activities: array of activity IDs
+ *
+ * @return All attractions in the vicinity that include any of the activities, if provided.
+ *         (Multiple activities are OR'ed.)
+ */
+function getNearbyAttractions($from_lat, $from_lng, $within_feet, $with_activities=array()) {
+    // Cast to floats in case the caller forgot.
+    $from_lng = (float) $from_lng;
+    $from_lat = (float) $from_lat;
+    $within_feet = (float) $within_feet;
+
+    $table = 'view_cmp_gisattractions';
+
+    // @TODO: Prevent injection!!!
+
+    $sql = "
+        SELECT * FROM $table
+        WHERE ST_DISTANCE(
+            geom,
+            ST_TRANSFORM(ST_GEOMFROMTEXT('POINT($from_lng $from_lat)', 4326), 3734)) <= $within_feet
+    ";
+
+    $nearby_attractions = $this->db->query($sql)->result();
+
+    // Then filter by those that have the activity or activities
+    $attractions = $this->filterAttractionsByActivities($nearby_attractions, $with_activities);
 
     return $attractions;
 }
@@ -81,14 +95,42 @@ function getAttractionActivities() {
 }
 
 /**
+ * Filter a list of attractions by given activities.
+ *
+ * @param $attractions
+ * @param $activity_ids
+ */
+function filterAttractionsByActivities($attractions, $activity_ids) {
+    $filtered_attractions = array();
+
+    // Go through all attractions
+    foreach ($attractions as $attraction) {
+        $attraction_activities = $this->parseActivitiesString($attraction->activities);
+        $found = FALSE;
+        // Look for each provided activity within this Attraction's activity list
+        foreach ($activity_ids as $activity_id) {
+            if (in_array($activity_id, $attraction_activities)) {
+                // Found it; add to our result list
+                $filtered_attractions[] = $attraction;
+                continue;
+            }
+        }
+    }
+
+    return $filtered_attractions;
+}
+
+/**
  * Parse the activities string as its stored in the DB.
  *
  * @param $activities_str: like "1|2|3"
+ *
  * @return array
  */
-public function parseActivitiesString($activities_str) {
+function parseActivitiesString($activities_str) {
     return explode('|', $activities_str);
 }
+
 
 }
 
@@ -111,18 +153,18 @@ CREATE TABLE IF NOT EXISTS view_cmp_gisattractions (
   reservable boolean,
   cmp_url varchar(255),
   amenities varchar(255),
-  latitude varchar(255),
-  longitude varchar(255),
-  drivingdestinationlatitude varchar(255),
-  drivingdestinationlongitude varchar(255),
-  northlatitude varchar(255),
-  northlongitude varchar(255),
-  eastlatitude varchar(255),
-  eastlongitude varchar(255),
-  southlatitude varchar(255),
-  southlongitude varchar(255),
-  westlatitude varchar(255),
-  westlongitude varchar(255),
+  latitude float,
+  longitude float,
+  drivingdestinationlatitude float,
+  drivingdestinationlongitude float,
+  northlatitude float,
+  northlongitude float,
+  eastlatitude float,
+  eastlongitude float,
+  southlatitude float,
+  southlongitude float,
+  westlatitude float,
+  westlongitude float,
   PRIMARY KEY(gis_id)
 );
 GRANT ALL PRIVILEGES ON TABLE view_cmp_gisattractions TO trails;
