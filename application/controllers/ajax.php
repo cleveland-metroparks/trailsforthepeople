@@ -45,10 +45,12 @@ function geocode() {
  * @param lat
  * @param lng
  * @param via
+ *
+ * @return JSON-encoded object of 3 fields:
+ *     The lat and lng of the target location, and
+ *     a description of what the point is, for debugging.
  */
 function geocode_for_directions() {
-    // the output is a JSON-encoded object of 3 fields
-    // the lat and lng of the target location, and a description of what the point is for debugging
     $output = array();
 
     switch ($_GET['type']) {
@@ -1937,8 +1939,8 @@ function browse_pois_by_activity() {
 /**
  * Get nearby POIs with activities
  *
- * @param from_lat
- * @param from_lng
+ * @param lat
+ * @param lng
  * @param within_feet
  * @param activity_ids
  */
@@ -1947,8 +1949,8 @@ function get_nearby_pois_with_activities() {
 
     $attractions = new Attraction();
     $attractions = $attractions->getNearbyAttractions(
-        $_GET['from_lat'],
-        $_GET['from_lng'],
+        $_GET['lat'],
+        $_GET['lng'],
         $_GET['within_feet'],
         $_GET['activity_ids']
     );
