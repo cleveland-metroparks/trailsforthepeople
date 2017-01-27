@@ -205,6 +205,50 @@ div.elevationprofileimage img {
 }
 
 /*-----------------------------------------------------------------------------------------------------------*/
+/* From common.css
+/*-----------------------------------------------------------------------------------------------------------*/
+
+// Used in certain AJAX query returns
+.popup_title {
+    font-size: 10pt;
+    font-weight: bold;
+    margin-bottom: 0.25em;
+}
+
+// Alerts in loop & trail more-info panes
+.park-alert {
+    background-color: #CC9966;
+    color: black;
+    font-weight: bold;
+    text-align: center;
+}
+// WKT data hidden in loop & trail more-info panes
+div.wkt {
+    display: none;
+}
+
+div.lat_driving {
+    display: none;
+}
+div.lng_driving {
+    display: none;
+}
+
+// Leaflet Zoom panel
+// Allow buttons to be disabled.
+.leaflet-control-zoom a.disabled {
+    display: none;
+}
+.leaflet-control-zoom a.only {
+    margin: 0;
+}
+
+// Gallery popup
+#gallery {
+    text-align: center;
+}
+
+/*-----------------------------------------------------------------------------------------------------------*/
 /* Sidebar
 /* Leaflet Sidebar-v2
 /*-----------------------------------------------------------------------------------------------------------*/

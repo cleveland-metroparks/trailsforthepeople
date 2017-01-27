@@ -1,6 +1,3 @@
-<style type="text/css">
-</style>
-
 <div class="wkt"><?= $feature->wkt ?></div>
 
 
@@ -12,7 +9,7 @@ $steps = json_decode($feature->steps);
 <h2><?= htmlspecialchars($feature->name) ?></h2>
 
 <?php if ($feature->closed) { ?>
-<p class="alert">Some portions may be closed to access. Please check the map for more details.</p>
+<p class="park-alert">Some portions may be closed to access. Please check the map for more details.</p>
 <?php } ?>
 
 <p>

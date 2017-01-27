@@ -74,6 +74,25 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 .description { padding: 0 20px; }
 
 /*-----------------------------------------------------------------------------------------------------------*/
+/* From common.css
+/*-----------------------------------------------------------------------------------------------------------*/
+.popup_title { font-size: 10pt; font-weight: bold; margin-bottom: 0.25em; }
+
+.park-alert { background-color: #CC9966; color: black; font-weight: bold; text-align: center; }
+
+div.wkt { display: none; }
+
+div.lat_driving { display: none; }
+
+div.lng_driving { display: none; }
+
+.leaflet-control-zoom a.disabled { display: none; }
+
+.leaflet-control-zoom a.only { margin: 0; }
+
+#gallery { text-align: center; }
+
+/*-----------------------------------------------------------------------------------------------------------*/
 /* Sidebar
 /* Leaflet Sidebar-v2
 /*-----------------------------------------------------------------------------------------------------------*/
