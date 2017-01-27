@@ -146,7 +146,10 @@ module.exports = function(grunt) {
       },
       concat_embedded: {
         files: [
-          'static/src/js/embedded.js'
+          'static/common/js/constants.js',
+          'static/common/js/common.js',
+          'static/src/js/embedded.js',
+          'static/src/js/embedded-constants.js'
         ],
         tasks: ['concat:embedded', 'concat:embedded_nojq']
       },
