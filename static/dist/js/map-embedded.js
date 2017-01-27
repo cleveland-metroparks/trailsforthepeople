@@ -2926,7 +2926,7 @@ $(document).ready(function(){
     MAP.scrollWheelZoom.disable();
 
     /**
-     * Filter
+     * Filters: on "Update Results" button click
      */
     $('#filters-section .filter-action-area .update-results-button').click(function() {
         markerLayer.clearLayers();
@@ -2978,22 +2978,21 @@ $(document).ready(function(){
     });
 
     /**
-     * Clear Markers
+     * Clear markers
      */
     $('#filters-section .filter-action-area .clear-filters-button').click(function() {
         markerLayer.clearLayers();
     });
 
     /**
-     * Geolocate
+     * Geolocate user
      */
     $('.interactive-form-distance-near-me-input').click(function() {
         if ($('.interactive-form-distance-near-me-input').prop('checked')) {
-            MAP.locate({watch: true, enableHighAccuracy: true});
+            MAP.locate({watch: false, enableHighAccuracy: true});
         } else {
             MAP.stopLocate();
-            userLocation = null;
-            clearGPSMarker();
+            disableGeolocation();
         }
     });
 
@@ -3007,16 +3006,18 @@ $(document).ready(function(){
         // Auto-center
         if (MAX_BOUNDS.contains(event.latlng)) {
             MAP.panTo(event.latlng);
-            //if (MAP.getZoom() < 12) MAP.setZoom(16);
         } else {
-            //MAP.fitBounds(MAX_BOUNDS);
             // @TODO: Notify out-of-bounds
-            alert("Your current location is too far away.");
+            alert("Sorry, your current location is too far away.");
+            console.log('Geolocation: ', userLocation);
+            disableGeolocation();
         }
     });
     // Geolocation error handler
     MAP.on('locationerror', function(error) {
+        alert("We couldn't acquire your current location.");
         console.log('Geolocation error: ' + error.message + '(' + error.code + ')');
+        disableGeolocation();
     });
 
     /**
@@ -3031,6 +3032,18 @@ $(document).ready(function(){
     $('.clear-filters-button').attr('onclick', '');
 
 });
+
+/**
+ * Disable geolocation:
+ * - ensure the button is un-checked,
+ * - remove our stored location, and
+ * - remove the marker.
+ */
+function disableGeolocation() {
+    $('.interactive-form-distance-near-me-input').prop('checked', false);
+    userLocation = null;
+    clearGPSMarker();
+}
 
 /**
  * Get activities (AJAX)
