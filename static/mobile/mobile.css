@@ -1,7 +1,5 @@
-/* Typography */
 .ui-header { font-family: "myriad-pro", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif; }
 
-/* Page elements */
 #map_canvas { position: absolute; top: 0; left: 0; margin: 0; padding: 0; width: 100%; height: 100%; }
 
 .leaflet-popup .fakelink { font-size: 12pt; }
@@ -10,7 +8,6 @@
 
 #info-content { margin-bottom: 1em; }
 
-/* input widgets inherit the background color, making them nearly invisible! */
 .ui-content input[type="text"] { background: none repeat scroll 0 0 #F9F9F9; }
 
 .ui-content input[type="password"] { background: none repeat scroll 0 0 #F9F9F9; }
@@ -19,45 +16,34 @@
 
 .ui-content select { background: none repeat scroll 0 0 #F9F9F9; }
 
-/* speed up those transitions a little */
 .fade.out { opacity: 0; -webkit-animation-duration: 100ms; -moz-animation-duration: 100ms; }
 
 .fade.in { opacity: 1; -webkit-animation-duration: 100ms; -moz-animation-duration: 100ms; }
 
-/* jQuery Mobile sliders have that text field; hide them */
 input.ui-slider-input, .ui-field-contain input.ui-slider-input { display: none; }
 
 div.ui-slider { height: 25px; }
 
 .ui-field-contain div.ui-slider { width: 75%; }
 
-/* Leaflet popups which are large enough to induce scrolling, can't really scroll */
 .leaflet-popup-scrolled .leaflet-popup-content { overflow: hidden; }
 
-/* Geolocate button this goes over the map, and the Scale control is hidden (it's added in common, so can't disable it only in mobile) */
 #mapbutton_gps { position: absolute; bottom: 5px; right: 10px; cursor: pointer; z-index: 401; }
 
-/* inside a a textnowrap do not force text inputs to wrap lines */
 .textnowrap input.ui-input-text, textarea.ui-input-text { display: inline; }
 
 .textnowrap td { vertical-align: middle; }
 
-/** Misc element styles */
 ul.nobull { list-style-type: none; padding: 0; }
 
 .small-light { color: #8D8C8C; font-size: 90%; }
 
-/* The Share panel and Settings panels have elements that need to appear as read-only text inputs but that are really <div>'s, beacause iOS forgot to add a select-and-copy function!
-*/
 div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; padding: 0.4em; border: 1px solid #000; border-radius: 0.2em; height: 1.4em; }
 
-/* toggle for sorting alphabetically or by distance, hidden by default but added as searches happen */
 .sortpicker { display: none; text-align: center; margin: 10px 0; }
 
 #pane-browse-results .sortpicker { display: block; }
 
-/* Elevation profile wrapper */
-/* TRAIL FINDER and FEATURED LOOPS */
 #trailfinder_typeicons { text-align: center; margin-bottom: 1em; }
 
 #trailfinder_typeicons img { cursor: pointer; }
@@ -70,12 +56,8 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 
 #loops_filter_distancepicker img { cursor: pointer; }
 
-/*-----------------------------------------------------------------------------------------------------------*/
 .description { padding: 0 20px; }
 
-/*-----------------------------------------------------------------------------------------------------------*/
-/* From common.css
-/*-----------------------------------------------------------------------------------------------------------*/
 .popup_title { font-size: 10pt; font-weight: bold; margin-bottom: 0.25em; }
 
 .park-alert { background-color: #CC9966; color: black; font-weight: bold; text-align: center; }
@@ -92,10 +74,6 @@ div.lng_driving { display: none; }
 
 #gallery { text-align: center; }
 
-/*-----------------------------------------------------------------------------------------------------------*/
-/* Sidebar
-/* Leaflet Sidebar-v2
-/*-----------------------------------------------------------------------------------------------------------*/
 #sidebar .sidebar-header { background-color: #1D5C1F; margin-bottom: 20px; }
 #sidebar .sidebar-tabs .ui-link, #sidebar .sidebar-tabs .ui-link:visited { color: #232222; }
 #sidebar .sidebar-tabs > ul > li.active { background-color: #1D5C1F; }
@@ -109,10 +87,7 @@ div.lng_driving { display: none; }
 #sidebar .sidebar-content .distance_sortable a.ui-btn h4.ui-li-heading { margin-top: 0; }
 #sidebar .sidebar-content .distance_sortable a.ui-btn .ui-li-desc { font-weight: normal; }
 
-/*-----------------------------------------------------------------------------------------------------------*/
-/* Sidebar Panes */
-/*-----------------------------------------------------------------------------------------------------------*/
-#pane-browse ul[data-role="listview"] li img { margin-top: -20px; /* hack to make the icons align to the text */ }
+#pane-browse ul[data-role="listview"] li img { margin-top: -20px; }
 
 #pane-getdirections #directions_target_title { text-align: center; font-size: 110%; font-weight: bold; margin-top: 1.5em; }
 #pane-getdirections #change_directions_target { text-align: center; font-size: 75%; margin-top: .5em; margin-bottom: 1.5em; }
