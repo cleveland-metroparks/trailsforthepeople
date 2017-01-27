@@ -2,8 +2,8 @@
 .leaflet-popup-content h3 { font-size: 1.3em; font-weight: bold; }
 .leaflet-popup-content p { font-size: 1.1em !important; margin: 1em 0; }
 
-.info-popup.warning .leaflet-popup-content-wrapper { border: 2px solid #FF7C3C; background-color: #fff4ef; }
-.info-popup.error .leaflet-popup-content-wrapper { border: 2px solid #BB402E; background-color: #fbefed; }
+.info-popup.warning .leaflet-popup-content-wrapper { border: 2px solid #FF7C3B; background-color: #fff3ee; }
+.info-popup.error .leaflet-popup-content-wrapper { border: 2px solid #DE5049; background-color: #fdf6f6; }
 .info-popup .leaflet-popup-content { font-size: 1.3em; }
 .info-popup .leaflet-popup-tip-container { display: none; }
 .info-popup a.leaflet-popup-close-button { color: #333333; }

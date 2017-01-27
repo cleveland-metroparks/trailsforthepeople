@@ -1,7 +1,5 @@
+@import "_variables.scss";
 @import '../../lib/leaflet-1.0.3/leaflet.css';
-
-$cmp_red: #BB402E;
-$cmp_orange: #FF7C3C;
 
 .leaflet-popup-content {
     h3 {
@@ -17,14 +15,14 @@ $cmp_orange: #FF7C3C;
 .info-popup {
 	&.warning {
 		.leaflet-popup-content-wrapper {
-			border: 2px solid $cmp_orange;
-			background-color: lighten($cmp_orange, 35%);
+			border: 2px solid $orange_light;
+			background-color: lighten($orange_light, 35%);
 		}
 	}
 	&.error {
 		.leaflet-popup-content-wrapper {
-			border: 2px solid $cmp_red;
-			background-color: lighten($cmp_red, 50%);
+			border: 2px solid $red_light;
+			background-color: lighten($red_light, 40%);
 		}
 	}
 	.leaflet-popup-content {
