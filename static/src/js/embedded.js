@@ -102,15 +102,14 @@ $(document).ready(function(){
         if (MAX_BOUNDS.contains(event.latlng)) {
             MAP.panTo(event.latlng);
         } else {
-            // @TODO: Notify out-of-bounds
-            alert("Sorry, your current location is too far away.");
-            console.log('Geolocation: ', userLocation);
+            showInfoPopup('Sorry, your current location is too far away.', 'warning');
+            console.log('Geolocation out of bounds: ', userLocation);
             disableGeolocation();
         }
     });
     // Geolocation error handler
     MAP.on('locationerror', function(error) {
-        alert("We couldn't acquire your current location.");
+        showInfoPopup('We couldn\'t acquire your current location.', 'error');
         console.log('Geolocation error: ' + error.message + '(' + error.code + ')');
         disableGeolocation();
     });
@@ -118,9 +117,7 @@ $(document).ready(function(){
     /**
      * Disable form submission on existing filter buttons.
      *
-     * TEMPORARY!!!
-     *
-     * @TODO: Let's get the form removed or change the buttons.
+     * @TODO: Let's get the form and/or inline button click events removed!
      */
     $('.update-results-button').attr('type', 'button')
     $('.update-results-button').attr('onclick', '')
@@ -178,16 +175,16 @@ function callGeocodeAddress(params) {
             var latlng = L.latLng(reply.lat, reply.lng);
             // Point outside service area
             if (! MAX_BOUNDS.contains(latlng) ) {
-                return alert("The location we found for your address is too far away.");
+                showInfoPopup("The location we found for your address is too far away.", 'warning');
+                return;
             }
         
             // Add a marker for their location
             placeGPSMarker(reply.lat, reply.lng);
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
-            console.log('callGeocodeAddress error');
             console.log(textStatus + ': ' + errorThrown);
-            alert("We couldn't find that address or city.\nPlease try again.");
+            showInfoPopup("We couldn't find that address or city.\nPlease try again.", 'warning');
         });
 }
 

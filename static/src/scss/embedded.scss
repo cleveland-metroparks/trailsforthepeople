@@ -1,12 +1,42 @@
 @import '../../lib/leaflet-1.0.3/leaflet.css';
 
+$cmp_red: #BB402E;
+$cmp_orange: #FF7C3C;
+
 .leaflet-popup-content {
     h3 {
         font-size: 1.3em;
         font-weight: bold;
     }
     p {
-        font-size: inherit !important;
+        font-size: 1.1em !important;
         margin: 1em 0;
     }
+}
+
+.info-popup {
+	&.warning {
+		.leaflet-popup-content-wrapper {
+			border: 2px solid $cmp_orange;
+			background-color: lighten($cmp_orange, 35%);
+		}
+	}
+	&.error {
+		.leaflet-popup-content-wrapper {
+			border: 2px solid $cmp_red;
+			background-color: lighten($cmp_red, 50%);
+		}
+	}
+	.leaflet-popup-content {
+		font-size: 1.3em;
+	}
+	.leaflet-popup-tip-container {
+		display: none;
+	}
+	a.leaflet-popup-close-button {
+		color: lighten(#000, 20%);
+		&:hover {
+			color: black;
+		}
+	}
 }

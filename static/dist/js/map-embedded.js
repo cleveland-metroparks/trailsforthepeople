@@ -1268,6 +1268,11 @@ var ICON_TO = L.icon({
 var MARKER_FROM  = L.marker(L.latLng(0,0), { clickable:true, draggable:true, icon:ICON_FROM });
 var MARKER_TO    = L.marker(L.latLng(0,0), { clickable:true, draggable:true, icon:ICON_TO });
 
+var INFO_POPUP_OPTIONS = {
+    'className' : 'info-popup'
+};
+var INFO_POPUP = L.popup(INFO_POPUP_OPTIONS);
+
 var CIRCLE         = new L.Circle(L.latLng(0,0), 1);
 
 var ELEVATION_PROFILE     = null;
@@ -1563,42 +1568,93 @@ function selectBasemap(layer_key) {
     }
 }
 
-
-
-
+/**
+ * Place "target" (normal) marker
+ */
 function placeTargetMarker(lat,lon) {
     MAP.addLayer(MARKER_TARGET);
     MARKER_TARGET.setLatLng(L.latLng(lat,lon));
 }
+
+/**
+ * Clear "target" (normal) marker
+ */
 function clearTargetMarker() {
     MAP.removeLayer(MARKER_TARGET);
 }
 
+/**
+ * Place GPS (geolocated) marker
+ */
 function placeGPSMarker(lat,lon) {
     MAP.addLayer(MARKER_GPS);
     MARKER_GPS.setLatLng(L.latLng(lat,lon));
 }
+
+/**
+ * Clear GPS (geolocated) marker
+ */
 function clearGPSMarker() {
     MAP.removeLayer(MARKER_GPS);
 }
 
+/**
+ * Show informational popup
+ */
+function showInfoPopup(message, type) {
+    MAP.removeLayer(INFO_POPUP);
+    switch (type) {
+        case 'warning':
+            classes = 'info-popup warning';
+            break;
+        case 'error':
+            classes = 'info-popup error';
+            break;
+        default:
+            classes = 'info-popup';
+    }
+    INFO_POPUP = L.popup({className : classes})
+        .setLatLng(MAP.getCenter())
+        .setContent(message)
+        .openOn(MAP);
+}
+
+/**
+ * Clear informational popup
+ */
+function clearInfoPopup() {
+    MAP.removeLayer(INFO_POPUP);
+    INFO_POPUP.options.className
+}
+
+/**
+ * Place circle
+ */
 function placeCircle(lat,lon,meters) {
     MAP.removeLayer(CIRCLE);
     CIRCLE.setLatLng(L.latLng(lat,lon));
     CIRCLE.setRadius(meters);
     MAP.addLayer(CIRCLE);
 }
+
+/**
+ * Clear circle
+ */
 function clearCircle() {
     CIRCLE.setLatLng(L.latLng(0,0));
     CIRCLE.setRadius(1);
     MAP.removeLayer(CIRCLE);
 }
 
-
-// given a string, try to parse it as coordinates and return a L.LatLng instance
-// currently supports these formats:
-//      N 44 35.342 W 123 15.669
-//      44.589033 -123.26115
+/**
+ * String to Lat/Long
+ *
+ * Given a string, try to parse it as coordinates and return a L.LatLng instance.
+ *
+ * Currently supports these formats:
+ *      N 44 35.342 W 123 15.669
+ *      44.589033 -123.26115
+ */
 function strToLatLng(text) {
     var text = text.replace(/\s+$/,'').replace(/^\s+/,'');
 
@@ -1641,7 +1697,9 @@ function strToLatLng(text) {
     return null;
 }
 
-
+/**
+ * Zoom to Address
+ */
 function zoomToAddress(searchtext) {
     if (!searchtext) return false;
 
@@ -3007,15 +3065,14 @@ $(document).ready(function(){
         if (MAX_BOUNDS.contains(event.latlng)) {
             MAP.panTo(event.latlng);
         } else {
-            // @TODO: Notify out-of-bounds
-            alert("Sorry, your current location is too far away.");
-            console.log('Geolocation: ', userLocation);
+            showInfoPopup('Sorry, your current location is too far away.', 'warning');
+            console.log('Geolocation out of bounds: ', userLocation);
             disableGeolocation();
         }
     });
     // Geolocation error handler
     MAP.on('locationerror', function(error) {
-        alert("We couldn't acquire your current location.");
+        showInfoPopup('We couldn\'t acquire your current location.', 'error');
         console.log('Geolocation error: ' + error.message + '(' + error.code + ')');
         disableGeolocation();
     });
@@ -3023,9 +3080,7 @@ $(document).ready(function(){
     /**
      * Disable form submission on existing filter buttons.
      *
-     * TEMPORARY!!!
-     *
-     * @TODO: Let's get the form removed or change the buttons.
+     * @TODO: Let's get the form and/or inline button click events removed!
      */
     $('.update-results-button').attr('type', 'button')
     $('.update-results-button').attr('onclick', '')
@@ -3083,16 +3138,16 @@ function callGeocodeAddress(params) {
             var latlng = L.latLng(reply.lat, reply.lng);
             // Point outside service area
             if (! MAX_BOUNDS.contains(latlng) ) {
-                return alert("The location we found for your address is too far away.");
+                showInfoPopup("The location we found for your address is too far away.", 'warning');
+                return;
             }
         
             // Add a marker for their location
             placeGPSMarker(reply.lat, reply.lng);
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
-            console.log('callGeocodeAddress error');
             console.log(textStatus + ': ' + errorThrown);
-            alert("We couldn't find that address or city.\nPlease try again.");
+            showInfoPopup("We couldn't find that address or city.\nPlease try again.", 'warning');
         });
 }
 
