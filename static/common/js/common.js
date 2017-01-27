@@ -1656,50 +1656,6 @@ function updateShareUrlByDirections() {
 }
 
 /**
- * The Welcome panel
- * and whether it should be shown, as determined by a cookie.
- */
-$(window).load(function () {
-    if (MOBILE) {
-        $('#pane-settings').page();
-        $('#pane-welcome').page();
-    }
-
-    // in the Settings panel, check or uncheck the Show Welcome box to match the cookie
-    var show_welcome = cookieGet('show_welcome');
-    if (show_welcome) {
-        $('#settings_show_welcome').prop('checked','checked');
-        if (MOBILE) $('#settings_show_welcome').checkboxradio('refresh');
-        $('#show_welcome').prop('checked','checked');
-        if (MOBILE) $('#show_welcome').checkboxradio('refresh');
-    } else {
-        $('#settings_show_welcome').removeAttr('checked');
-        if (MOBILE) $('#settings_show_welcome').checkboxradio('refresh');
-        $('#show_welcome').prop('checked','checked');
-        if (MOBILE) $('#show_welcome').checkboxradio('refresh');
-    }
-
-    // enable the checkbox in the Welcome panel, to toggle the cookie that suppresses the Welcome panel
-    $('#show_welcome').change(function () {
-        toggleWelcome( $(this).is(':checked') );
-    });
-    $('#settings_show_welcome').change(function () {
-        toggleWelcome( $(this).is(':checked') );
-    });
-});
-
-
-// a wrapper to toggle the Welcome panel, and to adjust the numerous (okay, two) checkboxes that set it
-// and which should update to reflect it
-function toggleWelcome(show_welcome) {
-    if (show_welcome) {
-        cookieSet('show_welcome',1);
-    } else {
-        cookieDelete('show_welcome');
-    }
-}
-
-/**
  * Share Map button handler
  *
  * Reads from the Show On Map button to populate the Share Your Map box.

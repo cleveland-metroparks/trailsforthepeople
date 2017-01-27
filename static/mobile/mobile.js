@@ -311,16 +311,6 @@ $(window).load(function () {
     MIN_ZOOM = 10;
     initMap();
 
-    // @TODO: Get Welcome panel working
-    //
-    // switch to the Welcome panel if they asked for it AND some other setting doesn't disable it
-    var show_welcome = cookieGet('show_welcome');
-    if (URL_PARAMS.attr('query')) show_welcome = false;
-    if (URL_PARAMS.attr('fragment')) show_welcome = false;
-    if (show_welcome) {
-        $.mobile.changePage('#pane-welcome');
-    }
-
     // event handler for a geolocation update: update our last-known location, then do more calculations regarding it
     MAP.on('locationfound', function(event) {
         // update our last known location
