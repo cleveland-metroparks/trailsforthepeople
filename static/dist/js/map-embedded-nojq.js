@@ -2907,6 +2907,8 @@ $(window).load(function () {
 
 var markerLayer = L.featureGroup();
 
+var userLocation;
+
 $(document).ready(function(){
     // Load the URL params before the map, as we may need them to configure it.
     URL_PARAMS = $.url();
@@ -2928,15 +2930,32 @@ $(document).ready(function(){
             selectedActivityIDs.push($(this).attr('value'));
         });
 
+        // No activities selected
+        if (!selectedActivityIDs.length) {
+            return;
+        }
+
+        var geolocate_enabled = $('.interactive-form-distance-near-me-input').prop('checked');
         var location_searchtext = $('input.locationTxt').val();
 
         var data = { activity_ids: selectedActivityIDs };
 
-        if (location_searchtext) {
-            // Search nearby activities
+        var distance_feet = 5280 * $('select.locationRadiusDDL').val(); // 5280 feet per mile
+
+        if (geolocate_enabled && userLocation) {
+            // Search activities nearby user geolocation
+            data.get_activities_url = APP_BASEPATH + 'ajax/get_nearby_pois_with_activities';
+            data.lat = userLocation.lat;
+            data.lng = userLocation.lng;
+            data.within_feet = distance_feet;
+
+            callGetActivities(data);
+
+        } else if (location_searchtext) {
+            // Search activities nearby to geocoded address
             data.get_activities_url = APP_BASEPATH + 'ajax/get_nearby_pois_with_activities';
             data.searchtext = location_searchtext;
-            data.within_feet = 5280 * $('select.locationRadiusDDL').val(); // 5280 feet per mile
+            data.within_feet = distance_feet;
 
             callGeocodeAddress(data).then(function(reply, textStatus, jqXHR) {
                 // Add our new lat/lng to the data object.
@@ -2957,6 +2976,41 @@ $(document).ready(function(){
      */
     $('#filters-section .filter-action-area .clear-filters-button').click(function() {
         markerLayer.clearLayers();
+    });
+
+    /**
+     * Geolocate
+     */
+    $('.interactive-form-distance-near-me-input').click(function() {
+        if ($('.interactive-form-distance-near-me-input').prop('checked')) {
+            MAP.locate({watch: true, enableHighAccuracy: true});
+        } else {
+            MAP.stopLocate();
+            userLocation = null;
+            clearGPSMarker();
+        }
+    });
+
+    // Geolocation found handler
+    MAP.on('locationfound', function(event) {
+        // Mark the user's current location
+        placeGPSMarker(event.latlng.lat, event.latlng.lng);
+
+        userLocation = event.latlng;
+
+        // Auto-center
+        if (MAX_BOUNDS.contains(event.latlng)) {
+            MAP.panTo(event.latlng);
+            //if (MAP.getZoom() < 12) MAP.setZoom(16);
+        } else {
+            //MAP.fitBounds(MAX_BOUNDS);
+            // @TODO: Notify out-of-bounds
+            alert("Your current location is too far away.");
+        }
+    });
+    // Geolocation error handler
+    MAP.on('locationerror', function(error) {
+        console.log('Geolocation error: ' + error.message + '(' + error.code + ')');
     });
 
     /**
@@ -3014,7 +3068,7 @@ function callGeocodeAddress(params) {
             }
         
             // Add a marker for their location
-            placeTargetMarker(reply.lat, reply.lng);
+            placeGPSMarker(reply.lat, reply.lng);
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
             console.log('callGeocodeAddress error');
@@ -3033,7 +3087,7 @@ function displayActivities(activities) {
         marker = new L.marker([result.lat, result.lng], {
             clickable: true,
             draggable: false,
-            icon: ICON_GPS,
+            icon: ICON_TARGET,
         }).bindPopup(attractionPopupMarkup(result));
 
         markerLayer.addLayer(marker);
