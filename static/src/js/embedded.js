@@ -155,7 +155,7 @@ function attractionPopupMarkup(attraction) {
     }
 
     if (attraction.cmp_url) {
-        markup += '<p><a href="' + CM_SITE_BASEURL + attraction.cmp_url + '" title="Find out more about ' + attraction.name + '." target="_blank">More info</a></p>';
+        markup += '<p><a href="' + attraction.cmp_url + '" title="Find out more about ' + attraction.name + '." target="_blank">More info</a></p>';
     }
 
     if (attraction.thumbnail) {

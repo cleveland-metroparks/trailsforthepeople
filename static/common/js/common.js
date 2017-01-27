@@ -11,14 +11,16 @@ var MOBILE; // set in desktop.js and mobile.js, so we can work around some thing
 var ICON_TARGET = L.icon({
     iconUrl: APP_BASEPATH + 'static/common/images/markers/marker-target.png',
     iconSize: [ 25, 41 ],
-    iconAnchor: [ 13, 41 ]
+    iconAnchor: [ 13, 41 ],
+    popupAnchor: [ 0, -41 ]
 });
 var MARKER_TARGET = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_TARGET });
 
 var ICON_GPS = L.icon({
     iconUrl: APP_BASEPATH + 'static/common/images/markers/marker-gps.png',
     iconSize: [ 25, 41 ],
-    iconAnchor: [ 13, 41 ]
+    iconAnchor: [ 13, 41 ],
+    popupAnchor: [ 0, -41 ]
 });
 var MARKER_GPS     = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_GPS });
 
@@ -54,7 +56,7 @@ var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; o
 
 var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
 
-///// JavaScript code common to both Mobile and Desktop maps
+
 
 
 // extend Leaflet: add to LatLng the ability to calculate the bearing to another LatLng
