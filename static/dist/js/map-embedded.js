@@ -1799,11 +1799,12 @@ $(window).load(function () {
     });
 });
 
-
-
-///// on page load
-///// event handlers for the .zoom buttons: click it to bring up info window, configure the Show On Map button
+/**
+ * Event handlers for the .zoom buttons:
+ * Click it to bring up info window, configure the Show On Map button.
+ */
 $(window).load(function () {
+
     // zoomElementClick() is defined by mobile.js and desktop.js
     // typically it goes to a Details page and sets up various event handlers
     var openDetailsPanel = function () {
@@ -1811,33 +1812,53 @@ $(window).load(function () {
     };
     $('.zoom').tap(openDetailsPanel);
 
-    // when Show On Map is clicked (in the detals panel) it has associated data:
-    // an element with w,s,e,n,lat,lng,type,gid etc. for fetching more info or adjusting the map to zoom
+    /**
+     * Show on Map
+     *
+     * When Show On Map is clicked (in the details panel) it has associated data:
+     * an element with w,s,e,n,lat,lng,type,gid etc. for fetching more info or adjusting the map to zoom
+     */
     var showOnMap = function () {
         // zoom the map to the feature's bounds, and place a marker if appropriate
         var element = $(this).data('zoomelement');
+
         if (element) {
-            //console.log(element);
             var w = element.attr('w');
             var s = element.attr('s');
             var e = element.attr('e');
             var n = element.attr('n');
-            var x = element.attr('lng');
-            var y = element.attr('lat');
+
+            var lng = element.attr('lng');
+            var lat = element.attr('lat');
+
             var type = element.attr('type');
             var wkt  = $(this).data('wkt');
+
+            // Switch to the map (which no longer amounts to much)
+            // And add our feature.
             switchToMap(function () {
-                // zoom the map into the stated bbox
-                var bounds = L.latLngBounds( L.latLng(s,w) , L.latLng(n,e) );
-                bounds = bounds.pad(0.15);
-                MAP.fitBounds(bounds);
+                // Zoom the map into the stated bbox, if we have one.
+                if (w!=0 && s!=0 && e!=0 && n!=0) {
+                    var bounds = L.latLngBounds( L.latLng(s,w) , L.latLng(n,e) );
+                    bounds = bounds.pad(0.15);
+                    MAP.fitBounds(bounds);
+                } else {
+                    // Just re-center
+                    // @TODO: We should eventually have zoom-levels for POIs in the DB
+                    MAP.panTo(L.latLng(lat, lng));
+                }
 
-                // lay down a marker if this is a point feature
-                if (type == 'poi' || type == 'loop') placeTargetMarker(y,x);
+                // Lay down a marker if this is a point feature
+                if (type == 'poi' || type == 'loop') {
+                    placeTargetMarker(lat, lng);
+                }
 
-                // draw the line geometry onto the map, if this is a point feature
+                // Draw the line geometry onto the map, if this is a line feature.
                 if (wkt) {
-                    if (HIGHLIGHT_LINE) { MAP.removeLayer(HIGHLIGHT_LINE); HIGHLIGHT_LINE = null; }
+                    if (HIGHLIGHT_LINE) {
+                        MAP.removeLayer(HIGHLIGHT_LINE);
+                        HIGHLIGHT_LINE = null;
+                    }
                     HIGHLIGHT_LINE = lineWKTtoFeature(wkt, HIGHLIGHT_LINE_STYLE);
                     MAP.addLayer(HIGHLIGHT_LINE);
                 }
@@ -1847,10 +1868,9 @@ $(window).load(function () {
     $('#show_on_map').tap(showOnMap);
 });
 
-
-
-///// on page load
-///// event handlers for the basemap picker on the Settings page
+/**
+ * Event handlers for the basemap picker on the Settings page
+ */
 $(window).load(function () {
     $('input[type="radio"][name="basemap"]').change(function () {
         var which = $(this).val();

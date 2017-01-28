@@ -292,10 +292,22 @@ function enableClicks() {
     MAP.dragging.addHooks();
     MAP.touchZoom.addHooks();
 }
+
+/**
+ * Switch to map, with callback
+ */
 function switchToMap(callback) {
     // go ahead and switch over now, with whatever their callback to do after the map is focused
-    $.mobile.changePage('#pane-map');
-    if (callback) setTimeout(callback,1000);
+    //$.mobile.changePage('#pane-map');
+
+    // If the user has a small screen, close the sidebar to see the map.
+    // @TODO: Can we check, instead, whether the sidebar is taking up the full screen?
+    if ($(window).width() < 800) {
+        sidebar.close();
+    }
+
+    // We don't need much of a wait here, anymore. (If at all?)
+    if (callback) setTimeout(callback, 100);
 }
 
 
