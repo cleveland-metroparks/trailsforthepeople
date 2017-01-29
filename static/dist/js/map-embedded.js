@@ -1473,22 +1473,23 @@ function initMap () {
         }, 'json');
     }
 
-    // URL params query string: "type" and "id"
-    if (URL_PARAMS.param('type') && URL_PARAMS.param('id') ) {
+    // URL params query string: "type" and "gid"
+    if (URL_PARAMS.param('type') && URL_PARAMS.param('gid') ) {
         if (URL_PARAMS.param('type') == 'attraction') {
             var params = {
-                id: URL_PARAMS.param('id')
+                gid: URL_PARAMS.param('gid')
             };
-            $.get(APP_BASEPATH + 'ajax/getAttraction', params, function (reply) {
+            $.get(APP_BASEPATH + 'ajax/get_attraction', params, function (reply) {
                 if (!reply || ! reply.lat || ! reply.lng) {
                     return alert("Cound not find that feature.");
                 }
 
-                // @TODO: Zoom
+                // @TODO: Zoom when we have zoomlevels in DB
                 MAP.panTo(L.latLng(reply.lat, reply.lng));
                 placeTargetMarker(reply.lat, reply.lng);
 
-                // @TODO: Use ZoomToFeature or something to open sidebar
+                // Show info in sidebar
+                showAttractionInfo(reply);
 
             }, 'json');
         }
@@ -3249,7 +3250,7 @@ function attractionPopupMarkup(attraction) {
         markup += '<img src="' + thumbnail_path + '" height="' + thumbnail_height + '" alt="' + attraction.name + '" />';
     }
 
-    map_link = APP_BASEPATH + 'mobile?type=attraction&id=' + attraction.gid;
+    map_link = APP_BASEPATH + 'mobile?type=attraction&gid=' + attraction.gid;
     markup += '<p><a href="' + map_link + '" target="_blank">See full map for directions</a></p>';
 
     return markup;

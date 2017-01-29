@@ -406,16 +406,17 @@ function moreinfo() {
 /**
  * Get attraction (by ID)
  *
- * @param id: gis_id
+ * @param gid: gis_id
  */
-function getAttraction() {
+function get_attraction() {
     $attraction = new Attraction();
-    $attraction->where('gis_id', $_GET['id'])->get();
+    $attraction->where('gis_id', $_GET['gid'])->get();
 
     $result = array(
+        'gid'   => $attraction->gis_id,
         'title' => $attraction->pagetitle,
-        'lat' => $attraction->latitude,
-        'lng' => $attraction->longitude
+        'lat'   => $attraction->latitude,
+        'lng'   => $attraction->longitude
     );
 
     print json_encode($result);

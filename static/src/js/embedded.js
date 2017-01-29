@@ -231,7 +231,7 @@ function attractionPopupMarkup(attraction) {
         markup += '<img src="' + thumbnail_path + '" height="' + thumbnail_height + '" alt="' + attraction.name + '" />';
     }
 
-    map_link = APP_BASEPATH + 'mobile?type=attraction&id=' + attraction.gid;
+    map_link = APP_BASEPATH + 'mobile?type=attraction&gid=' + attraction.gid;
     markup += '<p><a href="' + map_link + '" target="_blank">See full map for directions</a></p>';
 
     return markup;

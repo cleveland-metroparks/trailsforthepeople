@@ -681,6 +681,62 @@ function searchByKeyword(keyword) {
 }
 
 /**
+ * Show Attraction Info
+ *
+ * Show attraction info in the sidebar pane.
+ *
+ * Starting to split up / improve upon zoomElementClick()
+ * (Don't use a DOM element to pass info.)
+ * We can generalize this for other types of POIs later.
+ *
+ * attraction.gid
+ * attraction.title
+ * attraction.lat
+ * attraction.lng
+ */
+function showAttractionInfo(attraction) {
+    // @TODO: Construct the #show_on_map button. We don't have an "element".
+    //$('#show_on_map').data('zoomelement', element);
+
+    // Set our directions element
+    // @TODO: Do this differently.
+    $('#directions_target_lat').val(attraction.lat);
+    $('#directions_target_lng').val(attraction.lng);
+    $('#directions_target_type').val(attraction.type);
+    $('#directions_target_gid').val(attraction.gid);
+    $('#directions_target_title').text(attraction.title);
+
+    // Change to the Info pane
+    sidebar.open('pane-info');
+
+    // Set the sidebar pane's back button.
+    var backurl = '#pane-browse';
+    $('#pane-info .sidebar-back').prop('href', backurl);
+
+    // Enable "Get Directions"
+    $('#getdirections_disabled').hide();
+    $('#getdirections_enabled').show();
+
+    // Purge any vector data from the Show On Map button;
+    // the moreinfo template will populate it if necessary
+    $('#show_on_map').data('wkt', null);
+
+    $('#info-content').text("Loading...");
+
+    // Get more info via AJAX
+    if (attraction.gid) {
+        var params = {};
+        params.type = 'poi';
+        params.gid  = attraction.gid;
+
+        $.get(APP_BASEPATH + 'ajax/moreinfo', params, function (reply) {
+            // grab and display the plain HTML
+            $('#info-content').html(reply);
+        },'html');
+    }
+}
+
+/**
  * zoomElementClick
  * 
  * common interface: given a .zoom element with lon, lat, WSEN, type, gid,
