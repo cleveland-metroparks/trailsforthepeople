@@ -1293,9 +1293,10 @@ var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; o
 var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
 
 
-
-
-// extend Leaflet: add to LatLng the ability to calculate the bearing to another LatLng
+/**
+ * Extend Leaflet:
+ * Add to LatLng the ability to calculate the bearing to another LatLng
+ */
 L.LatLng.prototype.bearingTo= function(other) {
     var d2r  = L.LatLng.DEG_TO_RAD;
     var r2d  = L.LatLng.RAD_TO_DEG;
@@ -1323,20 +1324,23 @@ L.LatLng.prototype.bearingWordTo = function(other) {
     return bearingword;
 };
 
-
-
-
-
-// compatibility: make click and tap events equivalent so we don't have to "if mobile tap, else click"
-// While jQM has a .click() handler, it specifically has a half-second delay built in, which makes the app feel slow.
+/**
+ * Make click and tap events equivalent, for compatibility.
+ *
+ * So we don't have to do: "if mobile tap, else click".
+ * While jQM has a .click() handler, it specifically has a half-second delay built in, which makes the app feel slow.
+ */
 if (! jQuery.fn.tap ) {
     jQuery.fn.tap = jQuery.fn.click;
 } else {
     jQuery.fn.click = jQuery.fn.tap;
 }
 
-
-// on page load: start the map
+/**
+ * Initialize the map
+ *
+ * The business. (And too much of it.)
+ */
 function initMap () {
     // in mobile mode, render the Settings panel because we may need to check checkboxes in it
     if (MOBILE) $('#pane-settings').page();
@@ -1445,7 +1449,7 @@ function initMap () {
         wmsGetFeatureInfoByPoint(event.layerPoint);
     });
 
-    // URL param: if they search for a type and a name, do that search via AJAX now
+    // URL params query string: "type" and "name"
     if (URL_PARAMS.param('type') && URL_PARAMS.param('name') ) {
         var params = {
             type: URL_PARAMS.param('type'),
@@ -1469,7 +1473,29 @@ function initMap () {
         }, 'json');
     }
 
-    // URL param: if they give a route in the params, fill in the boxes and run it now
+    // URL params query string: "type" and "id"
+    if (URL_PARAMS.param('type') && URL_PARAMS.param('id') ) {
+        if (URL_PARAMS.param('type') == 'attraction') {
+            var params = {
+                id: URL_PARAMS.param('id')
+            };
+            $.get(APP_BASEPATH + 'ajax/getAttraction', params, function (reply) {
+                if (!reply || ! reply.lat || ! reply.lng) {
+                    return alert("Cound not find that feature.");
+                }
+
+                // @TODO: Zoom
+                MAP.panTo(L.latLng(reply.lat, reply.lng));
+                placeTargetMarker(reply.lat, reply.lng);
+
+                // @TODO: Use ZoomToFeature or something to open sidebar
+
+            }, 'json');
+        }
+    }
+
+    // URL params query string: "route"
+    // Fill in the boxes and run it now
     if (URL_PARAMS.param('routefrom') && URL_PARAMS.param('routeto') && URL_PARAMS.param('routevia') ) {
         // split out the params
         var sourcelat = URL_PARAMS.param('routefrom').split(",")[0];
@@ -1736,6 +1762,9 @@ function zoomToAddress(searchtext) {
     }, 'json');
 };
 
+/**
+ * WMS Get feature info by point
+ */
 function wmsGetFeatureInfoByPoint(pixel) {
     var pixelbuffer = 20;
     var sw = MAP.layerPointToLatLng(new L.Point(pixel.x - pixelbuffer , pixel.y + pixelbuffer));
@@ -1745,13 +1774,18 @@ function wmsGetFeatureInfoByPoint(pixel) {
     wmsGetFeatureInfoByLatLngBBOX(bbox,anchor);
 }
 
-
+/**
+ * WMS Get feature info by lat/lng
+ */
 function wmsGetFeatureInfoByLatLng(latlng) {
     var bbox   = { w:latlng.lng, s: latlng.lat, e:latlng.lng , n:latlng.lat };
     var anchor = latlng;
     wmsGetFeatureInfoByLatLngBBOX(bbox,anchor);
 }
 
+/**
+ * WMS Get feature info by lat/lng BBOX
+ */
 function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
     var data = bbox;
     data.zoom = MAP.getZoom();
@@ -1771,11 +1805,12 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
     }, 'html');
 }
 
-
-
-
-// Event handler on the map canvas:
-// When it is resized, trigger a refresh.
+/**
+ * Event handler for the map canvas:
+ * When it is resized, trigger a refresh.
+ *
+ * @TODO: Do we really need this anymore?
+ */
 $(window).resize(function () {
     MAP.invalidateSize();
 });
@@ -3214,8 +3249,8 @@ function attractionPopupMarkup(attraction) {
         markup += '<img src="' + thumbnail_path + '" height="' + thumbnail_height + '" alt="' + attraction.name + '" />';
     }
 
-    map_link = '#';
-    markup += '<p><a href="' + APP_BASEPATH + map_link + '" target="_blank">See full map for directions</a></p>';
+    map_link = APP_BASEPATH + 'mobile?type=attraction&id=' + attraction.gid;
+    markup += '<p><a href="' + map_link + '" target="_blank">See full map for directions</a></p>';
 
     return markup;
 }

@@ -404,6 +404,24 @@ function moreinfo() {
 }
 
 /**
+ * Get attraction (by ID)
+ *
+ * @param id: gis_id
+ */
+function getAttraction() {
+    $attraction = new Attraction();
+    $attraction->where('gis_id', $_GET['id'])->get();
+
+    $result = array(
+        'title' => $attraction->pagetitle,
+        'lat' => $attraction->latitude,
+        'lng' => $attraction->longitude
+    );
+
+    print json_encode($result);
+}
+
+/**
  * Exact name search
  *
  * @param type
@@ -709,7 +727,8 @@ function _directions_bing_transit($params) {
 
 
 /**
- * DEPRECATED
+ * @DEPRECATED
+ * @TODO: Remove
  * Transit Directions via Google (private)
  *
  * @param $params:
