@@ -1847,7 +1847,7 @@ function browse_pois_by_activity() {
 
             'description' => $attraction->descr,
 
-            'cmp_url' => $attraction->cmp_url
+            'cmp_url' => $this->config->item('main_site_url') . $attraction->cmp_url
         );
     }
 
@@ -1892,7 +1892,7 @@ function get_nearby_pois_with_activities() {
 
             'description' => $attraction->descr,
 
-            'cmp_url' => $attraction->cmp_url
+            'cmp_url' => $this->config->item('main_site_url') . $attraction->cmp_url
         );
     }
 
