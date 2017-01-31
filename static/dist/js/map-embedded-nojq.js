@@ -3225,9 +3225,12 @@ function displayActivities(activities) {
  * Make marker popup
  */
 function attractionPopupMarkup(attraction) {
+    // Only show description & thumbnail if we have room for tall popups
+    showAll = ($("#map_canvas").height() >= 500);
+
     markup = "<h3>" + attraction.name + "</h3>";
 
-    if (attraction.description) {
+    if (showAll && attraction.description) {
         markup += "<p>" + attraction.description + "</p>";
     }
 
@@ -3235,7 +3238,7 @@ function attractionPopupMarkup(attraction) {
         markup += '<p><a href="' + attraction.cmp_url + '" title="Find out more about ' + attraction.name + '." target="_blank">More info</a></p>';
     }
 
-    if (attraction.thumbnail) {
+    if (showAll && attraction.thumbnail) {
         // Remove "~/" and prepend CM site URL
         thumbnail_path = CM_SITE_BASEURL + attraction.thumbnail.replace('~/', '');
         // Resize image:
@@ -3245,7 +3248,7 @@ function attractionPopupMarkup(attraction) {
     }
 
     map_link = APP_BASEPATH + 'mobile?type=attraction&gid=' + attraction.gid;
-    markup += '<p><a href="' + map_link + '" target="_blank">See full map for directions</a></p>';
+    markup += '<p><a href="' + map_link + '" target="_blank">See on full map </a></p>';
 
     return markup;
 }
