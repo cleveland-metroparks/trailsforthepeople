@@ -53,15 +53,16 @@ $(window).bind('orientationchange pageshow resize', function() {
     }
 });
 
-
-// mobile-specific: listen for page changes and disable a second tap/click event for a moment
-// this works around bugs that people who leave their fingers in place for several seconds,
-// cause multiple touch events: pick a menu, accidentally click an option in that new page's menu, ...
+ /**
+  * On sidebar pane change: disable clicks momentarily
+  *
+  * listen for page changes and disable a second tap/click event for a moment
+  * this works around bugs that people who leave their fingers in place for several seconds,
+  * cause multiple touch events: pick a menu, accidentally click an option in that new page's menu, ...
+  */
 $(document).bind('pagebeforechange', function(e,data) {
     disableClicksMomentarily();
 });
-
-
 
 /*
  * Handle clicks on various sidebar elements
@@ -233,21 +234,23 @@ $(document).ready(function () {
     });
 });
 
-
-// @TODO: Bind this to sidebar tab button clicks AND
-// clicks inside sidebar panes that generate/load new data
-//
-// mobile-specific: on any page change, after the changeover,
-// update the distance readouts in any ul.dstance_sortable which was just now made visible
+/**
+ * @TODO: Bind this to sidebar tab button clicks AND
+ * clicks inside sidebar panes that generate/load new data
+ *
+ * mobile-specific: on any page change, after the changeover,
+ * update the distance readouts in any ul.dstance_sortable which was just now made visible
+ */
 $(document).bind('pagechange', function(e,data) {
     //sortLists();
 });
 
-
-//// mobile-specific: listen for page changes to #pane-info
-//// and make sure we really have something to show data for
-//// e.g. in the case of someone reloading #pane-info the app
-//// can get stuck since no feature has been loaded
+/*
+ * mobile-specific: listen for page changes to #pane-info
+ * and make sure we really have something to show data for
+ * e.g. in the case of someone reloading #pane-info the app
+ * can get stuck since no feature has been loaded
+ */
 //$(document).bind('pagebeforechange', function(e,data) {
 //    if ( typeof data.toPage != "string" ) return; // no hash given
 //    var url = $.mobile.path.parseUrl(data.toPage);
@@ -261,31 +264,44 @@ $(document).bind('pagechange', function(e,data) {
 //    return false;
 //});
 
-
-// Turn off GPS mode if map canvas is swiped. (Mobile-specific.)
+/**
+ * Turn off GPS mode if map canvas is swiped.
+ */
 $(window).load(function () {
     $('#map_canvas').bind('swipe', function () {
         toggleGPSOff();
     });
 });
 
-// @TODO: Do we need to do this anymore?
-//
-// a method for changing over to the map "page" without having a hyperlink, e.g. from the geocoder callback
-// this is particularly important because we often want to zoom the map, but since map resizing is async,
-// the map is wrongly sized and badly positioned when we try to fitBounds() or setView(()
-// Solution: use switchToMap() and give it a callback function. This callback will be executed after a
-// short delay, ensuring that the map is showing and properly resized before doing the next activity
+/**
+ * Disable clicks momentarily
+ *
+ * @TODO: Do we need to do this anymore?
+ *
+ * a method for changing over to the map "page" without having a hyperlink, e.g. from the geocoder callback
+ * this is particularly important because we often want to zoom the map, but since map resizing is async,
+ * the map is wrongly sized and badly positioned when we try to fitBounds() or setView(()
+ * Solution: use switchToMap() and give it a callback function. This callback will be executed after a
+ * short delay, ensuring that the map is showing and properly resized before doing the next activity
+ */
 function disableClicksMomentarily() {
     //disableClicks();
     //setTimeout(enableClicks, 1500);
 }
+
+/**
+ * Disable clicks
+ */
 function disableClicks() {
     if (! MAP) return; // map isn't even running yet, so clicking is irrelevant
     ENABLE_MAPCLICK = false;
     MAP.dragging.removeHooks();
     MAP.touchZoom.removeHooks();
 }
+
+/**
+ * Enable clicks
+ */
 function enableClicks() {
     if (! MAP) return; // map isn't even running yet, so clicking is irrelevant
     ENABLE_MAPCLICK = true;
@@ -310,10 +326,10 @@ function switchToMap(callback) {
     if (callback) setTimeout(callback, 100);
 }
 
-
 /**
- * On page load
- * Load the MAP, then add a geolocation callback to center the map
+ * Load map
+ *
+ * Load the map, then add a geolocation callback to center the map
  */
 $(window).load(function () {
     // load up the URL params before the map, as we may need them to configure the map
@@ -398,10 +414,11 @@ $(window).load(function () {
     */
 });
 
-
-
-///// on page load: enable the sortpicker buttons to modify DEFAULT_SORT
-///// which in turn affects the behavior of sortLists()
+/*
+ * Sort-by button click handler
+ *
+ * Use the sortpicker buttons to modify DEFAULT_SORT, then sortLists().
+ */
 $(window).load(function () {
     $('div.sortpicker span').tap(function () {
         DEFAULT_SORT = $(this).attr('value');
@@ -409,9 +426,9 @@ $(window).load(function () {
     });
 });
 
-
-
-///// on page load: enable some event handlers for the Keyword Search subsystem
+/**
+ * Enable "Keyword Search" subsystem event handlers 
+ */
 $(window).load(function () {
     // the Keyword Search text search in the Browse panel, is just a shell over the one in #search
     $('#browse_keyword_button').tap(function () {
