@@ -22,7 +22,7 @@
 
 <ul class="nobull">
 	<?php if ($feature->cmp_url): ?>
-		<li><a href="<?= $feature->cmp_url ?>" target="_blank">More Info</a></li>
+		<li><a href="<?= $this->config->item('main_site_url') . $feature->cmp_url ?>" target="_blank">More Info</a></li>
 	<?php endif; ?>
 </ul>
 
