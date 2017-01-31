@@ -53,17 +53,6 @@ $(window).bind('orientationchange pageshow resize', function() {
     }
 });
 
- /**
-  * On sidebar pane change: disable clicks momentarily
-  *
-  * listen for page changes and disable a second tap/click event for a moment
-  * this works around bugs that people who leave their fingers in place for several seconds,
-  * cause multiple touch events: pick a menu, accidentally click an option in that new page's menu, ...
-  */
-$(document).bind('pagebeforechange', function(e,data) {
-    disableClicksMomentarily();
-});
-
 /*
  * Handle clicks on various sidebar elements
  */
@@ -220,13 +209,13 @@ $(document).ready(function () {
         populateShareBox();
     });
     // Use current URL for Twitter and Facebook share links
-    $('#share_facebook').tap(function () {
+    $('#share_facebook').click(function () {
         var url = $('#share_url').val() || $('#share_url').text();
             url = 'http://www.facebook.com/share.php?u=' + encodeURIComponent(url);
         $('#share_facebook').prop('href', url);
         return true;
     });
-    $('#share_twitter').tap(function () {
+    $('#share_twitter').click(function () {
         var url = $('#share_url').val() || $('#share_url').text();
             url = 'http://twitter.com/home?status=' + encodeURIComponent(url);
         $('#share_twitter').prop('href', url);
@@ -276,7 +265,7 @@ $(window).load(function () {
 /**
  * Disable clicks momentarily
  *
- * @TODO: Do we need to do this anymore?
+ * @TODO: Where do we still need this? Deprecate/remove...
  *
  * a method for changing over to the map "page" without having a hyperlink, e.g. from the geocoder callback
  * this is particularly important because we often want to zoom the map, but since map resizing is async,
@@ -288,6 +277,26 @@ function disableClicksMomentarily() {
     //disableClicks();
     //setTimeout(enableClicks, 1500);
 }
+
+/**
+ * Use FastClick lib to get a more responsive touch-click on mobile.
+ *
+ * click() incurs a ~300ms delay on many mobile browsers.
+ * touchstart() only works on mobile, and there are hazards of combining the two
+ * 
+ * And we want to get rid of ghost clicks on longer taps, when an element is
+ * touchstart()ed but then the click() event fires for an element beneath it.
+ *
+ * (And we're phasing out tap() as we get rid of jQm.)
+ */
+$(document).ready(function(){
+    $(function() {
+        FastClick.attach(
+            // Only attach it to the sidebar so we don't mess with the map.
+            document.getElementById('sidebar')
+        );
+    });
+});
 
 /**
  * Disable clicks
@@ -420,7 +429,7 @@ $(window).load(function () {
  * Use the sortpicker buttons to modify DEFAULT_SORT, then sortLists().
  */
 $(window).load(function () {
-    $('div.sortpicker span').tap(function () {
+    $('div.sortpicker span').click(function () {
         DEFAULT_SORT = $(this).attr('value');
         sortLists();
     });
@@ -431,26 +440,26 @@ $(window).load(function () {
  */
 $(window).load(function () {
     // the Keyword Search text search in the Browse panel, is just a shell over the one in #search
-    $('#browse_keyword_button').tap(function () {
+    $('#browse_keyword_button').click(function () {
         // change over to the Search page
         $.mobile.changePage('#pane-search');
 
         // fill in the Search keyword and click the button to do the search (if any)
         // it's up to #search_keyword to detect it being blank
         $('#search_keyword').val( $('#browse_keyword').val() );
-        $('#search_keyword_button').tap();
+        $('#search_keyword_button').click();
     });
     $('#browse_keyword').keydown(function (key) {
-        if(key.keyCode == 13) $('#browse_keyword_button').tap();
+        if(key.keyCode == 13) $('#browse_keyword_button').click();
     });
 
     // Keyword Search: the keyword box and other filters
-    $('#search_keyword_button').tap(function () {
+    $('#search_keyword_button').click(function () {
         var keyword = $('#search_keyword').val();
         searchByKeyword(keyword);
     });
     $('#search_keyword').keydown(function (key) {
-        if(key.keyCode == 13) $('#search_keyword_button').tap();
+        if(key.keyCode == 13) $('#search_keyword_button').click();
     });
 });
 
@@ -518,7 +527,7 @@ function updateNearYouNow() {
         div.append( $('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text(poi.range + ' ' + poi.bearing) );
 
         // On click, call zoomElementClick() to load more info
-        li.tap(function () {
+        li.click(function () {
             zoomElementClick( $(this) );
         });
 
@@ -686,7 +695,7 @@ function searchByKeyword(keyword) {
             target.append(li);
 
             // On click, call zoomElementClick() to load more info
-            li.tap(function () {
+            li.click(function () {
                 zoomElementClick( $(this) );
             });
         }
@@ -882,19 +891,19 @@ $(window).load(function () {
 $(window).load(function () {
     // The 4 icons launch the Get Directions panel
     // selecting the appropriate transport method
-    $('#directions_hike').tap(function () {
+    $('#directions_hike').click(function () {
         launchGetDirections('hike');
     });
-    $('#directions_bike').tap(function () {
+    $('#directions_bike').click(function () {
         launchGetDirections('bike');
     });
-    $('#directions_bridle').tap(function () {
+    $('#directions_bridle').click(function () {
         launchGetDirections('bridle');
     });
-    $('#directions_car').tap(function () {
+    $('#directions_car').click(function () {
         launchGetDirections('car');
     });
-    $('#directions_bus').tap(function () {
+    $('#directions_bus').click(function () {
         launchGetDirections('bus');
     });
 
@@ -933,16 +942,16 @@ $(window).load(function () {
     });
 
     // this button triggers a geocode and directions, using the common.js interface
-    $('#directions_button').tap(function () {
+    $('#directions_button').click(function () {
         $('#directions_steps').empty();
         processGetDirectionsForm();
     });
     $('#directions_address').keydown(function (key) {
-        if(key.keyCode == 13) $('#directions_button').tap();
+        if(key.keyCode == 13) $('#directions_button').click();
     });
 
     // this button changes over to the Find subpage, so they can pick a destination
-    $('#change_directions_target2').tap(function () {
+    $('#change_directions_target2').click(function () {
         $.mobile.changePage('#pane-browse');
 
         // if they clicked this button, it means that they will be looking for a place,
@@ -952,28 +961,28 @@ $(window).load(function () {
     });
 });
 
-
-
-///// on page load
-///// afterthought: iOS and non-iOS get different icpons for the GPS button so it's important to trigger this now
-///// so the right icon is chosen
+/**
+ * Turn GPS off on page load
+ *
+ * iOS and non-iOS get different icons for the GPS button so it's important
+ * to trigger this now so the right icon is chosen.
+ */
 $(window).load(function () {
     toggleGPSOff();
 });
 
-
-
-
-///// on page load
-///// event handlers for the Loops listing and filtering
-///// See also filterLoops() below
+/**
+ * Event handlers for Loops listing and filtering
+ *
+ * @see also filterLoops() below
+ */
 $(window).load(function () {
     // the event handlers below are for the sliders and textboxes within #pane-loops,
     // so trigger a DOM rendering of the page now so the elements exist
     $('#pane-loops-search').page();
 
     // the #loops_filter_type selector is invisible, and we have a set of icons to set its value when they're clicked
-    $('#loops_typeicons img').tap(function () {
+    $('#loops_typeicons img').click(function () {
         // uncheck all of the invisible checkboxes, then check the one corresponding to this image
         var $this = $(this);
         var value = $this.attr('data-value');
@@ -990,10 +999,10 @@ $(window).load(function () {
             }
             $(this).prop('src', src);
         });
-    }).first().tap();
+    }).first().click();
 
     // #loops_filter_distance_slider is invisible and we have a set of 4 images to form "presets" for this slider
-    $('#loops_filter_distancepicker img').tap(function () {
+    $('#loops_filter_distancepicker img').click(function () {
         // set the min & max in the inputs
         var $this = $(this);
         var minmi = $this.attr('data-min');
@@ -1015,7 +1024,7 @@ $(window).load(function () {
 
         // ready, now trigger a search
         filterLoops();
-    //}).first().tap();
+    //}).first().click();
     });
 
     // having set up the sliders 'change' handlers, trigger them now to set the displayed text
@@ -1025,7 +1034,7 @@ $(window).load(function () {
     $('#loops_filter_duration_max').change();
 
     // the filter button, calls filterLoops()
-    $('#loops_filter_button').tap(filterLoops);
+    $('#loops_filter_button').click(filterLoops);
 
     // the loop type selector doesn't filter immediately, 
     // but it does show/hide the time slider and the time estimates for each loop,

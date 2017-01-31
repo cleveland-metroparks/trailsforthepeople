@@ -1325,18 +1325,6 @@ L.LatLng.prototype.bearingWordTo = function(other) {
 };
 
 /**
- * Make click and tap events equivalent, for compatibility.
- *
- * So we don't have to do: "if mobile tap, else click".
- * While jQM has a .click() handler, it specifically has a half-second delay built in, which makes the app feel slow.
- */
-if (! jQuery.fn.tap ) {
-    jQuery.fn.tap = jQuery.fn.click;
-} else {
-    jQuery.fn.click = jQuery.fn.tap;
-}
-
-/**
  * Initialize the map
  *
  * The business. (And too much of it.)
@@ -1807,8 +1795,9 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
 }
 
 /**
- * Event handler for the map canvas:
- * When it is resized, trigger a refresh.
+ * Map canvas resize handler
+ *
+ * When window is resized, trigger a map refresh.
  *
  * @TODO: Do we really need this anymore?
  */
@@ -1816,27 +1805,24 @@ $(window).resize(function () {
     MAP.invalidateSize();
 });
 
-
-
-
-
-
-///// on page load
-///// event handlers for the geocoder
+/**
+ * Geocoder event handlers
+ */
 $(window).load(function () {
     var thisCallback = function () {
         var address = $('#geocode_text').val();
         zoomToAddress(address);
     };
-    $('#geocode_button').tap(thisCallback);
+    $('#geocode_button').click(thisCallback);
 
     $('#geocode_text').keydown(function (key) {
-        if(key.keyCode == 13) $('#geocode_button').tap();
+        if(key.keyCode == 13) $('#geocode_button').click();
     });
 });
 
 /**
- * Event handlers for the .zoom buttons:
+ * Zoom button handlers
+ *
  * Click it to bring up info window, configure the Show On Map button.
  */
 $(window).load(function () {
@@ -1846,7 +1832,7 @@ $(window).load(function () {
     var openDetailsPanel = function () {
         zoomElementClick( $(this) );
     };
-    $('.zoom').tap(openDetailsPanel);
+    $('.zoom').click(openDetailsPanel);
 
     /**
      * Show on Map
@@ -1901,7 +1887,7 @@ $(window).load(function () {
             });
         }
     };
-    $('#show_on_map').tap(showOnMap);
+    $('#show_on_map').click(showOnMap);
 });
 
 /**
@@ -2146,8 +2132,7 @@ function populateDidYouMean(results) {
             $('#directions_source_type').val( $(this).attr('type') );
             $('#directions_button').click();
         };
-        if (MOBILE) item.tap(tapToFill);
-        else        item.click(tapToFill);
+        item.click(tapToFill);
 
         item.css({ cursor:'pointer' }); // more for Desktop
 
@@ -2273,7 +2258,7 @@ function renderDirectionsStructure(directions,target,options) {
             .attr('value1', 'Elevation Profile')
             .attr('value0', 'Loading');
         elevationProfileBtn
-            .tap(function () {
+            .click(function () {
                 openElevationProfileBySegments();
             });
 
@@ -2286,7 +2271,7 @@ function renderDirectionsStructure(directions,target,options) {
         .addClass('ui-btn-inline')
         .addClass('ui-corner-all')
         .text('Clear');
-    clearMapBtn.tap(function () {
+    clearMapBtn.click(function () {
         $('#directions_steps').empty();
         clearDirectionsLine();
         $('.directions_functions').empty();
@@ -2769,7 +2754,7 @@ $(window).load(function () {
     //if (MOBILE) $('#pane-trailfinder').page();
 
     // the icons for the trail type, trigger the underlying checkboxes so we're still using real form elements
-    $('#trailfinder_typeicons img').tap(function () {
+    $('#trailfinder_typeicons img').click(function () {
         // uncheck all of the invisible checkboxes, then check the one corresponding to this image
         var $this = $(this);
         var value = $this.attr('data-value');
@@ -2790,7 +2775,7 @@ $(window).load(function () {
         // Update the listing.
         trailfinderUpdate();
 
-    //}).first().tap();
+    //}).first().click();
     });
 
     // The "Search" button on the Trail Finder pane.
