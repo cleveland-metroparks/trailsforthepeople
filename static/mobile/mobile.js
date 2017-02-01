@@ -344,8 +344,7 @@ $(window).load(function () {
     // load up the URL params before the map, as we may need them to configure the map
     URL_PARAMS = $.url();
 
-    // override the min zoom for Mobile, then start the map
-    MIN_ZOOM = 10;
+    // Initialize the map
     initMap();
 
     // event handler for a geolocation update: update our last-known location, then do more calculations regarding it
