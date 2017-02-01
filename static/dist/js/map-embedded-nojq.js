@@ -1220,9 +1220,10 @@ MAP.addLayer(routedebug);
  * Cleveland Metroparks
  */
 
-APP_BASEPATH = 'https://maps-dev.clevelandmetroparks.com/';
+APP_BASEPATH = 'https://maps.clevelandmetroparks.com/';
 
-var CM_SITE_BASEURL = 'http://cmp.thunder-production.com/';;
+var CM_SITE_BASEURL = 'http://www.clevelandmetroparks.com/';
+;
  /**
  * common.js
  *
