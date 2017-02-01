@@ -1358,7 +1358,9 @@ function initMap () {
     // do some detection of browser to find Android 4+ and override the animation settings, hoping to enable pinch-zoom without breaking the app entirely
     // this is specifically contraindicated by Leaflet's own feature detection
     var options = {
-        attributionControl: false, zoomControl: true, dragging: true,
+        attributionControl: false,
+        zoomControl: false, // add manually, below
+        dragging: true,
         closePopupOnClick: false,
         crs: L.CRS.EPSG3857,
         minZoom: MIN_ZOOM, maxZoom: MAX_ZOOM,
@@ -1372,6 +1374,7 @@ function initMap () {
     }
 
     MAP = new L.Map('map_canvas', options);
+    new L.Control.Zoom({ position: 'bottomright' }).addTo(MAP);
 
     // zoom to the XYZ given in the URL, or else to the max extent
     if (URL_PARAMS.param('x') && URL_PARAMS.param('y') && URL_PARAMS.param('z')) {

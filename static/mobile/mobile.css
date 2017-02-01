@@ -28,7 +28,7 @@ div.ui-slider { height: 25px; }
 
 .leaflet-popup-scrolled .leaflet-popup-content { overflow: hidden; }
 
-#mapbutton_gps { position: absolute; bottom: 5px; right: 10px; cursor: pointer; z-index: 401; }
+#mapbutton_gps { position: absolute; bottom: 75px; right: 7px; cursor: pointer; z-index: 401; }
 
 .textnowrap input.ui-input-text, textarea.ui-input-text { display: inline; }
 
