@@ -6,7 +6,8 @@
  * Cleveland Metroparks
  */
 
-var MOBILE; // set in desktop.js and mobile.js, so we can work around some things in shared code
+var MOBILE; // Our old desktop vs. mobile flag. @TODO: Deprecate.
+var isMobile = /Mobi/.test(navigator.userAgent); // Simple mobile device detection.
 
 var ICON_TARGET = L.icon({
     iconUrl: APP_BASEPATH + 'static/common/images/markers/marker-target.png',
@@ -99,31 +100,31 @@ L.LatLng.prototype.bearingWordTo = function(other) {
  * The business. (And too much of it.)
  */
 function initMap () {
-    // in mobile mode, render the Settings panel because we may need to check checkboxes in it
-    if (MOBILE) $('#pane-settings').page();
-
-    // URL param: the base map; defaults to the (Mapbox) map tiles
-    var base = URL_PARAMS.param('base');
-    if (! base) base = 'vector';
+    // URL param: the base map; defaults to the Mapbox GL JS vector "tiles"
+    var base = URL_PARAMS.param('base') || 'map';
     var basemap; // which L.TileLayer instance to use?
+
+    var photoButton = $('input[name="basemap"][value="photo"]');
+    var mapButton = $('input[name="basemap"][value="map"]');
+
     switch (base) {
         case 'photo':
-            var checkbox = $('input[name="basemap"][value="photo"]').prop('checked',true);
-            if (MOBILE) checkbox.checkboxradio('refresh');
+            photoButton.prop('checked', true).checkboxradio('refresh');
+            mapButton.prop('checked', false).checkboxradio('refresh');
             basemap = LAYER_MAPBOX_SAT;
             break;
+
         case 'map':
-            var checkbox = $('input[name="basemap"][value="map"]').prop('checked',true);
-            if (MOBILE) checkbox.checkboxradio('refresh');
-            basemap = LAYER_MAPBOX_MAP;
-            break;
-        case 'vector':
-            var checkbox = $('input[name="basemap"][value="vector"]').prop('checked',true);
-            if (MOBILE) checkbox.checkboxradio('refresh');
-            basemap = LAYER_MAPBOX_GL_MAP;
-            break;
         default:
-            throw "Invalid basemap given?";
+            photoButton.prop('checked', false).checkboxradio('refresh');
+            mapButton.prop('checked', true).checkboxradio('refresh');
+
+            // Use raster tiles on mobile for now, until we sort out Leaflet-GL zooming and marker issues.
+            if (isMobile) {
+                basemap = LAYER_MAPBOX_MAP;
+            } else {
+                basemap = LAYER_MAPBOX_GL_MAP;
+            }
             break;
     }
 
@@ -329,22 +330,26 @@ function WSENtoBounds(west,south,east,north) {
  *
  * @param layer_key: Must refer to the key of an available layer (in AVAILABLE_LAYERS constant).
  */
-function selectBasemap(layer_key) {
-    //if (!(layer_key in AVAILABLE_LAYERS)) {
-    //    layer_key = 'vector'; // Default, if non-sane value provided
-    //}
-    active_layer = AVAILABLE_LAYERS[layer_key];
+function changeBasemap(layer_key) {
+    // Use raster tiles on mobile for now, until we sort out zooming and marker issues.
+    if (layer_key == 'map') {
+        if (!isMobile) {
+            layer_key = 'vector';
+        }
+    }
+
+    new_active_layer = AVAILABLE_LAYERS[layer_key];
 
     // Go through all layers, adding the intended one and removing others.
     for (i=0; i<ALL_LAYERS.length; i++) {
-        if (ALL_LAYERS[i] == active_layer) {
+        if (ALL_LAYERS[i] == new_active_layer) {
             // Add the active layer
             if (! MAP.hasLayer(ALL_LAYERS[i])) {
                 MAP.addLayer(ALL_LAYERS[i], true);
             }
             if (layer_key != 'vector') {
                 // Mapbox GL+Leaflet layers don't implement bringToBack()
-                active_layer.bringToBack();
+                new_active_layer.bringToBack();
             }
         } else {
             // Remove the inactive layer
@@ -663,21 +668,20 @@ $(window).load(function () {
 });
 
 /**
- * Event handlers for the basemap picker on the Settings page
+ * Basemap picker (on Settings pane) change handler
  */
 $(window).load(function () {
     $('input[type="radio"][name="basemap"]').change(function () {
         var which = $(this).val();
-        selectBasemap(which);
+        changeBasemap(which);
     });
 });
 
-
-
-///// the directions button does an async geocode on the address,
-///// then an async directions lookup between the points,
-///// then draws the polyline path and prints the directions
-
+/**
+ * the directions button does an async geocode on the address,
+ * then an async directions lookup between the points,
+ * then draws the polyline path and prints the directions
+ */
 $(window).load(function () {
     $('#getdirections_clear').click(function () {
         clearDirectionsLine();
@@ -705,9 +709,11 @@ $(window).load(function () {
     });
 });
 
-// this wrapper checks the directions_type field and other Get Directions fields,
-// decides what to use for the address field and the other params,
-// then calls either getDirections() et al
+/**
+ * this wrapper checks the directions_type field and other Get Directions fields,
+ * decides what to use for the address field and the other params,
+ * then calls either getDirections() et al
+ */
 function processGetDirectionsForm() {
     // which transportation mode?
     // separated into a switch so we can fuss with them separately, e.g. originally hike and bike had a secondary selector for paved/unpaved status
@@ -882,6 +888,9 @@ function processGetDirectionsForm() {
     getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via);
 }
 
+/**
+ *
+ */
 function populateDidYouMean(results) {
     var target = $('#directions_steps');
     target.empty();
@@ -915,9 +924,10 @@ function populateDidYouMean(results) {
     if (MOBILE) target.listview('refresh');
 }
 
-
-// part of the Get Directions system: given lat,lng and lat,lng and route params, request directions from the server
-// then render them to the screen and to the map
+/**
+ * part of the Get Directions system: given lat,lng and lat,lng and route params, request directions from the server
+ * then render them to the screen and to the map
+ */
 function getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via) {
     // empty out the old directions and disable the button as a visual effect
     $('#directions_steps').empty();
@@ -1709,8 +1719,12 @@ function updateShareUrl() {
     params.z = MAP.getZoom();
     params.x = MAP.getCenter().lng;
     params.y = MAP.getCenter().lat;
-    if (MAP.hasLayer(LAYER_MAPBOX_SAT)) params.base = 'photo';
-    if (MAP.hasLayer(LAYER_MAPBOX_MAP)) params.base = 'map';
+    if (MAP.hasLayer(AVAILABLE_LAYERS['photo'])) {
+        params.base = 'photo';
+    }
+    if (MAP.hasLayer(AVAILABLE_LAYERS['map']) || MAP.hasLayer(AVAILABLE_LAYERS['vector'])) {
+        params.base = 'map';
+    }
 
     // compile all of the params together and save it to the global. this is later read by populateShareBox()
     SHARE_URL_STRING = $.param(params);
@@ -1736,9 +1750,7 @@ function updateShareUrlByDirections() {
     var params = {};
     if (MAP.hasLayer(AVAILABLE_LAYERS['photo'])) {
         params.base = 'photo';
-    } else if (MAP.hasLayer(AVAILABLE_LAYERS['vector'])) {
-        params.base = 'vector';
-    } else if (MAP.hasLayer(AVAILABLE_LAYERS['map'])) {
+    } else if (MAP.hasLayer(AVAILABLE_LAYERS['map']) || MAP.hasLayer(AVAILABLE_LAYERS['vector'])) {
         params.base = 'map';
     }
     params.routevia        = $('#directions_via').val();
