@@ -1134,6 +1134,8 @@ var MAX_BOUNDS = L.latLngBounds(BBOX_SOUTHWEST,BBOX_NORTHEAST);
 // level 11 covers the Cleveland region at full desktop size, level 18 is street level
 var MIN_ZOOM = 11;
 var MAX_ZOOM = 18;
+// Default level for zooming in to POIs (when no zoom or bbox specified)
+var DEFAULT_POI_ZOOM = 15;
 
 // for focusing Bing's geocoder, so we don't find so we don't find Cleveland, Oregon
 // tip: this doesn't in fact work; wishful thinking for when Bing does support it
@@ -1466,9 +1468,9 @@ function initMap () {
                     return alert("Cound not find that feature.");
                 }
 
-                // @TODO: Zoom when we have zoomlevels in DB
-                MAP.panTo(L.latLng(reply.lat, reply.lng));
+                // @TODO: Eventually we'll have individual POI zoomlevels in DB
                 placeTargetMarker(reply.lat, reply.lng);
+                MAP.flyTo(L.latLng(reply.lat, reply.lng), DEFAULT_POI_ZOOM);
 
                 // Show info in sidebar
                 showAttractionInfo(reply);
@@ -1859,9 +1861,9 @@ $(window).load(function () {
                     bounds = bounds.pad(0.15);
                     MAP.fitBounds(bounds);
                 } else {
-                    // Just re-center
-                    // @TODO: We should eventually have zoom-levels for POIs in the DB
-                    MAP.panTo(L.latLng(lat, lng));
+                    // Re-center and zoom
+                    // @TODO: Eventually we'll have individual POI zoomlevels in DB
+                    MAP.flyTo(L.latLng(lat, lng), DEFAULT_POI_ZOOM);
                 }
 
                 // Lay down a marker if this is a point feature

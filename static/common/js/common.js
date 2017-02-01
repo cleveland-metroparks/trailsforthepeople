@@ -241,9 +241,9 @@ function initMap () {
                     return alert("Cound not find that feature.");
                 }
 
-                // @TODO: Zoom when we have zoomlevels in DB
-                MAP.panTo(L.latLng(reply.lat, reply.lng));
+                // @TODO: Eventually we'll have individual POI zoomlevels in DB
                 placeTargetMarker(reply.lat, reply.lng);
+                MAP.flyTo(L.latLng(reply.lat, reply.lng), DEFAULT_POI_ZOOM);
 
                 // Show info in sidebar
                 showAttractionInfo(reply);
@@ -634,9 +634,9 @@ $(window).load(function () {
                     bounds = bounds.pad(0.15);
                     MAP.fitBounds(bounds);
                 } else {
-                    // Just re-center
-                    // @TODO: We should eventually have zoom-levels for POIs in the DB
-                    MAP.panTo(L.latLng(lat, lng));
+                    // Re-center and zoom
+                    // @TODO: Eventually we'll have individual POI zoomlevels in DB
+                    MAP.flyTo(L.latLng(lat, lng), DEFAULT_POI_ZOOM);
                 }
 
                 // Lay down a marker if this is a point feature

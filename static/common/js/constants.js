@@ -26,6 +26,8 @@ var MAX_BOUNDS = L.latLngBounds(BBOX_SOUTHWEST,BBOX_NORTHEAST);
 // level 11 covers the Cleveland region at full desktop size, level 18 is street level
 var MIN_ZOOM = 11;
 var MAX_ZOOM = 18;
+// Default level for zooming in to POIs (when no zoom or bbox specified)
+var DEFAULT_POI_ZOOM = 15;
 
 // for focusing Bing's geocoder, so we don't find so we don't find Cleveland, Oregon
 // tip: this doesn't in fact work; wishful thinking for when Bing does support it
