@@ -100,25 +100,15 @@ L.LatLng.prototype.bearingWordTo = function(other) {
  * The business. (And too much of it.)
  */
 function initMap () {
-    // URL param: the base map; defaults to the Mapbox GL JS vector "tiles"
+    // URL param: the base map; defaults to map (vs satellite)
     var base = URL_PARAMS.param('base') || 'map';
     var basemap; // which L.TileLayer instance to use?
-
-    var photoButton = $('input[name="basemap"][value="photo"]');
-    var mapButton = $('input[name="basemap"][value="map"]');
-
     switch (base) {
         case 'photo':
-            photoButton.prop('checked', true).checkboxradio('refresh');
-            mapButton.prop('checked', false).checkboxradio('refresh');
             basemap = LAYER_MAPBOX_SAT;
             break;
-
         case 'map':
         default:
-            photoButton.prop('checked', false).checkboxradio('refresh');
-            mapButton.prop('checked', true).checkboxradio('refresh');
-
             // Use raster tiles on mobile for now, until we sort out Leaflet-GL zooming and marker issues.
             if (isMobile) {
                 basemap = LAYER_MAPBOX_MAP;
@@ -323,41 +313,6 @@ function lineWKTtoFeature(wkt,style) {
 // given a WSEN set of ordinates, construct a L.LatLngBounds
 function WSENtoBounds(west,south,east,north) {
     return L.latLngBounds([ [south,west] , [north,east] ]);
-}
-
-/**
- * Enable the given base map layer.
- *
- * @param layer_key: Must refer to the key of an available layer (in AVAILABLE_LAYERS constant).
- */
-function changeBasemap(layer_key) {
-    // Use raster tiles on mobile for now, until we sort out zooming and marker issues.
-    if (layer_key == 'map') {
-        if (!isMobile) {
-            layer_key = 'vector';
-        }
-    }
-
-    new_active_layer = AVAILABLE_LAYERS[layer_key];
-
-    // Go through all layers, adding the intended one and removing others.
-    for (i=0; i<ALL_LAYERS.length; i++) {
-        if (ALL_LAYERS[i] == new_active_layer) {
-            // Add the active layer
-            if (! MAP.hasLayer(ALL_LAYERS[i])) {
-                MAP.addLayer(ALL_LAYERS[i], true);
-            }
-            if (layer_key != 'vector') {
-                // Mapbox GL+Leaflet layers don't implement bringToBack()
-                new_active_layer.bringToBack();
-            }
-        } else {
-            // Remove the inactive layer
-            if (MAP.hasLayer(ALL_LAYERS[i])) {
-                MAP.removeLayer(ALL_LAYERS[i]);
-            }
-        }
-    }
 }
 
 /**
@@ -668,14 +623,39 @@ $(window).load(function () {
 });
 
 /**
- * Basemap picker (on Settings pane) change handler
+ * Enable the given base map layer.
+ *
+ * @param layer_key: Must refer to the key of an available layer (in AVAILABLE_LAYERS constant).
  */
-$(window).load(function () {
-    $('input[type="radio"][name="basemap"]').change(function () {
-        var which = $(this).val();
-        changeBasemap(which);
-    });
-});
+function changeBasemap(layer_key) {
+    // Use raster tiles on mobile for now, until we sort out zooming and marker issues.
+    if (layer_key == 'map') {
+        if (!isMobile) {
+            layer_key = 'vector';
+        }
+    }
+
+    new_active_layer = AVAILABLE_LAYERS[layer_key];
+
+    // Go through all layers, adding the intended one and removing others.
+    for (i=0; i<ALL_LAYERS.length; i++) {
+        if (ALL_LAYERS[i] == new_active_layer) {
+            // Add the active layer
+            if (! MAP.hasLayer(ALL_LAYERS[i])) {
+                MAP.addLayer(ALL_LAYERS[i], true);
+            }
+            if (layer_key != 'vector') {
+                // Mapbox GL+Leaflet layers don't implement bringToBack()
+                new_active_layer.bringToBack();
+            }
+        } else {
+            // Remove the inactive layer
+            if (MAP.hasLayer(ALL_LAYERS[i])) {
+                MAP.removeLayer(ALL_LAYERS[i]);
+            }
+        }
+    }
+}
 
 /**
  * the directions button does an async geocode on the address,
