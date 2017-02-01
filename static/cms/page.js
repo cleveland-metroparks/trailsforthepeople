@@ -17,8 +17,8 @@ var HIGHLIGHT_LINE_STYLE = { color:"#006600", weight:2, opacity:0.5000, clickabl
 
 var DIRECTIONS_LINE       = null;
 var DIRECTIONS_LINE_STYLE = { color:"#0000FF", weight:5, opacity:1.00, clickable:false };
-var ICON_FROM    = L.icon({ iconUrl:'/static/desktop/measure1.png', iconSize:[20,34] });
-var ICON_TO      = L.icon({ iconUrl:'/static/desktop/measure2.png', iconSize:[20,34] });
+var ICON_FROM    = L.icon({ iconUrl:'/static/images/markers/measure1.png', iconSize:[20,34] });
+var ICON_TO      = L.icon({ iconUrl:'/static/images/markers/measure2.png', iconSize:[20,34] });
 var MARKER_START  = new L.Marker(new L.LatLng(0,0), { clickable:false, icon:ICON_FROM });
 var MARKER_END    = new L.Marker(new L.LatLng(0,0), { clickable:false, icon:ICON_TO });
 

@@ -1252,12 +1252,12 @@ var ICON_GPS = L.icon({
 var MARKER_GPS     = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_GPS });
 
 var ICON_FROM = L.icon({
-    iconUrl: APP_BASEPATH + 'static/desktop/measure1.png',
+    iconUrl: APP_BASEPATH + 'static/images/markers/measure1.png',
     iconSize: [ 20, 34 ],
     iconAnchor: [ 10, 34 ]
 });
 var ICON_TO = L.icon({
-    iconUrl: APP_BASEPATH + 'static/desktop/measure2.png',
+    iconUrl: APP_BASEPATH + 'static/images/markers/measure2.png',
     iconSize: [ 20, 34 ],
     iconAnchor: [ 10, 34 ]
 });
