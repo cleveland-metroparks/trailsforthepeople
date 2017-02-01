@@ -571,11 +571,11 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
  *
  * When window is resized, trigger a map refresh.
  *
- * @TODO: Do we really need this anymore?
+ * @TODO: Remove once satisfied we really don't need this.
  */
-$(window).resize(function () {
-    MAP.invalidateSize();
-});
+//$(window).resize(function () {
+//    MAP.invalidateSize();
+//});
 
 /**
  * Geocoder event handlers
