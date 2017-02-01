@@ -643,7 +643,7 @@ $(window).load(function () {
                 }
 
                 // Lay down a marker if this is a point feature
-                if (type == 'poi' || type == 'loop') {
+                if (type == 'poi' || type == 'attraction' || type == 'loop') {
                     placeTargetMarker(lat, lng);
                 }
 
@@ -837,7 +837,7 @@ function processGetDirectionsForm() {
 
     var source_gid  = $('#directions_source_gid').val();
     var source_type = $('#directions_source_type').val();
-    if (source_type == 'poi' || source_type == 'reservation' || source_type == 'building' || source_type == 'trail') {
+    if (source_type == 'poi' || source_type == 'attraction' ||source_type == 'reservation' || source_type == 'building' || source_type == 'trail') {
         var params = {};
         params.type = source_type;
         params.gid  = source_gid;
@@ -856,7 +856,7 @@ function processGetDirectionsForm() {
 
     var target_gid  = $('#directions_target_gid').val();
     var target_type = $('#directions_target_type').val();
-    if (target_type == 'poi' || target_type == 'reservation' || target_type == 'building' || target_type == 'trail') {
+    if (target_type == 'poi' || source_type == 'attraction' || target_type == 'reservation' || target_type == 'building' || target_type == 'trail') {
         var params = {};
         params.type = target_type;
         params.gid  = target_gid;

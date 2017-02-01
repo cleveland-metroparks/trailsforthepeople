@@ -1138,7 +1138,7 @@ var MAX_BOUNDS = L.latLngBounds(BBOX_SOUTHWEST,BBOX_NORTHEAST);
 
 // the min and max zoom level: min (low) is further out and max (high) is further in
 // level 11 covers the Cleveland region at full desktop size, level 18 is street level
-var MIN_ZOOM = 11;
+var MIN_ZOOM = 10;
 var MAX_ZOOM = 18;
 // Default level for zooming in to POIs (when no zoom or bbox specified)
 var DEFAULT_POI_ZOOM = 15;
@@ -1228,9 +1228,7 @@ MAP.addLayer(routedebug);
 
 APP_BASEPATH = 'https://maps-dev.clevelandmetroparks.com/';
 
-var CM_SITE_BASEURL = 'http://cmp.thunder-production.com/';
-
-MIN_ZOOM = 10;;
+var CM_SITE_BASEURL = 'http://cmp.thunder-production.com/';;
  /**
  * common.js
  *
@@ -1876,7 +1874,7 @@ $(window).load(function () {
                 }
 
                 // Lay down a marker if this is a point feature
-                if (type == 'poi' || type == 'loop') {
+                if (type == 'poi' || type == 'attraction' || type == 'loop') {
                     placeTargetMarker(lat, lng);
                 }
 
@@ -2070,7 +2068,7 @@ function processGetDirectionsForm() {
 
     var source_gid  = $('#directions_source_gid').val();
     var source_type = $('#directions_source_type').val();
-    if (source_type == 'poi' || source_type == 'reservation' || source_type == 'building' || source_type == 'trail') {
+    if (source_type == 'poi' || source_type == 'attraction' ||source_type == 'reservation' || source_type == 'building' || source_type == 'trail') {
         var params = {};
         params.type = source_type;
         params.gid  = source_gid;
@@ -2089,7 +2087,7 @@ function processGetDirectionsForm() {
 
     var target_gid  = $('#directions_target_gid').val();
     var target_type = $('#directions_target_type').val();
-    if (target_type == 'poi' || target_type == 'reservation' || target_type == 'building' || target_type == 'trail') {
+    if (target_type == 'poi' || source_type == 'attraction' || target_type == 'reservation' || target_type == 'building' || target_type == 'trail') {
         var params = {};
         params.type = target_type;
         params.gid  = target_gid;
