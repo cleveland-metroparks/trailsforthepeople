@@ -7,22 +7,8 @@ function index() {
 }
 
 function map() {
-    $data = array();
-
-    // most of the content is time-consuming, e.g. trails-by-reservation
-    // so we load those asynchronously via AJAX
-    // so the page can start loading faster, and that data can calculate while tiles load
-
-    // Reservations
-    $reservations = new Park();
-    $reservations->order_by('res')->get();
-    $data['reservations'] = $reservations;
-
-    // ready!
-    $this->load->view('desktop/desktop.phtml',$data);
+    return redirect(site_url('map'));
 }
-
-
 
 function fetch_activitypois() {
     $input = Usearea::getCategorizedListing();
@@ -43,7 +29,6 @@ function fetch_activitypois() {
     header('Content-type: application/json');
     print json_encode($output);
 }
-
 
 function fetch_loops() {
     $input = Loop::getPublicLoops();
@@ -81,7 +66,5 @@ function fetch_loops() {
     header('Content-type: application/json');
     print json_encode($output);
 }
-
-
 
 }
