@@ -1,33 +1,26 @@
-<h2><?= htmlspecialchars($feature->pagetitle) ?></h2>
+<h2><?= htmlspecialchars($feature->use_area) ?></h2>
 
-<?php if (isset($activities)): ?>
+<?php if ($feature->activity): ?>
 	<h4>Activities:</h4>
-	<ul class="activities-icon-list">
+	<div><?= htmlspecialchars($feature->activity) ?></div>
+	<div style="height: 1em;"></div>
+<?php endif; ?>
+
+
+<?php if ($feature->description): ?>
+	<div>
 	<?php
-		$activity_icons_dir = '/static/images/activities/';
-        foreach ($activities as $activity) {
-            if ($activity->icon) {
-                $icon_url = site_url($activity_icons_dir . $activity->icon);
-                $activity_title = htmlspecialchars($activity->pagetitle);
-                print '<li><img src="' . $icon_url . '" title="' . $activity_title . '" alt="' . $activity_title . '" /></li>';
-            }
-        }
+		$this->load->helper('misc');
+		$description = _strip_description_markup(nl2br($feature->description));
+		print $description;
 	?>
-	</ul>
+	</div>
+	<div style="height: 1em;"></div>
 <?php endif; ?>
 
-<?php if ($feature->descr): ?>
-	<div><?= nl2br($feature->descr) ?></div>
-<?php endif; ?>
-
-<ul class="nobull">
-	<?php if ($feature->cmp_url): ?>
-		<li><a href="<?= $this->config->item('main_site_url') . $feature->cmp_url ?>" target="_blank">More Info</a></li>
-	<?php endif; ?>
-</ul>
 
 <h4>GPS coordinates:</h4>
 <div class="small-light">
-	<?= $feature->latitude ?><br/>
-	<?= $feature->longitude ?>
+	<?= $feature->lat_dms ?><br/>
+	<?= $feature->lng_dms ?>
 </div>

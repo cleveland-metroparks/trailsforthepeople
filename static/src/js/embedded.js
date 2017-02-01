@@ -45,7 +45,7 @@ $(document).ready(function(){
 
         if (geolocate_enabled && userLocation) {
             // Search activities nearby user geolocation
-            data.get_activities_url = APP_BASEPATH + 'ajax/get_nearby_pois_with_activities';
+            data.get_activities_url = APP_BASEPATH + 'ajax/get_nearby_attractions_with_activities';
             data.lat = userLocation.lat;
             data.lng = userLocation.lng;
             data.within_feet = distance_feet;
@@ -54,7 +54,7 @@ $(document).ready(function(){
 
         } else if (location_searchtext) {
             // Search activities nearby to geocoded address
-            data.get_activities_url = APP_BASEPATH + 'ajax/get_nearby_pois_with_activities';
+            data.get_activities_url = APP_BASEPATH + 'ajax/get_nearby_attractions_with_activities';
             data.searchtext = location_searchtext;
             data.within_feet = distance_feet;
 
@@ -67,7 +67,7 @@ $(document).ready(function(){
             });
         } else {
             // Search activities, without nearby 
-            data.get_activities_url = APP_BASEPATH + 'ajax/browse_pois_by_activity';
+            data.get_activities_url = APP_BASEPATH + 'ajax/get_attractions_by_activity';
             callGetActivities(data);
         }
     });

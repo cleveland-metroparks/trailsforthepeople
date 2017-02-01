@@ -354,19 +354,25 @@ function moreinfo() {
             break;
 
         case 'poi':
+            $result = new Usearea();
+            $result->where('gid',$_GET['gid'])->get();
+            if (! $result->gid) exit;
+            $template = 'ajax/moreinfo_usearea.phtml';
+            break;
+
+        case 'attraction':
             $result = new Attraction();
             $result->where('gis_id', $_GET['gid'])->get();
             if (!isset($result->gis_id)) exit;
 
-            $template = 'ajax/moreinfo_usearea.phtml';
-            // We're breaking the pattern the other cases use so we can store extra data
+            $template = 'ajax/moreinfo_attraction.phtml';
+            // Break the pattern the other cases use, to store extra data (activities)
             $this->load->view(
                 $template,
                 array(
                     'feature' => $result->stored,
                     'activities' => $result->getAttractionActivities()
                 ));
-
             return;
             break;
 
@@ -1820,7 +1826,7 @@ function elevationprofilebysegments($context=null) {
  *
  * @param activity_ids
  */
-function browse_pois_by_activity() {
+function get_attractions_by_activity() {
     $results = array();
 
     // Accept either a single Activity ID or an array of them.
@@ -1831,7 +1837,7 @@ function browse_pois_by_activity() {
 
     foreach ($attractions as $attraction) {
         $results[] = array(
-            'type'  => 'poi',
+            'type'  => 'attraction',
             'name'  => trim($attraction->pagetitle),
             'gid'   => (integer) $attraction->gis_id,
 
@@ -1863,7 +1869,7 @@ function browse_pois_by_activity() {
  * @param within_feet
  * @param activity_ids
  */
-function get_nearby_pois_with_activities() {
+function get_nearby_attractions_with_activities() {
     $results = array();
 
     $attractions = new Attraction();
@@ -1876,7 +1882,7 @@ function get_nearby_pois_with_activities() {
 
     foreach ($attractions as $attraction) {
         $results[] = array(
-            'type'  => 'poi',
+            'type'  => 'attraction',
             'name'  => trim($attraction->pagetitle),
             'gid'   => (integer) $attraction->gis_id,
 

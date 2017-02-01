@@ -126,7 +126,7 @@ $(document).ready(function () {
         if (category) backbuttonurl = "#pane-browse-results";
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
-        $.get(APP_BASEPATH + 'ajax/browse_pois_by_activity', { activity_ids: activity_id }, function (reply) {
+        $.get(APP_BASEPATH + 'ajax/get_attractions_by_activity', { activity_ids: activity_id }, function (reply) {
 
             // Header title
             var header = $('#pane-browse-results h1.sidebar-header .title-text');
@@ -156,7 +156,7 @@ $(document).ready(function () {
                 //link.attr('href', 'javascript:zoomElementClick(this)');
                 li.append(link);
 
-                // Click handler: center the map and load More Info
+                // On click: center the map and load More Info
                 li.click(function () {
                     zoomElementClick( $(this) );
                 });
@@ -439,18 +439,23 @@ $(window).load(function () {
  * Enable "Keyword Search" subsystem event handlers 
  */
 $(window).load(function () {
-    // the Keyword Search text search in the Browse panel, is just a shell over the one in #search
+    // Keyword Search text search in the initial "Find" (/Browse) pane
+    // is just a shell over the one in #search
     $('#browse_keyword_button').click(function () {
-        // change over to the Search page
-        $.mobile.changePage('#pane-search');
+        // Change to the Search pane
+        sidebar.open('pane-search');
 
-        // fill in the Search keyword and click the button to do the search (if any)
-        // it's up to #search_keyword to detect it being blank
+        // Fill in the Search keyword and click the button to do the search (if any).
+        // It's up to #search_keyword to detect it being blank
         $('#search_keyword').val( $('#browse_keyword').val() );
         $('#search_keyword_button').click();
     });
+
+    // Catch "Enter" keypress on Find pane search field
     $('#browse_keyword').keydown(function (key) {
-        if(key.keyCode == 13) $('#browse_keyword_button').click();
+        if (key.keyCode == 13) {
+            $('#browse_keyword_button').click();
+        }
     });
 
     // Keyword Search: the keyword box and other filters
@@ -458,21 +463,27 @@ $(window).load(function () {
         var keyword = $('#search_keyword').val();
         searchByKeyword(keyword);
     });
+
+    // Catch "Enter" keypress on Search pane search field
     $('#search_keyword').keydown(function (key) {
-        if(key.keyCode == 13) $('#search_keyword_button').click();
+        if(key.keyCode == 13) {
+            $('#search_keyword_button').click();
+        }
     });
 });
 
-
-
-///// on page load: load all POIs (use areas) into memory from AJAX, but do not render them into DOM yet
-///// Rendering to DOM is done later by updateNearYouNow() to do only the closest few POIs, so we don't overload
+/**
+ * Load all POIs via AJAX on window load,
+ *
+ * but don't render them into the DOM yet.
+ * Rendering to DOM is done later by updateNearYouNow() to do only the
+ * closest few POIs, so we don't overload.
+ */
 $(window).load(function () {
     $.get(APP_BASEPATH + 'ajax/load_pois', {}, function (pois) {
         for (var i=0, l=pois.length; i<l; i++) {
             ALL_POIS[ALL_POIS.length] = pois[i];
         }
-
         updateNearYouNow();
     }, 'json');
 });
@@ -669,35 +680,69 @@ function searchByKeyword(keyword) {
         $('#pane-search .sortpicker').show();
 
         if (! reply.length) {
-            // no matches, means we say so ... and that we pass on to an address search
+            // No matches. Pass on to an address search, and say so.
             $('<li></li>').text('No Cleveland Metroparks results found. Trying an address search.').appendTo(target);
             zoomToAddress(keyword);
             return;
         }
+
         for (var i=0, l=reply.length; i<l; i++) {
-            var result   = reply[i];
+            var result = reply[i];
 
-            var title    = $('<span></span>').addClass('ui-li-heading').text(result.name);
-            var subtitle = $('<span></span>').addClass('ui-li-desc').text(result.description);
-            var distance = $('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text('0 mi');
-            var div      = $('<div></div>').addClass('ui-btn-text').append(title).append(subtitle).append(distance);
-            var li       = $('<li></li>').addClass('zoom').addClass('ui-li-has-count').append(div);
-            li.attr('backbutton','#pane-browse');
-            li.attr('w', result.w);
-            li.attr('s', result.s);
-            li.attr('e', result.e);
-            li.attr('n', result.n);
-            li.attr('lat', result.lat);
-            li.attr('lng', result.lng);
-            li.attr('type',result.type);
-            li.attr('gid',result.gid);
-            li.attr('title',result.name);
-            target.append(li);
+            var li = $('<li></li>')
+                .addClass('zoom')
+                .addClass('ui-li-has-count');
 
-            // On click, call zoomElementClick() to load more info
+            li.attr('title', result.name)
+                .attr('gid', result.gid)
+                .attr('type', result.type)
+                .attr('w', result.w)
+                .attr('s', result.s)
+                .attr('e', result.e)
+                .attr('n', result.n)
+                .attr('lat', result.lat)
+                .attr('lng', result.lng);
+
+            li.attr('backbutton', '#pane-search');
+
+            // Link (fake, currently)
+            link = $('<a></a>');
+            link.attr('class', 'ui-btn ui-btn-text');
+            //link.attr('href', 'javascript:zoomElementClick(this)');
+
+            // On click: center the map and load More Info
             li.click(function () {
                 zoomElementClick( $(this) );
             });
+
+            li.append(link);
+
+            // Title
+            link.append(
+                $('<h4></h4>')
+                    .addClass('ui-li-heading')
+                    .text(result.name)
+            );
+            // Subtitle: type
+            link.append(
+                $('<span></span>')
+                    .addClass('ui-li-desc')
+                    .text(result.description)
+            );
+    
+            // Distance placeholder, to be populated later
+            link.append(
+                $('<span></span>')
+                    .addClass('zoom_distance')
+                    .addClass('ui-li-count')
+                    .addClass('ui-btn-up-c')
+                    .addClass('ui-btn-corner-all')
+                    .text('0 mi')
+            );
+
+            // Add to the list
+            li.append(link);
+            target.append(li);
         }
 
         // finally, have jQuery Mobile do its magic, then trigger distance calculation and sorting
@@ -752,7 +797,7 @@ function showAttractionInfo(attraction) {
     // Get more info via AJAX
     if (attraction.gid) {
         var params = {};
-        params.type = 'poi';
+        params.type = 'attraction';
         params.gid  = attraction.gid;
 
         $.get(APP_BASEPATH + 'ajax/moreinfo', params, function (reply) {
@@ -1162,7 +1207,7 @@ function filterLoops() {
             link.attr('class', 'ui-btn ui-btn-text');
             //link.attr('href', 'javascript:zoomElementClick(this)');
 
-            // Click handler: center the map and load More Info
+            // On click: center the map and load More Info
             li.click(function () {
                 zoomElementClick( $(this) );
             });
