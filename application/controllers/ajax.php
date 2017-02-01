@@ -1898,7 +1898,7 @@ function get_nearby_attractions_with_activities() {
 
             'description' => $attraction->descr,
 
-            'cmp_url' => $this->config->item('main_site_url') . $attraction->cmp_url
+            'cmp_url' => $this->config->item('main_site_url') . ltrim($attraction->cmp_url, '/')
         );
     }
 
