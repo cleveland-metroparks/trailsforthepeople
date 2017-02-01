@@ -91,6 +91,42 @@ function getActivityTypesAndIcons($chosen_only=FALSE) {
 }
 
 /**
+ * Get only the Activities that have Attractions that feature them, along with icons.
+ *
+ * @param $chosen_only: whether to filter by our sub-set of chosen activities.
+ */
+function getActivitiesWithAttractions($chosen_only=FALSE) {
+    $sql = "
+        SELECT DISTINCT eventactivitytypeid, pagetitle
+        FROM (
+            SELECT regexp_split_to_table(activities, '\|')
+            AS activities
+            FROM view_cmp_gisattractions) attract
+        LEFT JOIN view_cmp_gisactivitytype activity
+            ON (attract.activities = activity.eventactivitytypeid::text)
+        ORDER BY pagetitle;
+    ";
+
+    $activity_types = new ActivityType();
+    $results = $activity_types->db->query($sql)->result();
+
+    $output = array();
+
+    foreach($results as $activity) {
+        if ($chosen_only && !in_array($activity->pagetitle, $activity_types->chosen_activities)) {
+            continue;
+        }
+        $record = array(
+            'title' => $activity->pagetitle,
+            'icon' => $activity_types->getActivityIconByID($activity->eventactivitytypeid)
+        );
+        $output[$activity->eventactivitytypeid] = $record;
+    }
+
+    return $output;
+}
+
+/**
  * Get activity icon by ID
  */
 function getActivityIconByID($id) {

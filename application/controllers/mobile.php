@@ -24,7 +24,9 @@ function index() {
     $data['poicategories'] = Usearea::listCategories();
 
     // Activities (chosen sub-set only)
-    $data['activities'] = ActivityType::getActivityTypesAndIcons(TRUE);
+    //$data['activities'] = ActivityType::getActivityTypesAndIcons(TRUE);
+    // Only chosen activities that have attractions
+    $data['activities'] = ActivityType::getActivitiesWithAttractions(TRUE);
 
     // ready!
     $this->load->view('mobile/mobile.phtml',$data);
