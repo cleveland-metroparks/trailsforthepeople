@@ -420,3 +420,16 @@ div.lng_driving {
         }
     }
 }
+
+//
+// Sidebar Pane: Get Directions
+//
+#pane-getdirections {
+    #directions_steps {
+        .did-you-mean {
+            border-top: none;
+            color: $red_light;
+            font-weight: bold;
+        }
+    }
+}

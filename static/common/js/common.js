@@ -690,6 +690,8 @@ $(window).load(function () {
 });
 
 /**
+ * Process Get Directions form
+ *
  * this wrapper checks the directions_type field and other Get Directions fields,
  * decides what to use for the address field and the other params,
  * then calls either getDirections() et al
@@ -869,14 +871,17 @@ function processGetDirectionsForm() {
 }
 
 /**
- *
+ * Populate "Did you mean:?"
  */
 function populateDidYouMean(results) {
     var target = $('#directions_steps');
     target.empty();
 
-    // item 0 is not a result, but the words "Did you mean..."
-    var item = $('<li></li>').append( $('<span></span>').addClass('ui-li-heading').text("Did you mean one of these?") );
+    // Item 0 is not a result, but the words "Did you mean:"
+    var item = $('<li></li>')
+        //.append( $('<span></span>')
+        .addClass('did-you-mean')
+        .text("Did you mean:");
     target.append(item);
 
     // add the results as a list; each item has a click handler, to populate the address box with the proper name
@@ -1021,7 +1026,6 @@ function renderDirectionsStructure(directions,target,options) {
     var total = $('<span></span>').addClass('ui-li-heading').html('<b>Total:</b> ' + directions.totals.distance + ', ' + directions.totals.duration);
     target.append( $('<li></li>').append(total).append(note) );
 
-    $('.directions_functions').remove();
     var directionsFunctions = $('<div></div>').addClass('directions_functions');
 
     // Elevation Profile button

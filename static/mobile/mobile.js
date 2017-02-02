@@ -1010,6 +1010,7 @@ $(window).load(function () {
     // this button triggers a geocode and directions, using the common.js interface
     $('#directions_button').click(function () {
         $('#directions_steps').empty();
+        $('.directions_functions').remove();
         processGetDirectionsForm();
     });
     $('#directions_address').keydown(function (key) {

@@ -110,4 +110,6 @@ div.lng_driving { display: none; }
 #pane-info .info-directions .ui-btn { padding: 10px; }
 #pane-info .info-directions .ui-btn .fa { font-size: 24px; min-width: 32px; }
 
+#pane-getdirections #directions_steps .did-you-mean { border-top: none; color: #DE5049; font-weight: bold; }
+
 /*# sourceMappingURL=mobile.css.map */
