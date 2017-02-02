@@ -92,7 +92,10 @@ div.lng_driving { display: none; }
 #pane-getdirections #directions_button_wrapper .ui-btn { margin-top: 1.5em; }
 #pane-getdirections .directions_functions { margin-top: 1em; font-weight: bold; font-size: 10pt; }
 
-#pane-share .share_button { line-height: 1.5em; }
+#pane-share div.controlgroup-textinput { padding: .22em; width: 73%; }
+#pane-share .ui-controlgroup-controls { width: 100%; margin-bottom: 1em; }
+#pane-share .share_button { line-height: 2em; }
+#pane-share .share_button .fa { font-size: 30px; padding-right: .2em; }
 
 #pane-credits .disclaimer { font-size: 90%; }
 

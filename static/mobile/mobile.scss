@@ -378,8 +378,22 @@ div.lng_driving {
 // Sidebar Pane: Share
 //
 #pane-share {
+    div.controlgroup-textinput {
+        // Top/bottom padding make the box size to fit the buttom (via jQm docs)
+        // Left/right padding give us more room for the URL
+        padding: .22em;
+        width: 73%;
+    }
+    .ui-controlgroup-controls {
+        width: 100%;
+        margin-bottom: 1em;
+    }
     .share_button {
-        line-height: 1.5em;
+        line-height: 2em;
+        .fa {
+            font-size: 30px;
+            padding-right: .2em;
+        }
     }
 }
 

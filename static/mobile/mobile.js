@@ -210,13 +210,13 @@ $(document).ready(function () {
     });
     // Use current URL for Twitter and Facebook share links
     $('#share_facebook').click(function () {
-        var url = $('#share_url').val() || $('#share_url').text();
+        var url = $('#share_url').val();
             url = 'http://www.facebook.com/share.php?u=' + encodeURIComponent(url);
         $('#share_facebook').prop('href', url);
         return true;
     });
     $('#share_twitter').click(function () {
-        var url = $('#share_url').val() || $('#share_url').text();
+        var url = $('#share_url').val();
             url = 'http://twitter.com/home?status=' + encodeURIComponent(url);
         $('#share_twitter').prop('href', url);
         return true;
