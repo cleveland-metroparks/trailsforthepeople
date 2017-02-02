@@ -1490,7 +1490,7 @@ function initMap () {
         var tofrom    = 'to';
 
         // toggle the directions panel so it shows directions instead of Select A Destination
-        if (MOBILE) $('#pane-getdirections').page();
+        sidebar.open('pane-getdirections');
         $('#getdirections_disabled').hide();
         $('#getdirections_enabled').show();
 
@@ -2169,7 +2169,6 @@ function getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via) {
         prefer:prefer,
         bing_key: BING_API_KEY
     };
-    //console.log(params);
     $.get(APP_BASEPATH + 'ajax/directions', params, function (reply) {
         enableDirectionsButton();
 
