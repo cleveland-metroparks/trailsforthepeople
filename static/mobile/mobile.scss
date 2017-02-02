@@ -294,6 +294,13 @@ div.lng_driving {
             color: white;
             font-weight: normal;
         }
+        .ui-li-heading {
+            font-weight: 600;
+            display: block;
+        }
+        .ui-li-desc {
+            font-size: 90%;
+        }
         .distance_sortable {
             a.ui-btn {
                 padding-right: 60px;
@@ -426,10 +433,19 @@ div.lng_driving {
 //
 #pane-getdirections {
     #directions_steps {
-        .did-you-mean {
+        li.did-you-mean {
             border-top: none;
             color: $red_light;
             font-weight: bold;
+        }
+        li.ui-first-child {
+            border-top: none;
+            .ui-li-heading {
+                font-weight: normal;
+            }
+        }
+        li.ui-last-child {
+            border-bottom: none;
         }
     }
 }
