@@ -44,20 +44,6 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 
 #pane-browse-results .sortpicker { display: block; }
 
-img#elevation { max-width: 100%; }
-
-#trailfinder_typeicons { text-align: center; margin-bottom: 1em; }
-
-#trailfinder_typeicons img { cursor: pointer; }
-
-#loops_typeicons { text-align: center; }
-
-#loops_typeicons img { cursor: pointer; }
-
-#loops_filter_distancepicker { text-align: center; margin-top: 5px; }
-
-#loops_filter_distancepicker img { cursor: pointer; }
-
 .description { padding: 0 20px; }
 
 .popup_title { font-size: 10pt; font-weight: bold; margin-bottom: 0.25em; }
@@ -116,5 +102,19 @@ div.lng_driving { display: none; }
 #pane-getdirections #directions_steps li.ui-first-child { border-top: none; }
 #pane-getdirections #directions_steps li.ui-first-child .ui-li-heading { font-weight: normal; }
 #pane-getdirections #directions_steps li.ui-last-child { border-bottom: none; }
+
+#pane-loops-search #loops_typeicons { text-align: center; margin: 1em 0; }
+#pane-loops-search #loops_typeicons img { width: 50px; margin: 0px 3px; cursor: pointer; }
+#pane-loops-search #loops_filter_distancepicker { text-align: center; margin: 1em 0; }
+#pane-loops-search #loops_filter_distancepicker img { cursor: pointer; }
+#pane-loops-search #loops_filter_reservation { margin: 1em 0; }
+#pane-loops-search .sortpicker { margin-top: 1.5em; }
+
+#pane-trailfinder #trailfinder_typeicons { text-align: center; margin: 1em 0; }
+#pane-trailfinder #trailfinder_typeicons img { width: 50px; margin: 0px 3px; cursor: pointer; }
+#pane-trailfinder #trailfinder_reservation { margin: 1em 0; }
+#pane-trailfinder .sortpicker { margin-top: 1.5em; }
+
+#pane-elevationprofile img#elevation { max-width: 100%; }
 
 /*# sourceMappingURL=mobile.css.map */

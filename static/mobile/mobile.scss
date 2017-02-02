@@ -148,39 +148,6 @@ div.fakeinput {
     display: block;
 }
 
-
-//  Elevation profile
-img#elevation {
-    max-width: 100%;
-}
-
-
-// Trail Finder and Featured Loops
-
-#trailfinder_typeicons {
-    text-align:center;
-
-    margin-bottom:1em;
-}
-#trailfinder_typeicons img {
-    cursor:pointer;
-}
-
-#loops_typeicons {
-    text-align:center;
-}
-#loops_typeicons img {
-    cursor:pointer;
-}
-
-#loops_filter_distancepicker {
-    text-align:center;
-    margin-top:5px;
-}
-#loops_filter_distancepicker img {
-    cursor:pointer;
-}
-
 // -----------------------------------------------------------------------------------------------------------
 
 .description {
@@ -447,5 +414,63 @@ div.lng_driving {
         li.ui-last-child {
             border-bottom: none;
         }
+    }
+}
+
+//
+// Sidebar Pane: Featured Loops
+//
+#pane-loops-search {
+    #loops_typeicons {
+        text-align: center;
+        margin: 1em 0;
+        img {
+            width: 50px;
+            margin: 0px 3px;
+            cursor: pointer;
+        }
+    }
+    #loops_filter_distancepicker {
+        text-align: center;
+        margin: 1em 0;
+        img {
+            cursor: pointer;
+        }
+    }
+    #loops_filter_reservation {
+        margin: 1em 0;
+    }
+    .sortpicker {
+        margin-top: 1.5em;
+    }
+}
+
+//
+// Sidebar Pane: Trail Finder
+//
+#pane-trailfinder {
+    #trailfinder_typeicons {
+        text-align: center;
+        margin: 1em 0;
+        img {
+            width: 50px;
+            margin: 0px 3px;
+            cursor: pointer;
+        }
+    }
+    #trailfinder_reservation {
+        margin: 1em 0;
+    }
+    .sortpicker {
+        margin-top: 1.5em;
+    }
+}
+
+//
+// Sidebar Pane: Elevation profile
+//
+#pane-elevationprofile {
+    img#elevation {
+        max-width: 100%;
     }
 }

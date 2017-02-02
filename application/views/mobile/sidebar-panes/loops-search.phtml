@@ -24,27 +24,26 @@
         </select>
     </div>
     <div id="loops_typeicons">
-        <img data-value="hike" src="<?= site_url('static/images/trailfinder/trailfinder_hike_off.png') ?>" />
-        <img data-value="bike_Advanced" src="<?= site_url('static/images/trailfinder/trailfinder_bike_off.png') ?>" />
-        <img data-value="bridle" src="<?= site_url('static/images/trailfinder/trailfinder_horse_off.png') ?>" />
-        <!--<img data-value="exercise" src="<?= site_url('static/images/trailfinder/trailfinder_exercise_off.png') ?>" />-->
-        <img data-value="mountainbike" src="<?= site_url('static/images/trailfinder/trailfinder_mtnbike_off.png') ?>" />
+        <img data-value="hike" src="<?= site_url('static/images/activities/hike.svg') ?>" />
+        <img data-value="bike_Advanced" src="<?= site_url('static/images/activities/bike.svg') ?>" />
+        <img data-value="bridle" src="<?= site_url('static/images/activities/horse.svg') ?>" />
+        <!--<img data-value="exercise" src="<?= site_url('static/images/activities/fitness.svg') ?>" />-->
+        <img data-value="mountainbike" src="<?= site_url('static/images/activities/mtnbike.svg') ?>" />
     </div>
     
     <div style="display:none;">
         <select id="loops_filter_paved" data-mini="true">
-        <option value="">Paved or unpaved</option>
-        <option value="Yes">Paved</option>
-        <option value="No">Unpaved</option>
+            <option value="">Paved or unpaved</option>
+            <option value="Yes">Paved</option>
+            <option value="No">Unpaved</option>
         </select>
     </div>
     
-    <br/>
     <select id="loops_filter_reservation" data-mini="true">
-    <option value="">(any reservation)</option>
-    <?php foreach ($reservations as $res) { ?>
-    <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
-    <?php } ?>
+        <option value="">(any reservation)</option>
+        <?php foreach ($reservations as $res) { ?>
+        <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
+        <?php } ?>
     </select>
     
     </fieldset>
@@ -59,6 +58,7 @@
         <br/>
         Max: <input type="range" id="loops_filter_distance_max" min="0" max="50" value="50" />
     </div>
+
     <div id="loops_filter_distancepicker">
         <img data-min="0" data-max="2" src="<?= site_url('static/images/trailfinder/trailfinder_distance1_off.png') ?>" />
         <img data-min="2" data-max="5" src="<?= site_url('static/images/trailfinder/trailfinder_distance2_off.png') ?>" />
@@ -75,12 +75,9 @@
         <br/>
         Max: <input type="range" id="loops_filter_duration_max" min="0" max="300" value="300" />
     </div>
-    
-    <br/>
+
     <input type="button" id="loops_filter_button" value="Search" value0="Searching..." value1="Search" />
-    
-    <br/>
-    
+
     <div class="sortpicker">
         <span class="fakelink" value="distance">Sort by distance</span>
         &bull;
