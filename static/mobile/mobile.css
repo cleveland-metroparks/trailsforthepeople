@@ -42,8 +42,6 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 
 .sortpicker { display: none; text-align: center; margin: 10px 0; }
 
-#pane-browse-results .sortpicker { display: block; }
-
 .description { padding: 0 20px; }
 
 .popup_title { font-size: 10pt; font-weight: bold; margin-bottom: 0.25em; }
@@ -69,7 +67,7 @@ div.lng_driving { display: none; }
 #sidebar .sidebar-content ul li { padding-left: 0; }
 #sidebar .sidebar-content ul li .fa { padding-right: 10px; font-size: 24px; width: 24px; vertical-align: middle; text-align: center; }
 #sidebar .sidebar-content h4 { margin: 0; }
-#sidebar .sidebar-content .ui-li-icon { max-height: initial !important; max-width: initial !important; top: initial !important; height: 20px; width: 20px; }
+#sidebar .sidebar-content .ui-li-icon { max-height: initial !important; max-width: initial !important; }
 #sidebar .sidebar-content .ui-li-count { background-color: #1D5C1F; border: none; color: white; font-weight: normal; }
 #sidebar .sidebar-content .ui-li-heading { font-weight: 600; display: block; }
 #sidebar .sidebar-content .ui-li-desc { font-size: 90%; }
@@ -79,6 +77,11 @@ div.lng_driving { display: none; }
 
 #pane-browse .browse-main { margin-top: 1em; }
 #pane-browse .browse-main li img { margin-top: -20px; }
+
+#pane-browse-results .sortpicker { display: block; }
+
+#pane-browse-pois-activity ul li a { min-height: 22px; padding-left: 3em; }
+#pane-browse-pois-activity ul li a img.ui-li-icon { top: 7px !important; left: 6px !important; height: 30px !important; width: 30px !important; }
 
 #pane-getdirections #directions_target_title { text-align: center; font-size: 110%; font-weight: bold; margin-top: 1.5em; }
 #pane-getdirections #change_directions_target { text-align: center; font-size: 75%; margin-top: .5em; margin-bottom: 1.5em; }

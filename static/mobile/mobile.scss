@@ -144,10 +144,6 @@ div.fakeinput {
     margin: 10px 0;
 }
 
-#pane-browse-results .sortpicker {
-    display: block;
-}
-
 // -----------------------------------------------------------------------------------------------------------
 
 .description {
@@ -250,10 +246,6 @@ div.lng_driving {
             // Reset jqM
             max-height: initial !important;
             max-width: initial !important;
-            top: initial !important;
-
-            height: 20px;
-            width: 20px;
         }
         .ui-li-count {
             background-color: $green_dark;
@@ -295,6 +287,35 @@ div.lng_driving {
         li {
             img {
                 margin-top: -20px; //  hack to make the icons align to the text
+            }
+        }
+    }
+}
+
+//
+// Sidebar Pane: Browse Results
+//
+#pane-browse-results {
+    .sortpicker {
+        display: block;
+    }
+}
+
+//
+// Sidebar Pane: Browse POIS Activity
+//
+#pane-browse-pois-activity {
+    ul {
+        li {
+            a {
+                min-height: 22px;
+                padding-left: 3em;
+                img.ui-li-icon {
+                    top: 7px !important;
+                    left: 6px !important;
+                    height: 30px !important;
+                    width: 30px !important;
+                }
             }
         }
     }
