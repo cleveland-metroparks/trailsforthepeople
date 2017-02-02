@@ -44,6 +44,8 @@ div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; p
 
 #pane-browse-results .sortpicker { display: block; }
 
+img#elevation { max-width: 100%; }
+
 #trailfinder_typeicons { text-align: center; margin-bottom: 1em; }
 
 #trailfinder_typeicons img { cursor: pointer; }

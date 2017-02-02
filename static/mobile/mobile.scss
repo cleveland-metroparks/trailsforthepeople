@@ -149,11 +149,9 @@ div.fakeinput {
 }
 
 
-//  Elevation profile wrapper
-div.elevationprofileimage {
-}
-
-div.elevationprofileimage img {
+//  Elevation profile
+img#elevation {
+    max-width: 100%;
 }
 
 

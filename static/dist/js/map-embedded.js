@@ -2137,8 +2137,11 @@ function populateDidYouMean(results) {
 }
 
 /**
- * part of the Get Directions system: given lat,lng and lat,lng and route params, request directions from the server
- * then render them to the screen and to the map
+ * Get directions
+ *
+ * Part of the Get Directions system:
+ * Given lat,lng and lat,lng and route params, request directions from the server
+ * then render them to the screen and to the map.
  */
 function getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via) {
     // empty out the old directions and disable the button as a visual effect
@@ -2174,6 +2177,9 @@ function getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via) {
     }, 'json');
 }
 
+/**
+ * Disable directions button
+ */
 function disableDirectionsButton() {
     var button = $('#directions_button');
     if (MOBILE) {
@@ -2186,6 +2192,9 @@ function disableDirectionsButton() {
     }
 }
 
+/**
+ * Enable directions button
+ */
 function enableDirectionsButton() {
     var button = $('#directions_button');
     if (MOBILE) {
@@ -2198,6 +2207,9 @@ function enableDirectionsButton() {
     }
 }
 
+/**
+ * Render directions structure
+ */
 function renderDirectionsStructure(directions,target,options) {
     // no options, no problem
     if (! options) options = {};
@@ -2216,8 +2228,11 @@ function renderDirectionsStructure(directions,target,options) {
     MAP.fitBounds(bbox);
 
     // phase 2: put the directions into the panel
-    if (! target) target = $('#directions_steps');
+    if (! target) {
+        target = $('#directions_steps');
+    }
     target.empty();
+
     for (var i=0, l=directions.steps.length; i<l; i++) {
         var step     = directions.steps[i];
         var li       = $('<li></li>');
@@ -2238,6 +2253,7 @@ function renderDirectionsStructure(directions,target,options) {
     var total = $('<span></span>').addClass('ui-li-heading').html('<b>Total:</b> ' + directions.totals.distance + ', ' + directions.totals.duration);
     target.append( $('<li></li>').append(total).append(note) );
 
+    $('.directions_functions').remove();
     var directionsFunctions = $('<div></div>').addClass('directions_functions');
 
     // Elevation Profile button
@@ -2317,6 +2333,9 @@ function renderDirectionsStructure(directions,target,options) {
     }
 }
 
+/**
+ * Clear directions line
+ */
 function clearDirectionsLine() {
     // this line actually gets deleted
     if (DIRECTIONS_LINE) {
@@ -2339,6 +2358,9 @@ function clearDirectionsLine() {
     $('#measure_steps').empty();
 }
 
+/**
+ * Place directions line
+ */
 function placeDirectionsLine(polyline,startll,endll) {
     // save the polyline to the global
     DIRECTIONS_LINE = polyline;
@@ -2355,6 +2377,9 @@ function placeDirectionsLine(polyline,startll,endll) {
     MARKER_TO.dragging.disable();
 }
 
+/**
+ * Open elevation profile by segments
+ */
 function openElevationProfileBySegments() {
     if (! ELEVATION_PROFILE) return;
 
@@ -2374,8 +2399,9 @@ function openElevationProfileBySegments() {
     });
 }
 
-
-
+/**
+ * Disable keyword button
+ */
 function disableKeywordButton() {
     var button = $('#search_keyword_button');
     if (MOBILE) {
@@ -2388,6 +2414,9 @@ function disableKeywordButton() {
     }
 }
 
+/**
+ * Enable keyword button
+ */
 function enableKeywordButton() {
     var button = $('#search_keyword_button');
     if (MOBILE) {
@@ -2400,11 +2429,8 @@ function enableKeywordButton() {
     }
 }
 
-
-
-
-
 ///// functions and supporting code regarding printing
+
 // printMap() is in common.js; it loads the various form values and POSTs them to MapFish, and receives back an URL.
 // It then passes the URL to printMapDone(url) which is defined in desktop.js and mobile.js separately
 function printMapPrepare() {

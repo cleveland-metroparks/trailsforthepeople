@@ -322,9 +322,6 @@ function enableClicks() {
  * Switch to map, with callback
  */
 function switchToMap(callback) {
-    // go ahead and switch over now, with whatever their callback to do after the map is focused
-    //$.mobile.changePage('#pane-map');
-
     // If the user has a small screen, close the sidebar to see the map.
     // @TODO: Can we check, instead, whether the sidebar is taking up the full screen?
     if ($(window).width() < 800) {
@@ -667,7 +664,7 @@ $(window).load(function () {
  */
 function showPhoto(url) {
     $('#photo').prop('src',url);
-    $.mobile.changePage('#pane-photo');
+    sidebar.open('pane-photo');
 }
 
 /**
@@ -675,7 +672,7 @@ function showPhoto(url) {
  */
 function showElevation(url) {
     $('#elevation').prop('src',url);
-    $.mobile.changePage('#pane-elevationprofile');
+    sidebar.open('pane-elevationprofile');
 }
 
 /**
@@ -987,7 +984,6 @@ $(window).load(function () {
         $('#pane-getdirections').page();
         $('#directions_via').selectmenu("refresh");
         // and change to the Get Directions panel
-        //$.mobile.changePage('#pane-getdirections');
         sidebar.open('pane-getdirections');
     }
 
@@ -1022,7 +1018,7 @@ $(window).load(function () {
 
     // this button changes over to the Find subpage, so they can pick a destination
     $('#change_directions_target2').click(function () {
-        $.mobile.changePage('#pane-browse');
+        sidebar.open('pane-browse');
 
         // if they clicked this button, it means that they will be looking for a place,
         // with the specific purpose of getting Directions there
