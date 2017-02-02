@@ -287,10 +287,17 @@ div.lng_driving {
 // -----------------------------------------------------------------------------------------------------------
 
 //
-// Sidebar Pane: Find
+// Sidebar Pane: Find/Browse
 //
-#pane-browse ul[data-role="listview"] li img {
-    margin-top: -20px; //  hack to make the icons align to the text
+#pane-browse {
+    .browse-main {
+        margin-top: 1em;
+        li {
+            img {
+                margin-top: -20px; //  hack to make the icons align to the text
+            }
+        }
+    }
 }
 
 //

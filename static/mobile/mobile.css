@@ -77,7 +77,8 @@ div.lng_driving { display: none; }
 #sidebar .sidebar-content .distance_sortable a.ui-btn h4.ui-li-heading { margin-top: 0; }
 #sidebar .sidebar-content .distance_sortable a.ui-btn .ui-li-desc { font-weight: normal; }
 
-#pane-browse ul[data-role="listview"] li img { margin-top: -20px; }
+#pane-browse .browse-main { margin-top: 1em; }
+#pane-browse .browse-main li img { margin-top: -20px; }
 
 #pane-getdirections #directions_target_title { text-align: center; font-size: 110%; font-weight: bold; margin-top: 1.5em; }
 #pane-getdirections #change_directions_target { text-align: center; font-size: 75%; margin-top: .5em; margin-bottom: 1.5em; }
