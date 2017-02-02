@@ -20,11 +20,12 @@
     <link rel="mask-icon" href="/static/common/images/favicons/safari-pinned-tab.svg" color="#1d5c1f">
     <meta name="theme-color" content="#ffffff">
 
-    <!-- a library for encoding and decoding JSON. necessary for IE8 and earlier Firefox to do printing
-    at any rate, known to be consistent between browsers; I doubt the ECMA standard will be so lucky, ha ha -->
-<!--
+    <link rel="apple-touch-icon-precomposed" href="<?= site_url('static/common/images/metroparks_icon.png'); ?>" />
+
+    <!-- Library for encoding and decoding JSON. Necessary for IE8 and earlier Firefox to do printing. -->
+    <!--
     <script type="text/javascript" src="<?= site_url('static/common/libraries/json.js'); ?>"></script>
--->
+    -->
 
     <!-- jQuery -->
     <script type="text/javascript" src="<?= site_url('static/common/libraries/jquery-1.12.4.min.js'); ?>"></script>
@@ -38,11 +39,6 @@
     <script type="text/javascript" src="<?= site_url('static/common/libraries/purl.js'); ?>"></script>
 
     <script type="text/javascript" src="<?= site_url('static/lib/fastclick-1.0.6/fastclick.min.js'); ?>"></script>
-
-    <!-- add2home, to prompt the user to add this page to their home screen as a bookmark -->
-    <link rel="stylesheet" href="<?= site_url('static/mobile/add2home/style/add2home.css'); ?>">
-    <script type="application/javascript" src="<?= site_url('static/mobile/add2home/src/add2home.js'); ?>"></script>
-    <link rel="apple-touch-icon-precomposed" href="<?= site_url('static/common/images/metroparks_icon.png'); ?>" />
 
     <!-- proj4js, reproject points see wgsToLocalSRS() used for printing, which is desktop only -->
     <!--
