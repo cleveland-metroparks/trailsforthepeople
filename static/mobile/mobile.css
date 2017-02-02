@@ -4,6 +4,15 @@
 
 .leaflet-popup .fakelink { font-size: 12pt; }
 
+#mapbutton_gps { position: absolute; bottom: 75px; right: 7px; cursor: pointer; z-index: 401; }
+
+.leaflet-popup-scrolled .leaflet-popup-content { overflow: hidden; }
+
+.leaflet-control-zoom a { color: #000000 !important; }
+.leaflet-control-zoom a.leaflet-disabled { color: #bbbbbb !important; }
+.leaflet-control-zoom a.disabled { display: none; }
+.leaflet-control-zoom a.only { margin: 0; }
+
 .fakelink { color: #6AB03E; text-decoration: underline; cursor: pointer; }
 
 #info-content { margin-bottom: 1em; }
@@ -25,10 +34,6 @@ input.ui-slider-input, .ui-field-contain input.ui-slider-input { display: none; 
 div.ui-slider { height: 25px; }
 
 .ui-field-contain div.ui-slider { width: 75%; }
-
-.leaflet-popup-scrolled .leaflet-popup-content { overflow: hidden; }
-
-#mapbutton_gps { position: absolute; bottom: 75px; right: 7px; cursor: pointer; z-index: 401; }
 
 .textnowrap input.ui-input-text, textarea.ui-input-text { display: inline; }
 
@@ -53,10 +58,6 @@ div.wkt { display: none; }
 div.lat_driving { display: none; }
 
 div.lng_driving { display: none; }
-
-.leaflet-control-zoom a.disabled { display: none; }
-
-.leaflet-control-zoom a.only { margin: 0; }
 
 #gallery { text-align: center; }
 

@@ -5,18 +5,56 @@
     font-family: $mainfont;
 }
 
-
-// Page elements
-
+// -----------------------------------------------------------------------------------------------------------
+// Map elements
+// -----------------------------------------------------------------------------------------------------------
 #map_canvas {
-    position:absolute; top:0; left:0;
-    margin:0; padding:0;
-    width:100%; height:100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .leaflet-popup .fakelink {
-    font-size:12pt;
+    font-size: 12pt;
 }
+
+// Geolocate button
+#mapbutton_gps {
+    position: absolute;
+    bottom: 75px;
+    right: 7px;
+    cursor: pointer;
+    z-index: 401;
+}
+
+//  Leaflet popups which are large enough to induce scrolling, can't really scroll
+.leaflet-popup-scrolled .leaflet-popup-content {
+    overflow: hidden;
+}
+
+// Leaflet Zoom panel
+// Allow buttons to be disabled.
+.leaflet-control-zoom {
+    a {
+        color: #000000 !important;
+        &.leaflet-disabled {
+            color: #bbbbbb !important;
+        }
+        &.disabled {
+            display: none;
+        }
+        &.only {
+            margin: 0;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------
 
 .fakelink {
     color: $green_light;
@@ -26,7 +64,6 @@
 
 
 #info-content {
-    //min-height: 3em;
     margin-bottom: 1em;
 }
 
@@ -36,21 +73,17 @@
 .ui-content input[type="text"] {
     background:none repeat scroll 0 0 #F9F9F9;
 }
-
 .ui-content input[type="password"] {
     background:none repeat scroll 0 0 #F9F9F9;
 }
-
 .ui-content textarea {
     background:none repeat scroll 0 0 #F9F9F9;
 }
-
 .ui-content select {
     background:none repeat scroll 0 0 #F9F9F9;
 }
 
-// speed up those transitions a little
-
+// speed up transitions a little
 .fade.out {
     opacity: 0;
     -webkit-animation-duration: 100ms;
@@ -61,8 +94,6 @@
     -webkit-animation-duration: 100ms;
     -moz-animation-duration: 100ms;
 }
-
-
 
 // jQuery Mobile sliders have that text field; hide them
 input.ui-slider-input, .ui-field-contain input.ui-slider-input {
@@ -75,34 +106,10 @@ div.ui-slider {
     width: 75%;
 }
 
-
-
-//  Leaflet popups which are large enough to induce scrolling, can't really scroll
-.leaflet-popup-scrolled .leaflet-popup-content {
-    overflow:hidden;
-}
-
-
-//
-// Geolocate button
-// this goes over the map, and the Scale control is hidden
-// (it's added in common, so can't disable it only in mobile)
-//
-#mapbutton_gps {
-    position: absolute;
-    bottom: 75px;
-    right: 7px;
-    cursor: pointer;
-    z-index: 401;
-}
-
-
 // inside a textnowrap do not force text inputs to wrap lines
-
 .textnowrap input.ui-input-text,textarea.ui-input-text {
     display:inline;
 }
-
 .textnowrap td {
     vertical-align:middle;
 }
@@ -178,15 +185,6 @@ div.lat_driving {
 }
 div.lng_driving {
     display: none;
-}
-
-// Leaflet Zoom panel
-// Allow buttons to be disabled.
-.leaflet-control-zoom a.disabled {
-    display: none;
-}
-.leaflet-control-zoom a.only {
-    margin: 0;
 }
 
 // Gallery popup
