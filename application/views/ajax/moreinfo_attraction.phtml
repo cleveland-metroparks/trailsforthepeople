@@ -17,14 +17,15 @@
 <?php endif; ?>
 
 <?php if ($feature->descr): ?>
-	<div><?= nl2br($feature->descr) ?></div>
+	<div class="feature-description"><?= nl2br($feature->descr) ?></div>
 <?php endif; ?>
 
-<ul class="nobull">
-	<?php if ($feature->cmp_url): ?>
+<?php //if ($feature->cmp_url): ?>
+<?php if (false): ?>
+	<ul class="nobull">
 		<li><a href="<?= $this->config->item('main_site_url') . ltrim($feature->cmp_url, '/') ?>" target="_blank">More Info</a></li>
-	<?php endif; ?>
-</ul>
+	</ul>
+<?php endif; ?>
 
 <h4>GPS coordinates:</h4>
 <div class="small-light">
