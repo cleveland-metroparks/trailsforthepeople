@@ -15,7 +15,14 @@ module.exports = function(grunt) {
         separator: ';\n',
       },
       // Main package:
-      dist: {},
+      dist: {
+        src: [
+          'static/src/js/constants.js',
+          'static/src/js/common.js',
+          'static/src/js/mobile.js'
+        ],
+        dest: 'static/dist/js/app.js'
+      },
       // Map embeds on external sites:
       embedded: {
         src: [
@@ -62,7 +69,8 @@ module.exports = function(grunt) {
         files: {
           'static/dist/js/mobile.min.js':    ['static/src/js/mobile.js'],
           'static/dist/js/constants.min.js': ['static/src/js/constants.js'],
-          'static/dist/js/common.min.js':    ['static/src/js/common.js']
+          'static/dist/js/common.min.js':    ['static/src/js/common.js'],
+          'static/dist/js/app.min.js':    ['static/dist/js/app.js']
         }
       },
       // For map embeds on external sites:
@@ -129,7 +137,8 @@ module.exports = function(grunt) {
             "static/mobile/jqm-themes/cm-jqm-theme.min.css",
             "static/dist/js/mobile.min.js",
             "static/dist/js/constants.min.js",
-            "static/dist/js/common.min.js"
+            "static/dist/js/common.min.js",
+            "static/dist/js/app.min.js"
           ]
         }
       },
@@ -196,7 +205,8 @@ module.exports = function(grunt) {
           'static/mobile/jqm-themes/cm-jqm-theme.css',
           'static/dist/js/mobile.min.js',
           'static/dist/js/constants.min.js',
-          'static/dist/js/common.min.js'
+          'static/dist/js/common.min.js',
+          'static/dist/js/app.min.js'
         ],
         tasks: ['sftp:dist']
       },
