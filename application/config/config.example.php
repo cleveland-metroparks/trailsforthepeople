@@ -97,7 +97,7 @@ $config['temp_dir'] = '/var/www/trailsforthepeople/static/tmp';
 | "Hint Map" images
 |--------------------------------------------------------------------------
 */
-$config['hint_maps_dir_rel'] = "static/common/images/hint_maps";
+$config['hint_maps_dir_rel'] = "static/images/hint_maps";
 $config['hint_maps_dir'] = $config['base_path'] . '/' . $config['hint_maps_dir_rel'];
 
 /*

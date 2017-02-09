@@ -536,7 +536,7 @@ function saveloop() {
     // save the elevation profile image; they have a tempfile in the browser, save it by the loop's ID#
     if ($_POST['elevation_profile_image']) {
         $source = $_POST['elevation_profile_image'];
-        $saveas = "static/common/images/loops/{$loop->id}.jpg";
+        $saveas = "static/images/loops/{$loop->id}.jpg";
         copy($source,$saveas);
     }
 
@@ -605,7 +605,7 @@ function deleteloop() {
     $loop->delete();
 
     // delete any static images associated with it
-    $photo = "static/common/images/loops/{$loop->id}.jpg";
+    $photo = "static/images/loops/{$loop->id}.jpg";
     if (is_file($photo)) unlink($photo);
 
     // we're outta here

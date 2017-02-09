@@ -9,7 +9,7 @@
 <input type="hidden" name="id" value="<?= $loop ? $loop->id : 0 ?>" />
 <input type="hidden" name="wkt" value="<?= $loop ? $loop->wkt : '' ?>" />
 <input type="hidden" name="elevation_profile" value="<?= $loop ? $loop->elevation_profile : '' ?>" />
-<input type="hidden" name="elevation_profile_image" value="<?= $loop ? ssl_url("static/common/images/loops/{$loop->id}.jpg") : '' ?>" />
+<input type="hidden" name="elevation_profile_image" value="<?= $loop ? ssl_url("static/images/loops/{$loop->id}.jpg") : '' ?>" />
 
 <ul class="nav nav-tabs">
   <li class="active"><a data-toggle="tab" href="#basic-info">Basic Information</a></li>
@@ -365,7 +365,7 @@
 
         <div class="form-group">
             <div class="col-sm-6">
-                <img src="<?= $loop ? ssl_url("static/common/images/loops/{$loop->id}.jpg") : ssl_url('static/common/images/blank.png') ?>" id="elevation_profile" />
+                <img src="<?= $loop ? ssl_url("static/images/loops/{$loop->id}.jpg") : ssl_url('static/images/blank.png') ?>" id="elevation_profile" />
             </div>
         </div>
 
