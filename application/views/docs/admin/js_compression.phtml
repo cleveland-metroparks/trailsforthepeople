@@ -3,19 +3,19 @@
 <p>
     Most JavaScript (.js) files exist in two versions: uncompressed and compressed.
     <br/>
-    Compressed ones are given a <i>.jscompress</i> addition, to distinguish them but keep them similar to the editable versions.
+    Compressed ones are given a <i>.min</i> addition, to distinguish them but keep them similar to the editable versions.
     <br/>
     This is reflected in the HTML documents, where you will see references to both versions and one of them commented out, like this:
     <br/>
     <pre>
     &lt;!-- Commented out uncompressed versions
-    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/common/js/constants.js&quot;&gt;&lt;/script&gt;
-    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/common/js/common.js&quot;&gt;&lt;/script&gt;
-    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/desktop/desktop.js&quot;&gt;&lt;/script&gt;
+    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/src/js/constants.js&quot;&gt;&lt;/script&gt;
+    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/src/js/common.js&quot;&gt;&lt;/script&gt;
+    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/src/js/mobile.js&quot;&gt;&lt;/script&gt;
     --&gt;
-    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/common/js/constants.jscompress.js&quot;&gt;&lt; /script&gt;
-    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/common/js/common.jscompress.js&quot;&gt;&lt;  /script&gt;
-    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/desktop/desktop.jscompress.js&quot;&gt;&lt;  /script&gt;
+    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/dist/js/constants.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/dist/js/common.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script type=&quot;text/javascript&quot; src=&quot;http://maps.clemetparks.com/static/dist/js/mobile.min.js&quot;&gt;&lt;/script&gt;
     </pre>
 </p>
 
@@ -27,9 +27,9 @@
 
 <p>Compressed files have one caveat: developing and debugging on them is nearly impossible. All errors happen on line 1 since it has  only 1 line, and editing is really not a good idea.</p>
 
-<p>For development, edit the appropriate HTML document and use the uncompressed versions, such as <i>index.js</i> instead of <i>index.  jscompress.js</i> The page loading will take a small hit, but it's not killer.</p>
+<p>For development, edit the appropriate HTML document and use the uncompressed versions, such as <i>index.js</i> instead of <i>index.min.js</i> The page loading will take a small hit, but it's not killer.</p>
 
-<p>After you have made your fixes to the JavaScript files, you will want to compress them into the <i>.jscompress</i> versions, then  change the HTML back again so the compressed versions are loaded.</p>
+<p>After you have made your fixes to the JavaScript files, you will want to compress them into the <i>.min</i> versions, then  change the HTML back again so the compressed versions are loaded.</p>
 
 <h2>Compressing the New JavaScript Files</h2>
 

@@ -4,6 +4,12 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     local: grunt.file.readJSON('grunt-local-config.json'),
+
+    /**
+     *
+     * Concatenate
+     *
+     */
     concat: {
       options: {
         separator: ';\n',
@@ -20,9 +26,9 @@ module.exports = function(grunt) {
           'static/lib/mapbox-gl-0.28.0.js',
           'static/common/libraries/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
           'static/common/libraries/cookie.js',
-          'static/common/js/constants.js',
+          'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
-          'static/common/js/common.js',
+          'static/src/js/common.js',
           'static/src/js/embedded.js'
         ],
         dest: 'static/dist/js/map-embedded.js'
@@ -36,21 +42,27 @@ module.exports = function(grunt) {
           'static/lib/mapbox-gl-0.28.0.js',
           'static/common/libraries/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
           'static/common/libraries/cookie.js',
-          'static/common/js/constants.js',
+          'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
-          'static/common/js/common.js',
+          'static/src/js/common.js',
           'static/src/js/embedded.js'
         ],
         dest: 'static/dist/js/map-embedded-nojq.js'
       }
     },
+
+    /**
+     *
+     * Minify
+     *
+     */
     uglify: {
       // Main package:
       dist: {
         files: {
-          'static/mobile/mobile.jscompress.js': ['static/mobile/mobile.js'],
-          'static/common/js/constants.jscompress.js': ['static/common/js/constants.js'],
-          'static/common/js/common.jscompress.js': ['static/common/js/common.js']
+          'static/dist/js/mobile.min.js':    ['static/src/js/mobile.js'],
+          'static/dist/js/constants.min.js': ['static/src/js/constants.js'],
+          'static/dist/js/common.min.js':    ['static/src/js/common.js']
         }
       },
       // For map embeds on external sites:
@@ -66,6 +78,12 @@ module.exports = function(grunt) {
         }
       }
     },
+
+    /**
+     *
+     * SASS
+     *
+     */
     sass: {
       // Main package:
       dist: {
@@ -87,6 +105,12 @@ module.exports = function(grunt) {
         }
       }
     },
+
+    /**
+     *
+     * SFTP
+     *
+     */
     sftp: {
       options: {
         path: '<%= local.remoteHost.path %>',
@@ -103,9 +127,9 @@ module.exports = function(grunt) {
           "./": [
             "static/mobile/mobile.css",
             "static/mobile/jqm-themes/cm-jqm-theme.min.css",
-            "static/mobile/mobile.jscompress.js",
-            "static/common/js/constants.jscompress.js",
-            "static/common/js/common.jscompress.js"
+            "static/dist/js/mobile.min.js",
+            "static/dist/js/constants.min.js",
+            "static/dist/js/common.min.js"
           ]
         }
       },
@@ -122,6 +146,12 @@ module.exports = function(grunt) {
         }
       }
     },
+
+    /**
+     *
+     * Watch
+     *
+     */
     watch: {
       sass_dist: {
         files: [
@@ -138,16 +168,16 @@ module.exports = function(grunt) {
       },
       uglify_dist: {
         files: [
-          'static/mobile/mobile.js',
-          'static/common/js/constants.js',
-          'static/common/js/common.js'
+          'static/src/js/mobile.js',
+          'static/src/js/constants.js',
+          'static/src/js/common.js'
         ],
         tasks: ['uglify:dist']
       },
       concat_embedded: {
         files: [
-          'static/common/js/constants.js',
-          'static/common/js/common.js',
+          'static/src/js/constants.js',
+          'static/src/js/common.js',
           'static/src/js/embedded.js',
           'static/src/js/embedded-constants.js'
         ],
@@ -164,9 +194,9 @@ module.exports = function(grunt) {
         files: [
           'static/mobile/mobile.css',
           'static/mobile/jqm-themes/cm-jqm-theme.css',
-          'static/mobile/mobile.jscompress.js',
-          'static/common/js/constants.jscompress.js',
-          'static/common/js/common.jscompress.js'
+          'static/dist/js/mobile.min.js',
+          'static/dist/js/constants.min.js',
+          'static/dist/js/common.min.js'
         ],
         tasks: ['sftp:dist']
       },
