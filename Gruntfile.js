@@ -19,7 +19,8 @@ module.exports = function(grunt) {
         src: [
           'static/src/js/constants.js',
           'static/src/js/common.js',
-          'static/src/js/mobile.js'
+          'static/src/js/mobile.js',
+          'static/src/js/print.js'
         ],
         dest: 'static/dist/js/app.js'
       },
@@ -70,7 +71,7 @@ module.exports = function(grunt) {
           'static/dist/js/mobile.min.js':    ['static/src/js/mobile.js'],
           'static/dist/js/constants.min.js': ['static/src/js/constants.js'],
           'static/dist/js/common.min.js':    ['static/src/js/common.js'],
-          'static/dist/js/app.min.js':    ['static/dist/js/app.js']
+          'static/dist/js/app.min.js':       ['static/dist/js/app.js']
         }
       },
       // For map embeds on external sites:
@@ -177,9 +178,10 @@ module.exports = function(grunt) {
       },
       uglify_dist: {
         files: [
-          'static/src/js/mobile.js',
           'static/src/js/constants.js',
-          'static/src/js/common.js'
+          'static/src/js/common.js',
+          'static/src/js/mobile.js',
+          'static/src/js/print.js'
         ],
         tasks: ['uglify:dist']
       },
