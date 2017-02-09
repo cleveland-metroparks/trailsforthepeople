@@ -42,7 +42,7 @@
     <script type="text/javascript" src="<?= ssl_url('static/common/libraries/wicket/wicket-leaflet.js'); ?>"></script>
 
     <!-- TinyMCE, the HTML editor -->
-    <script type="text/javascript" src="<?= ssl_url('static/tinymce/jscripts/tiny_mce/jquery.tinymce.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/lib/tinymce/jscripts/tiny_mce/jquery.tinymce.js'); ?>"></script>
 
     <!-- Local back-end CSS -->
     <link href="<?= ssl_url('static/admin/admin.css'); ?>" rel="stylesheet">

@@ -59,7 +59,7 @@ MAP.on('contextmenu', function (event) {
 /////
 $('textarea[name="description"]').tinymce({
     // Location of TinyMCE script
-    script_url : '/static/tinymce/jscripts/tiny_mce/tiny_mce.js',
+    script_url : '/static/lib/tinymce/jscripts/tiny_mce/tiny_mce.js',
 
     // General options
     theme : "advanced",

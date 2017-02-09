@@ -105,7 +105,7 @@ $('#startdate_today').click(function () {
 /////
 $('textarea[name="content"]').tinymce({
     // Location of TinyMCE script
-    script_url : '<?= ssl_url('static/tinymce/jscripts/tiny_mce/tiny_mce.js') ?>',
+    script_url : '<?= ssl_url('static/lib/tinymce/jscripts/tiny_mce/tiny_mce.js') ?>',
 
     // General options
     theme : "advanced",
@@ -122,7 +122,7 @@ $('textarea[name="content"]').tinymce({
     theme_advanced_resizing : true,
 
     // Example content CSS (should be your site CSS)
-    content_css : "css/content.css",
+    //content_css : "css/content.css",
 
     // Drop lists for link/image/media/template dialogs
     template_external_list_url : "lists/template_list.js",
