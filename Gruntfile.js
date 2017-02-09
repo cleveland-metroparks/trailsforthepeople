@@ -26,13 +26,13 @@ module.exports = function(grunt) {
       // Map embeds on external sites:
       embedded: {
         src: [
-          'static/common/libraries/jquery-1.12.4.min.js',
-          'static/common/libraries/purl.js',
+          'static/lib/jquery-1.12.4.min.js',
+          'static/lib/purl.js',
           'static/lib/leaflet-1.0.3/leaflet.js',
           'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
           'static/lib/mapbox-gl-js-0.28.0/mapbox-gl.js',
-          'static/common/libraries/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
-          'static/common/libraries/cookie.js',
+          'static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
+          'static/lib/cookie.js',
           'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
           'static/src/js/common.js',
@@ -43,12 +43,12 @@ module.exports = function(grunt) {
       // Map embeds on external sites that already have jQuery included (we don't package it):
       embedded_nojq: {
         src: [
-          'static/common/libraries/purl.js',
+          'static/lib/purl.js',
           'static/lib/leaflet-1.0.3/leaflet.js',
           'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
           'static/lib/mapbox-gl-js-0.28.0/mapbox-gl.js',
-          'static/common/libraries/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
-          'static/common/libraries/cookie.js',
+          'static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
+          'static/lib/cookie.js',
           'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
           'static/src/js/common.js',

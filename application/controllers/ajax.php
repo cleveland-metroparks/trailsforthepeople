@@ -1747,9 +1747,9 @@ function elevationprofilebysegments($context=null) {
     $directory = "static/tmp";
     if (! is_dir($directory) or ! is_writable($directory) ) return print "Can't write elevation profile chart  to disk. Check permissions on $directory";
 
-    require "static/common/libraries/jpgraph-3.5.0b1/src/jpgraph.php";
-    require "static/common/libraries/jpgraph-3.5.0b1/src/jpgraph_line.php";
-    require "static/common/libraries/jpgraph-3.5.0b1/src/jpgraph_date.php";
+    require "static/lib/jpgraph-3.5.0b1/src/jpgraph.php";
+    require "static/lib/jpgraph-3.5.0b1/src/jpgraph_line.php";
+    require "static/lib/jpgraph-3.5.0b1/src/jpgraph_date.php";
 
     // if artificial POST content was given, load it
     if ($context) $_POST = $context;

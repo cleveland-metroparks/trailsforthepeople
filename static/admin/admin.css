@@ -120,19 +120,19 @@ input.textonly {
  * Tablesorter
  */
 table.tablesorter thead tr .header {
-  background-image: url(../common/libraries/tablesorter/themes/blue/bg.gif);
+  background-image: url(../lib/tablesorter/themes/blue/bg.gif);
   background-repeat: no-repeat;
   background-position: center right;
   cursor: pointer;
   padding-right: 20px;
 }
 table.tablesorter thead tr .headerSortUp {
-  background-image: url(../common/libraries/tablesorter/themes/blue/asc.gif);
+  background-image: url(../lib/tablesorter/themes/blue/asc.gif);
   background-color: #f9f9f9;
   border-top: 1px solid #ddd !important;
 }
 table.tablesorter thead tr .headerSortDown {
-  background-image: url(../common/libraries/tablesorter/themes/blue/desc.gif);
+  background-image: url(../lib/tablesorter/themes/blue/desc.gif);
   background-color: #f9f9f9;
   border-top: 1px solid #ddd !important;
 }

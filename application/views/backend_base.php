@@ -24,22 +24,22 @@
     <![endif]-->
 
     <!-- jQuery -->
-    <script type="text/javascript" src="<?= ssl_url('static/common/libraries/jquery-1.12.4.min.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/lib/jquery-1.12.4.min.js'); ?>"></script>
 
     <!-- jQuery UI -->
-    <!-- <script type="text/javascript" src="<?= ssl_url('static/common/libraries/jquery-ui-1.8.21.custom.min.js'); ?>"></script> -->
-    <script type="text/javascript" src="<?= ssl_url('static/common/libraries/jquery-ui-1.11.4/jquery-ui.min.js'); ?>"></script>
-    <!-- <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/common/libraries/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" /> -->
-    <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/common/libraries/jquery-ui-1.11.4/jquery-ui.min.css'); ?>" />
+    <!-- <script type="text/javascript" src="<?= ssl_url('static/lib/jquery-ui-1.8.21.custom.min.js'); ?>"></script> -->
+    <script type="text/javascript" src="<?= ssl_url('static/lib/jquery-ui-1.11.4/jquery-ui.min.js'); ?>"></script>
+    <!-- <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/lib/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" /> -->
+    <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/lib/jquery-ui-1.11.4/jquery-ui.min.css'); ?>" />
 
     <!-- tablesorter -->
-    <script type="text/javascript" src="<?= ssl_url('static/common/libraries/tablesorter/jquery.tablesorter.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/lib/tablesorter/jquery.tablesorter.js'); ?>"></script>
 
     <!-- Leaflet map API and Wicket plugin for parsing WKT -->
-    <link rel="stylesheet" type="text/css" href="<?= ssl_url('static/common/libraries/leaflet-0.7.1/leaflet.css'); ?>" />
-    <script type="text/javascript" src="<?= ssl_url('static/common/libraries/leaflet-0.7.1/leaflet.js'); ?>"></script>
-    <script type="text/javascript" src="<?= ssl_url('static/common/libraries/wicket/wicket.js'); ?>"></script>
-    <script type="text/javascript" src="<?= ssl_url('static/common/libraries/wicket/wicket-leaflet.js'); ?>"></script>
+    <link rel="stylesheet" type="text/css" href="<?= ssl_url('static/lib/leaflet-0.7.1/leaflet.css'); ?>" />
+    <script type="text/javascript" src="<?= ssl_url('static/lib/leaflet-0.7.1/leaflet.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/lib/wicket/wicket.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/lib/wicket/wicket-leaflet.js'); ?>"></script>
 
     <!-- TinyMCE, the HTML editor -->
     <script type="text/javascript" src="<?= ssl_url('static/lib/tinymce/jscripts/tiny_mce/jquery.tinymce.js'); ?>"></script>
