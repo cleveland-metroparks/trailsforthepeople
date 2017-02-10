@@ -1614,57 +1614,6 @@ function clearCircle() {
 }
 
 /**
- * String to Lat/Long
- *
- * Given a string, try to parse it as coordinates and return a L.LatLng instance.
- *
- * Currently supports these formats:
- *      N 44 35.342 W 123 15.669
- *      44.589033 -123.26115
- */
-function strToLatLng(text) {
-    var text = text.replace(/\s+$/,'').replace(/^\s+/,'');
-
-    // simplest format is decimal numbers and minus signs and that's about it
-    // one of them must be negative, which means it's the longitude here in North America
-    if (text.match(/^[\d\.\-\,\s]+$/)) {
-        var dd = text.split(/[\s\,]+/);
-        if (dd.length == 2) {
-            dd[0] = parseFloat(dd[0]);
-            dd[1] = parseFloat(dd[1]);
-            if (dd[0] && dd[1]) {
-                var lat,lng;
-                if (dd[0] < 0) {
-                    lat = dd[1];
-                    lng = dd[0];
-                } else {
-                    lat = dd[0];
-                    lng = dd[1];
-                }
-                return L.latLng([lat,lng]);
-            }
-        }
-    }
-
-    // okay, how about GPS/geocaching format:   N xx xx.xxx W xxx xx.xxx
-    var gps = text.match(/^N\s*(\d\d)\s+(\d\d\.\d\d\d)\s+W\s*(\d\d\d)\s+(\d\d\.\d\d\d)$/i);
-    if (gps) {
-        var latd = parseInt(gps[1]);
-        var latm = parseInt(gps[2]);
-        var lond = parseInt(gps[3]);
-        var lonm = parseInt(gps[4]);
-
-        var lat = latd + (latm/60);
-        var lng = -lond - (lonm/60);
-
-        return L.latLng([lat,lng]);
-    }
-
-    //if we got here then nothing matched, so bail
-    return null;
-}
-
-/**
  * Zoom to Address
  */
 function zoomToAddress(searchtext) {
@@ -1874,36 +1823,6 @@ function changeBasemap(layer_key) {
                 MAP.removeLayer(ALL_LAYERS[i]);
             }
         }
-    }
-}
-
-/**
- * Disable keyword button
- */
-function disableKeywordButton() {
-    var button = $('#search_keyword_button');
-    if (MOBILE) {
-        button.button('disable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
-    }
-    else {
-        button.prop('disabled',true);
-        button.val( button.attr('value0') );
-    }
-}
-
-/**
- * Enable keyword button
- */
-function enableKeywordButton() {
-    var button = $('#search_keyword_button');
-    if (MOBILE) {
-        button.button('enable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
-    }
-    else {
-        button.prop('disabled',false);
-        button.val( button.attr('value1') );
     }
 }
 

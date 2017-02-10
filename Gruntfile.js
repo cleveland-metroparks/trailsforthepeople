@@ -23,6 +23,7 @@ module.exports = function(grunt) {
           'static/src/js/geolocate.js',
           'static/src/js/directions.js',
           'static/src/js/share.js',
+          'static/src/js/search.js',
           'static/src/js/print.js'
         ],
         dest: 'static/dist/js/app.js'
@@ -187,6 +188,7 @@ module.exports = function(grunt) {
           'static/src/js/geolocate.js',
           'static/src/js/directions.js',
           'static/src/js/share.js',
+          'static/src/js/search.js',
           'static/src/js/print.js'
         ],
         tasks: ['uglify:dist']

@@ -375,43 +375,6 @@ $(window).load(function () {
 });
 
 /**
- * Enable "Keyword Search" subsystem event handlers 
- */
-$(window).load(function () {
-    // Keyword Search text search in the initial "Find" (/Browse) pane
-    // is just a shell over the one in #search
-    $('#browse_keyword_button').click(function () {
-        // Change to the Search pane
-        sidebar.open('pane-search');
-
-        // Fill in the Search keyword and click the button to do the search (if any).
-        // It's up to #search_keyword to detect it being blank
-        $('#search_keyword').val( $('#browse_keyword').val() );
-        $('#search_keyword_button').click();
-    });
-
-    // Catch "Enter" keypress on Find pane search field
-    $('#browse_keyword').keydown(function (key) {
-        if (key.keyCode == 13) {
-            $('#browse_keyword_button').click();
-        }
-    });
-
-    // Keyword Search: the keyword box and other filters
-    $('#search_keyword_button').click(function () {
-        var keyword = $('#search_keyword').val();
-        searchByKeyword(keyword);
-    });
-
-    // Catch "Enter" keypress on Search pane search field
-    $('#search_keyword').keydown(function (key) {
-        if(key.keyCode == 13) {
-            $('#search_keyword_button').click();
-        }
-    });
-});
-
-/**
  * Load all POIs via AJAX on window load,
  *
  * but don't render them into the DOM yet.
@@ -593,104 +556,6 @@ function showElevation(url) {
 }
 
 /**
- * Search by Keyword
- *
- * A common interface at the AJAX level, but different CSS and sorting for Mobile vs Desktop
- */
-function searchByKeyword(keyword) {
-    // surprise bypass
-    // if the search word "looks like coordinates" then zoom the map there
-    var latlng = strToLatLng(keyword);
-    if (latlng) {
-        MAP.setView(latlng,16);
-        placeTargetMarker(latlng.lat,latlng.lng);
-        return;
-    }
-
-    // guess we go ahead and do a text search
-    var target = $('#keyword_results');
-    target.empty();
-
-    disableKeywordButton();
-    $('#pane-search .sortpicker').hide();
-
-    $.get(APP_BASEPATH + 'ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
-        enableKeywordButton();
-        $('#pane-search .sortpicker').show();
-
-        if (! reply.length) {
-            // No matches. Pass on to an address search, and say so.
-            $('<li></li>').text('No Cleveland Metroparks results found. Trying an address search.').appendTo(target);
-            zoomToAddress(keyword);
-            return;
-        }
-
-        for (var i=0, l=reply.length; i<l; i++) {
-            var result = reply[i];
-
-            var li = $('<li></li>')
-                .addClass('zoom')
-                .addClass('ui-li-has-count');
-
-            li.attr('title', result.name)
-                .attr('gid', result.gid)
-                .attr('type', result.type)
-                .attr('w', result.w)
-                .attr('s', result.s)
-                .attr('e', result.e)
-                .attr('n', result.n)
-                .attr('lat', result.lat)
-                .attr('lng', result.lng);
-
-            li.attr('backbutton', '#pane-search');
-
-            // Link (fake, currently)
-            link = $('<a></a>');
-            link.attr('class', 'ui-btn ui-btn-text');
-            //link.attr('href', 'javascript:zoomElementClick(this)');
-
-            // On click: center the map and load More Info
-            li.click(function () {
-                zoomElementClick( $(this) );
-            });
-
-            li.append(link);
-
-            // Title
-            link.append(
-                $('<h4></h4>')
-                    .addClass('ui-li-heading')
-                    .text(result.name)
-            );
-            // Subtitle: type
-            link.append(
-                $('<span></span>')
-                    .addClass('ui-li-desc')
-                    .text(result.description)
-            );
-    
-            // Distance placeholder, to be populated later
-            link.append(
-                $('<span></span>')
-                    .addClass('zoom_distance')
-                    .addClass('ui-li-count')
-                    .addClass('ui-btn-up-c')
-                    .addClass('ui-btn-corner-all')
-                    .text('0 mi')
-            );
-
-            // Add to the list
-            li.append(link);
-            target.append(li);
-        }
-
-        // finally, have jQuery Mobile do its magic, then trigger distance calculation and sorting
-        target.listview('refresh');
-        sortLists(target);
-    }, 'json');
-}
-
-/**
  * Show Attraction Info
  *
  * Show attraction info in the sidebar pane.
@@ -825,46 +690,6 @@ function zoomElementClick(element) {
         $('#directions_car').click();
     }
 }
-
-
-
-///// on page load
-///// load the autocomplete keywords via AJAX, and enable autocomplete on the Keyword Search
-$(window).load(function () {
-    $.get(APP_BASEPATH + 'ajax/autocomplete_keywords', {}, function (words) {
-
-        $('#browse_keyword').autocomplete({
-            target: $('#browse_keyword_autocomplete'),
-            source: words,
-            callback: function(e) {
-                // find the value of the selected item, stick it into the text box, hide the autocomplete
-                var $a = $(e.currentTarget);
-                $('#browse_keyword').val($a.text());
-                $("#browse_keyword").autocomplete('clear');
-                // and click the button to perform the search
-                $('#browse_keyword_button').click();
-            },
-            minLength: 3,
-            matchFromStart: false
-        });
-
-        $('#search_keyword').autocomplete({
-            target: $('#search_keyword_autocomplete'),
-            source: words,
-            callback: function(e) {
-                // find the value of the selected item, stick it into the text box, hide the autocomplete
-                var $a = $(e.currentTarget);
-                $('#search_keyword').val($a.text());
-                $("#search_keyword").autocomplete('clear');
-                // and click the button to perform the search
-                $('#search_keyword_button').click();
-            },
-            minLength: 3,
-            matchFromStart: false
-        });
-
-    },'json');
-});
 
 /**
  * Event handlers for Loops listing and filtering
