@@ -103,7 +103,7 @@ module.exports = function(grunt) {
         },
         files: {
           'static/mobile/mobile.css': 'static/mobile/mobile.scss',
-          'static/mobile/jqm-themes/cm-jqm-theme.min.css': 'static/mobile/jqm-themes/cm-jqm-theme.css'
+          'static/src/scss/jqm-themes/cm-jqm-theme.min.css': 'static/src/scss/jqm-themes/cm-jqm-theme.css'
         }
       },
       // For map embeds on external sites:
@@ -137,7 +137,7 @@ module.exports = function(grunt) {
         files: {
           "./": [
             "static/mobile/mobile.css",
-            "static/mobile/jqm-themes/cm-jqm-theme.min.css",
+            "static/src/scss/jqm-themes/cm-jqm-theme.min.css",
             "static/dist/js/mobile.min.js",
             "static/dist/js/constants.min.js",
             "static/dist/js/common.min.js",
@@ -168,7 +168,7 @@ module.exports = function(grunt) {
       sass_dist: {
         files: [
           'static/mobile/mobile.scss',
-          'static/mobile/jqm-themes/cm-jqm-theme.css'
+          'static/src/scss/jqm-themes/cm-jqm-theme.css'
         ],
         tasks: ['sass:dist']
       },
@@ -208,7 +208,7 @@ module.exports = function(grunt) {
       upload_dist: {
         files: [
           'static/mobile/mobile.css',
-          'static/mobile/jqm-themes/cm-jqm-theme.css',
+          'static/src/scss/jqm-themes/cm-jqm-theme.css',
           'static/dist/js/mobile.min.js',
           'static/dist/js/constants.min.js',
           'static/dist/js/common.min.js',
