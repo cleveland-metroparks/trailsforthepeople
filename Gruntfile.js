@@ -102,7 +102,7 @@ module.exports = function(grunt) {
           style: 'compact'
         },
         files: {
-          'static/mobile/mobile.css': 'static/mobile/mobile.scss',
+          'static/dist/css/mobile.css': 'static/src/scss/mobile.scss',
           'static/src/scss/jqm-themes/cm-jqm-theme.min.css': 'static/src/scss/jqm-themes/cm-jqm-theme.css'
         }
       },
@@ -136,7 +136,7 @@ module.exports = function(grunt) {
       dist: {
         files: {
           "./": [
-            "static/mobile/mobile.css",
+            "static/dist/css/mobile.css",
             "static/src/scss/jqm-themes/cm-jqm-theme.min.css",
             "static/dist/js/mobile.min.js",
             "static/dist/js/constants.min.js",
@@ -167,7 +167,7 @@ module.exports = function(grunt) {
     watch: {
       sass_dist: {
         files: [
-          'static/mobile/mobile.scss',
+          'static/src/scss/mobile.scss',
           'static/src/scss/jqm-themes/cm-jqm-theme.css'
         ],
         tasks: ['sass:dist']
@@ -207,7 +207,7 @@ module.exports = function(grunt) {
       },
       upload_dist: {
         files: [
-          'static/mobile/mobile.css',
+          'static/dist/css/mobile.css',
           'static/src/scss/jqm-themes/cm-jqm-theme.css',
           'static/dist/js/mobile.min.js',
           'static/dist/js/constants.min.js',
