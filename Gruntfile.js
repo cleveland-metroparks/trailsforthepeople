@@ -24,6 +24,7 @@ module.exports = function(grunt) {
           'static/src/js/directions.js',
           'static/src/js/share.js',
           'static/src/js/search.js',
+          'static/src/js/nearby.js',
           'static/src/js/trails.js',
           'static/src/js/print.js'
         ],
@@ -190,6 +191,7 @@ module.exports = function(grunt) {
           'static/src/js/directions.js',
           'static/src/js/share.js',
           'static/src/js/search.js',
+          'static/src/js/nearby.js',
           'static/src/js/trails.js',
           'static/src/js/print.js'
         ],
