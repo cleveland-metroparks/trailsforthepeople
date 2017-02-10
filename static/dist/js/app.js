@@ -2201,7 +2201,7 @@ function toggleGPS() {
  */
 function toggleGPSOn() {
     AUTO_CENTER_ON_LOCATION = true;
-    var iconurl = is_ios() ? '/static/mobile/mapbutton_gps_ios_on.png' : '/static/mobile/mapbutton_gps_on.png';
+    var iconurl = is_ios() ? '/static/images/map_controls/mapbutton_gps_ios_on.png' : '/static/images/map_controls/mapbutton_gps_on.png';
     $('#mapbutton_gps img').prop('src',iconurl);
 }
 
@@ -2210,7 +2210,7 @@ function toggleGPSOn() {
  */
 function toggleGPSOff() {
     AUTO_CENTER_ON_LOCATION = false;
-    var iconurl = is_ios() ? '/static/mobile/mapbutton_gps_ios_off.png' : '/static/mobile/mapbutton_gps_off.png';
+    var iconurl = is_ios() ? '/static/images/map_controls/mapbutton_gps_ios_off.png' : '/static/images/map_controls/mapbutton_gps_off.png';
     $('#mapbutton_gps img').prop('src',iconurl);
 }
 ;
