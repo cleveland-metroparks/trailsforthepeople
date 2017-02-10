@@ -20,6 +20,7 @@ module.exports = function(grunt) {
           'static/src/js/constants.js',
           'static/src/js/common.js',
           'static/src/js/mobile.js',
+          'static/src/js/geolocate.js',
           'static/src/js/directions.js',
           'static/src/js/share.js',
           'static/src/js/print.js'
@@ -183,6 +184,7 @@ module.exports = function(grunt) {
           'static/src/js/constants.js',
           'static/src/js/common.js',
           'static/src/js/mobile.js',
+          'static/src/js/geolocate.js',
           'static/src/js/directions.js',
           'static/src/js/share.js',
           'static/src/js/print.js'
