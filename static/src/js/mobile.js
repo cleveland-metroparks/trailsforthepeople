@@ -18,6 +18,9 @@ var AUTO_CENTER_ON_LOCATION = false;
 // what type of sorting do they prefer?
 var DEFAULT_SORT = 'distance';
 
+// this becomes a pURL object for fetching URL params:
+var URL_PARAMS = null;
+
 /**
  * Refresh the map on resize or rotate.
  *
@@ -102,8 +105,15 @@ $(window).load(function () {
     // load up the URL params before the map, as we may need them to configure the map
     URL_PARAMS = $.url();
 
+    mapOptions = {
+        base: URL_PARAMS.param('base'),
+        x: URL_PARAMS.param('x'),
+        y: URL_PARAMS.param('y'),
+        z: URL_PARAMS.param('z')
+    };
+
     // Initialize the map
-    initMap();
+    initMap(mapOptions);
 
     // URL params query string: "type" and "name"
     if (URL_PARAMS.param('type') && URL_PARAMS.param('name') ) {

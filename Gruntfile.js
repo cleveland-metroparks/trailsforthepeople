@@ -36,7 +36,6 @@ module.exports = function(grunt) {
       embedded: {
         src: [
           'static/lib/jquery-1.12.4.min.js',
-          'static/lib/purl.js',
           'static/lib/leaflet-1.0.3/leaflet.js',
           'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
           'static/lib/mapbox-gl-js-0.28.0/mapbox-gl.js',
@@ -52,7 +51,6 @@ module.exports = function(grunt) {
       // Map embeds on external sites that already have jQuery included (we don't package it):
       embedded_nojq: {
         src: [
-          'static/lib/purl.js',
           'static/lib/leaflet-1.0.3/leaflet.js',
           'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
           'static/lib/mapbox-gl-js-0.28.0/mapbox-gl.js',

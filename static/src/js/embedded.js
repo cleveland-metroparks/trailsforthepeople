@@ -11,11 +11,10 @@ var markerLayer = L.featureGroup();
 var userLocation;
 
 $(document).ready(function(){
-    // Load the URL params before the map, as we may need them to configure it.
-    URL_PARAMS = $.url();
+    var mapOptions = { base:'map' }
 
     // Load the map.
-    initMap();
+    initMap(mapOptions);
 
     // Disable scrollwheel-driven map zooming so the user can scroll down the page.
     MAP.scrollWheelZoom.disable();

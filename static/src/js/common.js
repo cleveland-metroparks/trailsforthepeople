@@ -50,8 +50,6 @@ var ELEVATION_PROFILE     = null;
 var HIGHLIGHT_LINE       = null;
 var HIGHLIGHT_LINE_STYLE = { color:"#FF00FF", weight:3, opacity:0.75, clickable:false, smoothFactor:0.25 };
 
-var URL_PARAMS = null; // this becomes a pURL object for fetching URL params
-
 var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; on Mobile we disable it after switchToMap()
 
 var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
@@ -61,9 +59,10 @@ var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions?
  *
  * The business. (And too much of it.)
  */
-function initMap () {
+function initMap (mapOptions) {
     // URL param: the base map; defaults to map (vs satellite)
-    var base = URL_PARAMS.param('base') || 'map';
+    var base = mapOptions.base || 'map';
+
     var basemap; // which L.TileLayer instance to use?
     switch (base) {
         case 'photo':
@@ -103,11 +102,11 @@ function initMap () {
     new L.Control.Zoom({ position: 'bottomright' }).addTo(MAP);
 
     // zoom to the XYZ given in the URL, or else to the max extent
-    if (URL_PARAMS.param('x') && URL_PARAMS.param('y') && URL_PARAMS.param('z')) {
-        var x = parseFloat( URL_PARAMS.param('x') );
-        var y = parseFloat( URL_PARAMS.param('y') );
-        var z = parseInt( URL_PARAMS.param('z') );
-        MAP.setView( L.latLng(y,x),z);
+    if (mapOptions.x && mapOptions.y && mapOptions.z) {
+        var x = parseFloat(mapOptions.x);
+        var y = parseFloat(mapOptions.y);
+        var z = parseInt(mapOptions.z);
+        MAP.setView(L.latLng(y,x),z);
 
         MAP.addLayer(MARKER_TARGET);
         MARKER_TARGET.setLatLng(L.latLng(y,x));
