@@ -18,7 +18,11 @@ var AUTO_CENTER_ON_LOCATION = false;
 // what type of sorting do they prefer?
 var DEFAULT_SORT = 'distance';
 
-// mobile specific: when we change pages or rotate the screen, resize the map accordingly
+/**
+ * Refresh the map on resize or rotate.
+ *
+ * @TODO: Tear this down.
+ */
 $(window).bind('orientationchange pageshow resize', function() {
     // scrolling the window is supposed to remove the address bar,
     // but it rarely works, often lags out the page as it slowly hides half of the address bar,
@@ -312,9 +316,7 @@ function switchToMap(callback) {
 }
 
 /**
- * Load map
- *
- * Load the map, then add a geolocation callback to center the map
+ * Load the map, handling query strings
  */
 $(window).load(function () {
     // load up the URL params before the map, as we may need them to configure the map
@@ -322,6 +324,94 @@ $(window).load(function () {
 
     // Initialize the map
     initMap();
+
+    // URL params query string: "type" and "name"
+    if (URL_PARAMS.param('type') && URL_PARAMS.param('name') ) {
+        var params = {
+            type: URL_PARAMS.param('type'),
+            name: URL_PARAMS.param('name')
+        };
+        $.get(APP_BASEPATH + 'ajax/exactnamesearch', params, function (reply) {
+            if (!reply || ! reply.s || ! reply.w || ! reply.n || ! reply.e) return alert("Cound not find that feature.");
+
+            // zoom to the location
+            var box = L.latLngBounds( L.latLng(reply.s,reply.w) , L.latLng(reply.n,reply.e) );
+            MAP.fitBounds(box);
+
+            // lay down the WKT or a marker to highlight it
+            if (reply.lat && reply.lng) {
+                placeTargetMarker(reply.lat,reply.lng);
+            }
+            else if (reply.wkt) {
+                HIGHLIGHT_LINE = lineWKTtoFeature(reply.wkt, HIGHLIGHT_LINE_STYLE);
+                MAP.addLayer(HIGHLIGHT_LINE);
+            }
+        }, 'json');
+    }
+
+    // URL params query string: "type" and "gid"
+    if (URL_PARAMS.param('type') && URL_PARAMS.param('gid') ) {
+        if (URL_PARAMS.param('type') == 'attraction') {
+            var params = {
+                gid: URL_PARAMS.param('gid')
+            };
+            $.get(APP_BASEPATH + 'ajax/get_attraction', params, function (reply) {
+                if (!reply || ! reply.lat || ! reply.lng) {
+                    return alert("Cound not find that feature.");
+                }
+
+                // @TODO: Eventually we'll have individual POI zoomlevels in DB
+                placeTargetMarker(reply.lat, reply.lng);
+                MAP.flyTo(L.latLng(reply.lat, reply.lng), DEFAULT_POI_ZOOM);
+
+                // Show info in sidebar
+                // @TODO: This is app-specific. Re-work.
+                showAttractionInfo(reply);
+
+            }, 'json');
+        }
+    }
+
+    // URL params query string: "route"
+    // Fill in the boxes and run it now
+    if (URL_PARAMS.param('routefrom') && URL_PARAMS.param('routeto') && URL_PARAMS.param('routevia') ) {
+        // split out the params
+        var sourcelat = URL_PARAMS.param('routefrom').split(",")[0];
+        var sourcelng = URL_PARAMS.param('routefrom').split(",")[1];
+        var targetlat = URL_PARAMS.param('routeto').split(",")[0];
+        var targetlng = URL_PARAMS.param('routeto').split(",")[1];
+        var via       = URL_PARAMS.param('routevia');
+        var tofrom    = 'to';
+
+        // toggle the directions panel so it shows directions instead of Select A Destination
+        sidebar.open('pane-getdirections');
+        $('#getdirections_disabled').hide();
+        $('#getdirections_enabled').show();
+
+        // fill in the directions field: the title, route via, the target type and coordinate, the starting coordinates
+        $('#directions_target_title').text(URL_PARAMS.param('routetitle'));
+        $('#directions_via').val(URL_PARAMS.param('routevia'));
+        if (MOBILE) $("#directions_via").selectmenu('refresh');
+        $('#directions_type').val('geocode');
+        if (MOBILE) $("#directions_type").selectmenu('refresh');
+        if (MOBILE) $('#directions_type_geocode_wrap').show();
+        else        $('#directions_type').change();
+        $('#directions_address').val(URL_PARAMS.param('routefrom'));
+        $('#directions_target_lat').val(targetlat);
+        $('#directions_target_lng').val(targetlng);
+        $('#directions_via').trigger('change');
+        $('#directions_address').val( URL_PARAMS.param('fromaddr') );
+        $('#directions_reverse').val( URL_PARAMS.param('whichway') );
+        $('#directions_via_bike').val( URL_PARAMS.param('routevia_bike') );
+
+        setTimeout(function () {
+            $('#directions_reverse').trigger('change');
+        },1000);
+        $('#directions_type').val( URL_PARAMS.param('loctype') );
+
+        // make the Directions request
+        getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via);
+    }
 
     // Set the appropriate basemap radio button in Settings
     var base = URL_PARAMS.param('base') || 'map';
@@ -338,6 +428,11 @@ $(window).load(function () {
             mapButton.prop('checked', true).checkboxradio('refresh');
             break;
     }
+
+    // Allow others to act now
+    $.event.trigger({
+        type: 'mapReady',
+    });
 });
 
 /**
@@ -698,3 +793,12 @@ $(window).load(function () {
     };
     $('.zoom').click(openDetailsPanel);
 });
+
+/**
+ * WSEN to Bounds
+ *
+ * given a WSEN set of ordinates, construct a L.LatLngBounds
+ */
+function WSENtoBounds(west,south,east,north) {
+    return L.latLngBounds([ [south,west] , [north,east] ]);
+}
