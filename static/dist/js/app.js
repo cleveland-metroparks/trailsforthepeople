@@ -437,45 +437,6 @@ function clearInfoPopup() {
 }
 
 /**
- * Zoom to Address
- */
-function zoomToAddress(searchtext) {
-    if (!searchtext) return false;
-
-    var params = {};
-    params.address  = searchtext;
-    params.bing_key = BING_API_KEY;
-    params.bbox     = GEOCODE_BIAS_BOX;
-
-    $.get(APP_BASEPATH + 'ajax/geocode', params, function (result) {
-        if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
-        var latlng = L.latLng(result.lat,result.lng);
-
-        // if this point isn't even in the service area, complain and bail
-        // tip: "post office" finds Post Office, India
-        if (! MAX_BOUNDS.contains(latlng) ) {
-            return alert("The only results we could find are too far away to zoom the map there.");
-        }
-
-        // zoom the point location, nice and close, and add a marker
-        switchToMap(function () {
-            MAP.setView(latlng,16);
-            placeTargetMarker(result.lat,result.lng);
-
-            // add a bubble at the location indicating their interpretation of the address, so we can see how bad the match was
-            // also add a specially-crafted span element with lat= lng= and title= for use with zoomElementClick()
-            var html = "";
-            html += '<h3 class="popup_title">' + result.title + '</h3>';
-            html += '<span class="fakelink zoom" title="' + result.title + '" lat="' + result.lat + '" lng="' + result.lng + '" w="' + result.w + '" s="' + result.s + '" e="' + result.e + '" n="' + result.n + '" onClick="zoomElementClick( $(this) );">Directions</span>';
-            var popup = new L.Popup();
-            popup.setLatLng(latlng);
-            popup.setContent(html);
-            MAP.openPopup(popup);
-        });
-    }, 'json');
-};
-
-/**
  * WMS Get feature info by point
  */
 function wmsGetFeatureInfoByPoint(pixel) {
@@ -528,21 +489,6 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
 //$(window).resize(function () {
 //    MAP.invalidateSize();
 //});
-
-/**
- * Geocoder event handlers
- */
-$(window).load(function () {
-    var thisCallback = function () {
-        var address = $('#geocode_text').val();
-        zoomToAddress(address);
-    };
-    $('#geocode_button').click(thisCallback);
-
-    $('#geocode_text').keydown(function (key) {
-        if(key.keyCode == 13) $('#geocode_button').click();
-    });
-});
 
 /**
  * Zoom button handlers
@@ -1220,6 +1166,60 @@ function sortLists(target) {
     // @TODO: re-set .ui-last-child on appropriate element
     // (because we're getting last-element styling on non-last elements)
 }
+
+/**
+ * Geocoder event handlers
+ */
+$(window).load(function () {
+    var thisCallback = function () {
+        var address = $('#geocode_text').val();
+        zoomToAddress(address);
+    };
+    $('#geocode_button').click(thisCallback);
+
+    $('#geocode_text').keydown(function (key) {
+        if(key.keyCode == 13) $('#geocode_button').click();
+    });
+});
+
+/**
+ * [Geocode and] Zoom to Address
+ */
+function zoomToAddress(searchtext) {
+    if (!searchtext) return false;
+
+    var params = {};
+    params.address  = searchtext;
+    params.bing_key = BING_API_KEY;
+    params.bbox     = GEOCODE_BIAS_BOX;
+
+    $.get(APP_BASEPATH + 'ajax/geocode', params, function (result) {
+        if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
+        var latlng = L.latLng(result.lat,result.lng);
+
+        // if this point isn't even in the service area, complain and bail
+        // tip: "post office" finds Post Office, India
+        if (! MAX_BOUNDS.contains(latlng) ) {
+            return alert("The only results we could find are too far away to zoom the map there.");
+        }
+
+        // zoom the point location, nice and close, and add a marker
+        switchToMap(function () {
+            MAP.setView(latlng,16);
+            placeTargetMarker(result.lat,result.lng);
+
+            // add a bubble at the location indicating their interpretation of the address, so we can see how bad the match was
+            // also add a specially-crafted span element with lat= lng= and title= for use with zoomElementClick()
+            var html = "";
+            html += '<h3 class="popup_title">' + result.title + '</h3>';
+            html += '<span class="fakelink zoom" title="' + result.title + '" lat="' + result.lat + '" lng="' + result.lng + '" w="' + result.w + '" s="' + result.s + '" e="' + result.e + '" n="' + result.n + '" onClick="zoomElementClick( $(this) );">Directions</span>';
+            var popup = new L.Popup();
+            popup.setLatLng(latlng);
+            popup.setContent(html);
+            MAP.openPopup(popup);
+        });
+    }, 'json');
+};
 ;
  /**
  * geolocate.js
