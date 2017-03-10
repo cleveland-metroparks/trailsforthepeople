@@ -20,8 +20,7 @@
 	<div class="feature-description"><?= nl2br($feature->descr) ?></div>
 <?php endif; ?>
 
-<?php //if ($feature->cmp_url): ?>
-<?php if (false): ?>
+<?php if ($feature->cmp_url): ?>
 	<ul class="nobull">
 		<li><a href="<?= $this->config->item('main_site_url') . ltrim($feature->cmp_url, '/') ?>" target="_blank">More Info</a></li>
 	</ul>
