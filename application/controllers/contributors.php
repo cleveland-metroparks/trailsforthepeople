@@ -91,7 +91,9 @@ function user() {
     $this->load->view('contributors/user.phtml', $data);
 }
 
-
+/**
+ *
+ */
 function index() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
@@ -101,8 +103,9 @@ function index() {
     $this->load->view('contributors/home.phtml');
 }
 
-
-
+/**
+ * List/manage Markers
+ */
 function markers() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
@@ -139,8 +142,9 @@ function markers() {
     $this->load->view('contributors/markers.phtml', $data);
 }
 
-
-
+/**
+ * Edit Marker
+ */
 function marker_edit($id) {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
@@ -156,7 +160,7 @@ function marker_edit($id) {
         $data['marker'] = new Marker();
         $data['marker']->where('id',$id);
         if (! $this->loggedin['admin'] ) {
-            // not an admin, then make sure the owner ID matches too
+            // Not an admin; make sure the owner ID matches too
             $data['marker']->where('creatorid', $myid['id']);
         }
         $data['marker']->get();
@@ -189,6 +193,8 @@ function marker_edit($id) {
 }
 
 /**
+ * Delete Marker
+ *
  * Confirm, then delete a marker from the database, checking access permissions.
  */
 function marker_delete($id) {
@@ -199,33 +205,8 @@ function marker_delete($id) {
     
     $myid = $this->loggedin;
 
-    if (!empty($_POST['submit']) ) {
-        // Perform the delete
-
-        $marker = new Marker();
-        $marker->where('id', $id);
-        if (! $this->loggedin['admin'] ) {
-            // not an admin, then make sure the owner ID matches too
-            $marker->where('creatorid', $myid['id']);
-        }
-        $marker->get();
-
-        if ($marker->id) {
-            $email = $this->loggedin;
-            $email = $email['email'];
-            Auditlog::log_message( sprintf("Marker deleted: \"%s\" (id: %d)", htmlspecialchars($marker->title), $marker->id) , $email);
-
-            $marker->delete();
-        }
-
-        // purge the tile cache
-        $this->_clearTileCache('marker');
-
-        redirect(ssl_url('contributors/markers'));
-    } else {
-        // Show confirmation form
-
-        // Load the marker info, if any, checking for permission
+    if (empty($_POST['submit']) ) {
+        // Ask for confirmation
         $data = array();
         $data['marker'] = null;
         if ((integer) $id) {
@@ -242,10 +223,39 @@ function marker_delete($id) {
         }
 
         $this->load->view('contributors/marker_delete.phtml', $data);
+    } else {
+        // The initial confirmation has been accepted; start the delete process
+        $marker = new Marker();
+        $marker->where('id', $id);
+        if (! $this->loggedin['admin'] ) {
+            // Not an admin; make sure the owner ID matches too
+            $marker->where('creatorid', $myid['id']);
+        }
+        $marker->get();
+
+        if ($marker->id) {
+            // Log this event
+            $email = $this->loggedin;
+            $email = $email['email'];
+            Auditlog::log_message( sprintf("Marker deleted: \"%s\" (id: %d)", htmlspecialchars($marker->title), $marker->id) , $email);
+
+            // Delete it
+            $marker->delete();
+        } else {
+            // @TODO: Say: "This marker doesn't exist, or you don't have access to it."
+            return redirect(ssl_url('contributors/markers'));
+        }
+
+        // purge the tile cache
+        $this->_clearTileCache('marker');
+
+        redirect(ssl_url('contributors/markers'));
     }
 }
 
 /**
+ * Save Marker
+ *
  * Save a new or edited marker to the database, checking access permissions.
  */
 function marker_save() {
@@ -317,9 +327,9 @@ function marker_save() {
     //$this->load->view('contributors/marker.phtml', $data);
 }
 
-
-
-
+/**
+ *
+ */
 function autoloop() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
@@ -331,7 +341,9 @@ function autoloop() {
     $this->load->view('contributors/autoloop.phtml');
 }
 
-
+/**
+ *
+ */
 function autoloop_csv() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
@@ -400,8 +412,9 @@ function autoloop_csv() {
     printf("DONE:  %d good, %d bad, %d total = %d%% success rate", $stats['good'], $stats['bad'], $stats['total'], 100*(float) $stats['good']/(float) $stats['total'] );
 }
 
-
-
+/**
+ * List/manage Loops
+ */
 function loops() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
@@ -423,17 +436,20 @@ function loops() {
     $this->load->view('contributors/loops.phtml', $data);
 }
 
-
-
-function loop($id) {
+/**
+ * Edit/create Loop
+ */
+function loop_edit($id) {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require logged-in user with "Allow Loops" permission
-    if ($this->_user_access('allow_loops') !== NULL) return;
+    // Require logged-in user with "Allow Markers" permission
+    if ($this->_user_access('allow_markers') !== NULL) return;
 
     $this->_add_js_include('static/contributors/loop.js');
 
-    // load the loop's info
+    //$myid = $this->loggedin;
+
+    // Load the Loop info
     $data = array();
     $data['loop'] = null;
     if ((integer) $id) {
@@ -441,18 +457,30 @@ function loop($id) {
         $data['loop']->where('id',$id)->get();
         if (! $data['loop']->id) return redirect(ssl_url('contributors/loops'));
 
+        //// Must be owner of the Loop or an admin
+        // load the marker info, if any; note the extra WHERE to ensure that we own the marker
+        //    if (! $this->loggedin['admin'] ) {
+        //        // Not an admin; make sure the owner ID matches too
+        //        $data['loop']->where('creatorid', $myid['id']);
+        //    }
+        //    $data['loop']->get();
+        //    if (! $data['loop']->id) return redirect(ssl_url('contributors/loops'));
+
         // must be owner of the Loop, or an admin
         if (! $this->loggedin['admin'] and $data['loop']->creatorid != $this->loggedin['id']) {
             return redirect(ssl_url('contributors/loops'));
         }
+
+        //if (! $data['marker']->id) return redirect(ssl_url('contributors/loops'));
     }
 
-    // ready, set, show!
-    $this->load->view('contributors/loop.phtml', $data);
+    $this->load->view('contributors/loop_edit.phtml', $data);
 }
 
-
-function saveloop() {
+/**
+ * Save Loop
+ */
+function loop_save() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
     // Require logged-in user with "Allow Loops" permission
@@ -543,13 +571,17 @@ function saveloop() {
     // done
     $email = $this->loggedin;
     $email = $email['email'];
-    Auditlog::log_message( sprintf("Loop saved: %s", htmlspecialchars($loop->name) ) , $email);
+    Auditlog::log_message(sprintf("Loop saved: \"%s\" (id: %d)", htmlspecialchars($loop->name), $loop->id), $email);
     $url = $loop->source == 'random' ? ssl_url('contributors/loops?random=1') : ssl_url('contributors/loops');
     redirect($url);
 }
 
-
-function cloneloop($id) {
+/**
+ * Clone Loop
+ *
+ * @TODO: Turn the confirmation into 
+ */
+function loop_clone($id) {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
     // Require logged-in user with "Allow Loops" permission
@@ -559,11 +591,6 @@ function cloneloop($id) {
     $old_loop = new Loop();
     $old_loop->where('id',$id)->get();
     if (! $old_loop->id) return redirect(ssl_url('contributors/loops'));
-
-    // log this event
-    $email = $this->loggedin;
-    $email = $email['email'];
-    Auditlog::log_message( sprintf("Loop cloned: %s", htmlspecialchars($old_loop->name) ) , $email);
 
     // create a new Loop, and copy in all field values
     // then override some fields: remove the ID, editor, status, ...
@@ -576,44 +603,79 @@ function cloneloop($id) {
     $new_loop->name      = substr("COPY of " . $new_loop->name, 0, 255 );
     $new_loop->save();
 
+    // Log this event
+    $email = $this->loggedin;
+    $email = $email['email'];
+    Auditlog::log_message(sprintf("Loop cloned as: \"%s\" (original id: %d; clone id: %d)", htmlspecialchars($new_loop->name), $old_loop->id, $new_loop->id) , $email);
+
     // send them to the new Loop's editing page
-    redirect( ssl_url("contributors/loop/{$new_loop->id}") );
+    redirect( ssl_url("contributors/loop/{$new_loop->id}/edit") );
 }
 
-function deleteloop() {
+/**
+ * Delete Loop
+ *
+ * Confirm, then delete a loop from the database, checking access permissions.
+ */
+function loop_delete($id) {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
     // Require logged-in user with "Allow Loops" permission
     if ($this->_user_access('allow_loops') !== NULL) return;
+    
+    $myid = $this->loggedin;
 
-    // log this event
-    $email = $this->loggedin;
-    $email = $email['email'];
-    Auditlog::log_message( sprintf("Loop deleted: %s", htmlspecialchars($loop->name) ) , $email);
+    if (empty($_POST['submit']) ) {
+        // Ask for confirmation
+        $data = array();
+        $data['loop'] = null;
+        if ((integer) $id) {
+            $data['loop'] = new Loop();
+            $data['loop']->where('id', $id);
+            if (!$this->loggedin['admin']) {
+                // Not an admin; make sure the owner ID matches
+                $data['loop']->where('creatorid', $myid['id']);
+            }
+            $data['loop']->get();
 
-    // fetch it
-    $loop = new Loop();
-    $loop->where('id',@$_POST['id'])->get();
-    if (! $loop->id) return redirect(ssl_url('contributors/'));
+            // @TODO: How to bail?
+            if (!$data['loop']->id) return redirect(ssl_url('contributors/loops'));
+        }
 
-    // they must own it, or be an admin
-    if (! $this->loggedin['admin'] and $loop->creatorid != $this->loggedin['id']) {
-        return redirect(ssl_url('contributors/loops'));
+        $this->load->view('contributors/loop_delete.phtml', $data);
+    } else {
+        // The initial confirmation has been accepted; start the delete process
+        $loop = new Loop();
+        $loop->where('id', $id);
+        if (! $this->loggedin['admin'] ) {
+            // Not an admin; make sure the owner ID matches too
+            $loop->where('creatorid', $myid['id']);
+        }
+        $loop->get();
+
+        if ($loop->id) {
+            // Log this event
+            $email = $this->loggedin;
+            $email = $email['email'];
+            Auditlog::log_message(sprintf("Loop deleted: \"%s\" (id: %d)", htmlspecialchars($loop->name), $loop->id), $email);
+
+            // Delete it
+            $loop->delete();
+        } else {
+            // @TODO: Say: "This loop doesn't exist, or you don't have access to it."
+            return redirect(ssl_url('contributors/loops'));
+        }
+
+        // delete any static images associated with it
+        $photo = "static/images/loops/{$loop->id}.jpg";
+        if (is_file($photo)) unlink($photo);
+
+        redirect(ssl_url('contributors/loops'));
     }
-
-    // fine; delete it
-    $loop->delete();
-
-    // delete any static images associated with it
-    $photo = "static/images/loops/{$loop->id}.jpg";
-    if (is_file($photo)) unlink($photo);
-
-    // we're outta here
-    redirect(ssl_url('contributors/loops'));
 }
 
 /*
- * Manage Trails Page
+ * List/manage Trails
  */
 function trails() {
     // Require SSL
@@ -628,7 +690,7 @@ function trails() {
 }
 
 /*
- * Manage Use Areas Page
+ * List/manage Use Areas
  */
 function use_areas() {
     // Require SSL

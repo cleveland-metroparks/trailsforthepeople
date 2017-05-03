@@ -51,6 +51,12 @@ $route['map/(:any)'] = "mobile/$1";
 // Remap our "Short URLs" that start with "url/"
 $route['url/(:any)'] = "mobile/url/$1";
 
+// Loop management
+$route['contributors/loop/(:num)'] = "contributors/loop_edit/$1";
+$route['contributors/loop/(:num)/edit'] = "contributors/loop_edit/$1";
+$route['contributors/loop/(:num)/clone'] = "contributors/loop_clone/$1";
+$route['contributors/loop/(:num)/delete'] = "contributors/loop_delete/$1";
+
 // Marker management
 $route['contributors/marker/(:num)'] = "contributors/marker_edit/$1";
 $route['contributors/marker/(:num)/edit'] = "contributors/marker_edit/$1";
