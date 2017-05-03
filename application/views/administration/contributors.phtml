@@ -13,22 +13,26 @@
   <th>SWGH</th>
   <th>Markers</th>
   <th>Loops</th>
-  <th>Hint Maps</th>
   <th>Trails</th>
+  <th>Hint Maps</th>
   <th>Edit</th>
 </tr>
 </thead>
 <tbody>
 <?php foreach ($contributors as $contributor) { ?>
+<?php
+  $true_markup = '<strong>yes</strong>';
+  $false_markup = 'no';
+?>
   <tr>
     <td><a href="<?= ssl_url("administration/contributor/{$contributor->id}") ?>"><?= htmlspecialchars($contributor->realname) ?></a></td>
     <td><?= htmlspecialchars($contributor->email) ?></td>
-    <td><?= $contributor->admin          == 'f' ? 'no' : 'yes' ?></td>
-    <td><?= $contributor->allow_swgh     == 'f' ? 'no' : 'yes' ?></td>
-    <td><?= $contributor->allow_markers  == 'f' ? 'no' : 'yes' ?></td>
-    <td><?= $contributor->allow_loops    == 'f' ? 'no' : 'yes' ?></td>
-    <td><?= $contributor->allow_hintmaps == 'f' ? 'no' : 'yes' ?></td>
-    <td><?= $contributor->allow_trails   == 'f' ? 'no' : 'yes' ?></td>
+    <td><?= $contributor->admin          == 'f' ? $false_markup : $true_markup ?></td>
+    <td><?= $contributor->allow_swgh     == 'f' ? $false_markup : $true_markup ?></td>
+    <td><?= $contributor->allow_markers  == 'f' ? $false_markup : $true_markup ?></td>
+    <td><?= $contributor->allow_loops    == 'f' ? $false_markup : $true_markup ?></td>
+    <td><?= $contributor->allow_trails   == 'f' ? $false_markup : $true_markup ?></td>
+    <td><?= $contributor->allow_hintmaps == 'f' ? $false_markup : $true_markup ?></td>
     <td><a href="<?= ssl_url("administration/contributor/{$contributor->id}") ?>">edit</a></td>
   </tr>
 <?php } ?>
