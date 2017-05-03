@@ -2838,7 +2838,9 @@ $(window).load(function () {
         $('#loops_typeicons img').each(function () {
             var src = $(this).prop('src');
             if ( $(this).is($this) ) {
-                src  = src.replace('.svg', '-on.svg');
+                if (!src.includes('-on.svg')) {
+                    src  = src.replace('.svg', '-on.svg');
+                }
             } else {
                 src  = src.replace('-on.svg', '.svg');
             }
