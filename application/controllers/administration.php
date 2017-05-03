@@ -184,6 +184,7 @@ function contributor($id) {
     $data['contributor']->allow_swgh     = $_POST['allow_swgh'];
     $data['contributor']->allow_markers  = $_POST['allow_markers'];
     $data['contributor']->allow_loops    = $_POST['allow_loops'];
+    $data['contributor']->allow_trails   = $_POST['allow_trails'];
     $data['contributor']->allow_closures = $_POST['allow_closures'];
     $data['contributor']->allow_twitter  = $_POST['allow_twitter'];
     $data['contributor']->allow_hintmaps = $_POST['allow_hintmaps'];
