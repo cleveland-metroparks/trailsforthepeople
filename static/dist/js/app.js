@@ -194,7 +194,9 @@ function initMap (mapOptions) {
         dragging: true,
         closePopupOnClick: false,
         crs: L.CRS.EPSG3857,
-        minZoom: MIN_ZOOM, maxZoom: MAX_ZOOM,
+        minZoom: MIN_ZOOM,
+        maxZoom: MAX_ZOOM,
+        zoomSnap: 0, // fractional zoom
         layers : [ basemap ]
     };
     var android4 = navigator.userAgent.match(/Android (4|5)/);
