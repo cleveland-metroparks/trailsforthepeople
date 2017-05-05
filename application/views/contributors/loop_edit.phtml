@@ -4,7 +4,7 @@
     loop_steps = <?= $loop ? $loop->steps : '[]' ?>;
 </script>
 
-<form class="form-horizontal" id="loopform" method="post" action="<?= ssl_url("contributors/saveloop/") ?>">
+<form class="form-horizontal" id="loopform" method="post" action="<?= ssl_url("contributors/loop_save") ?>">
 
 <input type="hidden" name="id" value="<?= $loop ? $loop->id : 0 ?>" />
 <input type="hidden" name="wkt" value="<?= $loop ? $loop->wkt : '' ?>" />
@@ -379,26 +379,16 @@
 </div>
 <!-- /Tabs content -->
 
-<!-- Submit Button -->
+
+<!-- Submit & Delete buttons -->
 <div class="form-group">
     <div class="col-md-12">
-        <input class="btn btn-primary" type="submit" value="Save Changes" />
+        <input class="btn btn-primary" type="submit" value="Save" />
+        <?php if (isset($loop->id)): ?>
+            <a class="btn btn-primary" href="/contributors/loop/<?= $loop->id ?>/delete" role="button">Delete</a>
+        <?php endif; ?>
     </div>
 </div>
-<!-- /Submit Button -->
+<!-- /Submit & Delete buttons -->
 
 </form>
-
-
-<!-- Delete Button -->
-<?php if ($loop) { ?>
-<form class="form-horizontal" id="deleteform" method="post" action="<?= ssl_url("contributors/deleteloop/") ?>" onSubmit="return confirm('Really delete this loop?');">
-    <input type="hidden" name="id" value="<?= $loop->id ?>" />
-    <div class="form-group">
-        <div class="col-sm-4">
-            <input class="btn btn-primary" type="submit" value="Delete Loop" />
-        </div>
-    </div>
-</form>
-<?php } ?>
-<!-- /Delete Button -->

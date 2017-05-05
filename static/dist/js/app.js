@@ -2657,7 +2657,7 @@ $(window).load(function () {
 
 /**
  * Event handlers for Trail Finder
- * these used to be identical but then they diverged so desktop has these clicky icons, while mobile is still a selector (for now)
+ * these used to be identical but then they diverged so desktop has these clicky iole, while mobile is still a selector (for now)
  */
 $(window).load(function () {
     // the icons for the trail type, trigger the underlying checkboxes so we're still using real form elements
@@ -2665,16 +2665,21 @@ $(window).load(function () {
         // uncheck all of the invisible checkboxes, then check the one corresponding to this image
         var $this = $(this);
         var value = $this.attr('data-value');
-        $('input[name="trailfinder_uses"]').removeAttr('checked').filter('[value="'+value+'"]').attr('checked','checked');
+        $('input[name="trailfinder_uses"]')
+            .removeAttr('checked')
+            .filter('[value="'+value+'"]')
+            .prop('checked', true);
 
         // adjust the images: change the SRC to the _off version, except this one which gets the _on version
         $('#trailfinder_typeicons img').each(function () {
             var src = $(this).prop('src');
 
             if ( $(this).is($this) ) {
-                src  = src.replace('_off.png', '_on.png');
+                if (!src.includes('-on.svg')) {
+                    src  = src.replace('.svg', '-on.svg');
+                }
             } else {
-                src  = src.replace('_on.png', '_off.png');
+                src  = src.replace('-on.svg', '.svg');
             }
             $(this).prop('src', src);
         });
@@ -2837,11 +2842,12 @@ $(window).load(function () {
         // adjust the images: change the SRC to the _off version, except this one which gets the _on version
         $('#loops_typeicons img').each(function () {
             var src = $(this).prop('src');
-
             if ( $(this).is($this) ) {
-                src  = src.replace('_off.png', '_on.png');
+                if (!src.includes('-on.svg')) {
+                    src  = src.replace('.svg', '-on.svg');
+                }
             } else {
-                src  = src.replace('_on.png', '_off.png');
+                src  = src.replace('-on.svg', '.svg');
             }
             $(this).prop('src', src);
         });

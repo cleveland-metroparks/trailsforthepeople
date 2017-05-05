@@ -1,7 +1,7 @@
 <?php $this->page_title = 'Loops'; ?>
 
 <ul class="local-actions">
-    <li><a href="<?= ssl_url('contributors/loop/0/') ?>" class="btn btn-primary">+ Create a loop</a></li>
+    <li><a href="<?= ssl_url('contributors/loop/0') ?>" class="btn btn-primary">+ Create a loop</a></li>
     <li><a href="<?= ssl_url('contributors/loops/?random=1') ?>">Random Loops</a></li>
     <li><a href="<?= ssl_url('contributors/loops/') ?>">Manual Loops</a></li>
     <li><a href="<?= ssl_url('contributors/autoloop/') ?>">Autoloop&trade; manual</a></li>
@@ -22,6 +22,7 @@
     <th>MtnBike</th>
     <th>Edit</th>
     <th>Clone</th>
+    <th>Delete</th>
 </tr>
 </thead>
 <tbody>
@@ -29,7 +30,7 @@
 <tr>
     <td>
         <?php if ($this->loggedin['admin'] or ($loop->creatorid == $this->loggedin['id'])): ?>
-            <a href="<?= ssl_url("contributors/loop/{$loop->id}") ?>"><?= htmlspecialchars($loop->name) ?></a>
+            <a href="<?= ssl_url("contributors/loop/{$loop->id}/edit") ?>"><?= htmlspecialchars($loop->name) ?></a>
         <?php else: ?>
             <?= htmlspecialchars($loop->name) ?>
         <?php endif; ?>
@@ -44,12 +45,13 @@
     <td style="text-align:right;"><?= $loop->mountainbike ?></td>
     <td>
         <?php if ($this->loggedin['admin'] or ($loop->creatorid == $this->loggedin['id'])): ?>
-            <a href="<?= ssl_url("contributors/loop/{$loop->id}") ?>">edit</a>
+            <a href="<?= ssl_url("contributors/loop/{$loop->id}/edit") ?>">edit</a>
         <?php else: ?>
             &nbsp;
         <?php endif; ?>
     </td>
-    <td><a class="clone" href="<?= ssl_url("contributors/cloneloop/{$loop->id}") ?>">clone</a></td>
+    <td><a class="clone" href="<?= ssl_url("contributors/loop/{$loop->id}/clone") ?>">clone</a></td>
+    <td><a href="<?= ssl_url("contributors/loop/{$loop->id}/delete") ?>">delete</a></td>
 </tr>
 <?php } ?>
 </tbody>

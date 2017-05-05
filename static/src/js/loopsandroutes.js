@@ -28,11 +28,12 @@ $(window).load(function () {
         // adjust the images: change the SRC to the _off version, except this one which gets the _on version
         $('#loops_typeicons img').each(function () {
             var src = $(this).prop('src');
-
             if ( $(this).is($this) ) {
-                src  = src.replace('_off.png', '_on.png');
+                if (!src.includes('-on.svg')) {
+                    src  = src.replace('.svg', '-on.svg');
+                }
             } else {
-                src  = src.replace('_on.png', '_off.png');
+                src  = src.replace('-on.svg', '.svg');
             }
             $(this).prop('src', src);
         });
