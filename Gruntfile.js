@@ -14,7 +14,7 @@ module.exports = function(grunt) {
       options: {
         separator: ';\n',
       },
-      // Main package:
+      // Web app package:
       dist: {
         src: [
           'static/src/js/constants.js',
@@ -32,8 +32,35 @@ module.exports = function(grunt) {
         ],
         dest: 'static/dist/js/app.js'
       },
-      // Map embeds on external sites:
-      embedded: {
+      // Base for map embeds on external sites:
+      embedded_base: {
+        src: [
+          'static/lib/jquery-1.12.4.min.js',
+          'static/lib/leaflet-1.0.3/leaflet.js',
+          'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
+          'static/lib/mapbox-gl-js-0.35.1/mapbox-gl.js',
+          'static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
+          'static/src/js/constants.js',
+          'static/src/js/embedded-constants.js',
+          'static/src/js/common.js'
+        ],
+        dest: 'static/dist/js/map-embedded-base.js'
+      },
+      // Base for map embeds on external sites that already have jQuery included (we don't package it):
+      embedded_base_nojq: {
+        src: [
+          'static/lib/leaflet-1.0.3/leaflet.js',
+          'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
+          'static/lib/mapbox-gl-js-0.35.1/mapbox-gl.js',
+          'static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
+          'static/src/js/constants.js',
+          'static/src/js/embedded-constants.js',
+          'static/src/js/common.js'
+        ],
+        dest: 'static/dist/js/map-embedded-base-nojq.js'
+      },
+      // DEPRECATED: Map embeds on external sites:
+      embedded_visit_DEPRECATED: {
         src: [
           'static/lib/jquery-1.12.4.min.js',
           'static/lib/leaflet-1.0.3/leaflet.js',
@@ -47,8 +74,8 @@ module.exports = function(grunt) {
         ],
         dest: 'static/dist/js/map-embedded.js'
       },
-      // Map embeds on external sites that already have jQuery included (we don't package it):
-      embedded_nojq: {
+      // DEPRECATED: Map embeds on external sites that already have jQuery included (we don't package it):
+      embedded_visit_nojq_DEPRECATED: {
         src: [
           'static/lib/leaflet-1.0.3/leaflet.js',
           'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
@@ -69,7 +96,7 @@ module.exports = function(grunt) {
      *
      */
     uglify: {
-      // Main package:
+      // Web app package:
       dist: {
         files: {
           'static/dist/js/mobile.min.js':    ['static/src/js/mobile.js'],
@@ -78,16 +105,40 @@ module.exports = function(grunt) {
           'static/dist/js/app.min.js':       ['static/dist/js/app.js']
         }
       },
-      // For map embeds on external sites:
-      embedded: {
+      // Base for map embeds on external sites:
+      embedded_base: {
+        files: {
+          'static/dist/js/map-embedded-base.min.js': ['static/dist/js/map-embedded-base.js']
+        }
+      },
+      // Base for map embeds on external sites that already have jQuery included (we don't package it):
+      embedded_base_nojq: {
+        files: {
+          'static/dist/js/map-embedded-base-nojq.min.js': ['static/dist/js/map-embedded-base-nojq.js']
+        }
+      },
+      // For map embed on Visit page (DEPRECATED):
+      embedded_visit_DEPRECATED: {
         files: {
           'static/dist/js/map-embedded.min.js': ['static/dist/js/map-embedded.js']
         }
       },
-      // Map embeds on external sites that already have jQuery included (we don't package it):
-      embedded_nojq: {
+      // For map embed on Visit page (DEPRECATED):
+      embedded_visit_nojq_DEPRECATED: {
         files: {
           'static/dist/js/map-embedded-nojq.min.js': ['static/dist/js/map-embedded-nojq.js']
+        }
+      },
+      // For map embed on Visit page:
+      embedded_visit: {
+        files: {
+          'static/dist/js/map-embedded-visit.min.js': ['static/src/js/embedded-visit.js']
+        }
+      },
+      // For map embed of beach closures:
+      embedded_beach_closures: {
+        files: {
+          'static/dist/js/map-embedded-beach_closures.min.js': ['static/src/js/embedded-beach_closures.js']
         }
       }
     },
@@ -98,7 +149,7 @@ module.exports = function(grunt) {
      *
      */
     sass: {
-      // Main package:
+      // Web app package:
       dist: {
         options: {
           style: 'compact'
@@ -134,7 +185,7 @@ module.exports = function(grunt) {
         showProgress: true,
         readyTimeout: '<%= local.remoteHost.readyTimeout %>'
       },
-      // Main package:
+      // Web app package:
       dist: {
         files: {
           "./": [
@@ -151,11 +202,22 @@ module.exports = function(grunt) {
       embedded: {
         files: {
           "./": [
+            // DEPRECATED Visit page
             "static/dist/js/map-embedded.js",
             "static/dist/js/map-embedded.min.js",
             "static/dist/js/map-embedded-nojq.js",
             "static/dist/js/map-embedded-nojq.min.js",
-            "static/dist/css/embedded.css"
+            // Embedded base
+            "static/dist/js/map-embedded-base.js",
+            "static/dist/js/map-embedded-base.min.js",
+            "static/dist/js/map-embedded-base-nojq.js",
+            "static/dist/js/map-embedded-base-nojq.min.js",
+            // Visit page
+            "static/dist/js/map-embedded-visit.js",
+            "static/dist/js/map-embedded-visit.min.js",
+            // Beach closures
+            "static/dist/js/map-embedded-beach_closures.js",
+            "static/dist/js/map-embedded-beach_closures.min.js"
           ]
         }
       }
@@ -248,7 +310,20 @@ module.exports = function(grunt) {
   // All tasks
   grunt.registerTask('all', ['concat', 'uglify', 'sass', 'sftp']);
   // Embedded tasks only
-  grunt.registerTask('embedded', ['concat:embedded', 'concat:embedded_nojq', 'uglify:embedded', 'uglify:embedded_nojq', 'sass:embedded', 'sftp:embedded']);
+  grunt.registerTask('embedded', [
+    'concat:embedded_base',
+    'concat:embedded_base_nojq',
+    'concat:embedded_visit_DEPRECATED',
+    'concat:embedded_visit_nojq_DEPRECATED',
+    'uglify:embedded_base',
+    'uglify:embedded_base_nojq',
+    'uglify:embedded_visit_DEPRECATED',
+    'uglify:embedded_visit_nojq_DEPRECATED',
+    'uglify:embedded_visit',
+    'uglify:embedded_beach_closures',
+    'sass:embedded',
+    'sftp:embedded'
+  ]);
   // Embedded tasks only, without uglify
   grunt.registerTask('embedded_nougly', ['concat:embedded', 'concat:embedded_nojq', 'sass:embedded', 'sftp:embedded']);
 

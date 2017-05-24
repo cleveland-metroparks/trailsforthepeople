@@ -858,6 +858,7 @@ MAP.addLayer(routedebug);
  */
 
 APP_BASEPATH = 'https://maps.clevelandmetroparks.com/';
+//APP_BASEPATH = '/'; // Local
 
 var CM_SITE_BASEURL = 'http://www.clevelandmetroparks.com/';
 ;
