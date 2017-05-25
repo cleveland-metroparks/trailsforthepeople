@@ -64,11 +64,15 @@ function beachPopupMarkup(beach_closure) {
     markup = "<h3>" + beach_closure.name + "</h3>";
 
     if (beach_closure.status_text) {
-        markup += "<p>Status: <strong>" + beach_closure.status_text + "</strong></p>";
+        markup += "<p>Status: <strong>" + beach_closure.status_text + '</strong></p>';
+    }
+
+    if (beach_closure.external_link) {
+        markup += '<p>Water Quality: ' + beach_closure.external_link + '</p>';
     }
 
     if (beach_closure.date_updated) {
-        markup += "<p>Updated " + beach_closure.date_updated + "</p>";
+        markup += '<p style="font-size: 90% !important">Updated ' + beach_closure.date_updated + '</p>';
     }
 
     return markup;
