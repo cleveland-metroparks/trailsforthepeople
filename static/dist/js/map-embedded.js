@@ -863,8 +863,11 @@ MAP.addLayer(routedebug);
  * Cleveland Metroparks
  */
 
-// Needed this override when CM development site was on a different domain:
-//APP_BASEPATH = 'https://maps.clevelandmetroparks.com/';
+// Override app basepath URL from constants.js to access maps server
+// instead of domain where embedded map lives.
+APP_BASEPATH = 'https://maps.clevelandmetroparks.com/';
+// For local development:
+//APP_BASEPATH = '/';
 
 var CM_SITE_BASEURL = 'http://www.clevelandmetroparks.com/';
 ;
