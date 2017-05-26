@@ -3,22 +3,7 @@ var DIRECTIONS_LINE_STYLE = { color:"#0000FF", weight:5, opacity:0.80, clickable
 var ROUGHCUT_LINE         = null;
 var ROUGHCUT_LINE_STYLE   = { color: "#FFFFFF", weight:5, opacity:0.5, clickable:false };
 
-var MARKERS = { 'wp0':null, 'wp1':null, 'wp2':null, 'wp3':null, 'wp4':null, 'wp5':null, 'wp6':null, 'wp7':null, 'wp8':null, 'wp9':null };
-var ICONS = {
-    'wp0' : L.icon({ iconUrl: '/static/contributors/wp0.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp1' : L.icon({ iconUrl: '/static/contributors/wp1.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp2' : L.icon({ iconUrl: '/static/contributors/wp2.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp3' : L.icon({ iconUrl: '/static/contributors/wp3.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp4' : L.icon({ iconUrl: '/static/contributors/wp4.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp5' : L.icon({ iconUrl: '/static/contributors/wp5.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp6' : L.icon({ iconUrl: '/static/contributors/wp6.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp7' : L.icon({ iconUrl: '/static/contributors/wp7.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp8' : L.icon({ iconUrl: '/static/contributors/wp8.png', iconSize:[20,34], iconAnchor:[10,34] }),
-    'wp9' : L.icon({ iconUrl: '/static/contributors/wp9.png', iconSize:[20,34], iconAnchor:[10,34] })
-};
-
-
-
+var MARKERS = [];
 
 $(document).ready(function () {
 
@@ -138,13 +123,19 @@ $('.wpadd').click(function () {
     }
 
     // add the marker, and its drag handler to update the text box
-    if (! MARKERS[wpid]) {
+    if (!MARKERS[wpid]) {
         var lat    = parseFloat( row.find('.lat').val() );
         var lng    = parseFloat( row.find('.lng').val() );
         var center = new L.LatLng(lat,lng);
-        var icon   = ICONS[wpid];
 
-        MARKERS[wpid] = new L.Marker(center, { clickable:true, draggable:true, icon:icon });
+        MARKERS[wpid] = new L.marker(center, {
+            clickable: true,
+            draggable: true,
+            icon: L.mapbox.marker.icon({
+                'marker-symbol': wpid.substr(2) // strip leading 'wp'
+            })
+        });
+
         MARKERS[wpid].wpid = wpid;
         MAP.addLayer(MARKERS[wpid]);
 
@@ -365,9 +356,13 @@ function loadLoop() {
 function zoomToMarkersExtent() {
     var extent = [];
     for (var wpid in MARKERS) {
-        if (MARKERS[wpid]) extent[extent.length] = MARKERS[wpid].getLatLng();
+        if (MARKERS[wpid]) {
+            extent[extent.length] = MARKERS[wpid].getLatLng();
+        }
     }
-    if (extent.length) MAP.fitBounds( new L.LatLngBounds(extent) );
+    if (extent.length) {
+        MAP.fitBounds(new L.LatLngBounds(extent), { padding: [50,50] });
+    }
 }
 
 /**
@@ -387,7 +382,7 @@ function generateRoughCut() {
     });
 
     if (latlngs.length >= 2) {
-        ROUGHCUT_LINE = new L.MultiPolyline([latlngs], ROUGHCUT_LINE_STYLE);
+        ROUGHCUT_LINE = new L.Polyline([latlngs], ROUGHCUT_LINE_STYLE);
         MAP.addLayer(ROUGHCUT_LINE);
     }
 }
