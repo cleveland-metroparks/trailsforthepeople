@@ -1907,6 +1907,34 @@ function get_nearby_attractions_with_activities() {
 }
 
 /**
+ * Get all beach closures
+ *
+ * @param gid: gis_id
+ */
+function get_beach_closures() {
+    $beach_closures = new BeachClosure();
+    $beach_closures = $beach_closures->getBeachClosures();
+
+    foreach ($beach_closures as $beach_closure) {
+        $results[] = array(
+            'id' => $beach_closure->autonumber,
+            'name' => $beach_closure->title,
+            'date_updated' => $beach_closure->expr1,
+            'external_link' => $beach_closure->waterquality,
+            'lat'   => $beach_closure->latitude,
+            'lng'   => $beach_closure->longitude,
+            'status_text' => $beach_closure->beachstatus,
+            // Remove the '#' character from the hex code, so we can be deliberate:
+            'status_color' => ltrim($beach_closure->closurecolor, '#'),
+            'gisid' => $beach_closure->gisid
+        );
+    }
+
+    $output = array('results' => $results);
+    print json_encode($output);
+}
+
+/**
  * Browse items
  *
  * @param search

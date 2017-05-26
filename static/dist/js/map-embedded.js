@@ -863,7 +863,11 @@ MAP.addLayer(routedebug);
  * Cleveland Metroparks
  */
 
+// Override app basepath URL from constants.js to access maps server
+// instead of domain where embedded map lives.
 APP_BASEPATH = 'https://maps.clevelandmetroparks.com/';
+// For local development:
+//APP_BASEPATH = '/';
 
 var CM_SITE_BASEURL = 'http://www.clevelandmetroparks.com/';
 ;
@@ -957,7 +961,9 @@ function initMap (mapOptions) {
         dragging: true,
         closePopupOnClick: false,
         crs: L.CRS.EPSG3857,
-        minZoom: MIN_ZOOM, maxZoom: MAX_ZOOM,
+        minZoom: MIN_ZOOM,
+        maxZoom: MAX_ZOOM,
+        zoomSnap: 0, // fractional zoom
         layers : [ basemap ]
     };
     var android4 = navigator.userAgent.match(/Android (4|5)/);
