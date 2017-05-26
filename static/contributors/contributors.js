@@ -2,14 +2,12 @@
 ///// This is identical to the public-facing version, except that we must use SSL
 ///// because Chrome and IE can't cope with mixing HTTP and HTTPS on the same page
 
-var MAPBASE   = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/basemap_mobilestack/{z}/{x}/{y}.jpg", { });
+//var OVERLAYS  = [];
+//OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("//maps.clevelandmetroparks.com/wms", { id:'closures', visibility:true, layers:'cm:closures,cm:markers_other,cm:markers_swgh', format:'image/png', transparent:'TRUE' });
+//OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("//maps.clevelandmetroparks.com/gwc", { id:'labels', visibility:true, layers:'group_overlays', format:'image/png', transparent:'TRUE' });
 
-var OVERLAYS  = [];
-OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("//maps.clevelandmetroparks.com/wms", { id:'closures', visibility:true, layers:'cm:closures,cm:markers_other,cm:markers_swgh', format:'image/png', transparent:'TRUE' });
-OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("//maps.clevelandmetroparks.com/gwc", { id:'labels', visibility:true, layers:'group_overlays', format:'image/png', transparent:'TRUE' });
-
-// almost identicval: we enable the Route Debugging layer for these maps
-OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("//maps.clevelandmetroparks.com/wms", { id:'routedebug', visibility:false, layers:'cm:routing_barriers,cm:routing_segments,cm:routing_nodes,cm:route_problem_intersections', format:'image/png', transparent:'TRUE' });
+// almost identical: we enable the Route Debugging layer for these maps
+//OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("//maps.clevelandmetroparks.com/wms", { id:'routedebug', visibility:false, layers:'cm:routing_barriers,cm:routing_segments,cm:routing_nodes,cm:route_problem_intersections', format:'image/png', transparent:'TRUE' });
 
 
 
@@ -21,31 +19,43 @@ Date.prototype.yyyymmdd = function() {
     return yyyy + '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]); // padding
 };
 
-
-// on page load: start the map
+/**
+ * Initialize the map (on admin/contributor pages)
+ */
 function initContributorMap() {
-    // start the map, add the basemap, zoom to the max extent
-    MAP = new L.Map('map_canvas', {
-        attributionControl: false, zoomControl: true, dragging: true,
+    var options = {
+        attributionControl: false,
+        zoomControl: false, // add manually, below
+        dragging: true,
         closePopupOnClick: true,
         crs: L.CRS.EPSG3857,
-        maxZoom: 18,
-        layers : [ MAPBASE ]
-    });
+        minZoom: MIN_ZOOM,
+        maxZoom: MAX_ZOOM,
+        zoomSnap: 0, // fractional zoom
+        layers : [ LAYER_MAPBOX_SAT ]
+    };
+
+    // Create the map
+    MAP = new L.Map('map_canvas', options);
+    new L.Control.Zoom({ position: 'bottomright' }).addTo(MAP);
+
+    // Zoom to max extent
     MAP.fitBounds(MAX_BOUNDS);
+
+    // Additional Controls
     L.control.scale().addTo(MAP);
 
-    // add the overlay layers
-    for (var i=0, l=OVERLAYS.length; i<l; i++) {
-        var layer = OVERLAYS[i];
-        if (layer.options.visibility) MAP.addLayer(layer);
-    }
+    //// add the overlay layers
+    //for (var i=0, l=OVERLAYS.length; i<l; i++) {
+    //    var layer = OVERLAYS[i];
+    //    if (layer.options.visibility) MAP.addLayer(layer);
+    //}
 
-    // the layer picker
-    MAP.addControl(new L.Control.Layers({
-    },{
-        'Route debugging' : OVERLAYS[OVERLAYS.length-1]
-    }));
+    //// the layer picker
+    //MAP.addControl(new L.Control.Layers({
+    //},{
+    //    'Route debugging' : OVERLAYS[OVERLAYS.length-1]
+    //}));
 
     // debugging: when the viewport changes, log the current bbox and zoom
     function debugOutput () {
