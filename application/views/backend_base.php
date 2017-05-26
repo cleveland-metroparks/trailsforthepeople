@@ -23,28 +23,23 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-    <!-- jQuery -->
+    <!-- JS Libs -->
     <script type="text/javascript" src="<?= ssl_url('static/lib/jquery-1.12.4.min.js'); ?>"></script>
-
-    <!-- jQuery UI -->
-    <!-- <script type="text/javascript" src="<?= ssl_url('static/lib/jquery-ui-1.8.21.custom.min.js'); ?>"></script> -->
     <script type="text/javascript" src="<?= ssl_url('static/lib/jquery-ui-1.11.4/jquery-ui.min.js'); ?>"></script>
-    <!-- <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/lib/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" /> -->
-    <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/lib/jquery-ui-1.11.4/jquery-ui.min.css'); ?>" />
-
-    <!-- tablesorter -->
     <script type="text/javascript" src="<?= ssl_url('static/lib/tablesorter/jquery.tablesorter.js'); ?>"></script>
-
-    <!-- Leaflet map API and Wicket plugin for parsing WKT -->
-    <link rel="stylesheet" type="text/css" href="<?= ssl_url('static/lib/leaflet-0.7.1/leaflet.css'); ?>" />
-    <script type="text/javascript" src="<?= ssl_url('static/lib/leaflet-0.7.1/leaflet.js'); ?>"></script>
-    <script type="text/javascript" src="<?= ssl_url('static/lib/wicket/wicket.js'); ?>"></script>
-    <script type="text/javascript" src="<?= ssl_url('static/lib/wicket/wicket-leaflet.js'); ?>"></script>
-
-    <!-- TinyMCE, the HTML editor -->
+    <script type="text/javascript" src="<?= ssl_url('static/lib/leaflet-1.0.3/leaflet.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/lib/wicket-master/wicket.min.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/lib/wicket-master/wicket-leaflet.min.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/lib/mapbox.js-2.4.0/mapbox.standalone.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/lib/mapbox-gl-js-0.35.1/mapbox-gl.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.min.js'); ?>"></script>
     <script type="text/javascript" src="<?= ssl_url('static/lib/tinymce/jscripts/tiny_mce/jquery.tinymce.js'); ?>"></script>
 
-    <!-- Local back-end CSS -->
+    <!-- CSS -->
+    <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/lib/jquery-ui-1.11.4/jquery-ui.min.css'); ?>" />
+    <link type="text/css" rel="stylesheet" href="https://trailslocal.clevelandmetroparks.com/static/lib/leaflet-1.0.3/leaflet.css" />
+    <link type="text/css" rel="stylesheet" href="https://trailslocal.clevelandmetroparks.com/static/lib/mapbox-gl-js-0.35.1/mapbox-gl.css" />
+    <link type="text/css" rel="stylesheet" href="https://trailslocal.clevelandmetroparks.com/static/lib/font-awesome-4.6.3/css/font-awesome.min.css" />
     <link href="<?= ssl_url('static/admin/admin.css'); ?>" rel="stylesheet">
 
     <!-- Local JS -->
