@@ -3,7 +3,7 @@
 <?php $this->load->helper('html_extras'); ?>
 
 <script type="text/javascript">
-    trail_steps = <?= $trail ? $trail->steps : '[]' ?>;
+    trail_steps = <?= $trail->steps ? $trail->steps : '[]' ?>;
 </script>
 
 <form class="form-horizontal" id="trailform" method="post" action="<?= ssl_url("contributors/savetrail/") ?>">

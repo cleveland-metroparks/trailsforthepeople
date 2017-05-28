@@ -1,7 +1,7 @@
 <?php $this->page_title = isset($loop->id) ? 'Edit Loop' : 'Create Loop'; ?>
 
 <script type="text/javascript">
-    loop_steps = <?= $loop ? $loop->steps : '[]' ?>;
+    loop_steps = <?= $loop->steps ? $loop->steps : '[]' ?>;
 </script>
 
 <form class="form-horizontal" id="loopform" method="post" action="<?= ssl_url("contributors/loop_save") ?>">
@@ -12,8 +12,8 @@
 <input type="hidden" name="elevation_profile_image" value="<?= $loop ? ssl_url("static/images/loops/{$loop->id}.jpg") : '' ?>" />
 
 <ul class="nav nav-tabs">
-  <li class="active"><a data-toggle="tab" href="#basic-info">Basic Information</a></li>
-  <li><a data-toggle="tab" href="#waypoints-route">Waypoints &amp; Route</a></li>
+  <li><a data-toggle="tab" href="#basic-info">Basic Information</a></li>
+  <li class="active"><a data-toggle="tab" href="#waypoints-route">Waypoints &amp; Route</a></li>
   <li><a data-toggle="tab" href="#directions-profile">Directions &amp; Profile</a></li>
 </ul>
 
@@ -146,7 +146,7 @@
 <!-- /Basic Information (tab) -->
 
 
-<div id="waypoints-route" class="tab-pane">
+<div id="waypoints-route" class="tab-pane active">
     <h3>Waypoints &amp; Route</h3>
 
     <!-- Waypoints Map - Left side (col) -->
