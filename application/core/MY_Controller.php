@@ -227,6 +227,13 @@ private function _mainmenu_left_array() {
           'url' => 'contributors/trails',
           'title' => 'Trails',
           'access' => 'allow_trails',
+          'submenu' => array(
+            array(
+              'url' => 'contributors/trail/0',
+              'title' => 'Create Trail',
+              'access' => 'allow_trails',
+            ),
+          ),
         ),
         //array(
         //  'url' => 'contributors/use_areas',
@@ -237,6 +244,13 @@ private function _mainmenu_left_array() {
           'url' => 'contributors/markers',
           'title' => 'Markers',
           'access' => 'allow_markers',
+          'submenu' => array(
+            array(
+              'url' => 'contributors/marker/0',
+              'title' => 'Create Marker',
+              'access' => 'allow_markers',
+            ),
+          ),
         ),
         /*
          * Contributors: Loops
@@ -246,6 +260,11 @@ private function _mainmenu_left_array() {
           'title' => 'Loops',
           'access' => 'allow_loops',
           'submenu' => array(
+            array(
+              'url' => 'contributors/loop/0',
+              'title' => 'Create Loop',
+              'access' => 'allow_loops',
+            ),
             array(
               'url' => 'contributors/autoloop',
               'title' => 'Autoloop Manual',
