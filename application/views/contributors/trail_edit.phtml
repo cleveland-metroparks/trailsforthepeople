@@ -6,7 +6,7 @@
     trail_steps = <?= $trail->steps ? $trail->steps : '[]' ?>;
 </script>
 
-<form class="form-horizontal" id="trailform" method="post" action="<?= ssl_url("contributors/savetrail/") ?>">
+<form class="form-horizontal" id="trailform" method="post" action="<?= ssl_url("contributors/trail_save") ?>">
 
 <input type="hidden" name="id" value="<?= $trail ? $trail->id : 0 ?>" />
 <input type="hidden" name="wkt" value="<?= $trail ? $trail->wkt : '' ?>" />
@@ -14,8 +14,8 @@
 <input type="hidden" name="elevation_profile_image" value="<?= $trail ? ssl_url("static/photos/trails/{$trail->id}.jpg") : '' ?>" />
 
 <ul class="nav nav-tabs">
-  <li><a data-toggle="tab" href="#basic-info">Basic Information</a></li>
-  <li class="active"><a data-toggle="tab" href="#waypoints-route">Waypoints &amp; Route</a></li>
+  <li class="active"><a data-toggle="tab" href="#basic-info">Basic Information</a></li>
+  <li><a data-toggle="tab" href="#waypoints-route">Waypoints &amp; Route</a></li>
   <li><a data-toggle="tab" href="#directions-profile">Directions &amp; Profile</a></li>
   <li><a data-toggle="tab" href="#driving-destinations">Driving Destinations</a></li>
 </ul>
@@ -23,7 +23,7 @@
 <div class="tab-content">
 
 <!-- Basic Information (tab) -->
-<div id="basic-info" class="tab-pane">
+<div id="basic-info" class="tab-pane active">
     <h3>Basic Information</h3>
 
     <!-- Basic Information (col) -->
@@ -68,16 +68,16 @@
             <div class="form-group">
                 <label class="control-label col-sm-3">Open date:</label>
                 <div class="col-sm-8">
-                    <input type="text" name="schedule-open-date" size="10" maxlength="10" value="<?= $trail ? $trail->startdate : date('Y-m-d') ?>" />
-                    <span class="btn btn-sm btn-default" id="schedule-open-date-today">today</span>
+                    <input type="text" name="startdate" size="10" maxlength="10" value="<?= $trail ? $trail->startdate : date('Y-m-d') ?>" />
+                    <span class="btn btn-sm btn-default" id="startdate_today">today</span>
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="control-label col-sm-3">Close date:</label>
                 <div class="col-sm-8">
-                    <input type="text" name="schedule-close-date" size="10" maxlength="10" value="<?= $trail ? $trail->expires : '' ?>"  />
-                    <span class="btn btn-sm btn-default" id="schedule-close-date-never">never</span>
+                    <input type="text" name="expires" size="10" maxlength="10" value="<?= $trail ? $trail->expires : '' ?>"  />
+                    <span class="btn btn-sm btn-default" id="expires_never">never</span>
                 </div>
             </div>
         </fieldset>
@@ -125,7 +125,7 @@
 
 
 <!-- Waypoints & Route (tab) -->
-<div id="waypoints-route" class="tab-pane active">
+<div id="waypoints-route" class="tab-pane">
     <h3>Waypoints &amp; Route</h3>
 
     <!-- Waypoints Map - Left side (col) -->
@@ -346,26 +346,16 @@
 </div>
 <!-- /Tabs content -->
 
-<!-- Submit Button -->
+
+<!-- Submit & Delete buttons -->
 <div class="form-group">
     <div class="col-md-12">
-        <input class="btn btn-primary" type="submit" value="Save Changes" />
+        <input class="btn btn-primary" type="submit" value="Save" />
+        <?php if (isset($trail->id)): ?>
+            <a class="btn btn-primary" href="/contributors/trail/<?= $trail->id ?>/delete" role="button">Delete</a>
+        <?php endif; ?>
     </div>
 </div>
-<!-- /Submit Button -->
+<!-- /Submit & Delete buttons -->
 
 </form>
-
-
-<!-- Delete Button -->
-<?php if ($trail) { ?>
-<form class="form-horizontal" id="deleteform" method="post" action="<?= ssl_url("contributors/deletetrail/") ?>" onSubmit="return confirm('Really delete this trail?');">
-    <input type="hidden" name="id" value="<?= $trail->id ?>" />
-    <div class="form-group">
-        <div class="col-sm-4">
-            <input class="btn btn-primary" type="submit" value="Delete Trail" />
-        </div>
-    </div>
-</form>
-<?php } ?>
-<!-- /Delete Button -->

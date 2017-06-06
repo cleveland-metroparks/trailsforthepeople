@@ -12,8 +12,8 @@
 <input type="hidden" name="elevation_profile_image" value="<?= $loop ? ssl_url("static/images/loops/{$loop->id}.jpg") : '' ?>" />
 
 <ul class="nav nav-tabs">
-  <li><a data-toggle="tab" href="#basic-info">Basic Information</a></li>
-  <li class="active"><a data-toggle="tab" href="#waypoints-route">Waypoints &amp; Route</a></li>
+  <li class="active"><a data-toggle="tab" href="#basic-info">Basic Information</a></li>
+  <li><a data-toggle="tab" href="#waypoints-route">Waypoints &amp; Route</a></li>
   <li><a data-toggle="tab" href="#directions-profile">Directions &amp; Profile</a></li>
 </ul>
 
@@ -146,7 +146,7 @@
 <!-- /Basic Information (tab) -->
 
 
-<div id="waypoints-route" class="tab-pane active">
+<div id="waypoints-route" class="tab-pane">
     <h3>Waypoints &amp; Route</h3>
 
     <!-- Waypoints Map - Left side (col) -->

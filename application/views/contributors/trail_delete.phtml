@@ -1,0 +1,14 @@
+<?php $this->page_title = 'Delete Trail'; ?>
+
+<form class="form-horizontal" id="trailform" method="post" action="<?= ssl_url("contributors/trail/" . $trail->id . "/delete") ?>">
+
+<p>Are you sure you want to permanently delete the trail, <em>"<?= $trail->name ?>"</em>?</p>
+
+<div class="form-group">
+    <div class="col-sm-4">
+        <input class="btn btn-primary" type="submit" name="submit" value="Delete" />
+        <a class="btn btn-primary" href="/contributors/trails" role="button">Cancel</a>
+    </div>
+</div>
+
+</form>

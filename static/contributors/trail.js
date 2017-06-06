@@ -43,19 +43,19 @@ $(".form-control[name='status']").change(function() {
     }
 })
 // Open date datepicker
-$('input[name="schedule-open-date"]').datepicker({
+$('input[name="startdate"]').datepicker({
     dateFormat: 'yy-mm-dd'
 });
-$('#schedule-open-date-today').click(function () {
+$('#startdate_today').click(function () {
     var today = new Date().yyyymmdd();
-    $('input[name="schedule-open-date"]').val(today);
+    $('input[name="startdate"]').val(today);
 });
 // Close date datepicker
-$('input[name="schedule-close-date"]').datepicker({
+$('input[name="expires"]').datepicker({
     dateFormat: 'yy-mm-dd'
 });
-$('#schedule-close-date-never').click(function () {
-    $('input[name="schedule-close-date"]').val('');
+$('#expires_never').click(function () {
+    $('input[name="expires"]').val('');
 });
 
 /**
