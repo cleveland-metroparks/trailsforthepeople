@@ -464,7 +464,6 @@ $(window).load(function () {
         // add the marker and its drag handler (which updates the text box)
         if (! MARKERS[wp_num]) {
             MARKERS[wp_num] = new L.marker(center, {
-                clickable: true,
                 draggable: true,
                 icon: L.mapbox.marker.icon({
                     'marker-symbol': wp_num
@@ -519,22 +518,21 @@ $(window).load(function () {
         var row = $(this).closest('li');
         var wp_num = get_wp_num_from_wp_id(row.prop('id')) + 1;
 
-        // Increment the waypoint number for each waypoint after the one we're inserting.
+        // Increment the waypoint id for each subsequent list item
         row.nextAll().each(function(i) {
             $(this).increment_waypoint();
         });
 
-        // Bump the marker icon numbers.
-        for (i in MARKERS) {
-            console.log(i);
+        // Increment the number on each subsequent marker icon
+        for (var i in MARKERS) {
             if (i >= wp_num && MARKERS[i]) {
-                console.log("increasing " + i);
-                var icon = ICONS[i + 1];
-                MARKERS[i].icon = icon;
-                MARKERS[i].wp_id = make_wp_id_from_wp_num(i + 1);
+                new_num = parseInt(i) + 1;
+                MARKERS[i].wp_id = make_wp_id_from_wp_num(new_num);
+                MARKERS[i].setIcon(L.mapbox.marker.icon({'marker-symbol': new_num}));
             }
         }
-        // Insert a new spot into our MARKERS array.
+
+        // Insert a new place into our MARKERS array.
         MARKERS.splice(wp_num, 0, null);
 
         row.after(make_waypoint_li(wp_num));
