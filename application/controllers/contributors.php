@@ -284,8 +284,9 @@ function marker_save() {
     }
 
     // save the plain and simple fields to the database, accounting for some possibly NULL fields
-    if (!$_POST['expires']) $_POST['expires'] = null;
     $asisfields = array( 'lat', 'lng', 'content', 'title', 'expires', 'startdate', 'annual', 'category' );
+    if (!$_POST['expires']) $_POST['expires'] = null;
+    if (!$_POST['startdate']) $_POST['startdate'] = null;
     foreach ($asisfields as $fieldname) {
         $marker->{$fieldname} = $_POST[$fieldname];
     }
@@ -444,7 +445,7 @@ function loop_edit($id) {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
     // Require logged-in user with "Allow Markers" permission
-    if ($this->_user_access('allow_markers') !== NULL) return;
+    if ($this->_user_access('allow_loops') !== NULL) return;
 
     $this->_add_js_include('static/contributors/loop.js');
 
@@ -513,6 +514,7 @@ function loop_save() {
         'status', 'source', 'editedby', 
     );
     if (!$_POST['expires']) $_POST['expires'] = null;
+    if (!$_POST['startdate']) $_POST['startdate'] = null;
     foreach ($asisfields as $fieldname) {
         if (! @$_POST[$fieldname]) {
             switch (@$fieldname) {
@@ -530,15 +532,17 @@ function loop_save() {
 
     // now the directions steps, in JSON format
     $steps = array();
-    for ($i=0; $i<sizeof($_POST['text']); $i++) {
-        $steps[] = array(
-            'stepnumber' => $_POST['stepnumber'][$i],
-            'text' => $_POST['text'][$i],
-            'distance' => $_POST['distance'][$i],
-            'timehike' => $_POST['timehike'][$i],
-            'timebike' => $_POST['timebike'][$i],
-            'timebridle' => $_POST['timebridle'][$i],
-        );
+    if (isset($_POST['text'])) {
+        for ($i=0; $i<sizeof($_POST['text']); $i++) {
+            $steps[] = array(
+                'stepnumber' => $_POST['stepnumber'][$i],
+                'text' => $_POST['text'][$i],
+                'distance' => $_POST['distance'][$i],
+                'timehike' => $_POST['timehike'][$i],
+                'timebike' => $_POST['timebike'][$i],
+                'timebridle' => $_POST['timebridle'][$i],
+            );
+        }
     }
     $loop->steps = json_encode($steps);
     $loop->save();
@@ -580,7 +584,7 @@ function loop_save() {
 /**
  * Clone Loop
  *
- * @TODO: Turn the confirmation into 
+ * @TODO: Turn the confirmation dialog into a "new Loop" page with fields pre-populated.
  */
 function loop_clone($id) {
     // Require SSL
@@ -588,15 +592,17 @@ function loop_clone($id) {
     // Require logged-in user with "Allow Loops" permission
     if ($this->_user_access('allow_loops') !== NULL) return;
 
-    // fetch the original Loop
+    // Fetch the original Loop
     $old_loop = new Loop();
-    $old_loop->where('id',$id)->get();
-    if (! $old_loop->id) return redirect(ssl_url('contributors/loops'));
+    $old_loop->where('id', $id)->get();
+    if (!$old_loop->id) return redirect(ssl_url('contributors/loops'));
 
-    // create a new Loop, and copy in all field values
+    // Create a new Loop, and copy in all field values
     // then override some fields: remove the ID, editor, status, ...
     $new_loop = new Loop();
-    foreach($old_loop->stored as $field=>$value) $new_loop->{$field} = $value;
+    foreach($old_loop->stored as $field=>$value) {
+        $new_loop->{$field} = $value;
+    }
     unset($new_loop->id);
     $new_loop->status    = 'New';
     $new_loop->editedby  = $this->loggedin['realname'];
@@ -609,7 +615,7 @@ function loop_clone($id) {
     $email = $email['email'];
     Auditlog::log_message(sprintf("Loop cloned as: \"%s\" (original id: %d; clone id: %d)", htmlspecialchars($new_loop->name), $old_loop->id, $new_loop->id) , $email);
 
-    // send them to the new Loop's editing page
+    // Redirect to the new Loop's editing page
     redirect( ssl_url("contributors/loop/{$new_loop->id}/edit") );
 }
 
@@ -697,9 +703,9 @@ function trails() {
 }
 
 /**
- *
+ * Edit/create Trail
  */
-function trail($id) {
+function trail_edit($id) {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
     // Require logged-in user with "Allow Trails" permission
@@ -729,13 +735,13 @@ function trail($id) {
         }
     }
 
-    $this->load->view('contributors/trail.phtml', $data);
+    $this->load->view('contributors/trail_edit.phtml', $data);
 }
 
 /**
  *
  */
-function savetrail() {
+function trail_save() {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
     // Require logged-in user with "Allow Trails" permission
@@ -767,6 +773,7 @@ function savetrail() {
         'status', 'source', 'editedby', 
     );
     if (!$_POST['expires']) $_POST['expires'] = null;
+    if (!$_POST['startdate']) $_POST['startdate'] = null;
     foreach ($asisfields as $fieldname) {
         if (! @$_POST[$fieldname]) {
             switch (@$fieldname) {
@@ -784,15 +791,17 @@ function savetrail() {
 
     // now the directions steps, in JSON format
     $steps = array();
-    for ($i=0; $i<sizeof($_POST['text']); $i++) {
-        $steps[] = array(
-            'stepnumber' => $_POST['stepnumber'][$i],
-            'text' => $_POST['text'][$i],
-            'distance' => $_POST['distance'][$i],
-            'timehike' => $_POST['timehike'][$i],
-            'timebike' => $_POST['timebike'][$i],
-            'timebridle' => $_POST['timebridle'][$i],
-        );
+    if (isset($_POST['text'])) {
+        for ($i=0; $i<sizeof($_POST['text']); $i++) {
+            $steps[] = array(
+                'stepnumber' => $_POST['stepnumber'][$i],
+                'text' => $_POST['text'][$i],
+                'distance' => $_POST['distance'][$i],
+                'timehike' => $_POST['timehike'][$i],
+                'timebike' => $_POST['timebike'][$i],
+                'timebridle' => $_POST['timebridle'][$i],
+            );
+        }
     }
     $trail->steps = json_encode($steps);
     $trail->save();
@@ -814,7 +823,9 @@ function savetrail() {
     $this->db->query("UPDATE trails SET search=to_tsvector(coalesce(name,'') || ' ' || coalesce(description,'') ) WHERE id=?", array($trail->id) );
 
     // now the list of intersecting reservations
-    $this->db->query('SELECT update_trail_reservations(?)', array($trail->id) );
+    // @TODO: We copied over the loops infrastructure, but we haven't yet
+    // re-implemented update_loop_reservations() as update_trail_reservations().
+    //$this->db->query('SELECT update_trail_reservations(?)', array($trail->id) );
 
     // save the elevation profile image; they have a tempfile in the browser, save it by the trail's ID#
     if ($_POST['elevation_profile_image']) {
@@ -832,28 +843,27 @@ function savetrail() {
 }
 
 /**
+ * Clone Trail
  *
+ * @TODO: Turn the confirmation dialog into a "new Trail" page with fields pre-populated. 
  */
-function clonetrail($id) {
+function trail_clone($id) {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
     // Require logged-in user with "Allow Trails" permission
     if ($this->_user_access('allow_trails') !== NULL) return;
 
-    // fetch the original Trail
+    // Fetch the original Trail
     $old_trail = new Newtrail();
-    $old_trail->where('id',$id)->get();
-    if (! $old_trail->id) return redirect(ssl_url('contributors/trails'));
-
-    // log this event
-    $email = $this->loggedin;
-    $email = $email['email'];
-    Auditlog::log_message( sprintf("Trail cloned: %s", htmlspecialchars($old_trail->name) ) , $email);
+    $old_trail->where('id', $id)->get();
+    if (!$old_trail->id) return redirect(ssl_url('contributors/trails'));
 
     // create a new Trail, and copy in all field values
     // then override some fields: remove the ID, editor, status, ...
     $new_trail = new Newtrail();
-    foreach($old_trail->stored as $field=>$value) $new_trail->{$field} = $value;
+    foreach($old_trail->stored as $field=>$value) {
+        $new_trail->{$field} = $value;
+    }
     unset($new_trail->id);
     $new_trail->status    = 'New';
     $new_trail->editedby  = $this->loggedin['realname'];
@@ -861,43 +871,75 @@ function clonetrail($id) {
     $new_trail->name      = substr("COPY of " . $new_trail->name, 0, 255 );
     $new_trail->save();
 
-    // send them to the new Trail's editing page
-    redirect( ssl_url("contributors/trail/{$new_trail->id}") );
+    // Log this event
+    $email = $this->loggedin;
+    $email = $email['email'];
+    Auditlog::log_message(sprintf("Trail cloned as: \"%s\" (original id: %d; clone id: %d)", htmlspecialchars($new_trail->name), $old_trail->id, $new_trail->id) , $email);
+
+    // Redirect to the new Trail's editing page
+    redirect( ssl_url("contributors/trail/{$new_trail->id}/edit") );
 }
 
 /**
+ * Delete Trail
  *
+ * Confirm, then delete a trail from the database, checking access permissions.
  */
-function deletetrail() {
+function trail_delete($id) {
     // Require SSL
     if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
     // Require logged-in user with "Allow Trails" permission
     if ($this->_user_access('allow_trails') !== NULL) return;
 
-    // log this event
-    $email = $this->loggedin;
-    $email = $email['email'];
-    Auditlog::log_message( sprintf("Trail deleted: %s", htmlspecialchars($trail->name) ) , $email);
+    if (empty($_POST['submit']) ) {
+        // Ask for confirmation
+        $data = array();
+        $data['trail'] = null;
+        if ((integer) $id) {
+            $data['trail'] = new Newtrail();
+            $data['trail']->where('id', $id);
+            if (!$this->loggedin['admin']) {
+                // Not an admin; make sure the owner ID matches
+                $data['trail']->where('creatorid', $myid['id']);
+            }
+            $data['trail']->get();
 
-    // fetch it
-    $trail = new Newtrail();
-    $trail->where('id',@$_POST['id'])->get();
-    if (! $trail->id) return redirect(ssl_url('contributors/'));
+            // @TODO: How to bail?
+            if (!$data['trail']->id) return redirect(ssl_url('contributors/trails'));
+        }
 
-    // they must own it, or be an admin
-    if (! $this->loggedin['admin'] and $trail->creatorid != $this->loggedin['id']) {
-        return redirect(ssl_url('contributors/trails'));
+        $this->load->view('contributors/trail_delete.phtml', $data);
+    } else {
+        // The initial confirmation has been accepted; start the delete process
+        $trail = new Newtrail();
+        $trail->where('id', $id);
+        if (! $this->loggedin['admin'] ) {
+            // Not an admin; make sure the owner ID matches too
+            $trail->where('creatorid', $myid['id']);
+        }
+        $trail->get();
+
+        if ($trail->id) {
+            // Log this event
+            $email = $this->loggedin;
+            $email = $email['email'];
+            Auditlog::log_message(sprintf("Trail deleted: \"%s\" (id: %d)", htmlspecialchars($trail->name), $trail->id), $email);
+
+            // Delete it
+            $trail->delete();
+
+            // Delete associated elevation profile image
+            $photo = "static/photos/trails/{$trail->id}.jpg";
+            if (is_file($photo)) {
+                unlink($photo);
+            }
+        } else {
+            // @TODO: Say: "This trail doesn't exist, or you don't have access to it."
+            return redirect(ssl_url('contributors/trails'));
+        }
+
+        redirect(ssl_url('contributors/trails'));
     }
-
-    // fine; delete it
-    $trail->delete();
-
-    // delete any static images associated with it
-    $photo = "static/photos/trails/{$trail->id}.jpg";
-    if (is_file($photo)) unlink($photo);
-
-    // we're outta here
-    redirect(ssl_url('contributors/trails'));
 }
 
 /**

@@ -57,6 +57,12 @@ $route['contributors/loop/(:num)/edit'] = "contributors/loop_edit/$1";
 $route['contributors/loop/(:num)/clone'] = "contributors/loop_clone/$1";
 $route['contributors/loop/(:num)/delete'] = "contributors/loop_delete/$1";
 
+// Trail management
+$route['contributors/trail/(:num)'] = "contributors/trail_edit/$1";
+$route['contributors/trail/(:num)/edit'] = "contributors/trail_edit/$1";
+$route['contributors/trail/(:num)/clone'] = "contributors/trail_clone/$1";
+$route['contributors/trail/(:num)/delete'] = "contributors/trail_delete/$1";
+
 // Marker management
 $route['contributors/marker/(:num)'] = "contributors/marker_edit/$1";
 $route['contributors/marker/(:num)/edit'] = "contributors/marker_edit/$1";

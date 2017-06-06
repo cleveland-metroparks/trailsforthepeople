@@ -14,6 +14,7 @@
     <th>Primary Use</th>
     <th>Edit</th>
     <th>Clone</th>
+    <th>Delete</th>
 </tr>
 </thead>
 <tbody>
@@ -21,7 +22,7 @@
 <tr>
     <td>
         <?php if ($this->loggedin['admin'] or ($trail->creatorid == $this->loggedin['id'])): ?>
-            <a href="<?= ssl_url("contributors/trail/{$trail->id}") ?>"><?= htmlspecialchars($trail->name) ?></a>
+            <a href="<?= ssl_url("contributors/trail/{$trail->id}/edit") ?>"><?= htmlspecialchars($trail->name) ?></a>
         <?php else: ?>
             <?= htmlspecialchars($trail->name) ?>
         <?php endif; ?>
@@ -32,12 +33,13 @@
     <td><?= $trail->pri_use ?></td>
     <td>
         <?php if ($this->loggedin['admin'] or ($trail->creatorid == $this->loggedin['id'])): ?>
-            <a href="<?= ssl_url("contributors/trail/{$trail->id}") ?>">edit</a>
+            <a href="<?= ssl_url("contributors/trail/{$trail->id}/edit") ?>">edit</a>
         <?php else: ?>
             &nbsp;
         <?php endif; ?>
     </td>
-    <td><a class="clone" href="<?= ssl_url("contributors/clonetrail/{$trail->id}") ?>">clone</a></td>
+    <td><a class="clone" href="<?= ssl_url("contributors/trail/{$trail->id}/clone") ?>">clone</a></td>
+    <td><a href="<?= ssl_url("contributors/trail/{$trail->id}/delete") ?>">delete</a></td>
 </tr>
 <?php } ?>
 </tbody>

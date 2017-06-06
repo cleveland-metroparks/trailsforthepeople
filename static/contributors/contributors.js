@@ -647,13 +647,15 @@ function renderDirections(steps) {
  * we have to re-initialize the size/zoom when we show it for the
  * first time.
  */
-$('body').on('shown.bs.tab', function (e) {
-    if ($(e.target).attr("href") == '#waypoints-route') {
-        if (MAP._shown !== true) {
-            MAP.invalidateSize(false);
-            MAP.fitBounds(MAX_BOUNDS);
-            zoomToMarkersExtent();
-            MAP._shown = true;
+$(window).load(function () {
+    $('body').on('shown.bs.tab', function (e) {
+        if ($(e.target).attr("href") == '#waypoints-route') {
+            if (MAP._shown !== true) {
+                MAP.invalidateSize(false);
+                MAP.fitBounds(MAX_BOUNDS);
+                zoomToMarkersExtent();
+                MAP._shown = true;
+            }
         }
-    }
+    });
 });
