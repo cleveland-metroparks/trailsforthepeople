@@ -16,7 +16,6 @@ var MARKERS = [];
 // almost identical: we enable the Route Debugging layer for these maps
 //OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("//maps.clevelandmetroparks.com/wms", { id:'routedebug', visibility:false, layers:'cm:routing_barriers,cm:routing_segments,cm:routing_nodes,cm:route_problem_intersections', format:'image/png', transparent:'TRUE' });
 
-
 /**
  * An addon to the Date object, to return the date in yyyy-mm-dd format
  */
@@ -107,41 +106,6 @@ function initContributorMap() {
         MAP.locate({ setView:true, enableHighAccuracy:true });
     });
 }
-
-/**
- * Enable TinyMCE on the description editor
- */
-$('textarea[name="description"]').tinymce({
-    // Location of TinyMCE script
-    script_url : '/static/lib/tinymce/jscripts/tiny_mce/tiny_mce.js',
-
-    // General options
-    theme : "advanced",
-    plugins : "autolink,lists,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,advlist",
-
-    // Reduced options
-    theme_advanced_buttons1 : "code,|,bold,italic,|,bullist,numlist,|,link,unlink",
-
-    // Theme options
-    //theme_advanced_buttons1 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,undo,redo,|,hr,removeformat,|,charmap,emotions,media",
-    //theme_advanced_buttons2 : "code,|,bold,italic,underline,strikethrough,sub,sup,|,formatselect,fontselect,fontsizeselect",
-    //theme_advanced_buttons3 : "justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,outdent,indent,blockquote,|,link,unlink,anchor,image,|,forecolor,backcolor",
-    //theme_advanced_buttons4 : "tablecontrols",
-
-    theme_advanced_toolbar_location : "top",
-    theme_advanced_toolbar_align : "left",
-    theme_advanced_statusbar_location : "bottom",
-    theme_advanced_resizing : true,
-
-    // Example content CSS (should be your site CSS)
-    //content_css : "css/content.css",
-
-    // Drop lists for link/image/media/template dialogs
-    template_external_list_url : "lists/template_list.js",
-    external_link_list_url : "lists/link_list.js",
-    external_image_list_url : "lists/image_list.js",
-    media_external_list_url : "lists/media_list.js"
-});
 
 /**
  *
@@ -254,14 +218,6 @@ function zoomToMarkersExtent() {
 }
 
 /**
- * Geocode
- */
-$('#geocode_button').click(function () {
-    var address = $('#geocode_text').val();
-    geocodeAndZoomContributorMap(MAP, address);
-});
-
-/**
  * Generate Rough Cut
  */
 function generateRoughCut() {
@@ -282,106 +238,6 @@ function generateRoughCut() {
         MAP.addLayer(ROUGHCUT_LINE);
     }
 }
-
-/**
- * Place Waypoint button
- *
- * Pick the map's center, create a marker, populate the text fields, make rough route calculation.
- */
-$('#waypoints').on("click", ".wp_place", function () {
-    var row    = $(this).closest('li');
-    var wp_id = row.prop('id');
-    var wp_num = get_wp_num_from_wp_id(wp_id);
-
-    // Load marker lat/lng from text fields.
-    var lat = parseFloat( row.find('.lat').val() );
-    var lng = parseFloat( row.find('.lng').val() );
-    var center = new L.LatLng(lat,lng);
-    // If the fields currently have no value, use the map center and set the text.
-    if (!lat || !lng) {
-        center = MAP.getCenter();
-        lat = row.find('.lat').val(center.lat);
-        lng = row.find('.lng').val(center.lng);
-    }
-
-    // add the marker and its drag handler (which updates the text box)
-    if (! MARKERS[wp_num]) {
-        MARKERS[wp_num] = new L.marker(center, {
-            clickable: true,
-            draggable: true,
-            icon: L.mapbox.marker.icon({
-                'marker-symbol': wp_num
-            })
-        });
-
-        MARKERS[wp_num].wp_id = wp_id;
-        MAP.addLayer(MARKERS[wp_num]);
-
-        MARKERS[wp_num].on('dragend', function (event) {
-            var latlng = this.getLatLng();
-            $('#' + this.wp_id).find('.lat').val(latlng.lat);
-            $('#' + this.wp_id).find('.lng').val(latlng.lng);
-            generateRoughCut();
-        });
-    }
-
-    // recalculate the rough cut
-    generateRoughCut();
-
-    // hide this button, show the opposite
-    $(this).hide();
-    $(this).siblings('.wp_remove').show();
-});
-
-/**
- * Increment Waypoint
- * 
- * Increment a waypoint's number/position. (When inserting a waypoint we
- * need to increment the number on each waypoint after it.)
- * Takes the waypoint li as "this".
- */
-$.fn.increment_waypoint = function() {
-    var cur_id = this.attr('id');
-    var cur_num = get_wp_num_from_wp_id(cur_id);
-
-    var new_num = cur_num + 1;
-    var new_id = 'wp-' + new_num;
-
-    this.attr('id', new_id);
-    this.children('label').text(new_num + ':');
-
-    return this;
-}
-
-/**
- * Insert Waypoint button
- *
- * Insert another waypoint row into the list, after the one clicked.
- */
-$('#waypoints').on("click", ".wp_insert", function () {
-    var row = $(this).closest('li');
-    var wp_num = get_wp_num_from_wp_id(row.prop('id')) + 1;
-
-    // Increment the waypoint number for each waypoint after the one we're inserting.
-    row.nextAll().each(function(i) {
-        $(this).increment_waypoint();
-    });
-
-    // Bump the marker icon numbers.
-    for (i in MARKERS) {
-        console.log(i);
-        if (i >= wp_num && MARKERS[i]) {
-            console.log("increasing " + i);
-            var icon = ICONS[i + 1];
-            MARKERS[i].icon = icon;
-            MARKERS[i].wp_id = make_wp_id_from_wp_num(i + 1);
-        }
-    }
-    // Insert a new spot into our MARKERS array.
-    MARKERS.splice(wp_num, 0, null);
-
-    row.after(make_waypoint_li(wp_num));
-});
 
 /**
  * Parse the waypoint number (position) from the waypoint id attribute (from inside the <li>).
@@ -411,109 +267,6 @@ function make_waypoint_li(wp_num) {
     row.append('<span class="btn btn-sm btn-default wp_remove pull-right">remove</span>');
     return row;
 }
-
-/**
- * Remove Waypoint button
- *
- * Remove the marker, clear the text fields, make rough route calculation.
- */
-$('#waypoints').on("click", ".wp_remove", function () {
-    var row  = $(this).closest('li');
-    var wp_num = get_wp_num_from_wp_id(row.prop('id'));
-
-    // clear the text fields
-    row.find('.lat').val(0);
-    row.find('.lng').val(0);
-
-    // remove the marker
-    if (MARKERS[wp_num]) {
-        MAP.removeLayer(MARKERS[wp_num]);
-        MARKERS[wp_num] = null;
-    }
-
-    // recalculate the rough cut
-    generateRoughCut();
-
-    // hide this button, show the opposite
-    $(this).hide();
-    $(this).siblings('.wp_place').show();
-});
-
-/**
- * Recalculate button
- *
- * Fetch a route from the server, overwrite MULTILINESTRING, draw it onto the map
- */
-$('#recalculate_button').click(function () {
-    // load up a list of the waypoints, really a pair of lists: lat,lat,lat & lng,lng,lng
-    var lats = [];
-    var lngs = [];
-    $('#waypoints .waypoint').each(function () {
-        var lat = parseFloat( $(this).find('.lat').val() );
-        var lng = parseFloat( $(this).find('.lng').val() );
-        if (lat && lng) {
-            lats[lats.length] = lat;
-            lngs[lngs.length] = lng;
-        }
-    });
-
-    // a quick check: must be at least 2 waypoints
-    if (lats.length < 2 || lngs.length < 2) return alert("Need at least 2 points.");
-
-    // if chosen, close up the trail-loop by adding the first WP as the last WP
-    var closed = parseInt( $('[name="closedloop"]').val() );
-    if (closed) {
-        lats[lats.length] = lats[0];
-        lngs[lngs.length] = lngs[0];
-    }
-
-    // visual effects: remove the plotted route
-    if (DIRECTIONS_LINE) MAP.removeLayer(DIRECTIONS_LINE);
-
-    // visual effects: empty the steps/directions list
-    $('#directions').empty();
-
-    // visual effects: disable the button
-    var button = $(this);
-    button.val( button.attr('value0') );
-    button.attr("disabled", "disabled");
-
-    // visual effects: blank the elevation profile picture
-    $('#elevation_profile').prop('src','/static/images/blank.png');
-
-    // visual effects: blank the totals
-    updateHiddenFormText('distance_feet', '');
-    updateHiddenFormText('distancetext', '');
-    updateHiddenFormText('duration_hike', '');
-    updateHiddenFormText('duration_bike', '');
-    updateHiddenFormText('duration_bridle', '');
-    updateHiddenFormText('durationtext_hike', '');
-    updateHiddenFormText('durationtext_bike', '');
-    updateHiddenFormText('durationtext_bridle', '');
-    $('input[name="hike"]').val('');
-    $('input[name="bike"]').val('');
-    $('input[name="bridle"]').val('');
-    $('input[name="difficulty"]').val('');
-    $('input[name="paved"]').val('');
-
-    // GET from the server a route covering these waypoints
-    var params = {};
-    params.lats           = lats.join(",");
-    params.lngs           = lngs.join(",");
-    params.terrain_filter = $('select[name="terrain_filter"]').val();
-    params.trim_spurs     = $('select[name="trim_spurs"]').val();
-    $.get(APP_BASEPATH + 'ajax/routewaypoints', params, function (reply) {
-        // re-enable the button
-        button.val( button.attr('value1') );
-        button.removeAttr("disabled");
-
-        // warn the user of any problems, pass it on to next-stage handling
-        // in this case, an error is not fatal and we continue anyway if we have WKT representing at least a partial route
-        if (reply.error) alert(reply.error);
-        if (! reply.wkt) return;
-        renderRoute(reply);
-    }, 'json');
-});
 
 /**
  * Update hidden form text
@@ -642,12 +395,156 @@ function renderDirections(steps) {
     }
 }
 
-/**
- * Since the embedded map is initially hidden in an inactive tab,
- * we have to re-initialize the size/zoom when we show it for the
- * first time.
- */
 $(window).load(function () {
+
+    /**
+     * Enable TinyMCE on the description editor
+     */
+    $('textarea[name="description"]').tinymce({
+        // Location of TinyMCE script
+        script_url : '/static/lib/tinymce/jscripts/tiny_mce/tiny_mce.js',
+
+        // General options
+        theme : "advanced",
+        plugins : "autolink,lists,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template,advlist",
+
+        // Reduced options
+        theme_advanced_buttons1 : "code,|,bold,italic,|,bullist,numlist,|,link,unlink",
+
+        // Theme options
+        //theme_advanced_buttons1 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,undo,redo,|,hr,removeformat,|,charmap,emotions,media",
+        //theme_advanced_buttons2 : "code,|,bold,italic,underline,strikethrough,sub,sup,|,formatselect,fontselect,fontsizeselect",
+        //theme_advanced_buttons3 : "justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,outdent,indent,blockquote,|,link,unlink,anchor,image,|,forecolor,backcolor",
+        //theme_advanced_buttons4 : "tablecontrols",
+
+        theme_advanced_toolbar_location : "top",
+        theme_advanced_toolbar_align : "left",
+        theme_advanced_statusbar_location : "bottom",
+        theme_advanced_resizing : true,
+
+        // Example content CSS (should be your site CSS)
+        //content_css : "css/content.css",
+
+        // Drop lists for link/image/media/template dialogs
+        template_external_list_url : "lists/template_list.js",
+        external_link_list_url : "lists/link_list.js",
+        external_image_list_url : "lists/image_list.js",
+        media_external_list_url : "lists/media_list.js"
+    });
+
+    /**
+     * Geocode
+     */
+    $('#geocode_button').click(function () {
+        var address = $('#geocode_text').val();
+        geocodeAndZoomContributorMap(MAP, address);
+    });
+
+    /**
+     * Place Waypoint button
+     *
+     * Pick the map's center, create a marker, populate the text fields, make rough route calculation.
+     */
+    $('#waypoints').on("click", ".wp_place", function () {
+        var row    = $(this).closest('li');
+        var wp_id = row.prop('id');
+        var wp_num = get_wp_num_from_wp_id(wp_id);
+
+        // Load marker lat/lng from text fields.
+        var lat = parseFloat( row.find('.lat').val() );
+        var lng = parseFloat( row.find('.lng').val() );
+        var center = new L.LatLng(lat,lng);
+        // If the fields currently have no value, use the map center and set the text.
+        if (!lat || !lng) {
+            center = MAP.getCenter();
+            lat = row.find('.lat').val(center.lat);
+            lng = row.find('.lng').val(center.lng);
+        }
+
+        // add the marker and its drag handler (which updates the text box)
+        if (! MARKERS[wp_num]) {
+            MARKERS[wp_num] = new L.marker(center, {
+                clickable: true,
+                draggable: true,
+                icon: L.mapbox.marker.icon({
+                    'marker-symbol': wp_num
+                })
+            });
+
+            MARKERS[wp_num].wp_id = wp_id;
+            MAP.addLayer(MARKERS[wp_num]);
+
+            MARKERS[wp_num].on('dragend', function (event) {
+                var latlng = this.getLatLng();
+                $('#' + this.wp_id).find('.lat').val(latlng.lat);
+                $('#' + this.wp_id).find('.lng').val(latlng.lng);
+                generateRoughCut();
+            });
+        }
+
+        // recalculate the rough cut
+        generateRoughCut();
+
+        // hide this button, show the opposite
+        $(this).hide();
+        $(this).siblings('.wp_remove').show();
+    });
+
+    /**
+     * Increment Waypoint
+     *
+     * Increment a waypoint's number/position. (When inserting a waypoint we
+     * need to increment the number on each waypoint after it.)
+     * Takes the waypoint li as "this".
+     */
+    $.fn.increment_waypoint = function() {
+        var cur_id = this.attr('id');
+        var cur_num = get_wp_num_from_wp_id(cur_id);
+
+        var new_num = cur_num + 1;
+        var new_id = 'wp-' + new_num;
+
+        this.attr('id', new_id);
+        this.children('label').text(new_num + ':');
+
+        return this;
+    }
+
+    /**
+     * Insert Waypoint button
+     *
+     * Insert another waypoint row into the list, after the one clicked.
+     */
+    $('#waypoints').on("click", ".wp_insert", function () {
+        var row = $(this).closest('li');
+        var wp_num = get_wp_num_from_wp_id(row.prop('id')) + 1;
+
+        // Increment the waypoint number for each waypoint after the one we're inserting.
+        row.nextAll().each(function(i) {
+            $(this).increment_waypoint();
+        });
+
+        // Bump the marker icon numbers.
+        for (i in MARKERS) {
+            console.log(i);
+            if (i >= wp_num && MARKERS[i]) {
+                console.log("increasing " + i);
+                var icon = ICONS[i + 1];
+                MARKERS[i].icon = icon;
+                MARKERS[i].wp_id = make_wp_id_from_wp_num(i + 1);
+            }
+        }
+        // Insert a new spot into our MARKERS array.
+        MARKERS.splice(wp_num, 0, null);
+
+        row.after(make_waypoint_li(wp_num));
+    });
+
+    /**
+     * Since the embedded map is initially hidden in an inactive tab,
+     * we have to re-initialize the size/zoom when we show it for the
+     * first time.
+     */
     $('body').on('shown.bs.tab', function (e) {
         if ($(e.target).attr("href") == '#waypoints-route') {
             if (MAP._shown !== true) {
@@ -657,5 +554,108 @@ $(window).load(function () {
                 MAP._shown = true;
             }
         }
+    });
+
+    /**
+     * Remove Waypoint button
+     *
+     * Remove the marker, clear the text fields, make rough route calculation.
+     */
+    $('#waypoints').on("click", ".wp_remove", function () {
+        var row  = $(this).closest('li');
+        var wp_num = get_wp_num_from_wp_id(row.prop('id'));
+
+        // clear the text fields
+        row.find('.lat').val(0);
+        row.find('.lng').val(0);
+
+        // remove the marker
+        if (MARKERS[wp_num]) {
+            MAP.removeLayer(MARKERS[wp_num]);
+            MARKERS[wp_num] = null;
+        }
+
+        // recalculate the rough cut
+        generateRoughCut();
+
+        // hide this button, show the opposite
+        $(this).hide();
+        $(this).siblings('.wp_place').show();
+    });
+
+    /**
+     * Recalculate button
+     *
+     * Fetch a route from the server, overwrite MULTILINESTRING, draw it onto the map
+     */
+    $('#recalculate_button').click(function () {
+        // load up a list of the waypoints, really a pair of lists: lat,lat,lat & lng,lng,lng
+        var lats = [];
+        var lngs = [];
+        $('#waypoints .waypoint').each(function () {
+            var lat = parseFloat( $(this).find('.lat').val() );
+            var lng = parseFloat( $(this).find('.lng').val() );
+            if (lat && lng) {
+                lats[lats.length] = lat;
+                lngs[lngs.length] = lng;
+            }
+        });
+
+        // a quick check: must be at least 2 waypoints
+        if (lats.length < 2 || lngs.length < 2) return alert("Need at least 2 points.");
+
+        // if chosen, close up the trail-loop by adding the first WP as the last WP
+        var closed = parseInt( $('[name="closedloop"]').val() );
+        if (closed) {
+            lats[lats.length] = lats[0];
+            lngs[lngs.length] = lngs[0];
+        }
+
+        // visual effects: remove the plotted route
+        if (DIRECTIONS_LINE) MAP.removeLayer(DIRECTIONS_LINE);
+
+        // visual effects: empty the steps/directions list
+        $('#directions').empty();
+
+        // visual effects: disable the button
+        var button = $(this);
+        button.val( button.attr('value0') );
+        button.attr("disabled", "disabled");
+
+        // visual effects: blank the elevation profile picture
+        $('#elevation_profile').prop('src','/static/images/blank.png');
+
+        // visual effects: blank the totals
+        updateHiddenFormText('distance_feet', '');
+        updateHiddenFormText('distancetext', '');
+        updateHiddenFormText('duration_hike', '');
+        updateHiddenFormText('duration_bike', '');
+        updateHiddenFormText('duration_bridle', '');
+        updateHiddenFormText('durationtext_hike', '');
+        updateHiddenFormText('durationtext_bike', '');
+        updateHiddenFormText('durationtext_bridle', '');
+        $('input[name="hike"]').val('');
+        $('input[name="bike"]').val('');
+        $('input[name="bridle"]').val('');
+        $('input[name="difficulty"]').val('');
+        $('input[name="paved"]').val('');
+
+        // GET from the server a route covering these waypoints
+        var params = {};
+        params.lats           = lats.join(",");
+        params.lngs           = lngs.join(",");
+        params.terrain_filter = $('select[name="terrain_filter"]').val();
+        params.trim_spurs     = $('select[name="trim_spurs"]').val();
+        $.get(APP_BASEPATH + 'ajax/routewaypoints', params, function (reply) {
+            // re-enable the button
+            button.val( button.attr('value1') );
+            button.removeAttr("disabled");
+
+            // warn the user of any problems, pass it on to next-stage handling
+            // in this case, an error is not fatal and we continue anyway if we have WKT representing at least a partial route
+            if (reply.error) alert(reply.error);
+            if (! reply.wkt) return;
+            renderRoute(reply);
+        }, 'json');
     });
 });
