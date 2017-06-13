@@ -269,6 +269,29 @@ function make_waypoint_li(wp_num) {
 }
 
 /**
+ * Load Markers from WKT
+ */
+function LoadMarkersFromWkt(wktStr) {
+    var wkt = new Wkt.Wkt();
+    wkt.read(wkt);
+    wkt.toObject({icon: greenIcon});
+    console.log(wkt.components);
+    markers = [];
+    return markers;
+}
+
+/**
+ * Save Markers to WKT
+ */
+function SaveMarkersToWkt(markers) {
+    var wkt = new Wkt.Wkt();
+    wkt.fromObject(somePointObject);
+    //for (var marker in markers) {}
+    wkt_str = wkt.write();
+    return wkt_str;
+}
+
+/**
  * Update hidden form text
  *
  * We have some fields that need to be form inputs so we store the value

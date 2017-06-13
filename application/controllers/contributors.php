@@ -284,10 +284,10 @@ function marker_save() {
     }
 
     // save the plain and simple fields to the database, accounting for some possibly NULL fields
-    $asisfields = array( 'lat', 'lng', 'content', 'title', 'expires', 'startdate', 'annual', 'category' );
+    $as_is_fields = array( 'lat', 'lng', 'content', 'title', 'expires', 'startdate', 'annual', 'category' );
     if (!$_POST['expires']) $_POST['expires'] = null;
     if (!$_POST['startdate']) $_POST['startdate'] = null;
-    foreach ($asisfields as $fieldname) {
+    foreach ($as_is_fields as $fieldname) {
         $marker->{$fieldname} = $_POST[$fieldname];
     }
     $marker->save();
@@ -504,7 +504,7 @@ function loop_save() {
     }
 
     // save the plain and simple fields to the database
-    $asisfields = array(
+    $as_is_fields = array(
         'name', 'description',
         'bike', 'bridle', 'hike', 'mountainbike', 'difficulty', 'paved',
         'wp0lat', 'wp0lng','wp1lat', 'wp1lng', 'wp2lat', 'wp2lng', 'wp3lat', 'wp3lng', 'wp4lat', 'wp4lng', 'wp5lat', 'wp5lng', 'wp6lat', 'wp6lng', 'wp7lat', 'wp7lng', 'wp8lat', 'wp8lng', 'wp9lat', 'wp9lng', 
@@ -515,7 +515,7 @@ function loop_save() {
     );
     if (!$_POST['expires']) $_POST['expires'] = null;
     if (!$_POST['startdate']) $_POST['startdate'] = null;
-    foreach ($asisfields as $fieldname) {
+    foreach ($as_is_fields as $fieldname) {
         if (! @$_POST[$fieldname]) {
             switch (@$fieldname) {
                 case 'distance_feet':
@@ -739,7 +739,7 @@ function trail_edit($id) {
 }
 
 /**
- *
+ * Save Trail
  */
 function trail_save() {
     // Require SSL
@@ -763,18 +763,11 @@ function trail_save() {
     }
 
     // save the plain and simple fields to the database
-    $asisfields = array(
-        'name', 'description',
-        'bike', 'bridle', 'hike', 'mountainbike', 'difficulty', 'paved',
-        'wp0lat', 'wp0lng','wp1lat', 'wp1lng', 'wp2lat', 'wp2lng', 'wp3lat', 'wp3lng', 'wp4lat', 'wp4lng', 'wp5lat', 'wp5lng', 'wp6lat', 'wp6lng', 'wp7lat', 'wp7lng', 'wp8lat', 'wp8lng', 'wp9lat', 'wp9lng', 
-        'distance_feet', 'distancetext', 'duration_hike', 'durationtext_hike', 'duration_bike', 'durationtext_bike', 'duration_bridle', 'durationtext_bridle', 
-        'wkt', 'elevation_profile', 'closedloop', 'terrain_filter', 
-        'startdate','expires','annual',
-        'status', 'source', 'editedby', 
-    );
+    $as_is_fields = array('name', 'description', 'bike', 'bridle', 'hike', 'mountainbike', 'difficulty', 'paved', 'distance_feet', 'distancetext', 'duration_hike', 'durationtext_hike', 'duration_bike', 'durationtext_bike', 'duration_bridle', 'durationtext_bridle', 'wkt', 'elevation_profile', 'closedloop', 'terrain_filter', 'startdate','expires','annual', 'status', 'source', 'editedby');
+
     if (!$_POST['expires']) $_POST['expires'] = null;
     if (!$_POST['startdate']) $_POST['startdate'] = null;
-    foreach ($asisfields as $fieldname) {
+    foreach ($as_is_fields as $fieldname) {
         if (! @$_POST[$fieldname]) {
             switch (@$fieldname) {
                 case 'distance_feet':
