@@ -158,7 +158,11 @@ class CI_DB_postgre_driver extends CI_DB {
 	 */
 	function _version()
 	{
-		return "SELECT version() AS ver";
+		// Gets the full version string:
+		//return "SELECT version() AS ver";
+
+		// Gets just the version number:
+		return "SHOW server_version";
 	}
 
 	// --------------------------------------------------------------------
@@ -327,17 +331,21 @@ class CI_DB_postgre_driver extends CI_DB {
 	 */
 	function insert_id()
 	{
+		// Get PostgreSQL version number
 		$v = $this->_version();
-		$v = $v['server'];
+		// Actually run the query (the original CI code does not)
+		$query = $this->query($v);
+		$row = $query->row();
+		$v = isset($row->server_version) ? floatval($row->server_version) : 0;
 
 		$table	= func_num_args() > 0 ? func_get_arg(0) : NULL;
 		$column	= func_num_args() > 1 ? func_get_arg(1) : NULL;
 
-		if ($table == NULL && $v >= '8.1')
+		if ($table == NULL && $v >= 8.1)
 		{
 			$sql='SELECT LASTVAL() as ins_id';
 		}
-		elseif ($table != NULL && $column != NULL && $v >= '8.0')
+		elseif ($table != NULL && $column != NULL && $v >= 8.0)
 		{
 			$sql = sprintf("SELECT pg_get_serial_sequence('%s','%s') as seq", $table, $column);
 			$query = $this->query($sql);
