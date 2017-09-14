@@ -136,8 +136,8 @@ function cms_load_events() {
 
     ///// Phase 1: fetch the ZIP file, pull out the only file and save to a CSV
     $random  = md5(mt_rand());
-    $zipfile = sprintf("%s/%s.zip", $TEMP_DIR , $random );
-    $csvfile = sprintf("%s/%s.csv", $TEMP_DIR , $random );
+    $zipfile = sprintf("%s/%s.zip", $this->config->item('temp_dir'), $random );
+    $csvfile = sprintf("%s/%s.csv", $this->config->item('temp_dir'), $random );
     copy($FEED_URL,$zipfile);
     $zip = zip_open($zipfile);
     if (! is_resource($zip)) { print "Feed ZIP not found (code $zip). Skipping.\n"; continue; }
@@ -212,14 +212,14 @@ function cms_load_events() {
 function cms_load_reservations() {
     // configuration
     $WEBSITE_BASE = "http://www.clevelandmetroparks.com/"; // image URLs in the XML are relative paths; provide the http://hostname/ portion here
-    $FEED_URL = "http://www.clevelandmetroparks.com/Uploads/DataTransfer/Exports/Reservations.txt.zip";
-    $TEMP_DIR = "/var/www/static/tmp/";
+    $FEED_URL = "http://legacy.clevelandmetroparks.com/Uploads/DataTransfer/Exports/Reservations.txt.zip";
+
     $CMS_FEED_NAME = "Reservation";
 
     // fetch the ZIP file (ZIP can't do a url_fopen), pull out the only file and save to a CSV file
     $random  = md5(mt_rand());
-    $zipfile = sprintf("%s/%s.zip", $TEMP_DIR , $random );
-    $csvfile = sprintf("%s/%s.csv", $TEMP_DIR , $random );
+    $zipfile = sprintf("%s/%s.zip", $this->config->item('temp_dir'), $random );
+    $csvfile = sprintf("%s/%s.csv", $this->config->item('temp_dir'), $random );
     copy($FEED_URL,$zipfile);
     $zip = zip_open($zipfile);
     if (! is_resource($zip)) { print "Feed ZIP not found (code $zip). Skipping.\n"; continue; }
@@ -362,14 +362,13 @@ function cms_load_reservations() {
 function cms_load_facilities() {
     // configuration
     $WEBSITE_BASE = "http://www.clevelandmetroparks.com/"; // image URLs in the XML are relative paths; provide the http://hostname/ portion here
-    $FEED_URL = "http://www.clevelandmetroparks.com/Uploads/DataTransfer/Exports/Facilities.txt.zip";
-    $TEMP_DIR = "/var/www/static/tmp/";
+    $FEED_URL = "http://legacy.clevelandmetroparks.com/Uploads/DataTransfer/Exports/Facilities.txt.zip";
     $CMS_FEED_NAME = "Facility";
 
     // fetch the ZIP file (ZIP can't do a url_fopen), pull out the only file and save to a CSV file
     $random  = md5(mt_rand());
-    $zipfile = sprintf("%s/%s.zip", $TEMP_DIR , $random );
-    $csvfile = sprintf("%s/%s.csv", $TEMP_DIR , $random );
+    $zipfile = sprintf("%s/%s.zip", $this->config->item('temp_dir'), $random );
+    $csvfile = sprintf("%s/%s.csv", $this->config->item('temp_dir'), $random );
     copy($FEED_URL,$zipfile);
     $zip = zip_open($zipfile);
     if (! is_resource($zip)) { print "Feed ZIP not found (code $zip). Skipping.\n"; continue; }
@@ -449,14 +448,13 @@ function cms_load_facilities() {
 function cms_load_activities() {
     // configuration
     $WEBSITE_BASE = "http://www.clevelandmetroparks.com/"; // image URLs in the XML are relative paths; provide the http://hostname/ portion here
-    $FEED_URL = "http://www.clevelandmetroparks.com/Uploads/DataTransfer/Exports/ActivitiesExport.txt.zip";
-    $TEMP_DIR = "/var/www/static/tmp/";
+    $FEED_URL = "http://legacy.clevelandmetroparks.com/Uploads/DataTransfer/Exports/ActivitiesExport.txt.zip";
     $CMS_FEED_NAME = "Activity";
 
     // fetch the ZIP file (ZIP can't do a url_fopen), pull out the only file and save to a CSV file
     $random  = md5(mt_rand());
-    $zipfile = sprintf("%s/%s.zip", $TEMP_DIR , $random );
-    $csvfile = sprintf("%s/%s.csv", $TEMP_DIR , $random );
+    $zipfile = sprintf("%s/%s.zip", $this->config->item('temp_dir'), $random );
+    $csvfile = sprintf("%s/%s.csv", $this->config->item('temp_dir'), $random );
     copy($FEED_URL,$zipfile);
     $zip = zip_open($zipfile);
     if (! is_resource($zip)) { print "Feed ZIP not found (code $zip). Skipping.\n"; continue; }
@@ -521,7 +519,7 @@ function cms_load_activities() {
 
         // look for all Use Areas which have this activity listed, and insert points associated to this CMS Page
         // yeah, this mixes SQL associations with DataMapper, but DataMapper won't do this nearly as easily nor quickly
-        foreach (UseArea::getByCategory($page->title) as $target) {
+        foreach (UseArea::getByActivity($page->title) as $target) {
             $this->db->query('INSERT INTO cms_page_points (page_id,location_id) VALUES (?,?)', array($page->id,$target->gid) );
         }
     }
