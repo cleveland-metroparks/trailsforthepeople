@@ -25,7 +25,7 @@ $(document).ready(function(){
  */
 function callGetBeachClosures(params) {
     return $.ajax({
-        url: APP_BASEPATH + 'ajax/get_beach_closures',
+        url: API_BASEPATH + 'ajax/get_beach_closures',
         dataType: 'json',
         data: params
         })

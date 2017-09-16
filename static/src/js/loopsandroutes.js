@@ -163,7 +163,7 @@ function filterLoops() {
     button.button('disable');
     button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
 
-    $.get(APP_BASEPATH + 'ajax/search_loops', params, function (results) {
+    $.get(API_BASEPATH + 'ajax/search_loops', params, function (results) {
         // re-enable the search button
         button.button('enable');
         button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );

@@ -90,7 +90,7 @@ function searchTrails(params) {
     target.empty();
 
     // AJAX to fetch results, and render them as LIs with .zoom et cetera
-    $.get(APP_BASEPATH + 'ajax/search_trails', params, function (results) {
+    $.get(API_BASEPATH + 'ajax/search_trails', params, function (results) {
 
         // iterate over the results and add them to the output
         if (results.length) {

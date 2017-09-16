@@ -121,7 +121,7 @@ $(window).load(function () {
             type: URL_PARAMS.param('type'),
             name: URL_PARAMS.param('name')
         };
-        $.get(APP_BASEPATH + 'ajax/exactnamesearch', params, function (reply) {
+        $.get(API_BASEPATH + 'ajax/exactnamesearch', params, function (reply) {
             if (!reply || ! reply.s || ! reply.w || ! reply.n || ! reply.e) return alert("Cound not find that feature.");
 
             // zoom to the location
@@ -145,7 +145,7 @@ $(window).load(function () {
             var params = {
                 gid: URL_PARAMS.param('gid')
             };
-            $.get(APP_BASEPATH + 'ajax/get_attraction', params, function (reply) {
+            $.get(API_BASEPATH + 'ajax/get_attraction', params, function (reply) {
                 if (!reply || ! reply.lat || ! reply.lng) {
                     return alert("Cound not find that feature.");
                 }
@@ -315,7 +315,7 @@ function showAttractionInfo(attraction) {
         params.type = 'attraction';
         params.gid  = attraction.gid;
 
-        $.get(APP_BASEPATH + 'ajax/moreinfo', params, function (reply) {
+        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
             // grab and display the plain HTML
             $('#info-content').html(reply);
         },'html');
@@ -374,7 +374,7 @@ function zoomElementClick(element) {
         params.gid  = gid;
         params.lat  = LAST_KNOWN_LOCATION.lat;
         params.lng  = LAST_KNOWN_LOCATION.lng;
-        $.get(APP_BASEPATH + 'ajax/moreinfo', params, function (reply) {
+        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
             // grab and display the plain HTML
             $('#info-content').html(reply);
 
@@ -481,7 +481,7 @@ function zoomToAddress(searchtext) {
     params.bing_key = BING_API_KEY;
     params.bbox     = GEOCODE_BIAS_BOX;
 
-    $.get(APP_BASEPATH + 'ajax/geocode', params, function (result) {
+    $.get(API_BASEPATH + 'ajax/geocode', params, function (result) {
         if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
         var latlng = L.latLng(result.lat,result.lng);
 

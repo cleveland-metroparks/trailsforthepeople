@@ -40,7 +40,7 @@ function getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via) {
         prefer:prefer,
         bing_key: BING_API_KEY
     };
-    $.get(APP_BASEPATH + 'ajax/directions', params, function (reply) {
+    $.get(API_BASEPATH + 'ajax/directions', params, function (reply) {
         enableDirectionsButton();
 
         if (! reply || ! reply.wkt) {
@@ -137,7 +137,7 @@ function processGetDirectionsForm() {
                 params.address  = address;
                 params.bing_key = BING_API_KEY;
                 params.bbox     = GEOCODE_BIAS_BOX;
-                $.get(APP_BASEPATH + 'ajax/geocode', params, function (result) {
+                $.get(API_BASEPATH + 'ajax/geocode', params, function (result) {
                     enableDirectionsButton();
                     if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
                     sourcelat = result.lat;
@@ -171,7 +171,7 @@ function processGetDirectionsForm() {
             params.lng     = MOBILE ? LAST_KNOWN_LOCATION.lng : MAP.getCenter().lng;
             params.via     = via;
 
-            $.get(APP_BASEPATH + 'ajax/keyword', params, function (reply) {
+            $.get(API_BASEPATH + 'ajax/keyword', params, function (reply) {
                 enableDirectionsButton();
                 if (! reply || !reply.length) return alert("We couldn't find any matching landmarks.");
 
@@ -225,7 +225,7 @@ function processGetDirectionsForm() {
         params.lat  = targetlat; // if this data source uses weighting, this will pick the closest one to our starting location
         params.lng  = targetlng; // if this data source uses weighting, this will pick the closest one to our starting location
         params.via  = via;
-        $.get(APP_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
+        $.get(API_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
             sourcelat = reply.lat;
             sourcelng = reply.lng;
 
@@ -244,7 +244,7 @@ function processGetDirectionsForm() {
         params.lat  = sourcelat; // if this data source uses weighting, this will pick the closest one to our starting location
         params.lng  = sourcelng; // if this data source uses weighting, this will pick the closest one to our starting location
         params.via  = via;
-        $.get(APP_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
+        $.get(API_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
             targetlat = reply.lat;
             targetlng = reply.lng;
 
@@ -563,7 +563,7 @@ function openElevationProfileBySegments() {
     x = x.join(',');
     y = y.join(',');
 
-    $.post(APP_BASEPATH + 'ajax/elevationprofilebysegments', { 'x':x, 'y':y }, function (url) {
+    $.post(API_BASEPATH + 'ajax/elevationprofilebysegments', { 'x':x, 'y':y }, function (url) {
         if (url.indexOf('http') != 0) return alert(url);
         showElevation(url);
     });

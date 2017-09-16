@@ -75,7 +75,7 @@ $(document).ready(function () {
         if (category) backbuttonurl = "#pane-browse-results";
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
-        $.get(APP_BASEPATH + 'ajax/get_attractions_by_activity', { activity_ids: activity_id }, function (reply) {
+        $.get(API_BASEPATH + 'ajax/get_attractions_by_activity', { activity_ids: activity_id }, function (reply) {
 
             // Header title
             var header = $('#pane-browse-results h1.sidebar-header .title-text');

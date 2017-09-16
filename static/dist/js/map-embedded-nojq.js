@@ -755,10 +755,11 @@ L.mapboxGL = function (options) {
 ///// The Admin and Contributor have their own versions too, which override the map URLs with SSL URLs
 ///// for Admin and Contributors maps, see admin.js and contributors.js
 
-// How we get to our app's controllers (primarily ajax).
-// @TODO: Put this into a local config so we can handle non-root basedirs.
-var APP_BASEPATH = '/';
-
+// How we get to our app's base files and to the API.
+// These change to remote URLs for native app and web-embedded scenarios.
+// @TODO: Put these into a local config so we can handle non-root basedirs.
+var WEBAPP_BASEPATH = '/';
+var API_BASEPATH = '/';
 var MAP = null;
 
 // the bounding box of the mappable area, for setting the initial view
@@ -857,11 +858,11 @@ MAP.addLayer(routedebug);
  * Cleveland Metroparks
  */
 
-// Override app basepath URL from constants.js to access maps server
-// instead of domain where embedded map lives.
-APP_BASEPATH = 'https://maps.clevelandmetroparks.com/';
-// For local development:
-//APP_BASEPATH = '/';
+// Override app paths from constants.js to access the maps server
+// instead the of domain where the embedded map lives.
+// (For local development, comment these out.)
+WEBAPP_BASEPATH = 'https://maps.clevelandmetroparks.com/';
+API_BASEPATH = 'https://maps.clevelandmetroparks.com/';
 
 var CM_SITE_BASEURL = 'http://www.clevelandmetroparks.com/';
 ;
@@ -877,7 +878,7 @@ var MOBILE; // Our old desktop vs. mobile flag. @TODO: Deprecate.
 var isMobile = /Mobi/.test(navigator.userAgent); // Simple mobile device detection.
 
 var ICON_TARGET = L.icon({
-    iconUrl: APP_BASEPATH + 'static/images/markers/marker-target.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/marker-target.png',
     iconSize: [ 25, 41 ],
     iconAnchor: [ 13, 41 ],
     popupAnchor: [ 0, -41 ]
@@ -885,7 +886,7 @@ var ICON_TARGET = L.icon({
 var MARKER_TARGET = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_TARGET });
 
 var ICON_GPS = L.icon({
-    iconUrl: APP_BASEPATH + 'static/images/markers/marker-gps.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/marker-gps.png',
     iconSize: [ 25, 41 ],
     iconAnchor: [ 13, 41 ],
     popupAnchor: [ 0, -41 ]
@@ -893,12 +894,12 @@ var ICON_GPS = L.icon({
 var MARKER_GPS     = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_GPS });
 
 var ICON_FROM = L.icon({
-    iconUrl: APP_BASEPATH + 'static/images/markers/measure1.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/measure1.png',
     iconSize: [ 20, 34 ],
     iconAnchor: [ 10, 34 ]
 });
 var ICON_TO = L.icon({
-    iconUrl: APP_BASEPATH + 'static/images/markers/measure2.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/measure2.png',
     iconSize: [ 20, 34 ],
     iconAnchor: [ 10, 34 ]
 });
@@ -1130,7 +1131,7 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
     var data = bbox;
     data.zoom = MAP.getZoom();
 
-    $.get(APP_BASEPATH + 'ajax/query', data, function (html) {
+    $.get(API_BASEPATH + 'ajax/query', data, function (html) {
         if (!html) return;
 
         // set up the Popup and load its content
@@ -1237,7 +1238,7 @@ $(document).ready(function(){
 
         if (geolocate_enabled && userLocation) {
             // Search activities nearby user geolocation
-            data.get_activities_url = APP_BASEPATH + 'ajax/get_nearby_attractions_with_activities';
+            data.get_activities_url = API_BASEPATH + 'ajax/get_nearby_attractions_with_activities';
             data.lat = userLocation.lat;
             data.lng = userLocation.lng;
             data.within_feet = distance_feet;
@@ -1246,7 +1247,7 @@ $(document).ready(function(){
 
         } else if (location_searchtext) {
             // Search activities nearby to geocoded address
-            data.get_activities_url = APP_BASEPATH + 'ajax/get_nearby_attractions_with_activities';
+            data.get_activities_url = API_BASEPATH + 'ajax/get_nearby_attractions_with_activities';
             data.searchtext = location_searchtext;
             data.within_feet = distance_feet;
 
@@ -1259,7 +1260,7 @@ $(document).ready(function(){
             });
         } else {
             // Search activities, without nearby 
-            data.get_activities_url = APP_BASEPATH + 'ajax/get_attractions_by_activity';
+            data.get_activities_url = API_BASEPATH + 'ajax/get_attractions_by_activity';
             callGetActivities(data);
         }
     });
@@ -1359,7 +1360,7 @@ function callGeocodeAddress(params) {
     data.bbox     = GEOCODE_BIAS_BOX;
     
     return $.ajax({
-        url: APP_BASEPATH + 'ajax/geocode',
+        url: API_BASEPATH + 'ajax/geocode',
         dataType: 'json',
         data: data
         })
@@ -1426,7 +1427,7 @@ function attractionPopupMarkup(attraction) {
         markup += '<img src="' + thumbnail_path + '" height="' + thumbnail_height + '" alt="' + attraction.name + '" />';
     }
 
-    map_link = APP_BASEPATH + 'mobile?type=attraction&gid=' + attraction.gid;
+    map_link = WEBAPP_BASEPATH + 'mobile?type=attraction&gid=' + attraction.gid;
     markup += '<p><a href="' + map_link + '" target="_blank">See on full map </a></p>';
 
     return markup;

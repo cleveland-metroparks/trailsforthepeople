@@ -10,7 +10,7 @@ var MOBILE; // Our old desktop vs. mobile flag. @TODO: Deprecate.
 var isMobile = /Mobi/.test(navigator.userAgent); // Simple mobile device detection.
 
 var ICON_TARGET = L.icon({
-    iconUrl: APP_BASEPATH + 'static/images/markers/marker-target.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/marker-target.png',
     iconSize: [ 25, 41 ],
     iconAnchor: [ 13, 41 ],
     popupAnchor: [ 0, -41 ]
@@ -18,7 +18,7 @@ var ICON_TARGET = L.icon({
 var MARKER_TARGET = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_TARGET });
 
 var ICON_GPS = L.icon({
-    iconUrl: APP_BASEPATH + 'static/images/markers/marker-gps.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/marker-gps.png',
     iconSize: [ 25, 41 ],
     iconAnchor: [ 13, 41 ],
     popupAnchor: [ 0, -41 ]
@@ -26,12 +26,12 @@ var ICON_GPS = L.icon({
 var MARKER_GPS     = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_GPS });
 
 var ICON_FROM = L.icon({
-    iconUrl: APP_BASEPATH + 'static/images/markers/measure1.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/measure1.png',
     iconSize: [ 20, 34 ],
     iconAnchor: [ 10, 34 ]
 });
 var ICON_TO = L.icon({
-    iconUrl: APP_BASEPATH + 'static/images/markers/measure2.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/measure2.png',
     iconSize: [ 20, 34 ],
     iconAnchor: [ 10, 34 ]
 });
@@ -263,7 +263,7 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
     var data = bbox;
     data.zoom = MAP.getZoom();
 
-    $.get(APP_BASEPATH + 'ajax/query', data, function (html) {
+    $.get(API_BASEPATH + 'ajax/query', data, function (html) {
         if (!html) return;
 
         // set up the Popup and load its content

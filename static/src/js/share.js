@@ -86,7 +86,7 @@ function populateShareBox() {
         querystring : SHARE_URL_STRING
     };
 
-    $.get(APP_BASEPATH + 'ajax/make_shorturl', params, function(shortstring) {
+    $.get(API_BASEPATH + 'ajax/make_shorturl', params, function(shortstring) {
         if (! shortstring) return alert("Unable to fetch a short URL.\nPlease try again.");
         var url = URL_PARAMS.attr('protocol') + '://' + URL_PARAMS.attr('host') + '/url/' + shortstring;
 

@@ -22,7 +22,7 @@ var ALL_POIS = [];
  * closest few POIs, so we don't overload.
  */
 $(window).load(function () {
-    $.get(APP_BASEPATH + 'ajax/load_pois', {}, function (pois) {
+    $.get(API_BASEPATH + 'ajax/load_pois', {}, function (pois) {
         for (var i=0, l=pois.length; i<l; i++) {
             ALL_POIS[ALL_POIS.length] = pois[i];
         }

@@ -106,7 +106,7 @@ function geocodeAndZoomContributorMap(map, searchtext) {
     $('#cleocode_button').attr('disabled',true);
     $('#cleocode_button').val('Loading');
 
-    $.get(APP_BASEPATH + 'ajax/geocode', params, function (result) {
+    $.get(API_BASEPATH + 'ajax/geocode', params, function (result) {
         $('#cleocode_button').removeAttr('disabled');
         $('#cleocode_button').val('Go >');
         if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
@@ -131,7 +131,7 @@ function geocodeParkFeature(keyword,targetdiv) {
     $('#cleocode_button').attr('disabled',true);
     $('#cleocode_button').val('Loading');
 
-    $.get(APP_BASEPATH + 'ajax/keyword', { keyword:keyword, limit:20 }, function (reply) {
+    $.get(API_BASEPATH + 'ajax/keyword', { keyword:keyword, limit:20 }, function (reply) {
         $('#cleocode_button').removeAttr('disabled');
         $('#cleocode_button').val('Go >');
         if (! reply || !reply.length) {

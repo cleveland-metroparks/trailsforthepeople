@@ -148,7 +148,7 @@ function searchByKeyword(keyword) {
     disableKeywordButton();
     $('#pane-search .sortpicker').hide();
 
-    $.get(APP_BASEPATH + 'ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
+    $.get(API_BASEPATH + 'ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
         enableKeywordButton();
         $('#pane-search .sortpicker').show();
 
@@ -228,7 +228,7 @@ function searchByKeyword(keyword) {
  * Load autocomplete keywords via AJAX, and enable autocomplete on the Keyword Search
  */
 $(window).load(function () {
-    $.get(APP_BASEPATH + 'ajax/autocomplete_keywords', {}, function (words) {
+    $.get(API_BASEPATH + 'ajax/autocomplete_keywords', {}, function (words) {
 
         $('#browse_keyword').autocomplete({
             target: $('#browse_keyword_autocomplete'),

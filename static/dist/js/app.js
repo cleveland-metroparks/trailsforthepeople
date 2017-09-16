@@ -10,10 +10,11 @@
 ///// The Admin and Contributor have their own versions too, which override the map URLs with SSL URLs
 ///// for Admin and Contributors maps, see admin.js and contributors.js
 
-// How we get to our app's controllers (primarily ajax).
-// @TODO: Put this into a local config so we can handle non-root basedirs.
-var APP_BASEPATH = '/';
-
+// How we get to our app's base files and to the API.
+// These change to remote URLs for native app and web-embedded scenarios.
+// @TODO: Put these into a local config so we can handle non-root basedirs.
+var WEBAPP_BASEPATH = '/';
+var API_BASEPATH = '/';
 var MAP = null;
 
 // the bounding box of the mappable area, for setting the initial view
@@ -116,7 +117,7 @@ var MOBILE; // Our old desktop vs. mobile flag. @TODO: Deprecate.
 var isMobile = /Mobi/.test(navigator.userAgent); // Simple mobile device detection.
 
 var ICON_TARGET = L.icon({
-    iconUrl: APP_BASEPATH + 'static/images/markers/marker-target.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/marker-target.png',
     iconSize: [ 25, 41 ],
     iconAnchor: [ 13, 41 ],
     popupAnchor: [ 0, -41 ]
@@ -124,7 +125,7 @@ var ICON_TARGET = L.icon({
 var MARKER_TARGET = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_TARGET });
 
 var ICON_GPS = L.icon({
-    iconUrl: APP_BASEPATH + 'static/images/markers/marker-gps.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/marker-gps.png',
     iconSize: [ 25, 41 ],
     iconAnchor: [ 13, 41 ],
     popupAnchor: [ 0, -41 ]
@@ -132,12 +133,12 @@ var ICON_GPS = L.icon({
 var MARKER_GPS     = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_GPS });
 
 var ICON_FROM = L.icon({
-    iconUrl: APP_BASEPATH + 'static/images/markers/measure1.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/measure1.png',
     iconSize: [ 20, 34 ],
     iconAnchor: [ 10, 34 ]
 });
 var ICON_TO = L.icon({
-    iconUrl: APP_BASEPATH + 'static/images/markers/measure2.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/measure2.png',
     iconSize: [ 20, 34 ],
     iconAnchor: [ 10, 34 ]
 });
@@ -369,7 +370,7 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
     var data = bbox;
     data.zoom = MAP.getZoom();
 
-    $.get(APP_BASEPATH + 'ajax/query', data, function (html) {
+    $.get(API_BASEPATH + 'ajax/query', data, function (html) {
         if (!html) return;
 
         // set up the Popup and load its content
@@ -553,7 +554,7 @@ $(window).load(function () {
             type: URL_PARAMS.param('type'),
             name: URL_PARAMS.param('name')
         };
-        $.get(APP_BASEPATH + 'ajax/exactnamesearch', params, function (reply) {
+        $.get(API_BASEPATH + 'ajax/exactnamesearch', params, function (reply) {
             if (!reply || ! reply.s || ! reply.w || ! reply.n || ! reply.e) return alert("Cound not find that feature.");
 
             // zoom to the location
@@ -577,7 +578,7 @@ $(window).load(function () {
             var params = {
                 gid: URL_PARAMS.param('gid')
             };
-            $.get(APP_BASEPATH + 'ajax/get_attraction', params, function (reply) {
+            $.get(API_BASEPATH + 'ajax/get_attraction', params, function (reply) {
                 if (!reply || ! reply.lat || ! reply.lng) {
                     return alert("Cound not find that feature.");
                 }
@@ -747,7 +748,7 @@ function showAttractionInfo(attraction) {
         params.type = 'attraction';
         params.gid  = attraction.gid;
 
-        $.get(APP_BASEPATH + 'ajax/moreinfo', params, function (reply) {
+        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
             // grab and display the plain HTML
             $('#info-content').html(reply);
         },'html');
@@ -806,7 +807,7 @@ function zoomElementClick(element) {
         params.gid  = gid;
         params.lat  = LAST_KNOWN_LOCATION.lat;
         params.lng  = LAST_KNOWN_LOCATION.lng;
-        $.get(APP_BASEPATH + 'ajax/moreinfo', params, function (reply) {
+        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
             // grab and display the plain HTML
             $('#info-content').html(reply);
 
@@ -913,7 +914,7 @@ function zoomToAddress(searchtext) {
     params.bing_key = BING_API_KEY;
     params.bbox     = GEOCODE_BIAS_BOX;
 
-    $.get(APP_BASEPATH + 'ajax/geocode', params, function (result) {
+    $.get(API_BASEPATH + 'ajax/geocode', params, function (result) {
         if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
         var latlng = L.latLng(result.lat,result.lng);
 
@@ -1102,7 +1103,7 @@ $(document).ready(function () {
         if (category) backbuttonurl = "#pane-browse-results";
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
-        $.get(APP_BASEPATH + 'ajax/get_attractions_by_activity', { activity_ids: activity_id }, function (reply) {
+        $.get(API_BASEPATH + 'ajax/get_attractions_by_activity', { activity_ids: activity_id }, function (reply) {
 
             // Header title
             var header = $('#pane-browse-results h1.sidebar-header .title-text');
@@ -1431,7 +1432,7 @@ function getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via) {
         prefer:prefer,
         bing_key: BING_API_KEY
     };
-    $.get(APP_BASEPATH + 'ajax/directions', params, function (reply) {
+    $.get(API_BASEPATH + 'ajax/directions', params, function (reply) {
         enableDirectionsButton();
 
         if (! reply || ! reply.wkt) {
@@ -1528,7 +1529,7 @@ function processGetDirectionsForm() {
                 params.address  = address;
                 params.bing_key = BING_API_KEY;
                 params.bbox     = GEOCODE_BIAS_BOX;
-                $.get(APP_BASEPATH + 'ajax/geocode', params, function (result) {
+                $.get(API_BASEPATH + 'ajax/geocode', params, function (result) {
                     enableDirectionsButton();
                     if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
                     sourcelat = result.lat;
@@ -1562,7 +1563,7 @@ function processGetDirectionsForm() {
             params.lng     = MOBILE ? LAST_KNOWN_LOCATION.lng : MAP.getCenter().lng;
             params.via     = via;
 
-            $.get(APP_BASEPATH + 'ajax/keyword', params, function (reply) {
+            $.get(API_BASEPATH + 'ajax/keyword', params, function (reply) {
                 enableDirectionsButton();
                 if (! reply || !reply.length) return alert("We couldn't find any matching landmarks.");
 
@@ -1616,7 +1617,7 @@ function processGetDirectionsForm() {
         params.lat  = targetlat; // if this data source uses weighting, this will pick the closest one to our starting location
         params.lng  = targetlng; // if this data source uses weighting, this will pick the closest one to our starting location
         params.via  = via;
-        $.get(APP_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
+        $.get(API_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
             sourcelat = reply.lat;
             sourcelng = reply.lng;
 
@@ -1635,7 +1636,7 @@ function processGetDirectionsForm() {
         params.lat  = sourcelat; // if this data source uses weighting, this will pick the closest one to our starting location
         params.lng  = sourcelng; // if this data source uses weighting, this will pick the closest one to our starting location
         params.via  = via;
-        $.get(APP_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
+        $.get(API_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
             targetlat = reply.lat;
             targetlng = reply.lng;
 
@@ -1954,7 +1955,7 @@ function openElevationProfileBySegments() {
     x = x.join(',');
     y = y.join(',');
 
-    $.post(APP_BASEPATH + 'ajax/elevationprofilebysegments', { 'x':x, 'y':y }, function (url) {
+    $.post(API_BASEPATH + 'ajax/elevationprofilebysegments', { 'x':x, 'y':y }, function (url) {
         if (url.indexOf('http') != 0) return alert(url);
         showElevation(url);
     });
@@ -2080,7 +2081,7 @@ function populateShareBox() {
         querystring : SHARE_URL_STRING
     };
 
-    $.get(APP_BASEPATH + 'ajax/make_shorturl', params, function(shortstring) {
+    $.get(API_BASEPATH + 'ajax/make_shorturl', params, function(shortstring) {
         if (! shortstring) return alert("Unable to fetch a short URL.\nPlease try again.");
         var url = URL_PARAMS.attr('protocol') + '://' + URL_PARAMS.attr('host') + '/url/' + shortstring;
 
@@ -2307,7 +2308,7 @@ function searchByKeyword(keyword) {
     disableKeywordButton();
     $('#pane-search .sortpicker').hide();
 
-    $.get(APP_BASEPATH + 'ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
+    $.get(API_BASEPATH + 'ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
         enableKeywordButton();
         $('#pane-search .sortpicker').show();
 
@@ -2387,7 +2388,7 @@ function searchByKeyword(keyword) {
  * Load autocomplete keywords via AJAX, and enable autocomplete on the Keyword Search
  */
 $(window).load(function () {
-    $.get(APP_BASEPATH + 'ajax/autocomplete_keywords', {}, function (words) {
+    $.get(API_BASEPATH + 'ajax/autocomplete_keywords', {}, function (words) {
 
         $('#browse_keyword').autocomplete({
             target: $('#browse_keyword_autocomplete'),
@@ -2446,7 +2447,7 @@ var ALL_POIS = [];
  * closest few POIs, so we don't overload.
  */
 $(window).load(function () {
-    $.get(APP_BASEPATH + 'ajax/load_pois', {}, function (pois) {
+    $.get(API_BASEPATH + 'ajax/load_pois', {}, function (pois) {
         for (var i=0, l=pois.length; i<l; i++) {
             ALL_POIS[ALL_POIS.length] = pois[i];
         }
@@ -2739,7 +2740,7 @@ function searchTrails(params) {
     target.empty();
 
     // AJAX to fetch results, and render them as LIs with .zoom et cetera
-    $.get(APP_BASEPATH + 'ajax/search_trails', params, function (results) {
+    $.get(API_BASEPATH + 'ajax/search_trails', params, function (results) {
 
         // iterate over the results and add them to the output
         if (results.length) {
@@ -2979,7 +2980,7 @@ function filterLoops() {
     button.button('disable');
     button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
 
-    $.get(APP_BASEPATH + 'ajax/search_loops', params, function (results) {
+    $.get(API_BASEPATH + 'ajax/search_loops', params, function (results) {
         // re-enable the search button
         button.button('enable');
         button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );

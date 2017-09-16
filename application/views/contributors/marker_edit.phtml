@@ -48,7 +48,7 @@ MAP.on('click', function (event) {
     var anchor = new L.LatLng(event.latlng.lat,event.latlng.lng);
 
     // do the AJAX thing
-    $.get(APP_BASEPATH + 'ajax/query', data, function (html) {
+    $.get(API_BASEPATH + 'ajax/query', data, function (html) {
         if (!html) return;
         var popup = new L.Popup({ maxWidth:720, maxHeight:720 });
         popup.setLatLng(anchor);

@@ -10,10 +10,11 @@
 ///// The Admin and Contributor have their own versions too, which override the map URLs with SSL URLs
 ///// for Admin and Contributors maps, see admin.js and contributors.js
 
-// How we get to our app's controllers (primarily ajax).
-// @TODO: Put this into a local config so we can handle non-root basedirs.
-var APP_BASEPATH = '/';
-
+// How we get to our app's base files and to the API.
+// These change to remote URLs for native app and web-embedded scenarios.
+// @TODO: Put these into a local config so we can handle non-root basedirs.
+var WEBAPP_BASEPATH = '/';
+var API_BASEPATH = '/';
 var MAP = null;
 
 // the bounding box of the mappable area, for setting the initial view
