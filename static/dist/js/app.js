@@ -226,6 +226,11 @@ function initMap (mapOptions) {
     // additional Controls
     L.control.scale().addTo(MAP);
 
+    // Fire mapInitialized event
+    $.event.trigger({
+        type: 'mapInitialized',
+    });
+
     // debugging: when the viewport changes, log the current bbox and zoom
     function debugBoundsOutput() {
         console.log([ 'zoom', MAP.getZoom() ]);
@@ -438,6 +443,13 @@ function changeBasemap(layer_key) {
  *
  * Cleveland Metroparks
  */
+
+// App sidebar (Leaflet Sidebar-v2)
+var sidebar = null;
+// Load when map has been initialized
+$(document).on("mapInitialized", function () {
+    sidebar = L.control.sidebar('sidebar').addTo(MAP);
+});
 
 // used by the radar: sound an alert only if the list has in fact changed
 var LAST_BEEP_IDS = [];
@@ -652,7 +664,8 @@ $(window).load(function () {
             break;
     }
 
-    // Allow others to act now
+    // Map is initialized and query strings handled.
+    // Fire mapReady event.
     $.event.trigger({
         type: 'mapReady',
     });

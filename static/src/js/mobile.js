@@ -6,6 +6,13 @@
  * Cleveland Metroparks
  */
 
+// App sidebar (Leaflet Sidebar-v2)
+var sidebar = null;
+// Load when map has been initialized
+$(document).on("mapInitialized", function () {
+    sidebar = L.control.sidebar('sidebar').addTo(MAP);
+});
+
 // used by the radar: sound an alert only if the list has in fact changed
 var LAST_BEEP_IDS = [];
 
@@ -219,7 +226,8 @@ $(window).load(function () {
             break;
     }
 
-    // Allow others to act now
+    // Map is initialized and query strings handled.
+    // Fire mapReady event.
     $.event.trigger({
         type: 'mapReady',
     });

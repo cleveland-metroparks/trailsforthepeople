@@ -987,6 +987,11 @@ function initMap (mapOptions) {
     // additional Controls
     L.control.scale().addTo(MAP);
 
+    // Fire mapInitialized event
+    $.event.trigger({
+        type: 'mapInitialized',
+    });
+
     // debugging: when the viewport changes, log the current bbox and zoom
     function debugBoundsOutput() {
         console.log([ 'zoom', MAP.getZoom() ]);
