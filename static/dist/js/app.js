@@ -1281,46 +1281,59 @@ function is_ios() {
 }
 
 /**
- * Toggle GPS
+ * Toggle geolocation-following
  */
-function toggleGPS() {
-    AUTO_CENTER_ON_LOCATION ? toggleGPSOff() : toggleGPSOn();
+function toggle_gps_follow() {
+    AUTO_CENTER_ON_LOCATION ? disable_gps_follow() : enable_gps_follow();
 }
 
 /**
- * Toggle GPS On
+ * Turn geolocation-following ON
  */
-function toggleGPSOn() {
+function enable_gps_follow() {
     AUTO_CENTER_ON_LOCATION = true;
-    var iconurl = is_ios() ? '/static/images/map_controls/mapbutton_gps_ios_on.png' : '/static/images/map_controls/mapbutton_gps_on.png';
-    $('#mapbutton_gps img').prop('src',iconurl);
+    var iconurl = is_ios() ?
+        WEBAPP_BASEPATH + 'static/images/map_controls/mapbutton_gps_ios_on.png' :
+        WEBAPP_BASEPATH + 'static/images/map_controls/mapbutton_gps_on.png';
+    $('#mapbutton_gps img').prop('src', iconurl);
 }
 
 /**
- * Toggle GPS Off
+ * Turn geolocation-following OFF
  */
-function toggleGPSOff() {
+function disable_gps_follow() {
     AUTO_CENTER_ON_LOCATION = false;
-    var iconurl = is_ios() ? '/static/images/map_controls/mapbutton_gps_ios_off.png' : '/static/images/map_controls/mapbutton_gps_off.png';
-    $('#mapbutton_gps img').prop('src',iconurl);
+    var iconurl = is_ios() ?
+        WEBAPP_BASEPATH + 'static/images/map_controls/mapbutton_gps_ios_off.png' :
+        WEBAPP_BASEPATH + 'static/images/map_controls/mapbutton_gps_off.png';
+    $('#mapbutton_gps img').prop('src', iconurl);
 }
 
 /**
- * Turn GPS off on page load
+ * Toggle geolocation-following when GPS icon is clicked
+ */
+$(window).load(function () {
+    $('#mapbutton_gps').click(function () {
+        toggle_gps_follow();
+    });
+});
+
+/**
+ * Turn geolocation-following OFF on page load
  *
  * iOS and non-iOS get different icons for the GPS button so it's important
  * to trigger this now so the right icon is chosen.
  */
 $(window).load(function () {
-    toggleGPSOff();
+    disable_gps_follow();
 });
 
 /**
- * Turn off GPS mode if map canvas is swiped.
+ * Turn geolocation-following OFF when map canvas is swiped.
  */
 $(window).load(function () {
     $('#map_canvas').bind('swipe', function () {
-        toggleGPSOff();
+        disable_gps_follow();
     });
 });
 
@@ -1331,16 +1344,18 @@ $(window).load(function () {
  */
 $(window).load(function () {
     MAP.on('locationfound', function(event) {
-        // update our last known location
+        // Update the user's last known location
         LAST_KNOWN_LOCATION = event.latlng;
 
-        // mark our current location, and center the map
-        placeGPSMarker(event.latlng.lat,event.latlng.lng)
+        // Mark the user's current location and center the map
+        placeGPSMarker(event.latlng.lat, event.latlng.lng)
         if (AUTO_CENTER_ON_LOCATION) {
-            var iswithin = MAX_BOUNDS.contains(event.latlng);
-            if (iswithin) {
+            var within_max_bounds = MAX_BOUNDS.contains(event.latlng);
+            if (within_max_bounds) {
                 MAP.panTo(event.latlng);
-                if (MAP.getZoom() < 12) MAP.setZoom(16);
+                if (MAP.getZoom() < 12) {
+                    MAP.setZoom(16);
+                }
             } else {
                 MAP.fitBounds(MAX_BOUNDS);
             }
@@ -1380,28 +1395,8 @@ $(window).load(function () {
         $('#gps_location').text(text);
     });
 
-    // this is a one-time location trigger: we need to turn on auto-centering when the page first loads so the map centers,
-    // but we want to disable it again so we don't get annoying by moving the map away from the user's pans and searches.
-    // Thus, a self-disabling callback.
-    // BUT... we only do this whole thing if there were no URL params given which would override it
-    if (! URL_PARAMS.attr('query')) {
-        AUTO_CENTER_ON_LOCATION = true;
-        var disableMe = function(event) {
-            AUTO_CENTER_ON_LOCATION = false;
-            MAP.off('locationfound', disableMe);
-        };
-        MAP.on('locationfound', disableMe);
-    }
-
     // start constant geolocation, which triggers all of the 'locationfound' events above
     MAP.locate({ watch: true, enableHighAccuracy: true });
-
-    // debug: to simulate geolocation: when the map is clicked, trigger a location event as if our GPS says we're there
-    /*
-    MAP.on('click', function (event) {
-        MAP.fireEvent('locationfound', { latlng:event.latlng });
-    });
-    */
 });;
  /**
  * directions.js
