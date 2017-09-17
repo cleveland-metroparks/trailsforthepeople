@@ -108,7 +108,7 @@ function switchToMap(callback) {
 /**
  * Load the map, handling query strings
  */
-$(window).load(function () {
+$(document).ready(function () {
     // load up the URL params before the map, as we may need them to configure the map
     URL_PARAMS = $.url();
 
@@ -236,7 +236,7 @@ $(window).load(function () {
 /**
  * Basemap picker (on Settings pane) change handler
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('input[type="radio"][name="basemap"]').change(function () {
         var which = $(this).val();
         changeBasemap(which);
@@ -248,7 +248,7 @@ $(window).load(function () {
  *
  * Use the sortpicker buttons to modify DEFAULT_SORT, then sortLists().
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('div.sortpicker span').click(function () {
         DEFAULT_SORT = $(this).attr('value');
         sortLists();
@@ -466,7 +466,7 @@ function sortLists(target) {
 /**
  * Geocoder event handlers
  */
-$(window).load(function () {
+$(document).ready(function () {
     var thisCallback = function () {
         var address = $('#geocode_text').val();
         zoomToAddress(address);
@@ -574,7 +574,7 @@ var showOnMap = function () {
 /**
  * Show on Map button handler
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('#show_on_map').click(showOnMap);
 });
 
@@ -583,7 +583,7 @@ $(window).load(function () {
  *
  * Click it to bring up info window, configure the Show On Map button.
  */
-$(window).load(function () {
+$(document).ready(function () {
     // zoomElementClick() is defined by mobile.js and desktop.js
     // typically it goes to a Details page and sets up various event handlers
     var openDetailsPanel = function () {

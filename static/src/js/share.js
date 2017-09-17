@@ -42,7 +42,7 @@ $(document).on("mapReady", setupShareUrlUpdates);
 /*
  *  Sharing handlers
  */
-$(window).load(function() {
+$(document).ready(function() {
     // Highlight/select the share box URL when it is clicked.
     $('#share_url').click(function() {
         $(this).select();

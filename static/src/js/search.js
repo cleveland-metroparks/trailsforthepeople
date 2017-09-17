@@ -11,7 +11,7 @@
 /**
  * Enable "Keyword Search" subsystem event handlers 
  */
-$(window).load(function () {
+$(document).ready(function () {
     // Keyword Search text search in the initial "Find" (/Browse) pane
     // is just a shell over the one in #search
     $('#browse_keyword_button').click(function () {
@@ -227,7 +227,7 @@ function searchByKeyword(keyword) {
 /**
  * Load autocomplete keywords via AJAX, and enable autocomplete on the Keyword Search
  */
-$(window).load(function () {
+$(document).ready(function () {
     $.get(API_BASEPATH + 'ajax/autocomplete_keywords', {}, function (words) {
 
         $('#browse_keyword').autocomplete({

@@ -21,7 +21,7 @@ var ALL_POIS = [];
  * Rendering to DOM is done later by updateNearYouNow() to do only the
  * closest few POIs, so we don't overload.
  */
-$(window).load(function () {
+$(document).ready(function () {
     $.get(API_BASEPATH + 'ajax/load_pois', {}, function (pois) {
         for (var i=0, l=pois.length; i<l; i++) {
             ALL_POIS[ALL_POIS.length] = pois[i];
@@ -208,7 +208,7 @@ function checkRadar(latlng,maxmeters,categories) {
 }
 
 // on page load: install event handlers for the Find and Radar panels
-$(window).load(function () {
+$(document).ready(function () {
     $('#radar_enabled').change(function () {
         // toggle the radar config: category pickers, distance selector, etc.
         var enabled = $(this).is(':checked');

@@ -546,7 +546,7 @@ function switchToMap(callback) {
 /**
  * Load the map, handling query strings
  */
-$(window).load(function () {
+$(document).ready(function () {
     // load up the URL params before the map, as we may need them to configure the map
     URL_PARAMS = $.url();
 
@@ -674,7 +674,7 @@ $(window).load(function () {
 /**
  * Basemap picker (on Settings pane) change handler
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('input[type="radio"][name="basemap"]').change(function () {
         var which = $(this).val();
         changeBasemap(which);
@@ -686,7 +686,7 @@ $(window).load(function () {
  *
  * Use the sortpicker buttons to modify DEFAULT_SORT, then sortLists().
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('div.sortpicker span').click(function () {
         DEFAULT_SORT = $(this).attr('value');
         sortLists();
@@ -904,7 +904,7 @@ function sortLists(target) {
 /**
  * Geocoder event handlers
  */
-$(window).load(function () {
+$(document).ready(function () {
     var thisCallback = function () {
         var address = $('#geocode_text').val();
         zoomToAddress(address);
@@ -1012,7 +1012,7 @@ var showOnMap = function () {
 /**
  * Show on Map button handler
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('#show_on_map').click(showOnMap);
 });
 
@@ -1021,7 +1021,7 @@ $(window).load(function () {
  *
  * Click it to bring up info window, configure the Show On Map button.
  */
-$(window).load(function () {
+$(document).ready(function () {
     // zoomElementClick() is defined by mobile.js and desktop.js
     // typically it goes to a Details page and sets up various event handlers
     var openDetailsPanel = function () {
@@ -1312,7 +1312,7 @@ function disable_gps_follow() {
 /**
  * Toggle geolocation-following when GPS icon is clicked
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('#mapbutton_gps').click(function () {
         toggle_gps_follow();
     });
@@ -1324,14 +1324,14 @@ $(window).load(function () {
  * iOS and non-iOS get different icons for the GPS button so it's important
  * to trigger this now so the right icon is chosen.
  */
-$(window).load(function () {
+$(document).ready(function () {
     disable_gps_follow();
 });
 
 /**
  * Turn geolocation-following OFF when map canvas is swiped.
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('#map_canvas').bind('swipe', function () {
         disable_gps_follow();
     });
@@ -1342,7 +1342,7 @@ $(window).load(function () {
  *
  * Update our last-known location, then do more calculations regarding it.
  */
-$(window).load(function () {
+$(document).ready(function () {
     MAP.on('locationfound', function(event) {
         // Update the user's last known location
         LAST_KNOWN_LOCATION = event.latlng;
@@ -1874,7 +1874,7 @@ function placeDirectionsLine(polyline,startll,endll) {
 /**
  * Event handlers for the directions subsystem
  */
-$(window).load(function () {
+$(document).ready(function () {
     // The 4 icons launch the Get Directions panel
     // selecting the appropriate transport method
     $('#directions_hike').click(function () {
@@ -1974,7 +1974,7 @@ function openElevationProfileBySegments() {
  * then an async directions lookup between the points,
  * then draws the polyline path and prints the directions
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('#getdirections_clear').click(function () {
         clearDirectionsLine();
         $('#directions_steps').empty();
@@ -2045,7 +2045,7 @@ $(document).on("mapReady", setupShareUrlUpdates);
 /*
  *  Sharing handlers
  */
-$(window).load(function() {
+$(document).ready(function() {
     // Highlight/select the share box URL when it is clicked.
     $('#share_url').click(function() {
         $(this).select();
@@ -2179,7 +2179,7 @@ function updateShareUrlByDirections() {
 /**
  * Enable "Keyword Search" subsystem event handlers 
  */
-$(window).load(function () {
+$(document).ready(function () {
     // Keyword Search text search in the initial "Find" (/Browse) pane
     // is just a shell over the one in #search
     $('#browse_keyword_button').click(function () {
@@ -2395,7 +2395,7 @@ function searchByKeyword(keyword) {
 /**
  * Load autocomplete keywords via AJAX, and enable autocomplete on the Keyword Search
  */
-$(window).load(function () {
+$(document).ready(function () {
     $.get(API_BASEPATH + 'ajax/autocomplete_keywords', {}, function (words) {
 
         $('#browse_keyword').autocomplete({
@@ -2454,7 +2454,7 @@ var ALL_POIS = [];
  * Rendering to DOM is done later by updateNearYouNow() to do only the
  * closest few POIs, so we don't overload.
  */
-$(window).load(function () {
+$(document).ready(function () {
     $.get(API_BASEPATH + 'ajax/load_pois', {}, function (pois) {
         for (var i=0, l=pois.length; i<l; i++) {
             ALL_POIS[ALL_POIS.length] = pois[i];
@@ -2641,7 +2641,7 @@ function checkRadar(latlng,maxmeters,categories) {
 }
 
 // on page load: install event handlers for the Find and Radar panels
-$(window).load(function () {
+$(document).ready(function () {
     $('#radar_enabled').change(function () {
         // toggle the radar config: category pickers, distance selector, etc.
         var enabled = $(this).is(':checked');
@@ -2670,7 +2670,7 @@ $(window).load(function () {
  * Event handlers for Trail Finder
  * these used to be identical but then they diverged so desktop has these clicky iole, while mobile is still a selector (for now)
  */
-$(window).load(function () {
+$(document).ready(function () {
     // the icons for the trail type, trigger the underlying checkboxes so we're still using real form elements
     $('#trailfinder_typeicons img').click(function () {
         // uncheck all of the invisible checkboxes, then check the one corresponding to this image
@@ -2838,7 +2838,7 @@ function searchTrails(params) {
  *
  * @see also filterLoops() below
  */
-$(window).load(function () {
+$(document).ready(function () {
     // the event handlers below are for the sliders and textboxes within #pane-loops,
     // so trigger a DOM rendering of the page now so the elements exist
     $('#pane-loops-search').page();

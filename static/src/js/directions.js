@@ -474,7 +474,7 @@ function placeDirectionsLine(polyline,startll,endll) {
 /**
  * Event handlers for the directions subsystem
  */
-$(window).load(function () {
+$(document).ready(function () {
     // The 4 icons launch the Get Directions panel
     // selecting the appropriate transport method
     $('#directions_hike').click(function () {
@@ -574,7 +574,7 @@ function openElevationProfileBySegments() {
  * then an async directions lookup between the points,
  * then draws the polyline path and prints the directions
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('#getdirections_clear').click(function () {
         clearDirectionsLine();
         $('#directions_steps').empty();

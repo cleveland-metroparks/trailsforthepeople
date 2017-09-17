@@ -62,7 +62,7 @@
 <script type="text/javascript">
 var MY_CONTRIBUTOR_ID = <?= $this->loggedin['id'] ?>;
 
-$(window).load(function () {
+$(document).ready(function () {
     $('#go').click(function () {
         var params = {
             lat      : parseFloat($('input[name="lat"]').val()),

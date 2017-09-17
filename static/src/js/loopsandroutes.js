@@ -13,7 +13,7 @@
  *
  * @see also filterLoops() below
  */
-$(window).load(function () {
+$(document).ready(function () {
     // the event handlers below are for the sliders and textboxes within #pane-loops,
     // so trigger a DOM rendering of the page now so the elements exist
     $('#pane-loops-search').page();

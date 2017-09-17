@@ -20,7 +20,7 @@ var ICONS = {
 
 
 
-$(window).load(function () {
+$(document).ready(function () {
 
 /////
 ///// load the map, bare bones with layers but not much else

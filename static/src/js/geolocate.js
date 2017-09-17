@@ -47,7 +47,7 @@ function disable_gps_follow() {
 /**
  * Toggle geolocation-following when GPS icon is clicked
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('#mapbutton_gps').click(function () {
         toggle_gps_follow();
     });
@@ -59,14 +59,14 @@ $(window).load(function () {
  * iOS and non-iOS get different icons for the GPS button so it's important
  * to trigger this now so the right icon is chosen.
  */
-$(window).load(function () {
+$(document).ready(function () {
     disable_gps_follow();
 });
 
 /**
  * Turn geolocation-following OFF when map canvas is swiped.
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('#map_canvas').bind('swipe', function () {
         disable_gps_follow();
     });
@@ -77,7 +77,7 @@ $(window).load(function () {
  *
  * Update our last-known location, then do more calculations regarding it.
  */
-$(window).load(function () {
+$(document).ready(function () {
     MAP.on('locationfound', function(event) {
         // Update the user's last known location
         LAST_KNOWN_LOCATION = event.latlng;

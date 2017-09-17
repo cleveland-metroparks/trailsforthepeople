@@ -12,7 +12,7 @@
  * Event handlers for Trail Finder
  * these used to be identical but then they diverged so desktop has these clicky iole, while mobile is still a selector (for now)
  */
-$(window).load(function () {
+$(document).ready(function () {
     // the icons for the trail type, trigger the underlying checkboxes so we're still using real form elements
     $('#trailfinder_typeicons img').click(function () {
         // uncheck all of the invisible checkboxes, then check the one corresponding to this image
