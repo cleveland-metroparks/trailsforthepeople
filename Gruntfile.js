@@ -32,6 +32,25 @@ module.exports = function(grunt) {
         ],
         dest: 'static/dist/js/app.js'
       },
+      // Web app package:
+      native: {
+        src: [
+          'static/src/js/constants.js',
+          'static/src/js/native-constants.js',
+          'static/src/js/common.js',
+          'static/src/js/mobile.js',
+          'static/src/js/sidebar.js',
+          'static/src/js/geolocate.js',
+          'static/src/js/directions.js',
+          'static/src/js/share.js',
+          'static/src/js/search.js',
+          'static/src/js/nearby.js',
+          'static/src/js/trails.js',
+          'static/src/js/loopsandroutes.js',
+          'static/src/js/print.js'
+        ],
+        dest: 'static/dist/js/app-native.js'
+      },
       // Base for map embeds on external sites:
       embedded_base: {
         src: [
@@ -103,6 +122,11 @@ module.exports = function(grunt) {
           'static/dist/js/constants.min.js': ['static/src/js/constants.js'],
           'static/dist/js/common.min.js':    ['static/src/js/common.js'],
           'static/dist/js/app.min.js':       ['static/dist/js/app.js']
+        }
+      },
+      native: {
+        files: {
+          'static/dist/js/app-native.min.js':       ['static/dist/js/app-native.js']
         }
       },
       // Base for map embeds on external sites:
@@ -309,6 +333,8 @@ module.exports = function(grunt) {
   grunt.registerTask('default', ['concat:dist', 'uglify:dist', 'sass:dist', 'sftp:dist']);
   // All tasks
   grunt.registerTask('all', ['concat', 'uglify', 'sass', 'sftp']);
+  // Native tasks only
+  grunt.registerTask('native', ['concat:native', 'uglify:native', 'sass:dist']);
   // Embedded tasks only
   grunt.registerTask('embedded', [
     'concat:embedded_base',
