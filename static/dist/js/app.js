@@ -17,6 +17,9 @@ var WEBAPP_BASEPATH = '/';
 var API_BASEPATH = '/';
 var MAP = null;
 
+// Web (mobile and desktop) vs native iOS/Android
+var NATIVE_APP = false;
+
 // the bounding box of the mappable area, for setting the initial view
 // and potentially for restricting the map from zooming away (not enforced)
 var BBOX_SOUTHWEST = L.latLng(41.11816, -82.08504);
@@ -113,7 +116,6 @@ MAP.addLayer(routedebug);
  * Cleveland Metroparks
  */
 
-var MOBILE; // Our old desktop vs. mobile flag. @TODO: Deprecate.
 var isMobile = /Mobi/.test(navigator.userAgent); // Simple mobile device detection.
 
 var ICON_TARGET = L.icon({
@@ -455,7 +457,6 @@ $(document).on("mapInitialized", function () {
 var LAST_BEEP_IDS = [];
 
 // other stuff pertaining to our last known location and auto-centering
-var MOBILE = true;
 var LAST_KNOWN_LOCATION = L.latLng(41.3953,-81.6730);
 var AUTO_CENTER_ON_LOCATION = false;
 
@@ -626,11 +627,10 @@ $(document).ready(function () {
         // fill in the directions field: the title, route via, the target type and coordinate, the starting coordinates
         $('#directions_target_title').text(URL_PARAMS.param('routetitle'));
         $('#directions_via').val(URL_PARAMS.param('routevia'));
-        if (MOBILE) $("#directions_via").selectmenu('refresh');
+        $("#directions_via").selectmenu('refresh');
         $('#directions_type').val('geocode');
-        if (MOBILE) $("#directions_type").selectmenu('refresh');
-        if (MOBILE) $('#directions_type_geocode_wrap').show();
-        else        $('#directions_type').change();
+        $("#directions_type").selectmenu('refresh');
+        $('#directions_type_geocode_wrap').show();
         $('#directions_address').val(URL_PARAMS.param('routefrom'));
         $('#directions_target_lat').val(targetlat);
         $('#directions_target_lng').val(targetlng);
@@ -1457,14 +1457,8 @@ function getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via) {
  */
 function disableDirectionsButton() {
     var button = $('#directions_button');
-    if (MOBILE) {
-        button.button('disable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
-    }
-    else {
-        button.prop('disabled',true);
-        button.val( button.attr('value0') );
-    }
+    button.button('disable');
+    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
 }
 
 /**
@@ -1472,14 +1466,8 @@ function disableDirectionsButton() {
  */
 function enableDirectionsButton() {
     var button = $('#directions_button');
-    if (MOBILE) {
-        button.button('enable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
-    }
-    else {
-        button.prop('disabled',false);
-        button.val( button.attr('value1') );
-    }
+    button.button('enable');
+    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
 }
 
 /**
@@ -1567,8 +1555,8 @@ function processGetDirectionsForm() {
             var params = {};
             params.keyword = $('#directions_address').val();
             params.limit   = 30 ;
-            params.lat     = MOBILE ? LAST_KNOWN_LOCATION.lat : MAP.getCenter().lat;
-            params.lng     = MOBILE ? LAST_KNOWN_LOCATION.lng : MAP.getCenter().lng;
+            params.lat     = LAST_KNOWN_LOCATION.lat;
+            params.lng     = LAST_KNOWN_LOCATION.lng;
             params.via     = via;
 
             $.get(API_BASEPATH + 'ajax/keyword', params, function (reply) {
@@ -1698,8 +1686,7 @@ function populateDidYouMean(results) {
         target.append(item);
     }
 
-    // now if we're mobile, do the styling
-    if (MOBILE) target.listview('refresh');
+    target.listview('refresh');
 }
 
 /**
@@ -1800,7 +1787,7 @@ function renderDirectionsStructure(directions,target,options) {
     }
 
     // Print button
-    if (! MOBILE) {
+    if (! NATIVE_APP) {
         var printMeBtn = $('<a></a>')
             .addClass('ui-btn')
             .addClass('ui-btn-inline')
@@ -1821,10 +1808,9 @@ function renderDirectionsStructure(directions,target,options) {
 
     // phase 4: any additional postprocessing
     // give the list that jQuery Mobile magic
-    if (MOBILE) {
-        target.listview('refresh');
-        $('.directions_functions img:first').removeClass('ui-li-thumb'); // jQM assigns this class, screwing up the position & size of the first button IMG
-    }
+    target.listview('refresh');
+    // jQM assigns this class, screwing up the position & size of the first button IMG:
+    $('.directions_functions img:first').removeClass('ui-li-thumb');
 }
 
 /**
@@ -2218,14 +2204,8 @@ $(document).ready(function () {
  */
 function disableKeywordButton() {
     var button = $('#search_keyword_button');
-    if (MOBILE) {
-        button.button('disable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
-    }
-    else {
-        button.prop('disabled',true);
-        button.val( button.attr('value0') );
-    }
+    button.button('disable');
+    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
 }
 
 /**
@@ -2233,14 +2213,8 @@ function disableKeywordButton() {
  */
 function enableKeywordButton() {
     var button = $('#search_keyword_button');
-    if (MOBILE) {
-        button.button('enable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
-    }
-    else {
-        button.prop('disabled',false);
-        button.val( button.attr('value1') );
-    }
+    button.button('enable');
+    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
 }
 
 /**
@@ -2668,12 +2642,11 @@ $(document).ready(function () {
 
 /**
  * Event handlers for Trail Finder
- * these used to be identical but then they diverged so desktop has these clicky iole, while mobile is still a selector (for now)
  */
 $(document).ready(function () {
-    // the icons for the trail type, trigger the underlying checkboxes so we're still using real form elements
+    // The trail type icons are connected to underlying, hidden checkboxes
     $('#trailfinder_typeicons img').click(function () {
-        // uncheck all of the invisible checkboxes, then check the one corresponding to this image
+        // Uncheck all of the invisible checkboxes, then check the one corresponding to the image
         var $this = $(this);
         var value = $this.attr('data-value');
         $('input[name="trailfinder_uses"]')
@@ -2681,7 +2654,7 @@ $(document).ready(function () {
             .filter('[value="'+value+'"]')
             .prop('checked', true);
 
-        // adjust the images: change the SRC to the _off version, except this one which gets the _on version
+        // Adjust the images to indicate active/inactive
         $('#trailfinder_typeicons img').each(function () {
             var src = $(this).prop('src');
 
@@ -2697,8 +2670,6 @@ $(document).ready(function () {
 
         // Update the listing.
         trailfinderUpdate();
-
-    //}).first().click();
     });
 
     // The "Search" button on the Trail Finder pane.
@@ -2817,9 +2788,9 @@ function searchTrails(params) {
             target.append($('<li></li>').text("No results."));
         }
 
-        // finalize the list, have jQuery Mobile do its styling magic on the newly-loaded content and then sort it
-        if (MOBILE) target.listview('refresh');
-        if (MOBILE) sortLists(target);
+        // Finalize the list, have jQuery Mobile style newly-loaded content, and sort it
+        target.listview('refresh');
+        sortLists(target);
     }, 'json');
 }
 ;

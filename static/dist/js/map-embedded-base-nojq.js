@@ -762,6 +762,9 @@ var WEBAPP_BASEPATH = '/';
 var API_BASEPATH = '/';
 var MAP = null;
 
+// Web (mobile and desktop) vs native iOS/Android
+var NATIVE_APP = false;
+
 // the bounding box of the mappable area, for setting the initial view
 // and potentially for restricting the map from zooming away (not enforced)
 var BBOX_SOUTHWEST = L.latLng(41.11816, -82.08504);
@@ -874,7 +877,6 @@ var CM_SITE_BASEURL = 'http://www.clevelandmetroparks.com/';
  * Cleveland Metroparks
  */
 
-var MOBILE; // Our old desktop vs. mobile flag. @TODO: Deprecate.
 var isMobile = /Mobi/.test(navigator.userAgent); // Simple mobile device detection.
 
 var ICON_TARGET = L.icon({

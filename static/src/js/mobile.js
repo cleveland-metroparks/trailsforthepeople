@@ -17,7 +17,6 @@ $(document).on("mapInitialized", function () {
 var LAST_BEEP_IDS = [];
 
 // other stuff pertaining to our last known location and auto-centering
-var MOBILE = true;
 var LAST_KNOWN_LOCATION = L.latLng(41.3953,-81.6730);
 var AUTO_CENTER_ON_LOCATION = false;
 
@@ -188,11 +187,10 @@ $(document).ready(function () {
         // fill in the directions field: the title, route via, the target type and coordinate, the starting coordinates
         $('#directions_target_title').text(URL_PARAMS.param('routetitle'));
         $('#directions_via').val(URL_PARAMS.param('routevia'));
-        if (MOBILE) $("#directions_via").selectmenu('refresh');
+        $("#directions_via").selectmenu('refresh');
         $('#directions_type').val('geocode');
-        if (MOBILE) $("#directions_type").selectmenu('refresh');
-        if (MOBILE) $('#directions_type_geocode_wrap').show();
-        else        $('#directions_type').change();
+        $("#directions_type").selectmenu('refresh');
+        $('#directions_type_geocode_wrap').show();
         $('#directions_address').val(URL_PARAMS.param('routefrom'));
         $('#directions_target_lat').val(targetlat);
         $('#directions_target_lng').val(targetlng);

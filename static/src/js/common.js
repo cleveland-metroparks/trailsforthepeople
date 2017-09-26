@@ -6,7 +6,6 @@
  * Cleveland Metroparks
  */
 
-var MOBILE; // Our old desktop vs. mobile flag. @TODO: Deprecate.
 var isMobile = /Mobi/.test(navigator.userAgent); // Simple mobile device detection.
 
 var ICON_TARGET = L.icon({

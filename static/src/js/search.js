@@ -50,14 +50,8 @@ $(document).ready(function () {
  */
 function disableKeywordButton() {
     var button = $('#search_keyword_button');
-    if (MOBILE) {
-        button.button('disable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
-    }
-    else {
-        button.prop('disabled',true);
-        button.val( button.attr('value0') );
-    }
+    button.button('disable');
+    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
 }
 
 /**
@@ -65,14 +59,8 @@ function disableKeywordButton() {
  */
 function enableKeywordButton() {
     var button = $('#search_keyword_button');
-    if (MOBILE) {
-        button.button('enable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
-    }
-    else {
-        button.prop('disabled',false);
-        button.val( button.attr('value1') );
-    }
+    button.button('enable');
+    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
 }
 
 /**

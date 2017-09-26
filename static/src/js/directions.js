@@ -57,14 +57,8 @@ function getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via) {
  */
 function disableDirectionsButton() {
     var button = $('#directions_button');
-    if (MOBILE) {
-        button.button('disable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
-    }
-    else {
-        button.prop('disabled',true);
-        button.val( button.attr('value0') );
-    }
+    button.button('disable');
+    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
 }
 
 /**
@@ -72,14 +66,8 @@ function disableDirectionsButton() {
  */
 function enableDirectionsButton() {
     var button = $('#directions_button');
-    if (MOBILE) {
-        button.button('enable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
-    }
-    else {
-        button.prop('disabled',false);
-        button.val( button.attr('value1') );
-    }
+    button.button('enable');
+    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
 }
 
 /**
@@ -167,8 +155,8 @@ function processGetDirectionsForm() {
             var params = {};
             params.keyword = $('#directions_address').val();
             params.limit   = 30 ;
-            params.lat     = MOBILE ? LAST_KNOWN_LOCATION.lat : MAP.getCenter().lat;
-            params.lng     = MOBILE ? LAST_KNOWN_LOCATION.lng : MAP.getCenter().lng;
+            params.lat     = LAST_KNOWN_LOCATION.lat;
+            params.lng     = LAST_KNOWN_LOCATION.lng;
             params.via     = via;
 
             $.get(API_BASEPATH + 'ajax/keyword', params, function (reply) {
@@ -298,8 +286,7 @@ function populateDidYouMean(results) {
         target.append(item);
     }
 
-    // now if we're mobile, do the styling
-    if (MOBILE) target.listview('refresh');
+    target.listview('refresh');
 }
 
 /**
@@ -400,7 +387,7 @@ function renderDirectionsStructure(directions,target,options) {
     }
 
     // Print button
-    if (! MOBILE) {
+    if (! NATIVE_APP) {
         var printMeBtn = $('<a></a>')
             .addClass('ui-btn')
             .addClass('ui-btn-inline')
@@ -421,10 +408,9 @@ function renderDirectionsStructure(directions,target,options) {
 
     // phase 4: any additional postprocessing
     // give the list that jQuery Mobile magic
-    if (MOBILE) {
-        target.listview('refresh');
-        $('.directions_functions img:first').removeClass('ui-li-thumb'); // jQM assigns this class, screwing up the position & size of the first button IMG
-    }
+    target.listview('refresh');
+    // jQM assigns this class, screwing up the position & size of the first button IMG:
+    $('.directions_functions img:first').removeClass('ui-li-thumb');
 }
 
 /**

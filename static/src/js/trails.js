@@ -10,12 +10,11 @@
 
 /**
  * Event handlers for Trail Finder
- * these used to be identical but then they diverged so desktop has these clicky iole, while mobile is still a selector (for now)
  */
 $(document).ready(function () {
-    // the icons for the trail type, trigger the underlying checkboxes so we're still using real form elements
+    // The trail type icons are connected to underlying, hidden checkboxes
     $('#trailfinder_typeicons img').click(function () {
-        // uncheck all of the invisible checkboxes, then check the one corresponding to this image
+        // Uncheck all of the invisible checkboxes, then check the one corresponding to the image
         var $this = $(this);
         var value = $this.attr('data-value');
         $('input[name="trailfinder_uses"]')
@@ -23,7 +22,7 @@ $(document).ready(function () {
             .filter('[value="'+value+'"]')
             .prop('checked', true);
 
-        // adjust the images: change the SRC to the _off version, except this one which gets the _on version
+        // Adjust the images to indicate active/inactive
         $('#trailfinder_typeicons img').each(function () {
             var src = $(this).prop('src');
 
@@ -39,8 +38,6 @@ $(document).ready(function () {
 
         // Update the listing.
         trailfinderUpdate();
-
-    //}).first().click();
     });
 
     // The "Search" button on the Trail Finder pane.
@@ -159,8 +156,8 @@ function searchTrails(params) {
             target.append($('<li></li>').text("No results."));
         }
 
-        // finalize the list, have jQuery Mobile do its styling magic on the newly-loaded content and then sort it
-        if (MOBILE) target.listview('refresh');
-        if (MOBILE) sortLists(target);
+        // Finalize the list, have jQuery Mobile style newly-loaded content, and sort it
+        target.listview('refresh');
+        sortLists(target);
     }, 'json');
 }
