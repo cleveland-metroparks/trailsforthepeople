@@ -170,6 +170,11 @@ $(document).ready(function () {
         $('#share_twitter').prop('href', url);
         return true;
     });
+
+    // Open Find/Browse pane on startup
+    if (NATIVE_APP) {
+        sidebar.open('pane-browse');
+    }
 });
 
 /**
