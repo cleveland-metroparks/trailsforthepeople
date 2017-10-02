@@ -894,7 +894,7 @@ var ICON_TARGET = L.icon({
 var MARKER_TARGET = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_TARGET });
 
 var ICON_GPS = L.icon({
-    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/marker-gps.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/marker-gps.svg',
     iconSize: [ 25, 41 ],
     iconAnchor: [ 13, 41 ],
     popupAnchor: [ 0, -41 ]
