@@ -81,6 +81,7 @@
     <div class="sidebar-tabs">
         <!-- Top -->
         <ul role="tablist">
+            <li><a href="#pane-welcome" role="tab" title="Welcome"><i class="cm-icon cm-icon-cm-logo"></i></a></li>
             <li><a href="#pane-browse" role="tab" title="Find"><i class="cm-icon cm-icon-search"></i></a></li>
             <li><a href="#pane-radar" role="tab" title="Nearby"><i class="cm-icon cm-icon-street-view"></i></a></li>
             <li><a href="#pane-getdirections" role="tab" title="Directions"><i class="cm-icon cm-icon-location-arrow"></i></a></li>
@@ -96,6 +97,9 @@
 
     <!-- Tab panes -->
     <div class="sidebar-content">
+        <!-- Sidebar Pane: Find: #pane-welcome -->
+        <?php $this->load->view('mobile/sidebar-panes/welcome.phtml'); ?>
+
         <!-- Sidebar Pane: Find: #pane-browse -->
         <?php $this->load->view('mobile/sidebar-panes/browse.phtml'); ?>
 
