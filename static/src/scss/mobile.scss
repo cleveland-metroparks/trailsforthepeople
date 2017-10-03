@@ -4,6 +4,9 @@
 .ui-header {
     font-family: $mainfont;
 }
+.cm-icon {
+    display: inline-block;
+}
 
 // -----------------------------------------------------------------------------------------------------------
 // Map elements
@@ -229,7 +232,7 @@ div.lng_driving {
     .sidebar-content {
         ul li {
             padding-left: 0;
-            .fa {
+            .cm-icon {
                 padding-right: 10px;
                 font-size: 24px;
                 width: 24px;
@@ -362,6 +365,7 @@ div.lng_driving {
     #getdirections_disabled {
         text-align: center;
         font-size: 12pt;
+
     }
 
     #directions_button_wrapper {
@@ -393,7 +397,7 @@ div.lng_driving {
     }
     .share_button {
         line-height: 2em;
-        .fa {
+        .cm-icon {
             font-size: 30px;
             padding-right: .2em;
         }
@@ -430,7 +434,7 @@ div.lng_driving {
         margin-top: 1em;
         .ui-btn {
             padding: 10px;
-            .fa {
+            .cm-icon {
                 font-size: 24px;
                 min-width: 32px;
             }

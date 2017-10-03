@@ -1,5 +1,7 @@
 .ui-header { font-family: "myriad-pro", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif; }
 
+.cm-icon { display: inline-block; }
+
 #map_canvas { position: absolute; top: 0; left: 0; margin: 0; padding: 0; width: 100%; height: 100%; }
 
 .leaflet-popup .fakelink { font-size: 12pt; }
@@ -66,7 +68,7 @@ div.lng_driving { display: none; }
 #sidebar .sidebar-tabs > ul > li.active { background-color: #1D5C1F; }
 #sidebar .sidebar-tabs > ul > li.active a { color: white; text-shadow: 0 1px 0 #232222; }
 #sidebar .sidebar-content ul li { padding-left: 0; }
-#sidebar .sidebar-content ul li .fa { padding-right: 10px; font-size: 24px; width: 24px; vertical-align: middle; text-align: center; }
+#sidebar .sidebar-content ul li .cm-icon { padding-right: 10px; font-size: 24px; width: 24px; vertical-align: middle; text-align: center; }
 #sidebar .sidebar-content h4 { margin: 0; }
 #sidebar .sidebar-content .ui-li-icon { max-height: initial !important; max-width: initial !important; }
 #sidebar .sidebar-content .ui-li-count { background-color: #1D5C1F; border: none; color: white; font-weight: normal; }
@@ -96,7 +98,7 @@ div.lng_driving { display: none; }
 #pane-share div.controlgroup-textinput { padding: .22em; width: 73%; }
 #pane-share .ui-controlgroup-controls { width: 100%; margin-bottom: 1em; }
 #pane-share .share_button { line-height: 2em; }
-#pane-share .share_button .fa { font-size: 30px; padding-right: .2em; }
+#pane-share .share_button .cm-icon { font-size: 30px; padding-right: .2em; }
 
 #pane-credits .disclaimer { font-size: 90%; }
 
@@ -105,7 +107,7 @@ div.lng_driving { display: none; }
 #pane-info .activities-icon-list li img { width: 30px; height: 30px; }
 #pane-info .info-directions { margin-top: 1em; }
 #pane-info .info-directions .ui-btn { padding: 10px; }
-#pane-info .info-directions .ui-btn .fa { font-size: 24px; min-width: 32px; }
+#pane-info .info-directions .ui-btn .cm-icon { font-size: 24px; min-width: 32px; }
 
 #pane-getdirections #directions_steps li.did-you-mean { border-top: none; color: #DE5049; font-weight: bold; }
 #pane-getdirections #directions_steps li.ui-first-child { border-top: none; }
