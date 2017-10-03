@@ -1226,7 +1226,7 @@ $(document).ready(function () {
 
     // Open Find/Browse pane on startup
     if (NATIVE_APP) {
-        sidebar.open('pane-browse');
+        sidebar.open('pane-welcome');
     }
 });
 
