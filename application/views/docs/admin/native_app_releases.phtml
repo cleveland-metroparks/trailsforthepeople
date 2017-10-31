@@ -1,0 +1,31 @@
+<?php $this->page_title = 'Native App Releases'; ?>
+
+<p class="lead">Development/testing releases for the native app</p>
+
+<h2>iOS</h2>
+
+<?php
+	$releases_dir_url = site_url('static/native_dev/');
+
+	$versions = array(
+		'2.0.0-alpha.1',
+	);
+
+	$ios_list_markup = '<ul>';
+	foreach($versions as $version) {
+		$manifest_url = 'itms-services://?action=download-manifest&url=' . $releases_dir_url . $version . '/manifest.plist';
+		$install_link = '<a href="' . $manifest_url . '">' . $version . '</a>';
+		$ios_list_markup .= '<li>' . $install_link . '</li>';
+	}
+	$ios_list_markup .= '</ul>';
+
+	print $ios_list_markup;
+?>
+
+<h2>Android</h2>
+
+<p>From your Android device (where the Google account you’re signed-in to is on our testers list in Google Play Console), browse to <a href="https://play.google.com/apps/testing/com.clevelandmetroparks.app">https://play.google.com/apps/testing/com.clevelandmetroparks.app</a>.</p>
+
+<p>That page should show the CM brand on top, and have some verbiage about the testing version. Click one of the links that say “download it on Google Play”. That should take you to the Play Store app, showing the new app.</p>
+
+<p>From there you can install the app on your device.</p>
