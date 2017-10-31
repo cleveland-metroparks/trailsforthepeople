@@ -358,6 +358,11 @@ private function _mainmenu_left_array() {
               'title' => 'TileStache Basemap',
               'access' => 'admin',
             ),
+            array(
+              'url' => 'docs/index/admin/native_app_releases',
+              'title' => 'Native App Releases',
+              'access' => 'admin',
+            ),
           ),
         ),
         /*
