@@ -311,22 +311,22 @@ div.lng_driving {
         }
     }
     .welcome-pane-parks .ui-bar {
-        background-image: url('/static/images/welcome_pane/parks.jpg');
+        background-image: url(#{$static_dir}/images/welcome_pane/parks.jpg);
     }
     .welcome-pane-activities .ui-bar {
-        background-image: url('/static/images/welcome_pane/activities.jpg');
+        background-image: url(#{$static_dir}/images/welcome_pane/activities.jpg);
     }
     .welcome-pane-visitorcenters .ui-bar {
-        background-image: url('/static/images/welcome_pane/visitorcenters.jpg');
+        background-image: url(#{$static_dir}/images/welcome_pane/visitorcenters.jpg);
     }
     .welcome-pane-amenities .ui-bar {
-        background-image: url('/static/images/welcome_pane/amenities.jpg');
+        background-image: url(#{$static_dir}/images/welcome_pane/amenities.jpg);
     }
     .welcome-pane-trails .ui-bar {
-        background-image: url('/static/images/welcome_pane/trails.jpg');
+        background-image: url(#{$static_dir}/images/welcome_pane/trails.jpg);
     }
     .welcome-pane-events .ui-bar {
-        background-image: url('/static/images/welcome_pane/events.jpg');
+        background-image: url(#{$static_dir}/images/welcome_pane/events.jpg);
     }
 }
 
