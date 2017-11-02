@@ -283,6 +283,54 @@ div.lng_driving {
 // -----------------------------------------------------------------------------------------------------------
 
 //
+// Sidebar Pane: Welcome
+//
+#pane-welcome {
+    .image-link-grid {
+        &.ui-grid-a > .ui-block-a,
+        &.ui-grid-a > .ui-block-b {
+            padding: 3px;
+        }
+        .ui-bar {
+            height: 140px;
+            border-radius: 8px;
+            position: relative;
+            padding: .4em .6em;
+            border-width: 1px;
+            border-color: rgba(0, 0, 0, 0.1);
+            background-size: cover;
+            background-repeat: no-repeat;
+            font-size: 135%;
+        }
+        a .link-text {
+            position: absolute;
+            bottom: .3em;
+            color: white;
+            text-decoration: none;
+            text-shadow: 1px 1px #232222;
+        }
+    }
+    .welcome-pane-parks .ui-bar {
+        background-image: url('/static/images/welcome_pane/parks.jpg');
+    }
+    .welcome-pane-activities .ui-bar {
+        background-image: url('/static/images/welcome_pane/activities.jpg');
+    }
+    .welcome-pane-visitorcenters .ui-bar {
+        background-image: url('/static/images/welcome_pane/visitorcenters.jpg');
+    }
+    .welcome-pane-amenities .ui-bar {
+        background-image: url('/static/images/welcome_pane/amenities.jpg');
+    }
+    .welcome-pane-trails .ui-bar {
+        background-image: url('/static/images/welcome_pane/trails.jpg');
+    }
+    .welcome-pane-events .ui-bar {
+        background-image: url('/static/images/welcome_pane/events.jpg');
+    }
+}
+
+//
 // Sidebar Pane: Find/Browse
 //
 #pane-browse {

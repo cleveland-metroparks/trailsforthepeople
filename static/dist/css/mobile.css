@@ -79,6 +79,16 @@ div.lng_driving { display: none; }
 #sidebar .sidebar-content .distance_sortable a.ui-btn h4.ui-li-heading { margin-top: 0; }
 #sidebar .sidebar-content .distance_sortable a.ui-btn .ui-li-desc { font-weight: normal; }
 
+#pane-welcome .image-link-grid.ui-grid-a > .ui-block-a, #pane-welcome .image-link-grid.ui-grid-a > .ui-block-b { padding: 3px; }
+#pane-welcome .image-link-grid .ui-bar { height: 140px; border-radius: 8px; position: relative; padding: .4em .6em; border-width: 1px; border-color: rgba(0, 0, 0, 0.1); background-size: cover; background-repeat: no-repeat; font-size: 135%; }
+#pane-welcome .image-link-grid a .link-text { position: absolute; bottom: .3em; color: white; text-decoration: none; text-shadow: 1px 1px #232222; }
+#pane-welcome .welcome-pane-parks .ui-bar { background-image: url("/static/images/welcome_pane/parks.jpg"); }
+#pane-welcome .welcome-pane-activities .ui-bar { background-image: url("/static/images/welcome_pane/activities.png"); }
+#pane-welcome .welcome-pane-visitorcenters .ui-bar { background-image: url("/static/images/welcome_pane/visitorcenters.png"); }
+#pane-welcome .welcome-pane-amenities .ui-bar { background-image: url("/static/images/welcome_pane/amenities.jpg"); }
+#pane-welcome .welcome-pane-trails .ui-bar { background-image: url("/static/images/welcome_pane/trails.jpg"); }
+#pane-welcome .welcome-pane-events .ui-bar { background-image: url("/static/images/welcome_pane/events.jpg"); }
+
 #pane-browse .browse-main { margin-top: 1em; }
 #pane-browse .browse-main li img { margin-top: -20px; }
 
