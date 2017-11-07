@@ -3,23 +3,32 @@
 <p class="lead">Development/testing releases for the native app</p>
 
 <h2>iOS</h2>
-
 <?php
-	$releases_dir_url = site_url('static/native_dev') . '/';
+    /**
+     * Make iOS Releases list
+     */
 
-	$versions = array(
-		'2.0.0-alpha.1',
-	);
+    // Get list of versions from CSV
 
-	$ios_list_markup = '<ul>';
-	foreach($versions as $version) {
-		$manifest_url = 'itms-services://?action=download-manifest&url=' . $releases_dir_url . $version . '/manifest.plist';
-		$install_link = '<a href="' . $manifest_url . '">' . $version . '</a>';
-		$ios_list_markup .= '<li>' . $install_link . '</li>';
-	}
-	$ios_list_markup .= '</ul>';
+    $ios_release_versions_file = $this->config->item('base_path') . '/static/native_dev/ios-release-versions.csv';
+    $ios_versions = array();
+    if (($handle = fopen($ios_release_versions_file, "r")) !== FALSE) {
+        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+            $ios_versions[] = $data[0];
+        }
+        fclose($handle);
+    }
 
-	print $ios_list_markup;
+    // Generate list markup
+    $releases_dir_url = site_url('static/native_dev/ios') . '/';
+    $list_markup = '<ul>';
+    foreach($ios_versions as $version) {
+        $manifest_url = 'itms-services://?action=download-manifest&url=' . $releases_dir_url . $version . '/manifest.plist';
+        $install_link = '<a href="' . $manifest_url . '">' . $version . '</a>';
+        $list_markup .= '<li>' . $install_link . '</li>';
+    }
+    $list_markup .= '</ul>';
+    print $list_markup;
 ?>
 
 <h2>Android</h2>
