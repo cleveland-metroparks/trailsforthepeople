@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.4.0 (2017-10-25)
+
+- ol3 version without jquery dependency ([#97](https://github.com/Turbo87/sidebar-v2/pull/97))
+- Allow non-tab links in the sidebar
+- add type definition for leaflet-sidebar ([#112](https://github.com/Turbo87/sidebar-v2/pull/112))
+- Remove reference to L.Mixin.Evented ([#124](https://github.com/Turbo87/sidebar-v2/pull/124))
+- Fix Chrome 62 list-style-type bug ([#127](https://github.com/Turbo87/sidebar-v2/pull/127))
+
+## v0.3.1 (2016-11-01)
+
+- fix `ol3` example map layer ([#77](https://github.com/Turbo87/sidebar-v2/pull/77))
+- leaflet: deprecate `removeFrom()` in favor of `remove()` ([#73](https://github.com/Turbo87/sidebar-v2/pull/73))
+- leaflet: allow non-tab links on the sidebar ([#87](https://github.com/Turbo87/sidebar-v2/pull/87))
+- leaflet: fix CDN location on example pages ([#94](https://github.com/Turbo87/sidebar-v2/pull/94))
+- ol3: move "scale-line" together with the zoom controls ([#93](https://github.com/Turbo87/sidebar-v2/pull/93))
+
 ## v0.3.0 (2016-01-19)
 
 - ol2: move scale line control too when sidebar opens/closes
