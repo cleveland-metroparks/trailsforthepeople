@@ -330,9 +330,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-ssh');
 
   // Default (dist only; non-embedded) tasks
-  grunt.registerTask('default', ['concat:dist', 'uglify:dist', 'sass:dist', 'sftp:dist']);
+  grunt.registerTask('default', ['concat:dist', 'uglify:dist', 'sass:dist']);
   // All tasks
-  grunt.registerTask('all', ['concat', 'uglify', 'sass', 'sftp']);
+  grunt.registerTask('all', ['concat', 'uglify', 'sass']);
   // Native tasks only
   grunt.registerTask('native', ['concat:native', 'uglify:native', 'sass:dist']);
   // Embedded tasks only
@@ -347,10 +347,9 @@ module.exports = function(grunt) {
     'uglify:embedded_visit_nojq_DEPRECATED',
     'uglify:embedded_visit',
     'uglify:embedded_beach_closures',
-    'sass:embedded',
-    'sftp:embedded'
+    'sass:embedded'
   ]);
   // Embedded tasks only, without uglify
-  grunt.registerTask('embedded_nougly', ['concat:embedded', 'concat:embedded_nojq', 'sass:embedded', 'sftp:embedded']);
+  grunt.registerTask('embedded_nougly', ['concat:embedded', 'concat:embedded_nojq', 'sass:embedded']);
 
 };
