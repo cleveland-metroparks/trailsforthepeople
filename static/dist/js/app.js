@@ -1085,13 +1085,11 @@ $(document).ready(function () {
     /*
      * Find POIs pane (#pane-browse-pois-activity)
      */
-    // When POI Item clicked:
+    // When an Activity is clicked:
     $('#pane-browse-pois-activity li a').click(function() {
-        var category = this.hash.replace( /.*category=/, "" );
-
         // Get Activity ID from query string params
         // (purl.js apparently doesn't parse query string if URL begins with '#')
-        re = /id=(.*)&category=/;
+        re = /id=(\d*)/;
         var matches = this.hash.match(re);
         if (matches.length == 2) {
             activity_id = matches[1];
@@ -1099,97 +1097,124 @@ $(document).ready(function () {
 
         sidebar.open('pane-browse-results');
 
-        var target = $('ul#browse_results');
-        target.empty();
+        title = $(this).text().trim();
 
-        activity_title = $(this).text().trim();
-
-        // fix the Back button on the target panel, to go Back to the right page
-        // @TODO: Can we consolidate, now that the other two options are gone?
-        var backurl = "#pane-browse";
-        if (category.indexOf('pois_usetype_') == 0) {
-            backurl = "#pane-browse-pois-activity";
-        }
+        // Set the Back button on the target panel
+        var backurl = "#pane-browse-pois-activity";
         $('#pane-browse-results .sidebar-back').prop('href', backurl);
-        // for the fetched items, if one follows to the Info panel, where should that Back button go?
-        var backbuttonurl = backurl;
-        if (category) backbuttonurl = "#pane-browse-results";
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
         $.get(API_BASEPATH + 'ajax/get_attractions_by_activity', { activity_ids: activity_id }, function (reply) {
-
-            // Header title
-            var header = $('#pane-browse-results h1.sidebar-header .title-text');
-            header.text(activity_title);
-
-            // Iterate over fetched results and render them into the target
-            for (var i=0, l=reply.results.length; i<l; i++) {
-                var result = reply.results[i];
-
-                // List item
-                // A lot of attributes to set pertaining to .zoom handling
-                var li = $('<li></li>').addClass('zoom');
-                li.attr('title', result.name );
-                li.attr('gid',result.gid)
-                    .attr('type',result.type)
-                    .attr('w',result.w)
-                    .attr('s',result.s)
-                    .attr('e',result.e)
-                    .attr('n',result.n)
-                    .attr('lat',result.lat)
-                    .attr('lng',result.lng);
-                li.attr('backbutton', backbuttonurl);
-
-                // Link (fake, currently)
-                link = $('<a></a>');
-                link.attr('class', 'ui-btn ui-btn-text');
-                //link.attr('href', 'javascript:zoomElementClick(this)');
-                li.append(link);
-
-                // On click: center the map and load More Info
-                li.click(function () {
-                    zoomElementClick( $(this) );
-                });
-
-                // Title
-                link.append(
-                    $('<span></span>')
-                        .addClass('ui-li-heading')
-                        .text(result.name)
-                    );
-
-                // Inner text
-                if (result.note) {
-                    link.append(
-                        $('<span></span>')
-                            .addClass('ui-li-desc')
-                            .html(result.note)
-                        );
-                }
-
-                // Distance placeholder, to be populated later
-                link.append(
-                    $('<span></span>')
-                        .addClass('zoom_distance')
-                        .addClass('ui-li-count')
-                        .addClass('ui-btn-up-c')
-                        .addClass('ui-btn-corner-all')
-                        .text('0 mi')
-                    );
-
-                // Add to the list
-                li.append(link);
-                target.append(li);
-            }
-
-            // Finalize the list,
-            // have jQuery Mobile do its styling magic on the newly-loaded content,
-            // then calculate the distances and sort.
-            target.listview('refresh');
-            sortLists(target);
+            display_attractions_results(title, reply);
         }, 'json');
 
     });
+
+    /*
+     * Amenities pane (#pane-amenities-list)
+     */
+    // When an amenity is clicked:
+    $('#pane-amenities-list li a').click(function() {
+        // Get Amenity ID from query string param
+        // (purl.js apparently doesn't parse query string if URL begins with '#')
+        re = /amenity_id=(\d*)/;
+        var matches = this.hash.match(re);
+        if (matches.length == 2) {
+            amenity_id = matches[1];
+        }
+
+        title = $(this).text().trim();
+
+        // Set the Back button on the target panel
+        var backurl = "#pane-amenities-list";
+        $('#pane-browse-results .sidebar-back').prop('href', backurl);
+
+        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
+        $.get(API_BASEPATH + 'ajax/get_attractions_by_amenity', { amenity_ids: amenity_id }, function (reply) {
+            display_attractions_results(title, reply);
+        }, 'json');
+    });
+
+    /**
+     * Display Attractions results from AJAX call.
+     */
+    display_attractions_results = function(title, reply) {
+        // Header title
+        var header = $('#pane-browse-results h1.sidebar-header .title-text');
+        header.text(title);
+
+        sidebar.open('pane-browse-results');
+
+        var target = $('ul#browse_results');
+        target.empty();
+
+        // Iterate over fetched results and render them into the target
+        for (var i=0, l=reply.results.length; i<l; i++) {
+            var result = reply.results[i];
+
+            // List item
+            // A lot of attributes to set pertaining to .zoom handling
+            var li = $('<li></li>')
+                .addClass('zoom')
+                .attr('title', result.name)
+                .attr('gid',result.gid)
+                .attr('type',result.type)
+                .attr('w',result.w)
+                .attr('s',result.s)
+                .attr('e',result.e)
+                .attr('n',result.n)
+                .attr('lat',result.lat)
+                .attr('lng',result.lng)
+                .attr('backbutton', "#pane-browse-results");
+
+            // Link (fake, currently)
+            link = $('<a></a>');
+            link.attr('class', 'ui-btn ui-btn-text');
+            //link.attr('href', 'javascript:zoomElementClick(this)');
+            li.append(link);
+
+            // On click: center the map and load More Info
+            li.click(function () {
+                zoomElementClick( $(this) );
+            });
+
+            // Title
+            link.append(
+                $('<span></span>')
+                    .addClass('ui-li-heading')
+                    .text(result.name)
+                );
+
+            // Inner text
+            if (result.note) {
+                link.append(
+                    $('<span></span>')
+                        .addClass('ui-li-desc')
+                        .html(result.note)
+                    );
+            }
+
+            // Distance placeholder, to be populated later
+            link.append(
+                $('<span></span>')
+                    .addClass('zoom_distance')
+                    .addClass('ui-li-count')
+                    .addClass('ui-btn-up-c')
+                    .addClass('ui-btn-corner-all')
+                    .text('0 mi')
+                );
+
+            // Add to the list
+            li.append(link);
+            target.append(li);
+        }
+
+        // Finalize the list,
+        // have jQuery Mobile do its styling magic on the newly-loaded content,
+        // then calculate the distances and sort.
+        target.listview('refresh');
+        sortLists(target);
+    };
 
     /*
      * Share pane (#pane-share)

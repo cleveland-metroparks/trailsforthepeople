@@ -1822,7 +1822,7 @@ function elevationprofilebysegments($context=null) {
 }
 
 /**
- * Browse POIs by activity
+ * Browse attractions by activity
  *
  * @param activity_ids
  */
@@ -1835,34 +1835,34 @@ function get_attractions_by_activity() {
     $attractions = new Attraction();
     $attractions = $attractions->getAttractionsByActivity($activity_ids);
 
-    foreach ($attractions as $attraction) {
-        $results[] = array(
-            'type'  => 'attraction',
-            'name'  => trim($attraction->pagetitle),
-            'gid'   => (integer) $attraction->gis_id,
-
-            'w'     => (float) 0,
-            's'     => (float) 0,
-            'e'     => (float) 0,
-            'n'     => (float) 0,
-
-            'lat'   => (float) $attraction->latitude,
-            'lng'   => (float) $attraction->longitude,
-
-            'thumbnail' => $attraction->pagethumbnail,
-
-            'description' => $attraction->descr,
-
-            'cmp_url' => $this->config->item('main_site_url') . ltrim($attraction->cmp_url, '/')
-        );
-    }
+    $results = $this->_makeAttractionResults($attractions);
 
     $output = array('results' => $results);
     print json_encode($output);
 }
 
 /**
- * Get nearby POIs with activities
+ * Browse attractions by amenity
+ *
+ * @param amenity_ids
+ */
+function get_attractions_by_amenity() {
+    $results = array();
+
+    // Accept either a single Amenity ID or an array of them.
+    $amenity_ids = is_array($_GET['amenity_ids']) ? $_GET['amenity_ids'] : array($_GET['amenity_ids']);
+
+    $attractions = new Attraction();
+    $attractions = $attractions->getAttractionsByAmenity($amenity_ids);
+
+    $results = $this->_makeAttractionResults($attractions);
+
+    $output = array('results' => $results);
+    print json_encode($output);
+}
+
+/**
+ * Get nearby attractions with activities
  *
  * @param lat
  * @param lng
@@ -1870,8 +1870,6 @@ function get_attractions_by_activity() {
  * @param activity_ids
  */
 function get_nearby_attractions_with_activities() {
-    $results = array();
-
     $attractions = new Attraction();
     $attractions = $attractions->getNearbyAttractions(
         $_GET['lat'],
@@ -1880,6 +1878,18 @@ function get_nearby_attractions_with_activities() {
         $_GET['activity_ids']
     );
 
+    $results = $this->_makeAttractionResults($attractions);
+
+    $output = array('results' => $results);
+    print json_encode($output);
+}
+
+/**
+ * Transform attractions from model functions into our output results array.
+ */
+function _makeAttractionResults($attractions) {
+    $results = array();
+
     foreach ($attractions as $attraction) {
         $results[] = array(
             'type'  => 'attraction',
@@ -1902,8 +1912,7 @@ function get_nearby_attractions_with_activities() {
         );
     }
 
-    $output = array('results' => $results);
-    print json_encode($output);
+    return $results;
 }
 
 /**
@@ -1936,6 +1945,8 @@ function get_beach_closures() {
 
 /**
  * Browse items
+ *
+ * @deprecated Remove when we don't have to support old apps.
  *
  * @param search
  * @param category

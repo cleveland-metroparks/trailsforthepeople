@@ -103,6 +103,9 @@
         <!-- Sidebar Pane: Find: #pane-browse -->
         <?php $this->load->view('mobile/sidebar-panes/browse.phtml'); ?>
 
+        <!-- Sidebar Pane: Find: #pane-amenities-list -->
+        <?php $this->load->view('mobile/sidebar-panes/amenities-list.phtml', array('amenities'=>$amenities)); ?>
+
         <!-- Sidebar Pane: Trail Finder: #pane-trailfinder -->
         <?php $this->load->view('mobile/sidebar-panes/trailfinder.phtml', array('reservations'=>$reservations)); ?>
 
@@ -133,7 +136,7 @@
         <!-- Sidebar Pane: Photo: #pane-photo -->
         <?php $this->load->view('mobile/sidebar-panes/photo.phtml'); ?>
 
-        <!-- Sidebar Pane: Find POIS: #pane-browse-pois-activity -->
+        <!-- Sidebar Pane: Activities: #pane-browse-pois-activity -->
         <?php $this->load->view('mobile/sidebar-panes/browse-pois-activity.phtml', array('activities' => $activities)); ?>
 
         <!-- Sidebar Pane: Elevation: #elevationprofile -->
