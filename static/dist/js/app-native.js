@@ -1095,7 +1095,7 @@ $(document).ready(function () {
     });
 
     /*
-     * Find POIs pane (#pane-browse-pois-activity)
+     * Activities pane (#pane-browse-pois-activity)
      */
     // When an Activity is clicked:
     $('#pane-browse-pois-activity li a').click(function() {
@@ -1109,7 +1109,7 @@ $(document).ready(function () {
 
         sidebar.open('pane-browse-results');
 
-        title = $(this).text().trim();
+        pane_title = $(this).text().trim();
 
         // Set the Back button on the target panel
         var backurl = "#pane-browse-pois-activity";
@@ -1117,9 +1117,8 @@ $(document).ready(function () {
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
         $.get(API_BASEPATH + 'ajax/get_attractions_by_activity', { activity_ids: activity_id }, function (reply) {
-            display_attractions_results(title, reply);
+            display_attractions_results(pane_title, reply);
         }, 'json');
-
     });
 
     /*
@@ -1135,7 +1134,7 @@ $(document).ready(function () {
             amenity_id = matches[1];
         }
 
-        title = $(this).text().trim();
+        pane_title = $(this).text().trim();
 
         // Set the Back button on the target panel
         var backurl = "#pane-amenities-list";
@@ -1143,17 +1142,34 @@ $(document).ready(function () {
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
         $.get(API_BASEPATH + 'ajax/get_attractions_by_amenity', { amenity_ids: amenity_id }, function (reply) {
-            display_attractions_results(title, reply);
+            display_attractions_results(pane_title, reply);
+        }, 'json');
+    });
+
+    /*
+     * Welcome pane (#pane-welcome)
+     */
+    // When the Visitor Centers button is clicked:
+    $('#pane-welcome .welcome-pane-visitorcenters a').click(function() {
+        pane_title = 'Visitor Centers';
+
+        // Set the Back button on the target panel
+        var backurl = "#pane-welcome";
+        $('#pane-browse-results .sidebar-back').prop('href', backurl);
+
+        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
+        $.get(API_BASEPATH + 'ajax/get_visitor_centers', null, function (reply) {
+            display_attractions_results(pane_title, reply);
         }, 'json');
     });
 
     /**
      * Display Attractions results from AJAX call.
      */
-    display_attractions_results = function(title, reply) {
-        // Header title
+    display_attractions_results = function(pane_title, reply) {
+        // Pane header title
         var header = $('#pane-browse-results h1.sidebar-header .title-text');
-        header.text(title);
+        header.text(pane_title);
 
         sidebar.open('pane-browse-results');
 

@@ -1827,8 +1827,6 @@ function elevationprofilebysegments($context=null) {
  * @param activity_ids
  */
 function get_attractions_by_activity() {
-    $results = array();
-
     // Accept either a single Activity ID or an array of them.
     $activity_ids = is_array($_GET['activity_ids']) ? $_GET['activity_ids'] : array($_GET['activity_ids']);
 
@@ -1847,8 +1845,6 @@ function get_attractions_by_activity() {
  * @param amenity_ids
  */
 function get_attractions_by_amenity() {
-    $results = array();
-
     // Accept either a single Amenity ID or an array of them.
     $amenity_ids = is_array($_GET['amenity_ids']) ? $_GET['amenity_ids'] : array($_GET['amenity_ids']);
 
@@ -1856,6 +1852,19 @@ function get_attractions_by_amenity() {
     $attractions = $attractions->getAttractionsByAmenity($amenity_ids);
 
     $results = $this->_makeAttractionResults($attractions);
+
+    $output = array('results' => $results);
+    print json_encode($output);
+}
+
+/**
+ * Browse visitor center [attractions]
+ */
+function get_visitor_centers() {
+    $visitor_centers = new Attraction();
+    $visitor_centers = $visitor_centers->getVisitorCenters();
+
+    $results = $this->_makeAttractionResults($visitor_centers);
 
     $output = array('results' => $results);
     print json_encode($output);

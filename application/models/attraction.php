@@ -6,6 +6,7 @@
 class Attraction extends DataMapper {
 
 var $table    = 'view_cmp_gisattractions';
+var $table_visitorcenters    = 'app_view_visitorcenters';
 
 function __construct($id = NULL) {
     parent::__construct($id);
@@ -176,6 +177,25 @@ function filterAttractionsByAmenities($attractions, $amenity_ids) {
     }
 
     return $filtered_attractions;
+}
+
+/**
+ * Get visitor centers (a subset of attractions).
+ *
+ * @return
+ */
+function getVisitorCenters() {
+  $visitor_centers = new Attraction();
+
+  $sql = "
+      SELECT *
+      FROM $visitor_centers->table_visitorcenters
+      ORDER BY pagetitle;
+  ";
+  $results = $visitor_centers->db->query($sql)->result();
+  $output = (array)$results;
+
+  return $output;
 }
 
 /**
