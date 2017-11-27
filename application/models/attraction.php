@@ -64,8 +64,13 @@ protected function getFilteredAttractions($filter, $filter_ids=array()) {
     switch ($filter) {
         case 'amenities':
             $attractions = $this->filterAttractionsByAmenities($all_attractions, $filter_ids);
+            break;
         case 'activities':
             $attractions = $this->filterAttractionsByActivities($all_attractions, $filter_ids);
+            break;
+        default:
+            $attractions = array();
+            break;
     }
 
     return $attractions;

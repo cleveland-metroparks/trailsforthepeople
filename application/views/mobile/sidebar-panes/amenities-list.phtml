@@ -10,7 +10,7 @@
     <ul data-role="listview" data-inset="true">
     <?php foreach ($amenities as $amenity_id => $amenity) { ?>
         <li>
-            <a href="<?= "#browse-results?amenity_id=${amenity_id}" ?>">
+            <a href="<?= "#browse-results?amenity_id=$amenity->amenitytypeid" ?>">
                 <?= htmlspecialchars($amenity->name) ?>
             </a>
         </li>
