@@ -383,6 +383,15 @@ function moreinfo() {
             $template = 'ajax/moreinfo_reservation.phtml';
             break;
 
+        case 'reservation_new':
+            $result = new Reservation();
+            $result
+                ->where('record_id', $_GET['gid'])
+                ->get();
+            if (! $result->record_id) exit;
+            $template = 'ajax/moreinfo_reservation_new.phtml';
+            break;
+
         case 'loop':
             $result = new Loop();
             $result->where('id',$_GET['gid'])->get();
@@ -1822,7 +1831,7 @@ function elevationprofilebysegments($context=null) {
 }
 
 /**
- * Browse attractions by activity
+ * Get Attractions for an Activity
  *
  * @param activity_ids
  */
@@ -1840,7 +1849,7 @@ function get_attractions_by_activity() {
 }
 
 /**
- * Browse attractions by amenity
+ * Get Attractions by Amenity
  *
  * @param amenity_ids
  */
@@ -1858,13 +1867,29 @@ function get_attractions_by_amenity() {
 }
 
 /**
- * Browse visitor center [attractions]
+ * Get Visitor Centers (Attractions)
  */
 function get_visitor_centers() {
     $visitor_centers = new Attraction();
     $visitor_centers = $visitor_centers->getVisitorCenters();
 
     $results = $this->_makeAttractionResults($visitor_centers);
+
+    $output = array('results' => $results);
+    print json_encode($output);
+}
+
+/**
+ * Get Reservations
+ */
+function get_reservations() {
+    $reservations = new Reservation();
+
+    $reservations
+        ->order_by('pagetitle')
+        ->get();
+
+    $results = $this->_makeAttractionResults($reservations, 'reservation_new');
 
     $output = array('results' => $results);
     print json_encode($output);
@@ -1895,15 +1920,21 @@ function get_nearby_attractions_with_activities() {
 
 /**
  * Transform attractions from model functions into our output results array.
+ *
+ * @param $attractions: Listing of attractions as returned
+ *      from Attraction data model functions.
+ * @param $type: Typically 'attraction', but could be other types (like 'reservation_new')
+ *      that we're overloading this function for.
  */
-function _makeAttractionResults($attractions) {
+function _makeAttractionResults($attractions, $type='attraction') {
     $results = array();
 
     foreach ($attractions as $attraction) {
         $results[] = array(
-            'type'  => 'attraction',
+            'type'  => $type,
             'name'  => trim($attraction->pagetitle),
             'gid'   => (integer) $attraction->gis_id,
+            'record_id' => (integer)$attraction->record_id,
 
             'w'     => (float) 0,
             's'     => (float) 0,

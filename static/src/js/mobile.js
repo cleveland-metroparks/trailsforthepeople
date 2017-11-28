@@ -343,6 +343,9 @@ function zoomElementClick(element) {
 
     var type = element.attr('type');
     var gid  = element.attr('gid');
+    if (type=='reservation_new') {
+        gid  = element.attr('record_id');
+    }
 
     // assign this element to the Show On Map button, so it knows how to zoom to our location
     // and to the getdirections form so we can route to it

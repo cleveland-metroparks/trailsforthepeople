@@ -795,6 +795,9 @@ function zoomElementClick(element) {
 
     var type = element.attr('type');
     var gid  = element.attr('gid');
+    if (type=='reservation_new') {
+        gid  = element.attr('record_id');
+    }
 
     // assign this element to the Show On Map button, so it knows how to zoom to our location
     // and to the getdirections form so we can route to it
@@ -1162,6 +1165,19 @@ $(document).ready(function () {
             display_attractions_results(pane_title, reply);
         }, 'json');
     });
+    // When the Parks button is clicked:
+    $('#pane-welcome .welcome-pane-parks a').click(function() {
+        pane_title = 'Parks';
+
+        // Set the Back button on the target panel
+        var backurl = "#pane-welcome";
+        $('#pane-browse-results .sidebar-back').prop('href', backurl);
+
+        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
+        $.get(API_BASEPATH + 'ajax/get_reservations', null, function (reply) {
+            display_attractions_results(pane_title, reply);
+        }, 'json');
+    });
 
     /**
      * Display Attractions results from AJAX call.
@@ -1186,6 +1202,7 @@ $(document).ready(function () {
                 .addClass('zoom')
                 .attr('title', result.name)
                 .attr('gid',result.gid)
+                .attr('record_id',result.record_id)
                 .attr('type',result.type)
                 .attr('w',result.w)
                 .attr('s',result.s)
@@ -1198,12 +1215,11 @@ $(document).ready(function () {
             // Link (fake, currently)
             link = $('<a></a>');
             link.attr('class', 'ui-btn ui-btn-text');
-            //link.attr('href', 'javascript:zoomElementClick(this)');
             li.append(link);
 
             // On click: center the map and load More Info
             li.click(function () {
-                zoomElementClick( $(this) );
+                zoomElementClick($(this));
             });
 
             // Title
