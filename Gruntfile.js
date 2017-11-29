@@ -334,7 +334,7 @@ module.exports = function(grunt) {
           'static/src/js/loopsandroutes.js',
           'static/src/js/print.js'
         ],
-        tasks: ['uglify:dist']
+        tasks: ['uglify:native']
       }
       //concat_embedded: {
       //  files: [

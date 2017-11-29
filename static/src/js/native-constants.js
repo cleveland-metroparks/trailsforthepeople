@@ -7,6 +7,6 @@
  */
 
 WEBAPP_BASEPATH = '';
-API_BASEPATH = 'https://maps.clevelandmetroparks.com/';
+API_BASEPATH = 'https://maps-dev.clevelandmetroparks.com/';
 
 NATIVE_APP = true;
