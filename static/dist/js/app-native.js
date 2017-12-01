@@ -1086,8 +1086,10 @@ $(document).ready(function () {
     /*
      * Find pane (#pane-browse)
      */
-    $('#pane-browse li a').click(function() {
-
+    $('#pane-browse li a[href="#pane-browse-pois-activity"]').click(function() {
+        // Set the Back button on the target panel
+        var backurl = "#pane-browse";
+        $('#pane-browse-pois-activity .sidebar-back').prop('href', backurl);
     });
 
     /*
@@ -1177,6 +1179,12 @@ $(document).ready(function () {
         $.get(API_BASEPATH + 'ajax/get_reservations', null, function (reply) {
             display_attractions_results(pane_title, reply);
         }, 'json');
+    });
+    // When the Visitor Centers button is clicked:
+    $('#pane-welcome .welcome-pane-activities a').click(function() {
+        // Set the Back button on the target panel
+        var backurl = "#pane-welcome";
+        $('#pane-browse-pois-activity .sidebar-back').prop('href', backurl);
     });
 
     /**
