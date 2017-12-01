@@ -19,15 +19,6 @@ $(document).ready(function () {
     });
 
     /*
-     * Trail-finder pane (#pane-trailfinder)
-     */
-    $('a.sidebar-pane-link[href="#pane-trailfinder"]').click(function() {
-        // On opening the Trailfinder pane, trigger the search (list update).
-        trailfinderUpdate();
-        $('#pane-trailfinder .sortpicker').show();
-    });
-
-    /*
      * Find pane (#pane-browse)
      */
     $('#pane-browse li a[href="#pane-browse-pois-activity"]').click(function() {

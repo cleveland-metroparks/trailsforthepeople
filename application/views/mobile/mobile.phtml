@@ -106,9 +106,6 @@
         <!-- Sidebar Pane: Find: #pane-amenities-list -->
         <?php $this->load->view('mobile/sidebar-panes/amenities-list.phtml', array('amenities'=>$amenities)); ?>
 
-        <!-- Sidebar Pane: Trail Finder: #pane-trailfinder -->
-        <?php $this->load->view('mobile/sidebar-panes/trailfinder.phtml', array('reservations'=>$reservations)); ?>
-
         <!-- Sidebar Pane: Nearby: #pane-radar -->
         <?php $this->load->view('mobile/sidebar-panes/radar.phtml', array('poicategories'=>$poicategories)); ?>
 
@@ -142,7 +139,7 @@
         <!-- Sidebar Pane: Elevation: #elevationprofile -->
         <?php $this->load->view('mobile/sidebar-panes/elevationprofile.phtml'); ?>
 
-        <!-- Sidebar Pane: Loops & Routes: #pane-loops-search -->
+        <!-- Sidebar Pane: Trails: #pane-loops-search -->
         <?php $this->load->view('mobile/sidebar-panes/loops-search.phtml', array('reservations'=>$reservations)); ?>
 
         <!-- Sidebar Pane: Save as PDF: #pane-print -->
