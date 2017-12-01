@@ -301,9 +301,7 @@ function showAttractionInfo(attraction) {
     // Change to the Info pane
     sidebar.open('pane-info');
 
-    // Set the sidebar pane's back button.
-    var backurl = '#pane-browse';
-    $('#pane-info .sidebar-back').prop('href', backurl);
+    set_pane_back_button('#pane-info', '#pane-browse')
 
     // Enable "Get Directions"
     $('#getdirections_disabled').hide();
@@ -362,9 +360,11 @@ function zoomElementClick(element) {
     sidebar.open('pane-info');
 
     // correct the Back button to go to the URL specified in the element, or else to the map
-    var backurl = element.attr('backbutton');
-    if (! backurl) backurl = '#pane-browse';
-    $('#pane-info .sidebar-back').prop('href', backurl);
+    var back_url = element.attr('backbutton');
+    if (! back_url) {
+        back_url = '#pane-browse';
+    }
+    set_pane_back_button('#pane-info', back_url)
 
     // now that we have a location defined, enable the Get Directions
     $('#getdirections_disabled').hide();

@@ -753,9 +753,7 @@ function showAttractionInfo(attraction) {
     // Change to the Info pane
     sidebar.open('pane-info');
 
-    // Set the sidebar pane's back button.
-    var backurl = '#pane-browse';
-    $('#pane-info .sidebar-back').prop('href', backurl);
+    set_pane_back_button('#pane-info', '#pane-browse')
 
     // Enable "Get Directions"
     $('#getdirections_disabled').hide();
@@ -814,9 +812,11 @@ function zoomElementClick(element) {
     sidebar.open('pane-info');
 
     // correct the Back button to go to the URL specified in the element, or else to the map
-    var backurl = element.attr('backbutton');
-    if (! backurl) backurl = '#pane-browse';
-    $('#pane-info .sidebar-back').prop('href', backurl);
+    var back_url = element.attr('backbutton');
+    if (! back_url) {
+        back_url = '#pane-browse';
+    }
+    set_pane_back_button('#pane-info', back_url)
 
     // now that we have a location defined, enable the Get Directions
     $('#getdirections_disabled').hide();
@@ -1078,9 +1078,10 @@ $(document).ready(function () {
      * Find pane (#pane-browse)
      */
     $('#pane-browse li a[href="#pane-browse-pois-activity"]').click(function() {
-        // Set the Back button on the target panel
-        var backurl = "#pane-browse";
-        $('#pane-browse-pois-activity .sidebar-back').prop('href', backurl);
+        set_pane_back_button('#pane-browse-pois-activity', '#pane-browse');
+    });
+    $('#pane-browse li a[href="#pane-loops-search"]').click(function() {
+        set_pane_back_button('#pane-loops-search', '#pane-browse');
     });
 
     /*
@@ -1106,10 +1107,7 @@ $(document).ready(function () {
         sidebar.open('pane-browse-results');
 
         pane_title = $(this).text().trim();
-
-        // Set the Back button on the target panel
-        var backurl = "#pane-browse-pois-activity";
-        $('#pane-browse-results .sidebar-back').prop('href', backurl);
+        set_pane_back_button('#pane-browse-results', '#pane-browse-pois-activity');
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
         $.get(API_BASEPATH + 'ajax/get_attractions_by_activity', { activity_ids: activity_id }, function (reply) {
@@ -1131,10 +1129,7 @@ $(document).ready(function () {
         }
 
         pane_title = $(this).text().trim();
-
-        // Set the Back button on the target panel
-        var backurl = "#pane-amenities-list";
-        $('#pane-browse-results .sidebar-back').prop('href', backurl);
+        set_pane_back_button('#pane-browse-results', '#pane-amenities-list');
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
         $.get(API_BASEPATH + 'ajax/get_attractions_by_amenity', { amenity_ids: amenity_id }, function (reply) {
@@ -1145,37 +1140,33 @@ $(document).ready(function () {
     /*
      * Welcome pane (#pane-welcome)
      */
-    // When the Visitor Centers button is clicked:
+    // Visitor Centers button clicked
     $('#pane-welcome .welcome-pane-visitorcenters a').click(function() {
         pane_title = 'Visitor Centers';
-
-        // Set the Back button on the target panel
-        var backurl = "#pane-welcome";
-        $('#pane-browse-results .sidebar-back').prop('href', backurl);
+        set_pane_back_button('#pane-browse-results', '#pane-welcome');
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
         $.get(API_BASEPATH + 'ajax/get_visitor_centers', null, function (reply) {
             display_attractions_results(pane_title, reply);
         }, 'json');
     });
-    // When the Parks button is clicked:
+    // Parks button clicked
     $('#pane-welcome .welcome-pane-parks a').click(function() {
         pane_title = 'Parks';
-
-        // Set the Back button on the target panel
-        var backurl = "#pane-welcome";
-        $('#pane-browse-results .sidebar-back').prop('href', backurl);
+        set_pane_back_button('#pane-browse-results', '#pane-welcome');
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
         $.get(API_BASEPATH + 'ajax/get_reservations', null, function (reply) {
             display_attractions_results(pane_title, reply);
         }, 'json');
     });
-    // When the Visitor Centers button is clicked:
+    // Activities button clicked
     $('#pane-welcome .welcome-pane-activities a').click(function() {
-        // Set the Back button on the target panel
-        var backurl = "#pane-welcome";
-        $('#pane-browse-pois-activity .sidebar-back').prop('href', backurl);
+        set_pane_back_button('#pane-browse-pois-activity', '#pane-welcome');
+    });
+    // Trails button clicked
+    $('#pane-welcome .welcome-pane-trails a').click(function() {
+        set_pane_back_button('#pane-loops-search', '#pane-welcome');
     });
 
     /**
@@ -1285,6 +1276,13 @@ $(document).ready(function () {
         sidebar.open('pane-welcome');
     }
 });
+
+/**
+ * Set the back button URL on a pane
+ */
+set_pane_back_button = function(pane_id, back_url) {
+    $('.sidebar-back', $(pane_id)).prop('href', back_url);
+}
 
 /**
  * @TODO: Bind this to sidebar tab button clicks AND
