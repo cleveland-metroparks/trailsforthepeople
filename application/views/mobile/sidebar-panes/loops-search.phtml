@@ -9,9 +9,10 @@
     
     <fieldset data=role="controlgroup">
     
+    <h4 class="label">Filter by Activity:</h4>
     <!-- Hidden form controls connected to clickable image buttons -->
     <div style="display:none;">
-        <select id="loops_filter_type" data-mini="true">
+        <select id="loops_filter_type">
         <!-- <option value="">All trail types</option> -->
         <option value="hike">Hiking / Walking</option>
         <option value="bike_Novice">Bicycle, Novice</option>
@@ -24,31 +25,31 @@
         </select>
     </div>
     <div id="loops_typeicons">
-        <img data-value="hike" src="<?= site_url('static/images/activities/hike.svg') ?>" />
-        <img data-value="bike_Advanced" src="<?= site_url('static/images/activities/bike.svg') ?>" />
-        <img data-value="bridle" src="<?= site_url('static/images/activities/horse.svg') ?>" />
+        <img alt="Hiking/Walking" data-value="hike" src="<?= site_url('static/images/activities/hike.svg') ?>" />
+        <img alt="Bicycling" data-value="bike_Advanced" src="<?= site_url('static/images/activities/bike.svg') ?>" />
+        <img alt="Equestrian" data-value="bridle" src="<?= site_url('static/images/activities/horse.svg') ?>" />
         <!--<img data-value="exercise" src="<?= site_url('static/images/activities/fitness.svg') ?>" />-->
-        <img data-value="mountainbike" src="<?= site_url('static/images/activities/mtnbike.svg') ?>" />
+        <img alt="Mountain Biking" data-value="mountainbike" src="<?= site_url('static/images/activities/mtnbike.svg') ?>" />
     </div>
     
     <div style="display:none;">
-        <select id="loops_filter_paved" data-mini="true">
+        <select id="loops_filter_paved">
             <option value="">Paved or unpaved</option>
             <option value="Yes">Paved</option>
             <option value="No">Unpaved</option>
         </select>
     </div>
-    
-    <select id="loops_filter_reservation" data-mini="true">
+
+    <h4 class="label">Filter by Reservation:</h4>
+    <select id="loops_filter_reservation">
         <option value="">(any reservation)</option>
         <?php foreach ($reservations as $res) { ?>
         <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
         <?php } ?>
     </select>
-    
-    </fieldset>
 
-    <!-- Hidden form controls connected to clickable image buttons -->
+    <h4 class="label">Filter by Route Length:</h4>
+    <!-- Hidden form controls connected to clickable buttons -->
     <div data-role="fieldcontain" style="display:none;">
         <b>Length</b>
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -58,12 +59,11 @@
         <br/>
         Max: <input type="range" id="loops_filter_distance_max" min="0" max="50" value="50" />
     </div>
-
     <div id="loops_filter_distancepicker">
-        <img data-min="0" data-max="2" src="<?= site_url('static/images/trailfinder/trailfinder_distance1_off.png') ?>" />
-        <img data-min="2" data-max="5" src="<?= site_url('static/images/trailfinder/trailfinder_distance2_off.png') ?>" />
-        <img data-min="5" data-max="10" src="<?= site_url('static/images/trailfinder/trailfinder_distance3_off.png') ?>" />
-        <img data-min="10" data-max="100" src="<?= site_url('static/images/trailfinder/trailfinder_distance4_off.png') ?>" />
+        <a href="#" data-min="0" data-max="2">0-2 mi</a>
+        <a href="#" data-min="2" data-max="5">2-5 mi</a>
+        <a href="#" data-min="5" data-max="10">5-10 mi</a>
+        <a href="#" data-min="10" data-max="100">10+ mi</a>
     </div>
     
     <div data-role="fieldcontain" id="loops_filter_duration" style="display:none;">
@@ -75,6 +75,8 @@
         <br/>
         Max: <input type="range" id="loops_filter_duration_max" min="0" max="300" value="300" />
     </div>
+
+    </fieldset>
 
     <input type="button" id="loops_filter_button" value="Search" value0="Searching..." value1="Search" />
 

@@ -518,44 +518,29 @@ div.lng_driving {
 //
 #pane-loops-search {
     #loops_typeicons {
-        text-align: center;
-        margin: 1em 0;
         img {
             width: 50px;
             margin: 0px 3px;
             cursor: pointer;
         }
+    }
+    h4.label {
+        margin-top: 1em !important;
+        margin-bottom: 0.5em !important;
     }
     #loops_filter_distancepicker {
-        text-align: center;
-        margin: 1em 0;
-        img {
-            cursor: pointer;
+        a {
+            background-color: $grey_darkest;
+            color: white;
+            text-decoration: none;
+            padding: 3px 0.5em;
+            border-radius: 0.2em;
+            margin-right: 0.2em;
+            &.active {
+                background-color: $green_light;
+            }
         }
-    }
-    #loops_filter_reservation {
-        margin: 1em 0;
-    }
-    .sortpicker {
-        margin-top: 1.5em;
-    }
-}
-
-//
-// Sidebar Pane: Trail Finder
-//
-#pane-trailfinder {
-    #trailfinder_typeicons {
-        text-align: center;
-        margin: 1em 0;
-        img {
-            width: 50px;
-            margin: 0px 3px;
-            cursor: pointer;
-        }
-    }
-    #trailfinder_reservation {
-        margin: 1em 0;
+        margin-bottom: 2em;
     }
     .sortpicker {
         margin-top: 1.5em;
