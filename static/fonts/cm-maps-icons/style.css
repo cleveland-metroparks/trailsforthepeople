@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'cm-maps-icons';
-  src:  url('fonts/cm-maps-icons.eot?hny55m');
-  src:  url('fonts/cm-maps-icons.eot?hny55m#iefix') format('embedded-opentype'),
-    url('fonts/cm-maps-icons.ttf?hny55m') format('truetype'),
-    url('fonts/cm-maps-icons.woff?hny55m') format('woff'),
-    url('fonts/cm-maps-icons.svg?hny55m#cm-maps-icons') format('svg');
+  src:  url('fonts/cm-maps-icons.eot?2z7lk1');
+  src:  url('fonts/cm-maps-icons.eot?2z7lk1#iefix') format('embedded-opentype'),
+    url('fonts/cm-maps-icons.ttf?2z7lk1') format('truetype'),
+    url('fonts/cm-maps-icons.woff?2z7lk1') format('woff'),
+    url('fonts/cm-maps-icons.svg?2z7lk1#cm-maps-icons') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -24,6 +24,96 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.cm-icon-basketball .path1:before {
+  content: "\e934";
+  color: rgb(0, 0, 0);
+}
+.cm-icon-basketball .path2:before {
+  content: "\e935";
+  margin-left: -1em;
+  color: rgb(0, 0, 0);
+}
+.cm-icon-basketball .path3:before {
+  content: "\e936";
+  margin-left: -1em;
+  color: rgb(0, 0, 0);
+}
+.cm-icon-basketball .path4:before {
+  content: "\e937";
+  margin-left: -1em;
+  color: rgb(0, 0, 0);
+}
+.cm-icon-basketball .path5:before {
+  content: "\e938";
+  margin-left: -1em;
+  color: rgb(0, 0, 0);
+}
+.cm-icon-basketball .path6:before {
+  content: "\e939";
+  margin-left: -1em;
+  color: rgb(0, 0, 0);
+}
+.cm-icon-basketball .path7:before {
+  content: "\e93a";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-basketball .path8:before {
+  content: "\e93b";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-basketball .path9:before {
+  content: "\e93c";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-basketball .path10:before {
+  content: "\e93d";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-basketball .path11:before {
+  content: "\e93e";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-basketball .path12:before {
+  content: "\e93f";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-basketball .path13:before {
+  content: "\e940";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-basketball .path14:before {
+  content: "\e941";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-baseball:before {
+  content: "\e933";
+}
+.cm-icon-boat_rental:before {
+  content: "\e942";
+}
+.cm-icon-drink:before {
+  content: "\e943";
+}
+.cm-icon-gifts:before {
+  content: "\e944";
+}
+.cm-icon-playground:before {
+  content: "\e945";
+}
+.cm-icon-restroom:before {
+  content: "\e946";
+}
+.cm-icon-volleyball:before {
+  content: "\e947";
+}
 .cm-icon-info:before {
   content: "\f129";
 }

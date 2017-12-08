@@ -8,10 +8,11 @@
     <a href="#pane-welcome" class="sidebar-pane-link sidebar-back ui-btn ui-btn-inline ui-icon-back ui-btn-icon-left ui-corner-all">Back</a>
 
     <ul data-role="listview" data-inset="true">
-    <?php foreach ($amenities as $amenity_id => $amenity) { ?>
+    <?php foreach ($amenities as $id => $amenity) { ?>
         <li>
-            <a href="<?= "#browse-results?amenity_id=$amenity->amenitytypeid" ?>">
-                <?= htmlspecialchars($amenity->name) ?>
+            <a href="<?= "#browse-results?amenity_id=$id" ?>">
+                <i class="cm-icon cm-icon-<?= $amenity['icon'] ?>"></i>
+                <?= htmlspecialchars($amenity['title']) ?>
             </a>
         </li>
     <?php } ?>
