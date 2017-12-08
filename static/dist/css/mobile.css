@@ -2,6 +2,8 @@
 
 .cm-icon { display: inline-block; }
 
+img { max-width: 100%; }
+
 #map_canvas { position: absolute; top: 0; left: 0; margin: 0; padding: 0; width: 100%; height: 100%; }
 
 .leaflet-popup .fakelink { font-size: 12pt; }
@@ -130,7 +132,5 @@ div.lng_driving { display: none; }
 #pane-loops-search #loops_filter_distancepicker a { background-color: #232222; color: white; text-decoration: none; padding: 3px 0.5em; border-radius: 0.2em; margin-right: 0.2em; }
 #pane-loops-search #loops_filter_distancepicker a.active { background-color: #6AB03E; }
 #pane-loops-search .sortpicker { margin-top: 1.5em; }
-
-#pane-elevationprofile img#elevation { max-width: 100%; }
 
 /*# sourceMappingURL=mobile.css.map */

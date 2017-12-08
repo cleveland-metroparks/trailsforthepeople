@@ -8,6 +8,10 @@
     display: inline-block;
 }
 
+img {
+    max-width: 100%;
+}
+
 // -----------------------------------------------------------------------------------------------------------
 // Map elements
 // -----------------------------------------------------------------------------------------------------------
@@ -550,8 +554,4 @@ div.lng_driving {
 //
 // Sidebar Pane: Elevation profile
 //
-#pane-elevationprofile {
-    img#elevation {
-        max-width: 100%;
-    }
-}
+#pane-elevationprofile {}
