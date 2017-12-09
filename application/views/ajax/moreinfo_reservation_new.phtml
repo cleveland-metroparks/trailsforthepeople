@@ -1,10 +1,12 @@
 <?php
 	$park_name = htmlspecialchars($feature->pagetitle);
 
-	$main_site_url = 'https://www.clevelandmetroparks.com/';
+	$max_img_width = '320';
+
 	if (!empty($feature->pagethumbnail)) {
-		$img_src = str_replace('~/', $main_site_url, $feature->pagethumbnail);
-		$img_markup = '<img src="' . $img_src .'" alt="' . $img_src . '">';
+		$this->load->helper('misc');
+		$img_url = _transform_main_site_image_url($feature->pagethumbnail, $max_img_width);
+		$img_markup = '<img src="' . $img_url .'" alt="' . $park_name . '">';
 	} else {
 		$img_markup = '';
 	}
