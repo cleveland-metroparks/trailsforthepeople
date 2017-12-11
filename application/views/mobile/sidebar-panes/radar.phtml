@@ -26,7 +26,6 @@
 
         <strong>Watch for these types of features:</strong>
         <fieldset data-role="controlgroup">
-            <label><input type="checkbox" name="radar_category" value="Health Tips" checked="checked">Health Tips</label>
             <?php foreach ($poicategories as $category) { ?>
                 <label><input type="checkbox" name="radar_category" value="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($category) ?></label>
             <?php } ?>
