@@ -80,16 +80,29 @@ $(document).ready(function() {
  * Read the globally stored SHARE_URL_STRING and request a shortened URL from the server
  */
 function populateShareBox() {
+    // In native mobile our URL_PARAMS are not what we expect
+    var protocol = (URL_PARAMS.attr('protocol') != 'file')
+        ? URL_PARAMS.attr('protocol')
+        : WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL;
+    var host = (URL_PARAMS.attr('host'))
+        ? URL_PARAMS.attr('host')
+        : WEBAPP_BASE_URL_ABSOLUTE_HOST;
+    // We used to get the current path, but this was to clarify between
+    // /desktop/map and /mobile/map. Now that that's no longer necessary,
+    // we can just use the base url path.
+    var path = '/';
+
     // submit the long URL param string to the server, get back a short param string
     var params = {
-        uri : URL_PARAMS.attr('path'),
+        uri : path,
         querystring : SHARE_URL_STRING
     };
-
     $.get(API_BASEPATH + 'ajax/make_shorturl', params, function(shortstring) {
-        if (! shortstring) return alert("Unable to fetch a short URL.\nPlease try again.");
-        var url = URL_PARAMS.attr('protocol') + '://' + URL_PARAMS.attr('host') + '/url/' + shortstring;
+        if (! shortstring) {
+            return alert("Unable to fetch a short URL.\nPlease try again.");
+        }
 
+        var url = protocol + '://' + host + '/url/' + shortstring;
         $('#share_url').val(url);
     });
 }
