@@ -4,103 +4,33 @@
     {
       "icon": {
         "paths": [
-          "M660.941 236.833c0 52.98-42.949 95.931-95.931 95.931s-95.931-42.949-95.931-95.931c0-52.98 42.949-95.931 95.931-95.931s95.931 42.949 95.931 95.931z",
-          "M943.683 721.531l-181.762-50.489-55.537-75.734-25.245-161.565c30.294 10.097 65.637 30.294 65.637 75.734 0 25.245 20.197 40.391 45.44 40.391 0 0 0 0 5.049 0 25.245 0 40.391-20.197 40.391-45.44-5.049-111.077-111.077-156.517-171.665-166.616 0 0-95.931 0-161.565 0-35.343 0-60.588-10.097-75.734-30.294-35.343-35.343-35.343-95.931-35.343-116.125 5.049-25.245-15.146-45.44-40.391-50.489 0 0 0 0 0 0 0-5.049 5.049-15.146 5.049-25.245 0-40.391-35.343-75.734-80.783-75.734s-80.783 35.343-80.783 80.783c0 45.44 35.343 80.783 80.783 80.783 10.097 0 20.197 0 30.294-5.049 0 30.294 0 111.077 50.489 171.665 35.343 40.391 80.783 60.588 141.371 60.588v0l30.294 207.007 5.049 146.419c0 10.097 5.049 20.197 10.097 30.294l131.273 156.517c10.097 10.097 20.197 15.146 35.343 15.146 10.097 0 20.197-5.049 30.294-10.097 20.197-15.146 20.197-45.44 5.049-60.588l-121.174-146.419 5.049-131.273 80.783 106.028c5.049 5.049 15.146 15.146 20.197 15.146l191.859 55.537c5.049 0 10.097 0 10.097 0 20.197 0 35.343-10.097 40.391-30.294 10.097-25.245-5.049-50.489-30.294-60.588z",
-          "M39.921 226.736l111.077 222.153",
-          "M90.412 226.736l111.077 222.153",
-          "M140.901 226.736l75.734 151.468",
-          "M191.391 226.736l40.391 80.783",
-          "M211.586 408.498l-20.197 40.391",
-          "M251.977 226.736l-111.077 222.153",
-          "M201.489 226.736l-111.077 222.153",
-          "M75.264 378.204l75.734-151.468",
-          "M100.509 226.736l-40.391 80.783",
-          "M39.921 221.687h212.056",
-          "M90.412 448.889l-50.489-222.153h212.056l-50.489 222.153"
+          "M679.613 215.516c0 57.084-46.276 103.363-103.363 103.363s-103.363-46.276-103.363-103.363c0-57.084 46.276-103.363 103.363-103.363s103.363 46.276 103.363 103.363z",
+          "M984.259 737.763l-195.843-54.4-59.839-81.601-27.201-174.081c32.641 10.879 70.722 32.641 70.722 81.601 0 27.201 21.762 43.52 48.96 43.52 0 0 0 0 5.44 0 27.201 0 43.52-21.762 43.52-48.96-5.44-119.682-119.682-168.642-184.964-179.524 0 0-103.363 0-174.081 0-38.081 0-65.282-10.879-81.601-32.641-38.081-38.081-38.081-103.363-38.081-125.121 5.44-27.201-16.319-48.96-43.52-54.4 0 0 0 0 0 0 0-5.44 5.44-16.319 5.44-27.201 0-43.52-38.081-81.601-87.041-81.601s-87.041 38.081-87.041 87.041c0 48.96 38.081 87.041 87.041 87.041 10.879 0 21.762 0 32.641-5.44 0 32.641 0 119.682 54.4 184.964 38.081 43.52 87.041 65.282 152.323 65.282v0l32.641 223.044 5.44 157.762c0 10.879 5.44 21.762 10.879 32.641l141.443 168.642c10.879 10.879 21.762 16.319 38.081 16.319 10.879 0 21.762-5.44 32.641-10.879 21.762-16.319 21.762-48.96 5.44-65.282l-130.561-157.762 5.44-141.443 87.041 114.242c5.44 5.44 16.319 16.319 21.762 16.319l206.722 59.839c5.44 0 10.879 0 10.879 0 21.762 0 38.081-10.879 43.52-32.641 10.879-27.201-5.44-54.4-32.641-65.282z",
+          "M16.584 201.554l-12.22 6.162 119.747 239.279 12.113-6.055z",
+          "M70.983 201.554l-12.22 6.162 119.747 239.279 12.113-6.055z",
+          "M125.386 201.554l-12.22 6.162 81.601 163.202 12.22-6.162z",
+          "M179.786 201.554l-12.22 6.162 43.563 87.021 12.113-6.055z",
+          "M189.35 397.482l-21.781 43.455 12.22 6.055 21.781-43.455z",
+          "M232.912 201.554l-119.747 239.386 12.22 6.055 119.639-239.279z",
+          "M178.51 201.554l-119.747 239.386 12.22 6.055 119.639-239.279z",
+          "M124.11 201.554l-81.601 163.202 12.113 6.162 81.601-163.202z",
+          "M69.71 201.554l-43.563 87.125 12.22 6.055 43.455-87.021z",
+          "M9.145 185.616c-7.218 0.377-12.926 6.324-12.926 13.601 0 7.522 6.096 13.617 13.617 13.617 0.245 0 0.485-0.005 0.724-0.018l-0.032 0.001h228.442c0.057 0.001 0.125 0.001 0.193 0.001 7.512 0 13.602-6.090 13.602-13.602s-6.090-13.602-13.602-13.602c-0.068 0-0.136 0-0.204 0.001h-228.431c-0.207-0.012-0.447-0.017-0.692-0.017s-0.485 0.005-0.724 0.018l0.032-0.001z",
+          "M64.886 444l-54.4-239.363h228.484l-54.4 239.363"
         ],
         "attrs": [
           {},
           {},
-          {
-            "fill": "none",
-            "stroke": "rgb(0, 0, 0)",
-            "strokeLinejoin": "miter",
-            "strokeLinecap": "butt",
-            "strokeMiterlimit": "10",
-            "strokeWidth": 10.666666666666666
-          },
-          {
-            "fill": "none",
-            "stroke": "rgb(0, 0, 0)",
-            "strokeLinejoin": "miter",
-            "strokeLinecap": "butt",
-            "strokeMiterlimit": "10",
-            "strokeWidth": 10.666666666666666
-          },
-          {
-            "fill": "none",
-            "stroke": "rgb(0, 0, 0)",
-            "strokeLinejoin": "miter",
-            "strokeLinecap": "butt",
-            "strokeMiterlimit": "10",
-            "strokeWidth": 10.666666666666666
-          },
-          {
-            "fill": "none",
-            "stroke": "rgb(0, 0, 0)",
-            "strokeLinejoin": "miter",
-            "strokeLinecap": "butt",
-            "strokeMiterlimit": "10",
-            "strokeWidth": 10.666666666666666
-          },
-          {
-            "fill": "none",
-            "stroke": "rgb(0, 0, 0)",
-            "strokeLinejoin": "miter",
-            "strokeLinecap": "butt",
-            "strokeMiterlimit": "10",
-            "strokeWidth": 10.666666666666666
-          },
-          {
-            "fill": "none",
-            "stroke": "rgb(0, 0, 0)",
-            "strokeLinejoin": "miter",
-            "strokeLinecap": "butt",
-            "strokeMiterlimit": "10",
-            "strokeWidth": 10.666666666666666
-          },
-          {
-            "fill": "none",
-            "stroke": "rgb(0, 0, 0)",
-            "strokeLinejoin": "miter",
-            "strokeLinecap": "butt",
-            "strokeMiterlimit": "10",
-            "strokeWidth": 10.666666666666666
-          },
-          {
-            "fill": "none",
-            "stroke": "rgb(0, 0, 0)",
-            "strokeLinejoin": "miter",
-            "strokeLinecap": "butt",
-            "strokeMiterlimit": "10",
-            "strokeWidth": 10.666666666666666
-          },
-          {
-            "fill": "none",
-            "stroke": "rgb(0, 0, 0)",
-            "strokeLinejoin": "miter",
-            "strokeLinecap": "butt",
-            "strokeMiterlimit": "10",
-            "strokeWidth": 10.666666666666666
-          },
-          {
-            "fill": "none",
-            "stroke": "rgb(0, 0, 0)",
-            "strokeLinejoin": "miter",
-            "strokeLinecap": "round",
-            "strokeMiterlimit": "10",
-            "strokeWidth": 21.333333333333332
-          },
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
           {
             "fill": "none",
             "stroke": "rgb(0, 0, 0)",
@@ -120,36 +50,16 @@
           "12552552551": [
             {},
             {},
-            {
-              "s": 0
-            },
-            {
-              "s": 0
-            },
-            {
-              "s": 0
-            },
-            {
-              "s": 0
-            },
-            {
-              "s": 0
-            },
-            {
-              "s": 0
-            },
-            {
-              "s": 0
-            },
-            {
-              "s": 0
-            },
-            {
-              "s": 0
-            },
-            {
-              "s": 0
-            },
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
             {
               "s": 0
             }
@@ -159,86 +69,16 @@
       "attrs": [
         {},
         {},
-        {
-          "fill": "none",
-          "stroke": "rgb(0, 0, 0)",
-          "strokeLinejoin": "miter",
-          "strokeLinecap": "butt",
-          "strokeMiterlimit": "10",
-          "strokeWidth": 10.666666666666666
-        },
-        {
-          "fill": "none",
-          "stroke": "rgb(0, 0, 0)",
-          "strokeLinejoin": "miter",
-          "strokeLinecap": "butt",
-          "strokeMiterlimit": "10",
-          "strokeWidth": 10.666666666666666
-        },
-        {
-          "fill": "none",
-          "stroke": "rgb(0, 0, 0)",
-          "strokeLinejoin": "miter",
-          "strokeLinecap": "butt",
-          "strokeMiterlimit": "10",
-          "strokeWidth": 10.666666666666666
-        },
-        {
-          "fill": "none",
-          "stroke": "rgb(0, 0, 0)",
-          "strokeLinejoin": "miter",
-          "strokeLinecap": "butt",
-          "strokeMiterlimit": "10",
-          "strokeWidth": 10.666666666666666
-        },
-        {
-          "fill": "none",
-          "stroke": "rgb(0, 0, 0)",
-          "strokeLinejoin": "miter",
-          "strokeLinecap": "butt",
-          "strokeMiterlimit": "10",
-          "strokeWidth": 10.666666666666666
-        },
-        {
-          "fill": "none",
-          "stroke": "rgb(0, 0, 0)",
-          "strokeLinejoin": "miter",
-          "strokeLinecap": "butt",
-          "strokeMiterlimit": "10",
-          "strokeWidth": 10.666666666666666
-        },
-        {
-          "fill": "none",
-          "stroke": "rgb(0, 0, 0)",
-          "strokeLinejoin": "miter",
-          "strokeLinecap": "butt",
-          "strokeMiterlimit": "10",
-          "strokeWidth": 10.666666666666666
-        },
-        {
-          "fill": "none",
-          "stroke": "rgb(0, 0, 0)",
-          "strokeLinejoin": "miter",
-          "strokeLinecap": "butt",
-          "strokeMiterlimit": "10",
-          "strokeWidth": 10.666666666666666
-        },
-        {
-          "fill": "none",
-          "stroke": "rgb(0, 0, 0)",
-          "strokeLinejoin": "miter",
-          "strokeLinecap": "butt",
-          "strokeMiterlimit": "10",
-          "strokeWidth": 10.666666666666666
-        },
-        {
-          "fill": "none",
-          "stroke": "rgb(0, 0, 0)",
-          "strokeLinejoin": "miter",
-          "strokeLinecap": "round",
-          "strokeMiterlimit": "10",
-          "strokeWidth": 21.333333333333332
-        },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
         {
           "fill": "none",
           "stroke": "rgb(0, 0, 0)",
@@ -249,14 +89,14 @@
         }
       ],
       "properties": {
-        "order": 248,
-        "id": 10,
+        "order": 3,
+        "id": 51,
         "name": "basketball",
         "prevSize": 24,
         "code": 59700
       },
-      "setIdx": 0,
-      "setId": 8,
+      "setIdx": 5,
+      "setId": 2,
       "iconIdx": 0
     },
     {
@@ -286,7 +126,7 @@
         {}
       ],
       "properties": {
-        "order": 252,
+        "order": 4,
         "id": 41,
         "name": "baseball",
         "prevSize": 24,
@@ -343,7 +183,7 @@
         {}
       ],
       "properties": {
-        "order": 253,
+        "order": 5,
         "id": 43,
         "name": "boat_rental",
         "prevSize": 24,
@@ -460,7 +300,7 @@
         {}
       ],
       "properties": {
-        "order": 254,
+        "order": 6,
         "id": 44,
         "name": "drink",
         "prevSize": 24,
@@ -497,7 +337,7 @@
         {}
       ],
       "properties": {
-        "order": 255,
+        "order": 7,
         "id": 45,
         "name": "gifts",
         "prevSize": 24,
@@ -534,7 +374,7 @@
         {}
       ],
       "properties": {
-        "order": 256,
+        "order": 8,
         "id": 46,
         "name": "playground",
         "prevSize": 24,
@@ -591,7 +431,7 @@
         {}
       ],
       "properties": {
-        "order": 257,
+        "order": 9,
         "id": 47,
         "name": "restroom",
         "prevSize": 24,
@@ -628,7 +468,7 @@
         {}
       ],
       "properties": {
-        "order": 258,
+        "order": 10,
         "id": 48,
         "name": "volleyball",
         "prevSize": 24,
@@ -660,7 +500,7 @@
       "properties": {
         "name": "info",
         "id": 40,
-        "order": 259,
+        "order": 11,
         "prevSize": 24,
         "code": 61737
       },
@@ -690,7 +530,7 @@
       "properties": {
         "name": "share-alt",
         "id": 39,
-        "order": 260,
+        "order": 12,
         "prevSize": 24,
         "code": 61920
       },
@@ -720,7 +560,7 @@
       "properties": {
         "name": "location-arrow",
         "id": 38,
-        "order": 261,
+        "order": 13,
         "prevSize": 24,
         "code": 61732
       },
@@ -750,7 +590,7 @@
       "properties": {
         "name": "street-view",
         "id": 37,
-        "order": 262,
+        "order": 14,
         "prevSize": 24,
         "code": 61981
       },
@@ -780,7 +620,7 @@
       "properties": {
         "name": "search",
         "id": 36,
-        "order": 263,
+        "order": 15,
         "prevSize": 24,
         "code": 61442
       },
@@ -812,7 +652,7 @@
         {}
       ],
       "properties": {
-        "order": 264,
+        "order": 16,
         "id": 35,
         "name": "walk",
         "prevSize": 24,
@@ -859,7 +699,7 @@
         {}
       ],
       "properties": {
-        "order": 265,
+        "order": 17,
         "id": 34,
         "name": "cm-logo",
         "prevSize": 24,
@@ -919,7 +759,7 @@
         }
       ],
       "properties": {
-        "order": 266,
+        "order": 18,
         "id": 12,
         "name": "geologic-square",
         "prevSize": 24,
@@ -994,7 +834,7 @@
         }
       ],
       "properties": {
-        "order": 267,
+        "order": 19,
         "id": 13,
         "name": "golfing-square",
         "prevSize": 24,
@@ -1130,7 +970,7 @@
         }
       ],
       "properties": {
-        "order": 268,
+        "order": 20,
         "id": 14,
         "name": "mtnbiking-square",
         "prevSize": 24,
@@ -1202,7 +1042,7 @@
         }
       ],
       "properties": {
-        "order": 269,
+        "order": 21,
         "id": 15,
         "name": "picnic-square",
         "prevSize": 24,
@@ -1277,7 +1117,7 @@
         }
       ],
       "properties": {
-        "order": 270,
+        "order": 22,
         "id": 16,
         "name": "sledding-square",
         "prevSize": 24,
@@ -1363,7 +1203,7 @@
         }
       ],
       "properties": {
-        "order": 271,
+        "order": 23,
         "id": 17,
         "name": "swimming-square",
         "prevSize": 24,
@@ -1460,7 +1300,7 @@
         }
       ],
       "properties": {
-        "order": 272,
+        "order": 24,
         "id": 18,
         "name": "visitorcenter-square",
         "prevSize": 24,
@@ -1538,7 +1378,7 @@
         }
       ],
       "properties": {
-        "order": 273,
+        "order": 25,
         "id": 19,
         "name": "dining-square",
         "prevSize": 24,
@@ -1614,7 +1454,7 @@
         }
       ],
       "properties": {
-        "order": 274,
+        "order": 26,
         "id": 20,
         "name": "fishing-square",
         "prevSize": 24,
@@ -1710,7 +1550,7 @@
         }
       ],
       "properties": {
-        "order": 275,
+        "order": 27,
         "id": 21,
         "name": "boating-square",
         "prevSize": 24,
@@ -1750,7 +1590,7 @@
       "properties": {
         "name": "star",
         "id": 22,
-        "order": 276,
+        "order": 28,
         "prevSize": 24,
         "code": 61445
       },
@@ -1781,7 +1621,7 @@
       "properties": {
         "name": "cog, gear",
         "id": 23,
-        "order": 277,
+        "order": 29,
         "prevSize": 24,
         "code": 61459
       },
@@ -1811,7 +1651,7 @@
       "properties": {
         "name": "map-marker",
         "id": 24,
-        "order": 278,
+        "order": 30,
         "prevSize": 24,
         "code": 61505
       },
@@ -1841,7 +1681,7 @@
       "properties": {
         "name": "twitter-square",
         "id": 25,
-        "order": 279,
+        "order": 31,
         "prevSize": 24,
         "code": 61569
       },
@@ -1871,7 +1711,7 @@
       "properties": {
         "name": "facebook-square",
         "id": 26,
-        "order": 280,
+        "order": 32,
         "prevSize": 24,
         "code": 61570
       },
@@ -1901,7 +1741,7 @@
       "properties": {
         "name": "caret-left",
         "id": 27,
-        "order": 281,
+        "order": 33,
         "prevSize": 24,
         "code": 61657
       },
@@ -1932,7 +1772,7 @@
       "properties": {
         "name": "clipboard, paste",
         "id": 28,
-        "order": 282,
+        "order": 34,
         "prevSize": 24,
         "code": 61674
       },
@@ -1963,7 +1803,7 @@
       "properties": {
         "name": "automobile, car",
         "id": 29,
-        "order": 283,
+        "order": 35,
         "prevSize": 24,
         "code": 61881
       },
@@ -1993,7 +1833,7 @@
       "properties": {
         "name": "bicycle",
         "id": 30,
-        "order": 284,
+        "order": 36,
         "prevSize": 24,
         "code": 61958
       },
@@ -2023,7 +1863,7 @@
       "properties": {
         "name": "bus",
         "id": 31,
-        "order": 285,
+        "order": 37,
         "prevSize": 24,
         "code": 61959
       },
@@ -2053,7 +1893,7 @@
       "properties": {
         "name": "map-signs",
         "id": 32,
-        "order": 286,
+        "order": 38,
         "prevSize": 24,
         "code": 62071
       },
