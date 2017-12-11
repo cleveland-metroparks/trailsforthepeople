@@ -261,6 +261,8 @@ div.lng_driving {
         .ui-li-heading {
             font-weight: 600;
             display: block;
+            overflow: hidden;
+            white-space: normal;
         }
         .ui-li-desc {
             font-size: 90%;
@@ -270,7 +272,7 @@ div.lng_driving {
         }
         .distance_sortable {
             a.ui-btn {
-                padding-right: 60px;
+                padding-right: 80px;
                 h4.ui-li-heading {
                     margin-top: 0;
                 }

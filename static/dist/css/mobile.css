@@ -74,10 +74,10 @@ div.lng_driving { display: none; }
 #sidebar .sidebar-content h4 { margin: 0; }
 #sidebar .sidebar-content .ui-li-icon { max-height: initial !important; max-width: initial !important; }
 #sidebar .sidebar-content .ui-li-count { background-color: #1D5C1F; border: none; color: white; font-weight: normal; }
-#sidebar .sidebar-content .ui-li-heading { font-weight: 600; display: block; }
+#sidebar .sidebar-content .ui-li-heading { font-weight: 600; display: block; overflow: hidden; white-space: normal; }
 #sidebar .sidebar-content .ui-li-desc { font-size: 90%; }
 #sidebar .sidebar-content .feature-description { margin: 1em 0; }
-#sidebar .sidebar-content .distance_sortable a.ui-btn { padding-right: 60px; }
+#sidebar .sidebar-content .distance_sortable a.ui-btn { padding-right: 80px; }
 #sidebar .sidebar-content .distance_sortable a.ui-btn h4.ui-li-heading { margin-top: 0; }
 #sidebar .sidebar-content .distance_sortable a.ui-btn .ui-li-desc { font-weight: normal; }
 
