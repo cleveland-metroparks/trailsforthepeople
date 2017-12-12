@@ -1074,6 +1074,8 @@ $(document).ready(function () {
     });
     $('#pane-browse li a[href="#pane-trails"]').click(function() {
         set_pane_back_button('#pane-trails', '#pane-browse');
+        // Perform trails search upon opening the pane.
+        filterLoops();
     });
 
     /*
@@ -1159,6 +1161,8 @@ $(document).ready(function () {
     // Trails button clicked
     $('#pane-welcome .welcome-pane-trails a').click(function() {
         set_pane_back_button('#pane-trails', '#pane-welcome');
+        // Perform trails search upon opening the pane.
+        filterLoops();
     });
 
     /**
@@ -2783,9 +2787,6 @@ $(document).ready(function () {
     $('#loops_filter_duration_min').change();
     $('#loops_filter_duration_max').change();
 
-    // the filter button, calls filterLoops()
-    $('#loops_filter_button').click(filterLoops);
-
     // the loop type selector doesn't filter immediately,
     // but it does show/hide the time slider and the time estimates for each loop,
     // since the estimate of time is dependent on the travel mode
@@ -2871,15 +2872,7 @@ function filterLoops() {
     params.maxfeet      = 5280 * parseInt( $('#loops_filter_distance_max').val() );
     params.reservation  = $('#loops_filter_reservation').val();
 
-    var button = $('#loops_filter_button');
-    button.button('disable');
-    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
-
     $.get(API_BASEPATH + 'ajax/search_loops', params, function (results) {
-        // re-enable the search button
-        button.button('enable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
-
         // find and empty the target UL
         var target = $('#loops_list');
         target.empty();
