@@ -96,8 +96,8 @@ div.lng_driving { display: none; }
 
 #pane-browse-results .sortpicker { display: block; }
 
-#pane-browse-pois-activity ul li a { min-height: 22px; padding-left: 3em; }
-#pane-browse-pois-activity ul li a img.ui-li-icon { top: 7px !important; left: 6px !important; height: 30px !important; width: 30px !important; }
+#pane-activities ul li a { min-height: 22px; padding-left: 3em; }
+#pane-activities ul li a img.ui-li-icon { top: 7px !important; left: 6px !important; height: 30px !important; width: 30px !important; }
 
 #pane-getdirections #directions_target_title { text-align: center; font-size: 110%; font-weight: bold; margin-top: 1.5em; }
 #pane-getdirections #change_directions_target { text-align: center; font-size: 75%; margin-top: .5em; margin-bottom: 1.5em; }

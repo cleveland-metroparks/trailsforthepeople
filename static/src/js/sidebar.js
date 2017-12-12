@@ -21,8 +21,8 @@ $(document).ready(function () {
     /*
      * Find pane (#pane-browse)
      */
-    $('#pane-browse li a[href="#pane-browse-pois-activity"]').click(function() {
-        set_pane_back_button('#pane-browse-pois-activity', '#pane-browse');
+    $('#pane-browse li a[href="#pane-activities"]').click(function() {
+        set_pane_back_button('#pane-activities', '#pane-browse');
     });
     $('#pane-browse li a[href="#pane-trails"]').click(function() {
         set_pane_back_button('#pane-trails', '#pane-browse');
@@ -38,10 +38,10 @@ $(document).ready(function () {
     });
 
     /*
-     * Activities pane (#pane-browse-pois-activity)
+     * Activities pane (#pane-activities)
      */
     // When an Activity is clicked:
-    $('#pane-browse-pois-activity li a').click(function() {
+    $('#pane-activities li a').click(function() {
         // Get Activity ID from query string params
         // (purl.js apparently doesn't parse query string if URL begins with '#')
         re = /id=(\d*)/;
@@ -53,7 +53,7 @@ $(document).ready(function () {
         sidebar.open('pane-browse-results');
 
         pane_title = $(this).text().trim();
-        set_pane_back_button('#pane-browse-results', '#pane-browse-pois-activity');
+        set_pane_back_button('#pane-browse-results', '#pane-activities');
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
         $.get(API_BASEPATH + 'ajax/get_attractions_by_activity', { activity_ids: activity_id }, function (reply) {
@@ -108,7 +108,7 @@ $(document).ready(function () {
     });
     // Activities button clicked
     $('#pane-welcome .welcome-pane-activities a').click(function() {
-        set_pane_back_button('#pane-browse-pois-activity', '#pane-welcome');
+        set_pane_back_button('#pane-activities', '#pane-welcome');
     });
     // Trails button clicked
     $('#pane-welcome .welcome-pane-trails a').click(function() {
