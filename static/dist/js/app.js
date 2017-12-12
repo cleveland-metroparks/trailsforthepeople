@@ -1273,8 +1273,10 @@ $(document).ready(function () {
         return true;
     });
 
-    // Open Find/Browse pane on startup
-    if (NATIVE_APP) {
+    // Open Find/Browse pane on startup if:
+    // in the native app, or
+    // user loads the webapp without a path or query string
+    if (NATIVE_APP || (window.location.pathname == '/' && window.location.search == '')) {
         sidebar.open('pane-welcome');
     }
 });
