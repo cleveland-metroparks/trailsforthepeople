@@ -460,8 +460,14 @@ function sortLists(target) {
             });
             break;
     }
-    // @TODO: re-set .ui-last-child on appropriate element
-    // (because we're getting last-element styling on non-last elements)
+
+    // Re-set .ui-first-child and .ui-last-child on appropriate elements
+    target.children('li.ui-first-child').removeClass('ui-first-child');
+    target.children('li').first().addClass('ui-first-child');
+
+    // Re-set .ui-last-child on appropriate element
+    target.children('li.ui-last-child').removeClass('ui-last-child');
+    target.children('li').last().addClass('ui-last-child');
 }
 
 /**
