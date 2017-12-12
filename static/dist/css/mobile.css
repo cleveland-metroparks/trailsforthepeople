@@ -72,7 +72,7 @@ div.lng_driving { display: none; }
 #sidebar .sidebar-header { background-color: #1D5C1F; margin-bottom: 20px; }
 #sidebar .sidebar-tabs .ui-link, #sidebar .sidebar-tabs .ui-link:visited { color: #232222; }
 #sidebar .sidebar-tabs > ul > li.active { background-color: #1D5C1F; }
-#sidebar .sidebar-tabs > ul > li.active a { color: white; text-shadow: 0 1px 0 #232222; }
+#sidebar .sidebar-tabs > ul > li.active a { color: white !important; text-shadow: 0 1px 0 #232222; }
 #sidebar .sidebar-content ul li { padding-left: 0; }
 #sidebar .sidebar-content ul li .cm-icon { padding-right: 10px; font-size: 24px; width: 24px; vertical-align: middle; text-align: center; }
 #sidebar .sidebar-content h4 { margin: 0; }

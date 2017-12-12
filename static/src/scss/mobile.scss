@@ -241,7 +241,7 @@ div.lng_driving {
         > ul > li.active {
             background-color: $green_dark;
             a {
-                color: white;
+                color: white !important;
                 text-shadow: 0 1px 0 $grey_darkest;
             }
         }
