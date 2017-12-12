@@ -321,9 +321,7 @@ div.lng_driving {
             padding: .4em .6em;
             border-width: 1px;
             border-color: rgba(0, 0, 0, 0.1);
-            background-size: cover;
-            background-position-x: center;
-            background-repeat: no-repeat;
+            background-blend-mode: multiply;
             font-size: 135%;
         }
         a .link-text {
@@ -334,23 +332,26 @@ div.lng_driving {
             text-shadow: 1px 1px #232222;
         }
     }
+    // Darken the bottom of the image so the text overlay is readable,
+    // using a CSS gradient background overlay/multiply.
+    $gradient_screen: center/cover no-repeat, linear-gradient(to bottom, white 70%, gray 90%);
     .welcome-pane-parks .ui-bar {
-        background-image: url(#{$static_dir}/images/welcome_pane/parks.jpg);
+        background: url(#{$static_dir}/images/welcome_pane/parks.jpg) $gradient_screen;
     }
     .welcome-pane-activities .ui-bar {
-        background-image: url(#{$static_dir}/images/welcome_pane/activities.jpg);
+        background: url(#{$static_dir}/images/welcome_pane/activities.jpg) $gradient_screen;
     }
     .welcome-pane-visitorcenters .ui-bar {
-        background-image: url(#{$static_dir}/images/welcome_pane/visitorcenters.jpg);
+        background: url(#{$static_dir}/images/welcome_pane/visitorcenters.jpg) $gradient_screen;
     }
     .welcome-pane-amenities .ui-bar {
-        background-image: url(#{$static_dir}/images/welcome_pane/amenities.jpg);
+        background: url(#{$static_dir}/images/welcome_pane/amenities.jpg) $gradient_screen;
     }
     .welcome-pane-trails .ui-bar {
-        background-image: url(#{$static_dir}/images/welcome_pane/trails.jpg);
+        background: url(#{$static_dir}/images/welcome_pane/trails.jpg) $gradient_screen;
     }
     .welcome-pane-events .ui-bar {
-        background-image: url(#{$static_dir}/images/welcome_pane/events.jpg);
+        background: url(#{$static_dir}/images/welcome_pane/events.jpg) $gradient_screen;
     }
 }
 
