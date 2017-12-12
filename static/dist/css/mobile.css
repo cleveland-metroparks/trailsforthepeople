@@ -65,6 +65,10 @@ div.lng_driving { display: none; }
 
 #gallery { text-align: center; }
 
+@media (min-width: 768px) and (max-width: 991px) { .sidebar { width: 390px; }
+  .sidebar-pane { min-width: 350px; }
+  .sidebar-left ~ .sidebar-map .leaflet-left { left: 400px; }
+  .sidebar-right ~ .sidebar-map .leaflet-right { right: 400px; } }
 #sidebar .sidebar-header { background-color: #1D5C1F; margin-bottom: 20px; }
 #sidebar .sidebar-tabs .ui-link, #sidebar .sidebar-tabs .ui-link:visited { color: #232222; }
 #sidebar .sidebar-tabs > ul > li.active { background-color: #1D5C1F; }

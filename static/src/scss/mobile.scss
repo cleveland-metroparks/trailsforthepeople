@@ -204,6 +204,23 @@ div.lng_driving {
 // Leaflet Sidebar-v2
 // -----------------------------------------------------------------------------------------------------------
 
+// Override the breakpoint for the super narrow sidebar,
+// making it just like the second narrowest.
+@media (min-width: 768px) and (max-width: 991px) {
+    .sidebar {
+        width: 390px;
+    }
+    .sidebar-pane {
+        min-width: 350px;
+    }
+    .sidebar-left ~ .sidebar-map .leaflet-left {
+        left: 400px;
+    }
+    .sidebar-right ~ .sidebar-map .leaflet-right {
+        right: 400px;
+    }
+}
+
 #sidebar {
     //
     // Sidebar Header
