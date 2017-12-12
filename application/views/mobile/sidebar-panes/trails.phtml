@@ -40,14 +40,6 @@
         </select>
     </div>
 
-    <h4 class="label">Filter by Reservation:</h4>
-    <select id="loops_filter_reservation">
-        <option value="">(any reservation)</option>
-        <?php foreach ($reservations as $res) { ?>
-        <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
-        <?php } ?>
-    </select>
-
     <h4 class="label">Filter by Route Length:</h4>
     <!-- Hidden form controls connected to clickable buttons -->
     <div data-role="fieldcontain" style="display:none;">
@@ -75,6 +67,14 @@
         <br/>
         Max: <input type="range" id="loops_filter_duration_max" min="0" max="300" value="300" />
     </div>
+
+    <h4 class="label">Filter by Reservation:</h4>
+    <select id="loops_filter_reservation">
+        <option value="">(any reservation)</option>
+        <?php foreach ($reservations as $res) { ?>
+        <option value="<?= htmlspecialchars($res->res) ?>"><?= htmlspecialchars($res->res) ?></option>
+        <?php } ?>
+    </select>
 
     </fieldset>
 
