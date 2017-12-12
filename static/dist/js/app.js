@@ -1072,8 +1072,8 @@ $(document).ready(function () {
     $('#pane-browse li a[href="#pane-browse-pois-activity"]').click(function() {
         set_pane_back_button('#pane-browse-pois-activity', '#pane-browse');
     });
-    $('#pane-browse li a[href="#pane-loops-search"]').click(function() {
-        set_pane_back_button('#pane-loops-search', '#pane-browse');
+    $('#pane-browse li a[href="#pane-trails"]').click(function() {
+        set_pane_back_button('#pane-trails', '#pane-browse');
     });
 
     /*
@@ -1158,7 +1158,7 @@ $(document).ready(function () {
     });
     // Trails button clicked
     $('#pane-welcome .welcome-pane-trails a').click(function() {
-        set_pane_back_button('#pane-loops-search', '#pane-welcome');
+        set_pane_back_button('#pane-trails', '#pane-welcome');
     });
 
     /**
@@ -2724,7 +2724,7 @@ $(document).ready(function () {
 $(document).ready(function () {
     // the event handlers below are for the sliders and textboxes within #pane-loops,
     // so trigger a DOM rendering of the page now so the elements exist
-    $('#pane-loops-search').page();
+    $('#pane-trails').page();
 
     // the #loops_filter_type selector is invisible, and we have a set of icons to set its value when they're clicked
     $('#loops_typeicons img').click(function () {
@@ -2909,7 +2909,7 @@ function filterLoops() {
                 .attr('lat', result.lat)
                 .attr('lng', result.lng);
 
-            li.attr('backbutton', '#pane-loops-search');
+            li.attr('backbutton', '#pane-trails');
 
             // Link (fake, currently)
             link = $('<a></a>');
@@ -2951,7 +2951,7 @@ function filterLoops() {
         }
 
         // sort it by distance and have jQuery Mobile refresh it
-        $('#pane-loops-search .sortpicker').show();
+        $('#pane-trails .sortpicker').show();
         target.listview('refresh');
         sortLists(target);
     }, 'json');

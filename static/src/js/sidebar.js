@@ -24,8 +24,8 @@ $(document).ready(function () {
     $('#pane-browse li a[href="#pane-browse-pois-activity"]').click(function() {
         set_pane_back_button('#pane-browse-pois-activity', '#pane-browse');
     });
-    $('#pane-browse li a[href="#pane-loops-search"]').click(function() {
-        set_pane_back_button('#pane-loops-search', '#pane-browse');
+    $('#pane-browse li a[href="#pane-trails"]').click(function() {
+        set_pane_back_button('#pane-trails', '#pane-browse');
     });
 
     /*
@@ -110,7 +110,7 @@ $(document).ready(function () {
     });
     // Trails button clicked
     $('#pane-welcome .welcome-pane-trails a').click(function() {
-        set_pane_back_button('#pane-loops-search', '#pane-welcome');
+        set_pane_back_button('#pane-trails', '#pane-welcome');
     });
 
     /**

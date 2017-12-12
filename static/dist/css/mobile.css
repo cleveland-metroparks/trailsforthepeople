@@ -126,11 +126,11 @@ div.lng_driving { display: none; }
 #pane-getdirections #directions_steps li.ui-first-child .ui-li-heading { font-weight: normal; }
 #pane-getdirections #directions_steps li.ui-last-child { border-bottom: none; }
 
-#pane-loops-search #loops_typeicons img { width: 50px; margin: 0px 3px; cursor: pointer; }
-#pane-loops-search h4.label { margin-top: 1em !important; margin-bottom: 0.5em !important; }
-#pane-loops-search #loops_filter_distancepicker { margin-bottom: 2em; }
-#pane-loops-search #loops_filter_distancepicker a { background-color: #232222; color: white; text-decoration: none; padding: 3px 0.5em; border-radius: 0.2em; margin-right: 0.2em; }
-#pane-loops-search #loops_filter_distancepicker a.active { background-color: #6AB03E; }
-#pane-loops-search .sortpicker { margin-top: 1.5em; }
+#pane-trails #loops_typeicons img { width: 50px; margin: 0px 3px; cursor: pointer; }
+#pane-trails h4.label { margin-top: 1em !important; margin-bottom: 0.5em !important; }
+#pane-trails #loops_filter_distancepicker { margin-bottom: 2em; }
+#pane-trails #loops_filter_distancepicker a { background-color: #232222; color: white; text-decoration: none; padding: 3px 0.5em; border-radius: 0.2em; margin-right: 0.2em; }
+#pane-trails #loops_filter_distancepicker a.active { background-color: #6AB03E; }
+#pane-trails .sortpicker { margin-top: 1.5em; }
 
 /*# sourceMappingURL=mobile.css.map */
