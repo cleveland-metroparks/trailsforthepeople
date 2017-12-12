@@ -1936,10 +1936,11 @@ function _makeAttractionResults($attractions, $type='attraction') {
             'gid'   => (integer) $attraction->gis_id,
             'record_id' => (integer)$attraction->record_id,
 
-            'w'     => (float) 0,
-            's'     => (float) 0,
-            'e'     => (float) 0,
-            'n'     => (float) 0,
+            // view_cmp_gisreservations has bounding box columns
+            'w'     => isset($attraction->boxw) ? $attraction->boxw : (float)0,
+            's'     => isset($attraction->boxs) ? $attraction->boxs : (float)0,
+            'e'     => isset($attraction->boxe) ? $attraction->boxe : (float)0,
+            'n'     => isset($attraction->boxn) ? $attraction->boxn : (float)0,
 
             'lat'   => (float) $attraction->latitude,
             'lng'   => (float) $attraction->longitude,

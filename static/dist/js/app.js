@@ -997,7 +997,7 @@ var showOnMap = function () {
             if (w!=0 && s!=0 && e!=0 && n!=0) {
                 var bounds = L.latLngBounds( L.latLng(s,w) , L.latLng(n,e) );
                 bounds = bounds.pad(0.15);
-                MAP.fitBounds(bounds);
+                MAP.flyToBounds(bounds);
             } else {
                 // Re-center and zoom
                 // @TODO: Eventually we'll have individual POI zoomlevels in DB
