@@ -62,10 +62,10 @@ $(document).ready(function () {
     });
 
     /*
-     * Amenities pane (#pane-amenities-list)
+     * Amenities pane (#pane-amenities)
      */
     // When an amenity is clicked:
-    $('#pane-amenities-list li a').click(function() {
+    $('#pane-amenities li a').click(function() {
         // Get Amenity ID from query string param
         // (purl.js apparently doesn't parse query string if URL begins with '#')
         re = /amenity_id=(\d*)/;
@@ -75,7 +75,7 @@ $(document).ready(function () {
         }
 
         pane_title = $(this).text().trim();
-        set_pane_back_button('#pane-browse-results', '#pane-amenities-list');
+        set_pane_back_button('#pane-browse-results', '#pane-amenities');
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
         $.get(API_BASEPATH + 'ajax/get_attractions_by_amenity', { amenity_ids: amenity_id }, function (reply) {
