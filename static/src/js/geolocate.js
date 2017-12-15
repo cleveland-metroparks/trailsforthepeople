@@ -16,6 +16,20 @@ function is_ios() {
 }
 
 /**
+ * Attempt to locate the user using the Geolocation API (via Leaflet).
+ */
+function enableGeolocate() {
+    MAP.locate({ watch: true, enableHighAccuracy: true });
+}
+
+/**
+ * If in Native app, trigger geolocation when Cordova's geolocation plugin has come online.
+ */
+$(function(){
+    document.addEventListener("deviceready", enableGeolocate, false);
+});
+
+/**
  * Toggle geolocation-following
  */
 function toggle_gps_follow() {
@@ -82,7 +96,7 @@ $(document).ready(function () {
         // Update the user's last known location
         LAST_KNOWN_LOCATION = event.latlng;
 
-        // Mark the user's current location and center the map
+        // Mark the user's current location, and center the map, if we're following
         placeGPSMarker(event.latlng.lat, event.latlng.lng)
         if (AUTO_CENTER_ON_LOCATION) {
             var within_max_bounds = MAX_BOUNDS.contains(event.latlng);
@@ -130,6 +144,9 @@ $(document).ready(function () {
         $('#gps_location').text(text);
     });
 
-    // start constant geolocation, which triggers all of the 'locationfound' events above
-    MAP.locate({ watch: true, enableHighAccuracy: true });
+    // Start constant geolocation, which triggers all of the 'locationfound' events above.
+    // If the user is in the native app, we trigger once Cordova's geolocation plugin has come online.
+    if (!NATIVE_APP) {
+        enableGeolocate();
+    }
 });
