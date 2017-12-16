@@ -1500,9 +1500,34 @@ $(document).ready(function () {
  * Cleveland Metroparks
  */
 
-//var DIRECTIONS_TARGET     = L.latLng(0,0);
 var DIRECTIONS_LINE       = null;
 var DIRECTIONS_LINE_STYLE = { color:"#0000FF", weight:5, opacity:1.00, clickable:false, smoothFactor:0.25 };
+
+/**
+ * Launch external app for directions
+ * Uses launchnavigator [cordova] plugin.
+ */
+function launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via) {
+    var source = [sourcelat, sourcelng],
+        target = [targetlat, targetlng];
+    // Or reverse
+    if (tofrom == 'from') {
+        source = [targetlat, targetlng];
+        target = [sourcelat, sourcelng];
+    }
+    // Car or Transit
+    var transportMode = (via == 'bus') ? launchnavigator.TRANSPORT_MODE.TRANSIT : launchnavigator.TRANSPORT_MODE.DRIVING;
+    // Launch app
+    launchnavigator.navigate(
+        target, {
+            start: source,
+            enableDebug: true,
+            transportMode: transportMode
+            //successCallback: onSuccess,
+            //errorCallback: onError
+        }
+    );
+}
 
 /**
  * Get directions
@@ -1511,7 +1536,7 @@ var DIRECTIONS_LINE_STYLE = { color:"#0000FF", weight:5, opacity:1.00, clickable
  * Given lat,lng and lat,lng and route params, request directions from the server
  * then render them to the screen and to the map.
  */
-function getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via) {
+function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via) {
     // empty out the old directions and disable the button as a visual effect
     $('#directions_steps').empty();
     disableDirectionsButton();
@@ -1523,13 +1548,22 @@ function getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via) {
     // do they prefer fast, short, or weighted?
     var prefer = $('#directions_prefer').val();
 
+    // Launch external map app for native car/transit directions
+    if (NATIVE_APP && (via=='car' || via=='bus')) {
+        launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via);
+        enableDirectionsButton();
+        return;
+    }
+
     // make up the params and run the request
     var params = {
-        sourcelat:sourcelat, sourcelng:sourcelng,
-        targetlat:targetlat, targetlng:targetlng,
-        tofrom:tofrom,
-        via:via,
-        prefer:prefer,
+        sourcelat: sourcelat,
+        sourcelng: sourcelng,
+        targetlat: targetlat,
+        targetlng: targetlng,
+        tofrom: tofrom,
+        via: via,
+        prefer: prefer,
         bing_key: BING_API_KEY
     };
     $.get(API_BASEPATH + 'ajax/directions', params, function (reply) {
