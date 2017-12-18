@@ -112,18 +112,13 @@ function enableDirectionsButton() {
  * then calls either getDirections() et al
  */
 function processGetDirectionsForm() {
-    // which transportation mode?
-    // separated into a switch so we can fuss with them separately, e.g. originally hike and bike had a secondary selector for paved/unpaved status
     var tofrom    = $('#directions_reverse').val();
+    // Transportation mode
     var via       = $('#directions_via').val();
-    switch (via) {
-        case 'hike':
-            via = 'hike';
-            //via = $('#directions_via_hike').val();
-            break;
-        case 'bike':
-            via = $('#directions_via_bike').val();
-            break;
+
+    if (via == 'bike') {
+        // Ability level for bike
+        via = $('#directions_via_bike').val();
     }
 
     // empty these fields because we probably don't need them
@@ -131,20 +126,22 @@ function processGetDirectionsForm() {
     $('#directions_source_gid').val('');
     $('#directions_source_type').val('');
 
-    // we must do some AJAX for the target location and the origin location, but it must be done precisely in this sequence
-    // so, have jQuery use synchronous AJAX calls (yeah, the A in AJAX, I know) so we can do things in proper order
+    // Use synchronous AJAX so the location finding happens in the required order
+    // @TODO: Synchronous XMLHttpRequest is deprecated
     $.ajaxSetup({ async:false });
 
-    // figure out the target: address geocode, latlon already properly formatted, current GPS location, etc.
-    // this must be done before the target is resolved (below) because resolving the target can mean weighting based on the starting point
+    // figure out the source: address geocode, latlon already properly formatted, current GPS location, etc.
+    // Done before the target is resolved (below) because resolving the target can mean weighting based on the starting point
     // e.g. directions to parks/reservations pick the closest entry point to our starting location
     var sourcelat, sourcelng;
     var addresstype = $('#directions_type').val();
     switch (addresstype) {
+
         case 'gps':
             sourcelat = LAST_KNOWN_LOCATION.lat;
             sourcelng = LAST_KNOWN_LOCATION.lng;
             break;
+
         case 'geocode':
             var address  = $('#directions_address').val();
             if (! address) return alert("Please enter an address, city, or landmark.");
@@ -184,6 +181,7 @@ function processGetDirectionsForm() {
                 },'json');
             }
             break;
+
         case 'features':
             disableDirectionsButton();
             var params = {};
@@ -238,51 +236,67 @@ function processGetDirectionsForm() {
     var targetlat = parseFloat( $('#directions_target_lat').val() );
     var targetlng = parseFloat( $('#directions_target_lng').val() );
 
+    // Get the source location
     var source_gid  = $('#directions_source_gid').val();
     var source_type = $('#directions_source_type').val();
-    if (source_type == 'poi' || source_type == 'attraction' ||source_type == 'reservation' || source_type == 'building' || source_type == 'trail') {
-        var params = {};
-        params.type = source_type;
-        params.gid  = source_gid;
-        params.lat  = targetlat; // if this data source uses weighting, this will pick the closest one to our starting location
-        params.lng  = targetlng; // if this data source uses weighting, this will pick the closest one to our starting location
-        params.via  = via;
-        $.get(API_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
-            sourcelat = reply.lat;
-            sourcelng = reply.lng;
-
-            // save them into the input fields too, so they'd get shared
-            $('#directions_source_lat').val(reply.lat);
-            $('#directions_source_lng').val(reply.lng);
-        }, 'json');
+    if (source_type == 'poi'
+        || source_type == 'attraction'
+        || source_type == 'reservation'
+        || source_type == 'building'
+        || source_type == 'trail')
+    {
+        var source_loc = geocodeLocationForDirections(source_type, source_gid, targetlat, targetlng, via, '#directions_source_lat', '#directions_source_lng');
+        sourcelat = source_loc.lat;
+        sourcelng = source_loc.lng;
     }
 
+    // Get the target location
     var target_gid  = $('#directions_target_gid').val();
     var target_type = $('#directions_target_type').val();
-    if (target_type == 'poi' || source_type == 'attraction' || target_type == 'reservation' || target_type == 'building' || target_type == 'trail') {
-        var params = {};
-        params.type = target_type;
-        params.gid  = target_gid;
-        params.lat  = sourcelat; // if this data source uses weighting, this will pick the closest one to our starting location
-        params.lng  = sourcelng; // if this data source uses weighting, this will pick the closest one to our starting location
-        params.via  = via;
-        $.get(API_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
-            targetlat = reply.lat;
-            targetlng = reply.lng;
-
-            // save them into the input fields too, so they'd get shared
-            $('#directions_target_lat').val(reply.lat);
-            $('#directions_target_lng').val(reply.lng);
-        }, 'json');
+    if (target_type == 'poi'
+        || target_type == 'attraction'
+        || target_type == 'reservation'
+        || target_type == 'building'
+        || target_type == 'trail')
+    {
+        var target_loc = geocodeLocationForDirections(target_type, target_gid, sourcelat, sourcelng, via, '#directions_target_lat', '#directions_target_lng');
+        targetlat = target_loc.lat;
+        targetlng = target_loc.lng;
     }
 
-    if (! targetlat || ! targetlng) return alert("Please close the directions panel, and pick a location.");
+    if (! targetlat || ! targetlng) {
+        return alert("Please close the directions panel, and pick a location.");
+    }
 
-    // great! we have resolved the targetlat and targetlng from the best possible location,
-    // and resolved the sourcelat and sourcelng from a combination of data source and current location
-    // re-enable asynchronous AJAX and request directions
+    // Re-enable asynchronous AJAX
     $.ajaxSetup({ async:true });
-    getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via);
+
+    getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via);
+}
+
+/**
+ * Geocode location for directions
+ * For type: poi, attraction, reservation, building, and trail
+ */
+function geocodeLocationForDirections(loc_type, loc_gid, lat, lng, via, lat_el_id, lng_el_id) {
+    var output_location = new Object();
+    var params = {
+        type : loc_type,
+        gid : loc_gid,
+        // If this data source uses weighting, this will pick the closest one to our starting location
+        lat : lat,
+        lng : lng,
+        via : via
+    };
+    $.get(API_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
+        output_location.lat = reply.lat;
+        output_location.lng = reply.lng;
+
+        // Save them into the input fields too, so they'd get shared
+        $(lat_el_id).val(reply.lat);
+        $(lng_el_id).val(reply.lng);
+    }, 'json');
+    return output_location;
 }
 
 /**

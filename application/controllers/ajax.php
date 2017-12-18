@@ -54,10 +54,10 @@ function geocode_for_directions() {
     $output = array();
 
     switch ($_GET['type']) {
+
         case 'poi':
             $result = new Usearea();
             $result->where('gid',$_GET['gid'])->get();
-
             switch (@$_GET['via']) {
                 case 'car':
                     $output['lat']  = (float) $result->lat_driving;
@@ -70,12 +70,11 @@ function geocode_for_directions() {
                     $output['type'] = 'actual';
                     break;
             }
-
             break;
+
         case 'building':
             $result = new Building();
             $result->where('gid',$_GET['gid'])->get();
-
             switch ($_GET['via']) {
                 case 'car':
                     $output['lat']  = (float) $result->lat_driving;
@@ -88,8 +87,8 @@ function geocode_for_directions() {
                     $output['type'] = 'actual';
                     break;
             }
-
             break;
+
         case 'trail':
             $result   = new Trail();
             $result->where('gid',$_GET['gid'])->get();
@@ -97,6 +96,7 @@ function geocode_for_directions() {
             $output['lng']  = (float) $result->lng_driving;
             $output['type'] = 'driving';
             break;
+
         case 'reservation':
             $result = new Park();
             $result->where('gid',$_GET['gid'])->get();
@@ -111,8 +111,19 @@ function geocode_for_directions() {
                 $output['lng']  = (float) $driving_latlng->lng;
                 $output['type'] = sprintf("nearest to %f %f", $_GET['lat'], $_GET['lng'] );
             }
-
             break;
+
+        case 'attraction':
+            $result = new Attraction();
+            $result->where('gis_id', $_GET['gid'])->get();
+            $output['lat']  = (float) $result->drivingdestinationlatitude;
+            $output['lng']  = (float) $result->drivingdestinationlongitude;
+            $output['type'] = 'driving';
+            break;
+
+        // These don't have gis_ids:
+        // case 'reservation_new':
+        //     break;
     }
 
     print json_encode($output);
