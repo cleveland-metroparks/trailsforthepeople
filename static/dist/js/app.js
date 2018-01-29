@@ -77,7 +77,7 @@ var LAYER_MAPBOX_MAP = L.tileLayer(
     });
 
 // Mapbox satellite baselayer
-const MAPBOX_SAT_URL_FRAG = 'cleveland-metroparks/ciy5w28va00322so4ymd2cqjm';
+const MAPBOX_SAT_URL_FRAG = 'cleveland-metroparks/cjcutetjg07892ro6wunp2da9';
 var LAYER_MAPBOX_SAT = L.tileLayer(
     'https://api.mapbox.com/styles/v1/' + MAPBOX_SAT_URL_FRAG + '/tiles/{z}/{x}/{y}?access_token=' + L.mapbox.accessToken, {
         tileSize: 512,
