@@ -569,6 +569,8 @@ div.lng_driving {
             padding: 5px 0.5em 2px;
             border-radius: 0.2em;
             margin-right: 0.2em;
+            display: inline-block;
+            margin-bottom: 5px;
             &.active {
                 background-color: $green_light;
             }

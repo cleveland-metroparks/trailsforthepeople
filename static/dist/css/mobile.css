@@ -135,7 +135,7 @@ div.lng_driving { display: none; }
 #pane-trails #loops_typeicons img { width: 50px; margin: 0px 3px; cursor: pointer; }
 #pane-trails h4.label { margin-top: 1em !important; margin-bottom: 0.5em !important; }
 #pane-trails #loops_filter_distancepicker { margin-bottom: 1em; }
-#pane-trails #loops_filter_distancepicker a { background-color: #232222; color: white; text-decoration: none; padding: 5px 0.5em 2px; border-radius: 0.2em; margin-right: 0.2em; }
+#pane-trails #loops_filter_distancepicker a { background-color: #232222; color: white; text-decoration: none; padding: 5px 0.5em 2px; border-radius: 0.2em; margin-right: 0.2em; display: inline-block; margin-bottom: 5px; }
 #pane-trails #loops_filter_distancepicker a.active { background-color: #6AB03E; }
 #pane-trails .sortpicker { margin-top: 1.5em; }
 
