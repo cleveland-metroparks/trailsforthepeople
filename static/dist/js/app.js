@@ -10,11 +10,19 @@
 ///// The Admin and Contributor have their own versions too, which override the map URLs with SSL URLs
 ///// for Admin and Contributors maps, see admin.js and contributors.js
 
-// How we get to our app's controllers (primarily ajax).
-// @TODO: Put this into a local config so we can handle non-root basedirs.
-var APP_BASEPATH = '/';
-
+// How we get to our app's base files and to the API.
+// These change to remote URLs for native app and web-embedded scenarios.
+// @TODO: Put these into a local config so we can handle non-root basedirs.
+var WEBAPP_BASEPATH = '/';
+var API_BASEPATH = '/';
 var MAP = null;
+
+var WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL = 'https';
+var WEBAPP_BASE_URL_ABSOLUTE_HOST = 'maps.clevelandmetroparks.com';
+var WEBAPP_BASE_URL_ABSOLUTE = WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL + '://' + WEBAPP_BASE_URL_ABSOLUTE_HOST + '/';
+
+// Web (mobile and desktop) vs native iOS/Android
+var NATIVE_APP = false;
 
 // the bounding box of the mappable area, for setting the initial view
 // and potentially for restricting the map from zooming away (not enforced)
@@ -69,7 +77,7 @@ var LAYER_MAPBOX_MAP = L.tileLayer(
     });
 
 // Mapbox satellite baselayer
-const MAPBOX_SAT_URL_FRAG = 'cleveland-metroparks/ciy5w28va00322so4ymd2cqjm';
+const MAPBOX_SAT_URL_FRAG = 'cleveland-metroparks/cjcutetjg07892ro6wunp2da9';
 var LAYER_MAPBOX_SAT = L.tileLayer(
     'https://api.mapbox.com/styles/v1/' + MAPBOX_SAT_URL_FRAG + '/tiles/{z}/{x}/{y}?access_token=' + L.mapbox.accessToken, {
         tileSize: 512,
@@ -112,11 +120,10 @@ MAP.addLayer(routedebug);
  * Cleveland Metroparks
  */
 
-var MOBILE; // Our old desktop vs. mobile flag. @TODO: Deprecate.
 var isMobile = /Mobi/.test(navigator.userAgent); // Simple mobile device detection.
 
 var ICON_TARGET = L.icon({
-    iconUrl: APP_BASEPATH + 'static/images/markers/marker-target.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/marker-target.png',
     iconSize: [ 25, 41 ],
     iconAnchor: [ 13, 41 ],
     popupAnchor: [ 0, -41 ]
@@ -124,7 +131,7 @@ var ICON_TARGET = L.icon({
 var MARKER_TARGET = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_TARGET });
 
 var ICON_GPS = L.icon({
-    iconUrl: APP_BASEPATH + 'static/images/markers/marker-gps.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/marker-gps.svg',
     iconSize: [ 25, 41 ],
     iconAnchor: [ 13, 41 ],
     popupAnchor: [ 0, -41 ]
@@ -132,12 +139,12 @@ var ICON_GPS = L.icon({
 var MARKER_GPS     = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_GPS });
 
 var ICON_FROM = L.icon({
-    iconUrl: APP_BASEPATH + 'static/images/markers/measure1.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/measure1.png',
     iconSize: [ 20, 34 ],
     iconAnchor: [ 10, 34 ]
 });
 var ICON_TO = L.icon({
-    iconUrl: APP_BASEPATH + 'static/images/markers/measure2.png',
+    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/measure2.png',
     iconSize: [ 20, 34 ],
     iconAnchor: [ 10, 34 ]
 });
@@ -224,6 +231,11 @@ function initMap (mapOptions) {
 
     // additional Controls
     L.control.scale().addTo(MAP);
+
+    // Fire mapInitialized event
+    $.event.trigger({
+        type: 'mapInitialized',
+    });
 
     // debugging: when the viewport changes, log the current bbox and zoom
     function debugBoundsOutput() {
@@ -369,7 +381,7 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
     var data = bbox;
     data.zoom = MAP.getZoom();
 
-    $.get(APP_BASEPATH + 'ajax/query', data, function (html) {
+    $.get(API_BASEPATH + 'ajax/query', data, function (html) {
         if (!html) return;
 
         // set up the Popup and load its content
@@ -438,11 +450,17 @@ function changeBasemap(layer_key) {
  * Cleveland Metroparks
  */
 
+// App sidebar (Leaflet Sidebar-v2)
+var sidebar = null;
+// Load when map has been initialized
+$(document).on("mapInitialized", function () {
+    sidebar = L.control.sidebar('sidebar').addTo(MAP);
+});
+
 // used by the radar: sound an alert only if the list has in fact changed
 var LAST_BEEP_IDS = [];
 
 // other stuff pertaining to our last known location and auto-centering
-var MOBILE = true;
 var LAST_KNOWN_LOCATION = L.latLng(41.3953,-81.6730);
 var AUTO_CENTER_ON_LOCATION = false;
 
@@ -533,7 +551,7 @@ function switchToMap(callback) {
 /**
  * Load the map, handling query strings
  */
-$(window).load(function () {
+$(document).ready(function () {
     // load up the URL params before the map, as we may need them to configure the map
     URL_PARAMS = $.url();
 
@@ -553,7 +571,7 @@ $(window).load(function () {
             type: URL_PARAMS.param('type'),
             name: URL_PARAMS.param('name')
         };
-        $.get(APP_BASEPATH + 'ajax/exactnamesearch', params, function (reply) {
+        $.get(API_BASEPATH + 'ajax/exactnamesearch', params, function (reply) {
             if (!reply || ! reply.s || ! reply.w || ! reply.n || ! reply.e) return alert("Cound not find that feature.");
 
             // zoom to the location
@@ -577,7 +595,7 @@ $(window).load(function () {
             var params = {
                 gid: URL_PARAMS.param('gid')
             };
-            $.get(APP_BASEPATH + 'ajax/get_attraction', params, function (reply) {
+            $.get(API_BASEPATH + 'ajax/get_attraction', params, function (reply) {
                 if (!reply || ! reply.lat || ! reply.lng) {
                     return alert("Cound not find that feature.");
                 }
@@ -613,11 +631,10 @@ $(window).load(function () {
         // fill in the directions field: the title, route via, the target type and coordinate, the starting coordinates
         $('#directions_target_title').text(URL_PARAMS.param('routetitle'));
         $('#directions_via').val(URL_PARAMS.param('routevia'));
-        if (MOBILE) $("#directions_via").selectmenu('refresh');
+        $("#directions_via").selectmenu('refresh');
         $('#directions_type').val('geocode');
-        if (MOBILE) $("#directions_type").selectmenu('refresh');
-        if (MOBILE) $('#directions_type_geocode_wrap').show();
-        else        $('#directions_type').change();
+        $("#directions_type").selectmenu('refresh');
+        $('#directions_type_geocode_wrap').show();
         $('#directions_address').val(URL_PARAMS.param('routefrom'));
         $('#directions_target_lat').val(targetlat);
         $('#directions_target_lng').val(targetlng);
@@ -651,7 +668,8 @@ $(window).load(function () {
             break;
     }
 
-    // Allow others to act now
+    // Map is initialized and query strings handled.
+    // Fire mapReady event.
     $.event.trigger({
         type: 'mapReady',
     });
@@ -660,7 +678,7 @@ $(window).load(function () {
 /**
  * Basemap picker (on Settings pane) change handler
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('input[type="radio"][name="basemap"]').change(function () {
         var which = $(this).val();
         changeBasemap(which);
@@ -672,7 +690,7 @@ $(window).load(function () {
  *
  * Use the sortpicker buttons to modify DEFAULT_SORT, then sortLists().
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('div.sortpicker span').click(function () {
         DEFAULT_SORT = $(this).attr('value');
         sortLists();
@@ -727,9 +745,7 @@ function showAttractionInfo(attraction) {
     // Change to the Info pane
     sidebar.open('pane-info');
 
-    // Set the sidebar pane's back button.
-    var backurl = '#pane-browse';
-    $('#pane-info .sidebar-back').prop('href', backurl);
+    set_pane_back_button('#pane-info', '#pane-browse')
 
     // Enable "Get Directions"
     $('#getdirections_disabled').hide();
@@ -747,7 +763,7 @@ function showAttractionInfo(attraction) {
         params.type = 'attraction';
         params.gid  = attraction.gid;
 
-        $.get(APP_BASEPATH + 'ajax/moreinfo', params, function (reply) {
+        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
             // grab and display the plain HTML
             $('#info-content').html(reply);
         },'html');
@@ -769,6 +785,9 @@ function zoomElementClick(element) {
 
     var type = element.attr('type');
     var gid  = element.attr('gid');
+    if (type=='reservation_new') {
+        gid  = element.attr('record_id');
+    }
 
     // assign this element to the Show On Map button, so it knows how to zoom to our location
     // and to the getdirections form so we can route to it
@@ -785,9 +804,11 @@ function zoomElementClick(element) {
     sidebar.open('pane-info');
 
     // correct the Back button to go to the URL specified in the element, or else to the map
-    var backurl = element.attr('backbutton');
-    if (! backurl) backurl = '#pane-browse';
-    $('#pane-info .sidebar-back').prop('href', backurl);
+    var back_url = element.attr('backbutton');
+    if (! back_url) {
+        back_url = '#pane-browse';
+    }
+    set_pane_back_button('#pane-info', back_url)
 
     // now that we have a location defined, enable the Get Directions
     $('#getdirections_disabled').hide();
@@ -806,7 +827,7 @@ function zoomElementClick(element) {
         params.gid  = gid;
         params.lat  = LAST_KNOWN_LOCATION.lat;
         params.lng  = LAST_KNOWN_LOCATION.lng;
-        $.get(APP_BASEPATH + 'ajax/moreinfo', params, function (reply) {
+        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
             // grab and display the plain HTML
             $('#info-content').html(reply);
 
@@ -883,14 +904,20 @@ function sortLists(target) {
             });
             break;
     }
-    // @TODO: re-set .ui-last-child on appropriate element
-    // (because we're getting last-element styling on non-last elements)
+
+    // Re-set .ui-first-child and .ui-last-child on appropriate elements
+    target.children('li.ui-first-child').removeClass('ui-first-child');
+    target.children('li').first().addClass('ui-first-child');
+
+    // Re-set .ui-last-child on appropriate element
+    target.children('li.ui-last-child').removeClass('ui-last-child');
+    target.children('li').last().addClass('ui-last-child');
 }
 
 /**
  * Geocoder event handlers
  */
-$(window).load(function () {
+$(document).ready(function () {
     var thisCallback = function () {
         var address = $('#geocode_text').val();
         zoomToAddress(address);
@@ -913,7 +940,7 @@ function zoomToAddress(searchtext) {
     params.bing_key = BING_API_KEY;
     params.bbox     = GEOCODE_BIAS_BOX;
 
-    $.get(APP_BASEPATH + 'ajax/geocode', params, function (result) {
+    $.get(API_BASEPATH + 'ajax/geocode', params, function (result) {
         if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
         var latlng = L.latLng(result.lat,result.lng);
 
@@ -970,7 +997,7 @@ var showOnMap = function () {
             if (w!=0 && s!=0 && e!=0 && n!=0) {
                 var bounds = L.latLngBounds( L.latLng(s,w) , L.latLng(n,e) );
                 bounds = bounds.pad(0.15);
-                MAP.fitBounds(bounds);
+                MAP.flyToBounds(bounds);
             } else {
                 // Re-center and zoom
                 // @TODO: Eventually we'll have individual POI zoomlevels in DB
@@ -998,7 +1025,7 @@ var showOnMap = function () {
 /**
  * Show on Map button handler
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('#show_on_map').click(showOnMap);
 });
 
@@ -1007,7 +1034,7 @@ $(window).load(function () {
  *
  * Click it to bring up info window, configure the Show On Map button.
  */
-$(window).load(function () {
+$(document).ready(function () {
     // zoomElementClick() is defined by mobile.js and desktop.js
     // typically it goes to a Details page and sets up various event handlers
     var openDetailsPanel = function () {
@@ -1046,19 +1073,15 @@ $(document).ready(function () {
     });
 
     /*
-     * Trail-finder pane (#pane-trailfinder)
-     */
-    $('a.sidebar-pane-link[href="#pane-trailfinder"]').click(function() {
-        // On opening the Trailfinder pane, trigger the search (list update).
-        trailfinderUpdate();
-        $('#pane-trailfinder .sortpicker').show();
-    });
-
-    /*
      * Find pane (#pane-browse)
      */
-    $('#pane-browse li a').click(function() {
-
+    $('#pane-browse li a[href="#pane-activities"]').click(function() {
+        set_pane_back_button('#pane-activities', '#pane-browse');
+    });
+    $('#pane-browse li a[href="#pane-trails"]').click(function() {
+        set_pane_back_button('#pane-trails', '#pane-browse');
+        // Perform trails search upon opening the pane.
+        filterLoops();
     });
 
     /*
@@ -1069,15 +1092,13 @@ $(document).ready(function () {
     });
 
     /*
-     * Find POIs pane (#pane-browse-pois-activity)
+     * Activities pane (#pane-activities)
      */
-    // When POI Item clicked:
-    $('#pane-browse-pois-activity li a').click(function() {
-        var category = this.hash.replace( /.*category=/, "" );
-
+    // When an Activity is clicked:
+    $('#pane-activities li a').click(function() {
         // Get Activity ID from query string params
         // (purl.js apparently doesn't parse query string if URL begins with '#')
-        re = /id=(.*)&category=/;
+        re = /id=(\d*)/;
         var matches = this.hash.match(re);
         if (matches.length == 2) {
             activity_id = matches[1];
@@ -1085,97 +1106,151 @@ $(document).ready(function () {
 
         sidebar.open('pane-browse-results');
 
+        pane_title = $(this).text().trim();
+        set_pane_back_button('#pane-browse-results', '#pane-activities');
+
+        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
+        $.get(API_BASEPATH + 'ajax/get_attractions_by_activity', { activity_ids: activity_id }, function (reply) {
+            display_attractions_results(pane_title, reply);
+        }, 'json');
+    });
+
+    /*
+     * Amenities pane (#pane-amenities)
+     */
+    // When an amenity is clicked:
+    $('#pane-amenities li a').click(function() {
+        // Get Amenity ID from query string param
+        // (purl.js apparently doesn't parse query string if URL begins with '#')
+        re = /amenity_id=(\d*)/;
+        var matches = this.hash.match(re);
+        if (matches.length == 2) {
+            amenity_id = matches[1];
+        }
+
+        pane_title = $(this).text().trim();
+        set_pane_back_button('#pane-browse-results', '#pane-amenities');
+
+        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
+        $.get(API_BASEPATH + 'ajax/get_attractions_by_amenity', { amenity_ids: amenity_id }, function (reply) {
+            display_attractions_results(pane_title, reply);
+        }, 'json');
+    });
+
+    /*
+     * Welcome pane (#pane-welcome)
+     */
+    // Visitor Centers button clicked
+    $('#pane-welcome .welcome-pane-visitorcenters a').click(function() {
+        pane_title = 'Visitor Centers';
+        set_pane_back_button('#pane-browse-results', '#pane-welcome');
+
+        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
+        $.get(API_BASEPATH + 'ajax/get_visitor_centers', null, function (reply) {
+            display_attractions_results(pane_title, reply);
+        }, 'json');
+    });
+    // Parks button clicked
+    $('#pane-welcome .welcome-pane-parks a').click(function() {
+        pane_title = 'Parks';
+        set_pane_back_button('#pane-browse-results', '#pane-welcome');
+
+        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
+        $.get(API_BASEPATH + 'ajax/get_reservations', null, function (reply) {
+            display_attractions_results(pane_title, reply);
+        }, 'json');
+    });
+    // Activities button clicked
+    $('#pane-welcome .welcome-pane-activities a').click(function() {
+        set_pane_back_button('#pane-activities', '#pane-welcome');
+    });
+    // Trails button clicked
+    $('#pane-welcome .welcome-pane-trails a').click(function() {
+        set_pane_back_button('#pane-trails', '#pane-welcome');
+        // Perform trails search upon opening the pane.
+        filterLoops();
+    });
+
+    /**
+     * Display Attractions results from AJAX call.
+     */
+    display_attractions_results = function(pane_title, reply) {
+        // Pane header title
+        var header = $('#pane-browse-results h1.sidebar-header .title-text');
+        header.text(pane_title);
+
+        sidebar.open('pane-browse-results');
+
         var target = $('ul#browse_results');
         target.empty();
 
-        activity_title = $(this).text().trim();
+        // Iterate over fetched results and render them into the target
+        for (var i=0, l=reply.results.length; i<l; i++) {
+            var result = reply.results[i];
 
-        // fix the Back button on the target panel, to go Back to the right page
-        // @TODO: Can we consolidate, now that the other two options are gone?
-        var backurl = "#pane-browse";
-        if (category.indexOf('pois_usetype_') == 0) {
-            backurl = "#pane-browse-pois-activity";
-        }
-        $('#pane-browse-results .sidebar-back').prop('href', backurl);
-        // for the fetched items, if one follows to the Info panel, where should that Back button go?
-        var backbuttonurl = backurl;
-        if (category) backbuttonurl = "#pane-browse-results";
+            // List item
+            // A lot of attributes to set pertaining to .zoom handling
+            var li = $('<li></li>')
+                .addClass('zoom')
+                .attr('title', result.name)
+                .attr('gid',result.gid)
+                .attr('record_id',result.record_id)
+                .attr('type',result.type)
+                .attr('w',result.w)
+                .attr('s',result.s)
+                .attr('e',result.e)
+                .attr('n',result.n)
+                .attr('lat',result.lat)
+                .attr('lng',result.lng)
+                .attr('backbutton', "#pane-browse-results");
 
-        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
-        $.get(APP_BASEPATH + 'ajax/get_attractions_by_activity', { activity_ids: activity_id }, function (reply) {
+            // Link (fake, currently)
+            link = $('<a></a>');
+            link.attr('class', 'ui-btn ui-btn-text');
+            li.append(link);
 
-            // Header title
-            var header = $('#pane-browse-results h1.sidebar-header .title-text');
-            header.text(activity_title);
+            // On click: center the map and load More Info
+            li.click(function () {
+                zoomElementClick($(this));
+            });
 
-            // Iterate over fetched results and render them into the target
-            for (var i=0, l=reply.results.length; i<l; i++) {
-                var result = reply.results[i];
+            // Title
+            link.append(
+                $('<span></span>')
+                    .addClass('ui-li-heading')
+                    .text(result.name)
+                );
 
-                // List item
-                // A lot of attributes to set pertaining to .zoom handling
-                var li = $('<li></li>').addClass('zoom');
-                li.attr('title', result.name );
-                li.attr('gid',result.gid)
-                    .attr('type',result.type)
-                    .attr('w',result.w)
-                    .attr('s',result.s)
-                    .attr('e',result.e)
-                    .attr('n',result.n)
-                    .attr('lat',result.lat)
-                    .attr('lng',result.lng);
-                li.attr('backbutton', backbuttonurl);
-
-                // Link (fake, currently)
-                link = $('<a></a>');
-                link.attr('class', 'ui-btn ui-btn-text');
-                //link.attr('href', 'javascript:zoomElementClick(this)');
-                li.append(link);
-
-                // On click: center the map and load More Info
-                li.click(function () {
-                    zoomElementClick( $(this) );
-                });
-
-                // Title
+            // Inner text
+            if (result.note) {
                 link.append(
                     $('<span></span>')
-                        .addClass('ui-li-heading')
-                        .text(result.name)
+                        .addClass('ui-li-desc')
+                        .html(result.note)
                     );
-
-                // Inner text
-                if (result.note) {
-                    link.append(
-                        $('<span></span>')
-                            .addClass('ui-li-desc')
-                            .html(result.note)
-                        );
-                }
-
-                // Distance placeholder, to be populated later
-                link.append(
-                    $('<span></span>')
-                        .addClass('zoom_distance')
-                        .addClass('ui-li-count')
-                        .addClass('ui-btn-up-c')
-                        .addClass('ui-btn-corner-all')
-                        .text('0 mi')
-                    );
-
-                // Add to the list
-                li.append(link);
-                target.append(li);
             }
 
-            // Finalize the list,
-            // have jQuery Mobile do its styling magic on the newly-loaded content,
-            // then calculate the distances and sort.
-            target.listview('refresh');
-            sortLists(target);
-        }, 'json');
+            // Distance placeholder, to be populated later
+            link.append(
+                $('<span></span>')
+                    .addClass('zoom_distance')
+                    .addClass('ui-li-count')
+                    .addClass('ui-btn-up-c')
+                    .addClass('ui-btn-corner-all')
+                    .text('0 mi')
+                );
 
-    });
+            // Add to the list
+            li.append(link);
+            target.append(li);
+        }
+
+        // Finalize the list,
+        // have jQuery Mobile do its styling magic on the newly-loaded content,
+        // then calculate the distances and sort.
+        target.listview('refresh');
+        sortLists(target);
+    };
 
     /*
      * Share pane (#pane-share)
@@ -1197,7 +1272,21 @@ $(document).ready(function () {
         $('#share_twitter').prop('href', url);
         return true;
     });
+
+    // Open Find/Browse pane on startup if:
+    // in the native app, or
+    // user loads the webapp without a path or query string
+    if (NATIVE_APP || (window.location.pathname == '/' && window.location.search == '')) {
+        sidebar.open('pane-welcome');
+    }
 });
+
+/**
+ * Set the back button URL on a pane
+ */
+set_pane_back_button = function(pane_id, back_url) {
+    $('.sidebar-back', $(pane_id)).prop('href', back_url);
+}
 
 /**
  * @TODO: Bind this to sidebar tab button clicks AND
@@ -1267,46 +1356,73 @@ function is_ios() {
 }
 
 /**
- * Toggle GPS
+ * Attempt to locate the user using the Geolocation API (via Leaflet).
  */
-function toggleGPS() {
-    AUTO_CENTER_ON_LOCATION ? toggleGPSOff() : toggleGPSOn();
+function enableGeolocate() {
+    MAP.locate({ watch: true, enableHighAccuracy: true });
 }
 
 /**
- * Toggle GPS On
+ * If in Native app, trigger geolocation when Cordova's geolocation plugin has come online.
  */
-function toggleGPSOn() {
+$(function(){
+    document.addEventListener("deviceready", enableGeolocate, false);
+});
+
+/**
+ * Toggle geolocation-following
+ */
+function toggle_gps_follow() {
+    AUTO_CENTER_ON_LOCATION ? disable_gps_follow() : enable_gps_follow();
+}
+
+/**
+ * Turn geolocation-following ON
+ */
+function enable_gps_follow() {
     AUTO_CENTER_ON_LOCATION = true;
-    var iconurl = is_ios() ? '/static/images/map_controls/mapbutton_gps_ios_on.png' : '/static/images/map_controls/mapbutton_gps_on.png';
-    $('#mapbutton_gps img').prop('src',iconurl);
+    var iconurl = is_ios() ?
+        WEBAPP_BASEPATH + 'static/images/map_controls/mapbutton_gps_ios_on.png' :
+        WEBAPP_BASEPATH + 'static/images/map_controls/mapbutton_gps_on.png';
+    $('#mapbutton_gps img').prop('src', iconurl);
 }
 
 /**
- * Toggle GPS Off
+ * Turn geolocation-following OFF
  */
-function toggleGPSOff() {
+function disable_gps_follow() {
     AUTO_CENTER_ON_LOCATION = false;
-    var iconurl = is_ios() ? '/static/images/map_controls/mapbutton_gps_ios_off.png' : '/static/images/map_controls/mapbutton_gps_off.png';
-    $('#mapbutton_gps img').prop('src',iconurl);
+    var iconurl = is_ios() ?
+        WEBAPP_BASEPATH + 'static/images/map_controls/mapbutton_gps_ios_off.png' :
+        WEBAPP_BASEPATH + 'static/images/map_controls/mapbutton_gps_off.png';
+    $('#mapbutton_gps img').prop('src', iconurl);
 }
 
 /**
- * Turn GPS off on page load
+ * Toggle geolocation-following when GPS icon is clicked
+ */
+$(document).ready(function () {
+    $('#mapbutton_gps').click(function () {
+        toggle_gps_follow();
+    });
+});
+
+/**
+ * Turn geolocation-following OFF on page load
  *
  * iOS and non-iOS get different icons for the GPS button so it's important
  * to trigger this now so the right icon is chosen.
  */
-$(window).load(function () {
-    toggleGPSOff();
+$(document).ready(function () {
+    disable_gps_follow();
 });
 
 /**
- * Turn off GPS mode if map canvas is swiped.
+ * Turn geolocation-following OFF when map canvas is swiped.
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('#map_canvas').bind('swipe', function () {
-        toggleGPSOff();
+        disable_gps_follow();
     });
 });
 
@@ -1315,18 +1431,20 @@ $(window).load(function () {
  *
  * Update our last-known location, then do more calculations regarding it.
  */
-$(window).load(function () {
+$(document).ready(function () {
     MAP.on('locationfound', function(event) {
-        // update our last known location
+        // Update the user's last known location
         LAST_KNOWN_LOCATION = event.latlng;
 
-        // mark our current location, and center the map
-        placeGPSMarker(event.latlng.lat,event.latlng.lng)
+        // Mark the user's current location, and center the map, if we're following
+        placeGPSMarker(event.latlng.lat, event.latlng.lng)
         if (AUTO_CENTER_ON_LOCATION) {
-            var iswithin = MAX_BOUNDS.contains(event.latlng);
-            if (iswithin) {
+            var within_max_bounds = MAX_BOUNDS.contains(event.latlng);
+            if (within_max_bounds) {
                 MAP.panTo(event.latlng);
-                if (MAP.getZoom() < 12) MAP.setZoom(16);
+                if (MAP.getZoom() < 12) {
+                    MAP.setZoom(16);
+                }
             } else {
                 MAP.fitBounds(MAX_BOUNDS);
             }
@@ -1366,28 +1484,11 @@ $(window).load(function () {
         $('#gps_location').text(text);
     });
 
-    // this is a one-time location trigger: we need to turn on auto-centering when the page first loads so the map centers,
-    // but we want to disable it again so we don't get annoying by moving the map away from the user's pans and searches.
-    // Thus, a self-disabling callback.
-    // BUT... we only do this whole thing if there were no URL params given which would override it
-    if (! URL_PARAMS.attr('query')) {
-        AUTO_CENTER_ON_LOCATION = true;
-        var disableMe = function(event) {
-            AUTO_CENTER_ON_LOCATION = false;
-            MAP.off('locationfound', disableMe);
-        };
-        MAP.on('locationfound', disableMe);
+    // Start constant geolocation, which triggers all of the 'locationfound' events above.
+    // If the user is in the native app, we trigger once Cordova's geolocation plugin has come online.
+    if (!NATIVE_APP) {
+        enableGeolocate();
     }
-
-    // start constant geolocation, which triggers all of the 'locationfound' events above
-    MAP.locate({ watch: true, enableHighAccuracy: true });
-
-    // debug: to simulate geolocation: when the map is clicked, trigger a location event as if our GPS says we're there
-    /*
-    MAP.on('click', function (event) {
-        MAP.fireEvent('locationfound', { latlng:event.latlng });
-    });
-    */
 });;
  /**
  * directions.js
@@ -1399,9 +1500,34 @@ $(window).load(function () {
  * Cleveland Metroparks
  */
 
-//var DIRECTIONS_TARGET     = L.latLng(0,0);
 var DIRECTIONS_LINE       = null;
 var DIRECTIONS_LINE_STYLE = { color:"#0000FF", weight:5, opacity:1.00, clickable:false, smoothFactor:0.25 };
+
+/**
+ * Launch external app for directions
+ * Uses launchnavigator [cordova] plugin.
+ */
+function launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via) {
+    var source = [sourcelat, sourcelng],
+        target = [targetlat, targetlng];
+    // Or reverse
+    if (tofrom == 'from') {
+        source = [targetlat, targetlng];
+        target = [sourcelat, sourcelng];
+    }
+    // Car or Transit
+    var transportMode = (via == 'bus') ? launchnavigator.TRANSPORT_MODE.TRANSIT : launchnavigator.TRANSPORT_MODE.DRIVING;
+    // Launch app
+    launchnavigator.navigate(
+        target, {
+            start: source,
+            enableDebug: true,
+            transportMode: transportMode
+            //successCallback: onSuccess,
+            //errorCallback: onError
+        }
+    );
+}
 
 /**
  * Get directions
@@ -1410,7 +1536,7 @@ var DIRECTIONS_LINE_STYLE = { color:"#0000FF", weight:5, opacity:1.00, clickable
  * Given lat,lng and lat,lng and route params, request directions from the server
  * then render them to the screen and to the map.
  */
-function getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via) {
+function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via) {
     // empty out the old directions and disable the button as a visual effect
     $('#directions_steps').empty();
     disableDirectionsButton();
@@ -1422,16 +1548,25 @@ function getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via) {
     // do they prefer fast, short, or weighted?
     var prefer = $('#directions_prefer').val();
 
+    // Launch external map app for native car/transit directions
+    if (NATIVE_APP && (via=='car' || via=='bus')) {
+        launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via);
+        enableDirectionsButton();
+        return;
+    }
+
     // make up the params and run the request
     var params = {
-        sourcelat:sourcelat, sourcelng:sourcelng,
-        targetlat:targetlat, targetlng:targetlng,
-        tofrom:tofrom,
-        via:via,
-        prefer:prefer,
+        sourcelat: sourcelat,
+        sourcelng: sourcelng,
+        targetlat: targetlat,
+        targetlng: targetlng,
+        tofrom: tofrom,
+        via: via,
+        prefer: prefer,
         bing_key: BING_API_KEY
     };
-    $.get(APP_BASEPATH + 'ajax/directions', params, function (reply) {
+    $.get(API_BASEPATH + 'ajax/directions', params, function (reply) {
         enableDirectionsButton();
 
         if (! reply || ! reply.wkt) {
@@ -1448,14 +1583,8 @@ function getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via) {
  */
 function disableDirectionsButton() {
     var button = $('#directions_button');
-    if (MOBILE) {
-        button.button('disable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
-    }
-    else {
-        button.prop('disabled',true);
-        button.val( button.attr('value0') );
-    }
+    button.button('disable');
+    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
 }
 
 /**
@@ -1463,14 +1592,8 @@ function disableDirectionsButton() {
  */
 function enableDirectionsButton() {
     var button = $('#directions_button');
-    if (MOBILE) {
-        button.button('enable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
-    }
-    else {
-        button.prop('disabled',false);
-        button.val( button.attr('value1') );
-    }
+    button.button('enable');
+    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
 }
 
 /**
@@ -1481,18 +1604,13 @@ function enableDirectionsButton() {
  * then calls either getDirections() et al
  */
 function processGetDirectionsForm() {
-    // which transportation mode?
-    // separated into a switch so we can fuss with them separately, e.g. originally hike and bike had a secondary selector for paved/unpaved status
     var tofrom    = $('#directions_reverse').val();
+    // Transportation mode
     var via       = $('#directions_via').val();
-    switch (via) {
-        case 'hike':
-            via = 'hike';
-            //via = $('#directions_via_hike').val();
-            break;
-        case 'bike':
-            via = $('#directions_via_bike').val();
-            break;
+
+    if (via == 'bike') {
+        // Ability level for bike
+        via = $('#directions_via_bike').val();
     }
 
     // empty these fields because we probably don't need them
@@ -1500,20 +1618,22 @@ function processGetDirectionsForm() {
     $('#directions_source_gid').val('');
     $('#directions_source_type').val('');
 
-    // we must do some AJAX for the target location and the origin location, but it must be done precisely in this sequence
-    // so, have jQuery use synchronous AJAX calls (yeah, the A in AJAX, I know) so we can do things in proper order
+    // Use synchronous AJAX so the location finding happens in the required order
+    // @TODO: Synchronous XMLHttpRequest is deprecated
     $.ajaxSetup({ async:false });
 
-    // figure out the target: address geocode, latlon already properly formatted, current GPS location, etc.
-    // this must be done before the target is resolved (below) because resolving the target can mean weighting based on the starting point
+    // figure out the source: address geocode, latlon already properly formatted, current GPS location, etc.
+    // Done before the target is resolved (below) because resolving the target can mean weighting based on the starting point
     // e.g. directions to parks/reservations pick the closest entry point to our starting location
     var sourcelat, sourcelng;
     var addresstype = $('#directions_type').val();
     switch (addresstype) {
+
         case 'gps':
             sourcelat = LAST_KNOWN_LOCATION.lat;
             sourcelng = LAST_KNOWN_LOCATION.lng;
             break;
+
         case 'geocode':
             var address  = $('#directions_address').val();
             if (! address) return alert("Please enter an address, city, or landmark.");
@@ -1528,7 +1648,7 @@ function processGetDirectionsForm() {
                 params.address  = address;
                 params.bing_key = BING_API_KEY;
                 params.bbox     = GEOCODE_BIAS_BOX;
-                $.get(APP_BASEPATH + 'ajax/geocode', params, function (result) {
+                $.get(API_BASEPATH + 'ajax/geocode', params, function (result) {
                     enableDirectionsButton();
                     if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
                     sourcelat = result.lat;
@@ -1553,16 +1673,17 @@ function processGetDirectionsForm() {
                 },'json');
             }
             break;
+
         case 'features':
             disableDirectionsButton();
             var params = {};
             params.keyword = $('#directions_address').val();
             params.limit   = 30 ;
-            params.lat     = MOBILE ? LAST_KNOWN_LOCATION.lat : MAP.getCenter().lat;
-            params.lng     = MOBILE ? LAST_KNOWN_LOCATION.lng : MAP.getCenter().lng;
+            params.lat     = LAST_KNOWN_LOCATION.lat;
+            params.lng     = LAST_KNOWN_LOCATION.lng;
             params.via     = via;
 
-            $.get(APP_BASEPATH + 'ajax/keyword', params, function (reply) {
+            $.get(API_BASEPATH + 'ajax/keyword', params, function (reply) {
                 enableDirectionsButton();
                 if (! reply || !reply.length) return alert("We couldn't find any matching landmarks.");
 
@@ -1607,51 +1728,67 @@ function processGetDirectionsForm() {
     var targetlat = parseFloat( $('#directions_target_lat').val() );
     var targetlng = parseFloat( $('#directions_target_lng').val() );
 
+    // Get the source location
     var source_gid  = $('#directions_source_gid').val();
     var source_type = $('#directions_source_type').val();
-    if (source_type == 'poi' || source_type == 'attraction' ||source_type == 'reservation' || source_type == 'building' || source_type == 'trail') {
-        var params = {};
-        params.type = source_type;
-        params.gid  = source_gid;
-        params.lat  = targetlat; // if this data source uses weighting, this will pick the closest one to our starting location
-        params.lng  = targetlng; // if this data source uses weighting, this will pick the closest one to our starting location
-        params.via  = via;
-        $.get(APP_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
-            sourcelat = reply.lat;
-            sourcelng = reply.lng;
-
-            // save them into the input fields too, so they'd get shared
-            $('#directions_source_lat').val(reply.lat);
-            $('#directions_source_lng').val(reply.lng);
-        }, 'json');
+    if (source_type == 'poi'
+        || source_type == 'attraction'
+        || source_type == 'reservation'
+        || source_type == 'building'
+        || source_type == 'trail')
+    {
+        var source_loc = geocodeLocationForDirections(source_type, source_gid, targetlat, targetlng, via, '#directions_source_lat', '#directions_source_lng');
+        sourcelat = source_loc.lat;
+        sourcelng = source_loc.lng;
     }
 
+    // Get the target location
     var target_gid  = $('#directions_target_gid').val();
     var target_type = $('#directions_target_type').val();
-    if (target_type == 'poi' || source_type == 'attraction' || target_type == 'reservation' || target_type == 'building' || target_type == 'trail') {
-        var params = {};
-        params.type = target_type;
-        params.gid  = target_gid;
-        params.lat  = sourcelat; // if this data source uses weighting, this will pick the closest one to our starting location
-        params.lng  = sourcelng; // if this data source uses weighting, this will pick the closest one to our starting location
-        params.via  = via;
-        $.get(APP_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
-            targetlat = reply.lat;
-            targetlng = reply.lng;
-
-            // save them into the input fields too, so they'd get shared
-            $('#directions_target_lat').val(reply.lat);
-            $('#directions_target_lng').val(reply.lng);
-        }, 'json');
+    if (target_type == 'poi'
+        || target_type == 'attraction'
+        || target_type == 'reservation'
+        || target_type == 'building'
+        || target_type == 'trail')
+    {
+        var target_loc = geocodeLocationForDirections(target_type, target_gid, sourcelat, sourcelng, via, '#directions_target_lat', '#directions_target_lng');
+        targetlat = target_loc.lat;
+        targetlng = target_loc.lng;
     }
 
-    if (! targetlat || ! targetlng) return alert("Please close the directions panel, and pick a location.");
+    if (! targetlat || ! targetlng) {
+        return alert("Please close the directions panel, and pick a location.");
+    }
 
-    // great! we have resolved the targetlat and targetlng from the best possible location,
-    // and resolved the sourcelat and sourcelng from a combination of data source and current location
-    // re-enable asynchronous AJAX and request directions
+    // Re-enable asynchronous AJAX
     $.ajaxSetup({ async:true });
-    getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via);
+
+    getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via);
+}
+
+/**
+ * Geocode location for directions
+ * For type: poi, attraction, reservation, building, and trail
+ */
+function geocodeLocationForDirections(loc_type, loc_gid, lat, lng, via, lat_el_id, lng_el_id) {
+    var output_location = new Object();
+    var params = {
+        type : loc_type,
+        gid : loc_gid,
+        // If this data source uses weighting, this will pick the closest one to our starting location
+        lat : lat,
+        lng : lng,
+        via : via
+    };
+    $.get(API_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
+        output_location.lat = reply.lat;
+        output_location.lng = reply.lng;
+
+        // Save them into the input fields too, so they'd get shared
+        $(lat_el_id).val(reply.lat);
+        $(lng_el_id).val(reply.lng);
+    }, 'json');
+    return output_location;
 }
 
 /**
@@ -1689,8 +1826,7 @@ function populateDidYouMean(results) {
         target.append(item);
     }
 
-    // now if we're mobile, do the styling
-    if (MOBILE) target.listview('refresh');
+    target.listview('refresh');
 }
 
 /**
@@ -1791,7 +1927,7 @@ function renderDirectionsStructure(directions,target,options) {
     }
 
     // Print button
-    if (! MOBILE) {
+    if (! NATIVE_APP) {
         var printMeBtn = $('<a></a>')
             .addClass('ui-btn')
             .addClass('ui-btn-inline')
@@ -1812,10 +1948,9 @@ function renderDirectionsStructure(directions,target,options) {
 
     // phase 4: any additional postprocessing
     // give the list that jQuery Mobile magic
-    if (MOBILE) {
-        target.listview('refresh');
-        $('.directions_functions img:first').removeClass('ui-li-thumb'); // jQM assigns this class, screwing up the position & size of the first button IMG
-    }
+    target.listview('refresh');
+    // jQM assigns this class, screwing up the position & size of the first button IMG:
+    $('.directions_functions img:first').removeClass('ui-li-thumb');
 }
 
 /**
@@ -1865,7 +2000,7 @@ function placeDirectionsLine(polyline,startll,endll) {
 /**
  * Event handlers for the directions subsystem
  */
-$(window).load(function () {
+$(document).ready(function () {
     // The 4 icons launch the Get Directions panel
     // selecting the appropriate transport method
     $('#directions_hike').click(function () {
@@ -1954,7 +2089,7 @@ function openElevationProfileBySegments() {
     x = x.join(',');
     y = y.join(',');
 
-    $.post(APP_BASEPATH + 'ajax/elevationprofilebysegments', { 'x':x, 'y':y }, function (url) {
+    $.post(API_BASEPATH + 'ajax/elevationprofilebysegments', { 'x':x, 'y':y }, function (url) {
         if (url.indexOf('http') != 0) return alert(url);
         showElevation(url);
     });
@@ -1965,7 +2100,7 @@ function openElevationProfileBySegments() {
  * then an async directions lookup between the points,
  * then draws the polyline path and prints the directions
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('#getdirections_clear').click(function () {
         clearDirectionsLine();
         $('#directions_steps').empty();
@@ -2036,7 +2171,7 @@ $(document).on("mapReady", setupShareUrlUpdates);
 /*
  *  Sharing handlers
  */
-$(window).load(function() {
+$(document).ready(function() {
     // Highlight/select the share box URL when it is clicked.
     $('#share_url').click(function() {
         $(this).select();
@@ -2074,16 +2209,29 @@ $(window).load(function() {
  * Read the globally stored SHARE_URL_STRING and request a shortened URL from the server
  */
 function populateShareBox() {
+    // In native mobile our URL_PARAMS are not what we expect
+    var protocol = (URL_PARAMS.attr('protocol') != 'file')
+        ? URL_PARAMS.attr('protocol')
+        : WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL;
+    var host = (URL_PARAMS.attr('host'))
+        ? URL_PARAMS.attr('host')
+        : WEBAPP_BASE_URL_ABSOLUTE_HOST;
+    // We used to get the current path, but this was to clarify between
+    // /desktop/map and /mobile/map. Now that that's no longer necessary,
+    // we can just use the base url path.
+    var path = '/';
+
     // submit the long URL param string to the server, get back a short param string
     var params = {
-        uri : URL_PARAMS.attr('path'),
+        uri : path,
         querystring : SHARE_URL_STRING
     };
+    $.get(API_BASEPATH + 'ajax/make_shorturl', params, function(shortstring) {
+        if (! shortstring) {
+            return alert("Unable to fetch a short URL.\nPlease try again.");
+        }
 
-    $.get(APP_BASEPATH + 'ajax/make_shorturl', params, function(shortstring) {
-        if (! shortstring) return alert("Unable to fetch a short URL.\nPlease try again.");
-        var url = URL_PARAMS.attr('protocol') + '://' + URL_PARAMS.attr('host') + '/url/' + shortstring;
-
+        var url = protocol + '://' + host + '/url/' + shortstring;
         $('#share_url').val(url);
     });
 }
@@ -2170,7 +2318,7 @@ function updateShareUrlByDirections() {
 /**
  * Enable "Keyword Search" subsystem event handlers 
  */
-$(window).load(function () {
+$(document).ready(function () {
     // Keyword Search text search in the initial "Find" (/Browse) pane
     // is just a shell over the one in #search
     $('#browse_keyword_button').click(function () {
@@ -2209,14 +2357,8 @@ $(window).load(function () {
  */
 function disableKeywordButton() {
     var button = $('#search_keyword_button');
-    if (MOBILE) {
-        button.button('disable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
-    }
-    else {
-        button.prop('disabled',true);
-        button.val( button.attr('value0') );
-    }
+    button.button('disable');
+    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
 }
 
 /**
@@ -2224,14 +2366,8 @@ function disableKeywordButton() {
  */
 function enableKeywordButton() {
     var button = $('#search_keyword_button');
-    if (MOBILE) {
-        button.button('enable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
-    }
-    else {
-        button.prop('disabled',false);
-        button.val( button.attr('value1') );
-    }
+    button.button('enable');
+    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
 }
 
 /**
@@ -2307,7 +2443,7 @@ function searchByKeyword(keyword) {
     disableKeywordButton();
     $('#pane-search .sortpicker').hide();
 
-    $.get(APP_BASEPATH + 'ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
+    $.get(API_BASEPATH + 'ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
         enableKeywordButton();
         $('#pane-search .sortpicker').show();
 
@@ -2386,8 +2522,8 @@ function searchByKeyword(keyword) {
 /**
  * Load autocomplete keywords via AJAX, and enable autocomplete on the Keyword Search
  */
-$(window).load(function () {
-    $.get(APP_BASEPATH + 'ajax/autocomplete_keywords', {}, function (words) {
+$(document).ready(function () {
+    $.get(API_BASEPATH + 'ajax/autocomplete_keywords', {}, function (words) {
 
         $('#browse_keyword').autocomplete({
             target: $('#browse_keyword_autocomplete'),
@@ -2445,8 +2581,8 @@ var ALL_POIS = [];
  * Rendering to DOM is done later by updateNearYouNow() to do only the
  * closest few POIs, so we don't overload.
  */
-$(window).load(function () {
-    $.get(APP_BASEPATH + 'ajax/load_pois', {}, function (pois) {
+$(document).ready(function () {
+    $.get(API_BASEPATH + 'ajax/load_pois', {}, function (pois) {
         for (var i=0, l=pois.length; i<l; i++) {
             ALL_POIS[ALL_POIS.length] = pois[i];
         }
@@ -2632,7 +2768,7 @@ function checkRadar(latlng,maxmeters,categories) {
 }
 
 // on page load: install event handlers for the Find and Radar panels
-$(window).load(function () {
+$(document).ready(function () {
     $('#radar_enabled').change(function () {
         // toggle the radar config: category pickers, distance selector, etc.
         var enabled = $(this).is(':checked');
@@ -2646,173 +2782,6 @@ $(window).load(function () {
         }
     });
 });
-;
-/**
- * trails.js
- *
- * JS for trailfinder functionality.
- *
- * Included into app.js.
- *
- * Cleveland Metroparks
- */
-
-/**
- * Event handlers for Trail Finder
- * these used to be identical but then they diverged so desktop has these clicky iole, while mobile is still a selector (for now)
- */
-$(window).load(function () {
-    // the icons for the trail type, trigger the underlying checkboxes so we're still using real form elements
-    $('#trailfinder_typeicons img').click(function () {
-        // uncheck all of the invisible checkboxes, then check the one corresponding to this image
-        var $this = $(this);
-        var value = $this.attr('data-value');
-        $('input[name="trailfinder_uses"]')
-            .removeAttr('checked')
-            .filter('[value="'+value+'"]')
-            .prop('checked', true);
-
-        // adjust the images: change the SRC to the _off version, except this one which gets the _on version
-        $('#trailfinder_typeicons img').each(function () {
-            var src = $(this).prop('src');
-
-            if ( $(this).is($this) ) {
-                if (!src.includes('-on.svg')) {
-                    src  = src.replace('.svg', '-on.svg');
-                }
-            } else {
-                src  = src.replace('-on.svg', '.svg');
-            }
-            $(this).prop('src', src);
-        });
-
-        // Update the listing.
-        trailfinderUpdate();
-
-    //}).first().click();
-    });
-
-    // The "Search" button on the Trail Finder pane.
-    // We've removed this button from the Trail Finder pane, but it's still on
-    // views/finder/trail.phtml
-    $('#trailfinder_go').click(function () {
-        trailfinderUpdate();
-    });
-
-    // When the selectors change, trigger a list update
-    $('select[name="trailfinder_reservation"]').change(function () {
-        trailfinderUpdate();
-    });
-    $('select[name="trailfinder_paved"]').change(function () {
-        trailfinderUpdate();
-    });
-});
-
-/**
- * Trail Finder Search/Update
- *
- * Build Search params from the form, for passing to searchTrails() --
- * most notably the difficulty checkboxes, and making sure at least one is checked.
- */
-function trailfinderUpdate() {
-    var params = {};
-    params.reservation = $('select[name="trailfinder_reservation"]').val();
-    params.paved       = $('select[name="trailfinder_paved"]').val();
-
-    // this is a list of selected trail uses, now only 1 will be checked but it was made to accept a list and that will likely become the case again in the future
-    params.uses = [];
-    $('input[name="trailfinder_uses"]:checked').each(function () {
-        params.uses[params.uses.length] = $(this).val();
-    });
-    params.uses = params.uses.join(",");
-
-    // pass it to the search called
-    searchTrails(params);
-}
-
-/**
- * "Search" functionality in Trail Finder
- */
-function searchTrails(params) {
-    // clear out any old search results
-    var target = $('#trailfinder_results');
-    target.empty();
-
-    // AJAX to fetch results, and render them as LIs with .zoom et cetera
-    $.get(APP_BASEPATH + 'ajax/search_trails', params, function (results) {
-
-        // iterate over the results and add them to the output
-        if (results.length) {
-            for (var i=0, l=results.length; i<l; i++) {
-
-                var result = results[i];
-
-                // List item
-                // A lot of attributes to set pertaining to .zoom handling
-                var li = $('<li></li>').addClass('zoom');
-
-                li.attr('title', result.name)
-                  .attr('gid',result.gid)
-                  .attr('type',result.type)
-                  .attr('w',result.w)
-                  .attr('s',result.s)
-                  .attr('e',result.e)
-                  .attr('n',result.n)
-                  .attr('lat',result.lat)
-                  .attr('lng',result.lng);
-
-                li.attr('backbutton', '#pane-trailfinder');
-
-                // Link (fake, currently)
-                link = $('<a></a>');
-                link.attr('class', 'ui-btn ui-btn-text');
-                //link.attr('href', 'javascript:zoomElementClick($(this)');
-                li.append(link);
-
-                // On click, call zoomElementClick() to load more info
-                li.click(function () {
-                    zoomElementClick( $(this) );
-                });
-
-                // Title
-                link.append(
-                    $('<h4></h4>')
-                        .addClass('ui-li-heading')
-                        .text(result.name)
-                );
-
-                // Inner text
-                if (result.note) {
-                    link.append(
-                        $('<span></span>')
-                            .addClass('ui-li-desc')
-                            .html(result.note)
-                    );
-                }
-
-                // Distance placeholder, to be populated later
-                link.append(
-                    $('<span></span>')
-                        .addClass('zoom_distance')
-                        .addClass('ui-li-count')
-                        .addClass('ui-btn-up-c')
-                        .addClass('ui-btn-corner-all')
-                        .text('0 mi')
-                );
-
-                // Add to the list
-                li.append(link);
-                target.append(li);
-            }
-        } else {
-            target.append($('<li></li>').text("No results."));
-        }
-
-        // finalize the list, have jQuery Mobile do its styling magic on the newly-loaded content and then sort it
-        if (MOBILE) target.listview('refresh');
-        if (MOBILE) sortLists(target);
-    }, 'json');
-}
 ;
 /**
  * loopsandroutes.js
@@ -2829,10 +2798,10 @@ function searchTrails(params) {
  *
  * @see also filterLoops() below
  */
-$(window).load(function () {
+$(document).ready(function () {
     // the event handlers below are for the sliders and textboxes within #pane-loops,
     // so trigger a DOM rendering of the page now so the elements exist
-    $('#pane-loops-search').page();
+    $('#pane-trails').page();
 
     // the #loops_filter_type selector is invisible, and we have a set of icons to set its value when they're clicked
     $('#loops_typeicons img').click(function () {
@@ -2855,25 +2824,23 @@ $(window).load(function () {
         });
     }).first().click();
 
-    // #loops_filter_distance_slider is invisible and we have a set of 4 images to form "presets" for this slider
-    $('#loops_filter_distancepicker img').click(function () {
+    // #loops_filter_distance_min & max are invisible,
+    // with filter buttons linked
+    $('#loops_filter_distancepicker a').click(function () {
         // set the min & max in the inputs
         var $this = $(this);
-        var minmi = $this.attr('data-min');
-        var maxmi = $this.attr('data-max');
-        $('#loops_filter_distance_min').val(minmi);
-        $('#loops_filter_distance_max').val(maxmi);
+        var min_mi = $this.attr('data-min');
+        var max_mi = $this.attr('data-max');
+        $('#loops_filter_distance_min').val(min_mi);
+        $('#loops_filter_distance_max').val(max_mi);
 
-        // unhighlight these buttons and highlight this one, by swapping the IMG SRC
-        $('#loops_filter_distancepicker img').each(function () {
-            var src = $(this).prop('src');
-
-            if ( $(this).is($this) ) {
-                src  = src.replace('_off.png', '_on.png');
+        // Toggle button active state
+        $('#loops_filter_distancepicker a').each(function () {
+            if ($(this).is($this)) {
+                $(this).addClass('active');
             } else {
-                src  = src.replace('_on.png', '_off.png');
+                $(this).removeClass('active');
             }
-            $(this).prop('src', src);
         });
 
         // ready, now trigger a search
@@ -2881,14 +2848,17 @@ $(window).load(function () {
     //}).first().click();
     });
 
+    // Reservation <select>
+    $('#loops_filter_reservation').change(function () {
+        // Perform search
+        filterLoops();
+    })
+
     // having set up the sliders 'change' handlers, trigger them now to set the displayed text
     $('#loops_filter_distance_min').change();
     $('#loops_filter_distance_max').change();
     $('#loops_filter_duration_min').change();
     $('#loops_filter_duration_max').change();
-
-    // the filter button, calls filterLoops()
-    $('#loops_filter_button').click(filterLoops);
 
     // the loop type selector doesn't filter immediately,
     // but it does show/hide the time slider and the time estimates for each loop,
@@ -2975,21 +2945,17 @@ function filterLoops() {
     params.maxfeet      = 5280 * parseInt( $('#loops_filter_distance_max').val() );
     params.reservation  = $('#loops_filter_reservation').val();
 
-    var button = $('#loops_filter_button');
-    button.button('disable');
-    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
-
-    $.get(APP_BASEPATH + 'ajax/search_loops', params, function (results) {
-        // re-enable the search button
-        button.button('enable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
-
+    $.get(API_BASEPATH + 'ajax/search_loops', params, function (results) {
         // find and empty the target UL
         var target = $('#loops_list');
         target.empty();
 
-        // no results?
-        if (! results || ! results.length) return alert("No matches found.");
+        // No results text
+        $('.results-notes').remove();
+        if (! results || ! results.length) {
+            var markup = '<p class="results-notes">No results.</p>';
+            target.after(markup);
+        }
 
         // iterate over the results, add them to the output
         for (var i=0, l=results.length; i<l; i++) {
@@ -3009,7 +2975,7 @@ function filterLoops() {
                 .attr('lat', result.lat)
                 .attr('lng', result.lng);
 
-            li.attr('backbutton', '#pane-loops-search');
+            li.attr('backbutton', '#pane-trails');
 
             // Link (fake, currently)
             link = $('<a></a>');
@@ -3051,7 +3017,7 @@ function filterLoops() {
         }
 
         // sort it by distance and have jQuery Mobile refresh it
-        $('#pane-loops-search .sortpicker').show();
+        $('#pane-trails .sortpicker').show();
         target.listview('refresh');
         sortLists(target);
     }, 'json');

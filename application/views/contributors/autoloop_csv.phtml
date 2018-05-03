@@ -27,7 +27,7 @@
 
 
 <script type="text/javascript">
-$(window).load(function () {
+$(document).ready(function () {
     $('#upload').submit(function () {
         var error = null;
         if (! $('input[type="file"][name="csv"]').val() ) error = "Select a CSV file to upload.";

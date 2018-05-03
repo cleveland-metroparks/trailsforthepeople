@@ -11,7 +11,7 @@
 /**
  * Enable "Keyword Search" subsystem event handlers 
  */
-$(window).load(function () {
+$(document).ready(function () {
     // Keyword Search text search in the initial "Find" (/Browse) pane
     // is just a shell over the one in #search
     $('#browse_keyword_button').click(function () {
@@ -50,14 +50,8 @@ $(window).load(function () {
  */
 function disableKeywordButton() {
     var button = $('#search_keyword_button');
-    if (MOBILE) {
-        button.button('disable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
-    }
-    else {
-        button.prop('disabled',true);
-        button.val( button.attr('value0') );
-    }
+    button.button('disable');
+    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
 }
 
 /**
@@ -65,14 +59,8 @@ function disableKeywordButton() {
  */
 function enableKeywordButton() {
     var button = $('#search_keyword_button');
-    if (MOBILE) {
-        button.button('enable');
-        button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
-    }
-    else {
-        button.prop('disabled',false);
-        button.val( button.attr('value1') );
-    }
+    button.button('enable');
+    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
 }
 
 /**
@@ -148,7 +136,7 @@ function searchByKeyword(keyword) {
     disableKeywordButton();
     $('#pane-search .sortpicker').hide();
 
-    $.get(APP_BASEPATH + 'ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
+    $.get(API_BASEPATH + 'ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
         enableKeywordButton();
         $('#pane-search .sortpicker').show();
 
@@ -227,8 +215,8 @@ function searchByKeyword(keyword) {
 /**
  * Load autocomplete keywords via AJAX, and enable autocomplete on the Keyword Search
  */
-$(window).load(function () {
-    $.get(APP_BASEPATH + 'ajax/autocomplete_keywords', {}, function (words) {
+$(document).ready(function () {
+    $.get(API_BASEPATH + 'ajax/autocomplete_keywords', {}, function (words) {
 
         $('#browse_keyword').autocomplete({
             target: $('#browse_keyword_autocomplete'),

@@ -17,3 +17,6 @@ node_modules
 
 # Grunt local config
 grunt-local-config.json
+
+# Native app releases
+/static/native_dev/

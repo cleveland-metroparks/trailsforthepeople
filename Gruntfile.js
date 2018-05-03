@@ -26,11 +26,28 @@ module.exports = function(grunt) {
           'static/src/js/share.js',
           'static/src/js/search.js',
           'static/src/js/nearby.js',
-          'static/src/js/trails.js',
           'static/src/js/loopsandroutes.js',
           'static/src/js/print.js'
         ],
         dest: 'static/dist/js/app.js'
+      },
+      // Web app package:
+      native: {
+        src: [
+          'static/src/js/constants.js',
+          'static/src/js/native-constants.js',
+          'static/src/js/common.js',
+          'static/src/js/mobile.js',
+          'static/src/js/sidebar.js',
+          'static/src/js/geolocate.js',
+          'static/src/js/directions.js',
+          'static/src/js/share.js',
+          'static/src/js/search.js',
+          'static/src/js/nearby.js',
+          'static/src/js/loopsandroutes.js',
+          'static/src/js/print.js'
+        ],
+        dest: 'static/dist/js/app-native.js'
       },
       // Base for map embeds on external sites:
       embedded_base: {
@@ -103,6 +120,11 @@ module.exports = function(grunt) {
           'static/dist/js/constants.min.js': ['static/src/js/constants.js'],
           'static/dist/js/common.min.js':    ['static/src/js/common.js'],
           'static/dist/js/app.min.js':       ['static/dist/js/app.js']
+        }
+      },
+      native: {
+        files: {
+          'static/dist/js/app-native.min.js':       ['static/dist/js/app-native.js']
         }
       },
       // Base for map embeds on external sites:
@@ -242,6 +264,22 @@ module.exports = function(grunt) {
         ],
         tasks: ['sass:embedded']
       },
+      concat_dist: {
+        files: [
+          'static/src/js/constants.js',
+          'static/src/js/common.js',
+          'static/src/js/mobile.js',
+          'static/src/js/sidebar.js',
+          'static/src/js/geolocate.js',
+          'static/src/js/directions.js',
+          'static/src/js/share.js',
+          'static/src/js/search.js',
+          'static/src/js/nearby.js',
+          'static/src/js/loopsandroutes.js',
+          'static/src/js/print.js'
+        ],
+        tasks: ['concat:dist']
+      },
       uglify_dist: {
         files: [
           'static/src/js/constants.js',
@@ -253,49 +291,61 @@ module.exports = function(grunt) {
           'static/src/js/share.js',
           'static/src/js/search.js',
           'static/src/js/nearby.js',
-          'static/src/js/trails.js',
           'static/src/js/loopsandroutes.js',
           'static/src/js/print.js'
         ],
         tasks: ['uglify:dist']
       },
-      concat_embedded: {
+      concat_native: {
         files: [
           'static/src/js/constants.js',
+          'static/src/js/native-constants.js',
           'static/src/js/common.js',
-          'static/src/js/embedded.js',
-          'static/src/js/embedded-constants.js'
+          'static/src/js/mobile.js',
+          'static/src/js/sidebar.js',
+          'static/src/js/geolocate.js',
+          'static/src/js/directions.js',
+          'static/src/js/share.js',
+          'static/src/js/search.js',
+          'static/src/js/nearby.js',
+          'static/src/js/loopsandroutes.js',
+          'static/src/js/print.js'
         ],
-        tasks: ['concat:embedded', 'concat:embedded_nojq']
+        tasks: ['concat:native']
       },
-      uglify_embedded: {
+      uglify_native: {
         files: [
-          'static/dist/js/map-embedded.js',
-          'static/dist/js/map-embedded-nojq.js'
+          'static/src/js/constants.js',
+          'static/src/js/native-constants.js',
+          'static/src/js/common.js',
+          'static/src/js/mobile.js',
+          'static/src/js/sidebar.js',
+          'static/src/js/geolocate.js',
+          'static/src/js/directions.js',
+          'static/src/js/share.js',
+          'static/src/js/search.js',
+          'static/src/js/nearby.js',
+          'static/src/js/loopsandroutes.js',
+          'static/src/js/print.js'
         ],
-        tasks: ['uglify:embedded', 'uglify:embedded_nojq']
-      },
-      upload_dist: {
-        files: [
-          'static/dist/css/mobile.css',
-          'static/src/scss/jqm-themes/cm-jqm-theme.css',
-          'static/dist/js/mobile.min.js',
-          'static/dist/js/constants.min.js',
-          'static/dist/js/common.min.js',
-          'static/dist/js/app.min.js'
-        ],
-        tasks: ['sftp:dist']
-      },
-      upload_embedded: {
-        files: [
-          'static/dist/js/map-embedded.js',
-          'static/dist/js/map-embedded.min.js',
-          'static/dist/js/map-embedded-nojq.js',
-          'static/dist/js/map-embedded-nojq.min.js',
-          'static/dist/css/embedded.css'
-        ],
-        tasks: ['sftp:embedded']
+        tasks: ['uglify:native']
       }
+      //concat_embedded: {
+      //  files: [
+      //    'static/src/js/constants.js',
+      //    'static/src/js/common.js',
+      //    'static/src/js/embedded.js',
+      //    'static/src/js/embedded-constants.js'
+      //  ],
+      //  tasks: ['concat:embedded_base', 'concat:embedded_base_nojq']
+      //},
+      //uglify_embedded: {
+      //  files: [
+      //    'static/dist/js/map-embedded.js',
+      //    'static/dist/js/map-embedded-nojq.js'
+      //  ],
+      //  tasks: ['uglify:embedded', 'uglify:embedded_nojq']
+      //}
     }
   });
 
@@ -305,10 +355,18 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-ssh');
 
-  // Default (dist only; non-embedded) tasks
-  grunt.registerTask('default', ['concat:dist', 'uglify:dist', 'sass:dist', 'sftp:dist']);
   // All tasks
-  grunt.registerTask('all', ['concat', 'uglify', 'sass', 'sftp']);
+  grunt.registerTask('all', ['concat', 'uglify', 'sass']);
+  // Dist only (non-embedded, non-native)
+  grunt.registerTask('dist', ['concat:dist', 'uglify:dist', 'sass:dist']);
+  // Native tasks only
+  grunt.registerTask('native', ['concat:native', 'uglify:native', 'sass:dist']);
+  // Default: dist and native (non-embedded)
+  grunt.registerTask('default', [
+    'concat:dist', 'uglify:dist', 'sass:dist',
+    'concat:native', 'uglify:native', 'sass:dist'
+    ]
+  );
   // Embedded tasks only
   grunt.registerTask('embedded', [
     'concat:embedded_base',
@@ -321,10 +379,9 @@ module.exports = function(grunt) {
     'uglify:embedded_visit_nojq_DEPRECATED',
     'uglify:embedded_visit',
     'uglify:embedded_beach_closures',
-    'sass:embedded',
-    'sftp:embedded'
+    'sass:embedded'
   ]);
   // Embedded tasks only, without uglify
-  grunt.registerTask('embedded_nougly', ['concat:embedded', 'concat:embedded_nojq', 'sass:embedded', 'sftp:embedded']);
+  grunt.registerTask('embedded_nougly', ['concat:embedded_base', 'concat:embedded_base_nojq', 'sass:embedded']);
 
 };

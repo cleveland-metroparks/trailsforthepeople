@@ -54,10 +54,10 @@ function geocode_for_directions() {
     $output = array();
 
     switch ($_GET['type']) {
+
         case 'poi':
             $result = new Usearea();
             $result->where('gid',$_GET['gid'])->get();
-
             switch (@$_GET['via']) {
                 case 'car':
                     $output['lat']  = (float) $result->lat_driving;
@@ -70,12 +70,11 @@ function geocode_for_directions() {
                     $output['type'] = 'actual';
                     break;
             }
-
             break;
+
         case 'building':
             $result = new Building();
             $result->where('gid',$_GET['gid'])->get();
-
             switch ($_GET['via']) {
                 case 'car':
                     $output['lat']  = (float) $result->lat_driving;
@@ -88,8 +87,8 @@ function geocode_for_directions() {
                     $output['type'] = 'actual';
                     break;
             }
-
             break;
+
         case 'trail':
             $result   = new Trail();
             $result->where('gid',$_GET['gid'])->get();
@@ -97,6 +96,7 @@ function geocode_for_directions() {
             $output['lng']  = (float) $result->lng_driving;
             $output['type'] = 'driving';
             break;
+
         case 'reservation':
             $result = new Park();
             $result->where('gid',$_GET['gid'])->get();
@@ -111,8 +111,19 @@ function geocode_for_directions() {
                 $output['lng']  = (float) $driving_latlng->lng;
                 $output['type'] = sprintf("nearest to %f %f", $_GET['lat'], $_GET['lng'] );
             }
-
             break;
+
+        case 'attraction':
+            $result = new Attraction();
+            $result->where('gis_id', $_GET['gid'])->get();
+            $output['lat']  = (float) $result->drivingdestinationlatitude;
+            $output['lng']  = (float) $result->drivingdestinationlongitude;
+            $output['type'] = 'driving';
+            break;
+
+        // These don't have gis_ids:
+        // case 'reservation_new':
+        //     break;
     }
 
     print json_encode($output);
@@ -381,6 +392,15 @@ function moreinfo() {
             $result->where('gid',$_GET['gid'])->get();
             if (! $result->gid) exit;
             $template = 'ajax/moreinfo_reservation.phtml';
+            break;
+
+        case 'reservation_new':
+            $result = new Reservation();
+            $result
+                ->where('record_id', $_GET['gid'])
+                ->get();
+            if (! $result->record_id) exit;
+            $template = 'ajax/moreinfo_reservation_new.phtml';
             break;
 
         case 'loop':
@@ -1822,47 +1842,72 @@ function elevationprofilebysegments($context=null) {
 }
 
 /**
- * Browse POIs by activity
+ * Get Attractions for an Activity
  *
  * @param activity_ids
  */
 function get_attractions_by_activity() {
-    $results = array();
-
     // Accept either a single Activity ID or an array of them.
     $activity_ids = is_array($_GET['activity_ids']) ? $_GET['activity_ids'] : array($_GET['activity_ids']);
 
     $attractions = new Attraction();
     $attractions = $attractions->getAttractionsByActivity($activity_ids);
 
-    foreach ($attractions as $attraction) {
-        $results[] = array(
-            'type'  => 'attraction',
-            'name'  => trim($attraction->pagetitle),
-            'gid'   => (integer) $attraction->gis_id,
-
-            'w'     => (float) 0,
-            's'     => (float) 0,
-            'e'     => (float) 0,
-            'n'     => (float) 0,
-
-            'lat'   => (float) $attraction->latitude,
-            'lng'   => (float) $attraction->longitude,
-
-            'thumbnail' => $attraction->pagethumbnail,
-
-            'description' => $attraction->descr,
-
-            'cmp_url' => $this->config->item('main_site_url') . ltrim($attraction->cmp_url, '/')
-        );
-    }
+    $results = $this->_makeAttractionResults($attractions);
 
     $output = array('results' => $results);
     print json_encode($output);
 }
 
 /**
- * Get nearby POIs with activities
+ * Get Attractions by Amenity
+ *
+ * @param amenity_ids
+ */
+function get_attractions_by_amenity() {
+    // Accept either a single Amenity ID or an array of them.
+    $amenity_ids = is_array($_GET['amenity_ids']) ? $_GET['amenity_ids'] : array($_GET['amenity_ids']);
+
+    $attractions = new Attraction();
+    $attractions = $attractions->getAttractionsByAmenity($amenity_ids);
+
+    $results = $this->_makeAttractionResults($attractions);
+
+    $output = array('results' => $results);
+    print json_encode($output);
+}
+
+/**
+ * Get Visitor Centers (Attractions)
+ */
+function get_visitor_centers() {
+    $visitor_centers = new Attraction();
+    $visitor_centers = $visitor_centers->getVisitorCenters();
+
+    $results = $this->_makeAttractionResults($visitor_centers);
+
+    $output = array('results' => $results);
+    print json_encode($output);
+}
+
+/**
+ * Get Reservations
+ */
+function get_reservations() {
+    $reservations = new Reservation();
+
+    $reservations
+        ->order_by('pagetitle')
+        ->get();
+
+    $results = $this->_makeAttractionResults($reservations, 'reservation_new');
+
+    $output = array('results' => $results);
+    print json_encode($output);
+}
+
+/**
+ * Get nearby attractions with activities
  *
  * @param lat
  * @param lng
@@ -1870,8 +1915,6 @@ function get_attractions_by_activity() {
  * @param activity_ids
  */
 function get_nearby_attractions_with_activities() {
-    $results = array();
-
     $attractions = new Attraction();
     $attractions = $attractions->getNearbyAttractions(
         $_GET['lat'],
@@ -1880,16 +1923,35 @@ function get_nearby_attractions_with_activities() {
         $_GET['activity_ids']
     );
 
+    $results = $this->_makeAttractionResults($attractions);
+
+    $output = array('results' => $results);
+    print json_encode($output);
+}
+
+/**
+ * Transform attractions from model functions into our output results array.
+ *
+ * @param $attractions: Listing of attractions as returned
+ *      from Attraction data model functions.
+ * @param $type: Typically 'attraction', but could be other types (like 'reservation_new')
+ *      that we're overloading this function for.
+ */
+function _makeAttractionResults($attractions, $type='attraction') {
+    $results = array();
+
     foreach ($attractions as $attraction) {
         $results[] = array(
-            'type'  => 'attraction',
+            'type'  => $type,
             'name'  => trim($attraction->pagetitle),
             'gid'   => (integer) $attraction->gis_id,
+            'record_id' => (integer)$attraction->record_id,
 
-            'w'     => (float) 0,
-            's'     => (float) 0,
-            'e'     => (float) 0,
-            'n'     => (float) 0,
+            // view_cmp_gisreservations has bounding box columns
+            'w'     => isset($attraction->boxw) ? $attraction->boxw : (float)0,
+            's'     => isset($attraction->boxs) ? $attraction->boxs : (float)0,
+            'e'     => isset($attraction->boxe) ? $attraction->boxe : (float)0,
+            'n'     => isset($attraction->boxn) ? $attraction->boxn : (float)0,
 
             'lat'   => (float) $attraction->latitude,
             'lng'   => (float) $attraction->longitude,
@@ -1902,8 +1964,7 @@ function get_nearby_attractions_with_activities() {
         );
     }
 
-    $output = array('results' => $results);
-    print json_encode($output);
+    return $results;
 }
 
 /**
@@ -1936,6 +1997,8 @@ function get_beach_closures() {
 
 /**
  * Browse items
+ *
+ * @deprecated Remove when we don't have to support old apps.
  *
  * @param search
  * @param category

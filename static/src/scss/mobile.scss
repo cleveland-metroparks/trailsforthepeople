@@ -4,6 +4,13 @@
 .ui-header {
     font-family: $mainfont;
 }
+.cm-icon {
+    display: inline-block;
+}
+
+img {
+    max-width: 100%;
+}
 
 // -----------------------------------------------------------------------------------------------------------
 // Map elements
@@ -197,6 +204,23 @@ div.lng_driving {
 // Leaflet Sidebar-v2
 // -----------------------------------------------------------------------------------------------------------
 
+// Override the breakpoint for the super narrow sidebar,
+// making it just like the second narrowest.
+@media (min-width: 768px) and (max-width: 991px) {
+    .sidebar {
+        width: 390px;
+    }
+    .sidebar-pane {
+        min-width: 350px;
+    }
+    .sidebar-left ~ .sidebar-map .leaflet-left {
+        left: 400px;
+    }
+    .sidebar-right ~ .sidebar-map .leaflet-right {
+        right: 400px;
+    }
+}
+
 #sidebar {
     //
     // Sidebar Header
@@ -217,7 +241,7 @@ div.lng_driving {
         > ul > li.active {
             background-color: $green_dark;
             a {
-                color: white;
+                color: white !important;
                 text-shadow: 0 1px 0 $grey_darkest;
             }
         }
@@ -229,7 +253,7 @@ div.lng_driving {
     .sidebar-content {
         ul li {
             padding-left: 0;
-            .fa {
+            .cm-icon {
                 padding-right: 10px;
                 font-size: 24px;
                 width: 24px;
@@ -254,6 +278,8 @@ div.lng_driving {
         .ui-li-heading {
             font-weight: 600;
             display: block;
+            overflow: hidden;
+            white-space: normal;
         }
         .ui-li-desc {
             font-size: 90%;
@@ -263,7 +289,7 @@ div.lng_driving {
         }
         .distance_sortable {
             a.ui-btn {
-                padding-right: 60px;
+                padding-right: 80px;
                 h4.ui-li-heading {
                     margin-top: 0;
                 }
@@ -272,12 +298,71 @@ div.lng_driving {
                 }
             }
         }
+        #alerts {
+            li {
+                padding-right: 80px;
+            }
+            h2 {
+                overflow: hidden;
+                white-space: normal;
+            }
+        }
     }
 }
 
 // -----------------------------------------------------------------------------------------------------------
 //  Sidebar Panes
 // -----------------------------------------------------------------------------------------------------------
+
+//
+// Sidebar Pane: Welcome
+//
+#pane-welcome {
+    .image-link-grid {
+        &.ui-grid-a > .ui-block-a,
+        &.ui-grid-a > .ui-block-b {
+            padding: 3px;
+        }
+        .ui-bar {
+            height: 140px;
+            border-radius: 8px;
+            position: relative;
+            padding: .4em .6em;
+            border-width: 1px;
+            border-color: rgba(0, 0, 0, 0.1);
+            background-blend-mode: multiply;
+            font-size: 135%;
+        }
+        a .link-text {
+            position: absolute;
+            bottom: .3em;
+            color: white;
+            text-decoration: none;
+            text-shadow: 1px 1px #232222;
+        }
+    }
+    // Darken the bottom of the image so the text overlay is readable,
+    // using a CSS gradient background overlay/multiply.
+    $gradient_screen: center/cover no-repeat, linear-gradient(to bottom, white 70%, gray 90%);
+    .welcome-pane-parks .ui-bar {
+        background: url(#{$static_dir}/images/welcome_pane/parks.jpg) $gradient_screen;
+    }
+    .welcome-pane-activities .ui-bar {
+        background: url(#{$static_dir}/images/welcome_pane/activities.jpg) $gradient_screen;
+    }
+    .welcome-pane-visitorcenters .ui-bar {
+        background: url(#{$static_dir}/images/welcome_pane/visitorcenters.jpg) $gradient_screen;
+    }
+    .welcome-pane-amenities .ui-bar {
+        background: url(#{$static_dir}/images/welcome_pane/amenities.jpg) $gradient_screen;
+    }
+    .welcome-pane-trails .ui-bar {
+        background: url(#{$static_dir}/images/welcome_pane/trails.jpg) $gradient_screen;
+    }
+    .welcome-pane-events .ui-bar {
+        background: url(#{$static_dir}/images/welcome_pane/events.jpg) $gradient_screen;
+    }
+}
 
 //
 // Sidebar Pane: Find/Browse
@@ -305,7 +390,7 @@ div.lng_driving {
 //
 // Sidebar Pane: Browse POIS Activity
 //
-#pane-browse-pois-activity {
+#pane-activities {
     ul {
         li {
             a {
@@ -362,6 +447,7 @@ div.lng_driving {
     #getdirections_disabled {
         text-align: center;
         font-size: 12pt;
+
     }
 
     #directions_button_wrapper {
@@ -393,7 +479,7 @@ div.lng_driving {
     }
     .share_button {
         line-height: 2em;
-        .fa {
+        .cm-icon {
             font-size: 30px;
             padding-right: .2em;
         }
@@ -430,7 +516,7 @@ div.lng_driving {
         margin-top: 1em;
         .ui-btn {
             padding: 10px;
-            .fa {
+            .cm-icon {
                 font-size: 24px;
                 min-width: 32px;
             }
@@ -463,46 +549,33 @@ div.lng_driving {
 //
 // Sidebar Pane: Featured Loops
 //
-#pane-loops-search {
+#pane-trails {
     #loops_typeicons {
-        text-align: center;
-        margin: 1em 0;
         img {
             width: 50px;
             margin: 0px 3px;
             cursor: pointer;
         }
+    }
+    h4.label {
+        margin-top: 1em !important;
+        margin-bottom: 0.5em !important;
     }
     #loops_filter_distancepicker {
-        text-align: center;
-        margin: 1em 0;
-        img {
-            cursor: pointer;
+        a {
+            background-color: $grey_darkest;
+            color: white;
+            text-decoration: none;
+            padding: 5px 0.5em 2px;
+            border-radius: 0.2em;
+            margin-right: 0.2em;
+            display: inline-block;
+            margin-bottom: 5px;
+            &.active {
+                background-color: $green_light;
+            }
         }
-    }
-    #loops_filter_reservation {
-        margin: 1em 0;
-    }
-    .sortpicker {
-        margin-top: 1.5em;
-    }
-}
-
-//
-// Sidebar Pane: Trail Finder
-//
-#pane-trailfinder {
-    #trailfinder_typeicons {
-        text-align: center;
-        margin: 1em 0;
-        img {
-            width: 50px;
-            margin: 0px 3px;
-            cursor: pointer;
-        }
-    }
-    #trailfinder_reservation {
-        margin: 1em 0;
+        margin-bottom: 1em;
     }
     .sortpicker {
         margin-top: 1.5em;
@@ -512,8 +585,4 @@ div.lng_driving {
 //
 // Sidebar Pane: Elevation profile
 //
-#pane-elevationprofile {
-    img#elevation {
-        max-width: 100%;
-    }
-}
+#pane-elevationprofile {}

@@ -28,8 +28,10 @@ function index() {
     // Only chosen activities that have attractions
     $data['activities'] = ActivityType::getActivitiesWithAttractions(TRUE);
 
-    // ready!
-    $this->load->view('mobile/mobile.phtml',$data);
+    // Amenities for the welcome screen listing
+    $data['amenities'] = AmenityType::get_welcome_pane_amenities();
+
+    $this->load->view('mobile/mobile.phtml', $data);
 }
 
 /**

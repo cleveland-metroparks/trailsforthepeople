@@ -7,19 +7,32 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
 
     <!-- Facebook Sharing -->
-    <meta property="og:url" content="http://www.clevelandmetroparks.com/" />
-    <meta property="og:title" content="Cleveland Metroparks" />
-    <meta property="og:description" content="Cleveland Metroparks" />
-    <meta property="og:image" content="http://www.clevelandmetroparks.com/Uploads/Images/logo.png" />
+    <meta property="og:url" content="<?= site_url(); ?>" />
+    <meta property="og:title" content="Cleveland Metroparks Map" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="Plan your visit at any of Cleveland Metroparks' 18 park reservations spanning over 23,000 acres!" />
+        <!-- Sample Map -->
+    <meta property="og:image" content="<?= site_url('static/images/misc/map-preview-og-image.png'); ?>" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="627" />
+    <meta property="og:image:alt" content="Cleveland Metroparks map" />
+        <!-- CM Logo -->
+    <meta property="og:image" content="<?= site_url('static/images/favicons/android-chrome-512x512.png'); ?>" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="Cleveland Metroparks logo" />
 
     <!-- Favicons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/images/favicons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" href="/static/images/favicons/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="/static/images/favicons/favicon-16x16.png" sizes="16x16">
-    <link rel="manifest" href="/static/images/favicons/manifest.json">
-    <link rel="mask-icon" href="/static/images/favicons/safari-pinned-tab.svg" color="#1d5c1f">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?= site_url('static/images/favicons/apple-touch-icon.png'); ?>">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= site_url('static/images/favicons/favicon-32x32.png'); ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= site_url('static/images/favicons/favicon-16x16.png'); ?>">
+    <link rel="manifest" href="<?= site_url('static/images/favicons/manifest.json'); ?>">
+    <link rel="mask-icon" href="<?= site_url('static/images/favicons/safari-pinned-tab.svg'); ?>" color="#13624b">
+    <link rel="shortcut icon" href="<?= site_url('static/images/favicons/favicon.ico'); ?>">
+    <meta name="msapplication-config" content="<?= site_url('static/images/favicons/browserconfig.xml'); ?>">
     <meta name="theme-color" content="#ffffff">
-    <link rel="apple-touch-icon-precomposed" href="<?= site_url('static/images/metroparks_icon.png'); ?>" />
 
     <!-- JS Libs -->
     <!-- json.js: Library for encoding and decoding JSON. Necessary for IE8 and earlier Firefox to do printing: -->
@@ -56,7 +69,7 @@
     <!-- <link type="text/css" rel="stylesheet" href="<?= site_url('static/lib/mapbox.js-2.4.0/mapbox.css'); ?>" /> -->
     <link type="text/css" rel="stylesheet" href="<?= site_url('static/lib/mapbox-gl-js-0.35.1/mapbox-gl.css'); ?>" />
     <link type="text/css" rel="stylesheet" href="<?= site_url('static/lib/sidebar-v2/css/leaflet-sidebar.css'); ?>" />
-    <link type="text/css" rel="stylesheet" href="<?= site_url('static/lib/font-awesome-4.6.3/css/font-awesome.min.css'); ?>" />
+    <link type="text/css" rel="stylesheet" href="<?= site_url('static/fonts/cm-maps-icons/style.css'); ?>" />
     <link type="text/css" rel="stylesheet" href="<?= site_url('static/dist/css/mobile.css'); ?>" />
 
     <!-- Typekit -->
@@ -81,26 +94,30 @@
     <div class="sidebar-tabs">
         <!-- Top -->
         <ul role="tablist">
-            <li><a href="#pane-browse" role="tab" title="Find"><i class="fa fa-search"></i></a></li>
-            <li><a href="#pane-radar" role="tab" title="Nearby"><i class="fa fa-street-view"></i></a></li>
-            <li><a href="#pane-getdirections" role="tab" title="Directions"><i class="fa fa-location-arrow"></i></a></li>
-            <li><a href="#pane-share" role="tab" title="Share"><i class="fa fa-share-alt"></i></a></li>
+            <li><a href="#pane-welcome" role="tab" title="Welcome"><i class="cm-icon cm-icon-cm-logo"></i></a></li>
+            <li><a href="#pane-browse" role="tab" title="Find"><i class="cm-icon cm-icon-search"></i></a></li>
+            <li><a href="#pane-radar" role="tab" title="Nearby"><i class="cm-icon cm-icon-street-view"></i></a></li>
+            <li><a href="#pane-getdirections" role="tab" title="Directions"><i class="cm-icon cm-icon-location-arrow"></i></a></li>
+            <li><a href="#pane-share" role="tab" title="Share"><i class="cm-icon cm-icon-share-alt"></i></a></li>
         </ul>
 
         <!-- Bottom -->
         <ul role="tablist">
-            <li><a href="#pane-settings" role="tab" title="Settings"><i class="fa fa-cog"></i></a></li>
-            <li><a href="#pane-credits" role="tab" title="Credits"><i class="fa fa-info"></i></a></li>
+            <li><a href="#pane-settings" role="tab" title="Settings"><i class="cm-icon cm-icon-cog"></i></a></li>
+            <li><a href="#pane-credits" role="tab" title="Credits"><i class="cm-icon cm-icon-info"></i></a></li>
         </ul>
     </div>
 
     <!-- Tab panes -->
     <div class="sidebar-content">
+        <!-- Sidebar Pane: Find: #pane-welcome -->
+        <?php $this->load->view('mobile/sidebar-panes/welcome.phtml'); ?>
+
         <!-- Sidebar Pane: Find: #pane-browse -->
         <?php $this->load->view('mobile/sidebar-panes/browse.phtml'); ?>
 
-        <!-- Sidebar Pane: Trail Finder: #pane-trailfinder -->
-        <?php $this->load->view('mobile/sidebar-panes/trailfinder.phtml', array('reservations'=>$reservations)); ?>
+        <!-- Sidebar Pane: Find: #pane-amenities -->
+        <?php $this->load->view('mobile/sidebar-panes/amenities.phtml', array('amenities'=>$amenities)); ?>
 
         <!-- Sidebar Pane: Nearby: #pane-radar -->
         <?php $this->load->view('mobile/sidebar-panes/radar.phtml', array('poicategories'=>$poicategories)); ?>
@@ -129,14 +146,14 @@
         <!-- Sidebar Pane: Photo: #pane-photo -->
         <?php $this->load->view('mobile/sidebar-panes/photo.phtml'); ?>
 
-        <!-- Sidebar Pane: Find POIS: #pane-browse-pois-activity -->
-        <?php $this->load->view('mobile/sidebar-panes/browse-pois-activity.phtml', array('activities' => $activities)); ?>
+        <!-- Sidebar Pane: Activities: #pane-activities -->
+        <?php $this->load->view('mobile/sidebar-panes/activities.phtml', array('activities' => $activities)); ?>
 
         <!-- Sidebar Pane: Elevation: #elevationprofile -->
         <?php $this->load->view('mobile/sidebar-panes/elevationprofile.phtml'); ?>
 
-        <!-- Sidebar Pane: Loops & Routes: #pane-loops-search -->
-        <?php $this->load->view('mobile/sidebar-panes/loops-search.phtml', array('reservations'=>$reservations)); ?>
+        <!-- Sidebar Pane: Trails: #pane-trails -->
+        <?php $this->load->view('mobile/sidebar-panes/trails.phtml', array('reservations'=>$reservations)); ?>
 
         <!-- Sidebar Pane: Save as PDF: #pane-print -->
         <?php $this->load->view('mobile/sidebar-panes/print.phtml'); ?>
@@ -148,7 +165,7 @@
 
 <!-- Map -->
 <div id="map_canvas" class="sidebar-map">
-    <a id="mapbutton_gps" href="javascript:void(0);" onClick="toggleGPS(); return false;">
+    <a id="mapbutton_gps">
         <img src="<?= site_url('static/images/map_controls/mapbutton_gps_off.png') ?>" />
     </a>
 </div>
@@ -164,11 +181,6 @@
     Your browser appears to have JavaScript disabled.<br />
     Please check your browser's security settings, and reload this page.
 </noscript>
-
-<!-- Load Leaflet Sidebar-v2 -->
-<script>
-    var sidebar = L.control.sidebar('sidebar').addTo(MAP);
-</script> 
 
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

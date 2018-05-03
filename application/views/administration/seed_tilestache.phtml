@@ -37,7 +37,7 @@
         // Create a system job
         $.ajax({
             type: 'GET',
-            url: APP_BASEPATH + 'ajax/create_job',
+            url: API_BASEPATH + 'ajax/create_job',
             async: false,
             data: { title: 'seed_tilestache' },
             success: function(reply) {
@@ -51,7 +51,7 @@
         // Start the Seed process
         $.ajax({
             type: 'GET',
-            url: APP_BASEPATH + 'ajax/seed_tilestache',
+            url: API_BASEPATH + 'ajax/seed_tilestache',
             async: true,
             data: { job_id: job_id },
             success: function(reply) {
@@ -65,7 +65,7 @@
 
         // Check progress of the process and quit when finished
         var progress_checker = setInterval(function() {
-            $.get(APP_BASEPATH + 'ajax/check_job_progress', { job_id: job_id }, function (response) {
+            $.get(API_BASEPATH + 'ajax/check_job_progress', { job_id: job_id }, function (response) {
                 if (!response) return;
 
                 job_progress = jQuery.parseJSON(response);

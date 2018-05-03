@@ -6,11 +6,17 @@
  * Cleveland Metroparks
  */
 
+// App sidebar (Leaflet Sidebar-v2)
+var sidebar = null;
+// Load when map has been initialized
+$(document).on("mapInitialized", function () {
+    sidebar = L.control.sidebar('sidebar').addTo(MAP);
+});
+
 // used by the radar: sound an alert only if the list has in fact changed
 var LAST_BEEP_IDS = [];
 
 // other stuff pertaining to our last known location and auto-centering
-var MOBILE = true;
 var LAST_KNOWN_LOCATION = L.latLng(41.3953,-81.6730);
 var AUTO_CENTER_ON_LOCATION = false;
 
@@ -101,7 +107,7 @@ function switchToMap(callback) {
 /**
  * Load the map, handling query strings
  */
-$(window).load(function () {
+$(document).ready(function () {
     // load up the URL params before the map, as we may need them to configure the map
     URL_PARAMS = $.url();
 
@@ -121,7 +127,7 @@ $(window).load(function () {
             type: URL_PARAMS.param('type'),
             name: URL_PARAMS.param('name')
         };
-        $.get(APP_BASEPATH + 'ajax/exactnamesearch', params, function (reply) {
+        $.get(API_BASEPATH + 'ajax/exactnamesearch', params, function (reply) {
             if (!reply || ! reply.s || ! reply.w || ! reply.n || ! reply.e) return alert("Cound not find that feature.");
 
             // zoom to the location
@@ -145,7 +151,7 @@ $(window).load(function () {
             var params = {
                 gid: URL_PARAMS.param('gid')
             };
-            $.get(APP_BASEPATH + 'ajax/get_attraction', params, function (reply) {
+            $.get(API_BASEPATH + 'ajax/get_attraction', params, function (reply) {
                 if (!reply || ! reply.lat || ! reply.lng) {
                     return alert("Cound not find that feature.");
                 }
@@ -181,11 +187,10 @@ $(window).load(function () {
         // fill in the directions field: the title, route via, the target type and coordinate, the starting coordinates
         $('#directions_target_title').text(URL_PARAMS.param('routetitle'));
         $('#directions_via').val(URL_PARAMS.param('routevia'));
-        if (MOBILE) $("#directions_via").selectmenu('refresh');
+        $("#directions_via").selectmenu('refresh');
         $('#directions_type').val('geocode');
-        if (MOBILE) $("#directions_type").selectmenu('refresh');
-        if (MOBILE) $('#directions_type_geocode_wrap').show();
-        else        $('#directions_type').change();
+        $("#directions_type").selectmenu('refresh');
+        $('#directions_type_geocode_wrap').show();
         $('#directions_address').val(URL_PARAMS.param('routefrom'));
         $('#directions_target_lat').val(targetlat);
         $('#directions_target_lng').val(targetlng);
@@ -219,7 +224,8 @@ $(window).load(function () {
             break;
     }
 
-    // Allow others to act now
+    // Map is initialized and query strings handled.
+    // Fire mapReady event.
     $.event.trigger({
         type: 'mapReady',
     });
@@ -228,7 +234,7 @@ $(window).load(function () {
 /**
  * Basemap picker (on Settings pane) change handler
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('input[type="radio"][name="basemap"]').change(function () {
         var which = $(this).val();
         changeBasemap(which);
@@ -240,7 +246,7 @@ $(window).load(function () {
  *
  * Use the sortpicker buttons to modify DEFAULT_SORT, then sortLists().
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('div.sortpicker span').click(function () {
         DEFAULT_SORT = $(this).attr('value');
         sortLists();
@@ -295,9 +301,7 @@ function showAttractionInfo(attraction) {
     // Change to the Info pane
     sidebar.open('pane-info');
 
-    // Set the sidebar pane's back button.
-    var backurl = '#pane-browse';
-    $('#pane-info .sidebar-back').prop('href', backurl);
+    set_pane_back_button('#pane-info', '#pane-browse')
 
     // Enable "Get Directions"
     $('#getdirections_disabled').hide();
@@ -315,7 +319,7 @@ function showAttractionInfo(attraction) {
         params.type = 'attraction';
         params.gid  = attraction.gid;
 
-        $.get(APP_BASEPATH + 'ajax/moreinfo', params, function (reply) {
+        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
             // grab and display the plain HTML
             $('#info-content').html(reply);
         },'html');
@@ -337,6 +341,9 @@ function zoomElementClick(element) {
 
     var type = element.attr('type');
     var gid  = element.attr('gid');
+    if (type=='reservation_new') {
+        gid  = element.attr('record_id');
+    }
 
     // assign this element to the Show On Map button, so it knows how to zoom to our location
     // and to the getdirections form so we can route to it
@@ -353,9 +360,11 @@ function zoomElementClick(element) {
     sidebar.open('pane-info');
 
     // correct the Back button to go to the URL specified in the element, or else to the map
-    var backurl = element.attr('backbutton');
-    if (! backurl) backurl = '#pane-browse';
-    $('#pane-info .sidebar-back').prop('href', backurl);
+    var back_url = element.attr('backbutton');
+    if (! back_url) {
+        back_url = '#pane-browse';
+    }
+    set_pane_back_button('#pane-info', back_url)
 
     // now that we have a location defined, enable the Get Directions
     $('#getdirections_disabled').hide();
@@ -374,7 +383,7 @@ function zoomElementClick(element) {
         params.gid  = gid;
         params.lat  = LAST_KNOWN_LOCATION.lat;
         params.lng  = LAST_KNOWN_LOCATION.lng;
-        $.get(APP_BASEPATH + 'ajax/moreinfo', params, function (reply) {
+        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
             // grab and display the plain HTML
             $('#info-content').html(reply);
 
@@ -451,14 +460,20 @@ function sortLists(target) {
             });
             break;
     }
-    // @TODO: re-set .ui-last-child on appropriate element
-    // (because we're getting last-element styling on non-last elements)
+
+    // Re-set .ui-first-child and .ui-last-child on appropriate elements
+    target.children('li.ui-first-child').removeClass('ui-first-child');
+    target.children('li').first().addClass('ui-first-child');
+
+    // Re-set .ui-last-child on appropriate element
+    target.children('li.ui-last-child').removeClass('ui-last-child');
+    target.children('li').last().addClass('ui-last-child');
 }
 
 /**
  * Geocoder event handlers
  */
-$(window).load(function () {
+$(document).ready(function () {
     var thisCallback = function () {
         var address = $('#geocode_text').val();
         zoomToAddress(address);
@@ -481,7 +496,7 @@ function zoomToAddress(searchtext) {
     params.bing_key = BING_API_KEY;
     params.bbox     = GEOCODE_BIAS_BOX;
 
-    $.get(APP_BASEPATH + 'ajax/geocode', params, function (result) {
+    $.get(API_BASEPATH + 'ajax/geocode', params, function (result) {
         if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
         var latlng = L.latLng(result.lat,result.lng);
 
@@ -538,7 +553,7 @@ var showOnMap = function () {
             if (w!=0 && s!=0 && e!=0 && n!=0) {
                 var bounds = L.latLngBounds( L.latLng(s,w) , L.latLng(n,e) );
                 bounds = bounds.pad(0.15);
-                MAP.fitBounds(bounds);
+                MAP.flyToBounds(bounds);
             } else {
                 // Re-center and zoom
                 // @TODO: Eventually we'll have individual POI zoomlevels in DB
@@ -566,7 +581,7 @@ var showOnMap = function () {
 /**
  * Show on Map button handler
  */
-$(window).load(function () {
+$(document).ready(function () {
     $('#show_on_map').click(showOnMap);
 });
 
@@ -575,7 +590,7 @@ $(window).load(function () {
  *
  * Click it to bring up info window, configure the Show On Map button.
  */
-$(window).load(function () {
+$(document).ready(function () {
     // zoomElementClick() is defined by mobile.js and desktop.js
     // typically it goes to a Details page and sets up various event handlers
     var openDetailsPanel = function () {

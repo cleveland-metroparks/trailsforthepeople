@@ -6,10 +6,10 @@
  * Cleveland Metroparks
  */
 
-// Override app basepath URL from constants.js to access maps server
-// instead of domain where embedded map lives.
-APP_BASEPATH = 'https://maps.clevelandmetroparks.com/';
-// For local development:
-//APP_BASEPATH = '/';
+// Override app paths from constants.js to access the maps server
+// instead the of domain where the embedded map lives.
+// (For local development, comment these out.)
+WEBAPP_BASEPATH = 'https://maps.clevelandmetroparks.com/';
+API_BASEPATH = 'https://maps.clevelandmetroparks.com/';
 
 var CM_SITE_BASEURL = 'http://www.clevelandmetroparks.com/';

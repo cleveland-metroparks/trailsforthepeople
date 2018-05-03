@@ -10,11 +10,19 @@
 ///// The Admin and Contributor have their own versions too, which override the map URLs with SSL URLs
 ///// for Admin and Contributors maps, see admin.js and contributors.js
 
-// How we get to our app's controllers (primarily ajax).
-// @TODO: Put this into a local config so we can handle non-root basedirs.
-var APP_BASEPATH = '/';
-
+// How we get to our app's base files and to the API.
+// These change to remote URLs for native app and web-embedded scenarios.
+// @TODO: Put these into a local config so we can handle non-root basedirs.
+var WEBAPP_BASEPATH = '/';
+var API_BASEPATH = '/';
 var MAP = null;
+
+var WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL = 'https';
+var WEBAPP_BASE_URL_ABSOLUTE_HOST = 'maps.clevelandmetroparks.com';
+var WEBAPP_BASE_URL_ABSOLUTE = WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL + '://' + WEBAPP_BASE_URL_ABSOLUTE_HOST + '/';
+
+// Web (mobile and desktop) vs native iOS/Android
+var NATIVE_APP = false;
 
 // the bounding box of the mappable area, for setting the initial view
 // and potentially for restricting the map from zooming away (not enforced)
@@ -69,7 +77,7 @@ var LAYER_MAPBOX_MAP = L.tileLayer(
     });
 
 // Mapbox satellite baselayer
-const MAPBOX_SAT_URL_FRAG = 'cleveland-metroparks/ciy5w28va00322so4ymd2cqjm';
+const MAPBOX_SAT_URL_FRAG = 'cleveland-metroparks/cjcutetjg07892ro6wunp2da9';
 var LAYER_MAPBOX_SAT = L.tileLayer(
     'https://api.mapbox.com/styles/v1/' + MAPBOX_SAT_URL_FRAG + '/tiles/{z}/{x}/{y}?access_token=' + L.mapbox.accessToken, {
         tileSize: 512,

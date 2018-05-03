@@ -6,6 +6,7 @@
 class Attraction extends DataMapper {
 
 var $table    = 'view_cmp_gisattractions';
+var $table_visitorcenters    = 'app_view_visitorcenters';
 
 function __construct($id = NULL) {
     parent::__construct($id);
@@ -20,9 +21,36 @@ function __construct($id = NULL) {
  *         (Multiple activities are OR'ed.)
  */
 function getAttractionsByActivity($activity_ids=array()) {
+  $attractions = $this->getFilteredAttractions('activities', $activity_ids);
+  return $attractions;
+}
+
+/**
+ * Get attractions that offer an amenity or amenities.
+ *
+ * @param $amenity_ids
+ *
+ * @return All attractions that offer any of the given amenities.
+ *         (Multiple amenities are OR'ed.)
+ */
+function getAttractionsByAmenity($amenity_ids=array()) {
+    $attractions = $this->getFilteredAttractions('amenities', $amenity_ids);
+    return $attractions;
+}
+
+/**
+ * Get attractions that offer certain activities or amenities.
+ *
+ * @param $filter: 'activities' or 'amenities'
+ * @param $filter_ids: array of attraction_ids or amenity_ids
+ *
+ * @return All attractions that include the given amenities/activities.
+ *         (Multiple ids are OR'ed.)
+ */
+protected function getFilteredAttractions($filter, $filter_ids=array()) {
     // Accept one or multiple
-    if (!is_array($activity_ids)) {
-        $activity_ids = array($activity_ids);
+    if (!is_array($filter_ids)) {
+        $filter_ids = array($filter_ids);
     }
 
     $all_attractions = new Attraction();
@@ -33,7 +61,17 @@ function getAttractionsByActivity($activity_ids=array()) {
         ->get();
 
     // Then filter by those that have the activity or activities
-    $attractions = $this->filterAttractionsByActivities($all_attractions, $activity_ids);
+    switch ($filter) {
+        case 'amenities':
+            $attractions = $this->filterAttractionsByAmenities($all_attractions, $filter_ids);
+            break;
+        case 'activities':
+            $attractions = $this->filterAttractionsByActivities($all_attractions, $filter_ids);
+            break;
+        default:
+            $attractions = array();
+            break;
+    }
 
     return $attractions;
 }
@@ -82,7 +120,7 @@ function getNearbyAttractions($from_lat, $from_lng, $within_feet, $with_activiti
 function getAttractionActivities() {
     if (isset($this->activities)) {
         // Get an array of Activity IDs
-        $activity_ids = $this->parseActivitiesString($this->activities);
+        $activity_ids = $this->parseMultiIDsString($this->activities);
     } else {
         return;
     }
@@ -105,7 +143,7 @@ function filterAttractionsByActivities($attractions, $activity_ids) {
 
     // Go through all attractions
     foreach ($attractions as $attraction) {
-        $attraction_activities = $this->parseActivitiesString($attraction->activities);
+        $attraction_activities = $this->parseMultiIDsString($attraction->activities);
         $found = FALSE;
         // Look for each provided activity within this Attraction's activity list
         foreach ($activity_ids as $activity_id) {
@@ -121,14 +159,60 @@ function filterAttractionsByActivities($attractions, $activity_ids) {
 }
 
 /**
- * Parse the activities string as its stored in the DB.
+ * Filter a list of attractions by given activities.
  *
- * @param $activities_str: like "1|2|3"
+ * @param $attractions
+ * @param $amenity_ids
+ */
+function filterAttractionsByAmenities($attractions, $amenity_ids) {
+    $filtered_attractions = array();
+
+    // Go through all attractions
+    foreach ($attractions as $attraction) {
+        $attraction_amenities = $this->parseMultiIDsString($attraction->amenities);
+        $found = FALSE;
+        // Look for each provided amenity within this Attraction's amenity list
+        foreach ($amenity_ids as $amenity_id) {
+            if (in_array($amenity_id, $attraction_amenities)) {
+                // Found it; add to our result list
+                $filtered_attractions[] = $attraction;
+                continue;
+            }
+        }
+    }
+
+    return $filtered_attractions;
+}
+
+/**
+ * Get visitor centers (a subset of attractions).
+ *
+ * @return
+ */
+function getVisitorCenters() {
+  $visitor_centers = new Attraction();
+
+  $sql = "
+      SELECT *
+      FROM $visitor_centers->table_visitorcenters
+      ORDER BY pagetitle;
+  ";
+  $results = $visitor_centers->db->query($sql)->result();
+  $output = (array)$results;
+
+  return $output;
+}
+
+/**
+ * Parse a multiple IDs string as its stored in the DB.
+ * This is used in relating an attraction to activities and amenities.
+ *
+ * @param $ids_str: like "1|2|3"
  *
  * @return array
  */
-function parseActivitiesString($activities_str) {
-    return explode('|', $activities_str);
+function parseMultiIDsString($ids_str) {
+    return explode('|', $ids_str);
 }
 
 
