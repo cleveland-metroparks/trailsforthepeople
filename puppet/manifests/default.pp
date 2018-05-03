@@ -31,7 +31,7 @@ class { 'apache':
 apache::vhost { 'trailsvagrant.clevelandmetroparks.com non-ssl':
   servername      => 'trailsvagrant.clevelandmetroparks.com',
   serveraliases   => ['trailsvagrant.loco', 'localhost'],
-  port            => '8080',
+  port            => '80',
   docroot         => '/var/www',
   redirect_status => 'permanent',
   redirect_dest   => 'https://trailsvagrant.clevelandmetroparks.com/'
