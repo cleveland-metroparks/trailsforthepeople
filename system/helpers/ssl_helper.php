@@ -40,20 +40,59 @@
 if ( ! function_exists('ssl_url')) {
 	function ssl_url($uri = '') {
 		$CI =& get_instance();
-		if ($uri == '') $url = $CI->config->slash_item('ssl_url').$CI->config->item('index_page');
+		if ($uri == '') $url = $CI->config->slash_item('ssl_url') . $CI->config->item('index_page');
 
 		if ($CI->config->item('enable_query_strings') == FALSE) {
 			$suffix = ($CI->config->item('url_suffix') == FALSE) ? '' : $CI->config->item('url_suffix');
-			$url = $CI->config->slash_item('ssl_url').$CI->config->slash_item('index_page').$CI->config->_uri_string($uri).$suffix;
+			$url = $CI->config->slash_item('ssl_url') . $CI->config->slash_item('index_page') . build_uri_string($uri) . $suffix;
 		}
 		else {
-			$url = $CI->config->slash_item('ssl_url').$CI->config->item('index_page').'?'.$CI->config->_uri_string($uri);
+			$url = $CI->config->slash_item('ssl_url') . $CI->config->item('index_page') . '?' . build_uri_string($uri);
 		}
 
 		return $url;
 	}
 }
 
+/*
+ * URI String
+ *
+ * Build URI string from array of parts.
+ *
+ * A copy of Config.php's _uri_string() function, which is now protected.
+ *
+ * @param  $uri
+ * @return string
+ */
+if ( ! function_exists('build_uri_string')) {
+	function build_uri_string($uri) {
+        $CI =& get_instance();
+		if ($CI->config->item('enable_query_strings') == FALSE)
+		{
+			if (is_array($uri))
+			{
+				$uri = implode('/', $uri);
+			}
+			$uri = trim($uri, '/');
+		}
+		else
+		{
+			if (is_array($uri))
+			{
+				$i = 0;
+				$str = '';
+				foreach ($uri as $key => $val)
+				{
+					$prefix = ($i == 0) ? '' : '&';
+					$str .= $prefix.$key.'='.$val;
+					$i++;
+				}
+				$uri = $str;
+			}
+		}
+        return $uri;
+    }
+}
 
 /**
  * Current URL
@@ -70,7 +109,6 @@ if ( ! function_exists('ssl_current_url')) {
 	}
 }
 
-
 /**
  * Are we using SSL ?
  *
@@ -83,8 +121,6 @@ if ( ! function_exists('is_ssl')) {
 		return (boolean) @$_SERVER['HTTPS'];
 	}
 }
-
-
 
 /* End of file ssl_helper.php */
 /* Location: ./system/helpers/ssl_helper.php */
