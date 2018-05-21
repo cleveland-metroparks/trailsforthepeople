@@ -20,3 +20,5 @@ grunt-local-config.json
 
 # Native app releases
 /static/native_dev/
+
+/application/logs/
