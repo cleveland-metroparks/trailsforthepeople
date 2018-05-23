@@ -95,8 +95,7 @@ function enableClicks() {
  */
 function switchToMap(callback) {
     // If the user has a small screen, close the sidebar to see the map.
-    // @TODO: Can we check, instead, whether the sidebar is taking up the full screen?
-    if ($(window).width() < 800) {
+    if (sidebarCoversMap()) {
         sidebar.close();
     }
 

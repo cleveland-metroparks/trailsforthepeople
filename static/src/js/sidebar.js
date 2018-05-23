@@ -220,12 +220,31 @@ $(document).ready(function () {
     });
 
     // Open Find/Browse pane on startup if:
-    // in the native app, or
-    // user loads the webapp without a path or query string
-    if (NATIVE_APP || (window.location.pathname == '/' && window.location.search == '')) {
+    // We're in the native app, OR:
+    // User loads the webapp without a path or query string AND
+    //   their screen is big enough that the sidebar doesn't obscure the map.
+    if (NATIVE_APP ||
+        (
+            window.location.pathname == '/' &&
+            window.location.search == '' &&
+            !sidebarCoversMap()
+        )
+    ) {
         sidebar.open('pane-welcome');
     }
 });
+
+/**
+ * Would the sidebar [when expanded] obscure the whole map?
+ */
+function sidebarCoversMap() {
+    window_width = $(window).width();
+
+    // Can't rely on this because we want to know what it /would/ be when expanded
+    // sidebar_width = $(sidebar._sidebar).width();
+
+    return window_width <= 768;
+}
 
 /**
  * Set the back button URL on a pane
