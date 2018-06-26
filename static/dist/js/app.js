@@ -452,10 +452,41 @@ function changeBasemap(layer_key) {
 
 // App sidebar (Leaflet Sidebar-v2)
 var sidebar = null;
-// Load when map has been initialized
+// Load sidebar when map has been initialized
 $(document).on("mapInitialized", function () {
     sidebar = L.control.sidebar('sidebar').addTo(MAP);
+    // Open "Welcome" pane on startup if:
+    //   User loads the webapp without a path or query string AND
+    //   their screen is big enough that the sidebar won't cover the map.
+    if (
+        window.location.pathname == '/' &&
+        window.location.search == '' &&
+        !sidebarCoversMap()
+    ) {
+        sidebar.open('pane-welcome');
+    } else {
+        var startHereTooltip = createStartHereTooltip();
+        setTimeout(startHereTooltip.show, 2500);
+        setTimeout(startHereTooltip.dispose, 15000);
+        document.onclick = startHereTooltip.hide;
+    }
 });
+
+/**
+ * Create the "Start here" tooltip.
+ */
+function createStartHereTooltip() {
+    var welcomeTabEl = $('.sidebar-tabs ul li:first')[0];
+    var pageEl = $('body > div.ui-page')[0];
+
+    var tooltip = new Tooltip(welcomeTabEl, {
+        title: "Try starting here!",
+        container: pageEl,
+        placement: 'right',
+        trigger: 'manual'
+    });
+    return tooltip;
+}
 
 // used by the radar: sound an alert only if the list has in fact changed
 var LAST_BEEP_IDS = [];
@@ -1022,7 +1053,7 @@ var showOnMap = function () {
 };
 
 /**
- * Show on Map button handler
+ * "Show on Map" button handler
  */
 $(document).ready(function () {
     $('#show_on_map').click(showOnMap);
@@ -1271,20 +1302,6 @@ $(document).ready(function () {
         $('#share_twitter').prop('href', url);
         return true;
     });
-
-    // Open Find/Browse pane on startup if:
-    // We're in the native app, OR:
-    // User loads the webapp without a path or query string AND
-    //   their screen is big enough that the sidebar doesn't obscure the map.
-    if (NATIVE_APP ||
-        (
-            window.location.pathname == '/' &&
-            window.location.search == '' &&
-            !sidebarCoversMap()
-        )
-    ) {
-        sidebar.open('pane-welcome');
-    }
 });
 
 /**

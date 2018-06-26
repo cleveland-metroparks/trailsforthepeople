@@ -218,20 +218,6 @@ $(document).ready(function () {
         $('#share_twitter').prop('href', url);
         return true;
     });
-
-    // Open Find/Browse pane on startup if:
-    // We're in the native app, OR:
-    // User loads the webapp without a path or query string AND
-    //   their screen is big enough that the sidebar doesn't obscure the map.
-    if (NATIVE_APP ||
-        (
-            window.location.pathname == '/' &&
-            window.location.search == '' &&
-            !sidebarCoversMap()
-        )
-    ) {
-        sidebar.open('pane-welcome');
-    }
 });
 
 /**
