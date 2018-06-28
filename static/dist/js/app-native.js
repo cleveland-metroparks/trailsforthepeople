@@ -467,11 +467,13 @@ var sidebar = null;
 // Load sidebar when map has been initialized
 $(document).on("mapInitialized", function () {
     sidebar = L.control.sidebar('sidebar').addTo(MAP);
-    // Open "Welcome" pane on startup if:
-    //   User loads the webapp without a path or query string AND
+    // Open "Welcome" sidebar pane on startup if:
+    //   User loads the app without a path or query string AND
     //   their screen is big enough that the sidebar won't cover the map.
     if (
-        window.location.pathname == '/' &&
+        (window.location.pathname == '/' ||
+         window.location.pathname.endsWith("index.html")) // For cordova
+        &&
         window.location.search == '' &&
         !sidebarCoversMap()
     ) {
