@@ -482,7 +482,7 @@ function createStartHereTooltip() {
     var pageEl = $('body > div.ui-page')[0];
 
     var tooltip = new Tooltip(welcomeTabEl, {
-        title: "Try starting here!",
+        title: "Start exploring here!",
         container: pageEl,
         placement: 'right',
         trigger: 'manual'
