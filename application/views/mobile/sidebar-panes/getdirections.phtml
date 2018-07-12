@@ -23,7 +23,7 @@
 
         <fieldset data=role="controlgroup">
 
-            <select id="directions_reverse" data-mini="true">
+            <select id="directions_reverse">
                 <option value="to">Get directions to</option>
                 <option value="from">Get directions from</option>
             </select>
@@ -34,18 +34,18 @@
                 <a href="#pane-browse" class="sidebar-pane-link">Change destination</a>
             </div>
 
-            <select id="directions_type" data-mini="true">
+            <select id="directions_type">
                 <option value="gps">From your current location</option>
                 <option value="geocode">From a street address</option>
                 <option value="features">From a park feature or point of interest</option>
             </select>
 
             <div id="directions_type_geocode_wrap" style="display:none;">
-                <input type="text" data-mini="true" id="directions_address" placeholder="enter address or place name" />
+                <input type="text" id="directions_address" placeholder="Enter address or place name" />
             </div>
 
             <!-- if the default changes, may need to change the via supplements below -->
-            <select id="directions_via" data-mini="true">
+            <select id="directions_via">
                 <option value="bike">By bicycle</option>
                 <option value="car" selected="true">By car</option>
                 <option value="hike">By foot</option>
@@ -55,7 +55,7 @@
 
             <!-- hide because Car is default -->
             <span id="directions_via_bike_wrap" style="display:none;">
-                <select id="directions_via_bike" data-mini="true">
+                <select id="directions_via_bike">
                     <option value="bike_advanced">Advanced</option>
                     <option value="bike_intermediate">Intermediate</option>
                     <option value="bike_beginner">Beginner</option>
@@ -63,14 +63,14 @@
                 </select>
             </span>
 
-            <select id="directions_prefer" data-mini="true">
+            <select id="directions_prefer">
                 <option value="recommended" selected="true">Recommended route</option>
                 <option value="shortest">Shortest route</option>
                 <!--<option value="fastest">Fastest route</option>-->
             </select>
     
             <span id="directions_button_wrapper">
-                <input type="button" data-mini="true" id="directions_button" value="Get directions" value0="Loading" value1="Get directions" />
+                <input type="button" id="directions_button" value="Get directions" value0="Loading" value1="Get directions" />
             </span>
 
         </fieldset>
