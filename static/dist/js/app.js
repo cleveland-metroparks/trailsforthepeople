@@ -1544,7 +1544,7 @@ var DIRECTIONS_LINE_STYLE = { color:"#0000FF", weight:5, opacity:1.00, clickable
  * Launch external app for directions
  * Uses launchnavigator [cordova] plugin.
  */
-function launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via) {
+function launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, gps) {
     var source = [sourcelat, sourcelng],
         target = [targetlat, targetlng];
     // Or reverse
@@ -1552,18 +1552,18 @@ function launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetl
         source = [targetlat, targetlng];
         target = [sourcelat, sourcelng];
     }
+    options = {
+        enableDebug: true,
+        transportMode: transportMode
+    };
+    if (!gps) {
+        options.start = source;
+    }
     // Car or Transit
     var transportMode = (via == 'bus') ? launchnavigator.TRANSPORT_MODE.TRANSIT : launchnavigator.TRANSPORT_MODE.DRIVING;
+
     // Launch app
-    launchnavigator.navigate(
-        target, {
-            start: source,
-            enableDebug: true,
-            transportMode: transportMode
-            //successCallback: onSuccess,
-            //errorCallback: onError
-        }
-    );
+    launchnavigator.navigate(target, options);
 }
 
 /**
@@ -1573,7 +1573,7 @@ function launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetl
  * Given lat,lng and lat,lng and route params, request directions from the server
  * then render them to the screen and to the map.
  */
-function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via) {
+function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, gps) {
     // empty out the old directions and disable the button as a visual effect
     $('#directions_steps').empty();
     disableDirectionsButton();
@@ -1587,7 +1587,7 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via) 
 
     // Launch external map app for native car/transit directions
     if (NATIVE_APP && (via=='car' || via=='bus')) {
-        launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via);
+        launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, gps);
         enableDirectionsButton();
         return;
     }
@@ -1621,7 +1621,7 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via) 
 function disableDirectionsButton() {
     var button = $('#directions_button');
     button.button('disable');
-    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
+    button.closest('.ui-btn').find('.ui-btn-text').text(button.attr('value0'));
 }
 
 /**
@@ -1630,13 +1630,13 @@ function disableDirectionsButton() {
 function enableDirectionsButton() {
     var button = $('#directions_button');
     button.button('enable');
-    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
+    button.closest('.ui-btn').find('.ui-btn-text').text(button.attr('value1'));
 }
 
 /**
  * Process Get Directions form
  *
- * this wrapper checks the directions_type field and other Get Directions fields,
+ * This wrapper checks the directions_type field and other Get Directions fields,
  * decides what to use for the address field and the other params,
  * then calls either getDirections() et al
  */
@@ -1664,21 +1664,28 @@ function processGetDirectionsForm() {
     // e.g. directions to parks/reservations pick the closest entry point to our starting location
     var sourcelat, sourcelng;
     var addresstype = $('#directions_type').val();
-    switch (addresstype) {
 
+    // If we're routing from the user's current location
+    var gps = false;
+
+    switch (addresstype) {
         case 'gps':
+            gps = true;
             sourcelat = LAST_KNOWN_LOCATION.lat;
             sourcelng = LAST_KNOWN_LOCATION.lng;
             break;
 
         case 'geocode':
             var address  = $('#directions_address').val();
-            if (! address) return alert("Please enter an address, city, or landmark.");
-            var is_coords = /^(\d+\.\d+)\,(\-\d+\.\d+)$/.exec(address); // regional assumption in this regular expression: negative lng, positive lat
+            if (! address) {
+                return alert("Please enter an address, city, or landmark.");
+            }
+            // regional assumption in this regular expression: negative lng, positive lat:
+            var is_coords = /^(\d+\.\d+)\,(\-\d+\.\d+)$/.exec(address);
             if (is_coords) {
-                sourcelat = parseFloat( is_coords[1] );
-                sourcelng = parseFloat( is_coords[2] );
-                getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via);
+                sourcelat = parseFloat(is_coords[1]);
+                sourcelng = parseFloat(is_coords[2]);
+                getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via);
             } else {
                 disableDirectionsButton();
                 var params = {};
@@ -1748,17 +1755,19 @@ function processGetDirectionsForm() {
                 $('#directions_address').val(placename);
 
                 // fill in the GID and Type so we can do more intelligent routing, e.g. destination points for POIs
-                $('#directions_source_gid').val( reply[0].gid );
-                $('#directions_source_type').val( reply[0].type );
+                $('#directions_source_gid').val(reply[0].gid);
+                $('#directions_source_type').val(reply[0].type);
 
                 sourcelat = parseFloat(reply[0].lat);
                 sourcelng = parseFloat(reply[0].lng);
             },'json');
-            if (! sourcelat || ! sourcelng) return;
+            if (! sourcelat || ! sourcelng) {
+                return;
+            }
             break;
-    } // end of switch for address type
+    } // end addresstype switch
 
-    // now get this: sometimes we don't actually route between these two points, but use the type&gid to
+    // now get this: sometimes we don't actually route between these two points, but use the type & gid to
     // find the closest target points, e.g. the closest entry gate at a Reservation, or a parking lot for a POI or Building
     // do this for both the Target (the chosen location before the Directions panel opened)
     // and for the Source (whatever address or park feature they entered/selected as the other endpoint)
@@ -1800,7 +1809,7 @@ function processGetDirectionsForm() {
     // Re-enable asynchronous AJAX
     $.ajaxSetup({ async:true });
 
-    getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via);
+    getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, gps);
 }
 
 /**
@@ -1869,7 +1878,7 @@ function populateDidYouMean(results) {
 /**
  * Render directions structure
  */
-function renderDirectionsStructure(directions,target,options) {
+function renderDirectionsStructure(directions, target, options) {
     // no options, no problem
     if (! options) options = {};
 
@@ -2074,11 +2083,14 @@ $(document).ready(function () {
     $('#directions_type').change(function () {
         var which  = $(this).val();
         var target = $('#directions_type_geocode_wrap');
-        if (which == 'gps') target.hide();
-        else                target.show();
+        if (which == 'gps') {
+            target.hide();
+        } else {
+            target.show();
+        }
     });
 
-    // the To/From selectior should update all of the selector options to read To XXX and From XXX
+    // The To/From selector should update all of the selector options to read To XXX and From XXX
     $('#directions_reverse').change(function () {
         var tofrom = $(this).val() == 'to' ? 'from' : 'to';
         $('#directions_type option').each(function () {
@@ -2089,7 +2101,7 @@ $(document).ready(function () {
         $('#directions_type').selectmenu('refresh', true)
     });
 
-    // this button triggers a geocode and directions, using the common.js interface
+    // This button triggers a geocode and directions, using the common.js interface
     $('#directions_button').click(function () {
         $('#directions_steps').empty();
         $('.directions_functions').remove();
@@ -2099,11 +2111,11 @@ $(document).ready(function () {
         if(key.keyCode == 13) $('#directions_button').click();
     });
 
-    // this button changes over to the Find subpage, so they can pick a destination
+    // This button changes over to the Find subpage, so they can pick a destination
     $('#change_directions_target2').click(function () {
         sidebar.open('pane-browse');
 
-        // if they clicked this button, it means that they will be looking for a place,
+        // If they clicked this button, it means that they will be looking for a place,
         // with the specific purpose of getting Directions there
         // set this flag, which will cause zoomElementClick() to skip showing the info and skip to directions
         SKIP_TO_DIRECTIONS = true;
@@ -2116,7 +2128,7 @@ $(document).ready(function () {
 function openElevationProfileBySegments() {
     if (! ELEVATION_PROFILE) return;
 
-    // the vertices have horizontal and vertical info (feet and elev). make a pair of arrays
+    // The vertices have horizontal and vertical info (feet and elev). make a pair of arrays
     var x = [];
     var y = [];
     for (var i=0, l=ELEVATION_PROFILE.length; i<l; i++) {
@@ -2143,7 +2155,7 @@ $(document).ready(function () {
         $('#directions_steps').empty();
     });
 
-    // selecting By Trail, By Car, etc. shows & hides the second filter, e.g. paved/unpaved for "By foot" only
+    // Selecting "By Trail", "By Car", etc. shows & hides the second filter, e.g. paved/unpaved for "By foot" only
     $('#directions_via').change(function () {
         // hide all secondaries
         $('#directions_via_bike_wrap').hide();
