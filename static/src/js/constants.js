@@ -28,7 +28,7 @@ var NATIVE_APP = false;
 // and potentially for restricting the map from zooming away (not enforced)
 var BBOX_SOUTHWEST = L.latLng(41.11816, -82.08504);
 var BBOX_NORTHEAST = L.latLng(41.70009, -81.28029);
-var MAX_BOUNDS = L.latLngBounds(BBOX_SOUTHWEST,BBOX_NORTHEAST);
+var MAX_BOUNDS = L.latLngBounds(BBOX_SOUTHWEST, BBOX_NORTHEAST);
 
 // the min and max zoom level: min (low) is further out and max (high) is further in
 // level 11 covers the Cleveland region at full desktop size, level 18 is street level
@@ -39,7 +39,7 @@ var DEFAULT_POI_ZOOM = 15;
 
 // for focusing Bing's geocoder, so we don't find so we don't find Cleveland, Oregon
 // tip: this doesn't in fact work; wishful thinking for when Bing does support it
-var GEOCODE_BIAS_BOX = "41.202048178648,-81.9627793163304,41.5885467839419,-81.386224018357";
+var GEOCODE_BIAS_BOX = "41.202048178648, -81.9627793163304, 41.5885467839419, -81.386224018357";
 
 // the URL to the MapFish Print system
 //var PRINT_URL = "http://maps.clemetparks.com:48182/geoserver/pdf/create.json";

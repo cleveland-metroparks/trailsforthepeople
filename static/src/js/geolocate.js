@@ -99,14 +99,9 @@ $(document).ready(function () {
         // Mark the user's current location, and center the map, if we're following
         placeGPSMarker(event.latlng.lat, event.latlng.lng)
         if (AUTO_CENTER_ON_LOCATION) {
-            var within_max_bounds = MAX_BOUNDS.contains(event.latlng);
-            if (within_max_bounds) {
-                MAP.panTo(event.latlng);
-                if (MAP.getZoom() < 12) {
-                    MAP.setZoom(16);
-                }
-            } else {
-                MAP.fitBounds(MAX_BOUNDS);
+            MAP.panTo(event.latlng);
+            if (MAP.getZoom() < 12) {
+                MAP.setZoom(16);
             }
         }
 
