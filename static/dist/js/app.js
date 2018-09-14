@@ -1422,6 +1422,7 @@ function enable_gps_follow() {
         WEBAPP_BASEPATH + 'static/images/map_controls/mapbutton_gps_ios_on.png' :
         WEBAPP_BASEPATH + 'static/images/map_controls/mapbutton_gps_on.png';
     $('#mapbutton_gps img').prop('src', iconurl);
+    zoom_to_user_geolocation();
 }
 
 /**
@@ -1464,6 +1465,22 @@ $(document).ready(function () {
 });
 
 /**
+ * Center and zoom to user's geolocation.
+ */
+function zoom_to_user_geolocation(latlng) {
+    if (!latlng && LAST_KNOWN_LOCATION) {
+        latlng = LAST_KNOWN_LOCATION;
+    }
+    if (latlng) {
+        placeGPSMarker(latlng.lat, latlng.lng);
+        MAP.panTo(latlng);
+        if (MAP.getZoom() < 12) {
+            MAP.setZoom(16);
+        }
+    }
+}
+
+/**
  * Handle geolocation update
  *
  * Update our last-known location, then do more calculations regarding it.
@@ -1473,13 +1490,12 @@ $(document).ready(function () {
         // Update the user's last known location
         LAST_KNOWN_LOCATION = event.latlng;
 
-        // Mark the user's current location, and center the map, if we're following
-        placeGPSMarker(event.latlng.lat, event.latlng.lng)
         if (AUTO_CENTER_ON_LOCATION) {
-            MAP.panTo(event.latlng);
-            if (MAP.getZoom() < 12) {
-                MAP.setZoom(16);
-            }
+            // Center and zoom, if we're following
+            zoom_to_user_geolocation(event.latlng);
+        } else {
+            // Just mark the user's current location
+            placeGPSMarker(event.latlng.lat, event.latlng.lng);
         }
 
         // @TODO: Let's identify all such lists and see if there's a cleaner way.
