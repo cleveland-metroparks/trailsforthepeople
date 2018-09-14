@@ -2935,6 +2935,7 @@ $(document).ready(function () {
         // show only .time_estimate entries matching this 'type'
         switch (type) {
             case 'hike':
+            case 'exercise':
                 $('.time_estimate').hide();
                 $('.time_hike').show();
                 $('.time_estimate_prefix').hide();
@@ -2945,38 +2946,13 @@ $(document).ready(function () {
                 $('.time_estimate_prefix').hide();
                 break;
             case 'bike':
-                $('.time_estimate').hide();
-                $('.time_bike').show();
-                $('.time_estimate_prefix').hide();
-                break;
             case 'bike_Novice':
-                $('.time_estimate').hide();
-                $('.time_bike').show();
-                $('.time_estimate_prefix').hide();
-                break;
             case 'bike_Beginner':
-                $('.time_estimate').hide();
-                $('.time_bike').show();
-                $('.time_estimate_prefix').hide();
-                break;
             case 'bike_Intermediate':
-                $('.time_estimate').hide();
-                $('.time_bike').show();
-                $('.time_estimate_prefix').hide();
-                break;
             case 'bike_Advanced':
-                $('.time_estimate').hide();
-                $('.time_bike').show();
-                $('.time_estimate_prefix').hide();
-                break;
             case 'mountainbike':
                 $('.time_estimate').hide();
                 $('.time_bike').show();
-                $('.time_estimate_prefix').hide();
-                break;
-            case 'exercise':
-                $('.time_estimate').hide();
-                $('.time_hike').show();
                 $('.time_estimate_prefix').hide();
                 break;
             default:
