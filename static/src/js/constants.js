@@ -30,9 +30,9 @@ var BBOX_SOUTHWEST = L.latLng(41.11816, -82.08504);
 var BBOX_NORTHEAST = L.latLng(41.70009, -81.28029);
 var MAX_BOUNDS = L.latLngBounds(BBOX_SOUTHWEST, BBOX_NORTHEAST);
 
-// the min and max zoom level: min (low) is further out and max (high) is further in
+// min and max zoom levels. min (low) is further out and max (high) is further in.
 // level 11 covers the Cleveland region at full desktop size, level 18 is street level
-var MIN_ZOOM = 10;
+var MIN_ZOOM = 2; // See the whole world
 var MAX_ZOOM = 18;
 // Default level for zooming in to POIs (when no zoom or bbox specified)
 var DEFAULT_POI_ZOOM = 15;
