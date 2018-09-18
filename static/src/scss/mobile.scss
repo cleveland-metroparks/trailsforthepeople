@@ -129,41 +129,21 @@ ul.nobull {
     list-style-type: none;
     padding: 0;
 }
-
 .small-light {
     color: $grey_medium;
     font-size: 90%;
 }
-
-
-//
-// The Share panel and Settings panels have elements that need to appear as read-only text
-// inputs but that are really <div>'s, beacause iOS forgot to add a select-and-copy function!
-//
-div.fakeinput {
-    text-align: left;
-    background-color: #F9F9F9;
-    line-height: 1.4;
-    padding: 0.4em;
-    border: 1px solid #000;
-    border-radius: 0.2em;
-    height: 1.4em;
+.description {
+    padding: 0 20px;
 }
 
-
-//  toggle for sorting alphabetically or by distance, hidden by default but added as searches happen
-
+// Toggle for sorting alphabetically or by distance, hidden by default but added as searches happen
 .sortpicker {
     display: none;
     text-align: center;
     margin: 10px 0;
 }
 
-// -----------------------------------------------------------------------------------------------------------
-
-.description {
-    padding: 0 20px;
-}
 
 // -----------------------------------------------------------------------------------------------------------
 // From common.css
@@ -587,3 +567,19 @@ div.lng_driving {
 // Sidebar Pane: Elevation profile
 //
 #pane-elevationprofile {}
+
+//
+// Sidebar Pane: Settings
+//
+#pane-settings {
+    div.controlgroup-textinput {
+        // Top/bottom padding make the box size to fit the buttom (via jQm docs)
+        // Left/right padding give us more room for the URL
+        padding: .22em;
+        width: 73%;
+    }
+    .ui-controlgroup-controls {
+        width: 100%;
+        margin-bottom: 1em;
+    }
+}

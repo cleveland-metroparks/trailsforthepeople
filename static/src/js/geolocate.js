@@ -107,7 +107,7 @@ function zoom_to_user_geolocation(latlng) {
  * Update display of user's lat/lng in Settings pane.
  */
 function update_user_latlon_display(latlng) {
-    $('#gps_location').text(latlng_formatted(latlng));
+    $('#gps_location').val(latlng_formatted(latlng));
 }
 
 /**

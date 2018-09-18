@@ -72,11 +72,9 @@ ul.nobull { list-style-type: none; padding: 0; }
 
 .small-light { color: #8D8C8C; font-size: 90%; }
 
-div.fakeinput { text-align: left; background-color: #F9F9F9; line-height: 1.4; padding: 0.4em; border: 1px solid #000; border-radius: 0.2em; height: 1.4em; }
+.description { padding: 0 20px; }
 
 .sortpicker { display: none; text-align: center; margin: 10px 0; }
-
-.description { padding: 0 20px; }
 
 .popup_title { font-size: 10pt; font-weight: bold; margin-bottom: 0.25em; }
 
@@ -163,5 +161,8 @@ div.lng_driving { display: none; }
 #pane-trails #loops_filter_distancepicker a { background-color: #232222; color: white; text-decoration: none; padding: 5px 0.5em 2px; border-radius: 0.2em; margin-right: 0.2em; display: inline-block; margin-bottom: 5px; }
 #pane-trails #loops_filter_distancepicker a.active { background-color: #6AB03E; }
 #pane-trails .sortpicker { margin-top: 1.5em; }
+
+#pane-settings div.controlgroup-textinput { padding: .22em; width: 73%; }
+#pane-settings .ui-controlgroup-controls { width: 100%; margin-bottom: 1em; }
 
 /*# sourceMappingURL=mobile.css.map */

@@ -48,14 +48,6 @@ $(document).ready(function() {
         $(this).select();
     });
 
-    // Copy-to-clipboard button
-    $('#pane-share .copy-to-clipboard').click(function() {
-        // focus() then setSelectionRange() for readonly inputs on iOS
-        $('#share_url').focus();
-        $('#share_url')[0].setSelectionRange(0, 9999);
-        document.execCommand("copy");
-    });
-
     /**
      * Share Map button handler
      *

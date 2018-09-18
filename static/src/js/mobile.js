@@ -611,6 +611,23 @@ var showOnMap = function () {
 };
 
 /**
+ * "Copy to clipboard" button handler
+ */
+$(document).ready(function () {
+    $('.copy-to-clipboard').click(function() {
+        // Element ID to be copied is specified in the link's data-copy-id attribute
+        copy_el_id = $(this).attr('data-copy-id');
+        input = $('#' + copy_el_id);
+        // focus() and select()
+        input.focus();
+        input.select();
+        // setSelectionRange() for readonly inputs on iOS
+        input[0].setSelectionRange(0, 9999);
+        document.execCommand("copy");
+    });
+});
+
+/**
  * "Show on Map" button handler
  */
 $(document).ready(function () {
