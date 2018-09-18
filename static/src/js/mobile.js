@@ -242,17 +242,17 @@ $(document).ready(function () {
 
     // Set the appropriate basemap radio button in Settings
     var base = URL_PARAMS.param('base') || 'map';
-    var photoButton = $('input[name="basemap"][value="photo"]');
-    var mapButton = $('input[name="basemap"][value="map"]');
+    var satelliteButton = $('input[name="basemap"][value="photo"]');
+    var defaultMapButton = $('input[name="basemap"][value="map"]');
     switch (base) {
         case 'photo':
-            photoButton.prop('checked', true).checkboxradio('refresh');
-            mapButton.prop('checked', false).checkboxradio('refresh');
+            satelliteButton.prop('checked', true).checkboxradio('refresh');
+            defaultMapButton.prop('checked', false).checkboxradio('refresh');
             break;
         case 'map':
         default:
-            photoButton.prop('checked', false).checkboxradio('refresh');
-            mapButton.prop('checked', true).checkboxradio('refresh');
+            satelliteButton.prop('checked', false).checkboxradio('refresh');
+            defaultMapButton.prop('checked', true).checkboxradio('refresh');
             break;
     }
 
@@ -270,6 +270,17 @@ $(document).ready(function () {
     $('input[type="radio"][name="basemap"]').change(function () {
         var which = $(this).val();
         changeBasemap(which);
+    });
+});
+
+/**
+ * Coordinate format picker (on Settings pane) change handler
+ */
+$(document).ready(function () {
+    $('input[type="radio"][name="coordinate_format"]').change(function () {
+        var which = $(this).val();
+        changeCoordinateFormat(which);
+        update_user_latlon_display();
     });
 });
 

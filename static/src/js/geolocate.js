@@ -107,7 +107,15 @@ function zoom_to_user_geolocation(latlng) {
  * Update display of user's lat/lng in Settings pane.
  */
 function update_user_latlon_display(latlng) {
-    $('#gps_location').val(latlng_formatted(latlng));
+    if (!latlng && LAST_KNOWN_LOCATION) {
+        latlng = LAST_KNOWN_LOCATION;
+    }
+    if (latlng) {
+        latlng_str = latlng_formatted(latlng)
+    } else {
+        latlng_str = 'unknown';
+    }
+    $('#gps_location').val(latlng_str);
 }
 
 /**

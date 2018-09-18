@@ -9,6 +9,13 @@
         <label><input type="radio" name="basemap" value="map" checked="true" />Default</label>
         <label><input type="radio" name="basemap" value="photo" />Satellite</label>
     </fieldset>
+
+    <label for="coordinate_format">Coordinate format</label>
+    <fieldset id="coordinate_format" data-role="controlgroup">
+        <label><input type="radio" name="coordinate_format" value="dms" checked="true" />Degrees Minutes Seconds</label>
+        <label><input type="radio" name="coordinate_format" value="ddm" />Degrees Decimal Minutes</label>
+        <label><input type="radio" name="coordinate_format" value="dd" />Decimal Degrees</label>
+    </fieldset>
     
     <label for="gps_location">Your location</label>
     <div data-role="controlgroup" data-type="horizontal">

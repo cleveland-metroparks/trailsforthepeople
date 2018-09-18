@@ -42,16 +42,19 @@ var INFO_POPUP_OPTIONS = {
 };
 var INFO_POPUP = L.popup(INFO_POPUP_OPTIONS);
 
-var CIRCLE         = new L.Circle(L.latLng(0,0), 1);
+var CIRCLE = new L.Circle(L.latLng(0,0), 1);
 
-var ELEVATION_PROFILE     = null;
+var ELEVATION_PROFILE = null;
 
-var HIGHLIGHT_LINE       = null;
+var HIGHLIGHT_LINE = null;
 var HIGHLIGHT_LINE_STYLE = { color:"#FF00FF", weight:3, opacity:0.75, clickable:false, smoothFactor:0.25 };
 
 var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; on Mobile we disable it after switchToMap()
 
 var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
+
+var settings = [];
+settings.coordinate_format = 'dms';
 
 /**
  * Initialize the map
@@ -329,43 +332,33 @@ function changeBasemap(layer_key) {
 }
 
 /**
- * Return lat/lng as string in prescribed coordinate format.
+ * Change GPS coordinate format used in interface.
+ *
+ * @param format: 'dms', 'ddm', or 'dd'.
  */
-function latlng_formatted(latlng, coordinate_format) {
-    switch (coordinate_format) {
-        case 'ddm':
-            return latlng_as_ddm(latlng);
-        case 'dms':
-            return latlng_as_dms(latlng);
-        case 'dd':
-            return latlng_as_dd(latlng);
-        default:
-            return latlng_as_dd(latlng);
-    }
+function changeCoordinateFormat(format) {
+    settings.coordinate_format = format;
 }
 
 /**
- * Return lat/lng as Degree Decimal Minutes (DDM) string.
+ * Return lat/lng as string in prescribed coordinate format.
  */
-function latlng_as_ddm(latlng, precision) {
-    // Default precision
-    precision = (typeof precision !== 'undefined') ?  precision : 2;
-
-    var ns = latlng.lat < 0 ? 'S' : 'N';
-    var ew = latlng.lng < 0 ? 'W' : 'E';
-
-    var lat_dd = Math.abs(latlng.lat);
-    var lng_dd = Math.abs(latlng.lng);
-
-    var lat_d = parseInt(lat_dd);
-    var lat_m = (60 * (lat_dd - lat_d)).toFixed(precision);
-
-    var lng_d = parseInt(lng_dd);
-    var lng_m = (60 * (lng_dd - lng_d)).toFixed(precision);
-
-    latlng_str = lat_d + '° ' + lat_m + '\' ' + ns + ', ' + lng_d + '° ' + lng_m + '\' ' + ew;
-
-    return latlng_str;
+function latlng_formatted(latlng, coordinate_format) {
+    if (coordinate_format != null) {
+        format = coordinate_format;
+    } else {
+        format = settings.coordinate_format;
+    }
+    switch (format) {
+        case 'dms':
+            return latlng_as_dms(latlng);
+        case 'ddm':
+            return latlng_as_ddm(latlng);
+        case 'dd':
+            return latlng_as_dd(latlng);
+        default:
+            return latlng_as_dms(latlng);
+    }
 }
 
 /**
@@ -385,11 +378,35 @@ function latlng_as_dms(latlng, precision) {
     var lat_m = parseInt(60 * (lat_dd - lat_d));
     var lat_s = ((lat_dd - lat_d - (lat_m / 60)) * 3600).toFixed(precision);
 
-    var lng_d = parseInt(latlng.lng);
+    var lng_d = parseInt(lng_dd);
     var lng_m = parseInt(60 * (lng_dd - lng_d));
     var lng_s = ((lng_dd - lng_d - (lng_m / 60)) * 3600).toFixed(precision);;
 
     latlng_str = lat_d + '° ' + lat_m + '\' ' + lat_s + '" ' + ns + ', ' + lng_d + '° ' + lng_m + '\' ' + lng_s + '" ' + ew;
+
+    return latlng_str;
+}
+
+/**
+ * Return lat/lng as Degrees Decimal Minutes (DDM) string.
+ */
+function latlng_as_ddm(latlng, precision) {
+    // Default precision
+    precision = (typeof precision !== 'undefined') ?  precision : 2;
+
+    var ns = latlng.lat < 0 ? 'S' : 'N';
+    var ew = latlng.lng < 0 ? 'W' : 'E';
+
+    var lat_dd = Math.abs(latlng.lat);
+    var lng_dd = Math.abs(latlng.lng);
+
+    var lat_d = parseInt(lat_dd);
+    var lat_m = (60 * (lat_dd - lat_d)).toFixed(precision);
+
+    var lng_d = parseInt(lng_dd);
+    var lng_m = (60 * (lng_dd - lng_d)).toFixed(precision);
+
+    latlng_str = lat_d + '° ' + lat_m + '\' ' + ns + ', ' + lng_d + '° ' + lng_m + '\' ' + ew;
 
     return latlng_str;
 }
