@@ -273,17 +273,6 @@ $(document).ready(function () {
     });
 });
 
-/**
- * Coordinate format picker (on Settings pane) change handler
- */
-$(document).ready(function () {
-    $('input[type="radio"][name="coordinate_format"]').change(function () {
-        var which = $(this).val();
-        changeCoordinateFormat(which);
-        update_user_latlon_display();
-    });
-});
-
 /*
  * Sort-by button click handler
  *
@@ -365,7 +354,7 @@ function showAttractionInfo(attraction) {
         $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
             // grab and display the plain HTML
             $('#info-content').html(reply);
-        },'html');
+        }, 'html');
     }
 }
 
@@ -445,7 +434,7 @@ function zoomElementClick(element) {
                 $('#directions_car').click();
                 SKIP_TO_DIRECTIONS = false;
             }
-        },'html');
+        }, 'html');
     } else {
         // fill in the title since we have little else,
         // then presume that the person wants to route there by clicking the Directions By Car button
@@ -666,4 +655,58 @@ $(document).ready(function () {
  */
 function WSENtoBounds(west,south,east,north) {
     return L.latLngBounds([ [south,west] , [north,east] ]);
+}
+
+/**
+ * Coordinate Format picker (on Settings pane) change handler
+ */
+$(document).ready(function () {
+    $('input[type="radio"][name="coordinate_format"]').change(function () {
+        var which = $(this).val();
+        changeCoordinateFormat(which);
+        update_user_latlon_display();
+    });
+});
+
+/**
+ * Change the GPS coordinate format used in the interface.
+ *
+ * @param format: 'dms', 'ddm', or 'dd'.
+ */
+function changeCoordinateFormat(format) {
+    settings.coordinate_format = format;
+    setSessionCoordinateFormat(format);
+    setTimeout(getSessionCoordinateFormat, 1000); // @DEBUG
+}
+
+/**
+ * Get user's coordinate format setting from session config.
+ */
+function getSessionCoordinateFormat() {
+    $.get(API_BASEPATH + 'ajax/get_session_coordinate_format', {}, function (reply) {
+        // console.log('get_session_coordinate_format reply:', reply); // @DEBUG
+        if (reply) {
+            return reply;
+        } else {
+            console.log('Error: get_session_coordinate_format: Could not get coordinate format.');
+            return;
+        }
+    }, 'json');
+}
+
+/**
+ * Set user's coordinate format setting from session config.
+ */
+function setSessionCoordinateFormat(format) {
+    var params = {
+        coordinate_format: format
+    };
+
+    // console.log('setSessionCoordinateFormat to ' + format); // @DEBUG
+    $.get(API_BASEPATH + 'ajax/set_session_coordinate_format', params, function (reply) {
+        console.log('set_session_coordinate_format reply:', reply);
+        if (!reply) {
+            console.log('Error: set_session_coordinate_format: No reply.');
+        }
+    }, 'json');
 }

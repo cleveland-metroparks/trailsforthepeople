@@ -1,4 +1,5 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
 class Ajax extends CI_Controller {
 
 /*
@@ -2695,4 +2696,25 @@ function seed_tilestache() {
     print json_encode($response);
 }
 
+/**
+ * Get user's chosen coordinate format from the session.
+ */
+function get_session_coordinate_format() {
+    $coordinate_format = $this->session->userdata('coordinate_format');
+
+    print json_encode($coordinate_format);
 }
+
+/**
+ * Set the user's chosen coordinate format in the session.
+ *
+ * @param coordinate_format
+ */
+function set_session_coordinate_format() {
+    if ($_GET['coordinate_format']) {
+        $data = array('coordinate_format' => $_GET['coordinate_format']);
+        $this->session->set_userdata($data);
+    }
+}
+
+} /*  /class  */

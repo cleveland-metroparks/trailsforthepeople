@@ -332,15 +332,6 @@ function changeBasemap(layer_key) {
 }
 
 /**
- * Change GPS coordinate format used in interface.
- *
- * @param format: 'dms', 'ddm', or 'dd'.
- */
-function changeCoordinateFormat(format) {
-    settings.coordinate_format = format;
-}
-
-/**
  * Return lat/lng as string in prescribed coordinate format.
  */
 function latlng_formatted(latlng, coordinate_format) {

@@ -17,12 +17,12 @@
 <?php endif; ?>
 
 <?php
+    $this->load->helper('misc');
     if (!empty($feature->pagethumbnail)) {
         $alt_text = htmlspecialchars($feature->pagetitle);
 
         $max_img_width = '320';
 
-        $this->load->helper('misc');
         $img_url = _transform_main_site_image_url($feature->pagethumbnail, $max_img_width);
         $img_markup = '<img src="' . $img_url .'" alt="' . $alt_text . '">';
 
@@ -42,6 +42,12 @@
 
 <h4>GPS coordinates:</h4>
 <div class="small-light">
-    <?= $feature->latitude ?><br/>
-    <?= $feature->longitude ?>
+    <?php
+        $latlng = array(
+            'lat' => $feature->latitude,
+            'lng' => $feature->longitude
+        );
+        $coordinate_format = $this->session->userdata('coordinate_format');
+    ?>
+    <?= _latlng_formatted($latlng, $coordinate_format); ?>
 </div>
