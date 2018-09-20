@@ -53,8 +53,8 @@ var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; o
 
 var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
 
-var settings = [];
-settings.coordinate_format = 'dms';
+var SETTINGS = [];
+SETTINGS.coordinate_format = 'dms';
 
 /**
  * Initialize the map
@@ -338,7 +338,7 @@ function latlng_formatted(latlng, coordinate_format) {
     if (coordinate_format != null) {
         format = coordinate_format;
     } else {
-        format = settings.coordinate_format;
+        format = SETTINGS.coordinate_format;
     }
     switch (format) {
         case 'dms':

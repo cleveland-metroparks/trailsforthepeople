@@ -12,9 +12,27 @@
 
     <label for="coordinate_format">Coordinate format</label>
     <fieldset id="coordinate_format" data-role="controlgroup">
-        <label><input type="radio" name="coordinate_format" value="dms" checked="true" />Degrees Minutes Seconds</label>
-        <label><input type="radio" name="coordinate_format" value="ddm" />Degrees Decimal Minutes</label>
-        <label><input type="radio" name="coordinate_format" value="dd" />Decimal Degrees</label>
+    <?php
+        // All coordinate format choices
+        $coordinate_formats = array(
+            'dms' => 'Degrees Minutes Seconds',
+            'ddm' => 'Degrees Decimal Minutes',
+            'dd' => 'Decimal Degrees'
+        );
+        // Get user's choice from session
+        $user_coordinate_format = $this->session->userdata('coordinate_format');
+        if (!$user_coordinate_format) {
+            $user_coordinate_format = 'dms'; // Default
+        }
+        // Make choices HTML
+        foreach ($coordinate_formats as $format_key => $format_label) {
+            $item = '<label><input type="radio" name="coordinate_format" value="' . $format_key . '"';
+            // Mark user's choice as selected
+            $item .= ($format_key == $user_coordinate_format) ? ' checked="true"' : '';
+            $item .= '/>' . $format_label . '</label>';
+            print $item . "\n";
+        }
+    ?>
     </fieldset>
     
     <label for="gps_location">Your location</label>

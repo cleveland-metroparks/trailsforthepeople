@@ -167,8 +167,8 @@ var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; o
 
 var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
 
-var settings = [];
-settings.coordinate_format = 'dms';
+var SETTINGS = [];
+SETTINGS.coordinate_format = 'dms';
 
 /**
  * Initialize the map
@@ -452,7 +452,7 @@ function latlng_formatted(latlng, coordinate_format) {
     if (coordinate_format != null) {
         format = coordinate_format;
     } else {
-        format = settings.coordinate_format;
+        format = SETTINGS.coordinate_format;
     }
     switch (format) {
         case 'dms':
@@ -1198,23 +1198,33 @@ $(document).ready(function () {
 });
 
 /**
+ * Get session-based coordinate format on pageload (and set user geolocation display).
+ */
+$(document).ready(function () {
+    getSessionCoordinateFormat();
+});
+
+/**
  * Change the GPS coordinate format used in the interface.
  *
  * @param format: 'dms', 'ddm', or 'dd'.
  */
 function changeCoordinateFormat(format) {
-    settings.coordinate_format = format;
+    SETTINGS.coordinate_format = format;
     setSessionCoordinateFormat(format);
-    setTimeout(getSessionCoordinateFormat, 1000); // @DEBUG
+    // setTimeout(getSessionCoordinateFormat, 1000); // @DEBUG
 }
 
 /**
- * Get user's coordinate format setting from session config.
+ * Get user's coordinate format setting from session config, and update UI.
  */
 function getSessionCoordinateFormat() {
     $.get(API_BASEPATH + 'ajax/get_session_coordinate_format', {}, function (reply) {
         // console.log('get_session_coordinate_format reply:', reply); // @DEBUG
         if (reply) {
+            // Update UI setting and user location display.
+            SETTINGS.coordinate_format = reply;
+            update_user_latlon_display();
             return reply;
         } else {
             console.log('Error: get_session_coordinate_format: Could not get coordinate format.');
@@ -1233,7 +1243,7 @@ function setSessionCoordinateFormat(format) {
 
     // console.log('setSessionCoordinateFormat to ' + format); // @DEBUG
     $.get(API_BASEPATH + 'ajax/set_session_coordinate_format', params, function (reply) {
-        console.log('set_session_coordinate_format reply:', reply);
+        // console.log('set_session_coordinate_format reply:', reply);
         if (!reply) {
             console.log('Error: set_session_coordinate_format: No reply.');
         }
