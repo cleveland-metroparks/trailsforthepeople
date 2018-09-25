@@ -1183,6 +1183,81 @@ $(document).ready(function () {
 });
 
 /**
+ * Trigger window URL changes on map movements
+ */
+$(document).on("mapReady", function() {
+    MAP.on('zoomend', updateWindowURLZoom);
+    MAP.on('moveend', updateWindowURLCenter);
+});
+
+/**
+ * Update the window URL with center lat/lng params
+ */
+function updateWindowURLCenter() {
+    var center = MAP.getCenter();
+    var lat = center.lat.toFixed(7);
+    var lng = center.lng.toFixed(7);
+    setQueryStringParameter('lat', lat);
+    setQueryStringParameter('lng', lng);
+}
+
+/**
+ * Update the window URL with zoom param
+ */
+function updateWindowURLZoom() {
+    var zoom = MAP.getZoom().toFixed(1);
+    setQueryStringParameter('zoom', zoom);
+}
+
+///**
+// * Update the window location with center & zoom variables
+// */
+//function updateWindowURL() {
+//    var center = MAP.getCenter();
+//    var lat = center.lat.toFixed(7);
+//    var lng = center.lng.toFixed(7);
+//    var zoom = MAP.getZoom().toFixed(1);
+//
+//    setQueryStringParameter('lat', lat);
+//    setQueryStringParameter('lng', lng);
+//    setQueryStringParameter('zoom', zoom);
+//
+//    //var hashArr = [
+//    //    lat,
+//    //    lng,
+//    //    zoom + 'z'
+//    //    ];
+//    //hashStr = '#' + hashArr.join();
+//    //setNewWindowHashLocation(hashStr);
+//}
+
+/**
+ * Set query string parameters in window location.
+ */
+function setQueryStringParameter(name, value) {
+    const params = new URLSearchParams(location.search);
+    params.set(name, value);
+    // window.history.pushState(null, null, decodeURIComponent(location.pathname+'?'+params));
+    window.history.replaceState(null, null, decodeURIComponent(location.pathname+'?'+params));
+}
+
+/**
+ * Set new window hash location
+ *
+ * Helper to choose appropriate means based on browser capability.
+ *
+ * @param hashStr: should include #
+ */
+function setNewWindowHashLocation(hashStr) {
+    if(history.pushState) {
+        history.pushState(null, null, hashStr);
+    }
+    else {
+        location.hash = hashStr;
+    }
+}
+
+/**
  * WSEN to Bounds
  *
  * given a WSEN set of ordinates, construct a L.LatLngBounds
