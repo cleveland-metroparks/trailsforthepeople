@@ -132,8 +132,9 @@ function switchToMap(callback) {
         sidebar.close();
     }
 
-    // We don't need much of a wait here, anymore. (If at all?)
-    if (callback) setTimeout(callback, 100);
+    // We don't need much of a wait here, anymore.
+    // @TODO: Once this has been tested with 0 in setTimeout, deprecate and remove callback structure.
+    if (callback) setTimeout(callback, 0);
 }
 
 /**
