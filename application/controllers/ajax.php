@@ -2702,6 +2702,10 @@ function seed_tilestache() {
 function get_session_coordinate_format() {
     $coordinate_format = $this->session->userdata('coordinate_format');
 
+    if (!$coordinate_format) {
+        $coordinate_format = 'dms'; // Default
+    }
+
     print json_encode($coordinate_format);
 }
 
