@@ -23,7 +23,7 @@
 
 <?php if (!empty($feature->phone)): ?>
 	<h4>Phone</h4>
-	<?= $feature->phone ?>
+	<a title="Call <?= $park_name ?>" href="tel:<?= $feature->phone ?>"><?= $feature->phone ?></a>
 <? endif; ?>
 
 <div class="lat_driving"><?= $feature->drivingdestinationlatitude ?></div>
