@@ -177,7 +177,7 @@ function initMap (mapOptions) {
  * decode a WKT geometry into a feature, e.g. LINESTRING(12 34, 56 78) to L.Polyline instance
  * params are the WKT string, and the other options to pass to the constructor (e.g. color style and other Path options)
  */
-function lineWKTtoFeature(wkt,style) {
+function lineWKTtoFeature(wkt, style) {
     var parser = new Wkt.Wkt();
     parser.read(wkt);
     return parser.toObject(style);
@@ -186,7 +186,7 @@ function lineWKTtoFeature(wkt,style) {
 /**
  * Place "target" (normal) marker
  */
-function placeTargetMarker(lat,lon) {
+function placeTargetMarker(lat, lon) {
     MAP.addLayer(MARKER_TARGET);
     MARKER_TARGET.setLatLng(L.latLng(lat,lon));
 }
@@ -195,13 +195,15 @@ function placeTargetMarker(lat,lon) {
  * Clear "target" (normal) marker
  */
 function clearTargetMarker() {
-    MAP.removeLayer(MARKER_TARGET);
+    if (MAP.hasLayer(MARKER_TARGET)) {
+        MAP.removeLayer(MARKER_TARGET);
+    }
 }
 
 /**
  * Place GPS (geolocated) marker
  */
-function placeGPSMarker(lat,lon) {
+function placeGPSMarker(lat, lon) {
     MAP.addLayer(MARKER_GPS);
     MARKER_GPS.setLatLng(L.latLng(lat,lon));
 }

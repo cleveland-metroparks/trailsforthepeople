@@ -303,7 +303,7 @@ function initMap (mapOptions) {
  * decode a WKT geometry into a feature, e.g. LINESTRING(12 34, 56 78) to L.Polyline instance
  * params are the WKT string, and the other options to pass to the constructor (e.g. color style and other Path options)
  */
-function lineWKTtoFeature(wkt,style) {
+function lineWKTtoFeature(wkt, style) {
     var parser = new Wkt.Wkt();
     parser.read(wkt);
     return parser.toObject(style);
@@ -312,7 +312,7 @@ function lineWKTtoFeature(wkt,style) {
 /**
  * Place "target" (normal) marker
  */
-function placeTargetMarker(lat,lon) {
+function placeTargetMarker(lat, lon) {
     MAP.addLayer(MARKER_TARGET);
     MARKER_TARGET.setLatLng(L.latLng(lat,lon));
 }
@@ -321,13 +321,15 @@ function placeTargetMarker(lat,lon) {
  * Clear "target" (normal) marker
  */
 function clearTargetMarker() {
-    MAP.removeLayer(MARKER_TARGET);
+    if (MAP.hasLayer(MARKER_TARGET)) {
+        MAP.removeLayer(MARKER_TARGET);
+    }
 }
 
 /**
  * Place GPS (geolocated) marker
  */
-function placeGPSMarker(lat,lon) {
+function placeGPSMarker(lat, lon) {
     MAP.addLayer(MARKER_GPS);
     MARKER_GPS.setLatLng(L.latLng(lat,lon));
 }
@@ -709,7 +711,7 @@ $(document).ready(function () {
 
             // lay down the WKT or a marker to highlight it
             if (reply.lat && reply.lng) {
-                placeTargetMarker(reply.lat,reply.lng);
+                placeTargetMarker(reply.lat, reply.lng);
             }
             else if (reply.wkt) {
                 HIGHLIGHT_LINE = lineWKTtoFeature(reply.wkt, HIGHLIGHT_LINE_STYLE);
@@ -1081,8 +1083,8 @@ function zoomToAddress(searchtext) {
 
         // zoom the point location, nice and close, and add a marker
         switchToMap(function () {
-            MAP.setView(latlng,16);
-            placeTargetMarker(result.lat,result.lng);
+            MAP.setView(latlng, 16);
+            placeTargetMarker(result.lat, result.lng);
 
             // add a bubble at the location indicating their interpretation of the address, so we can see how bad the match was
             // also add a specially-crafted span element with lat= lng= and title= for use with zoomElementClick()
@@ -1119,6 +1121,12 @@ var showOnMap = function () {
         var type = element.attr('type');
         var wkt  = $(this).data('wkt');
 
+        // Clear existing points & lines
+        clearTargetMarker();
+        if (MAP.hasLayer(HIGHLIGHT_LINE)) {
+            MAP.removeLayer(HIGHLIGHT_LINE);
+        }
+
         // Switch to the map (which no longer amounts to much)
         // And add our feature.
         switchToMap(function () {
@@ -1140,10 +1148,6 @@ var showOnMap = function () {
 
             // Draw the line geometry onto the map, if this is a line feature.
             if (wkt) {
-                if (HIGHLIGHT_LINE) {
-                    MAP.removeLayer(HIGHLIGHT_LINE);
-                    HIGHLIGHT_LINE = null;
-                }
                 HIGHLIGHT_LINE = lineWKTtoFeature(wkt, HIGHLIGHT_LINE_STYLE);
                 MAP.addLayer(HIGHLIGHT_LINE);
             }
