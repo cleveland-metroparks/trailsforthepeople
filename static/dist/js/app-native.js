@@ -237,9 +237,10 @@ function initMap (mapOptions) {
         var y = parseFloat(mapOptions.y);
         var z = parseInt(mapOptions.z);
         MAP.setView(L.latLng(y,x),z);
-
-        MAP.addLayer(MARKER_TARGET);
-        MARKER_TARGET.setLatLng(L.latLng(y,x));
+        if (mapOptions.drop_marker) {
+            MAP.addLayer(MARKER_TARGET);
+            MARKER_TARGET.setLatLng(L.latLng(y,x));
+        }
     } else {
         MAP.fitBounds(MAX_BOUNDS);
     }
@@ -581,11 +582,34 @@ $(document).ready(function () {
     // load up the URL params before the map, as we may need them to configure the map
     URL_PARAMS = $.url();
 
+    // lat/lng/zoom params are appended to the user's URL from normal map movement
+    var lat = URL_PARAMS.param('lat');
+    var lng = URL_PARAMS.param('lng');
+    var zoom = URL_PARAMS.param('zoom');
+
+    // x/y/z params come from specific interaction, usually using Share
+    var x = URL_PARAMS.param('x');
+    var y = URL_PARAMS.param('y');
+    var z = URL_PARAMS.param('z');
+
+    var drop_marker = false;
+
+    // If x/y/z params are set, use as center & zoom, and drop a marker.
+    // If not, and lat/lng/zoom are set, use these, without a marker.
+    if (x && y && z) {
+        drop_marker = true;
+    } else if (lat && lng && zoom) {
+        x = lng;
+        y = lat;
+        z = zoom;
+    }
+
     mapOptions = {
         base: URL_PARAMS.param('base'),
-        x: URL_PARAMS.param('x'),
-        y: URL_PARAMS.param('y'),
-        z: URL_PARAMS.param('z')
+        x: x,
+        y: y,
+        z: z,
+        drop_marker: drop_marker
     };
 
     // Initialize the map
@@ -598,7 +622,9 @@ $(document).ready(function () {
             name: URL_PARAMS.param('name')
         };
         $.get(API_BASEPATH + 'ajax/exactnamesearch', params, function (reply) {
-            if (!reply || ! reply.s || ! reply.w || ! reply.n || ! reply.e) return alert("Cound not find that feature.");
+            if (!reply || ! reply.s || ! reply.w || ! reply.n || ! reply.e) {
+                return alert("Cound not find that feature.");
+            }
 
             // zoom to the location
             var box = L.latLngBounds( L.latLng(reply.s,reply.w) , L.latLng(reply.n,reply.e) );

@@ -111,9 +111,10 @@ function initMap (mapOptions) {
         var y = parseFloat(mapOptions.y);
         var z = parseInt(mapOptions.z);
         MAP.setView(L.latLng(y,x),z);
-
-        MAP.addLayer(MARKER_TARGET);
-        MARKER_TARGET.setLatLng(L.latLng(y,x));
+        if (mapOptions.drop_marker) {
+            MAP.addLayer(MARKER_TARGET);
+            MARKER_TARGET.setLatLng(L.latLng(y,x));
+        }
     } else {
         MAP.fitBounds(MAX_BOUNDS);
     }
