@@ -239,50 +239,6 @@ function initMap (mapOptions) {
     $.event.trigger({
         type: 'mapInitialized',
     });
-
-    // debugging: when the viewport changes, log the current bbox and zoom
-    function debugBoundsOutput() {
-        console.log([ 'zoom', MAP.getZoom() ]);
-        console.log([ 'center', MAP.getCenter() ]);
-        console.log([ 'bounds', MAP.getBounds() ]);
-    }
-    function debugScaleZoomOutput() {
-        var DOTS_PER_INCH    = 72;
-        var INCHES_PER_METER = 1.0 / 0.02540005080010160020;
-        var INCHES_PER_KM    = INCHES_PER_METER * 1000.0;
-        var sw       = MAP.getBounds().getSouthWest();
-        var ne       = MAP.getBounds().getNorthEast();
-        var halflng   = ( sw.lng + ne.lng ) / 2.0;
-        var midBottom = L.latLng(sw.lat,halflng);
-        var midTop    = L.latLng(ne.lat,halflng);
-        var mheight   = midTop.distanceTo(midBottom);
-        var pxheight  = MAP.getSize().x;
-        var kmperpx   = mheight / pxheight / 1000.0;
-        var scale    = Math.round( (kmperpx || 0.000001) * INCHES_PER_KM * DOTS_PER_INCH );
-        scale *= 2.0; // no idea why but it's doubled
-        scale = 1000 * Math.round(scale / 1000.0); // round to the nearest 100 so we can fit MapFish print's finite set of scales
-        console.log([ 'zoom & scale' , MAP.getZoom(), scale ]);
-    }
-    //MAP.on('moveend', debugBoundsOutput);
-    //MAP.on('zoomend', debugBoundsOutput);
-    //MAP.on('moveend', debugScaleZoomOutput);
-    //MAP.on('zoomend', debugScaleZoomOutput);
-
-    // our version of a WMS GetFeatureInfo control: a map click calls query.php to get JSON info, and we construct a bubble
-    // BUT, we only call this if a popup is not open: if one is open, we instead close it
-    MAP.on('click', function (event) {
-        // are we ignoring click behaviors for the moment?
-        if (! ENABLE_MAPCLICK) return;
-
-        // is there a popup currently visible? If so, no query at all but close the popup and bail
-        // sorry, Leaflet: closePopupOnClick doesn't work for this cuz it clears the popup before we get the click
-        if ($('.leaflet-popup').length) {
-            return MAP.closePopup();
-        }
-
-        // got here? good, do a query
-        wmsGetFeatureInfoByPoint(event.layerPoint);
-    });
 }
 
 /**
@@ -349,68 +305,6 @@ function showInfoPopup(message, type) {
         .setContent(message)
         .openOn(MAP);
 }
-
-/**
- * Clear informational popup
- */
-function clearInfoPopup() {
-    MAP.removeLayer(INFO_POPUP);
-    INFO_POPUP.options.className
-}
-
-/**
- * WMS Get feature info by point
- */
-function wmsGetFeatureInfoByPoint(pixel) {
-    var pixelbuffer = 20;
-    var sw = MAP.layerPointToLatLng(new L.Point(pixel.x - pixelbuffer , pixel.y + pixelbuffer));
-    var ne = MAP.layerPointToLatLng(new L.Point(pixel.x + pixelbuffer , pixel.y - pixelbuffer));
-    var bbox   = { w:sw.lng, s: sw.lat, e:ne.lng , n:ne.lat };
-    var anchor = MAP.layerPointToLatLng(new L.Point(pixel.x,pixel.y));
-    wmsGetFeatureInfoByLatLngBBOX(bbox,anchor);
-}
-
-/**
- * WMS Get feature info by lat/lng
- */
-function wmsGetFeatureInfoByLatLng(latlng) {
-    var bbox   = { w:latlng.lng, s: latlng.lat, e:latlng.lng , n:latlng.lat };
-    var anchor = latlng;
-    wmsGetFeatureInfoByLatLngBBOX(bbox,anchor);
-}
-
-/**
- * WMS Get feature info by lat/lng BBOX
- */
-function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
-    var data = bbox;
-    data.zoom = MAP.getZoom();
-
-    $.get(API_BASEPATH + 'ajax/query', data, function (html) {
-        if (!html) return;
-
-        // set up the Popup and load its content
-        // beware of very-lengthy content and force a max height on the bubble
-        var options = {};
-        options.maxHeight = parseInt( $('#map_canvas').height() );
-        options.maxWidth = parseInt( $('#map_canvas').width() );
-        var popup = new L.Popup(options);
-        popup.setLatLng(anchor);
-        popup.setContent(html);
-        MAP.openPopup(popup);
-    }, 'html');
-}
-
-/**
- * Map canvas resize handler
- *
- * When window is resized, trigger a map refresh.
- *
- * @TODO: Remove once satisfied we really don't need this.
- */
-//$(window).resize(function () {
-//    MAP.invalidateSize();
-//});
 
 /**
  * Enable the given base map layer.
@@ -1329,6 +1223,106 @@ function setSessionCoordinateFormat(format) {
         }
     }, 'json');
 }
+
+/**
+ * Map click handling
+ *
+ * Our version of a WMS GetFeatureInfo control:
+ * A map click calls query.php to get JSON info, and we construct a bubble.
+ * But, we only call this if a popup is not open: if one is open, we instead close it.
+ */
+$(document).on("mapReady", function() {
+    MAP.on('click', function (event) {
+        // Are we currently ignoring click behaviors?
+        if (! ENABLE_MAPCLICK) return;
+
+        // Is there a popup currently visible?
+        // If so, no query at all but close the popup and bail.
+        // Sorry, Leaflet: closePopupOnClick doesn't work for this, as it clears the popup before we get the click.
+        if ($('.leaflet-popup').length) {
+            return MAP.closePopup();
+        }
+
+        // Made it here? Good, do a query.
+        wmsGetFeatureInfoByPoint(event.layerPoint);
+    });
+});
+
+/**
+ * WMS Get feature info by point
+ */
+function wmsGetFeatureInfoByPoint(pixel) {
+    var pixelbuffer = 20;
+    var sw = MAP.layerPointToLatLng(new L.Point(pixel.x - pixelbuffer , pixel.y + pixelbuffer));
+    var ne = MAP.layerPointToLatLng(new L.Point(pixel.x + pixelbuffer , pixel.y - pixelbuffer));
+    var bbox   = { w:sw.lng, s: sw.lat, e:ne.lng , n:ne.lat };
+    var anchor = MAP.layerPointToLatLng(new L.Point(pixel.x,pixel.y));
+    wmsGetFeatureInfoByLatLngBBOX(bbox,anchor);
+}
+
+/**
+ * WMS Get feature info by lat/lng
+ */
+function wmsGetFeatureInfoByLatLng(latlng) {
+    var bbox   = { w:latlng.lng, s: latlng.lat, e:latlng.lng , n:latlng.lat };
+    var anchor = latlng;
+    wmsGetFeatureInfoByLatLngBBOX(bbox,anchor);
+}
+
+/**
+ * WMS Get feature info by lat/lng BBOX
+ */
+function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
+    var data = bbox;
+    data.zoom = MAP.getZoom();
+
+    $.get(API_BASEPATH + 'ajax/query', data, function (html) {
+        if (!html) return;
+
+        // set up the Popup and load its content
+        // beware of very-lengthy content and force a max height on the bubble
+        var options = {};
+        options.maxHeight = parseInt( $('#map_canvas').height() );
+        options.maxWidth = parseInt( $('#map_canvas').width() );
+        var popup = new L.Popup(options);
+        popup.setLatLng(anchor);
+        popup.setContent(html);
+        MAP.openPopup(popup);
+    }, 'html');
+}
+
+/**
+ * Debugging: when the viewport changes, log the current bbox and zoom
+ */
+//function debugBoundsOutput() {
+//    console.log([ 'zoom', MAP.getZoom() ]);
+//    console.log([ 'center', MAP.getCenter() ]);
+//    console.log([ 'bounds', MAP.getBounds() ]);
+//}
+//function debugScaleZoomOutput() {
+//    var DOTS_PER_INCH    = 72;
+//    var INCHES_PER_METER = 1.0 / 0.02540005080010160020;
+//    var INCHES_PER_KM    = INCHES_PER_METER * 1000.0;
+//    var sw       = MAP.getBounds().getSouthWest();
+//    var ne       = MAP.getBounds().getNorthEast();
+//    var halflng   = ( sw.lng + ne.lng ) / 2.0;
+//    var midBottom = L.latLng(sw.lat,halflng);
+//    var midTop    = L.latLng(ne.lat,halflng);
+//    var mheight   = midTop.distanceTo(midBottom);
+//    var pxheight  = MAP.getSize().x;
+//    var kmperpx   = mheight / pxheight / 1000.0;
+//    var scale    = Math.round( (kmperpx || 0.000001) * INCHES_PER_KM * DOTS_PER_INCH );
+//    scale *= 2.0; // no idea why but it's doubled
+//    scale = 1000 * Math.round(scale / 1000.0); // round to the nearest 100 so we can fit MapFish print's finite set of scales
+//    console.log([ 'zoom & scale' , MAP.getZoom(), scale ]);
+//}
+//
+//$(document).on("mapReady", function() {
+//    MAP.on('moveend', debugBoundsOutput);
+//    MAP.on('zoomend', debugBoundsOutput);
+//    MAP.on('moveend', debugScaleZoomOutput);
+//    MAP.on('zoomend', debugScaleZoomOutput);
+//}
 ;
 /**
  * Sidebar
