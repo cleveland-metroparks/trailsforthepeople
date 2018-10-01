@@ -346,7 +346,7 @@ div.lng_driving {
 }
 
 //
-// Sidebar Pane: Find/Browse
+// Sidebar Pane: Browse
 //
 #pane-browse {
     .browse-main {
@@ -357,6 +357,12 @@ div.lng_driving {
             }
         }
     }
+}
+
+//
+// Sidebar Pane: Search
+//
+#pane-search {
 }
 
 //
@@ -423,12 +429,6 @@ div.lng_driving {
         text-align: right;
         font-size: 8pt;
         margin-top: 10px;
-    }
-
-    #getdirections_disabled {
-        text-align: center;
-        font-size: 12pt;
-
     }
 
     #directions_button_wrapper {
