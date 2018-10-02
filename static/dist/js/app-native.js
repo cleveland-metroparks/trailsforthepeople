@@ -2578,15 +2578,24 @@ function hideShareURL() {
  * and put this into the share box.
  */
 function makeAndShowShortURL() {
-    var base_url = '/';
+    var baseUrl = '/';
+
+    var queryString = WINDOW_URL;
+    // Remove leading '/?'
+    if (queryString.charAt(0) == '/') {
+        queryString = queryString.substr(1);
+    }
+    if (queryString.charAt(0) == '?') {
+        queryString = queryString.substr(1);
+    }
 
     // submit the long URL param string to the server, get back a short param string
     var params = {
-        uri : base_url,
-        querystring : WINDOW_URL
+        uri : baseUrl,
+        querystring : queryString
     };
-    $.get(API_BASEPATH + 'ajax/make_shorturl', params, function(shortstring) {
-        if (! shortstring) {
+    $.get(API_BASEPATH + 'ajax/make_shorturl', params, function(shortURLString) {
+        if (!shortURLString) {
             return alert("Unable to fetch a short URL.\nPlease try again.");
         }
 
@@ -2598,7 +2607,7 @@ function makeAndShowShortURL() {
             ? URL_PARAMS.attr('host')
             : WEBAPP_BASE_URL_ABSOLUTE_HOST;
 
-        var url = protocol + '://' + host + '/url/' + shortstring;
+        var url = protocol + '://' + host + '/url/' + shortURLString;
 
         $('#share_url').val(url);
         showShareURL();
