@@ -61,7 +61,7 @@ SETTINGS.coordinate_format = 'dms';
  *
  * The business. (And too much of it.)
  */
-function initMap (mapOptions) {
+function initMap(mapOptions) {
     // URL param: the base map; defaults to map (vs satellite)
     var base = mapOptions.base || 'map';
 
@@ -105,15 +105,15 @@ function initMap (mapOptions) {
     MAP = new L.Map('map_canvas', options);
     new L.Control.Zoom({ position: 'bottomright' }).addTo(MAP);
 
-    // zoom to the XYZ given in the URL, or else to the max extent
-    if (mapOptions.x && mapOptions.y && mapOptions.z) {
-        var x = parseFloat(mapOptions.x);
-        var y = parseFloat(mapOptions.y);
-        var z = parseInt(mapOptions.z);
-        MAP.setView(L.latLng(y,x),z);
+    // Zoom to the lat/lng/zoom given in the URL, or else to the max extent
+    if (mapOptions.lat && mapOptions.lng && mapOptions.zoom) {
+        var lat = parseFloat(mapOptions.lat);
+        var lng = parseFloat(mapOptions.lng);
+        var zoom = parseInt(mapOptions.zoom);
+        MAP.setView(L.latLng(lat, lng),zoom);
         if (mapOptions.drop_marker) {
             MAP.addLayer(MARKER_TARGET);
-            MARKER_TARGET.setLatLng(L.latLng(y,x));
+            MARKER_TARGET.setLatLng(L.latLng(lat, lng));
         }
     } else {
         MAP.fitBounds(MAX_BOUNDS);

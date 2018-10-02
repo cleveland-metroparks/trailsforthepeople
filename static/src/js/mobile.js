@@ -151,33 +151,19 @@ $(document).ready(function () {
     // load up the URL params before the map, as we may need them to configure the map
     URL_PARAMS = $.url();
 
-    // lat/lng/zoom params are appended to the user's URL from normal map movement
-    var lat = URL_PARAMS.param('lat');
-    var lng = URL_PARAMS.param('lng');
-    var zoom = URL_PARAMS.param('zoom');
-
-    // x/y/z params come from specific interaction, usually using Share
-    var x = URL_PARAMS.param('x');
-    var y = URL_PARAMS.param('y');
-    var z = URL_PARAMS.param('z');
+    // lat,lng,zoom params are appended to the user's URL from normal map movement
+    // x,y,z are older/legacy forms of same
+    var lat = URL_PARAMS.param('lat') || URL_PARAMS.param('y');
+    var lng = URL_PARAMS.param('lng') || URL_PARAMS.param('x');
+    var zoom = URL_PARAMS.param('zoom') || URL_PARAMS.param('z');
 
     var drop_marker = false;
 
-    // If x/y/z params are set, use as center & zoom, and drop a marker.
-    // If not, and lat/lng/zoom are set, use these, without a marker.
-    if (x && y && z) {
-        drop_marker = true;
-    } else if (lat && lng && zoom) {
-        x = lng;
-        y = lat;
-        z = zoom;
-    }
-
     mapOptions = {
         base: URL_PARAMS.param('base'),
-        x: x,
-        y: y,
-        z: z,
+        lat: lat,
+        lng: lng,
+        zoom: zoom,
         drop_marker: drop_marker
     };
 
@@ -196,7 +182,7 @@ $(document).ready(function () {
             }
 
             // zoom to the location
-            var box = L.latLngBounds( L.latLng(reply.s,reply.w) , L.latLng(reply.n,reply.e) );
+            var box = L.latLngBounds(L.latLng(reply.s, reply.w), L.latLng(reply.n, reply.e));
             MAP.fitBounds(box);
 
             // lay down the WKT or a marker to highlight it

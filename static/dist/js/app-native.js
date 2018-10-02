@@ -187,7 +187,7 @@ SETTINGS.coordinate_format = 'dms';
  *
  * The business. (And too much of it.)
  */
-function initMap (mapOptions) {
+function initMap(mapOptions) {
     // URL param: the base map; defaults to map (vs satellite)
     var base = mapOptions.base || 'map';
 
@@ -231,15 +231,15 @@ function initMap (mapOptions) {
     MAP = new L.Map('map_canvas', options);
     new L.Control.Zoom({ position: 'bottomright' }).addTo(MAP);
 
-    // zoom to the XYZ given in the URL, or else to the max extent
-    if (mapOptions.x && mapOptions.y && mapOptions.z) {
-        var x = parseFloat(mapOptions.x);
-        var y = parseFloat(mapOptions.y);
-        var z = parseInt(mapOptions.z);
-        MAP.setView(L.latLng(y,x),z);
+    // Zoom to the lat/lng/zoom given in the URL, or else to the max extent
+    if (mapOptions.lat && mapOptions.lng && mapOptions.zoom) {
+        var lat = parseFloat(mapOptions.lat);
+        var lng = parseFloat(mapOptions.lng);
+        var zoom = parseInt(mapOptions.zoom);
+        MAP.setView(L.latLng(lat, lng),zoom);
         if (mapOptions.drop_marker) {
             MAP.addLayer(MARKER_TARGET);
-            MARKER_TARGET.setLatLng(L.latLng(y,x));
+            MARKER_TARGET.setLatLng(L.latLng(lat, lng));
         }
     } else {
         MAP.fitBounds(MAX_BOUNDS);
@@ -589,33 +589,19 @@ $(document).ready(function () {
     // load up the URL params before the map, as we may need them to configure the map
     URL_PARAMS = $.url();
 
-    // lat/lng/zoom params are appended to the user's URL from normal map movement
-    var lat = URL_PARAMS.param('lat');
-    var lng = URL_PARAMS.param('lng');
-    var zoom = URL_PARAMS.param('zoom');
-
-    // x/y/z params come from specific interaction, usually using Share
-    var x = URL_PARAMS.param('x');
-    var y = URL_PARAMS.param('y');
-    var z = URL_PARAMS.param('z');
+    // lat,lng,zoom params are appended to the user's URL from normal map movement
+    // x,y,z are older/legacy forms of same
+    var lat = URL_PARAMS.param('lat') || URL_PARAMS.param('y');
+    var lng = URL_PARAMS.param('lng') || URL_PARAMS.param('x');
+    var zoom = URL_PARAMS.param('zoom') || URL_PARAMS.param('z');
 
     var drop_marker = false;
 
-    // If x/y/z params are set, use as center & zoom, and drop a marker.
-    // If not, and lat/lng/zoom are set, use these, without a marker.
-    if (x && y && z) {
-        drop_marker = true;
-    } else if (lat && lng && zoom) {
-        x = lng;
-        y = lat;
-        z = zoom;
-    }
-
     mapOptions = {
         base: URL_PARAMS.param('base'),
-        x: x,
-        y: y,
-        z: z,
+        lat: lat,
+        lng: lng,
+        zoom: zoom,
         drop_marker: drop_marker
     };
 
@@ -634,7 +620,7 @@ $(document).ready(function () {
             }
 
             // zoom to the location
-            var box = L.latLngBounds( L.latLng(reply.s,reply.w) , L.latLng(reply.n,reply.e) );
+            var box = L.latLngBounds(L.latLng(reply.s, reply.w), L.latLng(reply.n, reply.e));
             MAP.fitBounds(box);
 
             // lay down the WKT or a marker to highlight it
@@ -2537,6 +2523,9 @@ $(document).ready(function () {
  *  Sharing handlers
  */
 $(document).ready(function() {
+    // Initially
+    hideShareURL();
+
     // Highlight/select the share box URL when it is clicked.
     $('#share_url').click(function() {
         $(this).select();

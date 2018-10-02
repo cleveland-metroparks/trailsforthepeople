@@ -23,6 +23,9 @@
  *  Sharing handlers
  */
 $(document).ready(function() {
+    // Initially
+    hideShareURL();
+
     // Highlight/select the share box URL when it is clicked.
     $('#share_url').click(function() {
         $(this).select();
