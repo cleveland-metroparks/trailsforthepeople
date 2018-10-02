@@ -11,7 +11,7 @@ var markerLayer = L.featureGroup();
 var userLocation;
 
 $(document).ready(function(){
-    var mapOptions = { base:'map' }
+    var mapOptions = { base:'map' };
 
     // Load the map.
     initMap(mapOptions);

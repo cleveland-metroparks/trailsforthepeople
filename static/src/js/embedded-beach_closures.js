@@ -9,7 +9,7 @@
 var markerLayer = L.featureGroup();
 
 $(document).ready(function(){
-    var mapOptions = { base:'map' }
+    var mapOptions = { base:'map' };
 
     // Load the map.
     initMap(mapOptions);
