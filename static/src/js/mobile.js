@@ -6,8 +6,12 @@
  * Cleveland Metroparks
  */
 
+// Maintain the current window URL (it changes with most user actions) so we can use in sharing.
+var WINDOW_URL = null;
+
 // App sidebar (Leaflet Sidebar-v2)
 var sidebar = null;
+
 // Load sidebar when map has been initialized
 $(document).on("mapInitialized", function () {
     sidebar = L.control.sidebar('sidebar').addTo(MAP);
@@ -25,8 +29,11 @@ $(document).on("mapInitialized", function () {
     } else {
         var startHereTooltip = createStartHereTooltip();
         setTimeout(startHereTooltip.show, 2500);
+        // @TODO: Clear or don't show tooltip if user starts using sidebar
         setTimeout(startHereTooltip.dispose, 15000);
-        document.onclick = startHereTooltip.hide;
+        $(document).click(function() {
+            startHereTooltip.hide();
+        });
     }
 });
 
@@ -644,16 +651,43 @@ var showOnMap = function () {
 $(document).ready(function () {
     $('.copy-to-clipboard').click(function() {
         // Element ID to be copied is specified in the link's data-copy-id attribute
-        copy_el_id = $(this).attr('data-copy-id');
-        input = $('#' + copy_el_id);
-        // focus() and select()
-        input.focus();
-        input.select();
+        var copyElId = $(this).attr('data-copy-id');
+        var containerPane = $(this).closest('.sidebar-pane')[0];
+        var $textInput = $('#' + copyElId);
+
+        // Show a "Copied to clipboard" tooltip
+        var copiedTooltip = createCopiedToClipboardTooltip($textInput[0], containerPane);
+        copiedTooltip.show();
+        // Hide tooltip on subsequent click
+        $(document).on('click', function(event) {
+            // Make sure not to catch the original copy click
+            if (!$(event.target).closest('.copy-to-clipboard').length) {
+                copiedTooltip.hide();
+            }
+        });
+
+        // focus() and select() the input
+        $textInput.focus();
+        $textInput.select();
         // setSelectionRange() for readonly inputs on iOS
-        input[0].setSelectionRange(0, 9999);
+        $textInput[0].setSelectionRange(0, 9999);
+        // Copy
         document.execCommand("copy");
     });
 });
+
+/**
+ * Create a "Copied to clipboard" tooltip.
+ */
+function createCopiedToClipboardTooltip(textInputEl, container) {
+    var tooltip = new Tooltip(textInputEl, {
+        title: "Copied to clipboard.",
+        container: container,
+        placement: 'bottom',
+        trigger: 'manual'
+    });
+    return tooltip;
+}
 
 /**
  * "Show on Map" button handler
@@ -677,78 +711,75 @@ $(document).ready(function () {
 });
 
 /**
- * Trigger window URL changes on map movements
+ * Trigger window URL changes on map movements.
  */
-$(document).on("mapReady", function() {
+function setupWindowUrlUpdates() {
     MAP.on('zoomend', updateWindowURLZoom);
     MAP.on('moveend', updateWindowURLCenter);
-});
+    MAP.on('layerremove', updateWindowURLLayer);
+    MAP.on('layeradd', updateWindowURLLayer);
+
+    // Do an initial update
+    // updateWindowURLAll();
+}
+$(document).on("mapReady", setupWindowUrlUpdates);
 
 /**
- * Update the window URL with center lat/lng params
+ * Update the window URL with center lat/lng params.
  */
 function updateWindowURLCenter() {
     var center = MAP.getCenter();
     var lat = center.lat.toFixed(7);
     var lng = center.lng.toFixed(7);
-    setQueryStringParameter('lat', lat);
-    setQueryStringParameter('lng', lng);
+    invalidateMapURL();
+    setWindowURLQueryStringParameter('lat', lat);
+    setWindowURLQueryStringParameter('lng', lng);
 }
 
 /**
- * Update the window URL with zoom param
+ * Update the window URL with zoom param.
  */
 function updateWindowURLZoom() {
     var zoom = MAP.getZoom().toFixed(1);
-    setQueryStringParameter('zoom', zoom);
+    invalidateMapURL();
+    setWindowURLQueryStringParameter('zoom', zoom);
 }
 
-///**
-// * Update the window location with center & zoom variables
-// */
-//function updateWindowURL() {
-//    var center = MAP.getCenter();
-//    var lat = center.lat.toFixed(7);
-//    var lng = center.lng.toFixed(7);
-//    var zoom = MAP.getZoom().toFixed(1);
-//
-//    setQueryStringParameter('lat', lat);
-//    setQueryStringParameter('lng', lng);
-//    setQueryStringParameter('zoom', zoom);
-//
-//    //var hashArr = [
-//    //    lat,
-//    //    lng,
-//    //    zoom + 'z'
-//    //    ];
-//    //hashStr = '#' + hashArr.join();
-//    //setNewWindowHashLocation(hashStr);
-//}
+/**
+ * Update the window URL with baselayer param.
+ */
+function updateWindowURLLayer() {
+    // Default is vector/map layer
+    var layer = 'map';
+    // Else, satellite ("photo")
+    if (MAP.hasLayer(AVAILABLE_LAYERS['photo'])) {
+        layer = 'photo';
+    }
+    invalidateMapURL();
+    setWindowURLQueryStringParameter('base', layer);
+}
+
+function invalidateMapURL() {
+    hideShareURL();
+}
+
+/**
+ * Update the window URL with all setting params.
+ */
+function updateWindowURLAll() {
+    updateWindowURLCenter();
+    updateWindowURLZoom();
+    updateWindowURLLayer();
+}
 
 /**
  * Set query string parameters in window location.
  */
-function setQueryStringParameter(name, value) {
+function setWindowURLQueryStringParameter(name, value) {
     const params = new URLSearchParams(location.search);
     params.set(name, value);
-    // window.history.pushState(null, null, decodeURIComponent(location.pathname+'?'+params));
-    window.history.replaceState(null, null, decodeURIComponent(location.pathname+'?'+params));
-}
-
-/**
- * Set new window hash location
- *
- * Helper to choose appropriate means based on browser capability.
- *
- * @param hashStr: should include #
- */
-function setNewWindowHashLocation(hashStr) {
-    if(history.pushState) {
-        history.pushState(null, null, hashStr);
-    }
-    else {
-        location.hash = hashStr;
-    }
+    WINDOW_URL = decodeURIComponent(location.pathname + '?' + params);
+    window.history.replaceState(null, null, WINDOW_URL);
 }
 
 /**

@@ -201,11 +201,15 @@ $(document).ready(function () {
     /*
      * Share pane (#pane-share)
      */
-     // Build a new short URL for the current map state.
-    $('.sidebar-tabs a[href="#pane-share"]').click(function() {
-        populateShareBox();
-    });
+
+    //// Build a new short URL for the current map state.
+    //$('.sidebar-tabs a[href="#pane-share"]').click(function() {
+    //    populateShareBox();
+    //    setShareURLBoxWidth();
+    //});
+
     // Use current URL for Twitter and Facebook share links
+    // @TODO: Update on map change when share bar is open
     $('#share_facebook').click(function () {
         var url = $('#share_url').val();
             url = 'http://www.facebook.com/share.php?u=' + encodeURIComponent(url);
@@ -219,6 +223,15 @@ $(document).ready(function () {
         return true;
     });
 });
+
+///**
+// * Resize the Share URL box if the size of the sidebar has potentially changed.
+// */
+//$(window).bind('orientationchange pageshow resize', function() {
+//    if ($('#pane-share').hasClass('active')) {
+//        setShareURLBoxWidth();
+//    }
+//});
 
 /**
  * Would the sidebar [when expanded] obscure the whole map?

@@ -19,26 +19,6 @@
  * Cleveland Metroparks
  */
 
-// Query string for sharing the map in the current state,
-// updated by updateShareUrl() and later minified by populateShareBox()
-var SHARE_URL_STRING = null;
-
-/**
- * Setup Share URL updates
- *
- * On "Map Ready"; after common.js finishes initMap().
- */
-function setupShareUrlUpdates() {
-    // Set up our triggers to update the "Share URL"
-    MAP.on('moveend', updateShareUrl);
-    MAP.on('zoomend', updateShareUrl);
-    MAP.on('layerremove', updateShareUrl);
-    MAP.on('layeradd', updateShareUrl);
-    // Do an initial update
-    updateShareUrl();
-}
-$(document).on("mapReady", setupShareUrlUpdates);
-
 /*
  *  Sharing handlers
  */
@@ -46,6 +26,11 @@ $(document).ready(function() {
     // Highlight/select the share box URL when it is clicked.
     $('#share_url').click(function() {
         $(this).select();
+    });
+
+    // "Make Short URL" button click
+    $('#make_share_url_btn').click(function() {
+        makeAndShowShortURL();
     });
 
     /**
@@ -61,64 +46,75 @@ $(document).ready(function() {
             return;
         }
         updateShareUrlByFeature(element);
-        populateShareBox();
+        makeAndShowShortURL();
         sidebar.open('pane-share');
     });
 });
 
 /**
+ * Hide Share URL
+ */
+function showShareURL() {
+    $('#share_url_controls').show();
+    $('#make_share_url_controls').hide();
+    setShareURLBoxWidth();
+}
+
+/**
+ * Show Share URL
+ */
+function hideShareURL() {
+    $('#share_url_controls').hide();
+    $('#make_share_url_controls').show();
+}
+
+/**
  * Populate Share box
  *
- * Read the globally stored SHARE_URL_STRING and request a shortened URL from the server
+ * Request [from the server] a shortened version of the current URL,
+ * and put this into the share box.
  */
-function populateShareBox() {
-    // In native mobile our URL_PARAMS are not what we expect
-    var protocol = (URL_PARAMS.attr('protocol') != 'file')
-        ? URL_PARAMS.attr('protocol')
-        : WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL;
-    var host = (URL_PARAMS.attr('host'))
-        ? URL_PARAMS.attr('host')
-        : WEBAPP_BASE_URL_ABSOLUTE_HOST;
-    // We used to get the current path, but this was to clarify between
-    // /desktop/map and /mobile/map. Now that that's no longer necessary,
-    // we can just use the base url path.
-    var path = '/';
+function makeAndShowShortURL() {
+    var base_url = '/';
 
     // submit the long URL param string to the server, get back a short param string
     var params = {
-        uri : path,
-        querystring : SHARE_URL_STRING
+        uri : base_url,
+        querystring : WINDOW_URL
     };
     $.get(API_BASEPATH + 'ajax/make_shorturl', params, function(shortstring) {
         if (! shortstring) {
             return alert("Unable to fetch a short URL.\nPlease try again.");
         }
 
+        // In native mobile our URL_PARAMS are not what we expect
+        var protocol = (URL_PARAMS.attr('protocol') != 'file')
+            ? URL_PARAMS.attr('protocol')
+            : WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL;
+        var host = (URL_PARAMS.attr('host'))
+            ? URL_PARAMS.attr('host')
+            : WEBAPP_BASE_URL_ABSOLUTE_HOST;
+
         var url = protocol + '://' + host + '/url/' + shortstring;
+
         $('#share_url').val(url);
+        showShareURL();
     });
 }
 
 /**
- * Update Share URL
- *
- * Simple form: collect the X, Y, Z, basemap, etc.
+ * Set the Share URL box width
+ * so that it and the copy-to-clipboard button fill the pane.
  */
-function updateShareUrl() {
-    // the basic params: center and zoom, basemap
-    var params = {};
-    params.z = MAP.getZoom();
-    params.x = MAP.getCenter().lng;
-    params.y = MAP.getCenter().lat;
-    if (MAP.hasLayer(AVAILABLE_LAYERS['photo'])) {
-        params.base = 'photo';
-    }
-    if (MAP.hasLayer(AVAILABLE_LAYERS['map']) || MAP.hasLayer(AVAILABLE_LAYERS['vector'])) {
-        params.base = 'map';
-    }
-
-    // compile all of the params together and save it to the global. this is later read by populateShareBox()
-    SHARE_URL_STRING = $.param(params);
+function setShareURLBoxWidth() {
+    var paneWidth = $('#share_url_controls').width();
+    var clipboardBtnWidth = $('#pane-share .copy-to-clipboard').outerWidth();
+    var $textInput = $('#share_url_controls .ui-input-text');
+    // Account for padding & border
+    var textInputExtraWidth = $textInput.outerWidth() - $textInput.width();
+    // Calculate and set new width
+    var textInputWidth = paneWidth - clipboardBtnWidth - textInputExtraWidth;
+    $textInput.width(textInputWidth);
 }
 
 /**
@@ -132,7 +128,7 @@ function updateShareUrlByFeature(element) {
     params.type = element.attr('type');
     params.name = element.attr('title');
 
-    // compile all of the params together and save it to the global. this is later read by populateShareBox()
+    // compile all of the params together and save it to the global. this is later read by makeAndShowShortURL()
     SHARE_URL_STRING = $.param(params);
 }
 

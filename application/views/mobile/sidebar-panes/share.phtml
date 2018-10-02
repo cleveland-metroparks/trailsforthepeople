@@ -4,19 +4,22 @@
         <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
     </h1>
 
-    <label for="share_url">Share URL</label>
-    <div data-role="controlgroup" data-type="horizontal">
+    <label for="share_url">Share Link</label>
+    <div data-role="controlgroup" id="make_share_url_controls">
+        <input type="button" id="make_share_url_btn" value="Make a short URL" />
+    </div>
+    <div data-role="controlgroup" data-type="horizontal" id="share_url_controls">
         <input type="text" class="js-url-field" value="" id="share_url" data-wrapper-class="controlgroup-textinput ui-btn" readonly="" />
         <a href="#" title="Copy to clipboard" alt="Copy" data-copy-id="share_url" class="ui-btn ui-btn-inline ui-corner-all copy-to-clipboard">
             <i class="cm-icon cm-icon-clipboard"></i>
         </a>
     </div>
 
+    <label>Social</label>
     <div class="share_button">
         <a target="_blank" href="javascript:void(0);" id="share_facebook">
             <i class="cm-icon cm-icon-facebook-square"></i>Share on Facebook</a>
     </div>
-
     <div class="share_button">
         <a target="_blank" href="javascript:void(0);" id="share_twitter">
             <i class="cm-icon cm-icon-twitter-square"></i>Share on Twitter</a>

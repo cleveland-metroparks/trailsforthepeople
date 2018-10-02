@@ -437,7 +437,7 @@ function renderDirectionsStructure(directions, target, options) {
             .text('Share');
         shareRouteBtn.click(function () {
             updateShareUrlByDirections();
-            populateShareBox();
+            makeAndShowShortURL();
             sidebar.open('pane-share');
         });
         directionsFunctions.append(shareRouteBtn);
