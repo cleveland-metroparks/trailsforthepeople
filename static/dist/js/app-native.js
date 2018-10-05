@@ -789,7 +789,7 @@ function showAttractionInfo(attractionType, attraction) {
     // Open the Info pane
     sidebar.open('pane-info');
 
-    set_pane_back_button('#pane-info', '#pane-browse')
+    set_pane_back_button('#pane-info', '#pane-browse');
 
     // Enable "Get Directions"
     $('#getdirections_disabled').hide();
@@ -1031,71 +1031,78 @@ $(document).ready(function () {
 });
 
 /**
- * Show on Map
+ * Show on map
  *
- * When Show On Map is clicked (in the details panel) it has associated data:
- * an element with w,s,e,n,lat,lng,type,gid etc. for fetching more info or adjusting the map to zoom
+ * When the "Show on Map" button is clicked (in a details pane)
+ * gather its associated data from the DOM element and zoom to the feature.
  */
-var showOnMap = function () {
+function showOnMap() {
     // zoom the map to the feature's bounds, and place a marker if appropriate
     var element = $(this).data('zoomelement');
+    var feature = {};
 
     if (element) {
-        var w = element.attr('w');
-        var s = element.attr('s');
-        var e = element.attr('e');
-        var n = element.attr('n');
+        feature.w = element.attr('w');
+        feature.s = element.attr('s');
+        feature.e = element.attr('e');
+        feature.n = element.attr('n');
 
-        var lng = element.attr('lng');
-        var lat = element.attr('lat');
+        feature.lng = element.attr('lng');
+        feature.lat = element.attr('lat');
 
-        var type = element.attr('type');
-        var wkt = $(this).data('wkt');
+        feature.type = element.attr('type');
+        feature.wkt = $(this).data('wkt');
 
-        var gid = element.attr('gid');
-        if (type=='reservation_new') {
-            gid  = element.attr('record_id');
+        feature.gid = element.attr('gid');
+        if (feature.type=='reservation_new') {
+            feature.gid  = element.attr('record_id');
         }
 
-        if (type) {
-            setWindowURLQueryStringParameter('type', type);
-        }
-        if (gid && gid != 0) {
-            setWindowURLQueryStringParameter('gid', gid);
-        }
-
-        // Clear existing points & lines
-        clearTargetMarker();
-        if (MAP.hasLayer(HIGHLIGHT_LINE)) {
-            MAP.removeLayer(HIGHLIGHT_LINE);
-        }
-
-        // Switch to the map and add the feature.
-        switchToMap(function () {
-            // Zoom the map into the stated bbox, if we have one.
-            if (w!=0 && s!=0 && e!=0 && n!=0) {
-                var bounds = L.latLngBounds(L.latLng(s,w) , L.latLng(n,e));
-                bounds = bounds.pad(0.15);
-                MAP.flyToBounds(bounds);
-            } else {
-                // Re-center and zoom
-                // @TODO: Eventually we'll have individual POI zoomlevels in DB
-                MAP.flyTo(L.latLng(lat, lng), DEFAULT_POI_ZOOM);
-            }
-
-            // Lay down a marker if this is a point feature
-            if (type == 'poi' || type == 'attraction' || type == 'loop') {
-                placeTargetMarker(lat, lng);
-            }
-
-            // Draw the line geometry onto the map, if this is a line feature.
-            if (wkt) {
-                HIGHLIGHT_LINE = lineWKTtoFeature(wkt, HIGHLIGHT_LINE_STYLE);
-                MAP.addLayer(HIGHLIGHT_LINE);
-            }
-        });
+        zoomToFeature(feature);
     }
 };
+
+/**
+ * Zoom to a feature on the map
+ */
+function zoomToFeature(feature) {
+    if (feature.type) {
+        setWindowURLQueryStringParameter('type', feature.type);
+    }
+    if (feature.gid && feature.gid != 0) {
+        setWindowURLQueryStringParameter('gid', feature.gid);
+    }
+
+    // Clear existing points & lines
+    clearTargetMarker();
+    if (MAP.hasLayer(HIGHLIGHT_LINE)) {
+        MAP.removeLayer(HIGHLIGHT_LINE);
+    }
+
+    // Switch to the map and add the feature.
+    switchToMap(function () {
+        // Zoom the map into the stated bbox, if we have one.
+        if ((feature.w != 0) && (feature.s != 0) && (feature.e != 0) && (feature.n != 0)) {
+            var bounds = L.latLngBounds(L.latLng(feature.s, feature.w), L.latLng(feature.n, feature.e)).pad(0.15);
+            MAP.flyToBounds(bounds);
+        } else {
+            // Re-center and zoom
+            // @TODO: Eventually we'll have individual POI zoomlevels in DB
+            MAP.flyTo(L.latLng(feature.lat, feature.lng), DEFAULT_POI_ZOOM);
+        }
+
+        // Drop a marker if this is a point feature
+        if (feature.type == 'poi' || feature.type == 'attraction' || feature.type == 'loop') {
+            placeTargetMarker(feature.lat, feature.lng);
+        }
+
+        // Draw the line geometry if this is a line feature.
+        if (feature.wkt) {
+            HIGHLIGHT_LINE = lineWKTtoFeature(feature.wkt, HIGHLIGHT_LINE_STYLE);
+            MAP.addLayer(HIGHLIGHT_LINE);
+        }
+    });
+}
 
 /**
  * "Copy to clipboard" button handler
