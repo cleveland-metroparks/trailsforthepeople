@@ -565,8 +565,8 @@ function switchToMap(callback) {
         sidebar.close();
     }
 
-    // We don't need much of a wait here, anymore.
-    // @TODO: Once this has been tested with 0 in setTimeout, deprecate and remove callback structure.
+    // @TODO: Once this has been tested with 0 in setTimeout,
+    // deprecate and remove callback structure.
     if (callback) setTimeout(callback, 0);
 }
 
@@ -607,15 +607,14 @@ $(document).ready(function () {
                 return alert("Cound not find that feature.");
             }
 
-            // zoom to the location
+            // Zoom to the location
             var box = L.latLngBounds(L.latLng(reply.s, reply.w), L.latLng(reply.n, reply.e));
             MAP.fitBounds(box);
 
-            // lay down the WKT or a marker to highlight it
+            // Lay down the WKT or a marker to highlight it
             if (reply.lat && reply.lng) {
                 placeTargetMarker(reply.lat, reply.lng);
-            }
-            else if (reply.wkt) {
+            } else if (reply.wkt) {
                 HIGHLIGHT_LINE = lineWKTtoFeature(reply.wkt, HIGHLIGHT_LINE_STYLE);
                 MAP.addLayer(HIGHLIGHT_LINE);
             }
@@ -624,6 +623,7 @@ $(document).ready(function () {
 
     // URL params query string: "type" and "gid"
     if (URL_PARAMS.param('type') && URL_PARAMS.param('gid') ) {
+
         if (URL_PARAMS.param('type') == 'attraction') {
             var params = {
                 gid: URL_PARAMS.param('gid')
@@ -639,10 +639,27 @@ $(document).ready(function () {
 
                 // Show info in sidebar
                 // @TODO: This is app-specific. Re-work.
-                showAttractionInfo(reply);
+                showAttractionInfo(URL_PARAMS.param('type'), reply);
+
+            }, 'json');
+        } else if (URL_PARAMS.param('type') == 'reservation_new') {
+            var params = {
+                gid: URL_PARAMS.param('gid')
+            };
+            $.get(API_BASEPATH + 'ajax/get_reservation', params, function (reply) {
+                if (!reply || ! reply.lat || ! reply.lng) {
+                    return alert("Cound not find that reservation.");
+                }
+
+                MAP.flyTo(L.latLng(reply.lat, reply.lng), DEFAULT_POI_ZOOM);
+
+                // Show info in sidebar
+                // @TODO: This is app-specific. Re-work.
+                showAttractionInfo(URL_PARAMS.param('type'), reply);
 
             }, 'json');
         }
+
     }
 
     // URL params query string: "route"
@@ -763,7 +780,7 @@ function showElevation(url) {
  * attraction.lat
  * attraction.lng
  */
-function showAttractionInfo(attraction) {
+function showAttractionInfo(attractionType, attraction) {
     // @TODO: Construct the #show_on_map button. We don't have an "element".
     //$('#show_on_map').data('zoomelement', element);
 
@@ -775,7 +792,7 @@ function showAttractionInfo(attraction) {
     $('#directions_target_gid').val(attraction.gid);
     $('#directions_target_title').text(attraction.title);
 
-    // Change to the Info pane
+    // Open the Info pane
     sidebar.open('pane-info');
 
     set_pane_back_button('#pane-info', '#pane-browse')
@@ -791,23 +808,34 @@ function showAttractionInfo(attraction) {
     $('#info-content').text("Loading...");
 
     // Get more info via AJAX
-    if (attraction.gid) {
+    if (attraction.gid || attraction.record_id) {
         var params = {};
-        params.type = 'attraction';
-        params.gid  = attraction.gid;
+        params.type = attractionType;
+        params.gid = attraction.gid || attraction.record_id;
 
+        // Get and display the "more info" plain HTML
         $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
-            // grab and display the plain HTML
             $('#info-content').html(reply);
         }, 'html');
     }
 }
 
 /**
+ * Zoom button handlers
+ *
+ * Click it to bring up info window, configure the Show On Map button.
+ */
+$(document).ready(function () {
+    $('.zoom').click(function () {
+        zoomElementClick($(this));
+    });
+});
+
+/**
  * zoomElementClick
  * 
- * common interface: given a .zoom element with lon, lat, WSEN, type, gid,
- * fetch info about it and show it in a panel
+ * Given a .zoom element with {lon, lat, WSEN, type, gid},
+ * fetch info about it and show it in a panel.
  */
 function zoomElementClick(element) {
     // are we ignoring clicks? if so, then never mind; if not, then proceed but ignore clicks for a moment
@@ -822,16 +850,16 @@ function zoomElementClick(element) {
         gid  = element.attr('record_id');
     }
 
-    // assign this element to the Show On Map button, so it knows how to zoom to our location
+    // Assign this element to the Show On Map button, so it knows how to zoom to our location
     // and to the getdirections form so we can route to it
     // and so the pagechange event handler can see that we really do have a target
-    $('#show_on_map').data('zoomelement', element );
+    $('#show_on_map').data('zoomelement', element);
 
-    $('#directions_target_lat').val( element.attr('lat') );
-    $('#directions_target_lng').val( element.attr('lng') );
-    $('#directions_target_type').val( element.attr('type') );
-    $('#directions_target_gid').val( element.attr('gid') );
-    $('#directions_target_title').text( element.attr('title') );
+    $('#directions_target_lat').val( element.attr('lat'));
+    $('#directions_target_lng').val( element.attr('lng'));
+    $('#directions_target_type').val( element.attr('type'));
+    $('#directions_target_gid').val( element.attr('gid'));
+    $('#directions_target_title').text( element.attr('title'));
 
     // Change to the Info pane
     sidebar.open('pane-info');
@@ -848,7 +876,7 @@ function zoomElementClick(element) {
     $('#getdirections_enabled').show();
 
     // purge any vector data from the Show On Map button; the moreinfo template will populate it if necessary
-    $('#show_on_map').data('wkt', null );
+    $('#show_on_map').data('wkt', null);
     $('#info-content').text("Loading...");
 
     // if the feature has a type and a gid, then we can fetch info about it
@@ -1002,6 +1030,13 @@ function zoomToAddress(searchtext) {
 };
 
 /**
+ * "Show on Map" button handler
+ */
+$(document).ready(function () {
+    $('#show_on_map').click(showOnMap);
+});
+
+/**
  * Show on Map
  *
  * When Show On Map is clicked (in the details panel) it has associated data:
@@ -1021,7 +1056,19 @@ var showOnMap = function () {
         var lat = element.attr('lat');
 
         var type = element.attr('type');
-        var wkt  = $(this).data('wkt');
+        var wkt = $(this).data('wkt');
+
+        var gid = element.attr('gid');
+        if (type=='reservation_new') {
+            gid  = element.attr('record_id');
+        }
+
+        if (type) {
+            setWindowURLQueryStringParameter('type', type);
+        }
+        if (gid && gid != 0) {
+            setWindowURLQueryStringParameter('gid', gid);
+        }
 
         // Clear existing points & lines
         clearTargetMarker();
@@ -1029,12 +1076,11 @@ var showOnMap = function () {
             MAP.removeLayer(HIGHLIGHT_LINE);
         }
 
-        // Switch to the map (which no longer amounts to much)
-        // And add our feature.
+        // Switch to the map and add the feature.
         switchToMap(function () {
             // Zoom the map into the stated bbox, if we have one.
             if (w!=0 && s!=0 && e!=0 && n!=0) {
-                var bounds = L.latLngBounds( L.latLng(s,w) , L.latLng(n,e) );
+                var bounds = L.latLngBounds(L.latLng(s,w) , L.latLng(n,e));
                 bounds = bounds.pad(0.15);
                 MAP.flyToBounds(bounds);
             } else {
@@ -1102,27 +1148,6 @@ function createCopiedToClipboardTooltip(textInputEl, container) {
 }
 
 /**
- * "Show on Map" button handler
- */
-$(document).ready(function () {
-    $('#show_on_map').click(showOnMap);
-});
-
-/**
- * Zoom button handlers
- *
- * Click it to bring up info window, configure the Show On Map button.
- */
-$(document).ready(function () {
-    // zoomElementClick() is defined by mobile.js and desktop.js
-    // typically it goes to a Details page and sets up various event handlers
-    var openDetailsPanel = function () {
-        zoomElementClick( $(this) );
-    };
-    $('.zoom').click(openDetailsPanel);
-});
-
-/**
  * Trigger window URL changes on map movements.
  */
 function setupWindowUrlUpdates() {
@@ -1130,9 +1155,6 @@ function setupWindowUrlUpdates() {
     MAP.on('moveend', updateWindowURLCenter);
     MAP.on('layerremove', updateWindowURLLayer);
     MAP.on('layeradd', updateWindowURLLayer);
-
-    // Do an initial update
-    // updateWindowURLAll();
 }
 $(document).on("mapReady", setupWindowUrlUpdates);
 
@@ -1235,7 +1257,6 @@ $(document).ready(function () {
 function changeCoordinateFormat(format) {
     SETTINGS.coordinate_format = format;
     setSessionCoordinateFormat(format);
-    // setTimeout(getSessionCoordinateFormat, 1000); // @DEBUG
 }
 
 /**

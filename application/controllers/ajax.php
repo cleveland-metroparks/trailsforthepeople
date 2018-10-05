@@ -1892,6 +1892,29 @@ function get_visitor_centers() {
 }
 
 /**
+ * Get reservation (by ID)
+ *
+ * @param gid: record_id
+ */
+function get_reservation() {
+    $reservation = new Reservation();
+    $reservation->where('record_id', $_GET['gid'])->get();
+
+    $result = array(
+        'record_id'   => $reservation->record_id,
+        'title' => $reservation->pagetitle,
+        'lat'   => $reservation->latitude,
+        'lng'   => $reservation->longitude,
+        'boxw'   => $reservation->boxw,
+        'boxs'   => $reservation->boxs,
+        'boxe'   => $reservation->boxe,
+        'boxn'   => $reservation->boxn
+    );
+
+    print json_encode($result);
+}
+
+/**
  * Get Reservations
  */
 function get_reservations() {
@@ -1948,7 +1971,7 @@ function _makeAttractionResults($attractions, $type='attraction') {
             'gid'   => (integer) $attraction->gis_id,
             'record_id' => (integer)$attraction->record_id,
 
-            // view_cmp_gisreservations has bounding box columns
+            // view_cmp_gisreservations (reservation_new) has bounding box columns
             'w'     => isset($attraction->boxw) ? $attraction->boxw : (float)0,
             's'     => isset($attraction->boxs) ? $attraction->boxs : (float)0,
             'e'     => isset($attraction->boxe) ? $attraction->boxe : (float)0,
