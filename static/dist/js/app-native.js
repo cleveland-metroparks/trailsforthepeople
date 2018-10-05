@@ -627,9 +627,7 @@ $(document).ready(function () {
                     return alert("Cound not find that feature.");
                 }
 
-                // @TODO: Eventually we'll have individual POI zoomlevels in DB
-                placeTargetMarker(reply.lat, reply.lng);
-                MAP.flyTo(L.latLng(reply.lat, reply.lng), DEFAULT_POI_ZOOM);
+                zoomToFeature(reply);
 
                 // Show info in sidebar
                 // @TODO: This is app-specific. Re-work.
@@ -645,7 +643,15 @@ $(document).ready(function () {
                     return alert("Cound not find that reservation.");
                 }
 
-                MAP.flyTo(L.latLng(reply.lat, reply.lng), DEFAULT_POI_ZOOM);
+                feature = reply;
+
+                feature.gid = reply.record_id;
+                feature.w = reply.boxw;
+                feature.n = reply.boxn;
+                feature.e = reply.boxe;
+                feature.s = reply.boxs;
+
+                zoomToFeature(feature);
 
                 // Show info in sidebar
                 // @TODO: This is app-specific. Re-work.
