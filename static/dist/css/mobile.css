@@ -40,6 +40,8 @@
 
 img { max-width: 100%; }
 
+.ui-page { height: 100%; }
+
 #map_canvas { position: absolute; top: 0; left: 0; margin: 0; padding: 0; width: 100%; height: 100%; }
 
 .leaflet-popup .fakelink { font-size: 12pt; }

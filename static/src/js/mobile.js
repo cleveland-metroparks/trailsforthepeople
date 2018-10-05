@@ -12,6 +12,20 @@ var WINDOW_URL = null;
 // App sidebar (Leaflet Sidebar-v2)
 var sidebar = null;
 
+// used by the radar: sound an alert only if the list has in fact changed
+var LAST_BEEP_IDS = [];
+
+// other stuff pertaining to our last known location and auto-centering
+var LAST_KNOWN_LOCATION = L.latLng(41.3953,-81.6730);
+var AUTO_CENTER_ON_LOCATION = false;
+
+// sorting by distance, isn't always by distance
+// what type of sorting do they prefer?
+var DEFAULT_SORT = 'distance';
+
+// this becomes a pURL object for fetching URL params:
+var URL_PARAMS = null;
+
 // Load sidebar when map has been initialized
 $(document).on("mapInitialized", function () {
     sidebar = L.control.sidebar('sidebar').addTo(MAP);
@@ -53,45 +67,13 @@ function createStartHereTooltip() {
     return tooltip;
 }
 
-// used by the radar: sound an alert only if the list has in fact changed
-var LAST_BEEP_IDS = [];
-
-// other stuff pertaining to our last known location and auto-centering
-var LAST_KNOWN_LOCATION = L.latLng(41.3953,-81.6730);
-var AUTO_CENTER_ON_LOCATION = false;
-
-// sorting by distance, isn't always by distance
-// what type of sorting do they prefer?
-var DEFAULT_SORT = 'distance';
-
-// this becomes a pURL object for fetching URL params:
-var URL_PARAMS = null;
-
 /**
- * Refresh the map on resize or rotate.
- *
- * @TODO: Tear this down.
+ * Refresh the map on resize or orientation change to prevent a flash/disappearance.
  */
-$(window).bind('orientationchange pageshow resize', function() {
-    // scrolling the window is supposed to remove the address bar,
-    // but it rarely works, often lags out the page as it slowly hides half of the address bar,
-    // and creates bugs when we want to operate a picklist that's longer than a page (the page scrolls, THEN gets tapped)
-    //window.scroll(0, 1);
-
-    var page    = $(":jqmData(role='page'):visible");
-    var header  = $(":jqmData(role='header'):visible");
-    //var footer  = $(":jqmData(role='footer'):visible");
-    var content = $(":jqmData(role='c=ontent'):visible");
-    var viewportHeight = $(window).height();
-    //var contentHeight = viewportHeight - header.outerHeight() - footer.outerHeight();
-    var contentHeight = viewportHeight - header.outerHeight();
-    page.height(contentHeight + 1);
-    $(":jqmData(role='content')").first().height(contentHeight);
-
-    if ( $("#map_canvas").is(':visible') ) {
-        $("#map_canvas").height(contentHeight);
-        if (MAP) MAP.invalidateSize();
-    }
+$(document).on("mapInitialized", function () {
+    $(window).bind('orientationchange pageshow resize', function() {
+        MAP.invalidateSize();
+    });
 });
 
 /**
