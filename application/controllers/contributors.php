@@ -681,7 +681,7 @@ function loop_delete($id) {
     }
 }
 
-/*
+/**
  * List/manage Trails
  */
 function trails() {
