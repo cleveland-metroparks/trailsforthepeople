@@ -277,24 +277,46 @@ function keyword() {
     $limit = (integer) @$_GET['limit'];
 
     // the repetitive part: use searchByKeywords() to fetch all results fitting the type filter
+
+    // Buildings
     if (!sizeof($types) or in_array('building', $types)) {
         foreach ( Building::searchByKeywords($keyword) as $r) {
-            $results[] = array('name'=>$r->name, 'gid'=> (integer) $r->gid, 'rank'=> (float) $r->rank,
-                'lat'=> (float) $r->lat, 'lng'=> (float) $r->lng, 'w'=> (float) $r->boxw, 's'=> (float) $r->boxs, 'e'=> (float) $r->boxe, 'n'=> (float) $r->boxn,
-                'description'=>'Building', 'type' => 'building',
+            $results[] = array(
+                'name' => $r->name,
+                'gid' => (integer) $r->gid,
+                'rank' => (float) $r->rank,
+                'lat' => (float) $r->lat,
+                'lng' => (float) $r->lng,
+                'w' => (float) $r->boxw,
+                's' => (float) $r->boxs,
+                'e' => (float) $r->boxe,
+                'n' => (float) $r->boxn,
+                'description' => 'Building',
+                'type' => 'building',
             );
         }
     }
+    // POIs
     if (!sizeof($types) or in_array('poi', $types)) {
         foreach ( Usearea::searchByKeywords($keyword) as $r) {
-            $results[] = array('name'=>$r->use_area, 'gid'=> (integer) $r->gid, 'rank'=> (float) $r->rank,
-               'lat'=> (float) $r->lat, 'lng'=> (float) $r->lng, 'w'=> (float) $r->boxw, 's'=> (float) $r->boxs, 'e'=> (float) $r->boxe, 'n'=> (float) $r->boxn,
-                'description'=>'Point of interest', 'type' => 'poi',
+            $results[] = array(
+                'name' => $r->use_area,
+                'gid' => (integer) $r->gid,
+                'rank' => (float) $r->rank,
+                'lat' => (float) $r->lat,
+                'lng' => (float) $r->lng,
+                'w' => (float) $r->boxw,
+                's' => (float) $r->boxs,
+                'e' => (float) $r->boxe,
+                'n' => (float) $r->boxn,
+                'description' => 'Point of interest',
+                'type' => 'poi',
             );
         }
     }
+    // Reservations
     if (!sizeof($types) or in_array('reservation', $types)) {
-        foreach ( Park::searchByKeywords($keyword) as $r) {
+        foreach (Park::searchByKeywords($keyword) as $r) {
             // when fetching this for directions, some params will be supplied:  lat  lng  via
             // weight our choice of location to whatever's closest to that latlng
             if (@$_GET['lat'] and $_GET['lng'] and $_GET['lng']) {
@@ -305,25 +327,36 @@ function keyword() {
                 }
             }
 
-            $results[] = array('name'=>$r->res, 'gid'=> (integer) $r->gid, 'rank'=> (float) $r->rank,
-                'lat'=> (float) $r->lat, 'lng'=> (float) $r->lng, 'w'=> (float) $r->boxw, 's'=> (float) $r->boxs, 'e'=> (float) $r->boxe, 'n'=> (float) $r->boxn,
-                'description'=>'Reservation', 'type'=>'reservation'
+            $results[] = array(
+                'name' => $r->res,
+                'gid' => (integer) $r->gid,
+                'rank' => (float) $r->rank,
+                'lat' => (float) $r->lat,
+                'lng' => (float) $r->lng,
+                'w' => (float) $r->boxw,
+                's' => (float) $r->boxs,
+                'e' => (float) $r->boxe,
+                'n' => (float) $r->boxn,
+                'description' => 'Reservation',
+                'type' => 'reservation'
             );
         }
     }
-/*    if (!sizeof($types) or in_array('loop', $types)) {
+    // Trails/Loops (Featured Trails)
+    if (!sizeof($types) or in_array('loop', $types)) {
         foreach ( Loop::searchByKeywords($keyword) as $r) {
-            $results[] = array('name'=>$r->name, 'gid'=>$r->id, 'rank'=> (float) $r->rank,
-                'lat'=> (float) $r->lat, 'lng'=> (float) $r->lng, 'w'=> (float) $r->boxw, 's'=> (float) $r->boxs, 'e'=> (float) $r->boxe, 'n'=> (float) $r->boxn,
-                'description'=>'Featured Route', 'type'=>'loop'
-            );
-        }
-    } */
-    if (!sizeof($types) or in_array('trail', $types)) {
-        foreach ( Trail::searchByKeywords($keyword) as $r) {
-            $results[] = array('name'=>$r->name, 'gid'=> (integer) $r->gid, 'rank'=> (float) $r->rank,
-                'lat'=> (float) $r->lat, 'lng'=> (float) $r->lng, 'w'=> (float) $r->boxw, 's'=> (float) $r->boxs, 'e'=> (float) $r->boxe, 'n'=> (float) $r->boxn,
-                'description'=>'Trail', 'type' => 'trail',
+            $results[] = array(
+                'name' => $r->name,
+                'gid' => $r->id,
+                'rank' => (float) $r->rank,
+                'lat' => (float) $r->lat,
+                'lng' => (float) $r->lng,
+                'w' => (float) $r->boxw,
+                's' => (float) $r->boxs,
+                'e' => (float) $r->boxe,
+                'n' => (float) $r->boxn,
+                'description' => 'Trail',
+                'type' => 'loop'
             );
         }
     }
