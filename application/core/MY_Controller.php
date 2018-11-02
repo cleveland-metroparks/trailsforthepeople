@@ -363,33 +363,13 @@ private function _mainmenu_left_array() {
               'title' => 'Native App Releases',
               'access' => 'admin',
             ),
-          ),
-        ),
-        /*
-         * Docs: CMS
-         */
-        array(
-          'url' => 'docs/index/cms/cms',
-          'title' => 'CMS &amp; Embedding',
-          'access' => 'admin',
-          'submenu' => array(
             array(
-              'url' => 'docs/index/cms/cms',
-              'title' => 'The CMS and embedded map pages',
-              'access' => 'admin',
-            ),
-            array(
-              'url' => 'docs/index/cms/finder',
-              'title' => 'The Finders: embeddable search systems',
-              'access' => 'admin',
-            ),
-            array(
-              'url' => 'docs/index/cms/url_params',
+              'url' => 'docs/index/admin/url_params',
               'title' => 'Controlling map start view',
               'access' => 'admin',
             ),
             array(
-              'url' => 'docs/index/cms/loops',
+              'url' => 'docs/index/admin/loops',
               'title' => 'Loops',
               'access' => 'admin',
             ),
