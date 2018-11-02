@@ -173,7 +173,7 @@ var CIRCLE = new L.Circle(L.latLng(0,0), 1);
 var ELEVATION_PROFILE = null;
 
 var HIGHLIGHT_LINE = null;
-var HIGHLIGHT_LINE_STYLE = { color:"#1F6ABD", weight:3, opacity:0.75, clickable:false, smoothFactor:0.25 };
+var HIGHLIGHT_LINE_STYLE = { color:"#01B3FD", weight:6, opacity:0.75, clickable:false, smoothFactor:0.25 };
 
 var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; on Mobile we disable it after switchToMap()
 
