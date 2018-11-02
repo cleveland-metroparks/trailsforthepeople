@@ -239,7 +239,7 @@ function processGetDirectionsForm() {
     } // end addresstype switch
 
     // now get this: sometimes we don't actually route between these two points, but use the type & gid to
-    // find the closest target points, e.g. the closest entry gate at a Reservation, or a parking lot for a POI or Building
+    // find the closest target points, e.g. the closest entry gate at a Reservation, or a parking lot for a POI
     // do this for both the Target (the chosen location before the Directions panel opened)
     // and for the Source (whatever address or park feature they entered/selected as the other endpoint)
     var targetlat = parseFloat( $('#directions_target_lat').val() );
@@ -251,7 +251,6 @@ function processGetDirectionsForm() {
     if (source_type == 'poi'
         || source_type == 'attraction'
         || source_type == 'reservation'
-        || source_type == 'building'
         || source_type == 'trail')
     {
         var source_loc = geocodeLocationForDirections(source_type, source_gid, targetlat, targetlng, via, '#directions_source_lat', '#directions_source_lng');
@@ -265,7 +264,6 @@ function processGetDirectionsForm() {
     if (target_type == 'poi'
         || target_type == 'attraction'
         || target_type == 'reservation'
-        || target_type == 'building'
         || target_type == 'trail')
     {
         var target_loc = geocodeLocationForDirections(target_type, target_gid, sourcelat, sourcelng, via, '#directions_target_lat', '#directions_target_lng');
@@ -285,7 +283,7 @@ function processGetDirectionsForm() {
 
 /**
  * Geocode location for directions
- * For type: poi, attraction, reservation, building, and trail
+ * For type: poi, attraction, reservation, and trail
  */
 function geocodeLocationForDirections(loc_type, loc_gid, lat, lng, via, lat_el_id, lng_el_id) {
     var output_location = new Object();

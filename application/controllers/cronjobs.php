@@ -427,15 +427,6 @@ function cms_load_facilities() {
         $page->imageurl = $row['Tile'];
         $page->shareurl = $row['ExternalURL'];
         $page->save();
-
-        // look for the first Building whose name matches this page's Title (they're not unique, but the ones given are unique enough)
-        // if there is one, then insert a point associated to this CMS Page
-        // yeah, this mixes SQL associations with DataMapper, but DataMapper won't do this nearly as easily nor quickly
-        $target = new Building();
-        $target->where('name',$page->title)->get();
-        if ($target->gid) {
-            $this->db->query('INSERT INTO cms_page_points (page_id,location_id) VALUES (?,?)', array($page->id,$target->gid) );
-        }
     }
 
     // done!

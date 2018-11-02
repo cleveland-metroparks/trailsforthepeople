@@ -124,7 +124,7 @@ function geocodeAndZoomContributorMap(map, searchtext) {
 
 
 
-// do an AJAX call to fetch a park feature (building, reservation, etc) by keyword and feature type
+// do an AJAX call to fetch a park feature (reservation, etc) by keyword and feature type
 // see marker.phtml for a <select> element with all feature types, or see ajax.php::keyword()
 // this assumes that targetdiv is a UL, and appends LIs to it with results
 function geocodeParkFeature(keyword,targetdiv) {

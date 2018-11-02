@@ -31,14 +31,6 @@ function getPoints() {
             $targets = new UseArea();
             $targets->where('loc_id',$gid)->get();
             break;
-        case 'Facility':
-            // one single point, use row() and a simple gid match
-            $gid = $records->row();
-            if (! $gid) return $points;
-            $gid = $gid->location_id;
-            $targets = new Building();
-            $targets->where('gid',$gid)->get();
-            break;
         case 'Trail':
             // one single point, use row() and a simple gid match
             $gid = $records->row();
@@ -95,15 +87,6 @@ function getPointsforCMS() {
             $exturl_field   = 'link';
             $calendar_field = 'cal_link';
             $qtype          = 'poi';
-            $wkt_geom       = false;
-            break;
-        case 'building':
-            $title_field    = 'name';
-            $text_field     = '';
-            $image_field    = '';
-            $exturl_field   = 'link';
-            $calendar_field = '';
-            $qtype          = 'building';
             $wkt_geom       = false;
             break;
         case 'trail':

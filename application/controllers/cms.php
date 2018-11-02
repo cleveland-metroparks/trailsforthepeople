@@ -70,7 +70,6 @@ function page($feed=null,$urlkey=null) {
     $data['maplinkquerystring'] = null;
     if (sizeof($data['markers'] == 1)) {
         if ($page->feed == 'UseAreaPOI')  { $data['maplinkquerystring'] = "type=poi&name=" . $page->title; }
-        if ($page->feed == 'Facility')    { $data['maplinkquerystring'] = "type=building&name=" . $page->title; }
         if ($page->feed == 'Reservation') { $data['maplinkquerystring'] = "type=reservation&name=" . $page->title; }
         if ($page->feed == 'Trail')       { $data['maplinkquerystring'] = "type=trail&name=" . $page->title; }
     }

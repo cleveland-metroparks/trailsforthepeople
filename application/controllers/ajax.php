@@ -73,23 +73,6 @@ function geocode_for_directions() {
             }
             break;
 
-        case 'building':
-            $result = new Building();
-            $result->where('gid',$_GET['gid'])->get();
-            switch ($_GET['via']) {
-                case 'car':
-                    $output['lat']  = (float) $result->lat_driving;
-                    $output['lng']  = (float) $result->lng_driving;
-                    $output['type'] = 'driving';
-                    break;
-                default:
-                    $output['lat']  = (float) $result->lat;
-                    $output['lng']  = (float) $result->lng;
-                    $output['type'] = 'actual';
-                    break;
-            }
-            break;
-
         case 'trail':
             $result   = new Trail();
             $result->where('gid',$_GET['gid'])->get();
@@ -145,7 +128,7 @@ function query() {
     $moreinfo = null; // any additional info beyond the $result, usually nothing
 
     // the zoom level is used to enable/disable query of some features,
-    // e.g. to query a Building or Use Area, must be in close enough that you can see them (14+)
+    // e.g. to query a Use Area, must be in close enough that you can see them (14+)
     $zoom = @$_GET['zoom'] ? $_GET['zoom'] : 18;
 
     if (! $result and $zoom >= 15) {
@@ -157,11 +140,6 @@ function query() {
         $result = new Usearea();
         $result = $result->getByBBOX($_GET['w'],$_GET['s'],$_GET['e'],$_GET['n']);
         $template = 'ajax/query_usearea.phtml';
-    }
-    if (! $result and $zoom >= 17) {
-        $result = new Building();
-        $result = $result->getByBBOX($_GET['w'],$_GET['s'],$_GET['e'],$_GET['n']);
-        $template = 'ajax/query_building.phtml';
     }
     if (! $result and $zoom >= 17) {
         $result = new Trailclosure();
@@ -219,11 +197,6 @@ function adminquery() {
     $result = null; // yes, the first one is an "if" against a known null; enhances readability when we want to bump something up the priority list
 
     if (! $result) {
-        $result = new Building();
-        $result = $result->getByBBOX($_GET['w'],$_GET['s'],$_GET['e'],$_GET['n']);
-        $template = 'ajax/admin_query_building.phtml';
-    }
-    if (! $result) {
         $result = new Trailpiece();
         $result = $result->getByBBOX($_GET['w'],$_GET['s'],$_GET['e'],$_GET['n']);
 
@@ -278,24 +251,6 @@ function keyword() {
 
     // the repetitive part: use searchByKeywords() to fetch all results fitting the type filter
 
-    // Buildings
-    if (!sizeof($types) or in_array('building', $types)) {
-        foreach ( Building::searchByKeywords($keyword) as $r) {
-            $results[] = array(
-                'name' => $r->name,
-                'gid' => (integer) $r->gid,
-                'rank' => (float) $r->rank,
-                'lat' => (float) $r->lat,
-                'lng' => (float) $r->lng,
-                'w' => (float) $r->boxw,
-                's' => (float) $r->boxs,
-                'e' => (float) $r->boxe,
-                'n' => (float) $r->boxn,
-                'description' => 'Building',
-                'type' => 'building',
-            );
-        }
-    }
     // POIs
     if (!sizeof($types) or in_array('poi', $types)) {
         foreach ( Usearea::searchByKeywords($keyword) as $r) {
@@ -389,13 +344,6 @@ function moreinfo() {
             $result->where('gid',$_GET['gid'])->get();
             if (! $result->gid) exit;
             $template = 'ajax/moreinfo_trail.phtml';
-            break;
-
-        case 'building':
-            $result = new Building();
-            $result->where('gid',$_GET['gid'])->get();
-            if (! $result->gid) exit;
-            $template = 'ajax/moreinfo_building.phtml';
             break;
 
         case 'poi':
@@ -494,11 +442,6 @@ function exactnamesearch() {
             $result = new Trail();
             $result->where('name',$_GET['name'])->get();
             $result = array( 'w' => (float) $result->boxw, 's' => (float) $result->boxs, 'e' => (float) $result->boxe, 'n' => (float) $result->boxn, 'wkt' => $result->wkt );
-            break;
-        case 'building':
-            $result = new Building();
-            $result->where('name',$_GET['name'])->get();
-            $result = array( 'w' => (float) $result->boxw, 's' => (float) $result->boxs, 'e' => (float) $result->boxe, 'n' => (float) $result->boxn, 'lat' => (float) $result->lat, 'lng' => (float) $result->lng );
             break;
         case 'poi':
             $result = new Usearea();
