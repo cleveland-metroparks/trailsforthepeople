@@ -392,7 +392,7 @@ function moreinfo() {
 
             // experiment: simplify the geometry significantly, and send that out instead of the saved WKT
             // if this works out, the WKT precalculation should be updated to simplify
-            $wkt = $this->db->query('SELECT ST_ASTEXT(ST_TRANSFORM(ST_SIMPLIFY(geom,30),4326)) AS wkt FROM loops WHERE id=?', array($result->id) );
+            $wkt = $this->db->query('SELECT ST_ASTEXT(ST_TRANSFORM(geom,4326)) AS wkt FROM loops WHERE id=?', array($result->id) );
             $wkt = $wkt->row();
             $wkt = $wkt->wkt;
             $result->stored->wkt = $wkt;
@@ -742,8 +742,6 @@ function _directions_via_trails($params) {
     if (! @$_GET['tofrom'])    return print "Missing params";
     if (! @$_GET['via'])       return print "Missing params";
 
-    $_GET['prefer'] = 'shortest'; // hardcode this since there's no picker anymore
-
     // generate WKT for fetching the start & end location; if they're routing From then swap 'em
     $source = sprintf("ST_Transform(ST_GeometryFromText('POINT(%f %f)',4326),3734)", $_GET['sourcelng'], $_GET['sourcelat'] );
     $target = sprintf("ST_Transform(ST_GeometryFromText('POINT(%f %f)',4326),3734)", $_GET['targetlng'], $_GET['targetlat'] );
@@ -927,17 +925,10 @@ function _directions_via_trails($params) {
             //if ($barrier) printf("DNode disqualified (barrier): %d <br/>\n", $dnode->target );
             if ($barrier) continue;
 
-            // try to fetch a route to $mayberoute  If it works, save it to $route and we're done
-            //if ($oneway) $mayberoute = $this->db->query("SELECT ST_AsText(ST_Transform(route.the_geom,4326)) AS wkt, ST_Length(route.the_geom) AS length, $route_table.$duration_column AS seconds, $route_table.elevation, $route_table.name FROM $route_table, (SELECT gid, the_geom FROM dijkstra_sp_delta_directed('$route_table',?,?,5280,true,true)) AS route WHERE $route_table.gid=route.gid", array($onode->source, $dnode->target) );
-            //else         $mayberoute = $this->db->query("SELECT ST_AsText(ST_Transform(route.the_geom,4326)) AS wkt, ST_Length(route.the_geom) AS length, $route_table.$duration_column AS seconds, $route_table.elevation, $route_table.name FROM $route_table, (SELECT gid, the_geom FROM dijkstra_sp_delta('$route_table',?,?,5280)) AS route WHERE $route_table.gid=route.gid", array($onode->source, $dnode->target) );
-            if ($oneway) $mayberoute = $this->db->query("SELECT ST_AsText(ST_Transform(route.the_geom,4326)) AS wkt, ST_Length(route.the_geom) AS length, $route_table.$duration_column AS seconds, $route_table.elevation, $route_table.name FROM $route_table, (SELECT gid, the_geom FROM astar_sp_delta_directed('$route_table',?,?,5280,true,true)) AS route WHERE $route_table.gid=route.gid", array($onode->source, $dnode->target) );
-            else         $mayberoute = $this->db->query("SELECT ST_AsText(ST_Transform(route.the_geom,4326)) AS wkt, ST_Length(route.the_geom) AS length, $route_table.$duration_column AS seconds, $route_table.elevation, $route_table.name FROM $route_table, (SELECT gid, the_geom FROM astar_sp_delta('$route_table',?,?,5280)) AS route WHERE $route_table.gid=route.gid", array($onode->source, $dnode->target) );
+            $route = $this->db->query("SELECT ST_AsText(ST_Transform(route.the_geom,4326)) AS wkt, ST_Length(route.the_geom) AS length, $route_table.$duration_column AS seconds, $route_table.elevation, $route_table.name FROM $route_table, (SELECT gid, the_geom FROM astar_sp_delta_directed('$route_table',?,?,5280,true,true)) AS route WHERE $route_table.gid=route.gid", array($onode->source, $dnode->target) );
 
             if ($mayberoute->num_rows() > 0) {
-                //printf("Try # %d : %d, %d - Success<br/>\n", $retries, $onode->source, $dnode->target ); ob_flush();
                 $route = $mayberoute;
-            } else {
-                //printf("Try # %d : %d, %d - No route<br/>\n", $retries, $onode->source, $dnode->target ); ob_flush();
             }
         }
     }
