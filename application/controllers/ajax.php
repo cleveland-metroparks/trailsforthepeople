@@ -925,8 +925,8 @@ function _directions_via_trails($params) {
             //if ($barrier) printf("DNode disqualified (barrier): %d <br/>\n", $dnode->target );
             if ($barrier) continue;
 
-            $route = $this->db->query("SELECT ST_AsText(ST_Transform(route.the_geom,4326)) AS wkt, ST_Length(route.the_geom) AS length, $route_table.$duration_column AS seconds, $route_table.elevation, $route_table.name FROM $route_table, (SELECT gid, the_geom FROM astar_sp_delta_directed('$route_table',?,?,5280,true,true)) AS route WHERE $route_table.gid=route.gid", array($onode->source, $dnode->target) );
-
+            // Try to fetch a route. If it works, save it to $route and we're done.
+            $mayberoute = $this->db->query("SELECT ST_AsText(ST_Transform(route.the_geom,4326)) AS wkt, ST_Length(route.the_geom) AS length, $route_table.$duration_column AS seconds, $route_table.elevation, $route_table.name FROM $route_table, (SELECT gid, the_geom FROM astar_sp_delta_directed('$route_table',?,?,5280,true,true)) AS route WHERE $route_table.gid=route.gid", array($onode->source, $dnode->target) );
             if ($mayberoute->num_rows() > 0) {
                 $route = $mayberoute;
             }
