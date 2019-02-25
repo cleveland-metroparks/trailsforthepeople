@@ -495,10 +495,10 @@ class DataMapper implements IteratorAggregate {
 			if ($is_dmz)
 			{
 				// Load config settings
-				$this->config->load('datamapper', TRUE, TRUE);
+				self::get_config_object()->load('datamapper', TRUE, TRUE);
 
 				// Get and store config settings
-				DataMapper::$config = $this->config->item('datamapper');
+				DataMapper::$config = self::get_config_object()->item('datamapper');
 
 				// now double check that all required config values were set
 				foreach(DataMapper::$_dmz_config_defaults as $config_key => $config_value)
@@ -519,7 +519,7 @@ class DataMapper implements IteratorAggregate {
 			if(!empty($this->lang_file_format))
 			{
 				$lang_file = str_replace(array('${model}', '${table}'), array($this->model, $this->table), $this->lang_file_format);
-				$deft_lang = $this->config->item('language');
+				$deft_lang = self::get_config_object()->item('language');
 				$idiom = ($deft_lang == '') ? 'english' : $deft_lang;
 				if(file_exists(APPPATH.'language/'.$idiom.'/'.$lang_file.'_lang'.EXT))
 				{
@@ -6547,6 +6547,17 @@ class DataMapper implements IteratorAggregate {
 	// --------------------------------------------------------------------
 
 	/**
+	 *
+	 */
+	protected static function get_config_object() {
+	    $CI =& get_instance();
+
+	    return $CI->config;
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
 	 * Assign Libraries
 	 *
 	 * Assigns required CodeIgniter libraries to DataMapper.
@@ -6560,14 +6571,14 @@ class DataMapper implements IteratorAggregate {
 		{
 			// make sure these exists to not trip __get()
 			$this->load = NULL;
-			$this->config = NULL;
+			// $this->config = NULL;
 			$this->lang = NULL;
 
 			// access to the loader
 			$this->load =& $CI->load;
 
 			// to the config
-			$this->config =& $CI->config;
+			// $this->config =& $CI->config;
 
 			// and the language class
 			$this->lang =& $CI->lang;
