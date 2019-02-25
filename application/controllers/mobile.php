@@ -17,19 +17,23 @@ function index() {
     $data['reservations'] = $reservations;
 
     // a list of all reservations which contain Loops, as determined by the Loops' "reservations" field
-    $loopreservations = Loop::listReservations();
-    $data['loopreservations'] = $loopreservations;
+    $loop = new Loop();
+    $loop_reservations = $loop->listReservations();
+    $data['loopreservations'] = $loop_reservations;
 
     // the placeholder categories for POIs
-    $data['poicategories'] = Usearea::listCategories();
+    $use_area = new Usearea();
+    $data['poicategories'] = $use_area->listCategories();
 
     // Activities (chosen sub-set only)
     //$data['activities'] = ActivityType::getActivityTypesAndIcons(TRUE);
     // Only chosen activities that have attractions
-    $data['activities'] = ActivityType::getActivitiesWithAttractions(TRUE);
+    $activity_type = new ActivityType();
+    $data['activities'] = $activity_type->getActivitiesWithAttractions(TRUE);
 
     // Amenities for the welcome screen listing
-    $data['amenities'] = AmenityType::get_welcome_pane_amenities();
+    $amenity_type = new AmenityType();
+    $data['amenities'] = $amenity_type->get_welcome_pane_amenities();
 
     $this->load->view('mobile/mobile.phtml', $data);
 }

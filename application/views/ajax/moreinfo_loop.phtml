@@ -2,7 +2,8 @@
 
 
 <?php
-$feature->uses = Loop::useTypesString($feature);
+$loop = new Loop();
+$feature->uses = $loop->useTypesString($feature);
 $steps = json_decode($feature->steps);
 ?>
 

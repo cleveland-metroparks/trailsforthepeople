@@ -32,7 +32,7 @@ function getByBBOX($w,$s,$e,$n) {
 // search for any Trailpiece segments which fit the given $trailname
 // This accounts for the + convention in the trail names, and will search for + NAME, NAME +, + NAME +, etc.
 // Note that this is case-sensitive, and must be an exact Trail name: "yellow" will not match "Yellow Trail"
-function getByName($trailname) {
+public static function getByName($trailname) {
     $results = new Trailpiece();
     $results->group_start();
     $results->where('label_name',$trailname);
@@ -49,7 +49,7 @@ function getByName($trailname) {
 // based on their name. For instance, if the oldname is "Blackberry Trail + Connector Trail" and the newname is "Bridle Trail + Blackberry Trail"
 // then this returns true because they share a name component in common.
 // Primary usage is for aggregating routing steps despite trails mingling.
-function trailContainsSameName($oldname,$newname) {
+public static function trailContainsSameName($oldname,$newname) {
     if ($oldname == $newname) return true;
 
     $oldnames = explode(' + ', $oldname);

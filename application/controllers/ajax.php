@@ -253,7 +253,8 @@ function keyword() {
 
     // POIs
     if (!sizeof($types) or in_array('poi', $types)) {
-        foreach ( Usearea::searchByKeywords($keyword) as $r) {
+        $use_area = new Usearea();
+        foreach ($use_area->searchByKeywords($keyword) as $r) {
             $results[] = array(
                 'name' => $r->use_area,
                 'gid' => (integer) $r->gid,
@@ -271,11 +272,12 @@ function keyword() {
     }
     // Reservations
     if (!sizeof($types) or in_array('reservation', $types)) {
-        foreach (Park::searchByKeywords($keyword) as $r) {
+        $park = new Park();
+        foreach ($park->searchByKeywords($keyword) as $r) {
             // when fetching this for directions, some params will be supplied:  lat  lng  via
             // weight our choice of location to whatever's closest to that latlng
             if (@$_GET['lat'] and $_GET['lng'] and $_GET['lng']) {
-                $driving_latlng = Park::closestDrivingDestinationToLatLng($r->reservation_id,$_GET['lat'],$_GET['lng']);
+                $driving_latlng = $park->closestDrivingDestinationToLatLng($r->reservation_id,$_GET['lat'],$_GET['lng']);
                 if ($driving_latlng) {
                     $r->lat = $driving_latlng->lat;
                     $r->lng = $driving_latlng->lng;
@@ -299,7 +301,8 @@ function keyword() {
     }
     // Trails/Loops (Featured Trails)
     if (!sizeof($types) or in_array('loop', $types)) {
-        foreach ( Loop::searchByKeywords($keyword) as $r) {
+        $loop = new Loop();
+        foreach ($loop->searchByKeywords($keyword) as $r) {
             $results[] = array(
                 'name' => $r->name,
                 'gid' => $r->id,
@@ -2026,19 +2029,22 @@ function browse_items() {
             break;
         case 'pois_usetype':
             $title = ucwords(str_replace('_', ', ', $_GET['search']));
-            foreach (Usearea::getByCategory($_GET['search']) as $result) {
+            $use_area = new Usearea();
+            foreach ($use_area->getByCategory($_GET['search']) as $result) {
                 $results[] = array('type'=>'poi', 'name'=>trim($result->use_area), 'gid'=>(integer) $result->gid, 'w'=>(float) $result->boxw, 's'=>(float) $result->boxs, 'e'=>(float) $result->boxe, 'n'=>(float) $result->boxn, 'lat'=>(float) $result->lat, 'lng'=>(float) $result->lng );
             }
             break;
         case 'pois_reservation':
             $title = ucwords(str_replace('_', ', ', $_GET['search']));
-            foreach (Usearea::getByReservation($_GET['search']) as $result) {
+            $use_area = new Usearea();
+            foreach ($use_area->getByReservation($_GET['search']) as $result) {
                 $results[] = array('type'=>'poi', 'name'=>trim($result->use_area), 'gid'=>(integer) $result->gid, 'w'=>(float) $result->boxw, 's'=>(float) $result->boxs, 'e'=>(float) $result->boxe, 'n'=>(float) $result->boxn, 'lat'=>(float) $result->lat, 'lng'=>(float) $result->lng );
             }
             break;
         case 'loops_by_res':
             $title = ucwords(str_replace('_', ', ', $_GET['search']));
-            foreach (Loop::getByReservation($_GET['search']) as $result) {
+            $loop = new Loop();
+            foreach ($loop->getByReservation($_GET['search']) as $result) {
                 $note = array();
                 if ($result->paved) $note[] = $result->paved == 'Yes' ? 'Paved' : 'Unpaved';
                 if ($result->hike) $note[] = "Hiking";
@@ -2447,7 +2453,8 @@ function trail_segments_by_trail_name() {
     $output['boxs'] = null;
     $output['boxe'] = null;
     $output['boxn'] = null;
-    foreach (Trailpiece::getByName($trailname) as $segment) {
+    $trailpiece = new Trailpiece();
+    foreach ($trailpiece::getByName($trailname) as $segment) {
         $output['segments'][] = array(
             'gid'   => $segment->gid,
             'title' => $segment->label_name,
