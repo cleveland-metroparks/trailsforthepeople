@@ -98,7 +98,7 @@
         <ul role="tablist">
             <li><a href="#pane-welcome" role="tab" title="Welcome"><i class="cm-icon cm-icon-cm-logo"></i></a></li>
             <li><a href="#pane-browse" role="tab" title="Find"><i class="cm-icon cm-icon-search"></i></a></li>
-            <li><a href="#pane-radar" role="tab" title="Nearby"><i class="cm-icon cm-icon-street-view"></i></a></li>
+            <li><a href="#pane-nearby" role="tab" title="Nearby"><i class="cm-icon cm-icon-street-view"></i></a></li>
             <li><a href="#pane-getdirections" role="tab" title="Directions"><i class="cm-icon cm-icon-location-arrow"></i></a></li>
             <li><a href="#pane-share" role="tab" title="Share"><i class="cm-icon cm-icon-share-alt"></i></a></li>
         </ul>
@@ -121,8 +121,8 @@
         <!-- Sidebar Pane: Find: #pane-amenities -->
         <?php $this->load->view('mobile/sidebar-panes/amenities.phtml', array('amenities'=>$amenities)); ?>
 
-        <!-- Sidebar Pane: Nearby: #pane-radar -->
-        <?php $this->load->view('mobile/sidebar-panes/radar.phtml', array('poicategories'=>$poicategories)); ?>
+        <!-- Sidebar Pane: Nearby: #pane-nearby -->
+        <?php $this->load->view('mobile/sidebar-panes/nearby.phtml', array('poicategories'=>$poicategories)); ?>
 
         <!-- Sidebar Pane: Directions: #pane-getdirections -->
         <?php $this->load->view('mobile/sidebar-panes/getdirections.phtml'); ?>

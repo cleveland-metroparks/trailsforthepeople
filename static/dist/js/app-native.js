@@ -450,7 +450,7 @@ var WINDOW_URL = null;
 // App sidebar (Leaflet Sidebar-v2)
 var sidebar = null;
 
-// used by the radar: sound an alert only if the list has in fact changed
+// Used by Nearby: sound an alert only if the list has in fact changed
 var LAST_BEEP_IDS = [];
 
 // other stuff pertaining to our last known location and auto-centering
@@ -1434,9 +1434,9 @@ $(document).ready(function () {
     });
 
     /*
-     * Nearby pane (#pane-radar)
+     * Nearby pane (#pane-nearby)
      */
-    $('.sidebar-tabs li a[href="#pane-radar"]').click(function() {
+    $('.sidebar-tabs li a[href="#pane-nearby"]').click(function() {
         updateNearYouNow();
     });
 
@@ -1852,13 +1852,13 @@ $(document).ready(function () {
         // @TODO: Also, should this be mobile only?
         updateNearYouNow();
 
-        // Check the Radar alerts to see if anything relevant is within range
-        if ( $('#radar_enabled').is(':checked') ) {
-            var meters = $('#radar_radius').val();
+        // Check the Nearby alerts to see if anything relevant is within range
+        if ( $('#nearby_enabled').is(':checked') ) {
+            var meters = $('#nearby_radius').val();
             var categories = [];
-            $('input[name="radar_category"]:checked').each(function () { categories[categories.length] = $(this).val() });
+            $('input[name="nearby_category"]:checked').each(function () { categories[categories.length] = $(this).val() });
             placeCircle(event.latlng.lat,event.latlng.lng,meters);
-            checkRadar(event.latlng,meters,categories);
+            checkNearby(event.latlng,meters,categories);
         }
 
         // Update display of user lat/lng
@@ -2950,13 +2950,13 @@ $(document).ready(function () {
 });
 ;
 /*********************************************
- * Radar / Nearby
+ * Nearby
  *********************************************/
 
 // ALL_POIS:
 //
-// used by Near You Now and then later by Radar, a structure of all POIs
-// we cannot render them all into the Radar page at the same time, but we can store them in memory
+// Used by "Near You Now" and then later by Nearby, a structure of all POIs
+// we cannot render them all into the Nearby pane at the same time, but we can store them in memory
 //
 // Each item within has:
 //     from DB:
@@ -2989,9 +2989,6 @@ $(document).ready(function () {
  * as we need to do the distance and sorting BEFORE rendering, an unusual case
  */
 function updateNearYouNow() {
-    // render the Radar page, in case it hasn't happened yet
-    //$('#pane-radar').page();
-
     var target = $('#alerts');
 
     // iterate over ALL_POIS and calculate their distance from our last known location
@@ -3024,7 +3021,7 @@ function updateNearYouNow() {
         li.attr('type', 'poi').attr('gid', poi.gid);
         li.attr('w', poi.w).attr('s', poi.s).attr('e', poi.e).attr('n', poi.n);
         li.attr('lat', poi.lat).attr('lng', poi.lng);
-        li.attr('backbutton', '#pane-radar');
+        li.attr('backbutton', '#pane-nearby');
 
         var div = $('<div></div>').addClass('ui-btn-text');
         div.append( $('<h2></h2>').text(poi.title) );
@@ -3094,9 +3091,9 @@ L.LatLng.prototype.bearingWordTo = function(other) {
 };
 
 /**
- * Check Radar
+ * Check Nearby
  */
-function checkRadar(latlng,maxmeters,categories) {
+function checkNearby(latlng,maxmeters,categories) {
     // 1: go over the Near You Now entries, find which ones are within distance and matching the filters
     maxmeters = parseFloat(maxmeters); // passed in as a .attr() string sometimes
 
@@ -3159,12 +3156,12 @@ function checkRadar(latlng,maxmeters,categories) {
     }
 }
 
-// on page load: install event handlers for the Find and Radar panels
+// On page load: install event handlers for the Find and Nearby panels
 $(document).ready(function () {
-    $('#radar_enabled').change(function () {
-        // toggle the radar config: category pickers, distance selector, etc.
+    $('#nearby_enabled').change(function () {
+        // toggle the nearby config: category pickers, distance selector, etc.
         var enabled = $(this).is(':checked');
-        enabled ? $('#radar_config').show() : $('#radar_config').hide();
+        enabled ? $('#nearby_config').show() : $('#nearby_config').hide();
 
         // if it's not checked, unfilter the results listing to show everything, and remove the circle
         if (! enabled) {

@@ -12,7 +12,7 @@ var WINDOW_URL = null;
 // App sidebar (Leaflet Sidebar-v2)
 var sidebar = null;
 
-// used by the radar: sound an alert only if the list has in fact changed
+// Used by Nearby: sound an alert only if the list has in fact changed
 var LAST_BEEP_IDS = [];
 
 // other stuff pertaining to our last known location and auto-centering

@@ -145,13 +145,13 @@ $(document).ready(function () {
         // @TODO: Also, should this be mobile only?
         updateNearYouNow();
 
-        // Check the Radar alerts to see if anything relevant is within range
-        if ( $('#radar_enabled').is(':checked') ) {
-            var meters = $('#radar_radius').val();
+        // Check the Nearby alerts to see if anything relevant is within range
+        if ( $('#nearby_enabled').is(':checked') ) {
+            var meters = $('#nearby_radius').val();
             var categories = [];
-            $('input[name="radar_category"]:checked').each(function () { categories[categories.length] = $(this).val() });
+            $('input[name="nearby_category"]:checked').each(function () { categories[categories.length] = $(this).val() });
             placeCircle(event.latlng.lat,event.latlng.lng,meters);
-            checkRadar(event.latlng,meters,categories);
+            checkNearby(event.latlng,meters,categories);
         }
 
         // Update display of user lat/lng

@@ -31,9 +31,9 @@ $(document).ready(function () {
     });
 
     /*
-     * Nearby pane (#pane-radar)
+     * Nearby pane (#pane-nearby)
      */
-    $('.sidebar-tabs li a[href="#pane-radar"]').click(function() {
+    $('.sidebar-tabs li a[href="#pane-nearby"]').click(function() {
         updateNearYouNow();
     });
 
