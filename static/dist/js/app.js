@@ -3012,6 +3012,7 @@ function updateNearYouNow() {
         li.attr('type', 'poi').attr('gid', poi.gid);
         li.attr('w', poi.w).attr('s', poi.s).attr('e', poi.e).attr('n', poi.n);
         li.attr('lat', poi.lat).attr('lng', poi.lng);
+        li.attr('backbutton', '#pane-radar');
 
         var div = $('<div></div>').addClass('ui-btn-text');
         div.append( $('<h2></h2>').text(poi.title) );
