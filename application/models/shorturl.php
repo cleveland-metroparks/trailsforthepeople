@@ -40,7 +40,7 @@ public static function fetch_url($key) {
  * The excellent AlphaID function from Kevin van Zonneveld (http://kevin.vanzonneveld.net),
  * adapted to our own needs
  */
-function alphaID($in, $to_num) {
+protected static function alphaID($in, $to_num) {
     $index = "bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ";
     $base  = strlen($index);
 
