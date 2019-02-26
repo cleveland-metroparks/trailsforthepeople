@@ -54,7 +54,7 @@ module.exports = function(grunt) {
         src: [
           'static/lib/jquery-1.12.4.min.js',
           'static/lib/leaflet-1.0.3/leaflet.js',
-          'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
+          'static/lib/mapbox.js-3.1.1/mapbox.standalone.js',
           'static/lib/mapbox-gl-js-0.53.0/mapbox-gl.js',
           'static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
           'static/src/js/constants.js',
@@ -67,7 +67,7 @@ module.exports = function(grunt) {
       embedded_base_nojq: {
         src: [
           'static/lib/leaflet-1.0.3/leaflet.js',
-          'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
+          'static/lib/mapbox.js-3.1.1/mapbox.standalone.js',
           'static/lib/mapbox-gl-js-0.53.0/mapbox-gl.js',
           'static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
           'static/src/js/constants.js',
@@ -81,7 +81,7 @@ module.exports = function(grunt) {
         src: [
           'static/lib/jquery-1.12.4.min.js',
           'static/lib/leaflet-1.0.3/leaflet.js',
-          'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
+          'static/lib/mapbox.js-3.1.1/mapbox.standalone.js',
           'static/lib/mapbox-gl-js-0.53.0/mapbox-gl.js',
           'static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
           'static/src/js/constants.js',
@@ -95,7 +95,7 @@ module.exports = function(grunt) {
       embedded_visit_nojq_DEPRECATED: {
         src: [
           'static/lib/leaflet-1.0.3/leaflet.js',
-          'static/lib/mapbox.js-2.4.0/mapbox.standalone.js',
+          'static/lib/mapbox.js-3.1.1/mapbox.standalone.js',
           'static/lib/mapbox-gl-js-0.53.0/mapbox-gl.js',
           'static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.js',
           'static/src/js/constants.js',
