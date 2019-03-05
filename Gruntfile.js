@@ -194,59 +194,6 @@ module.exports = function(grunt) {
 
     /**
      *
-     * SFTP
-     *
-     */
-    sftp: {
-      options: {
-        path: '<%= local.remoteHost.path %>',
-        host: '<%= local.remoteHost.hostname %>',
-        port: '<%= local.remoteHost.port %>',
-        username: '<%= local.remoteHost.username %>',
-        password: '<%= local.remoteHost.password %>',
-        showProgress: true,
-        readyTimeout: '<%= local.remoteHost.readyTimeout %>'
-      },
-      // Web app package:
-      dist: {
-        files: {
-          "./": [
-            "static/dist/css/mobile.css",
-            "static/src/scss/jqm-themes/cm-jqm-theme.min.css",
-            "static/dist/js/mobile.min.js",
-            "static/dist/js/constants.min.js",
-            "static/dist/js/common.min.js",
-            "static/dist/js/app.min.js"
-          ]
-        }
-      },
-      // For map embeds on external sites:
-      embedded: {
-        files: {
-          "./": [
-            // DEPRECATED Visit page
-            "static/dist/js/map-embedded.js",
-            "static/dist/js/map-embedded.min.js",
-            "static/dist/js/map-embedded-nojq.js",
-            "static/dist/js/map-embedded-nojq.min.js",
-            // Embedded base
-            "static/dist/js/map-embedded-base.js",
-            "static/dist/js/map-embedded-base.min.js",
-            "static/dist/js/map-embedded-base-nojq.js",
-            "static/dist/js/map-embedded-base-nojq.min.js",
-            // Visit page
-            "static/dist/js/map-embedded-visit.js",
-            "static/dist/js/map-embedded-visit.min.js",
-            // Beach closures
-            "static/dist/js/map-embedded-beach_closures.js",
-            "static/dist/js/map-embedded-beach_closures.min.js"
-          ]
-        }
-      }
-    },
-
-    /**
-     *
      * Watch
      *
      */
