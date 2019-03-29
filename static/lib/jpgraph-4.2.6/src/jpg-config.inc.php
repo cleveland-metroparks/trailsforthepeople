@@ -36,7 +36,7 @@
 //
 //------------------------------------------------------------------------
 // define('CACHE_DIR','/tmp/jpgraph_cache/');
-// define('TTF_DIR','/usr/share/fonts/TrueType/');
+define('TTF_DIR','./fonts/');
 // define('MBTTF_DIR','/usr/share/fonts/TrueType/');
 
 //-------------------------------------------------------------------------
@@ -52,6 +52,19 @@
 // there. As ususal this directory must be writeable by the PHP process.
 define('CSIMCACHE_DIR','csimcache/');
 define('CSIMCACHE_HTTP_DIR','csimcache/');
+
+
+// disable antialiasing
+// jpGraph throws a fit if you use the external GD and don't have antialiasing available,
+// unfortunately this is the case on most modern Linux systems since php5-gd comes as a separate module
+// compiled against a system GD instead of PHP's bundled GD
+define('ANTIALIASING', false);
+if(!ANTIALIASING) {
+    function imageantialias($image, $enabled) {
+        return true;
+    }
+}
+
 
 //------------------------------------------------------------------------
 // Various JpGraph Settings. Adjust accordingly to your
