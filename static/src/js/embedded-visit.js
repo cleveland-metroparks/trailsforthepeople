@@ -1,16 +1,24 @@
  /**
  * embedded.js
  *
- * JS for external embedded maps.
+ * CM Parks Visit page: external embedded map.
+ * Requires map-embedded-base (or map-embedded-base-nojq)
  *
  * Cleveland Metroparks
  */
 
-var markerLayer = L.featureGroup();
+const API_ENDPOINT_GEOCODE = API_BASEPATH + 'ajax/geocode';
+const API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES = API_BASEPATH + 'ajax/get_attractions_by_activity';
+const API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY = API_BASEPATH + 'ajax/get_nearby_attractions_with_activities';
 
+var markerLayer = L.featureGroup();
 var userLocation;
 
 $(document).ready(function(){
+
+    /**
+     * Initial map setup
+     */
     var mapOptions = { base:'map' };
 
     // Load the map.
@@ -19,70 +27,90 @@ $(document).ready(function(){
     // Disable scrollwheel-driven map zooming so the user can scroll down the page.
     MAP.scrollWheelZoom.disable();
 
+
     /**
-     * Filters: on "Update Results" button click
+     * Process query params
      */
-    $('#filters-section .filter-action-area .update-results-button').click(function() {
-        markerLayer.clearLayers();
+    var urlParams = new URLSearchParams(location.search);
 
-        var selectedActivityIDs = [];
-        $('#filters-section .filter-subfield-list input:checkbox:checked').each(function() {
-            selectedActivityIDs.push($(this).attr('value'));
-        });
+    // Activities
+    if (urlParams.has('activitytype')) {
+        var activities = urlParams.get('activitytype').split("|");
+    }
 
-        // No activities selected
-        if (!selectedActivityIDs.length) {
-            return;
-        }
+    // Location text
+    var location_searchtext;
+    if (urlParams.has('location')) {
+        location_searchtext = urlParams.get('location');
+    }
 
-        var geolocate_enabled = $('.interactive-form-distance-near-me-input').prop('checked');
-        var location_searchtext = $('input.locationTxt').val();
+    // Geolocate
+    var geolocate_enabled = (urlParams.has('nearme') && urlParams.get('nearme') == 'True');
 
-        var data = { activity_ids: selectedActivityIDs };
+    // Lat/Long
+    if (urlParams.has('lat') && urlParams.has('long')) {
+        var lat = parseFloat(urlParams.get('lat'));
+        var lng = parseFloat(urlParams.get('long'));
+    }
 
-        var distance_feet = 5280 * $('select.locationRadiusDDL').val(); // 5280 feet per mile
+    // Within distance
+    var distance_miles, distance_feet;
+    if (urlParams.has('distance')) {
+        distance_miles = urlParams.get('distance');
+        distance_feet = 5280 * distance_miles;
+    }
+    distance_feet = Number.isInteger(distance_feet) ? distance_feet : 0;
 
-        if (geolocate_enabled && userLocation) {
-            // Search activities nearby user geolocation
-            data.get_activities_url = API_BASEPATH + 'ajax/get_nearby_attractions_with_activities';
-            data.lat = userLocation.lat;
-            data.lng = userLocation.lng;
-            data.within_feet = distance_feet;
+    // Begin assembling API call data
+    var data = {
+        activity_ids: activities,
+        within_feet: distance_feet
+    };
 
-            callGetActivities(data);
+    /**
+     * Make the right call, based on options
+     */
+    if (activities) {
+        if (geolocate_enabled) {
+            data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY;
 
+            if (userLocation) {
+                data.lat = userLocation.lat;
+                data.lng = userLocation.lng;
+            } else if (lat && lng) {
+                data.lat = lat;
+                data.lng = lng;
+            } else {
+                // No lat/lng. Don't do nearby search.
+                data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES;
+            }
+          callGetAttractions(data);
         } else if (location_searchtext) {
-            // Search activities nearby to geocoded address
-            data.get_activities_url = API_BASEPATH + 'ajax/get_nearby_attractions_with_activities';
+            // Search attractions nearby geocoded address
+            data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY;
             data.searchtext = location_searchtext;
-            data.within_feet = distance_feet;
 
+            // Geocode address
             callGeocodeAddress(data).then(function(reply, textStatus, jqXHR) {
-                // Add our new lat/lng to the data object.
+                // Add new lat/lng to the data object.
                 data.lat = reply.lat;
                 data.lng = reply.lng;
 
-                callGetActivities(data);
+                callGetAttractions(data);
             });
         } else {
-            // Search activities, without nearby 
-            data.get_activities_url = API_BASEPATH + 'ajax/get_attractions_by_activity';
-            callGetActivities(data);
+            // Search activities without nearby
+            data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES;
+            delete data.within_feet;
+            callGetAttractions(data);
         }
-    });
-
-    /**
-     * Clear markers
-     */
-    $('#filters-section .filter-action-area .clear-filters-button').click(function() {
-        markerLayer.clearLayers();
-    });
+    }
 
     /**
      * Geolocate user
      */
-    $('.interactive-form-distance-near-me-input').click(function() {
-        if ($('.interactive-form-distance-near-me-input').prop('checked')) {
+    $('#nearme').click(function() {
+        if ($('#nearme').prop('checked')) {
             MAP.locate({watch: false, enableHighAccuracy: true});
         } else {
             MAP.stopLocate();
@@ -113,27 +141,18 @@ $(document).ready(function(){
         disableGeolocation();
     });
 
-    /**
-     * Disable form submission on existing filter buttons.
-     *
-     * @TODO: Let's get the form and/or inline button click events removed!
-     */
-    $('.update-results-button').attr('type', 'button')
-    $('.update-results-button').attr('onclick', '')
-    $('.clear-filters-button').attr('onclick', '');
-
 });
 
 /**
- * Disable geolocation:
- * - ensure the button is un-checked,
- * - remove our stored location, and
- * - remove the marker.
- */
+* Disable geolocation:
+* - ensure the button is un-checked,
+* - remove our stored location, and
+* - remove the marker.
+*/
 function disableGeolocation() {
-    $('.interactive-form-distance-near-me-input').prop('checked', false);
-    userLocation = null;
-    clearGPSMarker();
+   // $('.interactive-form-distance-near-me-input').prop('checked', false);
+   userLocation = null;
+   clearGPSMarker();
 }
 
 /**
@@ -141,9 +160,9 @@ function disableGeolocation() {
  *
  * Works with Nearby and without.
  */
-function callGetActivities(params) {
+function callGetAttractions(params) {
     return $.ajax({
-        url: params.get_activities_url,
+        url: params.get_attractions_url,
         dataType: 'json',
         data: params
         })
@@ -151,7 +170,7 @@ function callGetActivities(params) {
             displayActivities(reply.results);
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
-            console.log('callGetActivities error');
+            console.log('callGetAttractions error');
             console.log(textStatus + ': ' + errorThrown);
         });
 }
@@ -164,9 +183,9 @@ function callGeocodeAddress(params) {
     data.address  = params.searchtext;
     data.bing_key = BING_API_KEY;
     data.bbox     = GEOCODE_BIAS_BOX;
-    
+
     return $.ajax({
-        url: API_BASEPATH + 'ajax/geocode',
+        url: API_ENDPOINT_GEOCODE,
         dataType: 'json',
         data: data
         })
@@ -177,7 +196,7 @@ function callGeocodeAddress(params) {
                 showInfoPopup("The location we found for your address is too far away.", 'warning');
                 return;
             }
-        
+
             // Add a marker for their location
             placeGPSMarker(reply.lat, reply.lng);
         })
@@ -191,13 +210,14 @@ function callGeocodeAddress(params) {
  * Display activities on the map.
  */
 function displayActivities(activities) {
-    for (var i = 0; i < activities.length; i++) {
-        var result = activities[i];
+    var i, result;
+    for (i = 0; i < activities.length; i += 1) {
+        result = activities[i];
 
         marker = new L.marker([result.lat, result.lng], {
             clickable: true,
             draggable: false,
-            icon: ICON_TARGET,
+            icon: ICON_TARGET
         }).bindPopup(attractionPopupMarkup(result));
 
         markerLayer.addLayer(marker);
