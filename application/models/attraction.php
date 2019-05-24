@@ -144,14 +144,17 @@ function filterAttractionsByActivities($attractions, $activity_ids) {
     // Go through all attractions
     foreach ($attractions as $attraction) {
         $attraction_activities = $this->parseMultiIDsString($attraction->activities);
-        $found = FALSE;
-        // Look for each provided activity within this Attraction's activity list
+        $found = TRUE;
+        // Check whether all searched-for activities are in this Attraction's activity list (ANDed)
         foreach ($activity_ids as $activity_id) {
-            if (in_array($activity_id, $attraction_activities)) {
-                // Found it; add to our result list
-                $filtered_attractions[] = $attraction;
-                continue;
+            if (!in_array($activity_id, $attraction_activities)) {
+                $found = FALSE;
+                break;
             }
+        }
+        if ($found) {
+            // Add to our result list
+            $filtered_attractions[] = $attraction;
         }
     }
 
@@ -170,14 +173,17 @@ function filterAttractionsByAmenities($attractions, $amenity_ids) {
     // Go through all attractions
     foreach ($attractions as $attraction) {
         $attraction_amenities = $this->parseMultiIDsString($attraction->amenities);
-        $found = FALSE;
-        // Look for each provided amenity within this Attraction's amenity list
+        $found = TRUE;
+        // Check whether all searched-for amenities are in this Attraction's activity list (ANDed)
         foreach ($amenity_ids as $amenity_id) {
-            if (in_array($amenity_id, $attraction_amenities)) {
-                // Found it; add to our result list
-                $filtered_attractions[] = $attraction;
-                continue;
+            if (!in_array($amenity_id, $attraction_amenities)) {
+                $found = FALSE;
+                break;
             }
+        }
+        if ($found) {
+            // Add to our result list
+            $filtered_attractions[] = $attraction;
         }
     }
 
