@@ -1,4 +1,5 @@
 @import url(../../lib/leaflet-1.0.3/leaflet.css);
+/* Stylings shared by mobile app and embedded maps. */
 .leaflet-popup-content h3 { font-size: 1.3em; font-weight: bold; }
 .leaflet-popup-content p { font-size: 1.1em !important; margin: 1em 0; }
 

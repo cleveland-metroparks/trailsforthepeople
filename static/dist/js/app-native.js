@@ -111,6 +111,7 @@ const AVAILABLE_LAYERS = {
 var routedebug = L.tileLayer.wms("http://maps1.clemetparks.com/wms", { layers:'cm:routing_barriers,cm:routing_segments,cm:routing_nodes,cm:route_problem_intersections', format:'image/png', transparent:'TRUE' });
 MAP.addLayer(routedebug);
 */
+
 ;
  /**
  * native-constants.js
@@ -123,7 +124,8 @@ MAP.addLayer(routedebug);
 WEBAPP_BASEPATH = '';
 API_BASEPATH = 'https://maps.clevelandmetroparks.com/';
 
-NATIVE_APP = true;;
+NATIVE_APP = true;
+;
  /**
  * common.js
  *
@@ -435,6 +437,7 @@ function latlng_as_dd(latlng, precision) {
     latlng_str = latlng.lat.toFixed(precision) + ', ' + latlng.lng.toFixed(precision);
     return latlng_str;
 }
+
 ;
  /**
  * mobile.js
@@ -1400,6 +1403,7 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
 //    MAP.on('moveend', debugScaleZoomOutput);
 //    MAP.on('zoomend', debugScaleZoomOutput);
 //}
+
 ;
 /**
  * Sidebar
@@ -1704,6 +1708,7 @@ $(document).ready(function(){
         );
     });
 });
+
 ;
  /**
  * geolocate.js
@@ -1870,7 +1875,8 @@ $(document).ready(function () {
     if (!NATIVE_APP) {
         enableGeolocate();
     }
-});;
+});
+;
  /**
  * directions.js
  *
@@ -2517,6 +2523,7 @@ $(document).ready(function () {
         }
     });
 });
+
 ;
  /**
  * share.js
@@ -2695,6 +2702,7 @@ function updateShareUrlByDirections() {
     // compile all of the params together and save it to the global. this is later read by populateShareBox()
     SHARE_URL_STRING = $.param(params);
 }
+
 ;
  /**
  * search.js
@@ -2948,6 +2956,7 @@ $(document).ready(function () {
 
     },'json');
 });
+
 ;
 /*********************************************
  * Nearby
@@ -3171,6 +3180,7 @@ $(document).ready(function () {
         }
     });
 });
+
 ;
 /**
  * loopsandroutes.js
@@ -3387,6 +3397,7 @@ function filterLoops() {
         sortLists(target);
     }, 'json');
 }
+
 ;
  /**
  * print.js
