@@ -17,13 +17,17 @@ class Ajax extends CI_Controller {
  */
 function geocode() {
     $url = sprintf("http://dev.virtualearth.net/REST/v1/Locations?query=%s&output=json&key=%s&userMapView=%s",
-        urlencode($_GET['address']),
-        $_GET['bing_key'],
-        $_GET['bbox']
+        rawurlencode($_GET['address']),
+        rawurlencode($_GET['bing_key']),
+        rawurlencode($_GET['bbox'])
     );
 
-    $reply = json_decode(file_get_contents($url));
-    $results = $reply->resourceSets[0]->resources;
+    $reply = file_get_contents($url);
+    if (empty($reply)) {
+        return;
+    }
+    $decoded_reply = json_decode($reply);
+    $results = $decoded_reply->resourceSets[0]->resources;
     if (! sizeof($results)) return;
 
     $result = array();
