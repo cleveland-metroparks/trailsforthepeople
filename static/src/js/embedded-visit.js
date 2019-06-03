@@ -67,6 +67,13 @@ $(document).ready(function(){
         within_feet: distance_feet
     };
 
+    // We initially geolocate when the "Near Me" button is clicked,
+    // but on form submit page reload, need to re-initiate in order
+    // to show the user's marker on the map.
+    if (geolocate_enabled) {
+        MAP.locate({watch: false, enableHighAccuracy: true});
+    }
+
     /**
      * Make the right call, based on options
      */
