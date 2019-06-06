@@ -2,13 +2,8 @@
 ///// This is identical to the public-facing version, except that we must use SSL
 ///// because Chrome and IE can't cope with mixing HTTP and HTTPS on the same page
 
-var MAPBASE   = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/basemap_mobilestack/{z}/{x}/{y}.jpg", { });
-
 var OVERLAYS  = [];
-OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("//maps.clevelandmetroparks.com/wms", { id:'closures', visibility:true, layers:'cm:closures,cm:markers_other,cm:markers_swgh', format:'image/png', transparent:'TRUE' });
-OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("//maps.clevelandmetroparks.com/gwc", { id:'labels', visibility:true, layers:'group_overlays', format:'image/png', transparent:'TRUE' });
-
-// almost identicval: we enable the Route Debugging layer for these maps
+// Route Debugging layer for these maps
 OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("//maps.clevelandmetroparks.com/wms", { id:'routedebug', visibility:false, layers:'cm:routing_barriers,cm:routing_segments,cm:routing_nodes,cm:route_problem_intersections', format:'image/png', transparent:'TRUE' });
 
 
@@ -24,14 +19,18 @@ Date.prototype.yyyymmdd = function() {
 
 // on page load: start the map
 function initContributorMap() {
-    // start the map, add the basemap, zoom to the max extent
-    MAP = new L.Map('map_canvas', {
-        attributionControl: false, zoomControl: true, dragging: true,
+    // start the map, add the basemap
+    var options = {
+        attributionControl: false,
+        zoomControl: true,
+        dragging: true,
         closePopupOnClick: true,
         crs: L.CRS.EPSG3857,
         maxZoom: 18,
-        layers : [ MAPBASE ]
-    });
+        layers : [ LAYER_MAPBOX_MAP ]
+    };
+    MAP = new L.Map('map_canvas', options);
+    // Zoom to max extent
     MAP.fitBounds(MAX_BOUNDS);
     L.control.scale().addTo(MAP);
 
@@ -42,8 +41,7 @@ function initContributorMap() {
     }
 
     // the layer picker
-    MAP.addControl(new L.Control.Layers({
-    },{
+    MAP.addControl(new L.Control.Layers({},{
         'Route debugging' : OVERLAYS[OVERLAYS.length-1]
     }));
 

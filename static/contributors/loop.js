@@ -387,7 +387,7 @@ function generateRoughCut() {
     });
 
     if (latlngs.length >= 2) {
-        ROUGHCUT_LINE = new L.MultiPolyline([latlngs], ROUGHCUT_LINE_STYLE);
+        ROUGHCUT_LINE = new L.polygon([latlngs], ROUGHCUT_LINE_STYLE);
         MAP.addLayer(ROUGHCUT_LINE);
     }
 }
