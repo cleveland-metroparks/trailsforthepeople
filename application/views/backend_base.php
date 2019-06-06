@@ -16,12 +16,6 @@
 
     <!-- Bootstrap -->
     <link href="<?= ssl_url('static/admin/bootstrap/css/bootstrap.min.css'); ?>" rel="stylesheet">
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
 
     <!-- jQuery -->
     <script type="text/javascript" src="<?= ssl_url('static/lib/jquery-1.12.4.min.js'); ?>"></script>
@@ -31,15 +25,19 @@
     <script type="text/javascript" src="<?= ssl_url('static/lib/jquery-ui-1.11.4/jquery-ui.min.js'); ?>"></script>
     <!-- <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/lib/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" /> -->
     <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/lib/jquery-ui-1.11.4/jquery-ui.min.css'); ?>" />
+    <link type="text/css" rel="stylesheet" href="<?= site_url('static/lib/mapbox-gl-js-0.53.0/mapbox-gl.css'); ?>" />
 
     <!-- tablesorter -->
     <script type="text/javascript" src="<?= ssl_url('static/lib/tablesorter/jquery.tablesorter.js'); ?>"></script>
 
     <!-- Leaflet map API and Wicket plugin for parsing WKT -->
-    <link rel="stylesheet" type="text/css" href="<?= ssl_url('static/lib/leaflet-0.7.1/leaflet.css'); ?>" />
-    <script type="text/javascript" src="<?= ssl_url('static/lib/leaflet-0.7.1/leaflet.js'); ?>"></script>
-    <script type="text/javascript" src="<?= ssl_url('static/lib/wicket/wicket.js'); ?>"></script>
-    <script type="text/javascript" src="<?= ssl_url('static/lib/wicket/wicket-leaflet.js'); ?>"></script>
+    <link rel="stylesheet" type="text/css" href="<?= ssl_url('static/lib/leaflet-1.0.3/leaflet.css'); ?>" />
+    <script type="text/javascript" src="<?= ssl_url('static/lib/leaflet-1.0.3/leaflet.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/lib/wicket-master/wicket.min.js'); ?>"></script>
+    <script type="text/javascript" src="<?= ssl_url('static/lib/wicket-master/wicket-leaflet.min.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/lib/mapbox.js-3.1.1/mapbox.standalone.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/lib/mapbox-gl-js-0.53.0/mapbox-gl.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.min.js'); ?>"></script>
 
     <!-- TinyMCE, the HTML editor -->
     <script type="text/javascript" src="<?= ssl_url('static/lib/tinymce/jscripts/tiny_mce/jquery.tinymce.js'); ?>"></script>
@@ -90,7 +88,6 @@
       </div><!-- /.content -->
     </div><!-- /.container -->
 
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="<?= ssl_url('static/admin/bootstrap/js/bootstrap.min.js'); ?>"></script>
   </body>
 
