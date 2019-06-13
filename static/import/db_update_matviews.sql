@@ -18,6 +18,7 @@ END;
 -- Update "materialized view": view_cmp_gisamenitytype
 --
 
+BEGIN;
 DELETE FROM view_cmp_gisamenitytype;
 INSERT INTO view_cmp_gisamenitytype
   SELECT * FROM fdw_cmp_gisamenitytype;
