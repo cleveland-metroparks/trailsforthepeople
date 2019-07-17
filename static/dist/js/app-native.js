@@ -64,11 +64,11 @@ var PRINT_SIZES = {
 //var LAYER_TILESTACHE_MAP = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/basemap_mobilestack/{z}/{x}/{y}.jpg", { name:'terrain', subdomains:'123' });
 
 // Mapbox access token
-const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiWHRKaDhuRSJ9.FGqNSOHwiCr2dmTH2JTMAA';
+var MAPBOX_TOKEN = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiWHRKaDhuRSJ9.FGqNSOHwiCr2dmTH2JTMAA';
 L.mapbox.accessToken = MAPBOX_TOKEN;
 
 // Mapbox map tiles baselayer
-const MAPBOX_MAP_URL_FRAG = 'cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
+var MAPBOX_MAP_URL_FRAG = 'cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
 var LAYER_MAPBOX_MAP = L.tileLayer(
     'https://api.mapbox.com/styles/v1/' + MAPBOX_MAP_URL_FRAG + '/tiles/{z}/{x}/{y}?access_token=' + L.mapbox.accessToken, {
         tileSize: 512,
@@ -77,7 +77,7 @@ var LAYER_MAPBOX_MAP = L.tileLayer(
     });
 
 // Mapbox satellite baselayer
-const MAPBOX_SAT_URL_FRAG = 'cleveland-metroparks/cjcutetjg07892ro6wunp2da9';
+var MAPBOX_SAT_URL_FRAG = 'cleveland-metroparks/cjcutetjg07892ro6wunp2da9';
 var LAYER_MAPBOX_SAT = L.tileLayer(
     'https://api.mapbox.com/styles/v1/' + MAPBOX_SAT_URL_FRAG + '/tiles/{z}/{x}/{y}?access_token=' + L.mapbox.accessToken, {
         tileSize: 512,
@@ -92,7 +92,7 @@ var LAYER_MAPBOX_GL_MAP = L.mapboxGL({
     style: 'mapbox://styles/' + MAPBOX_MAP_URL_FRAG
 });
 
-const ALL_LAYERS = [
+var ALL_LAYERS = [
     //LAYER_TILESTACHE_MAP,
     //LAYER_TILESTACHE_SAT,
     LAYER_MAPBOX_MAP,
@@ -100,7 +100,7 @@ const ALL_LAYERS = [
     LAYER_MAPBOX_GL_MAP
 ];
 
-const AVAILABLE_LAYERS = {
+var AVAILABLE_LAYERS = {
     'map' : LAYER_MAPBOX_MAP,
     'photo' : LAYER_MAPBOX_SAT,
     'vector' : LAYER_MAPBOX_GL_MAP
@@ -1220,7 +1220,7 @@ function updateWindowURLAll() {
  * Set query string parameters in window location.
  */
 function setWindowURLQueryStringParameter(name, value) {
-    const params = new URLSearchParams(location.search);
+    var params = new URLSearchParams(location.search);
     params.set(name, value);
 
     // Remove deprecated x,y,z params

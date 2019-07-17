@@ -779,7 +779,7 @@ function updateWindowURLAll() {
  * Set query string parameters in window location.
  */
 function setWindowURLQueryStringParameter(name, value) {
-    const params = new URLSearchParams(location.search);
+    var params = new URLSearchParams(location.search);
     params.set(name, value);
 
     // Remove deprecated x,y,z params
