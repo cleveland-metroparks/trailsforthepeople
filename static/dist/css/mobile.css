@@ -154,6 +154,15 @@ div.lng_driving { display: none; }
 #pane-share .share_button { line-height: 2em; }
 #pane-share .share_button .cm-icon { font-size: 30px; padding-right: .2em; }
 
+#pane-legend ul.map-legend { list-style: none; padding: 0; }
+#pane-legend ul.map-legend img { margin-right: 10px; margin-bottom: 10px; vertical-align: middle; }
+#pane-legend ul.map-legend .info { display: inline-block; vertical-align: middle; }
+#pane-legend ul.map-legend p { margin: 0; }
+#pane-legend .map-legend-bt h3 { margin-bottom: 0; }
+#pane-legend .map-legend-bt p { margin: 0; }
+#pane-legend .map-legend-bt ul { list-style: none; padding: 0; }
+#pane-legend .map-legend-bt ul li { display: inline-block; margin-right: 10px; }
+
 #pane-credits .disclaimer { font-size: 90%; }
 
 #pane-info .activities-icon-list { list-style-type: none; margin-top: 0; padding: 0; }

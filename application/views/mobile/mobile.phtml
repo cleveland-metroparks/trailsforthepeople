@@ -105,6 +105,7 @@
 
         <!-- Bottom -->
         <ul role="tablist">
+            <li><a href="#pane-legend" role="tab" title="Help"><i class="cm-icon cm-icon-map-signs"></i></a></li>
             <li><a href="#pane-settings" role="tab" title="Settings"><i class="cm-icon cm-icon-cog"></i></a></li>
             <li><a href="#pane-credits" role="tab" title="Credits"><i class="cm-icon cm-icon-info"></i></a></li>
         </ul>
@@ -129,6 +130,9 @@
 
         <!-- Sidebar Pane: Share: #pane-share -->
         <?php $this->load->view('mobile/sidebar-panes/share.phtml'); ?>
+
+        <!-- Sidebar Pane: Credits: #pane-legend -->
+        <?php $this->load->view('mobile/sidebar-panes/legend.phtml'); ?>
 
         <!-- Sidebar Pane: Settings: #pane-settings -->
         <?php $this->load->view('mobile/sidebar-panes/settings.phtml'); ?>
