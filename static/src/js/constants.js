@@ -17,6 +17,11 @@ var WEBAPP_BASEPATH = '/';
 var API_BASEPATH = '/';
 var MAP = null;
 
+var API_NEW_HOST = 'maps-api-local.clevelandmetroparks.com';
+var API_NEW_PROTOCOL = 'https:';
+var API_NEW_BASEPATH = '/api/v1/';
+var API_NEW_BASE_URL = API_NEW_PROTOCOL + '//' + API_NEW_HOST + API_NEW_BASEPATH;
+
 var WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL = 'https:';
 var WEBAPP_BASE_URL_ABSOLUTE_HOST = 'maps.clevelandmetroparks.com';
 var WEBAPP_BASE_URL_ABSOLUTE = WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL + '//' + WEBAPP_BASE_URL_ABSOLUTE_HOST + '/';
