@@ -28,7 +28,8 @@
   "homepage": "https://github.com/mapbox/mapbox-gl-leaflet",
   "devDependencies": {
     "gh-release": "^3.5.0",
-    "jshint": "^2.10.1"
+    "jshint": "^2.10.1",
+    "lodash": "^4.17.14"
   },
   "peerDependencies": {
     "leaflet": "^1.0.0",
