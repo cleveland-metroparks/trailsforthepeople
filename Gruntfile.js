@@ -53,7 +53,7 @@ module.exports = function(grunt) {
       embedded_base: {
         src: [
           'static/lib/jquery-1.12.4.min.js',
-          'static/lib/leaflet-1.0.3/leaflet.js',
+          'static/lib/leaflet-1.5.1/leaflet.js',
           'static/lib/mapbox.js-3.1.1/mapbox.standalone.js',
           'static/lib/mapbox-gl-js-0.53.0/mapbox-gl.js',
           'static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.min.js',
@@ -66,7 +66,7 @@ module.exports = function(grunt) {
       // Base for map embeds on external sites that already have jQuery included (we don't package it):
       embedded_base_nojq: {
         src: [
-          'static/lib/leaflet-1.0.3/leaflet.js',
+          'static/lib/leaflet-1.5.1/leaflet.js',
           'static/lib/mapbox.js-3.1.1/mapbox.standalone.js',
           'static/lib/mapbox-gl-js-0.53.0/mapbox-gl.js',
           'static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.min.js',
