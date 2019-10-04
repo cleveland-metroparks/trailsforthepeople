@@ -1791,10 +1791,12 @@ $(document).ready(function () {
 });
 
 /**
- * Turn geolocation-following OFF when map canvas is swiped.
+ * Turn geolocation-following OFF when map is moved (panned/zoomed).
+ * Because gps-follow itself moves the map, we have to make sure to
+ * use the "noMoveStart" option in pans/zooms there (below).
  */
 $(document).ready(function () {
-    $('#map_canvas').bind('swipe', function () {
+    MAP.on('movestart', function(event) {
         disable_gps_follow();
     });
 });
@@ -1808,9 +1810,12 @@ function zoom_to_user_geolocation(latlng) {
     }
     if (latlng) {
         placeGPSMarker(latlng.lat, latlng.lng);
-        MAP.panTo(latlng);
+        // movestart event would disable gps follow, so we set noMoveStart option
+        // Currently requires patch for Leaflet bug:
+        //   https://github.com/Leaflet/Leaflet/pull/6685
+        MAP.panTo(latlng, {noMoveStart: true});
         if (MAP.getZoom() < 12) {
-            MAP.setZoom(16);
+            MAP.setZoom(16, {noMoveStart: true});
         }
     }
 }
@@ -1870,8 +1875,9 @@ $(document).ready(function () {
         update_user_latlon_display(event.latlng);
     });
 
-    // Start constant geolocation, which triggers all of the 'locationfound' events above.
-    // If the user is in the native app, we trigger once Cordova's geolocation plugin has come online.
+    // Start constant geolocation, which triggers all of the 'locationfound' events above,
+    // unless the user is in the native app, in which case we trigger this when
+    // Cordova's geolocation plugin has come online (see "deviceready", above).
     if (!NATIVE_APP) {
         enableGeolocate();
     }
