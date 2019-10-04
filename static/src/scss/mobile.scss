@@ -2,6 +2,13 @@
 @import "shared.scss";
 @import "tooltips.scss";
 
+html,
+body {
+  position: fixed;
+  overflow: hidden;
+  width: 100%;
+}
+
 // Typography
 .ui-header {
     font-family: $mainfont;
@@ -238,6 +245,9 @@ div.lng_driving {
     // Sidebar Content
     //
     .sidebar-content {
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+
         ul li {
             padding-left: 0;
             .cm-icon {

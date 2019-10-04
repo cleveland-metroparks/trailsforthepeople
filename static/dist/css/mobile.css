@@ -34,6 +34,8 @@
 
 .popper[x-placement^="left"] .popper__arrow, .tooltip[x-placement^="left"] .tooltip-arrow { border-width: 5px 0 5px 5px; border-top-color: transparent; border-right-color: transparent; border-bottom-color: transparent; right: -5px; top: calc(50% - 5px); margin-left: 0; margin-right: 0; }
 
+html, body { position: fixed; overflow: hidden; width: 100%; }
+
 .ui-header { font-family: "myriad-pro", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif; }
 
 .cm-icon { display: inline-block; }
@@ -109,6 +111,7 @@ div.lng_driving { display: none; }
 #sidebar .sidebar-tabs .ui-link, #sidebar .sidebar-tabs .ui-link:visited { color: #232222; }
 #sidebar .sidebar-tabs > ul > li.active { background-color: #1D5C1F; }
 #sidebar .sidebar-tabs > ul > li.active a { color: white !important; text-shadow: 0 1px 0 #232222; }
+#sidebar .sidebar-content { overflow-y: scroll; -webkit-overflow-scrolling: touch; }
 #sidebar .sidebar-content ul li { padding-left: 0; }
 #sidebar .sidebar-content ul li .cm-icon { padding-right: 10px; font-size: 24px; width: 24px; vertical-align: middle; text-align: center; }
 #sidebar .sidebar-content h4 { margin: 0; }
