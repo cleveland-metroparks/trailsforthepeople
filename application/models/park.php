@@ -1,15 +1,20 @@
-<?php class Park extends DataMapper {
+<?php
+
+/**
+ * Park data model
+ *
+ * moreinfo() type is 'reservation'
+ */
+class Park extends DataMapper {
 
 var $table    = 'reservation_boundaries_public_private_cm_dissolved';
 var $has_one  = array();
 var $has_many = array();
 var $default_order_by = array('res');
 
-
 function __construct($id = NULL) {
     parent::__construct($id);
 }
-
 
 // given a WSEN bounding box in WGS84, return 1 feature matching that bbox
 function getByBBOX($w,$s,$e,$n) {
