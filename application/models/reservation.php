@@ -16,6 +16,26 @@ function __construct($id = NULL) {
 }
 
 /**
+ * JOIN reservation_new & reservation_zoomlevel
+ *
+ * return results
+ */
+function get_reservations_with_zoomlevels() {
+  $query = $this->db->query("
+    SELECT r.*, z.zoomlevel FROM view_cmp_gisreservations r
+    LEFT JOIN reservation_zoomlevel z ON
+    r.record_id = z.reservation_id
+    ORDER BY r.pagetitle ASC
+  ");
+
+  $results = array();
+  foreach ($query->result() as $row) {
+    $results[] = $row;
+  }
+  return $results;
+}
+
+/**
  * Get specified level to which we should zoom for reservation.
  * Uses reservation_zoomlevel table
  */
@@ -65,5 +85,11 @@ CREATE TABLE IF NOT EXISTS view_cmp_gisreservations (
   PRIMARY KEY(record_id)
 );
 GRANT ALL PRIVILEGES ON TABLE view_cmp_gisreservations TO trails;
+
+CREATE TABLE reservation_zoomlevel (
+  reservation_id INTEGER PRIMARY KEY,
+  zoomlevel float8
+);
+GRANT ALL PRIVILEGES ON TABLE reservation_zoomlevel TO trails;
 
 */
