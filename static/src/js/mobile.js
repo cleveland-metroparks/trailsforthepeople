@@ -626,6 +626,7 @@ function showOnMap() {
         if (feature.type=='reservation_new') {
             feature.gid  = element.attr('record_id');
         }
+        feature.zoomlevel = element.attr('zoomlevel');
 
         zoomToFeature(feature);
     }
