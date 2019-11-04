@@ -653,7 +653,6 @@ $(document).ready(function () {
                 feature.n = reply.boxn;
                 feature.e = reply.boxe;
                 feature.s = reply.boxs;
-                feature.zoomlevel = reply.zoomlevel;
 
                 zoomToFeature(feature);
 
@@ -1091,16 +1090,13 @@ function zoomToFeature(feature) {
 
     // Switch to the map and add the feature.
     switchToMap(function () {
-        if (feature.zoomlevel != null && !isNaN(feature.zoomlevel)) {
-            // Re-center and zoom to given zoom level
-            MAP.flyTo(L.latLng(feature.lat, feature.lng), parseFloat(feature.zoomlevel));
-        }
-        else if ((feature.w != 0) && (feature.s != 0) && (feature.e != 0) && (feature.n != 0)) {
-            // Zoom to the given bbox
+        // Zoom the map into the stated bbox, if we have one.
+        if ((feature.w != 0) && (feature.s != 0) && (feature.e != 0) && (feature.n != 0)) {
             var bounds = L.latLngBounds(L.latLng(feature.s, feature.w), L.latLng(feature.n, feature.e)).pad(0.15);
             MAP.flyToBounds(bounds);
         } else {
-            // Re-center and zoom to default
+            // Re-center and zoom
+            // @TODO: Eventually we'll have individual POI zoomlevels in DB
             MAP.flyTo(L.latLng(feature.lat, feature.lng), DEFAULT_POI_ZOOM);
         }
 
@@ -1188,7 +1184,7 @@ function updateWindowURLCenter() {
  * Update the window URL with zoom param.
  */
 function updateWindowURLZoom() {
-    var zoom = Number.parseFloat(MAP.getZoom()).toFixed(2);
+    var zoom = MAP.getZoom().toFixed(1);
     invalidateMapURL();
     setWindowURLQueryStringParameter('zoom', zoom);
 }
@@ -1278,6 +1274,7 @@ function changeCoordinateFormat(format) {
  */
 function getSessionCoordinateFormat() {
     $.get(API_BASEPATH + 'ajax/get_session_coordinate_format', {}, function (reply) {
+        // console.log('get_session_coordinate_format reply:', reply); // @DEBUG
         if (reply) {
             // Update UI setting and user location display.
             SETTINGS.coordinate_format = reply;
@@ -1298,7 +1295,9 @@ function setSessionCoordinateFormat(format) {
         coordinate_format: format
     };
 
+    // console.log('setSessionCoordinateFormat to ' + format); // @DEBUG
     $.get(API_BASEPATH + 'ajax/set_session_coordinate_format', params, function (reply) {
+        // console.log('set_session_coordinate_format reply:', reply);
         if (!reply) {
             console.log('Error: set_session_coordinate_format: No reply.');
         }

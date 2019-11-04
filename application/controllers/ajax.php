@@ -378,9 +378,7 @@ function moreinfo() {
 
         case 'reservation':
             $result = new Park();
-            $result
-                ->where('gid',$_GET['gid'])
-                ->get();
+            $result->where('gid',$_GET['gid'])->get();
             if (! $result->gid) exit;
             $template = 'ajax/moreinfo_reservation.phtml';
             break;
@@ -390,8 +388,6 @@ function moreinfo() {
             $result
                 ->where('record_id', $_GET['gid'])
                 ->get();
-            $result->stored->zoomlevel = $result->get_zoomlevel($result->record_id);
-
             if (! $result->record_id) exit;
             $template = 'ajax/moreinfo_reservation_new.phtml';
             break;
@@ -419,7 +415,7 @@ function moreinfo() {
 
     // done, show the HTML template for this feature. normally we'd go AJAX and send back JSON,
     // but we're not generating a plain list here; we're generating a HTML page with photos and all
-    $this->load->view($template, array('feature' => $result->stored));
+    $this->load->view($template, array('feature'=>$result->stored ) );
 }
 
 /**
@@ -1876,9 +1872,7 @@ function get_visitor_centers() {
  */
 function get_reservation() {
     $reservation = new Reservation();
-    $reservation
-        ->where('record_id', $_GET['gid'])
-        ->get();
+    $reservation->where('record_id', $_GET['gid'])->get();
 
     $result = array(
         'record_id'   => $reservation->record_id,
@@ -1888,10 +1882,8 @@ function get_reservation() {
         'boxw'   => $reservation->boxw,
         'boxs'   => $reservation->boxs,
         'boxe'   => $reservation->boxe,
-        'boxn'   => $reservation->boxn,
+        'boxn'   => $reservation->boxn
     );
-
-    $result['zoomlevel'] = $reservation->get_zoomlevel($reservation->record_id);
 
     print json_encode($result);
 }

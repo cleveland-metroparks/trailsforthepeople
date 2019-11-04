@@ -2,10 +2,6 @@
 
 /**
  * Reservation data model
- *
- * Taking over from Park model.
- * moreinfo() type is 'reservation_new'
- *
  */
 class Reservation extends DataMapper {
 
@@ -13,17 +9,6 @@ var $table    = 'view_cmp_gisreservations';
 
 function __construct($id = NULL) {
     parent::__construct($id);
-}
-
-/**
- * Get specified level to which we should zoom for reservation.
- * Uses reservation_zoomlevel table
- */
-function get_zoomlevel($reservation_id) {
-    $query = $this->db->query("SELECT zoomlevel FROM reservation_zoomlevel WHERE reservation_id = {$reservation_id}");
-    if ($result_row = $query->row()) {
-      return $result_row->zoomlevel;
-    }
 }
 
 }
