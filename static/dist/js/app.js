@@ -1054,7 +1054,6 @@ function showOnMap() {
         if (feature.type=='reservation_new') {
             feature.gid  = element.attr('record_id');
         }
-        feature.zoomlevel = element.attr('zoomlevel');
 
         zoomToFeature(feature);
     }
@@ -1544,7 +1543,6 @@ $(document).ready(function () {
                 .attr('n',result.n)
                 .attr('lat',result.lat)
                 .attr('lng',result.lng)
-                .attr('zoomlevel',result.zoomlevel)
                 .attr('backbutton', "#pane-browse-results");
 
             // Link (fake, currently)

@@ -148,7 +148,6 @@ $(document).ready(function () {
                 .attr('n',result.n)
                 .attr('lat',result.lat)
                 .attr('lng',result.lng)
-                .attr('zoomlevel',result.zoomlevel)
                 .attr('backbutton', "#pane-browse-results");
 
             // Link (fake, currently)
