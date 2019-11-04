@@ -1900,9 +1900,11 @@ function get_reservation() {
  * Get Reservations
  */
 function get_reservations() {
-    $reservation_obj = new Reservation();
+    $reservations = new Reservation();
 
-    $reservations = $reservation_obj->get_reservations_with_zoomlevels();
+    $reservations
+        ->order_by('pagetitle')
+        ->get();
 
     $results = $this->_makeAttractionResults($reservations, 'reservation_new');
 
@@ -1960,13 +1962,11 @@ function _makeAttractionResults($attractions, $type='attraction') {
             'lat'   => (float) $attraction->latitude,
             'lng'   => (float) $attraction->longitude,
 
-            'zoomlevel'   => !empty($attraction->zoomlevel) ? (float) $attraction->zoomlevel : null,
-
             'thumbnail' => $attraction->pagethumbnail,
 
             'description' => $attraction->descr,
 
-            'cmp_url' => !empty($attraction->cmp_url) ? $this->config->item('main_site_url') . ltrim($attraction->cmp_url, '/') : null,
+            'cmp_url' => $this->config->item('main_site_url') . ltrim($attraction->cmp_url, '/')
         );
     }
 
