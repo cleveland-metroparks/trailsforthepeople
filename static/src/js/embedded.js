@@ -17,7 +17,7 @@ $(document).ready(function(){
     initMap(mapOptions);
 
     // Disable scrollwheel-driven map zooming so the user can scroll down the page.
-    MAP.scrollWheelZoom.disable();
+    MAP.scrollZoom.disable();
 
     /**
      * Filters: on "Update Results" button click

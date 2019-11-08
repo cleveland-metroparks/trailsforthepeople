@@ -316,7 +316,7 @@ function initMap(mapOptions) {
     // Fire mapInitialized event
     $.event.trigger({
         type: 'mapInitialized',
-    });t
+    });
 }
 
 /**

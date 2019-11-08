@@ -83,7 +83,8 @@ module.exports = function(grunt) {
           'static/lib/mapbox-gl-js-1.5.0/mapbox-gl.js',
           'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
-          'static/src/js/common.js'
+          'static/src/js/common.js',
+          'static/src/js/sidebar.js',
         ],
         dest: 'static/dist/js/map-embedded-base-gljs.js'
       },
@@ -93,7 +94,9 @@ module.exports = function(grunt) {
           'static/lib/mapbox-gl-js-1.5.0/mapbox-gl.js',
           'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
-          'static/src/js/common.js'
+          'static/src/js/common.js',
+          'static/src/js/sidebar.js',
+          'static/src/js/loopsandroutes.js'
         ],
         dest: 'static/dist/js/map-embedded-base-gljs-nojq.js'
       }
@@ -281,6 +284,8 @@ module.exports = function(grunt) {
         files: [
           'static/src/js/constants.js',
           'static/src/js/common.js',
+          'static/src/js/sidebar.js',
+          'static/src/js/loopsandroutes.js',
           'static/src/js/embedded.js',
           'static/src/js/embedded-constants.js'
         ],

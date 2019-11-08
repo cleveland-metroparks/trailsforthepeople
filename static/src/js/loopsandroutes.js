@@ -16,7 +16,7 @@
 $(document).ready(function () {
     // the event handlers below are for the sliders and textboxes within #pane-loops,
     // so trigger a DOM rendering of the page now so the elements exist
-    $('#pane-trails').page();
+    // $('#pane-trails').page(); // @TODO: GLJS. Still necessary?
 
     // the #loops_filter_type selector is invisible, and we have a set of icons to set its value when they're clicked
     $('#loops_typeicons img').click(function () {

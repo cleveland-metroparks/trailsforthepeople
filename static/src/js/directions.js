@@ -541,7 +541,7 @@ $(document).ready(function () {
         $('#directions_via').val(transport_method);
         $('#directions_via').trigger('change');
         // update that selector: render the page if it's not already been visited, then restyle the selector so it shows the value it has
-        $('#pane-getdirections').page();
+        // $('#pane-getdirections').page(); // @TODO: GLJS. Still necessary?
         $('#directions_via').selectmenu("refresh");
         // and change to the Get Directions panel
         sidebar.open('pane-getdirections');
