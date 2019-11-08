@@ -7,9 +7,9 @@
  * Cleveland Metroparks
  */
 
-const API_ENDPOINT_GEOCODE = API_BASEPATH + 'ajax/geocode';
-const API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES = API_BASEPATH + 'ajax/get_attractions_by_activity';
-const API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY = API_BASEPATH + 'ajax/get_nearby_attractions_with_activities';
+var API_ENDPOINT_GEOCODE = API_BASEPATH + 'ajax/geocode';
+var API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES = API_BASEPATH + 'ajax/get_attractions_by_activity';
+var API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY = API_BASEPATH + 'ajax/get_nearby_attractions_with_activities';
 
 var markerLayer = L.featureGroup();
 var userLocation;
