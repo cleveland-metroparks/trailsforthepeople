@@ -154,9 +154,13 @@ $(document).ready(function () {
         if ( $('#nearby_enabled').is(':checked') ) {
             var meters = $('#nearby_radius').val();
             var categories = [];
-            $('input[name="nearby_category"]:checked').each(function () { categories[categories.length] = $(this).val() });
-            placeCircle(event.latlng.lat,event.latlng.lng,meters);
-            checkNearby(event.latlng,meters,categories);
+            $('input[name="nearby_category"]:checked').each(
+                function () {
+                    categories[categories.length] = $(this).val()
+                }
+            );
+            placeCircle(event.latlng.lat, event.latlng.lng, meters);
+            checkNearby(event.latlng, meters, categories);
         }
 
         // Update display of user lat/lng

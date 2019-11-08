@@ -8,41 +8,32 @@
 
 var isMobile = /Mobi/.test(navigator.userAgent); // Simple mobile device detection.
 
-var ICON_TARGET = L.icon({
-    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/marker-target.png',
-    iconSize: [ 25, 41 ],
-    iconAnchor: [ 13, 41 ],
-    popupAnchor: [ 0, -41 ]
-});
-var MARKER_TARGET = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_TARGET });
+// Target marker
+var markerTargetEl = document.createElement('div');
+markerTargetEl.id = 'marker-target';
+var markerTargetIconWidth = 25; // Must match sizing in CSS for #marker-target
+var markerTargetIconHeight = 41; // Must match sizing in CSS for #marker-target
+var MARKER_TARGET = new mapboxgl.Marker(markerTargetEl, {offset: [-markerTargetIconWidth/2, -markerTargetIconHeight]});
 
-var ICON_GPS = L.icon({
-    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/marker-gps.svg',
-    iconSize: [ 25, 41 ],
-    iconAnchor: [ 13, 41 ],
-    popupAnchor: [ 0, -41 ]
-});
-var MARKER_GPS     = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_GPS });
+// Geolocation marker
+var markerGpsEl = document.createElement('div');
+markerGpsEl.id = 'marker-gps';
+var markerGpsIconSize = 16; // Must match sizing in CSS for #marker-gps
+var MARKER_GPS = new mapboxgl.Marker(markerGpsEl, {offset: [-markerGpsIconSize/2, -markerGpsIconSize/2]});
 
-var ICON_FROM = L.icon({
-    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/measure1.png',
-    iconSize: [ 20, 34 ],
-    iconAnchor: [ 10, 34 ]
-});
-var ICON_TO = L.icon({
-    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/measure2.png',
-    iconSize: [ 20, 34 ],
-    iconAnchor: [ 10, 34 ]
-});
-var MARKER_FROM  = L.marker(L.latLng(0,0), { clickable:true, draggable:true, icon:ICON_FROM });
-var MARKER_TO    = L.marker(L.latLng(0,0), { clickable:true, draggable:true, icon:ICON_TO });
+// "From" marker (for directions)
+var markerFromEl = document.createElement('div');
+markerFromEl.id = 'marker-from';
+var markerFromIconWidth = 20; // Must match sizing in CSS for #marker-from
+var markerFromIconHeight = 34; // Must match sizing in CSS for #marker-from
+var MARKER_FROM = new mapboxgl.Marker(markerFromEl, {offset: [-markerFromIconWidth/2, -markerFromIconHeight]});
 
-var INFO_POPUP_OPTIONS = {
-    'className' : 'info-popup'
-};
-var INFO_POPUP = L.popup(INFO_POPUP_OPTIONS);
-
-var CIRCLE = new L.Circle(L.latLng(0,0), 1);
+// "To" marker (for directions)
+var markerToEl = document.createElement('div');
+markerToEl.id = 'marker-to';
+var markerToIconWidth = 20; // Must match sizing in CSS for #marker-to
+var markerToIconHeight = 34; // Must match sizing in CSS for #marker-to
+var MARKER_TO = new mapboxgl.Marker(markerToEl, {offset: [-markerToIconWidth/2, -markerToIconHeight]});
 
 var ELEVATION_PROFILE = null;
 
@@ -62,70 +53,68 @@ SETTINGS.coordinate_format = 'dms';
  * The business. (And too much of it.)
  */
 function initMap(mapOptions) {
-    // URL param: the base map; defaults to map (vs satellite)
+    // Base map type; URL param or map (vs photo/satellite) default
     var base = mapOptions.base || 'map';
+    var basemap_style; // Mapbox base style layer
 
-    var basemap; // which L.TileLayer instance to use?
     switch (base) {
         case 'photo':
-            basemap = LAYER_MAPBOX_SAT;
+            basemap_style = STYLE_LAYER_CM_SAT;
             break;
         case 'map':
         default:
-            // Use raster tiles on mobile for now, until we sort out Leaflet-GL zooming and marker issues.
-            if (isMobile) {
-                basemap = LAYER_MAPBOX_MAP;
-            } else {
-                basemap = LAYER_MAPBOX_GL_MAP;
-            }
+            basemap_style = STYLE_LAYER_CM_MAP;
             break;
     }
 
-    // start the map, only the basemap for starters
-    // do some detection of browser to find Android 4+ and override the animation settings, hoping to enable pinch-zoom without breaking the app entirely
-    // this is specifically contraindicated by Leaflet's own feature detection
-    var options = {
-        attributionControl: false,
-        zoomControl: false, // add manually, below
-        dragging: true,
-        closePopupOnClick: false,
-        crs: L.CRS.EPSG3857,
-        minZoom: MIN_ZOOM,
-        maxZoom: MAX_ZOOM,
-        zoomSnap: 0, // fractional zoom
-        layers : [ basemap ]
-    };
-    var android4 = navigator.userAgent.match(/Android (4|5)/);
-    if (android4) {
-        options.fadeAnimation       = true;
-        options.zoomAnimation       = true;
-        options.markerZoomAnimation = true;
-    }
+    // Map
+    MAP = new mapboxgl.Map({
+         container: 'map_canvas',
+         style: basemap_style,
+         center: [START_LON, START_LAT],
+         zoom: START_ZOOM
+     });
 
-    MAP = new L.Map('map_canvas', options);
-    new L.Control.Zoom({ position: 'bottomright' }).addTo(MAP);
+    // Nav (zoom/tilt) Control
+    var ctrlNav = new mapboxgl.NavigationControl();
+    MAP.addControl(ctrlNav, 'bottom-right');
+
+    // Geolocate control
+    var ctrlGeolocate = new mapboxgl.GeolocateControl({
+       positionOptions: {
+           trackUserLocation: true,
+           showUserLocation: true,
+           enableHighAccuracy: true
+       }
+    });
+    MAP.addControl(ctrlGeolocate, 'bottom-right');
+
+    // Scale control
+    var ctrlScale = new mapboxgl.ScaleControl({
+        maxWidth: 80,
+        unit: 'imperial'
+    });
+    MAP.addControl(ctrlScale, 'bottom-left');
 
     // Zoom to the lat/lng/zoom given in the URL, or else to the max extent
     if (mapOptions.lat && mapOptions.lng && mapOptions.zoom) {
         var lat = parseFloat(mapOptions.lat);
         var lng = parseFloat(mapOptions.lng);
         var zoom = parseInt(mapOptions.zoom);
-        MAP.setView(L.latLng(lat, lng),zoom);
+        MAP.setCenter([lng, lat]);
+        MAP.setZoom(zoom);
         if (mapOptions.drop_marker) {
             MAP.addLayer(MARKER_TARGET);
-            MARKER_TARGET.setLatLng(L.latLng(lat, lng));
+            placeMarker(MARKER_TARGET, lng, lat);
         }
     } else {
         MAP.fitBounds(MAX_BOUNDS);
     }
 
-    // additional Controls
-    L.control.scale().addTo(MAP);
-
     // Fire mapInitialized event
     $.event.trigger({
         type: 'mapInitialized',
-    });
+    });t
 }
 
 /**
@@ -143,40 +132,39 @@ function lineWKTtoFeature(wkt, style) {
 /**
  * Place "target" (normal) marker
  */
-function placeTargetMarker(lat, lon) {
-    MAP.addLayer(MARKER_TARGET);
-    MARKER_TARGET.setLatLng(L.latLng(lat,lon));
+function placeTargetMarker(lat, lng) {
+    MARKER_TARGET
+        .setLngLat([lng, lat])
+        .addTo(MAP);
 }
 
 /**
  * Clear "target" (normal) marker
  */
 function clearTargetMarker() {
-    if (MAP.hasLayer(MARKER_TARGET)) {
-        MAP.removeLayer(MARKER_TARGET);
-    }
+    MARKER_TARGET.remove();
 }
 
 /**
  * Place GPS (geolocated) marker
  */
-function placeGPSMarker(lat, lon) {
-    MAP.addLayer(MARKER_GPS);
-    MARKER_GPS.setLatLng(L.latLng(lat,lon));
+function placeGPSMarker(lat, lng) {
+    MARKER_GPS
+        .setLngLat([lng, lat])
+        .addTo(MAP);
 }
 
 /**
  * Clear GPS (geolocated) marker
  */
 function clearGPSMarker() {
-    MAP.removeLayer(MARKER_GPS);
+    MARKER_GPS.remove();
 }
 
 /**
  * Show informational popup
  */
 function showInfoPopup(message, type) {
-    MAP.removeLayer(INFO_POPUP);
     switch (type) {
         case 'warning':
             classes = 'info-popup warning';
@@ -187,46 +175,33 @@ function showInfoPopup(message, type) {
         default:
             classes = 'info-popup';
     }
-    INFO_POPUP = L.popup({className : classes})
-        .setLatLng(MAP.getCenter())
-        .setContent(message)
-        .openOn(MAP);
+    var info_popup = new mapboxgl.Popup({
+        closeOnClick: false,
+        className: classes,
+    });
+    info_popup
+        .setLngLat(MAP.getCenter())
+        .setHTML(message)
+        .addTo(MAP);
 }
 
 /**
  * Enable the given base map layer.
  *
- * @param layer_key: Must refer to the key of an available layer (in AVAILABLE_LAYERS constant).
+ * @param layer_key: Must refer to the key of an available layer (in STYLE_LAYERS constant).
  */
 function changeBasemap(layer_key) {
-    // Use raster tiles on mobile for now, until we sort out zooming and marker issues.
-    if (layer_key == 'map') {
-        if (!isMobile) {
-            layer_key = 'vector';
-        }
-    }
-
-    new_active_layer = AVAILABLE_LAYERS[layer_key];
-
-    // Go through all layers, adding the intended one and removing others.
-    for (i=0; i<ALL_LAYERS.length; i++) {
-        if (ALL_LAYERS[i] == new_active_layer) {
-            // Add the active layer
-            if (! MAP.hasLayer(ALL_LAYERS[i])) {
-                MAP.addLayer(ALL_LAYERS[i], true);
-            }
-            if (layer_key != 'vector') {
-                // Mapbox GL+Leaflet layers don't implement bringToBack()
-                new_active_layer.bringToBack();
-            }
-        } else {
-            // Remove the inactive layer
-            if (MAP.hasLayer(ALL_LAYERS[i])) {
-                MAP.removeLayer(ALL_LAYERS[i]);
-            }
-        }
-    }
+    active_layer = STYLE_LAYERS[layer_key];
+    MAP.setStyle(active_layer);
 }
+
+/**
+ *
+ */
+function getBasemap() {
+    style = MAP.getStyle();
+    return STYLE_NAMES[style.name];
+ }
 
 /**
  * Return lat/lng as string in prescribed coordinate format.

@@ -26,14 +26,10 @@ var NATIVE_APP = false;
 
 // the bounding box of the mappable area, for setting the initial view
 // and potentially for restricting the map from zooming away (not enforced)
-var BBOX_SOUTHWEST = L.latLng(41.11816, -82.08504);
-var BBOX_NORTHEAST = L.latLng(41.70009, -81.28029);
-var MAX_BOUNDS = L.latLngBounds(BBOX_SOUTHWEST, BBOX_NORTHEAST);
+var MAX_BOUND_SW = new mapboxgl.LngLat(-82.08504, 41.11816);
+var MAX_BOUND_NE = new mapboxgl.LngLat(-81.28029, 41.70009);
+var MAX_BOUNDS = new mapboxgl.LngLatBounds(MAX_BOUND_SW, MAX_BOUND_NE);
 
-// min and max zoom levels. min (low) is further out and max (high) is further in.
-// level 11 covers the Cleveland region at full desktop size, level 18 is street level
-var MIN_ZOOM = 2; // See the whole world
-var MAX_ZOOM = 18;
 // Default level for zooming in to POIs (when no zoom or bbox specified)
 var DEFAULT_POI_ZOOM = 15;
 
@@ -59,55 +55,23 @@ var PRINT_SIZES = {
     'Ledger landscape' : [ 1178, 690 ]
 };
 
-// these basemaps are really basemaps WITH baked-in labels and features, so the map can function with only one overlay visible
-//var LAYER_TILESTACHE_SAT = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/satphoto_mobilestack/{z}/{x}/{y}.jpg", { name:'photo', subdomains:'123' });
-//var LAYER_TILESTACHE_MAP = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/basemap_mobilestack/{z}/{x}/{y}.jpg", { name:'terrain', subdomains:'123' });
+var START_LAT = 41.3953;
+var START_LON = -81.6730;
+var START_ZOOM = 14;
 
 // Mapbox access token
-var MAPBOX_TOKEN = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiWHRKaDhuRSJ9.FGqNSOHwiCr2dmTH2JTMAA';
-L.mapbox.accessToken = MAPBOX_TOKEN;
+mapboxgl.accessToken = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiWHRKaDhuRSJ9.FGqNSOHwiCr2dmTH2JTMAA';
 
-// Mapbox map tiles baselayer
-var MAPBOX_MAP_URL_FRAG = 'cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
-var LAYER_MAPBOX_MAP = L.tileLayer(
-    'https://api.mapbox.com/styles/v1/' + MAPBOX_MAP_URL_FRAG + '/tiles/{z}/{x}/{y}?access_token=' + L.mapbox.accessToken, {
-        tileSize: 512,
-        zoomOffset: -1,
-        attribution: '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    });
+// Mapbox styles (baselayers)
+var STYLE_LAYER_CM_MAP = 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn'; // Vector
+var STYLE_LAYER_CM_SAT = 'mapbox://styles/cleveland-metroparks/cjcutetjg07892ro6wunp2da9'; // Satellite
 
-// Mapbox satellite baselayer
-var MAPBOX_SAT_URL_FRAG = 'cleveland-metroparks/cjcutetjg07892ro6wunp2da9';
-var LAYER_MAPBOX_SAT = L.tileLayer(
-    'https://api.mapbox.com/styles/v1/' + MAPBOX_SAT_URL_FRAG + '/tiles/{z}/{x}/{y}?access_token=' + L.mapbox.accessToken, {
-        tileSize: 512,
-        zoomOffset: -1,
-        attribution: '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    });
-
-// Mapbox GL-Leaflet map tiles baselayer
-// Experimental GL+Leaflet binding - https://github.com/mapbox/mapbox-gl-leaflet
-var LAYER_MAPBOX_GL_MAP = L.mapboxGL({
-    accessToken: MAPBOX_TOKEN,
-    style: 'mapbox://styles/' + MAPBOX_MAP_URL_FRAG
-});
-
-var ALL_LAYERS = [
-    //LAYER_TILESTACHE_MAP,
-    //LAYER_TILESTACHE_SAT,
-    LAYER_MAPBOX_MAP,
-    LAYER_MAPBOX_SAT,
-    LAYER_MAPBOX_GL_MAP
-];
-
-var AVAILABLE_LAYERS = {
-    'map' : LAYER_MAPBOX_MAP,
-    'photo' : LAYER_MAPBOX_SAT,
-    'vector' : LAYER_MAPBOX_GL_MAP
+var STYLE_LAYERS = {
+    'map' : STYLE_LAYER_CM_MAP,
+    'photo' : STYLE_LAYER_CM_SAT
 };
 
-/* to add route debugging into the map as it is running, paste this into the JavaScript console */
-/*
-var routedebug = L.tileLayer.wms("http://maps1.clemetparks.com/wms", { layers:'cm:routing_barriers,cm:routing_segments,cm:routing_nodes,cm:route_problem_intersections', format:'image/png', transparent:'TRUE' });
-MAP.addLayer(routedebug);
-*/
+var STYLE_NAMES = {
+    'CM Light' : 'map',
+    'CM-Aerial' : 'photo'
+};

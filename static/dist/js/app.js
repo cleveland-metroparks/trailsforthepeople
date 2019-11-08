@@ -26,14 +26,10 @@ var NATIVE_APP = false;
 
 // the bounding box of the mappable area, for setting the initial view
 // and potentially for restricting the map from zooming away (not enforced)
-var BBOX_SOUTHWEST = L.latLng(41.11816, -82.08504);
-var BBOX_NORTHEAST = L.latLng(41.70009, -81.28029);
-var MAX_BOUNDS = L.latLngBounds(BBOX_SOUTHWEST, BBOX_NORTHEAST);
+var MAX_BOUND_SW = new mapboxgl.LngLat(-82.08504, 41.11816);
+var MAX_BOUND_NE = new mapboxgl.LngLat(-81.28029, 41.70009);
+var MAX_BOUNDS = new mapboxgl.LngLatBounds(MAX_BOUND_SW, MAX_BOUND_NE);
 
-// min and max zoom levels. min (low) is further out and max (high) is further in.
-// level 11 covers the Cleveland region at full desktop size, level 18 is street level
-var MIN_ZOOM = 2; // See the whole world
-var MAX_ZOOM = 18;
 // Default level for zooming in to POIs (when no zoom or bbox specified)
 var DEFAULT_POI_ZOOM = 15;
 
@@ -59,58 +55,26 @@ var PRINT_SIZES = {
     'Ledger landscape' : [ 1178, 690 ]
 };
 
-// these basemaps are really basemaps WITH baked-in labels and features, so the map can function with only one overlay visible
-//var LAYER_TILESTACHE_SAT = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/satphoto_mobilestack/{z}/{x}/{y}.jpg", { name:'photo', subdomains:'123' });
-//var LAYER_TILESTACHE_MAP = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/basemap_mobilestack/{z}/{x}/{y}.jpg", { name:'terrain', subdomains:'123' });
+var START_LAT = 41.3953;
+var START_LON = -81.6730;
+var START_ZOOM = 14;
 
 // Mapbox access token
-var MAPBOX_TOKEN = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiWHRKaDhuRSJ9.FGqNSOHwiCr2dmTH2JTMAA';
-L.mapbox.accessToken = MAPBOX_TOKEN;
+mapboxgl.accessToken = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiWHRKaDhuRSJ9.FGqNSOHwiCr2dmTH2JTMAA';
 
-// Mapbox map tiles baselayer
-var MAPBOX_MAP_URL_FRAG = 'cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
-var LAYER_MAPBOX_MAP = L.tileLayer(
-    'https://api.mapbox.com/styles/v1/' + MAPBOX_MAP_URL_FRAG + '/tiles/{z}/{x}/{y}?access_token=' + L.mapbox.accessToken, {
-        tileSize: 512,
-        zoomOffset: -1,
-        attribution: '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    });
+// Mapbox styles (baselayers)
+var STYLE_LAYER_CM_MAP = 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn'; // Vector
+var STYLE_LAYER_CM_SAT = 'mapbox://styles/cleveland-metroparks/cjcutetjg07892ro6wunp2da9'; // Satellite
 
-// Mapbox satellite baselayer
-var MAPBOX_SAT_URL_FRAG = 'cleveland-metroparks/cjcutetjg07892ro6wunp2da9';
-var LAYER_MAPBOX_SAT = L.tileLayer(
-    'https://api.mapbox.com/styles/v1/' + MAPBOX_SAT_URL_FRAG + '/tiles/{z}/{x}/{y}?access_token=' + L.mapbox.accessToken, {
-        tileSize: 512,
-        zoomOffset: -1,
-        attribution: '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    });
-
-// Mapbox GL-Leaflet map tiles baselayer
-// Experimental GL+Leaflet binding - https://github.com/mapbox/mapbox-gl-leaflet
-var LAYER_MAPBOX_GL_MAP = L.mapboxGL({
-    accessToken: MAPBOX_TOKEN,
-    style: 'mapbox://styles/' + MAPBOX_MAP_URL_FRAG
-});
-
-var ALL_LAYERS = [
-    //LAYER_TILESTACHE_MAP,
-    //LAYER_TILESTACHE_SAT,
-    LAYER_MAPBOX_MAP,
-    LAYER_MAPBOX_SAT,
-    LAYER_MAPBOX_GL_MAP
-];
-
-var AVAILABLE_LAYERS = {
-    'map' : LAYER_MAPBOX_MAP,
-    'photo' : LAYER_MAPBOX_SAT,
-    'vector' : LAYER_MAPBOX_GL_MAP
+var STYLE_LAYERS = {
+    'map' : STYLE_LAYER_CM_MAP,
+    'photo' : STYLE_LAYER_CM_SAT
 };
 
-/* to add route debugging into the map as it is running, paste this into the JavaScript console */
-/*
-var routedebug = L.tileLayer.wms("http://maps1.clemetparks.com/wms", { layers:'cm:routing_barriers,cm:routing_segments,cm:routing_nodes,cm:route_problem_intersections', format:'image/png', transparent:'TRUE' });
-MAP.addLayer(routedebug);
-*/
+var STYLE_NAMES = {
+    'CM Light' : 'map',
+    'CM-Aerial' : 'photo'
+};
 
 ;
  /**
@@ -123,41 +87,32 @@ MAP.addLayer(routedebug);
 
 var isMobile = /Mobi/.test(navigator.userAgent); // Simple mobile device detection.
 
-var ICON_TARGET = L.icon({
-    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/marker-target.png',
-    iconSize: [ 25, 41 ],
-    iconAnchor: [ 13, 41 ],
-    popupAnchor: [ 0, -41 ]
-});
-var MARKER_TARGET = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_TARGET });
+// Target marker
+var markerTargetEl = document.createElement('div');
+markerTargetEl.id = 'marker-target';
+var markerTargetIconWidth = 25; // Must match sizing in CSS for #marker-target
+var markerTargetIconHeight = 41; // Must match sizing in CSS for #marker-target
+var MARKER_TARGET = new mapboxgl.Marker(markerTargetEl, {offset: [-markerTargetIconWidth/2, -markerTargetIconHeight]});
 
-var ICON_GPS = L.icon({
-    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/marker-gps.svg',
-    iconSize: [ 25, 41 ],
-    iconAnchor: [ 13, 41 ],
-    popupAnchor: [ 0, -41 ]
-});
-var MARKER_GPS     = L.marker(L.latLng(0,0), { clickable:false, draggable:false, icon:ICON_GPS });
+// Geolocation marker
+var markerGpsEl = document.createElement('div');
+markerGpsEl.id = 'marker-gps';
+var markerGpsIconSize = 16; // Must match sizing in CSS for #marker-gps
+var MARKER_GPS = new mapboxgl.Marker(markerGpsEl, {offset: [-markerGpsIconSize/2, -markerGpsIconSize/2]});
 
-var ICON_FROM = L.icon({
-    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/measure1.png',
-    iconSize: [ 20, 34 ],
-    iconAnchor: [ 10, 34 ]
-});
-var ICON_TO = L.icon({
-    iconUrl: WEBAPP_BASEPATH + 'static/images/markers/measure2.png',
-    iconSize: [ 20, 34 ],
-    iconAnchor: [ 10, 34 ]
-});
-var MARKER_FROM  = L.marker(L.latLng(0,0), { clickable:true, draggable:true, icon:ICON_FROM });
-var MARKER_TO    = L.marker(L.latLng(0,0), { clickable:true, draggable:true, icon:ICON_TO });
+// "From" marker (for directions)
+var markerFromEl = document.createElement('div');
+markerFromEl.id = 'marker-from';
+var markerFromIconWidth = 20; // Must match sizing in CSS for #marker-from
+var markerFromIconHeight = 34; // Must match sizing in CSS for #marker-from
+var MARKER_FROM = new mapboxgl.Marker(markerFromEl, {offset: [-markerFromIconWidth/2, -markerFromIconHeight]});
 
-var INFO_POPUP_OPTIONS = {
-    'className' : 'info-popup'
-};
-var INFO_POPUP = L.popup(INFO_POPUP_OPTIONS);
-
-var CIRCLE = new L.Circle(L.latLng(0,0), 1);
+// "To" marker (for directions)
+var markerToEl = document.createElement('div');
+markerToEl.id = 'marker-to';
+var markerToIconWidth = 20; // Must match sizing in CSS for #marker-to
+var markerToIconHeight = 34; // Must match sizing in CSS for #marker-to
+var MARKER_TO = new mapboxgl.Marker(markerToEl, {offset: [-markerToIconWidth/2, -markerToIconHeight]});
 
 var ELEVATION_PROFILE = null;
 
@@ -177,70 +132,68 @@ SETTINGS.coordinate_format = 'dms';
  * The business. (And too much of it.)
  */
 function initMap(mapOptions) {
-    // URL param: the base map; defaults to map (vs satellite)
+    // Base map type; URL param or map (vs photo/satellite) default
     var base = mapOptions.base || 'map';
+    var basemap_style; // Mapbox base style layer
 
-    var basemap; // which L.TileLayer instance to use?
     switch (base) {
         case 'photo':
-            basemap = LAYER_MAPBOX_SAT;
+            basemap_style = STYLE_LAYER_CM_SAT;
             break;
         case 'map':
         default:
-            // Use raster tiles on mobile for now, until we sort out Leaflet-GL zooming and marker issues.
-            if (isMobile) {
-                basemap = LAYER_MAPBOX_MAP;
-            } else {
-                basemap = LAYER_MAPBOX_GL_MAP;
-            }
+            basemap_style = STYLE_LAYER_CM_MAP;
             break;
     }
 
-    // start the map, only the basemap for starters
-    // do some detection of browser to find Android 4+ and override the animation settings, hoping to enable pinch-zoom without breaking the app entirely
-    // this is specifically contraindicated by Leaflet's own feature detection
-    var options = {
-        attributionControl: false,
-        zoomControl: false, // add manually, below
-        dragging: true,
-        closePopupOnClick: false,
-        crs: L.CRS.EPSG3857,
-        minZoom: MIN_ZOOM,
-        maxZoom: MAX_ZOOM,
-        zoomSnap: 0, // fractional zoom
-        layers : [ basemap ]
-    };
-    var android4 = navigator.userAgent.match(/Android (4|5)/);
-    if (android4) {
-        options.fadeAnimation       = true;
-        options.zoomAnimation       = true;
-        options.markerZoomAnimation = true;
-    }
+    // Map
+    MAP = new mapboxgl.Map({
+         container: 'map_canvas',
+         style: basemap_style,
+         center: [START_LON, START_LAT],
+         zoom: START_ZOOM
+     });
 
-    MAP = new L.Map('map_canvas', options);
-    new L.Control.Zoom({ position: 'bottomright' }).addTo(MAP);
+    // Nav (zoom/tilt) Control
+    var ctrlNav = new mapboxgl.NavigationControl();
+    MAP.addControl(ctrlNav, 'bottom-right');
+
+    // Geolocate control
+    var ctrlGeolocate = new mapboxgl.GeolocateControl({
+       positionOptions: {
+           trackUserLocation: true,
+           showUserLocation: true,
+           enableHighAccuracy: true
+       }
+    });
+    MAP.addControl(ctrlGeolocate, 'bottom-right');
+
+    // Scale control
+    var ctrlScale = new mapboxgl.ScaleControl({
+        maxWidth: 80,
+        unit: 'imperial'
+    });
+    MAP.addControl(ctrlScale, 'bottom-left');
 
     // Zoom to the lat/lng/zoom given in the URL, or else to the max extent
     if (mapOptions.lat && mapOptions.lng && mapOptions.zoom) {
         var lat = parseFloat(mapOptions.lat);
         var lng = parseFloat(mapOptions.lng);
         var zoom = parseInt(mapOptions.zoom);
-        MAP.setView(L.latLng(lat, lng),zoom);
+        MAP.setCenter([lng, lat]);
+        MAP.setZoom(zoom);
         if (mapOptions.drop_marker) {
             MAP.addLayer(MARKER_TARGET);
-            MARKER_TARGET.setLatLng(L.latLng(lat, lng));
+            placeMarker(MARKER_TARGET, lng, lat);
         }
     } else {
         MAP.fitBounds(MAX_BOUNDS);
     }
 
-    // additional Controls
-    L.control.scale().addTo(MAP);
-
     // Fire mapInitialized event
     $.event.trigger({
         type: 'mapInitialized',
-    });
+    });t
 }
 
 /**
@@ -258,40 +211,39 @@ function lineWKTtoFeature(wkt, style) {
 /**
  * Place "target" (normal) marker
  */
-function placeTargetMarker(lat, lon) {
-    MAP.addLayer(MARKER_TARGET);
-    MARKER_TARGET.setLatLng(L.latLng(lat,lon));
+function placeTargetMarker(lat, lng) {
+    MARKER_TARGET
+        .setLngLat([lng, lat])
+        .addTo(MAP);
 }
 
 /**
  * Clear "target" (normal) marker
  */
 function clearTargetMarker() {
-    if (MAP.hasLayer(MARKER_TARGET)) {
-        MAP.removeLayer(MARKER_TARGET);
-    }
+    MARKER_TARGET.remove();
 }
 
 /**
  * Place GPS (geolocated) marker
  */
-function placeGPSMarker(lat, lon) {
-    MAP.addLayer(MARKER_GPS);
-    MARKER_GPS.setLatLng(L.latLng(lat,lon));
+function placeGPSMarker(lat, lng) {
+    MARKER_GPS
+        .setLngLat([lng, lat])
+        .addTo(MAP);
 }
 
 /**
  * Clear GPS (geolocated) marker
  */
 function clearGPSMarker() {
-    MAP.removeLayer(MARKER_GPS);
+    MARKER_GPS.remove();
 }
 
 /**
  * Show informational popup
  */
 function showInfoPopup(message, type) {
-    MAP.removeLayer(INFO_POPUP);
     switch (type) {
         case 'warning':
             classes = 'info-popup warning';
@@ -302,46 +254,33 @@ function showInfoPopup(message, type) {
         default:
             classes = 'info-popup';
     }
-    INFO_POPUP = L.popup({className : classes})
-        .setLatLng(MAP.getCenter())
-        .setContent(message)
-        .openOn(MAP);
+    var info_popup = new mapboxgl.Popup({
+        closeOnClick: false,
+        className: classes,
+    });
+    info_popup
+        .setLngLat(MAP.getCenter())
+        .setHTML(message)
+        .addTo(MAP);
 }
 
 /**
  * Enable the given base map layer.
  *
- * @param layer_key: Must refer to the key of an available layer (in AVAILABLE_LAYERS constant).
+ * @param layer_key: Must refer to the key of an available layer (in STYLE_LAYERS constant).
  */
 function changeBasemap(layer_key) {
-    // Use raster tiles on mobile for now, until we sort out zooming and marker issues.
-    if (layer_key == 'map') {
-        if (!isMobile) {
-            layer_key = 'vector';
-        }
-    }
-
-    new_active_layer = AVAILABLE_LAYERS[layer_key];
-
-    // Go through all layers, adding the intended one and removing others.
-    for (i=0; i<ALL_LAYERS.length; i++) {
-        if (ALL_LAYERS[i] == new_active_layer) {
-            // Add the active layer
-            if (! MAP.hasLayer(ALL_LAYERS[i])) {
-                MAP.addLayer(ALL_LAYERS[i], true);
-            }
-            if (layer_key != 'vector') {
-                // Mapbox GL+Leaflet layers don't implement bringToBack()
-                new_active_layer.bringToBack();
-            }
-        } else {
-            // Remove the inactive layer
-            if (MAP.hasLayer(ALL_LAYERS[i])) {
-                MAP.removeLayer(ALL_LAYERS[i]);
-            }
-        }
-    }
+    active_layer = STYLE_LAYERS[layer_key];
+    MAP.setStyle(active_layer);
 }
+
+/**
+ *
+ */
+function getBasemap() {
+    style = MAP.getStyle();
+    return STYLE_NAMES[style.name];
+ }
 
 /**
  * Return lat/lng as string in prescribed coordinate format.
@@ -1358,39 +1297,6 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
     }, 'html');
 }
 
-/**
- * Debugging: when the viewport changes, log the current bbox and zoom
- */
-//function debugBoundsOutput() {
-//    console.log([ 'zoom', MAP.getZoom() ]);
-//    console.log([ 'center', MAP.getCenter() ]);
-//    console.log([ 'bounds', MAP.getBounds() ]);
-//}
-//function debugScaleZoomOutput() {
-//    var DOTS_PER_INCH    = 72;
-//    var INCHES_PER_METER = 1.0 / 0.02540005080010160020;
-//    var INCHES_PER_KM    = INCHES_PER_METER * 1000.0;
-//    var sw       = MAP.getBounds().getSouthWest();
-//    var ne       = MAP.getBounds().getNorthEast();
-//    var halflng   = ( sw.lng + ne.lng ) / 2.0;
-//    var midBottom = L.latLng(sw.lat,halflng);
-//    var midTop    = L.latLng(ne.lat,halflng);
-//    var mheight   = midTop.distanceTo(midBottom);
-//    var pxheight  = MAP.getSize().x;
-//    var kmperpx   = mheight / pxheight / 1000.0;
-//    var scale    = Math.round( (kmperpx || 0.000001) * INCHES_PER_KM * DOTS_PER_INCH );
-//    scale *= 2.0; // no idea why but it's doubled
-//    scale = 1000 * Math.round(scale / 1000.0); // round to the nearest 100 so we can fit MapFish print's finite set of scales
-//    console.log([ 'zoom & scale' , MAP.getZoom(), scale ]);
-//}
-//
-//$(document).on("mapReady", function() {
-//    MAP.on('moveend', debugBoundsOutput);
-//    MAP.on('zoomend', debugBoundsOutput);
-//    MAP.on('moveend', debugScaleZoomOutput);
-//    MAP.on('zoomend', debugScaleZoomOutput);
-//}
-
 ;
 /**
  * Sidebar
@@ -1853,9 +1759,13 @@ $(document).ready(function () {
         if ( $('#nearby_enabled').is(':checked') ) {
             var meters = $('#nearby_radius').val();
             var categories = [];
-            $('input[name="nearby_category"]:checked').each(function () { categories[categories.length] = $(this).val() });
-            placeCircle(event.latlng.lat,event.latlng.lng,meters);
-            checkNearby(event.latlng,meters,categories);
+            $('input[name="nearby_category"]:checked').each(
+                function () {
+                    categories[categories.length] = $(this).val()
+                }
+            );
+            placeCircle(event.latlng.lat, event.latlng.lng, meters);
+            checkNearby(event.latlng, meters, categories);
         }
 
         // Update display of user lat/lng
@@ -3042,12 +2952,16 @@ function updateNearYouNow() {
     // done loading POIs, refresh the styling magic
     target.listview('refresh');
 }
+
+// @TODO: GLJS
+// var CIRCLE = new L.Circle(L.latLng(0,0), 1);
+
 /**
  * Place circle
  */
-function placeCircle(lat,lon,meters) {
+function placeCircle(lat, lon, meters) {
     MAP.removeLayer(CIRCLE);
-    CIRCLE.setLatLng(L.latLng(lat,lon));
+    CIRCLE.setLatLng(L.latLng(lat, lon));
     CIRCLE.setRadius(meters);
     MAP.addLayer(CIRCLE);
 }
@@ -3056,41 +2970,10 @@ function placeCircle(lat,lon,meters) {
  * Clear circle
  */
 function clearCircle() {
-    CIRCLE.setLatLng(L.latLng(0,0));
+    CIRCLE.setLatLng(L.latLng(0, 0));
     CIRCLE.setRadius(1);
     MAP.removeLayer(CIRCLE);
 }
-
-/**
- * Extend Leaflet:
- * Add to LatLng the ability to calculate the bearing to another LatLng
- */
-L.LatLng.prototype.bearingTo= function(other) {
-    var d2r  = L.LatLng.DEG_TO_RAD;
-    var r2d  = L.LatLng.RAD_TO_DEG;
-    var lat1 = this.lat * d2r;
-    var lat2 = other.lat * d2r;
-    var dLon = (other.lng-this.lng) * d2r;
-    var y    = Math.sin(dLon) * Math.cos(lat2);
-    var x    = Math.cos(lat1)*Math.sin(lat2) - Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLon);
-    var brng = Math.atan2(y, x);
-    brng = parseInt( brng * r2d );
-    brng = (brng + 360) % 360;
-    return brng;
-};
-L.LatLng.prototype.bearingWordTo = function(other) {
-    var bearing = this.bearingTo(other);
-    var bearingword = '';
-     if (bearing >= 22  && bearing <= 67)  bearingword = 'NE';
-    else if (bearing >= 67 && bearing <= 112)  bearingword = 'E';
-    else if (bearing >= 112 && bearing <= 157) bearingword = 'SE';
-    else if (bearing >= 157 && bearing <= 202) bearingword = 'S';
-    else if (bearing >= 202 && bearing <= 247) bearingword = 'SW';
-    else if (bearing >= 247 && bearing <= 292) bearingword = 'W';
-    else if (bearing >= 292 && bearing <= 337) bearingword = 'NW';
-    else if (bearing >= 337 || bearing <= 22)  bearingword = 'N';
-    return bearingword;
-};
 
 /**
  * Check Nearby

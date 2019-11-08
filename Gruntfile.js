@@ -75,6 +75,27 @@ module.exports = function(grunt) {
           'static/src/js/common.js'
         ],
         dest: 'static/dist/js/map-embedded-base-nojq.js'
+      },
+      // Base for map embeds on external sites:
+      embedded_base_gljs: {
+        src: [
+          'static/lib/jquery-1.12.4.min.js',
+          'static/lib/mapbox-gl-js-1.5.0/mapbox-gl.js',
+          'static/src/js/constants.js',
+          'static/src/js/embedded-constants.js',
+          'static/src/js/common.js'
+        ],
+        dest: 'static/dist/js/map-embedded-base-gljs.js'
+      },
+      // Base for map embeds on external sites that already have jQuery included (we don't package it):
+      embedded_base_gljs_nojq: {
+        src: [
+          'static/lib/mapbox-gl-js-1.5.0/mapbox-gl.js',
+          'static/src/js/constants.js',
+          'static/src/js/embedded-constants.js',
+          'static/src/js/common.js'
+        ],
+        dest: 'static/dist/js/map-embedded-base-gljs-nojq.js'
       }
     },
 
@@ -110,10 +131,28 @@ module.exports = function(grunt) {
           'static/dist/js/map-embedded-base-nojq.min.js': ['static/dist/js/map-embedded-base-nojq.js']
         }
       },
+      // Base for map embeds on external sites:
+      embedded_base_gljs: {
+        files: {
+          'static/dist/js/map-embedded-base-gljs.min.js': ['static/dist/js/map-embedded-base-gljs.js']
+        }
+      },
+      // Base for map embeds on external sites that already have jQuery included (we don't package it):
+      embedded_base_gljs_nojq: {
+        files: {
+          'static/dist/js/map-embedded-base-gljs-nojq.min.js': ['static/dist/js/map-embedded-base-gljs-nojq.js']
+        }
+      },
       // For map embed on Visit page:
       embedded_visit: {
         files: {
           'static/dist/js/map-embedded-visit.min.js': ['static/src/js/embedded-visit.js']
+        }
+      },
+      // For map embed on Visit page:
+      embedded_gljs: {
+        files: {
+          'static/dist/js/map-embedded-gljs.min.js': ['static/src/js/embedded-gljs.js']
         }
       },
       // For map embed of beach closures:
@@ -245,13 +284,19 @@ module.exports = function(grunt) {
           'static/src/js/embedded.js',
           'static/src/js/embedded-constants.js'
         ],
-        tasks: ['concat:embedded_base', 'concat:embedded_base_nojq']
+        tasks: ['concat:embedded_base', 'concat:embedded_base_nojq', 'concat:embedded_base_gljs', 'concat:embedded_base_gljs_nojq']
       },
       uglify_embedded_visit: {
         files: [
           'static/src/js/embedded-visit.js'
         ],
         tasks: ['uglify:embedded_visit']
+      },
+      uglify_embedded_gljs: {
+        files: [
+          'static/src/js/embedded-gljs.js'
+        ],
+        tasks: ['uglify:embedded_gljs']
       },
       uglify_embedded_beach_closures: {
         files: [
@@ -283,9 +328,12 @@ module.exports = function(grunt) {
   grunt.registerTask('embedded', [
     'concat:embedded_base',
     'concat:embedded_base_nojq',
-    'uglify:embedded_base',
-    'uglify:embedded_base_nojq',
+    'concat:embedded_base_gljs',
+    'concat:embedded_base_gljs_nojq',
+    'uglify:embedded_base_gljs',
+    'uglify:embedded_base_gljs_nojq',
     'uglify:embedded_visit',
+    'uglify:embedded_gljs',
     'uglify:embedded_beach_closures',
     'sass:embedded'
   ]);

@@ -929,36 +929,3 @@ function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
         MAP.openPopup(popup);
     }, 'html');
 }
-
-/**
- * Debugging: when the viewport changes, log the current bbox and zoom
- */
-//function debugBoundsOutput() {
-//    console.log([ 'zoom', MAP.getZoom() ]);
-//    console.log([ 'center', MAP.getCenter() ]);
-//    console.log([ 'bounds', MAP.getBounds() ]);
-//}
-//function debugScaleZoomOutput() {
-//    var DOTS_PER_INCH    = 72;
-//    var INCHES_PER_METER = 1.0 / 0.02540005080010160020;
-//    var INCHES_PER_KM    = INCHES_PER_METER * 1000.0;
-//    var sw       = MAP.getBounds().getSouthWest();
-//    var ne       = MAP.getBounds().getNorthEast();
-//    var halflng   = ( sw.lng + ne.lng ) / 2.0;
-//    var midBottom = L.latLng(sw.lat,halflng);
-//    var midTop    = L.latLng(ne.lat,halflng);
-//    var mheight   = midTop.distanceTo(midBottom);
-//    var pxheight  = MAP.getSize().x;
-//    var kmperpx   = mheight / pxheight / 1000.0;
-//    var scale    = Math.round( (kmperpx || 0.000001) * INCHES_PER_KM * DOTS_PER_INCH );
-//    scale *= 2.0; // no idea why but it's doubled
-//    scale = 1000 * Math.round(scale / 1000.0); // round to the nearest 100 so we can fit MapFish print's finite set of scales
-//    console.log([ 'zoom & scale' , MAP.getZoom(), scale ]);
-//}
-//
-//$(document).on("mapReady", function() {
-//    MAP.on('moveend', debugBoundsOutput);
-//    MAP.on('zoomend', debugBoundsOutput);
-//    MAP.on('moveend', debugScaleZoomOutput);
-//    MAP.on('zoomend', debugScaleZoomOutput);
-//}
