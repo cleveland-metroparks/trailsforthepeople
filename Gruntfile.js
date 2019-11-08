@@ -55,7 +55,7 @@ module.exports = function(grunt) {
           'static/lib/jquery-1.12.4.min.js',
           'static/lib/leaflet-1.5.1/leaflet.js',
           'static/lib/mapbox.js-3.1.1/mapbox.standalone.js',
-          'static/lib/mapbox-gl-js-0.53.0/mapbox-gl.js',
+          'static/lib/mapbox-gl-js-1.5.0/mapbox-gl.js',
           'static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.min.js',
           'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
@@ -68,7 +68,7 @@ module.exports = function(grunt) {
         src: [
           'static/lib/leaflet-1.5.1/leaflet.js',
           'static/lib/mapbox.js-3.1.1/mapbox.standalone.js',
-          'static/lib/mapbox-gl-js-0.53.0/mapbox-gl.js',
+          'static/lib/mapbox-gl-js-1.5.0/mapbox-gl.js',
           'static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.min.js',
           'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
