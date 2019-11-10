@@ -76,20 +76,6 @@ module.exports = function(grunt) {
         ],
         dest: 'static/dist/js/map-embedded-base-nojq.js'
       },
-      // Base for map embeds on external sites:
-      embedded_base_gljs: {
-        src: [
-          'static/lib/jquery-1.12.4.min.js',
-          'static/lib/mapbox-gl-js-1.5.0/mapbox-gl.js',
-          'static/src/js/constants.js',
-          'static/src/js/embedded-constants.js',
-          'static/src/js/common.js',
-          'static/src/js/sidebar.js',
-          'static/src/js/geolocate.js',
-          'static/src/js/loopsandroutes.js'
-        ],
-        dest: 'static/dist/js/map-embedded-base-gljs.js'
-      },
       // Base for map embeds on external sites that already have jQuery included (we don't package it):
       embedded_base_gljs_nojq: {
         src: [
@@ -99,6 +85,7 @@ module.exports = function(grunt) {
           'static/src/js/common.js',
           'static/src/js/sidebar.js',
           'static/src/js/geolocate.js',
+          'static/src/js/search.js',
           'static/src/js/loopsandroutes.js'
         ],
         dest: 'static/dist/js/map-embedded-base-gljs-nojq.js'
@@ -135,12 +122,6 @@ module.exports = function(grunt) {
       embedded_base_nojq: {
         files: {
           'static/dist/js/map-embedded-base-nojq.min.js': ['static/dist/js/map-embedded-base-nojq.js']
-        }
-      },
-      // Base for map embeds on external sites:
-      embedded_base_gljs: {
-        files: {
-          'static/dist/js/map-embedded-base-gljs.min.js': ['static/dist/js/map-embedded-base-gljs.js']
         }
       },
       // Base for map embeds on external sites that already have jQuery included (we don't package it):
@@ -302,7 +283,7 @@ module.exports = function(grunt) {
           'static/src/js/embedded.js',
           'static/src/js/embedded-constants.js'
         ],
-        tasks: ['concat:embedded_base_gljs', 'concat:embedded_base_gljs_nojq']
+        tasks: ['concat:embedded_base_gljs_nojq']
       },
       uglify_embedded_visit: {
         files: [
@@ -346,9 +327,7 @@ module.exports = function(grunt) {
   grunt.registerTask('embedded', [
     'concat:embedded_base',
     'concat:embedded_base_nojq',
-    'concat:embedded_base_gljs',
     'concat:embedded_base_gljs_nojq',
-    'uglify:embedded_base_gljs',
     'uglify:embedded_base_gljs_nojq',
     'uglify:embedded_visit',
     'uglify:embedded_gljs',

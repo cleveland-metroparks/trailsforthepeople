@@ -2591,17 +2591,17 @@ function enableKeywordButton() {
 /**
  * String to Lat/Long
  *
- * Given a string, try to parse it as coordinates and return a L.LatLng instance.
+ * Given a string, try to parse it as coordinates and return a LngLat object.
  *
  * Currently supports these formats:
  *      N 44 35.342 W 123 15.669
  *      44.589033 -123.26115
  */
-function strToLatLng(text) {
+function strToLngLat(text) {
     var text = text.replace(/\s+$/,'').replace(/^\s+/,'');
 
-    // simplest format is decimal numbers and minus signs and that's about it
-    // one of them must be negative, which means it's the longitude here in North America
+    // Simplest format is decimal numbers and minus signs and that's about it.
+    // One of them must be negative, which means it's the longitude here in North America
     if (text.match(/^[\d\.\-\,\s]+$/)) {
         var dd = text.split(/[\s\,]+/);
         if (dd.length == 2) {
@@ -2616,12 +2616,12 @@ function strToLatLng(text) {
                     lat = dd[0];
                     lng = dd[1];
                 }
-                return L.latLng([lat,lng]);
+                return new mapboxgl.LngLat(lng, lat);
             }
         }
     }
 
-    // okay, how about GPS/geocaching format:   N xx xx.xxx W xxx xx.xxx
+    // Okay, how about GPS/geocaching format: N xx xx.xxx W xxx xx.xxx
     var gps = text.match(/^N\s*(\d\d)\s+(\d\d\.\d\d\d)\s+W\s*(\d\d\d)\s+(\d\d\.\d\d\d)$/i);
     if (gps) {
         var latd = parseInt(gps[1]);
@@ -2632,10 +2632,10 @@ function strToLatLng(text) {
         var lat = latd + (latm/60);
         var lng = -lond - (lonm/60);
 
-        return L.latLng([lat,lng]);
+        return new mapboxgl.LngLat(lng, lat);
     }
 
-    //if we got here then nothing matched, so bail
+    // Nothing matched; bail
     return null;
 }
 
@@ -2645,12 +2645,15 @@ function strToLatLng(text) {
  * A common interface at the AJAX level, but different CSS and sorting for Mobile vs Desktop
  */
 function searchByKeyword(keyword) {
-    // surprise bypass
-    // if the search word "looks like coordinates" then zoom the map there
-    var latlng = strToLatLng(keyword);
-    if (latlng) {
-        MAP.setView(latlng,16);
-        placeTargetMarker(latlng.lat,latlng.lng);
+    // Surprise bypass:
+    // If the search word "looks like coordinates" then zoom the map there
+    var lnglat = strToLngLat(keyword);
+    if (lnglat) {
+        MAP.flyTo({
+            center: lnglat,
+            zoom: 16
+        });
+        placeTargetMarker(lnglat.lat, lnglat.lng);
         return;
     }
 
