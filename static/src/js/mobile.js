@@ -67,12 +67,13 @@ function createStartHereTooltip() {
     return tooltip;
 }
 
+// @TODO: GLJS: Necessary?
 /**
  * Refresh the map on resize or orientation change to prevent a flash/disappearance.
  */
 $(document).on("mapInitialized", function () {
     $(window).bind('orientationchange pageshow resize', function() {
-        MAP.invalidateSize();
+        MAP.resize();
     });
 });
 
@@ -755,13 +756,16 @@ function updateWindowURLLayer() {
     // Default is vector/map layer
     var layer = 'map';
     // Else, satellite ("photo")
-    if (MAP.hasLayer(AVAILABLE_LAYERS['photo'])) {
+    if (getBasemap() == 'photo') {
         layer = 'photo';
     }
     invalidateMapURL();
     setWindowURLQueryStringParameter('base', layer);
 }
 
+/**
+ * Invalidate Map URL
+ */
 function invalidateMapURL() {
     hideShareURL();
 }

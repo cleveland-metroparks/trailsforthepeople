@@ -809,6 +809,442 @@ $(document).on("mapInitialized", function () {
     //}
 });
 ;
+ /**
+ * share.js
+ *
+ * JS for Sharing functionality.
+ *
+ * Included into app.js.
+ *
+ * pertaining to the Share box and RESTful params for loading map state
+ * The basic workflow is:
+ * - A map movement event triggers a call to udpateShareUrl(() et al,
+ * - which compose the URL string and save it to SHARE_URL_STRING
+ * - At a later time, when the user opens up the appropriate panel or sub-page as
+ *   defined in mobile.js and desktop.js,
+ *   an AJAX request is made to save the long URL and get a short URL in return
+ * - This short URL is displayed in the #share_url panel for the end user.
+ * We do not want to request a short URL with every single map movement;
+ * that would consume network resources unnecessarily.
+ *
+ * Cleveland Metroparks
+ */
+
+/*
+ *  Sharing handlers
+ */
+$(document).ready(function() {
+    // Initially
+    hideShareURL();
+
+    // Highlight/select the share box URL when it is clicked.
+    $('#share_url').click(function() {
+        $(this).select();
+    });
+
+    // "Make Short URL" button click
+    $('#make_share_url_btn').click(function() {
+        makeAndShowShortURL();
+    });
+
+    /**
+     * Share Map button handler
+     *
+     * Reads from the Show On Map button to populate the Share Your Map box.
+     *
+     * @TODO: This was desktop only. Re-add the button to mobile.
+     */
+    $('#share_feature').click(function() {
+        var element = $('#show_on_map').data('zoomelement');
+        if (! element) {
+            return;
+        }
+        updateShareUrlByFeature(element);
+        makeAndShowShortURL();
+        sidebar.open('pane-share');
+    });
+});
+
+/**
+ * Hide Share URL
+ */
+function showShareURL() {
+    $('#share_url_controls').show();
+    $('#make_share_url_controls').hide();
+    setShareURLBoxWidth();
+}
+
+/**
+ * Show Share URL
+ */
+function hideShareURL() {
+    $('#share_url_controls').hide();
+    $('#make_share_url_controls').show();
+}
+
+/**
+ * Populate Share box
+ *
+ * Request [from the server] a shortened version of the current URL,
+ * and put this into the share box.
+ */
+function makeAndShowShortURL() {
+    var baseUrl = '/';
+
+    var queryString = WINDOW_URL;
+    // Remove leading '/?'
+    if (queryString.charAt(0) == '/') {
+        queryString = queryString.substr(1);
+    }
+    if (queryString.charAt(0) == '?') {
+        queryString = queryString.substr(1);
+    }
+
+    // submit the long URL param string to the server, get back a short param string
+    var params = {
+        uri : baseUrl,
+        querystring : queryString
+    };
+    $.get(API_BASEPATH + 'ajax/make_shorturl', params, function(shortURLString) {
+        if (!shortURLString) {
+            return alert("Unable to fetch a short URL.\nPlease try again.");
+        }
+
+        // In native mobile our URL_PARAMS are not what we expect
+        var protocol = (URL_PARAMS.attr('protocol') != 'file')
+            ? URL_PARAMS.attr('protocol')
+            : WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL;
+        var host = (URL_PARAMS.attr('host'))
+            ? URL_PARAMS.attr('host')
+            : WEBAPP_BASE_URL_ABSOLUTE_HOST;
+
+        var url = protocol + '://' + host + '/url/' + shortURLString;
+
+        $('#share_url').val(url);
+        showShareURL();
+    });
+}
+
+/**
+ * Set the Share URL box width
+ * so that it and the copy-to-clipboard button fill the pane.
+ */
+function setShareURLBoxWidth() {
+    var paneWidth = $('#share_url_controls').width();
+    var clipboardBtnWidth = $('#pane-share .copy-to-clipboard').outerWidth();
+    var $textInput = $('#share_url_controls .ui-input-text');
+    // Account for padding & border
+    var textInputExtraWidth = $textInput.outerWidth() - $textInput.width();
+    // Calculate and set new width
+    var textInputWidth = paneWidth - clipboardBtnWidth - textInputExtraWidth;
+    $textInput.width(textInputWidth);
+}
+
+/**
+ * Update Share URL by Feature
+ *
+ * Element form: take an element compatible with zoomToElement() and create an URL which will load its info on page load
+ */
+function updateShareUrlByFeature(element) {
+    // only 2 params, taken from the element: its type and its name
+    var params = {};
+    params.type = element.attr('type');
+    params.name = element.attr('title');
+
+    // compile all of the params together and save it to the global. this is later read by makeAndShowShortURL()
+    SHARE_URL_STRING = $.param(params);
+}
+
+/**
+ * Update Share URL by Directions
+ *
+ * Directions form: processes the directions form and fills in the Share to recreate the route
+ */
+function updateShareUrlByDirections() {
+    // if the directions aren't filled in, we can't do this
+    if (! $('#directions_source_lat').val() ) return;
+
+    // compose the params to bring up this route at page load: route title, to and from coordinates, via type, etc
+    var params = {};
+    if (getBasemap() == 'photo') {
+        params.base = 'photo';
+    } else {
+        params.base = 'map';
+    }
+    params.routevia        = $('#directions_via').val();
+    params.routevia_bike   = $('#directions_via_bike').val();
+    params.routefrom       = $('#directions_source_lat').val() + ',' + $('#directions_source_lng').val();
+    params.routeto         = $('#directions_target_lat').val() + ',' + $('#directions_target_lng').val();
+    params.routetitle      = $('#directions_target_title').text();
+    params.whichway        = $('#directions_reverse').val();
+    params.loctype         = $('#directions_type').val();
+    params.fromaddr        = $('#directions_address').val();
+    if (params.routevia == 'trail') {
+        params.routevia = $('#directions_via_trail').val();
+    }
+
+    // compile all of the params together and save it to the global. this is later read by populateShareBox()
+    SHARE_URL_STRING = $.param(params);
+}
+
+;
+ /**
+ * search.js
+ *
+ * JS for search functionality.
+ *
+ * Included into app.js.
+ *
+ * Cleveland Metroparks
+ */
+
+/**
+ * Enable "Keyword Search" subsystem event handlers 
+ */
+$(document).ready(function () {
+    // Keyword Search text search in the initial "Find" (/Browse) pane
+    // is just a shell over the one in #search
+    $('#browse_keyword_button').click(function () {
+        // Change to the Search pane
+        sidebar.open('pane-search');
+
+        // Fill in the Search keyword and click the button to do the search (if any).
+        // It's up to #search_keyword to detect it being blank
+        $('#search_keyword').val( $('#browse_keyword').val() );
+        $('#search_keyword_button').click();
+    });
+
+    // Catch "Enter" keypress on Find pane search field
+    $('#browse_keyword').keydown(function (key) {
+        if (key.keyCode == 13) {
+            $('#browse_keyword_button').click();
+        }
+    });
+
+    // Keyword Search: the keyword box and other filters
+    $('#search_keyword_button').click(function () {
+        var keyword = $('#search_keyword').val();
+        searchByKeyword(keyword);
+    });
+
+    // Catch "Enter" keypress on Search pane search field
+    $('#search_keyword').keydown(function (key) {
+        if(key.keyCode == 13) {
+            $('#search_keyword_button').click();
+        }
+    });
+});
+
+/**
+ * Disable keyword button
+ */
+function disableKeywordButton() {
+    var button = $('#search_keyword_button');
+    button.button('disable');
+    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value0') );
+}
+
+/**
+ * Enable keyword button
+ */
+function enableKeywordButton() {
+    var button = $('#search_keyword_button');
+    button.button('enable');
+    button.closest('.ui-btn').find('.ui-btn-text').text( button.attr('value1') );
+}
+
+/**
+ * String to Lat/Long
+ *
+ * Given a string, try to parse it as coordinates and return a LngLat object.
+ *
+ * Currently supports these formats:
+ *      N 44 35.342 W 123 15.669
+ *      44.589033 -123.26115
+ */
+function strToLngLat(text) {
+    var text = text.replace(/\s+$/,'').replace(/^\s+/,'');
+
+    // Simplest format is decimal numbers and minus signs and that's about it.
+    // One of them must be negative, which means it's the longitude here in North America
+    if (text.match(/^[\d\.\-\,\s]+$/)) {
+        var dd = text.split(/[\s\,]+/);
+        if (dd.length == 2) {
+            dd[0] = parseFloat(dd[0]);
+            dd[1] = parseFloat(dd[1]);
+            if (dd[0] && dd[1]) {
+                var lat,lng;
+                if (dd[0] < 0) {
+                    lat = dd[1];
+                    lng = dd[0];
+                } else {
+                    lat = dd[0];
+                    lng = dd[1];
+                }
+                return new mapboxgl.LngLat(lng, lat);
+            }
+        }
+    }
+
+    // Okay, how about GPS/geocaching format: N xx xx.xxx W xxx xx.xxx
+    var gps = text.match(/^N\s*(\d\d)\s+(\d\d\.\d\d\d)\s+W\s*(\d\d\d)\s+(\d\d\.\d\d\d)$/i);
+    if (gps) {
+        var latd = parseInt(gps[1]);
+        var latm = parseInt(gps[2]);
+        var lond = parseInt(gps[3]);
+        var lonm = parseInt(gps[4]);
+
+        var lat = latd + (latm/60);
+        var lng = -lond - (lonm/60);
+
+        return new mapboxgl.LngLat(lng, lat);
+    }
+
+    // Nothing matched; bail
+    return null;
+}
+
+/**
+ * Search by Keyword
+ *
+ * A common interface at the AJAX level, but different CSS and sorting for Mobile vs Desktop
+ */
+function searchByKeyword(keyword) {
+    // Surprise bypass:
+    // If the search word "looks like coordinates" then zoom the map there
+    var lnglat = strToLngLat(keyword);
+    if (lnglat) {
+        MAP.flyTo({
+            center: lnglat,
+            zoom: 16
+        });
+        placeTargetMarker(lnglat.lat, lnglat.lng);
+        return;
+    }
+
+    // guess we go ahead and do a text search
+    var target = $('#keyword_results');
+    target.empty();
+
+    disableKeywordButton();
+    $('#pane-search .sortpicker').hide();
+
+    $.get(API_BASEPATH + 'ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
+        enableKeywordButton();
+        $('#pane-search .sortpicker').show();
+
+        if (! reply.length) {
+            // No matches. Pass on to an address search, and say so.
+            $('<li></li>').text('No Cleveland Metroparks results found. Trying an address search.').appendTo(target);
+            zoomToAddress(keyword);
+            return;
+        }
+
+        for (var i=0, l=reply.length; i<l; i++) {
+            var result = reply[i];
+
+            var li = $('<li></li>')
+                .addClass('zoom')
+                .addClass('ui-li-has-count');
+
+            li.attr('title', result.name)
+                .attr('gid', result.gid)
+                .attr('type', result.type)
+                .attr('w', result.w)
+                .attr('s', result.s)
+                .attr('e', result.e)
+                .attr('n', result.n)
+                .attr('lat', result.lat)
+                .attr('lng', result.lng);
+
+            li.attr('backbutton', '#pane-search');
+
+            // Link (fake, currently)
+            link = $('<a></a>');
+            link.attr('class', 'ui-btn ui-btn-text');
+            //link.attr('href', 'javascript:zoomElementClick(this)');
+
+            // On click: center the map and load More Info
+            li.click(function () {
+                zoomElementClick( $(this) );
+            });
+
+            li.append(link);
+
+            // Title
+            link.append(
+                $('<h4></h4>')
+                    .addClass('ui-li-heading')
+                    .text(result.name)
+            );
+            // Subtitle: type
+            link.append(
+                $('<span></span>')
+                    .addClass('ui-li-desc')
+                    .text(result.description)
+            );
+    
+            // Distance placeholder, to be populated later
+            link.append(
+                $('<span></span>')
+                    .addClass('zoom_distance')
+                    .addClass('ui-li-count')
+                    .addClass('ui-btn-up-c')
+                    .addClass('ui-btn-corner-all')
+                    .text('0 mi')
+            );
+
+            // Add to the list
+            li.append(link);
+            target.append(li);
+        }
+
+        // finally, have jQuery Mobile do its magic, then trigger distance calculation and sorting
+        target.listview('refresh');
+        sortLists(target);
+    }, 'json');
+}
+
+/**
+ * Load autocomplete keywords via AJAX, and enable autocomplete on the Keyword Search
+ */
+$(document).ready(function () {
+    $.get(API_BASEPATH + 'ajax/autocomplete_keywords', {}, function (words) {
+
+        $('#browse_keyword').autocomplete({
+            target: $('#browse_keyword_autocomplete'),
+            source: words,
+            callback: function(e) {
+                // find the value of the selected item, stick it into the text box, hide the autocomplete
+                var $a = $(e.currentTarget);
+                $('#browse_keyword').val($a.text());
+                $("#browse_keyword").autocomplete('clear');
+                // and click the button to perform the search
+                $('#browse_keyword_button').click();
+            },
+            minLength: 3,
+            matchFromStart: false
+        });
+
+        $('#search_keyword').autocomplete({
+            target: $('#search_keyword_autocomplete'),
+            source: words,
+            callback: function(e) {
+                // find the value of the selected item, stick it into the text box, hide the autocomplete
+                var $a = $(e.currentTarget);
+                $('#search_keyword').val($a.text());
+                $("#search_keyword").autocomplete('clear');
+                // and click the button to perform the search
+                $('#search_keyword_button').click();
+            },
+            minLength: 3,
+            matchFromStart: false
+        });
+
+    },'json');
+});
+
+;
 /**
  * loopsandroutes.js
  *

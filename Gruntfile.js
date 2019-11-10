@@ -85,6 +85,7 @@ module.exports = function(grunt) {
           'static/src/js/common.js',
           'static/src/js/sidebar.js',
           'static/src/js/geolocate.js',
+          'static/src/js/share.js',
           'static/src/js/search.js',
           'static/src/js/loopsandroutes.js'
         ],
@@ -279,6 +280,7 @@ module.exports = function(grunt) {
           'static/src/js/common.js',
           'static/src/js/sidebar.js',
           'static/src/js/geolocate.js',
+          'static/src/js/share.js',
           'static/src/js/loopsandroutes.js',
           'static/src/js/embedded.js',
           'static/src/js/embedded-constants.js'

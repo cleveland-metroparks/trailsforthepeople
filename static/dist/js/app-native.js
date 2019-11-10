@@ -448,12 +448,13 @@ function createStartHereTooltip() {
     return tooltip;
 }
 
+// @TODO: GLJS: Necessary?
 /**
  * Refresh the map on resize or orientation change to prevent a flash/disappearance.
  */
 $(document).on("mapInitialized", function () {
     $(window).bind('orientationchange pageshow resize', function() {
-        MAP.invalidateSize();
+        MAP.resize();
     });
 });
 
@@ -1136,13 +1137,16 @@ function updateWindowURLLayer() {
     // Default is vector/map layer
     var layer = 'map';
     // Else, satellite ("photo")
-    if (MAP.hasLayer(AVAILABLE_LAYERS['photo'])) {
+    if (getBasemap() == 'photo') {
         layer = 'photo';
     }
     invalidateMapURL();
     setWindowURLQueryStringParameter('base', layer);
 }
 
+/**
+ * Invalidate Map URL
+ */
 function invalidateMapURL() {
     hideShareURL();
 }
@@ -2501,9 +2505,9 @@ function updateShareUrlByDirections() {
 
     // compose the params to bring up this route at page load: route title, to and from coordinates, via type, etc
     var params = {};
-    if (MAP.hasLayer(AVAILABLE_LAYERS['photo'])) {
+    if (getBasemap() == 'photo') {
         params.base = 'photo';
-    } else if (MAP.hasLayer(AVAILABLE_LAYERS['map']) || MAP.hasLayer(AVAILABLE_LAYERS['vector'])) {
+    } else {
         params.base = 'map';
     }
     params.routevia        = $('#directions_via').val();

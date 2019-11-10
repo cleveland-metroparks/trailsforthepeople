@@ -155,9 +155,9 @@ function updateShareUrlByDirections() {
 
     // compose the params to bring up this route at page load: route title, to and from coordinates, via type, etc
     var params = {};
-    if (MAP.hasLayer(AVAILABLE_LAYERS['photo'])) {
+    if (getBasemap() == 'photo') {
         params.base = 'photo';
-    } else if (MAP.hasLayer(AVAILABLE_LAYERS['map']) || MAP.hasLayer(AVAILABLE_LAYERS['vector'])) {
+    } else {
         params.base = 'map';
     }
     params.routevia        = $('#directions_via').val();
