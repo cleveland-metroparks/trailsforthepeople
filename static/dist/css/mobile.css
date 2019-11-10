@@ -48,8 +48,6 @@ img { max-width: 100%; }
 
 .leaflet-popup .fakelink { font-size: 12pt; }
 
-#mapbutton_gps { position: absolute; bottom: 75px; right: 7px; cursor: pointer; z-index: 401; }
-
 .leaflet-popup-scrolled .leaflet-popup-content { overflow: hidden; }
 
 .leaflet-control-zoom a { color: #000000 !important; }

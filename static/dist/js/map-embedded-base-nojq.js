@@ -197,7 +197,7 @@ var STYLE_NAMES = {
 WEBAPP_BASEPATH = 'https://maps.clevelandmetroparks.com/';
 API_BASEPATH = 'https://maps.clevelandmetroparks.com/';
 
-var CM_SITE_BASEURL = 'http://www.clevelandmetroparks.com/';
+var CM_SITE_BASEURL = 'https://www.clevelandmetroparks.com/';
 
 ;
  /**
@@ -246,6 +246,8 @@ var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; o
 
 var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
 
+var ctrlGeolocate;
+
 var SETTINGS = [];
 SETTINGS.coordinate_format = 'dms';
 
@@ -282,12 +284,11 @@ function initMap(mapOptions) {
     MAP.addControl(ctrlNav, 'bottom-right');
 
     // Geolocate control
-    var ctrlGeolocate = new mapboxgl.GeolocateControl({
-       positionOptions: {
-           trackUserLocation: true,
-           showUserLocation: true,
+    ctrlGeolocate = new mapboxgl.GeolocateControl({
+        positionOptions: {
            enableHighAccuracy: true
-       }
+        },
+        trackUserLocation: true,
     });
     MAP.addControl(ctrlGeolocate, 'bottom-right');
 

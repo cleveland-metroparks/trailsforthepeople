@@ -85,6 +85,8 @@ module.exports = function(grunt) {
           'static/src/js/embedded-constants.js',
           'static/src/js/common.js',
           'static/src/js/sidebar.js',
+          'static/src/js/geolocate.js',
+          'static/src/js/loopsandroutes.js'
         ],
         dest: 'static/dist/js/map-embedded-base-gljs.js'
       },
@@ -96,6 +98,7 @@ module.exports = function(grunt) {
           'static/src/js/embedded-constants.js',
           'static/src/js/common.js',
           'static/src/js/sidebar.js',
+          'static/src/js/geolocate.js',
           'static/src/js/loopsandroutes.js'
         ],
         dest: 'static/dist/js/map-embedded-base-gljs-nojq.js'
@@ -284,12 +287,22 @@ module.exports = function(grunt) {
         files: [
           'static/src/js/constants.js',
           'static/src/js/common.js',
+          'static/src/js/embedded.js',
+          'static/src/js/embedded-constants.js'
+        ],
+        tasks: ['concat:embedded_base', 'concat:embedded_base_nojq']
+      },
+      concat_embedded_gljs: {
+        files: [
+          'static/src/js/constants.js',
+          'static/src/js/common.js',
           'static/src/js/sidebar.js',
+          'static/src/js/geolocate.js',
           'static/src/js/loopsandroutes.js',
           'static/src/js/embedded.js',
           'static/src/js/embedded-constants.js'
         ],
-        tasks: ['concat:embedded_base', 'concat:embedded_base_nojq', 'concat:embedded_base_gljs', 'concat:embedded_base_gljs_nojq']
+        tasks: ['concat:embedded_base_gljs', 'concat:embedded_base_gljs_nojq']
       },
       uglify_embedded_visit: {
         files: [

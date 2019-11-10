@@ -8,105 +8,23 @@
  * Cleveland Metroparks
  */
 
-/**
- * Is IOS?
- */
-function is_ios() {
-    return /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
-}
+// @TODO: GLJS REMOVE?
+///**
+// * Attempt to locate the user using the Geolocation API (via Leaflet).
+// */
+//function enableGeolocate() {
+//    // MAP.locate({ watch: true, enableHighAccuracy: true });
+//    // ctrlGeolocate.trigger();
+//}
 
-/**
- * Attempt to locate the user using the Geolocation API (via Leaflet).
- */
-function enableGeolocate() {
-    MAP.locate({ watch: true, enableHighAccuracy: true });
-}
-
-/**
- * If in Native app, trigger geolocation when Cordova's geolocation plugin has come online.
- */
-$(function(){
-    document.addEventListener("deviceready", enableGeolocate, false);
-});
-
-/**
- * Toggle geolocation-following
- */
-function toggle_gps_follow() {
-    AUTO_CENTER_ON_LOCATION ? disable_gps_follow() : enable_gps_follow();
-}
-
-/**
- * Turn geolocation-following ON
- */
-function enable_gps_follow() {
-    AUTO_CENTER_ON_LOCATION = true;
-    var iconurl = is_ios() ?
-        WEBAPP_BASEPATH + 'static/images/map_controls/mapbutton_gps_ios_on.png' :
-        WEBAPP_BASEPATH + 'static/images/map_controls/mapbutton_gps_on.png';
-    $('#mapbutton_gps img').prop('src', iconurl);
-    zoom_to_user_geolocation();
-}
-
-/**
- * Turn geolocation-following OFF
- */
-function disable_gps_follow() {
-    AUTO_CENTER_ON_LOCATION = false;
-    var iconurl = is_ios() ?
-        WEBAPP_BASEPATH + 'static/images/map_controls/mapbutton_gps_ios_off.png' :
-        WEBAPP_BASEPATH + 'static/images/map_controls/mapbutton_gps_off.png';
-    $('#mapbutton_gps img').prop('src', iconurl);
-}
-
-/**
- * Toggle geolocation-following when GPS icon is clicked
- */
-$(document).ready(function () {
-    $('#mapbutton_gps').click(function () {
-        toggle_gps_follow();
-    });
-});
-
-/**
- * Turn geolocation-following OFF on page load
- *
- * iOS and non-iOS get different icons for the GPS button so it's important
- * to trigger this now so the right icon is chosen.
- */
-$(document).ready(function () {
-    disable_gps_follow();
-});
-
-/**
- * Turn geolocation-following OFF when map is moved (panned/zoomed).
- * Because gps-follow itself moves the map, we have to make sure to
- * use the "noMoveStart" option in pans/zooms there (below).
- */
-$(document).ready(function () {
-    MAP.on('movestart', function(event) {
-        disable_gps_follow();
-    });
-});
-
-/**
- * Center and zoom to user's geolocation.
- */
-function zoom_to_user_geolocation(latlng) {
-    if (!latlng && LAST_KNOWN_LOCATION) {
-        latlng = LAST_KNOWN_LOCATION;
-    }
-    if (latlng) {
-        placeGPSMarker(latlng.lat, latlng.lng);
-        // movestart event would disable gps follow, so we set noMoveStart option
-        // Currently requires patch for Leaflet bug:
-        //   https://github.com/Leaflet/Leaflet/pull/6685
-        MAP.panTo(latlng, {noMoveStart: true});
-        if (MAP.getZoom() < 12) {
-            MAP.setZoom(16, {noMoveStart: true});
-        }
-    }
-}
+// @TODO: GLJS REMOVE?
+//**
+//* If in Native app, trigger geolocation when Cordova's geolocation plugin has come online.
+//* @TODO: GLJS: Do we need to wait for this to enable ctrlGeolocate?
+//*/
+//(function(){
+//   document.addEventListener("deviceready", enableGeolocate, false);
+//);
 
 /**
  * Update display of user's lat/lng in Settings pane.
@@ -128,18 +46,20 @@ function update_user_latlon_display(latlng) {
  *
  * Update our last-known location, then do more calculations regarding it.
  */
-$(document).ready(function () {
+$(document).on("mapInitialized", function () {
     MAP.on('locationfound', function(event) {
+        console.log('locationfound');
         // Update the user's last known location
         LAST_KNOWN_LOCATION = event.latlng;
 
-        if (AUTO_CENTER_ON_LOCATION) {
-            // Center and zoom, if we're following
-            zoom_to_user_geolocation(event.latlng);
-        } else {
-            // Just mark the user's current location
-            placeGPSMarker(event.latlng.lat, event.latlng.lng);
-        }
+        // @TODO: GLJS REMOVE
+        //if (AUTO_CENTER_ON_LOCATION) {
+        //    // Center and zoom, if we're following
+        //    zoom_to_user_geolocation(event.latlng);
+        //} else {
+        //    // Just mark the user's current location
+        //    placeGPSMarker(event.latlng.lat, event.latlng.lng);
+        //}
 
         // Sort any visible distance-sorted lists
         // @TODO: Let's identify all such lists and see if there's a cleaner way.
@@ -167,10 +87,11 @@ $(document).ready(function () {
         update_user_latlon_display(event.latlng);
     });
 
-    // Start constant geolocation, which triggers all of the 'locationfound' events above,
-    // unless the user is in the native app, in which case we trigger this when
-    // Cordova's geolocation plugin has come online (see "deviceready", above).
-    if (!NATIVE_APP) {
-        enableGeolocate();
-    }
+    // @TODO: GLJS REMOVE?
+    //// Start constant geolocation, which triggers all of the 'locationfound' events above,
+    //// unless the user is in the native app, in which case we trigger this when
+    //// Cordova's geolocation plugin has come online (see "deviceready", above).
+    //if (!NATIVE_APP) {
+    //    enableGeolocate();
+    //}
 });

@@ -12,4 +12,4 @@
 WEBAPP_BASEPATH = 'https://maps.clevelandmetroparks.com/';
 API_BASEPATH = 'https://maps.clevelandmetroparks.com/';
 
-var CM_SITE_BASEURL = 'http://www.clevelandmetroparks.com/';
+var CM_SITE_BASEURL = 'https://www.clevelandmetroparks.com/';

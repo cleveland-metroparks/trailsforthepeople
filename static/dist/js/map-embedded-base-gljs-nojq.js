@@ -133,7 +133,7 @@ var STYLE_NAMES = {
 WEBAPP_BASEPATH = 'https://maps.clevelandmetroparks.com/';
 API_BASEPATH = 'https://maps.clevelandmetroparks.com/';
 
-var CM_SITE_BASEURL = 'http://www.clevelandmetroparks.com/';
+var CM_SITE_BASEURL = 'https://www.clevelandmetroparks.com/';
 
 ;
  /**
@@ -182,6 +182,8 @@ var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; o
 
 var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
 
+var ctrlGeolocate;
+
 var SETTINGS = [];
 SETTINGS.coordinate_format = 'dms';
 
@@ -218,12 +220,11 @@ function initMap(mapOptions) {
     MAP.addControl(ctrlNav, 'bottom-right');
 
     // Geolocate control
-    var ctrlGeolocate = new mapboxgl.GeolocateControl({
-       positionOptions: {
-           trackUserLocation: true,
-           showUserLocation: true,
+    ctrlGeolocate = new mapboxgl.GeolocateControl({
+        positionOptions: {
            enableHighAccuracy: true
-       }
+        },
+        trackUserLocation: true,
     });
     MAP.addControl(ctrlGeolocate, 'bottom-right');
 
@@ -689,25 +690,6 @@ $(document).bind('pagechange', function(e,data) {
     //sortLists();
 });
 
-/*
- * mobile-specific: listen for page changes to #pane-info
- * and make sure we really have something to show data for
- * e.g. in the case of someone reloading #pane-info the app
- * can get stuck since no feature has been loaded
- */
-//$(document).bind('pagebeforechange', function(e,data) {
-//    if ( typeof data.toPage != "string" ) return; // no hash given
-//    var url = $.mobile.path.parseUrl(data.toPage);
-//    if ( url.hash != '#pane-info') return; // not the URL that we want to handle
-//
-//    var ok = $('#show_on_map').data('zoomelement');
-//    if (ok) return; // guess it's fine, proceed
-//
-//    // got here: they selected info but have nothing to show info, bail to the Find panel
-//    $.mobile.changePage('#pane-browse');
-//    return false;
-//});
-
 /**
  * Use FastClick lib to get a more responsive touch-click on mobile.
  *
@@ -728,6 +710,104 @@ $(document).ready(function(){
     });
 });
 
+;
+ /**
+ * geolocate.js
+ *
+ * JS for geolocation functionality.
+ *
+ * Included into app.js.
+ *
+ * Cleveland Metroparks
+ */
+
+// @TODO: GLJS REMOVE?
+///**
+// * Attempt to locate the user using the Geolocation API (via Leaflet).
+// */
+//function enableGeolocate() {
+//    // MAP.locate({ watch: true, enableHighAccuracy: true });
+//    // ctrlGeolocate.trigger();
+//}
+
+// @TODO: GLJS REMOVE?
+//**
+//* If in Native app, trigger geolocation when Cordova's geolocation plugin has come online.
+//* @TODO: GLJS: Do we need to wait for this to enable ctrlGeolocate?
+//*/
+//(function(){
+//   document.addEventListener("deviceready", enableGeolocate, false);
+//);
+
+/**
+ * Update display of user's lat/lng in Settings pane.
+ */
+function update_user_latlon_display(latlng) {
+    if (!latlng && LAST_KNOWN_LOCATION) {
+        latlng = LAST_KNOWN_LOCATION;
+    }
+    if (latlng) {
+        latlng_str = latlng_formatted(latlng)
+    } else {
+        latlng_str = 'unknown';
+    }
+    $('#gps_location').val(latlng_str);
+}
+
+/**
+ * Handle geolocation update
+ *
+ * Update our last-known location, then do more calculations regarding it.
+ */
+$(document).on("mapInitialized", function () {
+    MAP.on('locationfound', function(event) {
+        console.log('locationfound');
+        // Update the user's last known location
+        LAST_KNOWN_LOCATION = event.latlng;
+
+        // @TODO: GLJS REMOVE
+        //if (AUTO_CENTER_ON_LOCATION) {
+        //    // Center and zoom, if we're following
+        //    zoom_to_user_geolocation(event.latlng);
+        //} else {
+        //    // Just mark the user's current location
+        //    placeGPSMarker(event.latlng.lat, event.latlng.lng);
+        //}
+
+        // Sort any visible distance-sorted lists
+        // @TODO: Let's identify all such lists and see if there's a cleaner way.
+        //sortLists();
+
+        // Adjust the Near You Now listing
+        // @TODO: Why do we do this again when opening the panel?
+        // @TODO: Also, should this be mobile only?
+        updateNearYouNow();
+
+        // Check the Nearby alerts to see if anything relevant is within range
+        if ( $('#nearby_enabled').is(':checked') ) {
+            var meters = $('#nearby_radius').val();
+            var categories = [];
+            $('input[name="nearby_category"]:checked').each(
+                function () {
+                    categories[categories.length] = $(this).val()
+                }
+            );
+            placeCircle(event.latlng.lat, event.latlng.lng, meters);
+            checkNearby(event.latlng, meters, categories);
+        }
+
+        // Update display of user lat/lng
+        update_user_latlon_display(event.latlng);
+    });
+
+    // @TODO: GLJS REMOVE?
+    //// Start constant geolocation, which triggers all of the 'locationfound' events above,
+    //// unless the user is in the native app, in which case we trigger this when
+    //// Cordova's geolocation plugin has come online (see "deviceready", above).
+    //if (!NATIVE_APP) {
+    //    enableGeolocate();
+    //}
+});
 ;
 /**
  * loopsandroutes.js

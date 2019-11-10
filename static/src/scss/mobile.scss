@@ -43,15 +43,6 @@ img {
     font-size: 12pt;
 }
 
-// Geolocate button
-#mapbutton_gps {
-    position: absolute;
-    bottom: 75px;
-    right: 7px;
-    cursor: pointer;
-    z-index: 401;
-}
-
 //  Leaflet popups which are large enough to induce scrolling, can't really scroll
 .leaflet-popup-scrolled .leaflet-popup-content {
     overflow: hidden;

@@ -263,25 +263,6 @@ $(document).bind('pagechange', function(e,data) {
     //sortLists();
 });
 
-/*
- * mobile-specific: listen for page changes to #pane-info
- * and make sure we really have something to show data for
- * e.g. in the case of someone reloading #pane-info the app
- * can get stuck since no feature has been loaded
- */
-//$(document).bind('pagebeforechange', function(e,data) {
-//    if ( typeof data.toPage != "string" ) return; // no hash given
-//    var url = $.mobile.path.parseUrl(data.toPage);
-//    if ( url.hash != '#pane-info') return; // not the URL that we want to handle
-//
-//    var ok = $('#show_on_map').data('zoomelement');
-//    if (ok) return; // guess it's fine, proceed
-//
-//    // got here: they selected info but have nothing to show info, bail to the Find panel
-//    $.mobile.changePage('#pane-browse');
-//    return false;
-//});
-
 /**
  * Use FastClick lib to get a more responsive touch-click on mobile.
  *
