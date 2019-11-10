@@ -459,53 +459,12 @@ $(document).on("mapInitialized", function () {
 });
 
 /**
- * Disable clicks momentarily
- *
- * @TODO: Where do we still need this? Deprecate/remove...
- *
- * a method for changing over to the map "page" without having a hyperlink, e.g. from the geocoder callback
- * this is particularly important because we often want to zoom the map, but since map resizing is async,
- * the map is wrongly sized and badly positioned when we try to fitBounds() or setView(()
- * Solution: use switchToMap() and give it a callback function. This callback will be executed after a
- * short delay, ensuring that the map is showing and properly resized before doing the next activity
+ * If the user has a small screen, close the sidebar to see the map.
  */
-function disableClicksMomentarily() {
-    //disableClicks();
-    //setTimeout(enableClicks, 1500);
-}
-
-/**
- * Disable clicks
- */
-function disableClicks() {
-    if (! MAP) return; // map isn't even running yet, so clicking is irrelevant
-    ENABLE_MAPCLICK = false;
-    MAP.dragging.removeHooks();
-    MAP.touchZoom.removeHooks();
-}
-
-/**
- * Enable clicks
- */
-function enableClicks() {
-    if (! MAP) return; // map isn't even running yet, so clicking is irrelevant
-    ENABLE_MAPCLICK = true;
-    MAP.dragging.addHooks();
-    MAP.touchZoom.addHooks();
-}
-
-/**
- * Switch to map, with callback
- */
-function switchToMap(callback) {
-    // If the user has a small screen, close the sidebar to see the map.
+function switchToMap() {
     if (sidebarCoversMap()) {
         sidebar.close();
     }
-
-    // @TODO: Once this has been tested with 0 in setTimeout,
-    // deprecate and remove callback structure.
-    if (callback) setTimeout(callback, 0);
 }
 
 /**
@@ -786,7 +745,6 @@ function zoomElementClick(element) {
     // this attempts to work around slow fingers sending multiple touches,
     // and long listviews inexplicably scrolling the page and re-tapping
     if (! ENABLE_MAPCLICK) return;
-    disableClicksMomentarily();
 
     var type = element.attr('type');
     var gid  = element.attr('gid');
@@ -956,20 +914,21 @@ function zoomToAddress(searchtext) {
         }
 
         // zoom the point location, nice and close, and add a marker
-        switchToMap(function () {
-            MAP.setView(latlng, 16);
-            placeTargetMarker(result.lat, result.lng);
+        switchToMap();
 
-            // add a bubble at the location indicating their interpretation of the address, so we can see how bad the match was
-            // also add a specially-crafted span element with lat= lng= and title= for use with zoomElementClick()
-            var html = "";
-            html += '<h3 class="popup_title">' + result.title + '</h3>';
-            html += '<span class="fakelink zoom" title="' + result.title + '" lat="' + result.lat + '" lng="' + result.lng + '" w="' + result.w + '" s="' + result.s + '" e="' + result.e + '" n="' + result.n + '" onClick="zoomElementClick( $(this) );">Directions</span>';
-            var popup = new L.Popup();
-            popup.setLatLng(latlng);
-            popup.setContent(html);
-            MAP.openPopup(popup);
-        });
+        MAP.setView(latlng, 16);
+        placeTargetMarker(result.lat, result.lng);
+
+        // add a bubble at the location indicating their interpretation of the address, so we can see how bad the match was
+        // also add a specially-crafted span element with lat= lng= and title= for use with zoomElementClick()
+        var html = "";
+        html += '<h3 class="popup_title">' + result.title + '</h3>';
+        html += '<span class="fakelink zoom" title="' + result.title + '" lat="' + result.lat + '" lng="' + result.lng + '" w="' + result.w + '" s="' + result.s + '" e="' + result.e + '" n="' + result.n + '" onClick="zoomElementClick( $(this) );">Directions</span>';
+        var popup = new L.Popup();
+        popup.setLatLng(latlng);
+        popup.setContent(html);
+        MAP.openPopup(popup);
+
     }, 'json');
 };
 
@@ -1030,28 +989,28 @@ function zoomToFeature(feature) {
     }
 
     // Switch to the map and add the feature.
-    switchToMap(function () {
-        // Zoom the map into the stated bbox, if we have one.
-        if ((feature.w != 0) && (feature.s != 0) && (feature.e != 0) && (feature.n != 0)) {
-            var bounds = L.latLngBounds(L.latLng(feature.s, feature.w), L.latLng(feature.n, feature.e)).pad(0.15);
-            MAP.flyToBounds(bounds);
-        } else {
-            // Re-center and zoom
-            // @TODO: Eventually we'll have individual POI zoomlevels in DB
-            MAP.flyTo(L.latLng(feature.lat, feature.lng), DEFAULT_POI_ZOOM);
-        }
+    switchToMap();
 
-        // Drop a marker if this is a point feature
-        if (feature.type == 'poi' || feature.type == 'attraction' || feature.type == 'loop') {
-            placeTargetMarker(feature.lat, feature.lng);
-        }
+    // Zoom the map into the stated bbox, if we have one.
+    if ((feature.w != 0) && (feature.s != 0) && (feature.e != 0) && (feature.n != 0)) {
+        var bounds = L.latLngBounds(L.latLng(feature.s, feature.w), L.latLng(feature.n, feature.e)).pad(0.15);
+        MAP.flyToBounds(bounds);
+    } else {
+        // Re-center and zoom
+        // @TODO: Eventually we'll have individual POI zoomlevels in DB
+        MAP.flyTo(L.latLng(feature.lat, feature.lng), DEFAULT_POI_ZOOM);
+    }
 
-        // Draw the line geometry if this is a line feature.
-        if (feature.wkt) {
-            HIGHLIGHT_LINE = lineWKTtoFeature(feature.wkt, HIGHLIGHT_LINE_STYLE);
-            MAP.addLayer(HIGHLIGHT_LINE);
-        }
-    });
+    // Drop a marker if this is a point feature
+    if (feature.type == 'poi' || feature.type == 'attraction' || feature.type == 'loop') {
+        placeTargetMarker(feature.lat, feature.lng);
+    }
+
+    // Draw the line geometry if this is a line feature.
+    if (feature.wkt) {
+        HIGHLIGHT_LINE = lineWKTtoFeature(feature.wkt, HIGHLIGHT_LINE_STYLE);
+        MAP.addLayer(HIGHLIGHT_LINE);
+    }
 }
 
 /**
