@@ -397,7 +397,8 @@ var sidebar = null;
 var LAST_BEEP_IDS = [];
 
 // other stuff pertaining to our last known location and auto-centering
-var LAST_KNOWN_LOCATION = L.latLng(41.3953,-81.6730);
+var LAST_KNOWN_LOCATION = new mapboxgl.LngLat(-81.6730, 41.3953);
+
 var AUTO_CENTER_ON_LOCATION = false;
 
 // sorting by distance, isn't always by distance
@@ -842,8 +843,8 @@ function sortLists(target) {
     target.find('.zoom_distance').each(function () {
         var element   = $(this).parent().parent();
         var destpoint = L.latLng(element.attr('lat'),element.attr('lng'));
-        var meters    = LAST_KNOWN_LOCATION.distanceTo(destpoint);
-        var bearing   = LAST_KNOWN_LOCATION.bearingWordTo(destpoint);
+        // var meters    = LAST_KNOWN_LOCATION.distanceTo(destpoint); // @TODO: GLJS
+        // var bearing   = LAST_KNOWN_LOCATION.bearingWordTo(destpoint); // @TODO: GLJS
 
         var miles    = meters / 1609.344;
         var feet     = meters * 3.2808399
@@ -1610,10 +1611,9 @@ function update_user_latlon_display(latlng) {
  * Update our last-known location, then do more calculations regarding it.
  */
 $(document).on("mapInitialized", function () {
-    MAP.on('locationfound', function(event) {
-        console.log('locationfound');
+    ctrlGeolocate.on("geolocate", function(event) {
         // Update the user's last known location
-        LAST_KNOWN_LOCATION = event.latlng;
+        LAST_KNOWN_LOCATION = mapboxgl.LngLat.convert([event.coords.longitude, event.coords.latitude]);
 
         // @TODO: GLJS REMOVE
         //if (AUTO_CENTER_ON_LOCATION) {
@@ -2791,11 +2791,11 @@ function updateNearYouNow() {
     for (var i=0, l=ALL_POIS.length; i<l; i++) {
         var poi       = ALL_POIS[i];
         var destpoint = L.latLng(poi.lat,poi.lng);
-        poi.meters    = LAST_KNOWN_LOCATION.distanceTo(destpoint);
+        // poi.meters    = LAST_KNOWN_LOCATION.distanceTo(destpoint); // @TODO: GLJS
         poi.miles     = poi.meters / 1609.344;
         poi.feet      = poi.meters * 3.2808399;
         poi.range     = (poi.feet > 900) ? poi.miles.toFixed(1) + ' mi' : poi.feet.toFixed(0) + ' ft';
-        poi.bearing   = LAST_KNOWN_LOCATION.bearingWordTo(destpoint);
+        // poi.bearing   = LAST_KNOWN_LOCATION.bearingWordTo(destpoint); // @TODO: GLJS
     }
 
     // sort ALL_POIS by distance, then take the first (closest) few

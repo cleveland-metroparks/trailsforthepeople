@@ -16,7 +16,8 @@ var sidebar = null;
 var LAST_BEEP_IDS = [];
 
 // other stuff pertaining to our last known location and auto-centering
-var LAST_KNOWN_LOCATION = L.latLng(41.3953,-81.6730);
+var LAST_KNOWN_LOCATION = new mapboxgl.LngLat(-81.6730, 41.3953);
+
 var AUTO_CENTER_ON_LOCATION = false;
 
 // sorting by distance, isn't always by distance
@@ -461,8 +462,8 @@ function sortLists(target) {
     target.find('.zoom_distance').each(function () {
         var element   = $(this).parent().parent();
         var destpoint = L.latLng(element.attr('lat'),element.attr('lng'));
-        var meters    = LAST_KNOWN_LOCATION.distanceTo(destpoint);
-        var bearing   = LAST_KNOWN_LOCATION.bearingWordTo(destpoint);
+        // var meters    = LAST_KNOWN_LOCATION.distanceTo(destpoint); // @TODO: GLJS
+        // var bearing   = LAST_KNOWN_LOCATION.bearingWordTo(destpoint); // @TODO: GLJS
 
         var miles    = meters / 1609.344;
         var feet     = meters * 3.2808399

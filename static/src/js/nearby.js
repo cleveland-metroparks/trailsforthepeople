@@ -46,11 +46,11 @@ function updateNearYouNow() {
     for (var i=0, l=ALL_POIS.length; i<l; i++) {
         var poi       = ALL_POIS[i];
         var destpoint = L.latLng(poi.lat,poi.lng);
-        poi.meters    = LAST_KNOWN_LOCATION.distanceTo(destpoint);
+        // poi.meters    = LAST_KNOWN_LOCATION.distanceTo(destpoint); // @TODO: GLJS
         poi.miles     = poi.meters / 1609.344;
         poi.feet      = poi.meters * 3.2808399;
         poi.range     = (poi.feet > 900) ? poi.miles.toFixed(1) + ' mi' : poi.feet.toFixed(0) + ' ft';
-        poi.bearing   = LAST_KNOWN_LOCATION.bearingWordTo(destpoint);
+        // poi.bearing   = LAST_KNOWN_LOCATION.bearingWordTo(destpoint); // @TODO: GLJS
     }
 
     // sort ALL_POIS by distance, then take the first (closest) few

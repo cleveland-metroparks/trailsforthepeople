@@ -760,10 +760,9 @@ function update_user_latlon_display(latlng) {
  * Update our last-known location, then do more calculations regarding it.
  */
 $(document).on("mapInitialized", function () {
-    MAP.on('locationfound', function(event) {
-        console.log('locationfound');
+    ctrlGeolocate.on("geolocate", function(event) {
         // Update the user's last known location
-        LAST_KNOWN_LOCATION = event.latlng;
+        LAST_KNOWN_LOCATION = mapboxgl.LngLat.convert([event.coords.longitude, event.coords.latitude]);
 
         // @TODO: GLJS REMOVE
         //if (AUTO_CENTER_ON_LOCATION) {
