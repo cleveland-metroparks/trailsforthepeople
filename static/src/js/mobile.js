@@ -462,11 +462,12 @@ function sortLists(target) {
     target.find('.zoom_distance').each(function () {
         var element   = $(this).parent().parent();
         var destpoint = L.latLng(element.attr('lat'),element.attr('lng'));
-        // var meters    = LAST_KNOWN_LOCATION.distanceTo(destpoint); // @TODO: GLJS
-        // var bearing   = LAST_KNOWN_LOCATION.bearingWordTo(destpoint); // @TODO: GLJS
+
+        var meters    = distanceTo(LAST_KNOWN_LOCATION, destpoint);
+        var bearing   = bearingWordTo(LAST_KNOWN_LOCATION, destpoint);
 
         var miles    = meters / 1609.344;
-        var feet     = meters * 3.2808399
+        var feet     = meters * 3.2808399;
         var distext  = (feet > 900) ? miles.toFixed(1) + ' mi' : feet.toFixed(0) + ' ft';
         distext += ' ' + bearing;
 

@@ -843,11 +843,12 @@ function sortLists(target) {
     target.find('.zoom_distance').each(function () {
         var element   = $(this).parent().parent();
         var destpoint = L.latLng(element.attr('lat'),element.attr('lng'));
-        // var meters    = LAST_KNOWN_LOCATION.distanceTo(destpoint); // @TODO: GLJS
-        // var bearing   = LAST_KNOWN_LOCATION.bearingWordTo(destpoint); // @TODO: GLJS
+
+        var meters    = distanceTo(LAST_KNOWN_LOCATION, destpoint);
+        var bearing   = bearingWordTo(LAST_KNOWN_LOCATION, destpoint);
 
         var miles    = meters / 1609.344;
-        var feet     = meters * 3.2808399
+        var feet     = meters * 3.2808399;
         var distext  = (feet > 900) ? miles.toFixed(1) + ' mi' : feet.toFixed(0) + ' ft';
         distext += ' ' + bearing;
 
@@ -2776,6 +2777,81 @@ $(document).ready(function () {
 });
 
 /**
+ * Convert from Mapbox GL JS LngLat to Turf.js point
+ *
+ * @param {mapboxgl.LngLat} lngLat
+ *
+ * @return {turf.point}
+ */
+function toTurfPoint(lngLat) {
+    return turf.point([lngLat.lng, lngLat.lat])
+}
+
+/**
+ * Convert from Turf.js point to Mapbox GL JS LngLat
+ *
+ * @param {turf.point} point
+ *
+ * @return {mapboxgl.LngLat}
+ */
+function fromTurfPoint(point) {
+    return new mapboxgl.LngLat.convert(point.geometry.coordinates);
+}
+
+/**
+ * Distance (Haversine) from one point to another.
+ *
+ * @param {mapboxgl.LngLat} from: From location
+ * @param {mapboxgl.LngLat} to: To location
+ *
+ * @return Distance in meters
+ */
+function distanceTo(from, to) {
+    var turfFrom = toTurfPoint(from);
+    var turfTo = toTurfPoint(to);
+    var options = {units: 'kilometers'};
+
+    return turf.distance(turfFrom, turfTo, options) / 1000;
+}
+
+/**
+ * Bearing from one point to another, in decimal degrees
+ *
+ * @param {mapboxgl.LngLat} from: From location
+ * @param {mapboxgl.LngLat} to: To location
+ *
+ * @return {number} Final bearing in decimal degrees, between 0 and 360
+ */
+function bearingTo(from, to) {
+    var turfFrom = toTurfPoint(from);
+    var turfTo = toTurfPoint(to);
+    var options = {final: true};
+
+    return turf.bearing(turfFrom, turfTo, options);
+}
+
+/**
+ * Bearing from one point to another, in NESW directional letters
+ *
+ * @param {mapboxgl.LngLat} from: From location
+ * @param {mapboxgl.LngLat} to: To location
+ *
+ * @return {string} Bearing in NESW
+ */
+function bearingToInNESW(from, to) {
+    var bearing = bearingTo(from, to);
+
+    if      (bearing >= 22  && bearing <= 67)  return 'NE';
+    else if (bearing >= 67  && bearing <= 112) return 'E';
+    else if (bearing >= 112 && bearing <= 157) return 'SE';
+    else if (bearing >= 157 && bearing <= 202) return 'S';
+    else if (bearing >= 202 && bearing <= 247) return 'SW';
+    else if (bearing >= 247 && bearing <= 292) return 'W';
+    else if (bearing >= 292 && bearing <= 337) return 'NW';
+    else if (bearing >= 337 || bearing <= 22)  return 'N';
+};
+
+/**
  * Update Near You Now
  *
  * update the Near You Now listing from ALL_POIS; called on a location update
@@ -2790,12 +2866,14 @@ function updateNearYouNow() {
     // this is instrumental in sorting by distance and picking the nearest
     for (var i=0, l=ALL_POIS.length; i<l; i++) {
         var poi       = ALL_POIS[i];
-        var destpoint = L.latLng(poi.lat,poi.lng);
-        // poi.meters    = LAST_KNOWN_LOCATION.distanceTo(destpoint); // @TODO: GLJS
+        var destpoint = new mapboxgl.LngLat(poi.lng, poi.lat);
+
+        poi.meters    = distanceTo(LAST_KNOWN_LOCATION, destpoint);
         poi.miles     = poi.meters / 1609.344;
         poi.feet      = poi.meters * 3.2808399;
         poi.range     = (poi.feet > 900) ? poi.miles.toFixed(1) + ' mi' : poi.feet.toFixed(0) + ' ft';
-        // poi.bearing   = LAST_KNOWN_LOCATION.bearingWordTo(destpoint); // @TODO: GLJS
+
+        poi.bearing   = bearingToInNESW(LAST_KNOWN_LOCATION, destpoint);
     }
 
     // sort ALL_POIS by distance, then take the first (closest) few
