@@ -1579,7 +1579,9 @@ $(document).ready(function(){
 // */
 //function enableGeolocate() {
 //    // MAP.locate({ watch: true, enableHighAccuracy: true });
-//    // ctrlGeolocate.trigger();
+//    // if (ctrlGeolocate._watchState == 'OFF') {
+//    //    ctrlGeolocate.trigger();
+//    // }
 //}
 
 // @TODO: GLJS REMOVE?
@@ -1613,17 +1615,10 @@ function update_user_latlon_display(latlng) {
  */
 $(document).on("mapInitialized", function () {
     ctrlGeolocate.on("geolocate", function(event) {
-        // Update the user's last known location
-        LAST_KNOWN_LOCATION = mapboxgl.LngLat.convert([event.coords.longitude, event.coords.latitude]);
+        var current_location = mapboxgl.LngLat.convert([event.coords.longitude, event.coords.latitude]);
 
-        // @TODO: GLJS REMOVE
-        //if (AUTO_CENTER_ON_LOCATION) {
-        //    // Center and zoom, if we're following
-        //    zoom_to_user_geolocation(event.latlng);
-        //} else {
-        //    // Just mark the user's current location
-        //    placeGPSMarker(event.latlng.lat, event.latlng.lng);
-        //}
+        // Update the user's last known location
+        LAST_KNOWN_LOCATION = current_location;
 
         // Sort any visible distance-sorted lists
         // @TODO: Let's identify all such lists and see if there's a cleaner way.
@@ -1643,13 +1638,19 @@ $(document).on("mapInitialized", function () {
                     categories[categories.length] = $(this).val()
                 }
             );
-            placeCircle(event.latlng.lat, event.latlng.lng, meters);
-            checkNearby(event.latlng, meters, categories);
+            placeCircle(current_location, meters);
+            checkNearby(current_location, meters, categories);
         }
 
         // Update display of user lat/lng
         update_user_latlon_display(event.latlng);
     });
+
+    // @TODO: Catch disabling of geolocation control
+    //   (which Mapbox GL JS currently doesn't provide a handler for...
+    //    see https://github.com/mapbox/mapbox-gl-js/issues/5136 --
+    //    there's also a workaround there)
+    // and then clearCirle() when we see it.
 
     // @TODO: GLJS REMOVE?
     //// Start constant geolocation, which triggers all of the 'locationfound' events above,
@@ -2913,43 +2914,67 @@ function updateNearYouNow() {
     target.listview('refresh');
 }
 
-// @TODO: GLJS
-// var CIRCLE = new L.Circle(L.latLng(0,0), 1);
-
 /**
  * Place circle
+ *
+ * @param {mapboxgl.LngLat} center
+ * @param {number} meters
  */
-function placeCircle(lat, lon, meters) {
-    MAP.removeLayer(CIRCLE);
-    CIRCLE.setLatLng(L.latLng(lat, lon));
-    CIRCLE.setRadius(meters);
-    MAP.addLayer(CIRCLE);
+function placeCircle(center, meters) {
+    clearCircle();
+
+    var radius = meters / 1000;
+    var options = {units: 'kilometers'};
+    var circle = turf.circle(toTurfPoint(center), radius, options);
+
+    MAP.addLayer({
+        'id': 'circle',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': circle,
+        },
+        'layout': {},
+        'paint': {
+            'fill-color': '#21A1F3',
+            'fill-opacity': 0.3
+        }
+    });
 }
 
 /**
  * Clear circle
  */
 function clearCircle() {
-    CIRCLE.setLatLng(L.latLng(0, 0));
-    CIRCLE.setRadius(1);
-    MAP.removeLayer(CIRCLE);
+    if (MAP.getLayer('circle')) {
+        MAP.removeLayer('circle');
+    }
+    if (MAP.getSource('circle')) {
+        MAP.removeSource('circle');
+    }
 }
 
 /**
  * Check Nearby
+ *
+ * @param {mapboxgl.LngLat} lngLat
+ * @param {number} maxMeters
+ * @param {} categories
  */
-function checkNearby(latlng,maxmeters,categories) {
+function checkNearby(lngLat, maxMeters, categories) {
     // 1: go over the Near You Now entries, find which ones are within distance and matching the filters
-    maxmeters = parseFloat(maxmeters); // passed in as a .attr() string sometimes
+    maxMeters = parseFloat(maxMeters); // passed in as a .attr() string sometimes
 
     // iterate over ALL_POIS and calculate their distance, make sure they fit the category filters, add the distance and text, append them to alerts
     var alerts = [];
     for (var i=0, l=ALL_POIS.length; i<l; i++) {
         var poi = ALL_POIS[i];
-        var meters = latlng.distanceTo( L.latLng(poi.lat,poi.lng) );
+        // var meters = latlng.distanceTo( L.latLng(poi.lat,poi.lng) );
+        var poiLngLat = new mapboxgl.LngLat(poi.lng, poi.lat);
+        var meters = distanceTo(lngLat, poiLngLat);
 
         // filter: distance
-        if (meters > maxmeters) continue;
+        if (meters > maxMeters) continue;
 
         // filter: category
         if (categories) {

@@ -14,7 +14,9 @@
 // */
 //function enableGeolocate() {
 //    // MAP.locate({ watch: true, enableHighAccuracy: true });
-//    // ctrlGeolocate.trigger();
+//    // if (ctrlGeolocate._watchState == 'OFF') {
+//    //    ctrlGeolocate.trigger();
+//    // }
 //}
 
 // @TODO: GLJS REMOVE?
@@ -48,17 +50,10 @@ function update_user_latlon_display(latlng) {
  */
 $(document).on("mapInitialized", function () {
     ctrlGeolocate.on("geolocate", function(event) {
-        // Update the user's last known location
-        LAST_KNOWN_LOCATION = mapboxgl.LngLat.convert([event.coords.longitude, event.coords.latitude]);
+        var current_location = mapboxgl.LngLat.convert([event.coords.longitude, event.coords.latitude]);
 
-        // @TODO: GLJS REMOVE
-        //if (AUTO_CENTER_ON_LOCATION) {
-        //    // Center and zoom, if we're following
-        //    zoom_to_user_geolocation(event.latlng);
-        //} else {
-        //    // Just mark the user's current location
-        //    placeGPSMarker(event.latlng.lat, event.latlng.lng);
-        //}
+        // Update the user's last known location
+        LAST_KNOWN_LOCATION = current_location;
 
         // Sort any visible distance-sorted lists
         // @TODO: Let's identify all such lists and see if there's a cleaner way.
@@ -78,13 +73,19 @@ $(document).on("mapInitialized", function () {
                     categories[categories.length] = $(this).val()
                 }
             );
-            placeCircle(event.latlng.lat, event.latlng.lng, meters);
-            checkNearby(event.latlng, meters, categories);
+            placeCircle(current_location, meters);
+            checkNearby(current_location, meters, categories);
         }
 
         // Update display of user lat/lng
         update_user_latlon_display(event.latlng);
     });
+
+    // @TODO: Catch disabling of geolocation control
+    //   (which Mapbox GL JS currently doesn't provide a handler for...
+    //    see https://github.com/mapbox/mapbox-gl-js/issues/5136 --
+    //    there's also a workaround there)
+    // and then clearCirle() when we see it.
 
     // @TODO: GLJS REMOVE?
     //// Start constant geolocation, which triggers all of the 'locationfound' events above,
