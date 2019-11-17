@@ -129,9 +129,6 @@ var MARKER_TO = new mapboxgl.Marker(markerToEl, {offset: [-markerToIconWidth/2, 
 
 var ELEVATION_PROFILE = null;
 
-var HIGHLIGHT_LINE = null;
-var HIGHLIGHT_LINE_STYLE = { color:"#01B3FD", weight:6, opacity:0.75, clickable:false, smoothFactor:0.25 };
-
 var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; on Mobile we disable it after switchToMap()
 
 var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
@@ -513,8 +510,8 @@ $(document).ready(function () {
             if (reply.lat && reply.lng) {
                 placeTargetMarker(reply.lat, reply.lng);
             } else if (reply.wkt) {
-                HIGHLIGHT_LINE = lineWKTtoFeature(reply.wkt, HIGHLIGHT_LINE_STYLE);
-                MAP.addLayer(HIGHLIGHT_LINE);
+                wkt = new Wkt.Wkt(reply.wkt);
+                drawHighlightLine(wkt.toJson());
             }
         }, 'json');
     }
@@ -845,7 +842,7 @@ function sortLists(target) {
         var destpoint = L.latLng(element.attr('lat'),element.attr('lng'));
 
         var meters    = distanceTo(LAST_KNOWN_LOCATION, destpoint);
-        var bearing   = bearingWordTo(LAST_KNOWN_LOCATION, destpoint);
+        var bearing   = bearingToInNESW(LAST_KNOWN_LOCATION, destpoint);
 
         var miles    = meters / 1609.344;
         var feet     = meters * 3.2808399;
@@ -893,6 +890,46 @@ $(document).ready(function () {
         if(key.keyCode == 13) $('#geocode_button').click();
     });
 });
+
+/**
+ * Draw highlight line
+ *
+ * @param linestring {geojson}
+ */
+function drawHighlightLine(linestring) {
+    clearHighlightLine();
+
+    MAP.addLayer({
+        'id': 'highlightLine',
+        'type': 'line',
+        'source': {
+            'type': 'geojson',
+            'data': line,
+        },
+        'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        'paint': {
+            'line-color': '#01B3FD',
+            'line-width': 6,
+            'line-opacity': 0.75
+            // smoothFactor: 0.25
+        }
+    });
+}
+
+/**
+ * Clear highlight line
+ */
+function clearHighlightLine() {
+    if (MAP.getLayer('highlightLine')) {
+        MAP.removeLayer('highlightLine');
+    }
+    if (MAP.getSource('highlightLine')) {
+        MAP.removeSource('highlightLine');
+    }
+}
 
 /**
  * [Geocode and] Zoom to Address
@@ -986,21 +1023,21 @@ function zoomToFeature(feature) {
 
     // Clear existing points & lines
     clearTargetMarker();
-    if (MAP.hasLayer(HIGHLIGHT_LINE)) {
-        MAP.removeLayer(HIGHLIGHT_LINE);
-    }
+    clearHighlightLine();
 
     // Switch to the map and add the feature.
     switchToMap();
 
     // Zoom the map into the stated bbox, if we have one.
     if ((feature.w != 0) && (feature.s != 0) && (feature.e != 0) && (feature.n != 0)) {
-        var bounds = L.latLngBounds(L.latLng(feature.s, feature.w), L.latLng(feature.n, feature.e)).pad(0.15);
-        MAP.flyToBounds(bounds);
+        var sw = new mapboxgl.LngLat(feature.w, feature.s);
+        var ne = new mapboxgl.LngLat(feature.e, feature.n);
+        var bounds = new mapboxgl.LngLatBounds(sw, ne);
+
+        MAP.fitBounds(bounds, { padding: 10 });
     } else {
         // Re-center and zoom
-        // @TODO: Eventually we'll have individual POI zoomlevels in DB
-        MAP.flyTo(L.latLng(feature.lat, feature.lng), DEFAULT_POI_ZOOM);
+        MAP.flyTo({center: [feature.lng, feature.lat], zoom: DEFAULT_POI_ZOOM});
     }
 
     // Drop a marker if this is a point feature
@@ -1010,8 +1047,8 @@ function zoomToFeature(feature) {
 
     // Draw the line geometry if this is a line feature.
     if (feature.wkt) {
-        HIGHLIGHT_LINE = lineWKTtoFeature(feature.wkt, HIGHLIGHT_LINE_STYLE);
-        MAP.addLayer(HIGHLIGHT_LINE);
+        wkt = new Wkt.Wkt(feature.wkt);
+        drawHighlightLine(wkt.toJson());
     }
 }
 

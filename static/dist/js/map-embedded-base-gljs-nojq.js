@@ -175,9 +175,6 @@ var MARKER_TO = new mapboxgl.Marker(markerToEl, {offset: [-markerToIconWidth/2, 
 
 var ELEVATION_PROFILE = null;
 
-var HIGHLIGHT_LINE = null;
-var HIGHLIGHT_LINE_STYLE = { color:"#01B3FD", weight:6, opacity:0.75, clickable:false, smoothFactor:0.25 };
-
 var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; on Mobile we disable it after switchToMap()
 
 var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
