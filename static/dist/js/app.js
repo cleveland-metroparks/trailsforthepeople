@@ -527,7 +527,7 @@ $(document).ready(function () {
                 gid: URL_PARAMS.param('gid')
             };
             $.get(API_BASEPATH + 'ajax/get_reservation', params, function (reply) {
-                if (!reply || ! reply.lat || ! reply.lng) {
+                if (!reply || !reply.lat || !reply.lng) {
                     return alert("Cound not find that reservation.");
                 }
 
@@ -891,7 +891,7 @@ function drawHighlightLine(linestring) {
         'type': 'line',
         'source': {
             'type': 'geojson',
-            'data': line,
+            'data': linestring,
         },
         'layout': {
             'line-join': 'round',
@@ -1016,13 +1016,13 @@ function zoomToFeature(feature) {
     switchToMap();
 
     // Zoom the map into the stated bbox, if we have one.
-    if ((feature.w != 0) && (feature.s != 0) && (feature.e != 0) && (feature.n != 0)) {
+    if ((feature.w && feature.s && feature.e && feature.n) &&
+        (feature.w != 0 && feature.s != 0 && feature.e != 0 && feature.n != 0)) {
         var sw = new mapboxgl.LngLat(feature.w, feature.s);
         var ne = new mapboxgl.LngLat(feature.e, feature.n);
         var bounds = new mapboxgl.LngLatBounds(sw, ne);
-
         MAP.fitBounds(bounds, { padding: 10 });
-    } else {
+    } else if(feature.lng && feature.lat)  {
         // Re-center and zoom
         MAP.flyTo({center: [feature.lng, feature.lat], zoom: DEFAULT_POI_ZOOM});
     }
