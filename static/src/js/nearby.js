@@ -38,7 +38,7 @@ $(document).ready(function () {
  * @return {turf.point}
  */
 function toTurfPoint(lngLat) {
-    return turf.point([lngLat.lng, lngLat.lat])
+    return turf.point([lngLat.lng, lngLat.lat]);
 }
 
 /**
@@ -63,9 +63,9 @@ function fromTurfPoint(point) {
 function distanceTo(from, to) {
     var turfFrom = toTurfPoint(from);
     var turfTo = toTurfPoint(to);
-    var options = {units: 'kilometers'};
+    var options = {units: 'meters'};
 
-    return turf.distance(turfFrom, turfTo, options) / 1000;
+    return turf.distance(turfFrom, turfTo, options);
 }
 
 /**

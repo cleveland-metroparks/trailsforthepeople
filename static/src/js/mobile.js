@@ -461,7 +461,7 @@ function sortLists(target) {
     // this listing or received a location change event, so the best time to at least make sure the distances are accurate
     target.find('.zoom_distance').each(function () {
         var element   = $(this).parent().parent();
-        var destpoint = L.latLng(element.attr('lat'),element.attr('lng'));
+        var destpoint = new mapboxgl.LngLat(element.attr('lng'), element.attr('lat'));
 
         var meters    = distanceTo(LAST_KNOWN_LOCATION, destpoint);
         var bearing   = bearingToInNESW(LAST_KNOWN_LOCATION, destpoint);
