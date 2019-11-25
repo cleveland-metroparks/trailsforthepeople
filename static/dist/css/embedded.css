@@ -1,13 +1,18 @@
 @import url(../../lib/leaflet-1.5.1/leaflet.css);
-/* Stylings shared by mobile app and embedded maps. */
-.leaflet-popup-content h3 { font-size: 1.3em; font-weight: bold; }
-.leaflet-popup-content p { font-size: 1.1em !important; margin: 1em 0; }
+/** Sass CSS for the map.  Used in both app and embedded versions. */
+#marker-target { width: 25px; height: 41px; background-image: url("../../images/markers/marker-target.png"); background-size: cover; background-repeat: no-repeat; }
 
-.info-popup.warning .leaflet-popup-content-wrapper { border: 2px solid #FF7C3B; background-color: #fff3ee; }
-.info-popup.error .leaflet-popup-content-wrapper { border: 2px solid #DE5049; background-color: #fdf6f6; }
-.info-popup .leaflet-popup-content { font-size: 1.3em; }
-.info-popup .leaflet-popup-tip-container { display: none; }
-.info-popup a.leaflet-popup-close-button { color: #333333; }
-.info-popup a.leaflet-popup-close-button:hover { color: black; }
+#marker-gps { height: 16px; width: 16px; background-image: url("../../images/markers/marker-gps.svg"); background-size: 16px 16px; background-repeat: no-repeat; }
+
+#marker-from { width: 20px; height: 34px; background-image: url("../../images/markers/measure1.png"); background-size: cover; background-repeat: no-repeat; }
+
+#marker-to { width: 20px; height: 34px; background-image: url("../../images/markers/measure2.png"); background-size: cover; background-repeat: no-repeat; }
+
+.info-popup .mapboxgl-popup-content { font-size: 1.3em; padding: 1em 2em; }
+.info-popup.warning .mapboxgl-popup-content { border: 1px solid #FF7C3B; background-color: #fff3ee; }
+.info-popup.error .mapboxgl-popup-content { border: 1px solid #DE5049; background-color: #fdf6f6; }
+.info-popup .mapboxgl-popup-tip { display: none; }
+.info-popup a.mapboxgl-popup-close-button { color: #333333; }
+.info-popup a.mapboxgl-popup-close-button:hover { color: black; }
 
 /*# sourceMappingURL=embedded.css.map */

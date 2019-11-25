@@ -1,0 +1,46 @@
+/**
+ * Sass CSS for the map.
+ *
+ * Used in both app and embedded versions.
+ */
+
+//
+// Controls
+//
+.mapboxgl-ctrl-icon.mapboxgl-ctrl-geolocate.watching  {
+    // Set "watching" geolocate control color to our blue.
+    // SVG pulled from Mapbox GL JS.
+    // See "$blue_dark_hex" variable setting color within:
+    //background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D%270%200%2020%2020%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%0D%0A%20%20%3Cpath%20style%3D%27fill%3A%23" + $blue_dark_hex + "%3B%27%20d%3D%27M10%204C9%204%209%205%209%205L9%205.1A5%205%200%200%200%205.1%209L5%209C5%209%204%209%204%2010%204%2011%205%2011%205%2011L5.1%2011A5%205%200%200%200%209%2014.9L9%2015C9%2015%209%2016%2010%2016%2011%2016%2011%2015%2011%2015L11%2014.9A5%205%200%200%200%2014.9%2011L15%2011C15%2011%2016%2011%2016%2010%2016%209%2015%209%2015%209L14.9%209A5%205%200%200%200%2011%205.1L11%205C11%205%2011%204%2010%204zM10%206.5A3.5%203.5%200%200%201%2013.5%2010%203.5%203.5%200%200%201%2010%2013.5%203.5%203.5%200%200%201%206.5%2010%203.5%203.5%200%200%201%2010%206.5zM10%208.3A1.8%201.8%200%200%200%208.3%2010%201.8%201.8%200%200%200%2010%2011.8%201.8%201.8%200%200%200%2011.8%2010%201.8%201.8%200%200%200%2010%208.3z%27%20%2F%3E%0D%0A%3C%2Fsvg%3E");
+}
+
+//
+// Popups
+//
+.info-popup {
+    .mapboxgl-popup-content {
+        font-size: 1.3em;
+        padding: 1em 2em;
+    }
+    &.warning {
+        .mapboxgl-popup-content {
+            border: 1px solid $orange_light;
+            background-color: lighten($orange_light, 35%);
+        }
+    }
+    &.error {
+        .mapboxgl-popup-content {
+            border: 1px solid $red_light;
+            background-color: lighten($red_light, 40%);
+        }
+    }
+    .mapboxgl-popup-tip {
+        display: none;
+    }
+    a.mapboxgl-popup-close-button {
+        color: lighten(#000, 20%);
+        &:hover {
+            color: black;
+        }
+    }
+}

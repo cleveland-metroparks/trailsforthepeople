@@ -122,9 +122,6 @@ $(document).ready(function(){
 
     // Geolocation found handler
     MAP.on('locationfound', function(event) {
-        // Mark the user's current location
-        placeGPSMarker(event.latlng.lat, event.latlng.lng);
-
         userLocation = event.latlng;
 
         // Auto-center
@@ -155,7 +152,6 @@ $(document).ready(function(){
 function disableGeolocation() {
    // $('.interactive-form-distance-near-me-input').prop('checked', false);
    userLocation = null;
-   clearGPSMarker();
 }
 
 /**
@@ -200,8 +196,7 @@ function callGeocodeAddress(params) {
                 return;
             }
 
-            // Add a marker for their location
-            placeGPSMarker(reply.lat, reply.lng);
+            // @TODO: GLJS: Add a marker for their location
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
             console.log(textStatus + ': ' + errorThrown);

@@ -127,8 +127,7 @@ $(document).ready(function(){
 
     // Geolocation found handler
     MAP.on('locationfound', function(event) {
-        // Mark the user's current location
-        placeGPSMarker(event.latlng.lat, event.latlng.lng);
+        // @TODO: GLJS: Mark the user's current location
 
         userLocation = event.latlng;
 
@@ -159,7 +158,7 @@ $(document).ready(function(){
 function disableGeolocation() {
    // $('.interactive-form-distance-near-me-input').prop('checked', false);
    userLocation = null;
-   clearGPSMarker();
+   // @TODO: GLJS: Clear geolocation marker
 }
 
 /**
@@ -204,8 +203,7 @@ function callGeocodeAddress(params) {
                 return;
             }
 
-            // Add a marker for their location
-            placeGPSMarker(reply.lat, reply.lng);
+            // @TODO: GLJS:  Add a marker for their location
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
             console.log(textStatus + ': ' + errorThrown);

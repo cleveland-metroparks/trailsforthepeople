@@ -14,7 +14,7 @@
 // These change to remote URLs for native app and web-embedded scenarios.
 // @TODO: Put these into a local config so we can handle non-root basedirs.
 var WEBAPP_BASEPATH = '/';
-var API_BASEPATH = '/';
+var API_BASEPATH = 'https://maps-dev.clevelandmetroparks.com/';
 var MAP = null;
 
 var WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL = 'https';

@@ -8,8 +8,6 @@
  * Cleveland Metroparks
  */
 
-var DIRECTIONS_LINE       = null;
-var DIRECTIONS_LINE_STYLE = { color:"#0000FF", weight:5, opacity:1.00, clickable:false, smoothFactor:0.25 };
 
 /**
  * Launch external app for directions
@@ -351,18 +349,17 @@ function renderDirectionsStructure(directions, target, options) {
     // no options, no problem
     if (! options) options = {};
 
-    // phase 1: remove any old route line, draw the route on the map
-    clearDirectionsLine();
-    var polyline   = lineWKTtoFeature(directions.wkt, DIRECTIONS_LINE_STYLE);
-    var startpoint = L.latLng(directions.start.lat,directions.start.lng);
-    var endpoint   = L.latLng(directions.end.lat,directions.end.lng);
-    placeDirectionsLine(polyline, startpoint, endpoint);
+    // Draw the route on the map
+    var startPoint = new mapboxgl.LngLat(directions.start.lng, directions.start.lat);
+    var endPoint = new mapboxgl.LngLat(directions.end.lng, directions.end.lat);
+    var wkt = new Wkt.Wkt(directions.wkt);
+    var polyline = wkt.toJson();
+    drawDirectionsLine(polyline, startPoint, endPoint);
 
-    // for the bounding box, we save the bbox LatLngBounds into DIRECTIONS_LINE
-    // because on Mobile, zooming the map now is an error and the map must be zoomed later, using the DIRECTIONS_LINE global
-    DIRECTIONS_LINE.extent = WSENtoBounds(directions.bounds.west,directions.bounds.south,directions.bounds.east,directions.bounds.north);
-    var bbox = DIRECTIONS_LINE.extent.pad(0.15);
-    MAP.fitBounds(bbox);
+    var sw = new mapboxgl.LngLat(directions.bounds.west, directions.bounds.south);
+    var ne = new mapboxgl.LngLat(directions.bounds.east, directions.bounds.north);
+    var bounds = new mapboxgl.LngLatBounds(sw, ne);
+    MAP.fitBounds(bounds, {padding: 10});
 
     // phase 2: put the directions into the panel
     if (! target) {
@@ -469,47 +466,55 @@ function renderDirectionsStructure(directions, target, options) {
 }
 
 /**
- * Clear directions line
+ * Draw directions line
+ *
+ * @param polyline {geojson}
  */
-function clearDirectionsLine() {
-    // this line actually gets deleted
-    if (DIRECTIONS_LINE) {
-        MAP.removeLayer(DIRECTIONS_LINE);
-        DIRECTIONS_LINE = null;
-    }
-    // the markers get set to 0,0 and removed from the map
-    if (MAP.hasLayer(MARKER_FROM)) {
-        MARKER_FROM.setLatLng( L.latLng(0,0) );
-        MAP.removeLayer(MARKER_FROM);
-    }
-    if (MAP.hasLayer(MARKER_TO)) {
-        MARKER_TO.setLatLng( L.latLng(0,0) );
-        MAP.removeLayer(MARKER_TO);
-    }
+function drawDirectionsLine(polyline, from, to) {
+    clearDirectionsLine();
 
-    // and both the Directions and Measure need their content erased, so they aren't confused with each other
-    // don't worry, clearDirectionsLine() is always a prelude to repopulating one of these
-    $('#directions_steps').empty();
-    $('#measure_steps').empty();
+    MAP.addLayer({
+        'id': 'directionsLine',
+        'type': 'line',
+        'source': {
+            'type': 'geojson',
+            'data': polyline,
+        },
+        'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        'paint': {
+            'line-color': '#0000FF',
+            'line-width': 6,
+            'line-opacity': 0.50
+        }
+    });
+
+    placeMarker(MARKER_START, from.lat, from.lng);
+    placeMarker(MARKER_END, to.lat, to.lng);
 }
 
 /**
- * Place directions line
+ * Clear directions line
  */
-function placeDirectionsLine(polyline,startll,endll) {
-    // save the polyline to the global
-    DIRECTIONS_LINE = polyline;
+function clearDirectionsLine() {
+    if (MAP.getLayer('directionsLine')) {
+        MAP.removeLayer('directionsLine');
+    }
+    if (MAP.getSource('directionsLine')) {
+        MAP.removeSource('directionsLine');
+    }
 
-    // lay down the polyline as-is
-    MAP.addLayer(DIRECTIONS_LINE);
+    clearMarker(MARKER_START);
+    clearMarker(MARKER_END);
 
-    // place the markers on the start and end vertices, and disable their dragging
-    MARKER_FROM.setLatLng(startll);
-    MAP.addLayer(MARKER_FROM);
-    MARKER_TO.setLatLng(endll);
-    MAP.addLayer(MARKER_TO);
-    MARKER_FROM.dragging.disable();
-    MARKER_TO.dragging.disable();
+    // @TODO: Check this...
+    // and both the Directions and Measure need their content erased, so they aren't confused with each other
+    // don't worry, clearDirectionsLine() is always a prelude to repopulating one of these
+    //
+    $('#directions_steps').empty();
+    $('#measure_steps').empty();
 }
 
 /**

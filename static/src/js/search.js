@@ -128,7 +128,7 @@ function searchByKeyword(keyword) {
             center: lnglat,
             zoom: 16
         });
-        placeTargetMarker(lnglat.lat, lnglat.lng);
+        placeMarker(MARKER_TARGET, lnglat.lat, lnglat.lng);
         return;
     }
 

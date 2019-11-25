@@ -120,7 +120,7 @@ return mapboxgl;
 // These change to remote URLs for native app and web-embedded scenarios.
 // @TODO: Put these into a local config so we can handle non-root basedirs.
 var WEBAPP_BASEPATH = '/';
-var API_BASEPATH = '/';
+var API_BASEPATH = 'https://maps-dev.clevelandmetroparks.com/';
 var MAP = null;
 
 var WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL = 'https';
@@ -210,32 +210,10 @@ var CM_SITE_BASEURL = 'https://www.clevelandmetroparks.com/';
 
 var isMobile = /Mobi/.test(navigator.userAgent); // Simple mobile device detection.
 
-// Target marker
-var markerTargetEl = document.createElement('div');
-markerTargetEl.id = 'marker-target';
-var markerTargetIconWidth = 25; // Must match sizing in CSS for #marker-target
-var markerTargetIconHeight = 41; // Must match sizing in CSS for #marker-target
-var MARKER_TARGET = new mapboxgl.Marker(markerTargetEl, {offset: [-markerTargetIconWidth/2, -markerTargetIconHeight]});
-
-// Geolocation marker
-var markerGpsEl = document.createElement('div');
-markerGpsEl.id = 'marker-gps';
-var markerGpsIconSize = 16; // Must match sizing in CSS for #marker-gps
-var MARKER_GPS = new mapboxgl.Marker(markerGpsEl, {offset: [-markerGpsIconSize/2, -markerGpsIconSize/2]});
-
-// "From" marker (for directions)
-var markerFromEl = document.createElement('div');
-markerFromEl.id = 'marker-from';
-var markerFromIconWidth = 20; // Must match sizing in CSS for #marker-from
-var markerFromIconHeight = 34; // Must match sizing in CSS for #marker-from
-var MARKER_FROM = new mapboxgl.Marker(markerFromEl, {offset: [-markerFromIconWidth/2, -markerFromIconHeight]});
-
-// "To" marker (for directions)
-var markerToEl = document.createElement('div');
-markerToEl.id = 'marker-to';
-var markerToIconWidth = 20; // Must match sizing in CSS for #marker-to
-var markerToIconHeight = 34; // Must match sizing in CSS for #marker-to
-var MARKER_TO = new mapboxgl.Marker(markerToEl, {offset: [-markerToIconWidth/2, -markerToIconHeight]});
+// Markers
+var MARKER_TARGET = new mapboxgl.Marker({ color: '#207FD0' });
+var MARKER_START = new mapboxgl.Marker({ color: '#6BB03E' }); // Directions start
+var MARKER_END = new mapboxgl.Marker({ color: '#FF7866' }); // Directions end
 
 var ELEVATION_PROFILE = null;
 
@@ -318,47 +296,18 @@ function initMap(mapOptions) {
 }
 
 /**
- * Line WKT to Feature
- *
- * decode a WKT geometry into a feature, e.g. LINESTRING(12 34, 56 78) to L.Polyline instance
- * params are the WKT string, and the other options to pass to the constructor (e.g. color style and other Path options)
+ * Place marker
  */
-function lineWKTtoFeature(wkt, style) {
-    var parser = new Wkt.Wkt();
-    parser.read(wkt);
-    return parser.toObject(style);
+function placeMarker(marker, lat, lng) {
+    marker.setLngLat([lng, lat])
+          .addTo(MAP);
 }
 
 /**
- * Place "target" (normal) marker
+ * Clear marker
  */
-function placeTargetMarker(lat, lng) {
-    MARKER_TARGET
-        .setLngLat([lng, lat])
-        .addTo(MAP);
-}
-
-/**
- * Clear "target" (normal) marker
- */
-function clearTargetMarker() {
-    MARKER_TARGET.remove();
-}
-
-/**
- * Place GPS (geolocated) marker
- */
-function placeGPSMarker(lat, lng) {
-    MARKER_GPS
-        .setLngLat([lng, lat])
-        .addTo(MAP);
-}
-
-/**
- * Clear GPS (geolocated) marker
- */
-function clearGPSMarker() {
-    MARKER_GPS.remove();
+function clearMarker(marker) {
+    marker.remove();
 }
 
 /**

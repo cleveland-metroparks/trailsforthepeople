@@ -130,7 +130,7 @@ $(document).ready(function () {
 
             // Lay down the WKT or a marker to highlight it
             if (reply.lat && reply.lng) {
-                placeTargetMarker(reply.lat, reply.lng);
+                placeMarker(MARKER_TARGET, reply.lat, reply.lng);
             } else if (reply.wkt) {
                 wkt = new Wkt.Wkt(reply.wkt);
                 drawHighlightLine(wkt.toJson());
@@ -578,7 +578,7 @@ function zoomToAddress(searchtext) {
         switchToMap();
 
         MAP.setView(latlng, 16);
-        placeTargetMarker(result.lat, result.lng);
+        placeMarker(MARKER_TARGET, result.lat, result.lng);
 
         // add a bubble at the location indicating their interpretation of the address, so we can see how bad the match was
         // also add a specially-crafted span element with lat= lng= and title= for use with zoomElementClick()
@@ -644,7 +644,7 @@ function zoomToFeature(feature) {
     }
 
     // Clear existing points & lines
-    clearTargetMarker();
+    clearMarker(MARKER_TARGET);
     clearHighlightLine();
 
     // Switch to the map and add the feature.
@@ -656,7 +656,7 @@ function zoomToFeature(feature) {
         var sw = new mapboxgl.LngLat(feature.w, feature.s);
         var ne = new mapboxgl.LngLat(feature.e, feature.n);
         var bounds = new mapboxgl.LngLatBounds(sw, ne);
-        MAP.fitBounds(bounds, { padding: 10 });
+        MAP.fitBounds(bounds, {padding: 10});
     } else if(feature.lng && feature.lat)  {
         // Re-center and zoom
         MAP.flyTo({center: [feature.lng, feature.lat], zoom: DEFAULT_POI_ZOOM});
@@ -664,7 +664,7 @@ function zoomToFeature(feature) {
 
     // Drop a marker if this is a point feature
     if (feature.type == 'poi' || feature.type == 'attraction' || feature.type == 'loop') {
-        placeTargetMarker(feature.lat, feature.lng);
+        placeMarker(MARKER_TARGET, feature.lat, feature.lng);
     }
 
     // Draw the line geometry if this is a line feature.

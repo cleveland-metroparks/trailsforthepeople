@@ -14,7 +14,7 @@
 // These change to remote URLs for native app and web-embedded scenarios.
 // @TODO: Put these into a local config so we can handle non-root basedirs.
 var WEBAPP_BASEPATH = '/';
-var API_BASEPATH = '/';
+var API_BASEPATH = 'https://maps-dev.clevelandmetroparks.com/';
 var MAP = null;
 
 var WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL = 'https';
@@ -87,32 +87,10 @@ var STYLE_NAMES = {
 
 var isMobile = /Mobi/.test(navigator.userAgent); // Simple mobile device detection.
 
-// Target marker
-var markerTargetEl = document.createElement('div');
-markerTargetEl.id = 'marker-target';
-var markerTargetIconWidth = 25; // Must match sizing in CSS for #marker-target
-var markerTargetIconHeight = 41; // Must match sizing in CSS for #marker-target
-var MARKER_TARGET = new mapboxgl.Marker(markerTargetEl, {offset: [-markerTargetIconWidth/2, -markerTargetIconHeight]});
-
-// Geolocation marker
-var markerGpsEl = document.createElement('div');
-markerGpsEl.id = 'marker-gps';
-var markerGpsIconSize = 16; // Must match sizing in CSS for #marker-gps
-var MARKER_GPS = new mapboxgl.Marker(markerGpsEl, {offset: [-markerGpsIconSize/2, -markerGpsIconSize/2]});
-
-// "From" marker (for directions)
-var markerFromEl = document.createElement('div');
-markerFromEl.id = 'marker-from';
-var markerFromIconWidth = 20; // Must match sizing in CSS for #marker-from
-var markerFromIconHeight = 34; // Must match sizing in CSS for #marker-from
-var MARKER_FROM = new mapboxgl.Marker(markerFromEl, {offset: [-markerFromIconWidth/2, -markerFromIconHeight]});
-
-// "To" marker (for directions)
-var markerToEl = document.createElement('div');
-markerToEl.id = 'marker-to';
-var markerToIconWidth = 20; // Must match sizing in CSS for #marker-to
-var markerToIconHeight = 34; // Must match sizing in CSS for #marker-to
-var MARKER_TO = new mapboxgl.Marker(markerToEl, {offset: [-markerToIconWidth/2, -markerToIconHeight]});
+// Markers
+var MARKER_TARGET = new mapboxgl.Marker({ color: '#207FD0' });
+var MARKER_START = new mapboxgl.Marker({ color: '#6BB03E' }); // Directions start
+var MARKER_END = new mapboxgl.Marker({ color: '#FF7866' }); // Directions end
 
 var ELEVATION_PROFILE = null;
 
@@ -195,47 +173,18 @@ function initMap(mapOptions) {
 }
 
 /**
- * Line WKT to Feature
- *
- * decode a WKT geometry into a feature, e.g. LINESTRING(12 34, 56 78) to L.Polyline instance
- * params are the WKT string, and the other options to pass to the constructor (e.g. color style and other Path options)
+ * Place marker
  */
-function lineWKTtoFeature(wkt, style) {
-    var parser = new Wkt.Wkt();
-    parser.read(wkt);
-    return parser.toObject(style);
+function placeMarker(marker, lat, lng) {
+    marker.setLngLat([lng, lat])
+          .addTo(MAP);
 }
 
 /**
- * Place "target" (normal) marker
+ * Clear marker
  */
-function placeTargetMarker(lat, lng) {
-    MARKER_TARGET
-        .setLngLat([lng, lat])
-        .addTo(MAP);
-}
-
-/**
- * Clear "target" (normal) marker
- */
-function clearTargetMarker() {
-    MARKER_TARGET.remove();
-}
-
-/**
- * Place GPS (geolocated) marker
- */
-function placeGPSMarker(lat, lng) {
-    MARKER_GPS
-        .setLngLat([lng, lat])
-        .addTo(MAP);
-}
-
-/**
- * Clear GPS (geolocated) marker
- */
-function clearGPSMarker() {
-    MARKER_GPS.remove();
+function clearMarker(marker) {
+    marker.remove();
 }
 
 /**
@@ -495,7 +444,7 @@ $(document).ready(function () {
 
             // Lay down the WKT or a marker to highlight it
             if (reply.lat && reply.lng) {
-                placeTargetMarker(reply.lat, reply.lng);
+                placeMarker(MARKER_TARGET, reply.lat, reply.lng);
             } else if (reply.wkt) {
                 wkt = new Wkt.Wkt(reply.wkt);
                 drawHighlightLine(wkt.toJson());
@@ -943,7 +892,7 @@ function zoomToAddress(searchtext) {
         switchToMap();
 
         MAP.setView(latlng, 16);
-        placeTargetMarker(result.lat, result.lng);
+        placeMarker(MARKER_TARGET, result.lat, result.lng);
 
         // add a bubble at the location indicating their interpretation of the address, so we can see how bad the match was
         // also add a specially-crafted span element with lat= lng= and title= for use with zoomElementClick()
@@ -1009,7 +958,7 @@ function zoomToFeature(feature) {
     }
 
     // Clear existing points & lines
-    clearTargetMarker();
+    clearMarker(MARKER_TARGET);
     clearHighlightLine();
 
     // Switch to the map and add the feature.
@@ -1021,7 +970,7 @@ function zoomToFeature(feature) {
         var sw = new mapboxgl.LngLat(feature.w, feature.s);
         var ne = new mapboxgl.LngLat(feature.e, feature.n);
         var bounds = new mapboxgl.LngLatBounds(sw, ne);
-        MAP.fitBounds(bounds, { padding: 10 });
+        MAP.fitBounds(bounds, {padding: 10});
     } else if(feature.lng && feature.lat)  {
         // Re-center and zoom
         MAP.flyTo({center: [feature.lng, feature.lat], zoom: DEFAULT_POI_ZOOM});
@@ -1029,7 +978,7 @@ function zoomToFeature(feature) {
 
     // Drop a marker if this is a point feature
     if (feature.type == 'poi' || feature.type == 'attraction' || feature.type == 'loop') {
-        placeTargetMarker(feature.lat, feature.lng);
+        placeMarker(MARKER_TARGET, feature.lat, feature.lng);
     }
 
     // Draw the line geometry if this is a line feature.
@@ -1695,8 +1644,6 @@ $(document).on("mapInitialized", function () {
  * Cleveland Metroparks
  */
 
-var DIRECTIONS_LINE       = null;
-var DIRECTIONS_LINE_STYLE = { color:"#0000FF", weight:5, opacity:1.00, clickable:false, smoothFactor:0.25 };
 
 /**
  * Launch external app for directions
@@ -2038,18 +1985,17 @@ function renderDirectionsStructure(directions, target, options) {
     // no options, no problem
     if (! options) options = {};
 
-    // phase 1: remove any old route line, draw the route on the map
-    clearDirectionsLine();
-    var polyline   = lineWKTtoFeature(directions.wkt, DIRECTIONS_LINE_STYLE);
-    var startpoint = L.latLng(directions.start.lat,directions.start.lng);
-    var endpoint   = L.latLng(directions.end.lat,directions.end.lng);
-    placeDirectionsLine(polyline, startpoint, endpoint);
+    // Draw the route on the map
+    var startPoint = new mapboxgl.LngLat(directions.start.lng, directions.start.lat);
+    var endPoint = new mapboxgl.LngLat(directions.end.lng, directions.end.lat);
+    var wkt = new Wkt.Wkt(directions.wkt);
+    var polyline = wkt.toJson();
+    drawDirectionsLine(polyline, startPoint, endPoint);
 
-    // for the bounding box, we save the bbox LatLngBounds into DIRECTIONS_LINE
-    // because on Mobile, zooming the map now is an error and the map must be zoomed later, using the DIRECTIONS_LINE global
-    DIRECTIONS_LINE.extent = WSENtoBounds(directions.bounds.west,directions.bounds.south,directions.bounds.east,directions.bounds.north);
-    var bbox = DIRECTIONS_LINE.extent.pad(0.15);
-    MAP.fitBounds(bbox);
+    var sw = new mapboxgl.LngLat(directions.bounds.west, directions.bounds.south);
+    var ne = new mapboxgl.LngLat(directions.bounds.east, directions.bounds.north);
+    var bounds = new mapboxgl.LngLatBounds(sw, ne);
+    MAP.fitBounds(bounds, {padding: 10});
 
     // phase 2: put the directions into the panel
     if (! target) {
@@ -2156,47 +2102,55 @@ function renderDirectionsStructure(directions, target, options) {
 }
 
 /**
- * Clear directions line
+ * Draw directions line
+ *
+ * @param polyline {geojson}
  */
-function clearDirectionsLine() {
-    // this line actually gets deleted
-    if (DIRECTIONS_LINE) {
-        MAP.removeLayer(DIRECTIONS_LINE);
-        DIRECTIONS_LINE = null;
-    }
-    // the markers get set to 0,0 and removed from the map
-    if (MAP.hasLayer(MARKER_FROM)) {
-        MARKER_FROM.setLatLng( L.latLng(0,0) );
-        MAP.removeLayer(MARKER_FROM);
-    }
-    if (MAP.hasLayer(MARKER_TO)) {
-        MARKER_TO.setLatLng( L.latLng(0,0) );
-        MAP.removeLayer(MARKER_TO);
-    }
+function drawDirectionsLine(polyline, from, to) {
+    clearDirectionsLine();
 
-    // and both the Directions and Measure need their content erased, so they aren't confused with each other
-    // don't worry, clearDirectionsLine() is always a prelude to repopulating one of these
-    $('#directions_steps').empty();
-    $('#measure_steps').empty();
+    MAP.addLayer({
+        'id': 'directionsLine',
+        'type': 'line',
+        'source': {
+            'type': 'geojson',
+            'data': polyline,
+        },
+        'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+        },
+        'paint': {
+            'line-color': '#0000FF',
+            'line-width': 6,
+            'line-opacity': 0.50
+        }
+    });
+
+    placeMarker(MARKER_START, from.lat, from.lng);
+    placeMarker(MARKER_END, to.lat, to.lng);
 }
 
 /**
- * Place directions line
+ * Clear directions line
  */
-function placeDirectionsLine(polyline,startll,endll) {
-    // save the polyline to the global
-    DIRECTIONS_LINE = polyline;
+function clearDirectionsLine() {
+    if (MAP.getLayer('directionsLine')) {
+        MAP.removeLayer('directionsLine');
+    }
+    if (MAP.getSource('directionsLine')) {
+        MAP.removeSource('directionsLine');
+    }
 
-    // lay down the polyline as-is
-    MAP.addLayer(DIRECTIONS_LINE);
+    clearMarker(MARKER_START);
+    clearMarker(MARKER_END);
 
-    // place the markers on the start and end vertices, and disable their dragging
-    MARKER_FROM.setLatLng(startll);
-    MAP.addLayer(MARKER_FROM);
-    MARKER_TO.setLatLng(endll);
-    MAP.addLayer(MARKER_TO);
-    MARKER_FROM.dragging.disable();
-    MARKER_TO.dragging.disable();
+    // @TODO: Check this...
+    // and both the Directions and Measure need their content erased, so they aren't confused with each other
+    // don't worry, clearDirectionsLine() is always a prelude to repopulating one of these
+    //
+    $('#directions_steps').empty();
+    $('#measure_steps').empty();
 }
 
 /**
@@ -2642,7 +2596,7 @@ function searchByKeyword(keyword) {
             center: lnglat,
             zoom: 16
         });
-        placeTargetMarker(lnglat.lat, lnglat.lng);
+        placeMarker(MARKER_TARGET, lnglat.lat, lnglat.lng);
         return;
     }
 
