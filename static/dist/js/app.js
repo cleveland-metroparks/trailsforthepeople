@@ -93,8 +93,6 @@ var MARKER_END = new mapboxgl.Marker({ color: '#FF7866' }); // Directions end
 
 var ELEVATION_PROFILE = null;
 
-var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; on Mobile we disable it after switchToMap()
-
 var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
 
 var ctrlGeolocate;
@@ -692,11 +690,6 @@ $(document).ready(function () {
  * fetch info about it and show it in a panel.
  */
 function zoomElementClick(element) {
-    // are we ignoring clicks? if so, then never mind; if not, then proceed but ignore clicks for a moment
-    // this attempts to work around slow fingers sending multiple touches,
-    // and long listviews inexplicably scrolling the page and re-tapping
-    if (! ENABLE_MAPCLICK) return;
-
     var type = element.attr('type');
     var gid  = element.attr('gid');
     if (type=='reservation_new') {
@@ -1210,9 +1203,6 @@ function setSessionCoordinateFormat(format) {
  */
 $(document).on("mapReady", function() {
     MAP.on('click', function (event) {
-        // Are we currently ignoring click behaviors?
-        if (! ENABLE_MAPCLICK) return;
-
         // Is there a popup currently visible?
         // If so, no query at all but close the popup and bail.
         // Sorry, Leaflet: closePopupOnClick doesn't work for this, as it clears the popup before we get the click.

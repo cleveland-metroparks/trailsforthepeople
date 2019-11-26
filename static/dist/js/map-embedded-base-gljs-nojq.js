@@ -152,8 +152,6 @@ var MARKER_END = new mapboxgl.Marker({ color: '#FF7866' }); // Directions end
 
 var ELEVATION_PROFILE = null;
 
-var ENABLE_MAPCLICK = true; // a flag indicating whether to allow click-query; on Mobile we disable it after switchToMap()
-
 var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
 
 var ctrlGeolocate;
