@@ -566,18 +566,20 @@ function zoomToAddress(searchtext) {
 
     $.get(API_BASEPATH + 'ajax/geocode', params, function (result) {
         if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
+
         var latlng = L.latLng(result.lat,result.lng);
+        var lngLat = new mapboxgl.LngLat(result.lng, result.lat);
 
         // if this point isn't even in the service area, complain and bail
         // tip: "post office" finds Post Office, India
-        if (! MAX_BOUNDS.contains(latlng) ) {
+        if (!boundsContain(MAX_BOUNDS, lngLat)) {
             return alert("The only results we could find are too far away to zoom the map there.");
         }
 
         // zoom the point location, nice and close, and add a marker
         switchToMap();
 
-        MAP.setView(latlng, 16);
+        MAP.flyTo({center: lngLat, zoom: DEFAULT_POI_ZOOM});
         placeMarker(MARKER_TARGET, result.lat, result.lng);
 
         // add a bubble at the location indicating their interpretation of the address, so we can see how bad the match was

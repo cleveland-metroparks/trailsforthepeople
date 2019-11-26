@@ -55,8 +55,7 @@ var PRINT_SIZES = {
     'Ledger landscape' : [ 1178, 690 ]
 };
 
-var START_LAT = 41.3953;
-var START_LON = -81.6730;
+var START_CENTER = [-81.6730, 41.3953];
 var START_ZOOM = 14;
 
 // Mapbox access token

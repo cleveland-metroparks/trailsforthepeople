@@ -55,8 +55,7 @@ var PRINT_SIZES = {
     'Ledger landscape' : [ 1178, 690 ]
 };
 
-var START_LAT = 41.3953;
-var START_LON = -81.6730;
+var START_CENTER = [-81.6730, 41.3953];
 var START_ZOOM = 14;
 
 // Mapbox access token
@@ -140,7 +139,7 @@ function initMap(mapOptions) {
     MAP = new mapboxgl.Map({
          container: 'map_canvas',
          style: basemap_style,
-         center: [START_LON, START_LAT],
+         center: START_CENTER,
          zoom: START_ZOOM
      });
 
@@ -322,6 +321,24 @@ function latlng_as_dd(latlng, precision) {
 
     latlng_str = latlng.lat.toFixed(precision) + ', ' + latlng.lng.toFixed(precision);
     return latlng_str;
+}
+
+/**
+ * Check whether a point is contained within bounds.
+ *
+ * @TODO: Looks like LngLatBounds will provide this soon:
+ *        https://github.com/mapbox/mapbox-gl-js/pull/8200
+ *
+ * @param bounds {LngLatBounds}
+ * @param lngLat {LngLat}
+ *
+ * return boolean
+ */
+function boundsContain(bounds, lngLat) {
+    var point = turf.point(lngLat.toArray());
+    var bbox = bounds.toArray().flat();
+    var polygon = turf.bboxPolygon(bbox);
+    return (turf.pointsWithinPolygon(point, polygon).features.length == 1);
 }
 
 ;
@@ -893,18 +910,20 @@ function zoomToAddress(searchtext) {
 
     $.get(API_BASEPATH + 'ajax/geocode', params, function (result) {
         if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
+
         var latlng = L.latLng(result.lat,result.lng);
+        var lngLat = new mapboxgl.LngLat(result.lng, result.lat);
 
         // if this point isn't even in the service area, complain and bail
         // tip: "post office" finds Post Office, India
-        if (! MAX_BOUNDS.contains(latlng) ) {
+        if (!boundsContain(MAX_BOUNDS, lngLat)) {
             return alert("The only results we could find are too far away to zoom the map there.");
         }
 
         // zoom the point location, nice and close, and add a marker
         switchToMap();
 
-        MAP.setView(latlng, 16);
+        MAP.flyTo({center: lngLat, zoom: DEFAULT_POI_ZOOM});
         placeMarker(MARKER_TARGET, result.lat, result.lng);
 
         // add a bubble at the location indicating their interpretation of the address, so we can see how bad the match was
@@ -1819,7 +1838,8 @@ function processGetDirectionsForm() {
                     // if the address is outside of our max bounds, then we can't possibly do a Trails
                     // search, and driving routing would still be goofy since it would traverse area well off the map
                     // in this case, warn them that they should use Bing Maps, and send them there
-                    if (! MAX_BOUNDS.contains(L.latLng(sourcelat,sourcelng)) ) {
+                    var sourceLngLat = new mapboxgl.LngLat(sourcelng, sourcelat);
+                    if (!boundsContain(MAX_BOUNDS, sourceLngLat)) {
                         var from = 'adr.' + address;
                         var to   = 'pos.' + targetlat + '_' + targetlng;
                         var params = {
@@ -2769,38 +2789,27 @@ $(document).ready(function () {
 });
 
 /**
- * Convert from Mapbox GL JS LngLat to Turf.js point
- *
- * @param {mapboxgl.LngLat} lngLat
- *
- * @return {turf.point}
- */
-function toTurfPoint(lngLat) {
-    return turf.point([lngLat.lng, lngLat.lat]);
-}
-
-/**
  * Convert from Turf.js point to Mapbox GL JS LngLat
  *
  * @param {turf.point} point
  *
  * @return {mapboxgl.LngLat}
  */
-function fromTurfPoint(point) {
+function turfPointToLngLat(point) {
     return new mapboxgl.LngLat.convert(point.geometry.coordinates);
 }
 
 /**
  * Distance (Haversine) from one point to another.
  *
- * @param {mapboxgl.LngLat} from: From location
- * @param {mapboxgl.LngLat} to: To location
+ * @param fromLngLat {mapboxgl.LngLat}: From location
+ * @param toLngLat {mapboxgl.LngLat}: To location
  *
  * @return Distance in meters
  */
-function distanceTo(from, to) {
-    var turfFrom = toTurfPoint(from);
-    var turfTo = toTurfPoint(to);
+function distanceTo(fromLngLat, toLngLat) {
+    var turfFrom = turf.point(fromLngLat.toArray());
+    var turfTo = turf.point(toLngLat.toArray());
     var options = {units: 'meters'};
 
     return turf.distance(turfFrom, turfTo, options);
@@ -2809,14 +2818,14 @@ function distanceTo(from, to) {
 /**
  * Bearing from one point to another, in decimal degrees
  *
- * @param {mapboxgl.LngLat} from: From location
- * @param {mapboxgl.LngLat} to: To location
+ * @param fromLngLat {mapboxgl.LngLat}: From location
+ * @param toLngLat {mapboxgl.LngLat}: To location
  *
  * @return {number} Final bearing in decimal degrees, between 0 and 360
  */
-function bearingTo(from, to) {
-    var turfFrom = toTurfPoint(from);
-    var turfTo = toTurfPoint(to);
+function bearingTo(fromLngLat, toLngLat) {
+    var turfFrom = turf.point(fromLngLat.toArray());
+    var turfTo = turf.point(toLngLat.toArray());
     var options = {final: true};
 
     return turf.bearing(turfFrom, turfTo, options);
@@ -2916,7 +2925,7 @@ function placeCircle(center, meters) {
 
     var radius = meters / 1000;
     var options = {units: 'kilometers'};
-    var circle = turf.circle(toTurfPoint(center), radius, options);
+    var circle = turf.circle(turf.point(center.toArray()), radius, options);
 
     MAP.addLayer({
         'id': 'circle',

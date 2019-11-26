@@ -170,7 +170,8 @@ function processGetDirectionsForm() {
                     // if the address is outside of our max bounds, then we can't possibly do a Trails
                     // search, and driving routing would still be goofy since it would traverse area well off the map
                     // in this case, warn them that they should use Bing Maps, and send them there
-                    if (! MAX_BOUNDS.contains(L.latLng(sourcelat,sourcelng)) ) {
+                    var sourceLngLat = new mapboxgl.LngLat(sourcelng, sourcelat);
+                    if (!boundsContain(MAX_BOUNDS, sourceLngLat)) {
                         var from = 'adr.' + address;
                         var to   = 'pos.' + targetlat + '_' + targetlng;
                         var params = {

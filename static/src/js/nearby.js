@@ -31,38 +31,27 @@ $(document).ready(function () {
 });
 
 /**
- * Convert from Mapbox GL JS LngLat to Turf.js point
- *
- * @param {mapboxgl.LngLat} lngLat
- *
- * @return {turf.point}
- */
-function toTurfPoint(lngLat) {
-    return turf.point([lngLat.lng, lngLat.lat]);
-}
-
-/**
  * Convert from Turf.js point to Mapbox GL JS LngLat
  *
  * @param {turf.point} point
  *
  * @return {mapboxgl.LngLat}
  */
-function fromTurfPoint(point) {
+function turfPointToLngLat(point) {
     return new mapboxgl.LngLat.convert(point.geometry.coordinates);
 }
 
 /**
  * Distance (Haversine) from one point to another.
  *
- * @param {mapboxgl.LngLat} from: From location
- * @param {mapboxgl.LngLat} to: To location
+ * @param fromLngLat {mapboxgl.LngLat}: From location
+ * @param toLngLat {mapboxgl.LngLat}: To location
  *
  * @return Distance in meters
  */
-function distanceTo(from, to) {
-    var turfFrom = toTurfPoint(from);
-    var turfTo = toTurfPoint(to);
+function distanceTo(fromLngLat, toLngLat) {
+    var turfFrom = turf.point(fromLngLat.toArray());
+    var turfTo = turf.point(toLngLat.toArray());
     var options = {units: 'meters'};
 
     return turf.distance(turfFrom, turfTo, options);
@@ -71,14 +60,14 @@ function distanceTo(from, to) {
 /**
  * Bearing from one point to another, in decimal degrees
  *
- * @param {mapboxgl.LngLat} from: From location
- * @param {mapboxgl.LngLat} to: To location
+ * @param fromLngLat {mapboxgl.LngLat}: From location
+ * @param toLngLat {mapboxgl.LngLat}: To location
  *
  * @return {number} Final bearing in decimal degrees, between 0 and 360
  */
-function bearingTo(from, to) {
-    var turfFrom = toTurfPoint(from);
-    var turfTo = toTurfPoint(to);
+function bearingTo(fromLngLat, toLngLat) {
+    var turfFrom = turf.point(fromLngLat.toArray());
+    var turfTo = turf.point(toLngLat.toArray());
     var options = {final: true};
 
     return turf.bearing(turfFrom, turfTo, options);
@@ -178,7 +167,7 @@ function placeCircle(center, meters) {
 
     var radius = meters / 1000;
     var options = {units: 'kilometers'};
-    var circle = turf.circle(toTurfPoint(center), radius, options);
+    var circle = turf.circle(turf.point(center.toArray()), radius, options);
 
     MAP.addLayer({
         'id': 'circle',
