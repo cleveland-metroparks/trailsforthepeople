@@ -9,7 +9,7 @@
 // Maintain the current window URL (it changes with most user actions) so we can use in sharing.
 var WINDOW_URL = null;
 
-// App sidebar (Leaflet Sidebar-v2)
+// App sidebar (sidebar-v2)
 var sidebar = null;
 
 // Used by Nearby: sound an alert only if the list has in fact changed
@@ -29,7 +29,8 @@ var URL_PARAMS = null;
 
 // Load sidebar when map has been initialized
 $(document).on("mapInitialized", function () {
-    sidebar = L.control.sidebar('sidebar').addTo(MAP);
+    sidebar = $('#sidebar').sidebar();
+
     // Open "Welcome" sidebar pane on startup if:
     //   User loads the app without a path or query string AND
     //   their screen is big enough that the sidebar won't cover the map.
