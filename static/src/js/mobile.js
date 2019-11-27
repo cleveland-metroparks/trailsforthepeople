@@ -560,9 +560,10 @@ function zoomToAddress(searchtext) {
     params.bbox     = GEOCODE_BIAS_BOX;
 
     $.get(API_BASEPATH + 'ajax/geocode', params, function (result) {
-        if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
+        if (!result) {
+            return alert("We couldn't find that address or city.\nPlease try again.");
+        }
 
-        var latlng = L.latLng(result.lat,result.lng);
         var lngLat = new mapboxgl.LngLat(result.lng, result.lat);
 
         // if this point isn't even in the service area, complain and bail
@@ -574,19 +575,17 @@ function zoomToAddress(searchtext) {
         // zoom the point location, nice and close, and add a marker
         switchToMap();
 
-        MAP.flyTo({center: lngLat, zoom: DEFAULT_POI_ZOOM});
         placeMarker(MARKER_TARGET, result.lat, result.lng);
+        MAP.flyTo({center: lngLat, zoom: DEFAULT_POI_ZOOM});
+        // Place a popup at the location with geocoded interpretation of the address
+        // and a pseudo-link (with data-holding attributes) that triggers zoomElementClick().
+        var markup = '<h3 class="popup_title">' + result.title + '</h3>';
+        markup += '<span class="fakelink zoom" title="' + result.title + '" lat="' + result.lat + '" lng="' + result.lng + '" w="' + result.w + '" s="' + result.s + '" e="' + result.e + '" n="' + result.n + '" onClick="zoomElementClick( $(this) );">Directions</span>';
 
-        // add a bubble at the location indicating their interpretation of the address, so we can see how bad the match was
-        // also add a specially-crafted span element with lat= lng= and title= for use with zoomElementClick()
-        var html = "";
-        html += '<h3 class="popup_title">' + result.title + '</h3>';
-        html += '<span class="fakelink zoom" title="' + result.title + '" lat="' + result.lat + '" lng="' + result.lng + '" w="' + result.w + '" s="' + result.s + '" e="' + result.e + '" n="' + result.n + '" onClick="zoomElementClick( $(this) );">Directions</span>';
-        var popup = new L.Popup();
-        popup.setLatLng(latlng);
-        popup.setContent(html);
-        MAP.openPopup(popup);
-
+        var popup = new mapboxgl.Popup()
+            .setLngLat(lngLat)
+            .setHTML(markup)
+            .addTo(MAP);
     }, 'json');
 };
 
@@ -882,49 +881,48 @@ $(document).on("mapReady", function() {
         }
 
         // Made it here? Good, do a query.
-        wmsGetFeatureInfoByPoint(event.layerPoint);
+        wmsGetFeatureInfoByPoint(event.point, event.lngLat);
     });
 });
 
 /**
- * WMS Get feature info by point
+ * Get WMS feature info by point
  */
-function wmsGetFeatureInfoByPoint(pixel) {
-    var pixelbuffer = 20;
-    var sw = MAP.layerPointToLatLng(new L.Point(pixel.x - pixelbuffer , pixel.y + pixelbuffer));
-    var ne = MAP.layerPointToLatLng(new L.Point(pixel.x + pixelbuffer , pixel.y - pixelbuffer));
-    var bbox   = { w:sw.lng, s: sw.lat, e:ne.lng , n:ne.lat };
-    var anchor = MAP.layerPointToLatLng(new L.Point(pixel.x,pixel.y));
-    wmsGetFeatureInfoByLatLngBBOX(bbox,anchor);
+function wmsGetFeatureInfoByPoint(point, lngLat) {
+    var pixBuf = 20; // Pixel buffer; number of pixels to pad for the bounding box
+
+    // unproject() changes pixel-based point locations to LngLats
+    var sw = MAP.unproject([(point.x - pixBuf), (point.y + pixBuf)]);
+    var ne = MAP.unproject([(point.x + pixBuf), (point.y - pixBuf)]);
+    var bounds = new mapboxgl.LngLatBounds(sw, ne);
+
+    wmsGetFeatureInfoByBbox(bounds, lngLat);
 }
 
 /**
- * WMS Get feature info by lat/lng
+ * Get WMS feature info by LngLat BBOX
+ *
+ * @param {LngLatBounds} bounds
+ * @param {LngLat} lngLat
  */
-function wmsGetFeatureInfoByLatLng(latlng) {
-    var bbox   = { w:latlng.lng, s: latlng.lat, e:latlng.lng , n:latlng.lat };
-    var anchor = latlng;
-    wmsGetFeatureInfoByLatLngBBOX(bbox,anchor);
-}
+function wmsGetFeatureInfoByBbox(bounds, lngLat) {
+    var data = {
+        w: bounds.getWest(),
+        s: bounds.getSouth(),
+        e: bounds.getEast(),
+        n: bounds.getNorth(),
+        zoom: MAP.getZoom()
+    };
 
-/**
- * WMS Get feature info by lat/lng BBOX
- */
-function wmsGetFeatureInfoByLatLngBBOX(bbox,anchor) {
-    var data = bbox;
-    data.zoom = MAP.getZoom();
+    $.get(API_BASEPATH + 'ajax/query', data, function (markup) {
+        if (!markup) {
+            return;
+        }
 
-    $.get(API_BASEPATH + 'ajax/query', data, function (html) {
-        if (!html) return;
+        var popup = new mapboxgl.Popup()
+            .setLngLat(lngLat)
+            .setHTML(markup)
+            .addTo(MAP);
 
-        // set up the Popup and load its content
-        // beware of very-lengthy content and force a max height on the bubble
-        var options = {};
-        options.maxHeight = parseInt( $('#map_canvas').height() );
-        options.maxWidth = parseInt( $('#map_canvas').width() );
-        var popup = new L.Popup(options);
-        popup.setLatLng(anchor);
-        popup.setContent(html);
-        MAP.openPopup(popup);
     }, 'html');
 }
