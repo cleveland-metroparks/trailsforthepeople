@@ -345,7 +345,7 @@ var sidebar = null;
 var LAST_BEEP_IDS = [];
 
 // other stuff pertaining to our last known location and auto-centering
-var LAST_KNOWN_LOCATION = new mapboxgl.LngLat(-81.6730, 41.3953);
+var LAST_KNOWN_LOCATION = new mapboxgl.LngLat.convert(START_CENTER);
 
 var AUTO_CENTER_ON_LOCATION = false;
 
@@ -1534,25 +1534,33 @@ $(document).ready(function(){
  * Cleveland Metroparks
  */
 
-// @TODO: GLJS REMOVE?
-///**
-// * Attempt to locate the user using the Geolocation API (via Leaflet).
-// */
-//function enableGeolocate() {
-//    // MAP.locate({ watch: true, enableHighAccuracy: true });
-//    // if (ctrlGeolocate._watchState == 'OFF') {
-//    //    ctrlGeolocate.trigger();
-//    // }
-//}
 
-// @TODO: GLJS REMOVE?
-//**
-//* If in Native app, trigger geolocation when Cordova's geolocation plugin has come online.
-//* @TODO: GLJS: Do we need to wait for this to enable ctrlGeolocate?
-//*/
-//(function(){
-//   document.addEventListener("deviceready", enableGeolocate, false);
-//);
+/**
+ * Attempt to locate the user using the browser's native geolocation.
+ *
+ * We don't use ctrlGeolocate here because it is set up to follow, whereas
+ * we just want a single check here.
+ */
+function basicGeolocate() {
+    navigator.geolocation.getCurrentPosition(geolocateSuccess, null, { enableHighAccuracy: true });
+}
+
+/**
+ * Callback for geolocation success, whether via basicGeolocate() or ctrlGeolocate.
+ */
+function geolocateSuccess(position) {
+    // Update the user's last known location
+    LAST_KNOWN_LOCATION.lng = position.coords.longitude;
+    LAST_KNOWN_LOCATION.lat = position.coords.latitude;
+}
+
+/**
+* If in Native app, trigger geolocation when Cordova's geolocation plugin has come online.
+* @TODO: GLJS: Do we need to wait for this to enable ctrlGeolocate?
+*/
+(function() {
+   document.addEventListener("deviceready", basicGeolocate, false);
+});
 
 /**
  * Update display of user's lat/lng in Settings pane.
@@ -1576,10 +1584,8 @@ function update_user_latlon_display(latlng) {
  */
 $(document).on("mapInitialized", function () {
     ctrlGeolocate.on("geolocate", function(event) {
-        var current_location = mapboxgl.LngLat.convert([event.coords.longitude, event.coords.latitude]);
-
         // Update the user's last known location
-        LAST_KNOWN_LOCATION = current_location;
+        geolocateSuccess(event);
 
         // Sort any visible distance-sorted lists
         // @TODO: Let's identify all such lists and see if there's a cleaner way.
@@ -1599,6 +1605,7 @@ $(document).on("mapInitialized", function () {
                     categories[categories.length] = $(this).val()
                 }
             );
+            var current_location = mapboxgl.LngLat.convert([event.coords.longitude, event.coords.latitude]);
             placeCircle(current_location, meters);
             checkNearby(current_location, meters, categories);
         }
@@ -1613,13 +1620,12 @@ $(document).on("mapInitialized", function () {
     //    there's also a workaround there)
     // and then clearCirle() when we see it.
 
-    // @TODO: GLJS REMOVE?
-    //// Start constant geolocation, which triggers all of the 'locationfound' events above,
-    //// unless the user is in the native app, in which case we trigger this when
-    //// Cordova's geolocation plugin has come online (see "deviceready", above).
-    //if (!NATIVE_APP) {
-    //    enableGeolocate();
-    //}
+    // Start constant geolocation, which triggers all of the 'locationfound' events above,
+    // unless the user is in the native app, in which case we trigger this when
+    // Cordova's geolocation plugin has come online (see "deviceready", above).
+    if (!NATIVE_APP) {
+        basicGeolocate();
+    }
 });
 ;
  /**

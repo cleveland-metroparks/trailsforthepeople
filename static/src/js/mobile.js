@@ -16,7 +16,7 @@ var sidebar = null;
 var LAST_BEEP_IDS = [];
 
 // other stuff pertaining to our last known location and auto-centering
-var LAST_KNOWN_LOCATION = new mapboxgl.LngLat(-81.6730, 41.3953);
+var LAST_KNOWN_LOCATION = new mapboxgl.LngLat.convert(START_CENTER);
 
 var AUTO_CENTER_ON_LOCATION = false;
 
