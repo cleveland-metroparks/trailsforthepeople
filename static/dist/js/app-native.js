@@ -456,19 +456,19 @@ $(document).ready(function () {
     initMap(mapOptions);
 
     // URL params query string: "type" and "name"
+    // @TODO: Do we still have a way to get here?
     if (URL_PARAMS.param('type') && URL_PARAMS.param('name') ) {
         var params = {
             type: URL_PARAMS.param('type'),
             name: URL_PARAMS.param('name')
         };
         $.get(API_BASEPATH + 'ajax/exactnamesearch', params, function (reply) {
-            if (!reply || ! reply.s || ! reply.w || ! reply.n || ! reply.e) {
+            if (!(reply && reply.s && reply.w && reply.n && reply.e)) {
                 return alert("Cound not find that feature.");
             }
 
-            // Zoom to the location
-            var box = L.latLngBounds(L.latLng(reply.s, reply.w), L.latLng(reply.n, reply.e));
-            MAP.fitBounds(box);
+            // Zoom to the bbox
+            MAP.fitBounds([[reply.w, reply.s], [reply.e, reply.n]]);
 
             // Lay down the WKT or a marker to highlight it
             if (reply.lat && reply.lng) {
@@ -2957,7 +2957,6 @@ function checkNearby(lngLat, maxMeters, categories) {
     var alerts = [];
     for (var i=0, l=ALL_POIS.length; i<l; i++) {
         var poi = ALL_POIS[i];
-        // var meters = latlng.distanceTo( L.latLng(poi.lat,poi.lng) );
         var poiLngLat = new mapboxgl.LngLat(poi.lng, poi.lat);
         var meters = distanceTo(lngLat, poiLngLat);
 

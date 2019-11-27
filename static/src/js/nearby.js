@@ -211,7 +211,6 @@ function checkNearby(lngLat, maxMeters, categories) {
     var alerts = [];
     for (var i=0, l=ALL_POIS.length; i<l; i++) {
         var poi = ALL_POIS[i];
-        // var meters = latlng.distanceTo( L.latLng(poi.lat,poi.lng) );
         var poiLngLat = new mapboxgl.LngLat(poi.lng, poi.lat);
         var meters = distanceTo(lngLat, poiLngLat);
 
