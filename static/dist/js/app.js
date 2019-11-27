@@ -1122,15 +1122,6 @@ function setWindowURLQueryStringParameter(name, value) {
 }
 
 /**
- * WSEN to Bounds
- *
- * given a WSEN set of ordinates, construct a L.LatLngBounds
- */
-function WSENtoBounds(west,south,east,north) {
-    return L.latLngBounds([ [south,west] , [north,east] ]);
-}
-
-/**
  * Coordinate Format picker (on Settings pane) change handler
  */
 $(document).ready(function () {
