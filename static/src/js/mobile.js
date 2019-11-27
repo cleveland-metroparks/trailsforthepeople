@@ -271,17 +271,6 @@ $(document).ready(function () {
 });
 
 /**
- * Show Photo
- *
- * functions for toggling the photo, like a one-item gallery  :)
- * this varies between mobile and desktop, but since they're named the same it forms a common interface
- */
-function showPhoto(url) {
-    $('#photo').prop('src',url);
-    sidebar.open('pane-photo');
-}
-
-/**
  * Show Elevation
  */
 function showElevation(url) {
