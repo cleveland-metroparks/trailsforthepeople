@@ -133,6 +133,7 @@ function initMap(mapOptions) {
             break;
     }
 
+    console.log('pre map');
     // Map
     MAP = new mapboxgl.Map({
          container: 'map_canvas',
@@ -140,6 +141,7 @@ function initMap(mapOptions) {
          center: START_CENTER,
          zoom: START_ZOOM
      });
+    console.log('post map');
 
     // Nav (zoom/tilt) Control
     var ctrlNav = new mapboxgl.NavigationControl();

@@ -53,10 +53,7 @@ module.exports = function(grunt) {
       embedded_base: {
         src: [
           'static/lib/jquery-1.12.4.min.js',
-          'static/lib/leaflet-1.5.1/leaflet.js',
-          'static/lib/mapbox.js-3.1.1/mapbox.standalone.js',
           'static/lib/mapbox-gl-js-1.5.0/mapbox-gl.js',
-          'static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.min.js',
           'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
           'static/src/js/common.js'
@@ -66,30 +63,12 @@ module.exports = function(grunt) {
       // Base for map embeds on external sites that already have jQuery included (we don't package it):
       embedded_base_nojq: {
         src: [
-          'static/lib/leaflet-1.5.1/leaflet.js',
-          'static/lib/mapbox.js-3.1.1/mapbox.standalone.js',
           'static/lib/mapbox-gl-js-1.5.0/mapbox-gl.js',
-          'static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.min.js',
           'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
           'static/src/js/common.js'
         ],
         dest: 'static/dist/js/map-embedded-base-nojq.js'
-      },
-      // Base for map embeds on external sites that already have jQuery included (we don't package it):
-      embedded_base_gljs_nojq: {
-        src: [
-          'static/lib/mapbox-gl-js-1.5.0/mapbox-gl.js',
-          'static/src/js/constants.js',
-          'static/src/js/embedded-constants.js',
-          'static/src/js/common.js',
-          'static/src/js/sidebar.js',
-          'static/src/js/geolocate.js',
-          'static/src/js/share.js',
-          'static/src/js/search.js',
-          'static/src/js/loopsandroutes.js'
-        ],
-        dest: 'static/dist/js/map-embedded-base-gljs-nojq.js'
       }
     },
 
@@ -125,22 +104,10 @@ module.exports = function(grunt) {
           'static/dist/js/map-embedded-base-nojq.min.js': ['static/dist/js/map-embedded-base-nojq.js']
         }
       },
-      // Base for map embeds on external sites that already have jQuery included (we don't package it):
-      embedded_base_gljs_nojq: {
-        files: {
-          'static/dist/js/map-embedded-base-gljs-nojq.min.js': ['static/dist/js/map-embedded-base-gljs-nojq.js']
-        }
-      },
       // For map embed on Visit page:
       embedded_visit: {
         files: {
           'static/dist/js/map-embedded-visit.min.js': ['static/src/js/embedded-visit.js']
-        }
-      },
-      // For map embed on Visit page:
-      embedded_gljs: {
-        files: {
-          'static/dist/js/map-embedded-gljs.min.js': ['static/src/js/embedded-gljs.js']
         }
       },
       // For map embed of beach closures:
@@ -269,35 +236,22 @@ module.exports = function(grunt) {
         files: [
           'static/src/js/constants.js',
           'static/src/js/common.js',
-          'static/src/js/embedded.js',
           'static/src/js/embedded-constants.js'
         ],
         tasks: ['concat:embedded_base', 'concat:embedded_base_nojq']
       },
-      concat_embedded_gljs: {
+      uglify_embedded_base: {
         files: [
-          'static/src/js/constants.js',
-          'static/src/js/common.js',
-          'static/src/js/sidebar.js',
-          'static/src/js/geolocate.js',
-          'static/src/js/share.js',
-          'static/src/js/loopsandroutes.js',
-          'static/src/js/embedded.js',
-          'static/src/js/embedded-constants.js'
+          'static/dist/js/map-embedded-base.js',
+          'static/dist/js/map-embedded-base-nojq.js'
         ],
-        tasks: ['concat:embedded_base_gljs_nojq']
+        tasks: ['uglify:embedded_base', 'uglify:embedded_base_nojq']
       },
       uglify_embedded_visit: {
         files: [
           'static/src/js/embedded-visit.js'
         ],
         tasks: ['uglify:embedded_visit']
-      },
-      uglify_embedded_gljs: {
-        files: [
-          'static/src/js/embedded-gljs.js'
-        ],
-        tasks: ['uglify:embedded_gljs']
       },
       uglify_embedded_beach_closures: {
         files: [
@@ -329,11 +283,12 @@ module.exports = function(grunt) {
   grunt.registerTask('embedded', [
     'concat:embedded_base',
     'concat:embedded_base_nojq',
-    'concat:embedded_base_gljs_nojq',
-    'uglify:embedded_base_gljs_nojq',
+
+    'uglify:embedded_base',
+    'uglify:embedded_base_nojq',
     'uglify:embedded_visit',
-    'uglify:embedded_gljs',
     'uglify:embedded_beach_closures',
+
     'sass:embedded'
   ]);
   // Embedded tasks only, without uglify

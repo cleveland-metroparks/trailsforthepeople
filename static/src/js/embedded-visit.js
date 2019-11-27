@@ -11,22 +11,17 @@ var API_ENDPOINT_GEOCODE = API_BASEPATH + 'ajax/geocode';
 var API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES = API_BASEPATH + 'ajax/get_attractions_by_activity';
 var API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY = API_BASEPATH + 'ajax/get_nearby_attractions_with_activities';
 
-var markerLayer = L.featureGroup();
 var userLocation;
 
-$(document).ready(function(){
+$(document).ready(function() {
 
     /**
-     * Initial map setup
+     * Set up the map
      */
-    var mapOptions = { base:'map' };
-
-    // Load the map.
-    initMap(mapOptions);
-
-    // Disable scrollwheel-driven map zooming so the user can scroll down the page.
-    MAP.scrollZoom.disable();
-
+    var mapOptions = {
+        base: 'map',
+        scrollZoom: false
+    };
 
     /**
      * Process query params
@@ -215,19 +210,17 @@ function callGeocodeAddress(params) {
  * Display activities on the map.
  */
 function displayActivities(activities) {
-    var i, result;
-    for (i = 0; i < activities.length; i += 1) {
-        result = activities[i];
+    for (var i = 0; i < activities.length; i++) {
+        var activity = activities[i];
 
-        marker = new L.marker([result.lat, result.lng], {
-            clickable: true,
-            draggable: false,
-            icon: ICON_TARGET
-        }).bindPopup(attractionPopupMarkup(result));
+        var popup = new mapboxgl.Popup({ offset: 25 })
+            .setHTML(attractionPopupMarkup(activity));
 
-        markerLayer.addLayer(marker);
+        var marker = new mapboxgl.Marker()
+            .setLngLat([activity.lng, activity.lat])
+            .setPopup(popup)
+            .addTo(MAP);
     }
-    markerLayer.addTo(MAP);
 
     MAP.fitBounds(MAX_BOUNDS);
 }

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test: Activities</title>
+
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="/static/images/favicons/favicon.ico">
+
+    <!-- Scripts already included in CM site Kentico pages: -->
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js?v=1.19"></script>
+
+    <!-- Concat-aggregated map JS, minus jQuery -->
+    <script type="text/javascript" src="/static/dist/js/map-embedded-base-nojq.js"></script>
+
+    <!-- Concat-aggregated map JS, minus jQuery -->
+    <script type="text/javascript" src="/static/src/js/embedded-visit.js"></script>
+
+    <!-- @TODO: Move the following script inline. -->
+    <script type="text/javascript" src="/static/src/js/embedded-test-markers.js"></script>
+
+    <!-- Import-aggregated map CSS -->
+    <link rel="stylesheet" type="text/css" href='/static/dist/css/embedded.css' />
+</head>
+
+<body>
+
+	<!-- Map -->
+    <div id="map_canvas" style="width:100%; height:500px;"></div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            /**
+             * Set up the map
+             */
+            var mapOptions = {
+                base: 'map',
+                scrollZoom: false
+            };
+            initMap(mapOptions);
+        });
+    </script>
+
+</body>
+</html>

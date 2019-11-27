@@ -1,13 +1,5 @@
 @import url(../../lib/leaflet-1.5.1/leaflet.css);
 /** Sass CSS for the map.  Used in both app and embedded versions. */
-#marker-target { width: 25px; height: 41px; background-image: url("../../images/markers/marker-target.png"); background-size: cover; background-repeat: no-repeat; }
-
-#marker-gps { height: 16px; width: 16px; background-image: url("../../images/markers/marker-gps.svg"); background-size: 16px 16px; background-repeat: no-repeat; }
-
-#marker-from { width: 20px; height: 34px; background-image: url("../../images/markers/measure1.png"); background-size: cover; background-repeat: no-repeat; }
-
-#marker-to { width: 20px; height: 34px; background-image: url("../../images/markers/measure2.png"); background-size: cover; background-repeat: no-repeat; }
-
 .info-popup .mapboxgl-popup-content { font-size: 1.3em; padding: 1em 2em; }
 .info-popup.warning .mapboxgl-popup-content { border: 1px solid #FF7C3B; background-color: #fff3ee; }
 .info-popup.error .mapboxgl-popup-content { border: 1px solid #DE5049; background-color: #fdf6f6; }
