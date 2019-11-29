@@ -11,7 +11,7 @@ var API_ENDPOINT_GEOCODE = API_BASEPATH + 'ajax/geocode';
 var API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES = API_BASEPATH + 'ajax/get_attractions_by_activity';
 var API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY = API_BASEPATH + 'ajax/get_nearby_attractions_with_activities';
 
-var userLocation;
+var USER_LOCATION;
 
 $(document).ready(function() {
 
@@ -20,8 +20,10 @@ $(document).ready(function() {
      */
     var mapOptions = {
         base: 'map',
-        scrollZoom: false
+        scrollZoom: false,
+        trackUserLocation: false
     };
+    initMap(mapOptions);
 
     /**
      * Process query params
@@ -76,9 +78,9 @@ $(document).ready(function() {
         if (geolocate_enabled) {
             data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY;
 
-            if (userLocation) {
-                data.lat = userLocation.lat;
-                data.lng = userLocation.lng;
+            if (USER_LOCATION) {
+                data.lat = USER_LOCATION.lat;
+                data.lng = USER_LOCATION.lng;
             } else if (lat && lng) {
                 data.lat = lat;
                 data.lng = lng;
@@ -119,19 +121,22 @@ $(document).ready(function() {
             disableGeolocation();
         }
     });
+});
 
+$(document).on("mapInitialized", function () {
     // Geolocation found handler
-    MAP.on('locationfound', function(event) {
-        // @TODO: GLJS: Mark the user's current location
+    ctrlGeolocate.on("geolocate", function(event) {
+        var lngLat = new mapboxgl.LngLat(event.coords.longitude, event.coords.latitude);
 
-        userLocation = event.latlng;
+        geolocateSuccess(lngLat);
 
         // Auto-center
-        if (MAX_BOUNDS.contains(event.latlng)) {
-            MAP.panTo(event.latlng);
+        if (boundsContain(MAX_BOUNDS, lngLat)) {
+            // console.log('ease');
+            // MAP.easeTo({center: lngLat});
         } else {
             showInfoPopup('Sorry, your current location is too far away.', 'warning');
-            console.log('Geolocation out of bounds: ', userLocation);
+            console.log('Geolocation out of bounds: ', USER_LOCATION);
             disableGeolocation();
         }
     });
@@ -145,15 +150,20 @@ $(document).ready(function() {
 });
 
 /**
+ * Callback for geolocation success, whether via basicGeolocate() or ctrlGeolocate.
+ */
+function geolocateSuccess(lngLat) {
+    USER_LOCATION = lngLat;
+}
+
+/**
 * Disable geolocation:
-* - ensure the button is un-checked,
-* - remove our stored location, and
-* - remove the marker.
+* - ensure the button is un-checked, and
+* - remove our stored location
 */
 function disableGeolocation() {
    // $('.interactive-form-distance-near-me-input').prop('checked', false);
-   userLocation = null;
-   // @TODO: GLJS: Clear geolocation marker
+   USER_LOCATION = null;
 }
 
 /**
@@ -191,14 +201,14 @@ function callGeocodeAddress(params) {
         data: data
         })
         .done(function(reply) {
-            var latlng = L.latLng(reply.lat, reply.lng);
+            var lngLat = new mapboxgl.LngLat(reply.lng, reply.lat);
             // Point outside service area
-            if (! MAX_BOUNDS.contains(latlng) ) {
+            if (!boundsContain(MAX_BOUNDS, lngLat)) {
                 showInfoPopup("The location we found for your address is too far away.", 'warning');
                 return;
             }
 
-            // @TODO: GLJS:  Add a marker for their location
+            // @TODO: GLJS: Add a marker for their location (fake the geolocation marker?)
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
             console.log(textStatus + ': ' + errorThrown);

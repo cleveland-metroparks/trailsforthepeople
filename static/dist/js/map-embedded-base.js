@@ -172,7 +172,15 @@ SETTINGS.coordinate_format = 'dms';
 /**
  * Initialize the map
  *
- * The business. (And too much of it.)
+ * @param mapOptions {object}: Custom map initialization options
+ *   @TODO: Allow using any Mapbox GL native Map option.
+ *   base {string}: 'photo' / 'map'
+ *   trackUserLocation {boolean}: for geolocate control
+ *   lat {float}
+ *   lng {float}
+ *   zoom {int}
+ *   drop_marker {boolean}
+ *   scrollZoom {boolean}
  */
 function initMap(mapOptions) {
     // Base map type; URL param or map (vs photo/satellite) default
@@ -206,7 +214,7 @@ function initMap(mapOptions) {
         positionOptions: {
            enableHighAccuracy: true
         },
-        trackUserLocation: true,
+        trackUserLocation: (mapOptions.trackUserLocation == false) ? false : true,
     });
     MAP.addControl(ctrlGeolocate, 'bottom-right');
 

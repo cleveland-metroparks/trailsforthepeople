@@ -7,13 +7,14 @@
  */
 
 $(document).ready(function(){
-    var mapOptions = { base:'map' };
+    var mapOptions = {
+        base: 'map',
+        scrollZoom: false,
+        trackUserLocation: false
+    };
 
     // Load the map.
     initMap(mapOptions);
-
-    // Disable scrollwheel-driven map zooming so the user can scroll down the page.
-    MAP.scrollZoom.disable();
 
     callGetBeachClosures();
 });
