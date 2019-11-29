@@ -53,6 +53,7 @@ module.exports = function(grunt) {
       embedded_base: {
         src: [
           'static/lib/jquery-1.12.4.min.js',
+          'static/lib/turf.js-5.1.6/turf.min.js',
           'static/lib/mapbox-gl-js-1.5.0/mapbox-gl.js',
           'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
@@ -63,6 +64,7 @@ module.exports = function(grunt) {
       // Base for map embeds on external sites that already have jQuery included (we don't package it):
       embedded_base_nojq: {
         src: [
+          'static/lib/turf.js-5.1.6/turf.min.js',
           'static/lib/mapbox-gl-js-1.5.0/mapbox-gl.js',
           'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
@@ -232,20 +234,27 @@ module.exports = function(grunt) {
         ],
         tasks: ['uglify:native']
       },
-      concat_embedded: {
+      concat_embedded_base: {
         files: [
+          'static/lib/turf.js-5.1.6/turf.min.js',
           'static/src/js/constants.js',
           'static/src/js/common.js',
           'static/src/js/embedded-constants.js'
         ],
-        tasks: ['concat:embedded_base', 'concat:embedded_base_nojq']
+        // tasks: ['concat:embedded_base', 'concat:embedded_base_nojq']
+        tasks: ['concat:embedded_base_nojq']
       },
       uglify_embedded_base: {
         files: [
+          'static/lib/turf.js-5.1.6/turf.min.js',
+          'static/src/js/constants.js',
+          'static/src/js/common.js',
+          'static/src/js/embedded-constants.js',
           'static/dist/js/map-embedded-base.js',
           'static/dist/js/map-embedded-base-nojq.js'
         ],
-        tasks: ['uglify:embedded_base', 'uglify:embedded_base_nojq']
+        // tasks: ['uglify:embedded_base', 'uglify:embedded_base_nojq']
+        tasks: ['uglify:embedded_base_nojq']
       },
       uglify_embedded_visit: {
         files: [
