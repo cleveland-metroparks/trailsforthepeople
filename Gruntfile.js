@@ -54,7 +54,7 @@ module.exports = function(grunt) {
         src: [
           'static/lib/jquery-1.12.4.min.js',
           'static/lib/turf.js-5.1.6/turf.min.js',
-          'static/lib/mapbox-gl-js-1.5.0/mapbox-gl.js',
+          'static/lib/mapbox-gl-js-1.6.0/mapbox-gl.js',
           'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
           'static/src/js/common.js'
@@ -65,7 +65,7 @@ module.exports = function(grunt) {
       embedded_base_nojq: {
         src: [
           'static/lib/turf.js-5.1.6/turf.min.js',
-          'static/lib/mapbox-gl-js-1.5.0/mapbox-gl.js',
+          'static/lib/mapbox-gl-js-1.6.0/mapbox-gl.js',
           'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
           'static/src/js/common.js'

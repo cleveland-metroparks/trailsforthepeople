@@ -25,7 +25,7 @@
     <script type="text/javascript" src="<?= ssl_url('static/lib/jquery-ui-1.11.4/jquery-ui.min.js'); ?>"></script>
     <!-- <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/lib/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" /> -->
     <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/lib/jquery-ui-1.11.4/jquery-ui.min.css'); ?>" />
-    <link type="text/css" rel="stylesheet" href="<?= site_url('static/lib/mapbox-gl-js-1.5.0/mapbox-gl.css'); ?>" />
+    <link type="text/css" rel="stylesheet" href="<?= site_url('static/lib/mapbox-gl-js-1.6.0/mapbox-gl.css'); ?>" />
 
     <!-- tablesorter -->
     <script type="text/javascript" src="<?= ssl_url('static/lib/tablesorter/jquery.tablesorter.js'); ?>"></script>
@@ -36,7 +36,7 @@
     <script type="text/javascript" src="<?= ssl_url('static/lib/wicket-master/wicket.min.js'); ?>"></script>
     <script type="text/javascript" src="<?= ssl_url('static/lib/wicket-master/wicket-leaflet.min.js'); ?>"></script>
     <script type="text/javascript" src="<?= site_url('static/lib/mapbox.js-3.1.1/mapbox.standalone.js'); ?>"></script>
-    <script type="text/javascript" src="<?= site_url('static/lib/mapbox-gl-js-1.5.0/mapbox-gl.js'); ?>"></script>
+    <script type="text/javascript" src="<?= site_url('static/lib/mapbox-gl-js-1.6.0/mapbox-gl.js'); ?>"></script>
     <script type="text/javascript" src="<?= site_url('static/lib/mapbox-gl-leaflet/leaflet-mapbox-gl.min.js'); ?>"></script>
 
     <!-- TinyMCE, the HTML editor -->

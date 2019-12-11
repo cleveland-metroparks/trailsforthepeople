@@ -1,4 +1,4 @@
-@import url(../../lib/mapbox-gl-js-1.5.0/mapbox-gl.css);
+@import url(../../lib/mapbox-gl-js-1.6.0/mapbox-gl.css);
 /** Sass CSS for the map.  Used in both app and embedded versions. */
 .info-popup .mapboxgl-popup-content { font-size: 1.3em; padding: 1em 2em; }
 .info-popup.warning .mapboxgl-popup-content { border: 1px solid #FF7C3B; background-color: #fff3ee; }
