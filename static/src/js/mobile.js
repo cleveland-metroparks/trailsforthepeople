@@ -558,7 +558,7 @@ function zoomToAddress(searchtext) {
 
         // if this point isn't even in the service area, complain and bail
         // tip: "post office" finds Post Office, India
-        if (!boundsContain(MAX_BOUNDS, lngLat)) {
+        if (!MAX_BOUNDS.contains(lngLat)) {
             return alert("The only results we could find are too far away to zoom the map there.");
         }
 

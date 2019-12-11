@@ -171,7 +171,7 @@ function processGetDirectionsForm() {
                     // search, and driving routing would still be goofy since it would traverse area well off the map
                     // in this case, warn them that they should use Bing Maps, and send them there
                     var sourceLngLat = new mapboxgl.LngLat(sourcelng, sourcelat);
-                    if (!boundsContain(MAX_BOUNDS, sourceLngLat)) {
+                    if (!MAX_BOUNDS.contains(sourceLngLat)) {
                         var from = 'adr.' + address;
                         var to   = 'pos.' + targetlat + '_' + targetlng;
                         var params = {

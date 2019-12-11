@@ -316,24 +316,6 @@ function latlng_as_dd(latlng, precision) {
     return latlng_str;
 }
 
-/**
- * Check whether a point is contained within bounds.
- *
- * @TODO: Looks like LngLatBounds will provide this soon:
- *        https://github.com/mapbox/mapbox-gl-js/pull/8200
- *
- * @param bounds {LngLatBounds}
- * @param lngLat {LngLat}
- *
- * return boolean
- */
-function boundsContain(bounds, lngLat) {
-    var point = turf.point(lngLat.toArray());
-    var bbox = bounds.toArray().flat();
-    var polygon = turf.bboxPolygon(bbox);
-    return (turf.pointsWithinPolygon(point, polygon).features.length == 1);
-}
-
 ;
  /**
  * mobile.js
@@ -895,7 +877,7 @@ function zoomToAddress(searchtext) {
 
         // if this point isn't even in the service area, complain and bail
         // tip: "post office" finds Post Office, India
-        if (!boundsContain(MAX_BOUNDS, lngLat)) {
+        if (!MAX_BOUNDS.contains(lngLat)) {
             return alert("The only results we could find are too far away to zoom the map there.");
         }
 
@@ -1809,7 +1791,7 @@ function processGetDirectionsForm() {
                     // search, and driving routing would still be goofy since it would traverse area well off the map
                     // in this case, warn them that they should use Bing Maps, and send them there
                     var sourceLngLat = new mapboxgl.LngLat(sourcelng, sourcelat);
-                    if (!boundsContain(MAX_BOUNDS, sourceLngLat)) {
+                    if (!MAX_BOUNDS.contains(sourceLngLat)) {
                         var from = 'adr.' + address;
                         var to   = 'pos.' + targetlat + '_' + targetlng;
                         var params = {

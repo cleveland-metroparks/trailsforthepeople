@@ -131,7 +131,7 @@ $(document).on("mapInitialized", function () {
         geolocateSuccess(lngLat);
 
         // Auto-center
-        if (boundsContain(MAX_BOUNDS, lngLat)) {
+        if (MAX_BOUNDS.contains(lngLat)) {
             // console.log('ease');
             // MAP.easeTo({center: lngLat});
         } else {
@@ -203,7 +203,7 @@ function callGeocodeAddress(params) {
         .done(function(reply) {
             var lngLat = new mapboxgl.LngLat(reply.lng, reply.lat);
             // Point outside service area
-            if (!boundsContain(MAX_BOUNDS, lngLat)) {
+            if (!MAX_BOUNDS.contains(lngLat)) {
                 showInfoPopup("The location we found for your address is too far away.", 'warning');
                 return;
             }
