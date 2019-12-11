@@ -61,6 +61,29 @@ function displayBeachClosures(beach_closures) {
         );
     }
 
+    // Looks like it's not yet possible to set "icon-color"
+    // for Mapbox GL JS's built-in (Maki) icons, but that
+    // we'd need to create custom SDF icons.
+    //
+    //MAP.addLayer({
+    //    "id": "beach_closures",
+    //    "type": "symbol",
+    //    "source": {
+    //        "type": "geojson",
+    //        "data": {
+    //            "type": "FeatureCollection",
+    //            "features": points
+    //        }
+    //    },
+    //    "layout": {
+    //        "icon-image": "marker-15",
+    //        "icon-size": 1.8,
+    //    },
+    //    "paint": {
+    //        "icon-color": ["concat", "#", ["get", "status_color"]]
+    //    }
+    //});
+
     MAP.addLayer({
         "id": "beach_closures",
         "type": "circle",
