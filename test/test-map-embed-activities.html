@@ -15,9 +15,6 @@
     <!-- Concat-aggregated map JS, minus jQuery -->
     <script type="text/javascript" src="/static/src/js/embedded-visit.js"></script>
 
-    <!-- @TODO: Move the following script inline. -->
-    <script type="text/javascript" src="/static/src/js/embedded-test-markers.js"></script>
-
     <!-- Import-aggregated map CSS -->
     <link rel="stylesheet" type="text/css" href='/static/dist/css/embedded.css' />
 </head>
@@ -26,6 +23,14 @@
 
 	<!-- Map -->
     <div id="map_canvas" style="width:100%; height:500px;"></div>
+
+    <script type="text/javascript">
+        $(document).on("mapInitialized", function () {
+            $.getJSON('/test/test-activities.json', function(data) {
+                displayActivities(data.results);
+            });
+        });
+    </script>
 
 </body>
 </html>
