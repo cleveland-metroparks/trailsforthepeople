@@ -240,29 +240,42 @@ function displayActivities(activities) {
  */
 function attractionPopupMarkup(attraction) {
     // Only show description & thumbnail if we have room for tall popups
-    showAll = ($("#map_canvas").height() >= 500);
+    showImage = ($("#map_canvas").height() >= 500);
 
     markup = "<h3>" + attraction.name + "</h3>";
 
-    if (showAll && attraction.description) {
+    if (typeof attraction.description === 'string') {
+        attraction.description = shortenStr(attraction.description, 100, true);
         markup += "<p>" + attraction.description + "</p>";
     }
 
-    if (attraction.cmp_url) {
+    if (typeof attraction.cmp_url === 'string') {
         markup += '<p><a href="' + attraction.cmp_url + '" title="Find out more about ' + attraction.name + '." target="_blank">More info</a></p>';
     }
 
-    if (showAll && attraction.thumbnail) {
+    if (showImage && attraction.thumbnail) {
         // Remove "~/" and prepend CM site URL
-        thumbnail_path = CM_SITE_BASEURL + attraction.thumbnail.replace('~/', '');
-        // Resize image:
-        thumbnail_height = 150;
-        thumbnail_path = thumbnail_path.replace(/width=\d*\&height=\d*\&/, 'height=' + thumbnail_height + '&');
-        markup += '<img src="' + thumbnail_path + '" height="' + thumbnail_height + '" alt="' + attraction.name + '" />';
+        thumbnailPath = CM_SITE_BASEURL + attraction.thumbnail.replace('~/', '');
+        // Get original width & height from image URL
+        origWidth = thumbnailPath.match(/width=(\d*)/);
+        origHeight = thumbnailPath.match(/height=(\d*)/);
+        if (Array.isArray(origWidth) && Array.isArray(origHeight)) {
+            origWidth = origWidth[1];
+            origHeight = origHeight[1];
+            // Figure out new width for image if width fixed to 220px
+            thumbnailWidth = 180;
+            thumbnailHeight = (origHeight / origWidth) * thumbnailWidth;
+            // Remake the URL with specified height to get a resized version of the image
+            thumbnailPath = thumbnailPath.replace(/width=(\d*)\&height=(\d)*\&/, 'height=' + thumbnailHeight + '&');
+            // Build the img markup
+            markup += '<div style="text-align:center">';
+            markup += '<img src="' + thumbnailPath + '" height="' + thumbnailHeight + '" width="' + thumbnailWidth + '" alt="' + attraction.name + '" /></div>';
+            markup += '</div>';
+        }
     }
 
-    map_link = WEBAPP_BASEPATH + 'mobile?type=attraction&gid=' + attraction.gid;
-    markup += '<p><a href="' + map_link + '" target="_blank">See on full map </a></p>';
+    mapLink = WEBAPP_BASEPATH + 'mobile?type=attraction&gid=' + attraction.gid;
+    markup += '<p><a href="' + mapLink + '" target="_blank">See on full map </a></p>';
 
     return markup;
 }

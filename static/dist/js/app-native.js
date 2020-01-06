@@ -329,6 +329,24 @@ function latlng_as_dd(latlng, precision) {
     return latlng_str;
 }
 
+/**
+ * Shorten a string to a maximum character length, on a word/whitespace boundary.
+ *
+ * @param: {string} str
+ * @param: {integer} maxLen
+ * @param: {boolean} addEllipsis
+ */
+function shortenStr(str, maxLen, addEllipsis) {
+    if (str.length <= maxLen) {
+      return str;
+    }
+    var shortenedStr = str.substr(0, str.lastIndexOf(' ', maxLen));
+    if (addEllipsis) {
+        shortenedStr += '...';
+    }
+    return shortenedStr;
+}
+
 ;
  /**
  * mobile.js
