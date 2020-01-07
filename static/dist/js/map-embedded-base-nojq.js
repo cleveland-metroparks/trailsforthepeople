@@ -395,3 +395,32 @@ function shortenStr(str, maxLen, addEllipsis) {
     }
     return shortenedStr;
 }
+
+/**
+ * Set query string parameters in window location.
+ *
+ * @param {strong} name
+ * @param {string} value
+ */
+function setWindowURLQueryStringParameter(name, value) {
+    var params = new URLSearchParams(location.search);
+    params.set(name, value);
+
+    // Remove deprecated x,y,z params
+    if (params.has('y') && name == 'lat') params.delete('y');
+    if (params.has('x') && name == 'lng') params.delete('x');
+    if (params.has('z') && name == 'zoom') params.delete('z');
+
+    WINDOW_URL = decodeURIComponent(location.pathname + '?' + params);
+    window.history.replaceState(null, null, WINDOW_URL);
+}
+
+
+/**
+ * Clear query string parameters in window location.
+ */
+function clearWindowURLQueryStringParameters() {
+    var params = new URLSearchParams();
+    WINDOW_URL = decodeURIComponent(location.pathname + '?' + params);
+    window.history.replaceState(null, null, WINDOW_URL);
+}

@@ -767,22 +767,6 @@ function updateWindowURLAll() {
 }
 
 /**
- * Set query string parameters in window location.
- */
-function setWindowURLQueryStringParameter(name, value) {
-    var params = new URLSearchParams(location.search);
-    params.set(name, value);
-
-    // Remove deprecated x,y,z params
-    if (params.has('y') && name == 'lat') params.delete('y');
-    if (params.has('x') && name == 'lng') params.delete('x');
-    if (params.has('z') && name == 'zoom') params.delete('z');
-
-    WINDOW_URL = decodeURIComponent(location.pathname + '?' + params);
-    window.history.replaceState(null, null, WINDOW_URL);
-}
-
-/**
  * Coordinate Format picker (on Settings pane) change handler
  */
 $(document).ready(function () {

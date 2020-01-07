@@ -13,8 +13,9 @@ var API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY = API_BASEPATH + 'ajax/get_n
 
 var USER_LOCATION;
 
-$(document).ready(function() {
+var ALL_MARKERS = [];
 
+$(document).ready(function() {
     /**
      * Set up the map
      */
@@ -25,99 +26,15 @@ $(document).ready(function() {
     };
     initMap(mapOptions);
 
-    /**
-     * Process query params
-     */
-    var urlParams = new URLSearchParams(location.search);
-
-    // Activities
-    if (urlParams.has('activitytype')) {
-        var activities = urlParams.get('activitytype').split("|");
-    }
-
-    // Location text
-    var location_searchtext;
-    if (urlParams.has('location')) {
-        location_searchtext = urlParams.get('location');
-    }
-
-    // Geolocate
-    var geolocate_enabled = (urlParams.has('nearme') && urlParams.get('nearme') == 'True');
-
-    // Lat/Long
-    if (urlParams.has('lat') && urlParams.has('long')) {
-        var lat = parseFloat(urlParams.get('lat'));
-        var lng = parseFloat(urlParams.get('long'));
-    }
-
-    // Within distance
-    var distance_miles, distance_feet;
-    if (urlParams.has('distance')) {
-        distance_miles = urlParams.get('distance');
-        distance_feet = 5280 * distance_miles;
-    }
-    distance_feet = Number.isInteger(distance_feet) ? distance_feet : 0;
-
-    // Begin assembling API call data
-    var data = {
-        activity_ids: activities,
-        within_feet: distance_feet
-    };
-
-    // We initially geolocate when the "Near Me" button is clicked,
-    // but on form submit page reload, need to re-initiate in order
-    // to show the user's marker on the map.
-    if (geolocate_enabled) {
-        MAP.locate({watch: false, enableHighAccuracy: true});
-    }
+    processQueryParams();
 
     /**
-     * Make the right call, based on options
-     */
-    if (activities) {
-        if (geolocate_enabled) {
-            data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY;
-
-            if (USER_LOCATION) {
-                data.lat = USER_LOCATION.lat;
-                data.lng = USER_LOCATION.lng;
-            } else if (lat && lng) {
-                data.lat = lat;
-                data.lng = lng;
-            } else {
-                // No lat/lng. Don't do nearby search.
-                data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES;
-            }
-          callGetAttractions(data);
-        } else if (location_searchtext) {
-            // Search attractions nearby geocoded address
-            data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY;
-            data.searchtext = location_searchtext;
-
-            // Geocode address
-            callGeocodeAddress(data).then(function(reply, textStatus, jqXHR) {
-                // Add new lat/lng to the data object.
-                data.lat = reply.lat;
-                data.lng = reply.lng;
-
-                callGetAttractions(data);
-            });
-        } else {
-            // Search activities without nearby
-            data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES;
-            delete data.within_feet;
-            callGetAttractions(data);
-        }
-    }
-
-    /**
-     * Geolocate user
+     * Geolocate user on Near Me button click
      */
     $('#nearme').click(function() {
         if ($('#nearme').prop('checked')) {
-            MAP.locate({watch: false, enableHighAccuracy: true});
+            basicGeolocate();
         } else {
-            MAP.stopLocate();
             disableGeolocation();
         }
     });
@@ -150,6 +67,100 @@ $(document).on("mapInitialized", function () {
 });
 
 /**
+ * Process query parameters
+ */
+function processQueryParams() {
+    var urlParams = new URLSearchParams(location.search);
+
+    // Activities
+    var activities = null;
+    if (urlParams.has('activitytype')) {
+        activities = urlParams.get('activitytype').split("|");
+    }
+
+    // Location text
+    var location_searchtext;
+    if (urlParams.has('location')) {
+        location_searchtext = urlParams.get('location');
+    }
+
+    // Geolocate
+    var geolocate_enabled = (urlParams.has('nearme') && urlParams.get('nearme') == 'True');
+    // We initially geolocate when the "Near Me" button is clicked,
+    // but on form submit page reload, need to re-initiate in order
+    // to show the user's marker on the map.
+    if (geolocate_enabled) {
+        basicGeolocate();
+    }
+
+    // Lat/Long
+    if (urlParams.has('lat') && urlParams.has('long')) {
+        var lat = parseFloat(urlParams.get('lat'));
+        var lng = parseFloat(urlParams.get('long'));
+    }
+
+    // Within distance
+    var distance_miles, distance_feet;
+    if (urlParams.has('distance')) {
+        distance_miles = urlParams.get('distance');
+        distance_feet = 5280 * distance_miles;
+    }
+    distance_feet = Number.isInteger(distance_feet) ? distance_feet : 0;
+
+    // Begin assembling API call data
+    var data = {
+        activity_ids: activities,
+        within_feet: distance_feet
+    };
+
+    /**
+     * Make the right call, based on options
+     */
+    if (activities) {
+        if (geolocate_enabled) {
+            data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY;
+
+            if (USER_LOCATION !== null && USER_LOCATION !== undefined) {
+                data.lat = USER_LOCATION.coords.latitude;
+                data.lng = USER_LOCATION.coords.longitude;
+            } else if (lat && lng) {
+                data.lat = lat;
+                data.lng = lng;
+            } else {
+                // No lat/lng. Don't do nearby search.
+                data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES;
+            }
+            callGetAttractions(data);
+        } else if (location_searchtext) {
+            // Search attractions nearby geocoded address
+            data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY;
+            data.searchtext = location_searchtext;
+
+            // Geocode address
+            callGeocodeAddress(data).then(function(reply, textStatus, jqXHR) {
+                // Add new lat/lng to the data object.
+                data.lat = reply.lat;
+                data.lng = reply.lng;
+
+                callGetAttractions(data);
+            });
+        } else {
+            // Search activities without nearby
+            data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES;
+            delete data.within_feet;
+            callGetAttractions(data);
+        }
+    }
+}
+
+/**
+ * Attempt to locate the user using the browser's native geolocation.
+ */
+function basicGeolocate() {
+    navigator.geolocation.getCurrentPosition(geolocateSuccess, null, { enableHighAccuracy: true });
+}
+
+/**
  * Callback for geolocation success, whether via basicGeolocate() or ctrlGeolocate.
  */
 function geolocateSuccess(lngLat) {
@@ -162,8 +173,7 @@ function geolocateSuccess(lngLat) {
 * - remove our stored location
 */
 function disableGeolocation() {
-   // $('.interactive-form-distance-near-me-input').prop('checked', false);
-   USER_LOCATION = null;
+    USER_LOCATION = null;
 }
 
 /**
@@ -217,9 +227,21 @@ function callGeocodeAddress(params) {
 }
 
 /**
+ * Clear all markers
+ */
+function clearMarkers() {
+    if (ALL_MARKERS !== null && ALL_MARKERS.length > 0) {
+        for (var i=ALL_MARKERS.length-1; i>=0; i--) {
+            ALL_MARKERS[i].remove();
+        }
+    }
+}
+
+/**
  * Display activities on the map.
  */
 function displayActivities(activities) {
+    clearMarkers();
     for (var i = 0; i < activities.length; i++) {
         var activity = activities[i];
 
@@ -230,6 +252,8 @@ function displayActivities(activities) {
             .setLngLat([activity.lng, activity.lat])
             .setPopup(popup)
             .addTo(MAP);
+
+        ALL_MARKERS.push(marker);
     }
 
     MAP.fitBounds(MAX_BOUNDS);
