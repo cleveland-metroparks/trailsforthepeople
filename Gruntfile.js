@@ -27,7 +27,7 @@ module.exports = function(grunt) {
           'static/src/js/search.js',
           'static/src/js/nearby.js',
           'static/src/js/loopsandroutes.js',
-          'static/src/js/print.js'
+          // 'static/src/js/print.js'
         ],
         dest: 'static/dist/js/app.js'
       },
@@ -45,7 +45,7 @@ module.exports = function(grunt) {
           'static/src/js/search.js',
           'static/src/js/nearby.js',
           'static/src/js/loopsandroutes.js',
-          'static/src/js/print.js'
+          // 'static/src/js/print.js'
         ],
         dest: 'static/dist/js/app-native.js'
       },
@@ -180,7 +180,7 @@ module.exports = function(grunt) {
           'static/src/js/search.js',
           'static/src/js/nearby.js',
           'static/src/js/loopsandroutes.js',
-          'static/src/js/print.js'
+          // 'static/src/js/print.js'
         ],
         tasks: ['concat:dist']
       },
@@ -196,7 +196,7 @@ module.exports = function(grunt) {
           'static/src/js/search.js',
           'static/src/js/nearby.js',
           'static/src/js/loopsandroutes.js',
-          'static/src/js/print.js'
+          // 'static/src/js/print.js'
         ],
         tasks: ['uglify:dist']
       },
@@ -213,7 +213,7 @@ module.exports = function(grunt) {
           'static/src/js/search.js',
           'static/src/js/nearby.js',
           'static/src/js/loopsandroutes.js',
-          'static/src/js/print.js'
+          // 'static/src/js/print.js'
         ],
         tasks: ['concat:native']
       },
@@ -230,7 +230,7 @@ module.exports = function(grunt) {
           'static/src/js/search.js',
           'static/src/js/nearby.js',
           'static/src/js/loopsandroutes.js',
-          'static/src/js/print.js'
+          // 'static/src/js/print.js'
         ],
         tasks: ['uglify:native']
       },

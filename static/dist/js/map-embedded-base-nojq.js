@@ -90,9 +90,9 @@ var PRINT_PICKUP_BASEURL = "/pdf/";
 // our Bing Maps API key, used for the basemap, geocoding, and directions
 var BING_API_KEY = "AjBuYw8goYn_CWiqk65Rbf_Cm-j1QFPH-gGfOxjBipxuEB2N3n9yACKu5s8Dl18N";
 
-// for printing, the size of the map in each layout;
-// used to calculate a bounding box for printing the map so it looks the same as on a monitor.
-// These must match (or at least be very close) to the sizes given in MapFish Print's config.yaml
+// For printing, the map size of each layout.
+// Used to calculate a bounding box for printing the map, so it looks the same as on a monitor.
+// These must match (or at least be very close) to the sizes given in MapFish Print's config.yaml.
 var PRINT_SIZES = {
     'Letter portrait' : [ 580, 714 ],
     'Letter landscape' : [ 762, 526 ],
@@ -138,7 +138,7 @@ API_BASEPATH = 'https://maps.clevelandmetroparks.com/';
 var CM_SITE_BASEURL = 'https://www.clevelandmetroparks.com/';
 
 ;
- /**
+/**
  * common.js
  *
  * JS for common app functionality.
@@ -155,7 +155,7 @@ var MARKER_END = new mapboxgl.Marker({ color: '#FF7866' }); // Directions end
 
 var ELEVATION_PROFILE = null;
 
-var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
+var SKIP_TO_DIRECTIONS = false;
 
 var ctrlGeolocate;
 
@@ -195,7 +195,8 @@ function initMap(mapOptions) {
          container: 'map_canvas',
          style: basemap_style,
          center: START_CENTER,
-         zoom: START_ZOOM
+         zoom: START_ZOOM,
+         preserveDrawingBuffer: true
      });
 
     // Nav (zoom/tilt) Control

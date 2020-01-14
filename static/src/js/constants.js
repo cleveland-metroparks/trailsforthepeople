@@ -45,9 +45,9 @@ var PRINT_PICKUP_BASEURL = "/pdf/";
 // our Bing Maps API key, used for the basemap, geocoding, and directions
 var BING_API_KEY = "AjBuYw8goYn_CWiqk65Rbf_Cm-j1QFPH-gGfOxjBipxuEB2N3n9yACKu5s8Dl18N";
 
-// for printing, the size of the map in each layout;
-// used to calculate a bounding box for printing the map so it looks the same as on a monitor.
-// These must match (or at least be very close) to the sizes given in MapFish Print's config.yaml
+// For printing, the map size of each layout.
+// Used to calculate a bounding box for printing the map, so it looks the same as on a monitor.
+// These must match (or at least be very close) to the sizes given in MapFish Print's config.yaml.
 var PRINT_SIZES = {
     'Letter portrait' : [ 580, 714 ],
     'Letter landscape' : [ 762, 526 ],

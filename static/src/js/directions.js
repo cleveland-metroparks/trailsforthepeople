@@ -591,8 +591,8 @@ $(document).ready(function () {
         sidebar.open('pane-browse');
 
         // If they clicked this button, it means that they will be looking for a place,
-        // with the specific purpose of getting Directions there
-        // set this flag, which will cause zoomElementClick() to skip showing the info and skip to directions
+        // with the specific purpose of getting Directions there.
+        // Make zoomElementClick() skip showing the info and go straight to directions.
         SKIP_TO_DIRECTIONS = true;
     });
 });

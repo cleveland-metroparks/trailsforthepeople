@@ -10,10 +10,18 @@
 
 // printMap() is in common.js; it loads the various form values and POSTs them to MapFish, and receives back an URL.
 // It then passes the URL to printMapDone(url) which is defined in desktop.js and mobile.js separately
+
+/**
+ *
+ */
 function printMapPrepare() {
     $('#print_waiting').show();
     $('#print_ready').hide();
 }
+
+/**
+ *
+ */
 function printMapDone(url) {
     $('#print_waiting').hide();
 
@@ -22,6 +30,10 @@ function printMapDone(url) {
         $('#print_ready').show();
     }
 }
+
+/**
+ *
+ */
 function printMap() {
     // their printing options
     var comment    = $('#print_comment').val();
@@ -34,15 +46,20 @@ function printMap() {
     // we can't just use the map's bbox since the monitor and the "paper" aren't the same size,
     // so the resulting maps are completely dissimilar
     // strategy:
-    // - fetch the map size for their chosen layout ("paper") so we know the target width & height
-    // - create a bounding box from the map's center, plus and minus half the width & height
-    // - reproject to EPSG:3734 so the output looks good
-    var mapwidth  = PRINT_SIZES[paper][0];
-    var mapheight = PRINT_SIZES[paper][1];
-    var pixelcenter = MAP.latLngToLayerPoint(MAP.getCenter());
-    var sw = wgsToLocalSRS( MAP.layerPointToLatLng( new L.Point(pixelcenter.x - (mapwidth/2), pixelcenter.y + (mapheight/2) ) ) );
-    var ne = wgsToLocalSRS( MAP.layerPointToLatLng( new L.Point(pixelcenter.x + (mapwidth/2), pixelcenter.y - (mapheight/2) ) ) );
-    var projbbox = [ sw[0], sw[1], ne[0], ne[1] ];
+    
+    
+    
+
+    // Map size for their chosen layout ("paper") so we know the target width & height
+    var mapWidth  = PRINT_SIZES[paper][0];
+    var mapHeight = PRINT_SIZES[paper][1];
+
+    // Create a bounding box of the visible map area,
+    // reprojecting to EPSG:3734 so the output looks good.
+    var pixelCenter = MAP.project(MAP.getCenter()); // Get center as Point
+    var sw = wgsToLocalSRS(MAP.unproject(new mapboxgljs.Point(pixelCenter.x - (mapWidth/2), pixelCenter.y + (mapHeight/2))));
+    var ne = wgsToLocalSRS(MAP.unproject(new mapboxgljs.Point(pixelCenter.x + (mapWidth/2), pixelCenter.y - (mapHeight/2))));
+    var projbbox = [sw[0], sw[1], ne[0], ne[1]];
 
     // the layers to include into the map: WMS, vectors for markers
     // we effectively emulate the OpenLayers-centric structure for each Layer
@@ -79,15 +96,18 @@ function printMap() {
         layers[layers.length] = { baseURL:"http://maps.clevelandmetroparks.com/gwms", opacity:1, singleTile:true, type:"WMS", layers:["group_basemap"], format:"image/jpeg", styles:[""], customParams:wmsparams };
         layers[layers.length] = { baseURL:"http://maps.clevelandmetroparks.com/gwms", opacity:1, singleTile:true, type:"WMS", layers:["cm:trails","cm:closures","cm:markers_other","cm:markers_swgh"], format:"image/png", styles:"", customParams:wmsparams };
     }
-    if (DIRECTIONS_LINE && MAP.hasLayer(DIRECTIONS_LINE) ) {
+
+    // Directions line
+    if (MAP.getLayer('directionsLine') && MAP.getSource('directionsLine')) {
         // Construct a list-of-lists multilinestring. Remember that OpenLayers and MFP do lng,lat instead of lat,lng
             // use non-API methods to iterate over the line components, collecting them into "vertices" to form a list of lists
         var vertices = [];
+        // var line = MAP.getSource('directionsLine')._data.coordinates;
         for (var li in DIRECTIONS_LINE._layers) {
             var subline = DIRECTIONS_LINE._layers[li];
             var subverts = [];
             for (var i=0, l=subline._latlngs.length; i<l; i++) {
-                subverts[subverts.length] = wgsToLocalSRS([ subline._latlngs[i].lng, subline._latlngs[i].lat ]);
+                subverts[subverts.length] = wgsToLocalSRS([subline._latlngs[i].lng, subline._latlngs[i].lat]);
             }
             vertices[vertices.length] = subverts;
         }
@@ -201,6 +221,8 @@ function printMap() {
         page2text1 = page2text1.join("\n");
         page2text2 = page2text2.join("\n");
     }
+
+    // Highlight line
     if (HIGHLIGHT_LINE && MAP.hasLayer(HIGHLIGHT_LINE) ) {
         // the highlighting line, which we know to be a multilinestring
         // Remember that OpenLayers and MFP do lng,lat instead of lat,lng
@@ -273,6 +295,8 @@ function printMap() {
             page2text2 = page2text2.join("\n");
         }
     }
+
+    // Marker
     if (MARKER_TARGET && MAP.hasLayer(MARKER_TARGET) ) {
         var iconurl  = ICON_TARGET.options.iconUrl;
         var projdot  = wgsToLocalSRS(MARKER_TARGET.getLatLng());
@@ -330,14 +354,24 @@ function printMap() {
     });
 }
 
-
-// reproject from WGS84 (Leaflet coordinates) to Web Mercator (primarily for printing)
-// accepts a L.LatLng or a two-item array [lng,lat]    (note that array is X,Y)
-// returns a two-item list:  [ x,y ]  in Web mercator coordinates
+/**
+ * Reproject from WGS84 to Web Mercator, for printing.
+ *
+ * Specifically, reproject to EPSG:3734 -- NAD83 / Ohio North (ftUS)
+ *
+ * @param (LngLatLike) dot
+ *
+ * @return: a two-item list: [x,y] in Web Mercator coordinates
+ */
 function wgsToLocalSRS(dot) {
-    var srsin    = new Proj4js.Proj('EPSG:4326');
-    var srsout   = new Proj4js.Proj('EPSG:3734');
-    var newdot   = dot.lat ? new Proj4js.Point(dot.lng,dot.lat) : new Proj4js.Point(dot[0],dot[1]);
-    Proj4js.transform(srsin,srsout,newdot);
-    return  [ newdot.x, newdot.y ];
+    var srsIn = new Proj4js.Proj('EPSG:4326');
+    var srsOut = new Proj4js.Proj('EPSG:3734');
+    var newDot;
+    if (dot.lat && dot.lng) {
+        newDot = new Proj4js.Point(dot.lng, dot.lat);
+    } else {
+        newDot = new Proj4js.Point(dot[0], dot[1]);
+    }
+    Proj4js.transform(srsIn, srsOut, newDot);
+    return [newDot.x, newDot.y];
 }

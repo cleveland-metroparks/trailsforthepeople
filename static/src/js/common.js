@@ -1,4 +1,4 @@
- /**
+/**
  * common.js
  *
  * JS for common app functionality.
@@ -15,7 +15,7 @@ var MARKER_END = new mapboxgl.Marker({ color: '#FF7866' }); // Directions end
 
 var ELEVATION_PROFILE = null;
 
-var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
+var SKIP_TO_DIRECTIONS = false;
 
 var ctrlGeolocate;
 
@@ -55,7 +55,8 @@ function initMap(mapOptions) {
          container: 'map_canvas',
          style: basemap_style,
          center: START_CENTER,
-         zoom: START_ZOOM
+         zoom: START_ZOOM,
+         preserveDrawingBuffer: true
      });
 
     // Nav (zoom/tilt) Control
