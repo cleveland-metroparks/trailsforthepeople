@@ -56,7 +56,7 @@ function initMap(mapOptions) {
          style: basemap_style,
          center: START_CENTER,
          zoom: START_ZOOM,
-         preserveDrawingBuffer: true
+         preserveDrawingBuffer: true // for printing in certain browsers
      });
 
     // Nav (zoom/tilt) Control
