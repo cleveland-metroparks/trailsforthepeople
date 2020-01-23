@@ -7,5 +7,8 @@
     "grunt-contrib-uglify": "^4.0.1",
     "grunt-contrib-watch": "^1.1.0",
     "lodash": "^4.17.14"
+  },
+  "dependencies": {
+    "npm": "^6.13.6"
   }
 }
