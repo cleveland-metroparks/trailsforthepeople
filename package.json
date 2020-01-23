@@ -9,6 +9,7 @@
     "lodash": "^4.17.14"
   },
   "dependencies": {
+    "jquery": "^1.12.4",
     "npm": "^6.13.6"
   }
 }
