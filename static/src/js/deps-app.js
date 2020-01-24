@@ -1,0 +1,9 @@
+require('fastclick');
+require('jquery');
+require('jquery-mobile');
+require('mapbox-gl');
+require('sidebar-v2/js/jquery-sidebar');
+require('wicket');
+require('@turf/turf');
+require('@popperjs/core');
+require('tooltip.js');
