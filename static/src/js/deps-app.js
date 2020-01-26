@@ -1,9 +1,9 @@
-require('fastclick');
-require('jquery');
+var jquery = window.$ = window.jQuery = require('jquery');
+window.FastClick = require('fastclick');
 require('jquery-mobile');
-require('mapbox-gl');
-require('sidebar-v2/js/jquery-sidebar');
+window.mapboxgl = require('mapbox-gl');
+// require('sidebar-v2/js/jquery-sidebar');
 require('wicket');
-require('@turf/turf');
+window.turf = require('@turf/turf');
 require('@popperjs/core');
-require('tooltip.js');
+window.Tooltip = require('tooltip.js');

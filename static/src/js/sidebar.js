@@ -276,7 +276,7 @@ $(document).bind('pagechange', function(e,data) {
  */
 $(document).ready(function(){
     $(function() {
-        FastClick.attach(
+        FastClick.FastClick.attach(
             // Only attach it to the sidebar so we don't mess with the map.
             document.getElementById('sidebar')
         );
