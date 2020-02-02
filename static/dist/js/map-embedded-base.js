@@ -97,9 +97,9 @@ var PRINT_PICKUP_BASEURL = "/pdf/";
 // our Bing Maps API key, used for the basemap, geocoding, and directions
 var BING_API_KEY = "AjBuYw8goYn_CWiqk65Rbf_Cm-j1QFPH-gGfOxjBipxuEB2N3n9yACKu5s8Dl18N";
 
-// for printing, the size of the map in each layout;
-// used to calculate a bounding box for printing the map so it looks the same as on a monitor.
-// These must match (or at least be very close) to the sizes given in MapFish Print's config.yaml
+// For printing, the map size of each layout.
+// Used to calculate a bounding box for printing the map, so it looks the same as on a monitor.
+// These must match (or at least be very close) to the sizes given in MapFish Print's config.yaml.
 var PRINT_SIZES = {
     'Letter portrait' : [ 580, 714 ],
     'Letter landscape' : [ 762, 526 ],
@@ -145,7 +145,7 @@ API_BASEPATH = 'https://maps.clevelandmetroparks.com/';
 var CM_SITE_BASEURL = 'https://www.clevelandmetroparks.com/';
 
 ;
- /**
+/**
  * common.js
  *
  * JS for common app functionality.
@@ -162,7 +162,7 @@ var MARKER_END = new mapboxgl.Marker({ color: '#FF7866' }); // Directions end
 
 var ELEVATION_PROFILE = null;
 
-var SKIP_TO_DIRECTIONS = false; // should More Info skip straight to directions? usually not, but there is one button to make it so
+var SKIP_TO_DIRECTIONS = false;
 
 var ctrlGeolocate;
 
@@ -202,7 +202,8 @@ function initMap(mapOptions) {
          container: 'map_canvas',
          style: basemap_style,
          center: START_CENTER,
-         zoom: START_ZOOM
+         zoom: START_ZOOM,
+         preserveDrawingBuffer: true // for printing in certain browsers
      });
 
     // Nav (zoom/tilt) Control
@@ -389,16 +390,45 @@ function latlng_as_dd(latlng, precision) {
  * Shorten a string to a maximum character length, on a word/whitespace boundary.
  *
  * @param: {string} str
- * @param: {integer} max_len
- * @param: {boolean} add_ellipsis
+ * @param: {integer} maxLen
+ * @param: {boolean} addEllipsis
  */
-function shorten_str(str, max_len, add_ellipsis) {
-    if (str.length <= max_len) {
+function shortenStr(str, maxLen, addEllipsis) {
+    if (str.length <= maxLen) {
       return str;
     }
-    var shortened_str = str.substr(0, str.lastIndexOf(' ', max_len));
-    if (add_ellipsis) {
-        shortened_str += '...';
+    var shortenedStr = str.substr(0, str.lastIndexOf(' ', maxLen));
+    if (addEllipsis) {
+        shortenedStr += '...';
     }
-    return shortened_str;
+    return shortenedStr;
+}
+
+/**
+ * Set query string parameters in window location.
+ *
+ * @param {strong} name
+ * @param {string} value
+ */
+function setWindowURLQueryStringParameter(name, value) {
+    var params = new URLSearchParams(location.search);
+    params.set(name, value);
+
+    // Remove deprecated x,y,z params
+    if (params.has('y') && name == 'lat') params.delete('y');
+    if (params.has('x') && name == 'lng') params.delete('x');
+    if (params.has('z') && name == 'zoom') params.delete('z');
+
+    WINDOW_URL = decodeURIComponent(location.pathname + '?' + params);
+    window.history.replaceState(null, null, WINDOW_URL);
+}
+
+
+/**
+ * Clear query string parameters in window location.
+ */
+function clearWindowURLQueryStringParameters() {
+    var params = new URLSearchParams();
+    WINDOW_URL = decodeURIComponent(location.pathname + '?' + params);
+    window.history.replaceState(null, null, WINDOW_URL);
 }
