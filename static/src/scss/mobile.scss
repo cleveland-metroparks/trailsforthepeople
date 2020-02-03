@@ -382,6 +382,15 @@ div.lng_driving {
 }
 
 //
+// Autocomplete Listviews
+//
+.ui-input-search.ui-input-has-clear .ui-btn.ui-input-clear,
+.ui-input-text.ui-input-has-clear .ui-btn.ui-input-clear {
+    // Fix clear button positioning
+    margin-top: -21px;
+}
+
+//
 // Sidebar Pane: Browse POIS Activity
 //
 #pane-activities {
