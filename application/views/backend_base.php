@@ -21,9 +21,7 @@
     <script type="text/javascript" src="<?= ssl_url('static/lib/jquery-1.12.4.min.js'); ?>"></script>
 
     <!-- jQuery UI -->
-    <!-- <script type="text/javascript" src="<?= ssl_url('static/lib/jquery-ui-1.8.21.custom.min.js'); ?>"></script> -->
     <script type="text/javascript" src="<?= ssl_url('static/lib/jquery-ui-1.11.4/jquery-ui.min.js'); ?>"></script>
-    <!-- <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/lib/jquery-ui-lightness/jquery-ui-1.8.20.custom.css'); ?>" /> -->
     <link type="text/css" rel="stylesheet" href="<?= ssl_url('static/lib/jquery-ui-1.11.4/jquery-ui.min.css'); ?>" />
     <link type="text/css" rel="stylesheet" href="<?= site_url('static/lib/mapbox-gl-js-1.6.0/mapbox-gl.css'); ?>" />
 
