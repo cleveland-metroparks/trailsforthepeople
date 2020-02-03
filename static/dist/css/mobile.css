@@ -138,6 +138,8 @@ div.lng_driving { display: none; }
 
 .ui-input-search.ui-input-has-clear .ui-btn.ui-input-clear, .ui-input-text.ui-input-has-clear .ui-btn.ui-input-clear { margin-top: -21px; }
 
+form.ui-filterable.autocomplete .ui-input-btn { border-radius: .2em; }
+
 #pane-activities ul li a { min-height: 22px; padding-left: 3em; }
 #pane-activities ul li a img.ui-li-icon { top: 7px !important; left: 6px !important; height: 30px !important; width: 30px !important; }
 
