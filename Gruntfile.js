@@ -76,6 +76,18 @@ module.exports = function(grunt) {
 
     /**
      *
+     * Browserify
+     *
+     */
+    browserify: {
+      deps: {
+        src: 'static/src/js/deps-app.js',
+        dest: 'static/dist/js/deps-app.js'
+      }
+    },
+
+    /**
+     *
      * Minify
      *
      */
@@ -86,8 +98,12 @@ module.exports = function(grunt) {
           'static/dist/js/mobile.min.js':    ['static/src/js/mobile.js'],
           'static/dist/js/constants.min.js': ['static/src/js/constants.js'],
           'static/dist/js/common.min.js':    ['static/src/js/common.js'],
-          'static/dist/js/deps-app.min.js':  ['static/dist/js/deps-app.js'],
           'static/dist/js/app.min.js':       ['static/dist/js/app.js']
+        }
+      },
+      deps: {
+        files: {
+          'static/dist/js/deps-app.min.js':  ['static/dist/js/deps-app.js']
         }
       },
       native: {
@@ -185,6 +201,12 @@ module.exports = function(grunt) {
         ],
         tasks: ['concat:dist']
       },
+      browserify_deps: {
+        files: [
+          'static/src/js/deps-app.js'
+        ],
+        tasks: ['browserify:deps']
+      },
       uglify_dist: {
         files: [
           'static/src/js/constants.js',
@@ -276,6 +298,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-sass');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-browserify');
 
   // All tasks
   grunt.registerTask('all', ['concat', 'uglify', 'sass']);
@@ -285,7 +308,7 @@ module.exports = function(grunt) {
   grunt.registerTask('native', ['concat:native', 'uglify:native', 'sass:dist']);
   // Default: dist and native (non-embedded)
   grunt.registerTask('default', [
-    'concat:dist', 'uglify:dist', 'sass:dist',
+    'concat:dist', 'browserify:deps', 'uglify:dist', 'uglify:deps', 'sass:dist',
     'concat:native', 'uglify:native', 'sass:dist'
     ]
   );
