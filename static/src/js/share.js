@@ -99,17 +99,18 @@ function makeAndShowShortURL() {
             return alert("Unable to fetch a short URL.\nPlease try again.");
         }
 
-        // In native mobile our URL_PARAMS are not what we expect
-        var protocol = (URL_PARAMS.attr('protocol') != 'file')
-            ? URL_PARAMS.attr('protocol')
+        // In native mobile, our URL structure is not as in web
+        var url = new URL(location.href);
+        var protocol = (url.protocol != 'file')
+            ? url.protocol
             : WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL;
-        var host = (URL_PARAMS.attr('host'))
-            ? URL_PARAMS.attr('host')
+        var host = (url.host)
+            ? url.host
             : WEBAPP_BASE_URL_ABSOLUTE_HOST;
 
-        var url = protocol + '://' + host + '/url/' + shortURLString;
+        var shareUrl = protocol + '://' + host + '/url/' + shortURLString;
 
-        $('#share_url').val(url);
+        $('#share_url').val(shareUrl);
         showShareURL();
     });
 }

@@ -355,15 +355,15 @@ function shortenStr(str, maxLen, addEllipsis) {
  * @param {string} value
  */
 function setWindowURLQueryStringParameter(name, value) {
-    var params = new URLSearchParams(location.search);
-    params.set(name, value);
+    var urlParams = new URLSearchParams(location.search);
+    urlParams.set(name, value);
 
     // Remove deprecated x,y,z params
-    if (params.has('y') && name == 'lat') params.delete('y');
-    if (params.has('x') && name == 'lng') params.delete('x');
-    if (params.has('z') && name == 'zoom') params.delete('z');
+    if (urlParams.has('y') && name == 'lat') urlParams.delete('y');
+    if (urlParams.has('x') && name == 'lng') urlParams.delete('x');
+    if (urlParams.has('z') && name == 'zoom') urlParams.delete('z');
 
-    WINDOW_URL = decodeURIComponent(location.pathname + '?' + params);
+    WINDOW_URL = decodeURIComponent(location.pathname + '?' + urlParams);
     window.history.replaceState(null, null, WINDOW_URL);
 }
 
@@ -372,8 +372,8 @@ function setWindowURLQueryStringParameter(name, value) {
  * Clear query string parameters in window location.
  */
 function clearWindowURLQueryStringParameters() {
-    var params = new URLSearchParams();
-    WINDOW_URL = decodeURIComponent(location.pathname + '?' + params);
+    var urlParams = new URLSearchParams();
+    WINDOW_URL = decodeURIComponent(location.pathname + '?' + urlParams);
     window.history.replaceState(null, null, WINDOW_URL);
 }
 
@@ -403,9 +403,6 @@ var AUTO_CENTER_ON_LOCATION = false;
 // sorting by distance, isn't always by distance
 // what type of sorting do they prefer?
 var DEFAULT_SORT = 'distance';
-
-// this becomes a pURL object for fetching URL params:
-var URL_PARAMS = null;
 
 // Load sidebar when map has been initialized
 $(document).on("mapInitialized", function () {
@@ -472,19 +469,18 @@ function switchToMap() {
  * Load the map, handling query strings
  */
 $(document).ready(function () {
-    // load up the URL params before the map, as we may need them to configure the map
-    URL_PARAMS = $.url();
+    var urlParams = new URLSearchParams(location.search);
 
     // lat,lng,zoom params are appended to the user's URL from normal map movement
     // x,y,z are older/legacy forms of same
-    var lat = URL_PARAMS.param('lat') || URL_PARAMS.param('y');
-    var lng = URL_PARAMS.param('lng') || URL_PARAMS.param('x');
-    var zoom = URL_PARAMS.param('zoom') || URL_PARAMS.param('z');
+    var lat = urlParams.get('lat') || urlParams.get('y');
+    var lng = urlParams.get('lng') || urlParams.get('x');
+    var zoom = urlParams.get('zoom') || urlParams.get('z');
 
     var drop_marker = false;
 
     mapOptions = {
-        base: URL_PARAMS.param('base'),
+        base: urlParams.get('base'),
         lat: lat,
         lng: lng,
         zoom: zoom,
@@ -496,10 +492,10 @@ $(document).ready(function () {
 
     // URL params query string: "type" and "name"
     // @TODO: Do we still have a way to get here?
-    if (URL_PARAMS.param('type') && URL_PARAMS.param('name') ) {
+    if (urlParams.get('type') && urlParams.get('name') ) {
         var params = {
-            type: URL_PARAMS.param('type'),
-            name: URL_PARAMS.param('name')
+            type: urlParams.get('type'),
+            name: urlParams.get('name')
         };
         $.get(API_BASEPATH + 'ajax/exactnamesearch', params, function (reply) {
             if (!(reply && reply.s && reply.w && reply.n && reply.e)) {
@@ -520,11 +516,11 @@ $(document).ready(function () {
     }
 
     // URL params query string: "type" and "gid"
-    if (URL_PARAMS.param('type') && URL_PARAMS.param('gid') ) {
+    if (urlParams.get('type') && urlParams.get('gid') ) {
 
-        if (URL_PARAMS.param('type') == 'attraction') {
+        if (urlParams.get('type') == 'attraction') {
             var params = {
-                gid: URL_PARAMS.param('gid')
+                gid: urlParams.get('gid')
             };
             $.get(API_BASEPATH + 'ajax/get_attraction', params, function (reply) {
                 if (!reply || ! reply.lat || ! reply.lng) {
@@ -535,12 +531,12 @@ $(document).ready(function () {
 
                 // Show info in sidebar
                 // @TODO: This is app-specific. Re-work.
-                showAttractionInfo(URL_PARAMS.param('type'), reply);
+                showAttractionInfo(urlParams.get('type'), reply);
 
             }, 'json');
-        } else if (URL_PARAMS.param('type') == 'reservation_new') {
+        } else if (urlParams.get('type') == 'reservation_new') {
             var params = {
-                gid: URL_PARAMS.param('gid')
+                gid: urlParams.get('gid')
             };
             $.get(API_BASEPATH + 'ajax/get_reservation', params, function (reply) {
                 if (!reply || !reply.lat || !reply.lng) {
@@ -559,7 +555,7 @@ $(document).ready(function () {
 
                 // Show info in sidebar
                 // @TODO: This is app-specific. Re-work.
-                showAttractionInfo(URL_PARAMS.param('type'), reply);
+                showAttractionInfo(urlParams.get('type'), reply);
 
             }, 'json');
         }
@@ -568,13 +564,13 @@ $(document).ready(function () {
 
     // URL params query string: "route"
     // Fill in the boxes and run it now
-    if (URL_PARAMS.param('routefrom') && URL_PARAMS.param('routeto') && URL_PARAMS.param('routevia') ) {
+    if (urlParams.get('routefrom') && urlParams.get('routeto') && urlParams.get('routevia') ) {
         // split out the params
-        var sourcelat = URL_PARAMS.param('routefrom').split(",")[0];
-        var sourcelng = URL_PARAMS.param('routefrom').split(",")[1];
-        var targetlat = URL_PARAMS.param('routeto').split(",")[0];
-        var targetlng = URL_PARAMS.param('routeto').split(",")[1];
-        var via       = URL_PARAMS.param('routevia');
+        var sourcelat = urlParams.get('routefrom').split(",")[0];
+        var sourcelng = urlParams.get('routefrom').split(",")[1];
+        var targetlat = urlParams.get('routeto').split(",")[0];
+        var targetlng = urlParams.get('routeto').split(",")[1];
+        var via       = urlParams.get('routevia');
         var tofrom    = 'to';
 
         // toggle the directions panel so it shows directions instead of Select A Destination
@@ -583,31 +579,31 @@ $(document).ready(function () {
         $('#getdirections_enabled').show();
 
         // fill in the directions field: the title, route via, the target type and coordinate, the starting coordinates
-        $('#directions_target_title').text(URL_PARAMS.param('routetitle'));
-        $('#directions_via').val(URL_PARAMS.param('routevia'));
+        $('#directions_target_title').text(urlParams.get('routetitle'));
+        $('#directions_via').val(urlParams.get('routevia'));
         $("#directions_via").selectmenu('refresh');
         $('#directions_type').val('geocode');
         $("#directions_type").selectmenu('refresh');
         $('#directions_type_geocode_wrap').show();
-        $('#directions_address').val(URL_PARAMS.param('routefrom'));
+        $('#directions_address').val(urlParams.get('routefrom'));
         $('#directions_target_lat').val(targetlat);
         $('#directions_target_lng').val(targetlng);
         $('#directions_via').trigger('change');
-        $('#directions_address').val( URL_PARAMS.param('fromaddr') );
-        $('#directions_reverse').val( URL_PARAMS.param('whichway') );
-        $('#directions_via_bike').val( URL_PARAMS.param('routevia_bike') );
+        $('#directions_address').val( urlParams.get('fromaddr') );
+        $('#directions_reverse').val( urlParams.get('whichway') );
+        $('#directions_via_bike').val( urlParams.get('routevia_bike') );
 
         setTimeout(function () {
             $('#directions_reverse').trigger('change');
         },1000);
-        $('#directions_type').val( URL_PARAMS.param('loctype') );
+        $('#directions_type').val( urlParams.get('loctype') );
 
         // make the Directions request
         getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via);
     }
 
     // Set the appropriate basemap radio button in Settings
-    var base = URL_PARAMS.param('base') || 'map';
+    var base = urlParams.get('base') || 'map';
     var satelliteButton = $('input[name="basemap"][value="photo"]');
     var defaultMapButton = $('input[name="basemap"][value="map"]');
     switch (base) {
@@ -2418,17 +2414,18 @@ function makeAndShowShortURL() {
             return alert("Unable to fetch a short URL.\nPlease try again.");
         }
 
-        // In native mobile our URL_PARAMS are not what we expect
-        var protocol = (URL_PARAMS.attr('protocol') != 'file')
-            ? URL_PARAMS.attr('protocol')
+        // In native mobile, our URL structure is not as in web
+        var url = new URL(location.href);
+        var protocol = (url.protocol != 'file')
+            ? url.protocol
             : WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL;
-        var host = (URL_PARAMS.attr('host'))
-            ? URL_PARAMS.attr('host')
+        var host = (url.host)
+            ? url.host
             : WEBAPP_BASE_URL_ABSOLUTE_HOST;
 
-        var url = protocol + '://' + host + '/url/' + shortURLString;
+        var shareUrl = protocol + '://' + host + '/url/' + shortURLString;
 
-        $('#share_url').val(url);
+        $('#share_url').val(shareUrl);
         showShareURL();
     });
 }
