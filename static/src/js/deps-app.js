@@ -1,6 +1,6 @@
 var jquery = window.$ = window.jQuery = require('jquery');
 window.FastClick = require('fastclick');
-require('jquery-mobile');
+// require('jquery-mobile');
 window.mapboxgl = require('mapbox-gl');
 // require('sidebar-v2/js/jquery-sidebar');
 require('wicket');

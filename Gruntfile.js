@@ -86,6 +86,7 @@ module.exports = function(grunt) {
           'static/dist/js/mobile.min.js':    ['static/src/js/mobile.js'],
           'static/dist/js/constants.min.js': ['static/src/js/constants.js'],
           'static/dist/js/common.min.js':    ['static/src/js/common.js'],
+          'static/dist/js/deps-app.min.js':  ['static/dist/js/deps-app.js'],
           'static/dist/js/app.min.js':       ['static/dist/js/app.js']
         }
       },
