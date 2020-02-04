@@ -1,3 +1,6 @@
+@use "sass:color";
+@use "variables";
+
 /**
  * Sass CSS for the map.
  *
@@ -24,21 +27,21 @@
     }
     &.warning {
         .mapboxgl-popup-content {
-            border: 1px solid $orange_light;
-            background-color: lighten($orange_light, 35%);
+            border: 1px solid variables.$orange_light;
+            background-color: color.adjust(variables.$orange_light, $lightness: 35%);
         }
     }
     &.error {
         .mapboxgl-popup-content {
-            border: 1px solid $red_light;
-            background-color: lighten($red_light, 40%);
+            border: 1px solid variables.$red_light;
+            background-color: color.adjust(variables.$red_light, $lightness: 40%);
         }
     }
     .mapboxgl-popup-tip {
         display: none;
     }
     a.mapboxgl-popup-close-button {
-        color: lighten(#000, 20%);
+        color: color.adjust(#000, $lightness: 20%);
         &:hover {
             color: black;
         }

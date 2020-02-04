@@ -12,7 +12,8 @@
 /* Font
 -----------------------------------------------------------------------------------------------------------*/
 html {
-  font-size: 100%; }
+  font-size: 100%;
+}
 
 body,
 input,
@@ -22,19 +23,22 @@ button,
 .ui-btn {
   font-size: 1em;
   line-height: 1.3;
-  font-family: "myriad-pro", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  font-family: "myriad-pro", "Myriad Pro", Myriad, "Liberation Sans", "Nimbus Sans L", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
 
 legend,
 .ui-input-text input,
 .ui-input-search input {
   color: inherit;
-  text-shadow: none; }
+  text-shadow: none;
+}
 
 /* Form labels (overrides font-weight bold in bars, and mini font-size) */
 .ui-mobile label,
 div.ui-controlgroup-label {
   font-weight: normal;
-  font-size: 16px; }
+  font-size: 16px;
+}
 
 /* Separators
 -----------------------------------------------------------------------------------------------------------*/
@@ -43,7 +47,8 @@ div.ui-controlgroup-label {
   border-bottom-color: #828282;
   border-bottom-color: rgba(0, 0, 0, 0.15);
   border-bottom-width: 1px;
-  border-bottom-style: solid; }
+  border-bottom-style: solid;
+}
 
 /* Table opt-in classes: strokes between each row, and alternating row stripes */
 /* Classes table-stroke and table-stripe are deprecated in 1.4. */
@@ -52,23 +57,27 @@ div.ui-controlgroup-label {
 .table-stripe tbody tr:last-child {
   border-bottom: 1px solid #d6d6d6;
   /* non-RGBA fallback */
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
 
 .table-stroke tbody th,
 .table-stroke tbody td {
   border-bottom: 1px solid #e6e6e6;
   /* non-RGBA fallback  */
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
 
 .table-stripe.table-stroke tbody tr:last-child th,
 .table-stripe.table-stroke tbody tr:last-child td {
-  border-bottom: 0; }
+  border-bottom: 0;
+}
 
 .table-stripe tbody tr:nth-child(odd) td,
 .table-stripe tbody tr:nth-child(odd) th {
   background-color: #eeeeee;
   /* non-RGBA fallback  */
-  background-color: rgba(0, 0, 0, 0.04); }
+  background-color: rgba(0, 0, 0, 0.04);
+}
 
 /* Buttons
 -----------------------------------------------------------------------------------------------------------*/
@@ -76,20 +85,24 @@ div.ui-controlgroup-label {
 label.ui-btn {
   font-weight: bold;
   border-width: 1px;
-  border-style: solid; }
+  border-style: solid;
+}
 
 .ui-btn {
-  text-decoration: none !important; }
+  text-decoration: none !important;
+}
 
 .ui-btn-active {
-  cursor: pointer; }
+  cursor: pointer;
+}
 
 /* Corner rounding
 -----------------------------------------------------------------------------------------------------------*/
 /* Class ui-btn-corner-all deprecated in 1.4 */
 .ui-corner-all {
   -webkit-border-radius: 0.2em;
-  border-radius: 0.2em; }
+  border-radius: 0.2em;
+}
 
 /* Buttons */
 .ui-btn-corner-all,
@@ -98,43 +111,50 @@ label.ui-btn {
 .ui-flipswitch.ui-corner-all,
 .ui-li-count {
   -webkit-border-radius: 0.2em;
-  border-radius: 0.2em; }
+  border-radius: 0.2em;
+}
 
 /* Icon-only buttons */
 .ui-btn-icon-notext.ui-btn-corner-all,
 .ui-btn-icon-notext.ui-corner-all {
   -webkit-border-radius: 1em;
-  border-radius: 1em; }
+  border-radius: 1em;
+}
 
 /* Radius clip workaround for cleaning up corner trapping */
 .ui-btn-corner-all,
 .ui-corner-all {
   -webkit-background-clip: padding;
-  background-clip: padding-box; }
+  background-clip: padding-box;
+}
 
 /* Popup arrow */
 .ui-popup.ui-corner-all > .ui-popup-arrow-guide {
   left: 0.2em;
   right: 0.2em;
   top: 0.2em;
-  bottom: 0.2em; }
+  bottom: 0.2em;
+}
 
 /* Shadow
 -----------------------------------------------------------------------------------------------------------*/
 .ui-shadow {
   -webkit-box-shadow: 0 1px 0px rgba(0, 0, 0, 0.3);
   -moz-box-shadow: 0 1px 0px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 1px 0px rgba(0, 0, 0, 0.3); }
+  box-shadow: 0 1px 0px rgba(0, 0, 0, 0.3);
+}
 
 .ui-shadow-inset {
   -webkit-box-shadow: inset 0 1px 0px rgba(0, 0, 0, 0.3);
   -moz-box-shadow: inset 0 1px 0px rgba(0, 0, 0, 0.3);
-  box-shadow: inset 0 1px 0px rgba(0, 0, 0, 0.3); }
+  box-shadow: inset 0 1px 0px rgba(0, 0, 0, 0.3);
+}
 
 .ui-overlay-shadow {
   -webkit-box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
   -moz-box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.6); }
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+}
 
 /* Icons
 -----------------------------------------------------------------------------------------------------------*/
@@ -144,11 +164,12 @@ label.ui-btn {
 .ui-btn-icon-bottom:after,
 .ui-btn-icon-notext:after {
   background-color: #1D5C1F;
-  background-color: #1d5c1f;
+  background-color: rgba(29, 92, 31, 1);
   background-position: center center;
   background-repeat: no-repeat;
   -webkit-border-radius: 1em;
-  border-radius: 1em; }
+  border-radius: 1em;
+}
 
 /* Alt icons */
 .ui-alt-icon.ui-btn:after,
@@ -158,19 +179,22 @@ html .ui-alt-icon.ui-radio-off:after,
 html .ui-alt-icon .ui-checkbox-off:after,
 html .ui-alt-icon .ui-radio-off:after {
   background-color: #1D5C1F;
-  background-color: #1d5c1f; }
+  background-color: rgba(29, 92, 31, 1);
+}
 
 /* No disc */
 .ui-nodisc-icon.ui-btn:after,
 .ui-nodisc-icon .ui-btn:after {
-  background-color: transparent; }
+  background-color: transparent;
+}
 
 /* Icon shadow */
 .ui-shadow-icon.ui-btn:after,
 .ui-shadow-icon .ui-btn:after {
   -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
   -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4); }
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
 
 /* Checkbox and radio */
 .ui-btn.ui-checkbox-off:after,
@@ -180,21 +204,25 @@ html .ui-alt-icon .ui-radio-off:after {
   display: block;
   width: 18px;
   height: 18px;
-  margin: -9px 2px 0 2px; }
+  margin: -9px 2px 0 2px;
+}
 
 .ui-checkbox-off:after,
 .ui-btn.ui-radio-off:after {
   filter: Alpha(Opacity=30);
-  opacity: .3; }
+  opacity: 0.3;
+}
 
 .ui-btn.ui-checkbox-off:after,
 .ui-btn.ui-checkbox-on:after {
-  -webkit-border-radius: .1875em;
-  border-radius: .1875em; }
+  -webkit-border-radius: 0.1875em;
+  border-radius: 0.1875em;
+}
 
 .ui-btn.ui-checkbox-off:after {
   background-color: #666;
-  background-color: rgba(0, 0, 0, 0.3); }
+  background-color: rgba(0, 0, 0, 0.3);
+}
 
 .ui-radio .ui-btn.ui-radio-on:after {
   background-image: none;
@@ -202,16 +230,19 @@ html .ui-alt-icon .ui-radio-off:after {
   width: 8px;
   height: 8px;
   border-width: 5px;
-  border-style: solid; }
+  border-style: solid;
+}
 
 .ui-alt-icon.ui-btn.ui-radio-on:after,
 .ui-alt-icon .ui-btn.ui-radio-on:after {
-  background-color: #000; }
+  background-color: #000;
+}
 
 /* Loader */
 .ui-icon-loading {
   background: url("images/ajax-loader.gif");
-  background-size: 2.875em 2.875em; }
+  background-size: 2.875em 2.875em;
+}
 
 /* Swatches */
 /* A
@@ -226,11 +257,13 @@ html body .ui-group-theme-a .ui-bar-inherit {
   border-color: #28802b;
   color: #FFF;
   text-shadow: none;
-  font-weight: bold; }
+  font-weight: bold;
+}
 
 .ui-bar-a {
   border-width: 1px;
-  border-style: solid; }
+  border-style: solid;
+}
 
 /* Page and overlay */
 .ui-overlay-a,
@@ -239,7 +272,8 @@ html body .ui-group-theme-a .ui-bar-inherit {
   background-color: #fff;
   border-color: #000;
   color: #000;
-  text-shadow: none; }
+  text-shadow: none;
+}
 
 /* Body: Read-only lists, text inputs, collapsible content */
 .ui-body-a,
@@ -251,11 +285,13 @@ html .ui-panel-page-container-a {
   background-color: #FFFFFF;
   border-color: #000000;
   color: #000000;
-  text-shadow: none; }
+  text-shadow: none;
+}
 
 .ui-body-a {
   border-width: 1px;
-  border-style: solid; }
+  border-style: solid;
+}
 
 /* Links */
 .ui-page-theme-a a,
@@ -263,25 +299,29 @@ html .ui-bar-a a,
 html .ui-body-a a,
 html body .ui-group-theme-a a {
   color: #6AB03E;
-  font-weight: bold; }
+  font-weight: bold;
+}
 
 .ui-page-theme-a a:visited,
 html .ui-bar-a a:visited,
 html .ui-body-a a:visited,
 html body .ui-group-theme-a a:visited {
-  color: #6AB03E; }
+  color: #6AB03E;
+}
 
 .ui-page-theme-a a:hover,
 html .ui-bar-a a:hover,
 html .ui-body-a a:hover,
 html body .ui-group-theme-a a:hover {
-  color: #005599; }
+  color: #005599;
+}
 
 .ui-page-theme-a a:active,
 html .ui-bar-a a:active,
 html .ui-body-a a:active,
 html body .ui-group-theme-a a:active {
-  color: #005599; }
+  color: #005599;
+}
 
 /* Button up */
 .ui-page-theme-a .ui-btn,
@@ -297,7 +337,8 @@ html head + body .ui-btn.ui-btn-a:visited {
   background-color: #fff;
   border-color: #000000;
   color: #000000;
-  text-shadow: none; }
+  text-shadow: none;
+}
 
 /* Button hover */
 .ui-page-theme-a .ui-btn:hover,
@@ -308,7 +349,8 @@ html head + body .ui-btn.ui-btn-a:hover {
   background-color: #6AB03E;
   border-color: #3a6022;
   color: #FFFFFF;
-  text-shadow: none; }
+  text-shadow: none;
+}
 
 /* Button down */
 .ui-page-theme-a .ui-btn:active,
@@ -319,7 +361,8 @@ html head + body .ui-btn.ui-btn-a:active {
   background-color: #FFFFFF;
   border-color: #000000;
   color: #6AB03E;
-  text-shadow: none; }
+  text-shadow: none;
+}
 
 /* Active button */
 .ui-page-theme-a .ui-btn.ui-btn-active,
@@ -345,7 +388,8 @@ html body div.ui-slider-track.ui-body-a .ui-btn-active {
   background-color: #1D5C1F;
   border-color: #28802b;
   color: #ffffff;
-  text-shadow: none; }
+  text-shadow: none;
+}
 
 /* Active radio button icon */
 .ui-page-theme-a .ui-radio-on:after,
@@ -353,7 +397,8 @@ html .ui-bar-a .ui-radio-on:after,
 html .ui-body-a .ui-radio-on:after,
 html body .ui-group-theme-a .ui-radio-on:after,
 .ui-btn.ui-radio-on.ui-btn-a:after {
-  border-color: #1D5C1F; }
+  border-color: #1D5C1F;
+}
 
 /* Focus */
 .ui-page-theme-a .ui-btn:focus,
@@ -369,7 +414,8 @@ html head + body .ui-btn-a.ui-focus,
 html head + body .ui-body-a.ui-focus {
   -webkit-box-shadow: 0 0 12px #1D5C1F;
   -moz-box-shadow: 0 0 12px #1D5C1F;
-  box-shadow: 0 0 12px #1D5C1F; }
+  box-shadow: 0 0 12px #1D5C1F;
+}
 
 /* Structure */
 /* Disabled
@@ -380,15 +426,17 @@ html head + body .ui-body-a.ui-focus {
 button[disabled],
 .ui-select .ui-btn.ui-state-disabled {
   filter: Alpha(Opacity=30);
-  opacity: .3;
+  opacity: 0.3;
   cursor: default !important;
-  pointer-events: none; }
+  pointer-events: none;
+}
 
 /* Focus state outline
 -----------------------------------------------------------------------------------------------------------*/
 .ui-btn:focus,
 .ui-btn.ui-focus {
-  outline: 0; }
+  outline: 0;
+}
 
 /* Unset box-shadow in browsers that don't do it right */
 .ui-noboxshadow .ui-shadow,
@@ -402,9 +450,11 @@ button[disabled],
 .ui-noboxshadow .ui-panel {
   -webkit-box-shadow: none !important;
   -moz-box-shadow: none !important;
-  box-shadow: none !important; }
+  box-shadow: none !important;
+}
 
 .ui-noboxshadow .ui-btn:focus,
 .ui-noboxshadow .ui-focus {
   outline-width: 1px;
-  outline-style: auto; }
+  outline-style: auto;
+}

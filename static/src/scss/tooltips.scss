@@ -1,11 +1,11 @@
 // -----------------------------------------------------------------------------------------------------------
 // Tooltips
 // -----------------------------------------------------------------------------------------------------------
-@import "_variables.scss";
+@use "variables";
 
 .tooltip {
-    z-index: $sidebar_zindex + 1;
-    background-color: $tooltip_color;
+    z-index: variables.$sidebar_zindex + 1;
+    background-color: variables.$tooltip_color;
     border-radius: 3px;
     box-shadow: 0 0 2px rgba(0,0,0,0.5);
     padding: 10px;
@@ -16,15 +16,15 @@
         border-style: solid;
         position: absolute;
         margin: 5px;
-        border-color: $tooltip_color;
+        border-color: variables.$tooltip_color;
     }
 }
 
 .popper,
 .tooltip {
     position: absolute;
-    background: $tooltip_color;
-    color: $tooltip_text_color;
+    background: variables.$tooltip_color;
+    color: variables.$tooltip_text_color;
     width: 150px;
     border-radius: 3px;
     box-shadow: 0 0 2px rgba(0,0,0,0.5);
@@ -43,7 +43,7 @@
 
 .tooltip .tooltip-arrow,
 .popper .popper__arrow {
-    border-color: $tooltip_color;
+    border-color: variables.$tooltip_color;
 }
 
 .popper[x-placement^="top"],

@@ -1,6 +1,6 @@
-@import "_variables.scss";
-@import "tooltips.scss";
-@import "map.scss";
+@use "variables";
+@use "tooltips";
+@use "map.scss";
 
 html,
 body {
@@ -11,7 +11,7 @@ body {
 
 // Typography
 .ui-header {
-    font-family: $mainfont;
+    font-family: variables.$mainfont;
 }
 .cm-icon {
     display: inline-block;
@@ -69,7 +69,7 @@ img {
 // -----------------------------------------------------------------------------------------------------------
 
 .fakelink {
-    color: $green_light;
+    color: variables.$green_light;
     text-decoration: underline;
     cursor: pointer;
 }
@@ -134,7 +134,7 @@ ul.nobull {
     padding: 0;
 }
 .small-light {
-    color: $grey_medium;
+    color: variables.$grey_medium;
     font-size: 90%;
 }
 .description {
@@ -211,7 +211,7 @@ div.lng_driving {
     // Sidebar Header
     //
     .sidebar-header {
-        background-color: $green_dark;
+        background-color: variables.$green_dark;
         margin-bottom: 20px;
     }
 
@@ -221,13 +221,13 @@ div.lng_driving {
     .sidebar-tabs {
         .ui-link,
         .ui-link:visited {
-            color: $grey_darkest;
+            color: variables.$grey_darkest;
         }
         > ul > li.active {
-            background-color: $green_dark;
+            background-color: variables.$green_dark;
             a {
                 color: white !important;
-                text-shadow: 0 1px 0 $grey_darkest;
+                text-shadow: 0 1px 0 variables.$grey_darkest;
             }
         }
     }
@@ -258,7 +258,7 @@ div.lng_driving {
             max-width: initial !important;
         }
         .ui-li-count {
-            background-color: $green_dark;
+            background-color: variables.$green_dark;
             border: none;
             color: white;
             font-weight: normal;
@@ -333,22 +333,22 @@ div.lng_driving {
     // using a CSS gradient background overlay/multiply.
     $gradient_screen: center/cover no-repeat, linear-gradient(to bottom, white 70%, gray 90%);
     .welcome-pane-parks .ui-bar {
-        background: url(#{$static_dir}/images/welcome_pane/parks.jpg) $gradient_screen;
+        background: url(#{variables.$static_dir}/images/welcome_pane/parks.jpg) $gradient_screen;
     }
     .welcome-pane-activities .ui-bar {
-        background: url(#{$static_dir}/images/welcome_pane/activities.jpg) $gradient_screen;
+        background: url(#{variables.$static_dir}/images/welcome_pane/activities.jpg) $gradient_screen;
     }
     .welcome-pane-visitorcenters .ui-bar {
-        background: url(#{$static_dir}/images/welcome_pane/visitorcenters.jpg) $gradient_screen;
+        background: url(#{variables.$static_dir}/images/welcome_pane/visitorcenters.jpg) $gradient_screen;
     }
     .welcome-pane-amenities .ui-bar {
-        background: url(#{$static_dir}/images/welcome_pane/amenities.jpg) $gradient_screen;
+        background: url(#{variables.$static_dir}/images/welcome_pane/amenities.jpg) $gradient_screen;
     }
     .welcome-pane-trails .ui-bar {
-        background: url(#{$static_dir}/images/welcome_pane/trails.jpg) $gradient_screen;
+        background: url(#{variables.$static_dir}/images/welcome_pane/trails.jpg) $gradient_screen;
     }
     .welcome-pane-events .ui-bar {
-        background: url(#{$static_dir}/images/welcome_pane/events.jpg) $gradient_screen;
+        background: url(#{variables.$static_dir}/images/welcome_pane/events.jpg) $gradient_screen;
     }
 }
 
@@ -582,7 +582,7 @@ form.ui-filterable.autocomplete .ui-input-btn {
     #directions_steps {
         li.did-you-mean {
             border-top: none;
-            color: $red_light;
+            color: variables.$red_light;
             font-weight: bold;
         }
         li.ui-first-child {
@@ -614,7 +614,7 @@ form.ui-filterable.autocomplete .ui-input-btn {
     }
     #loops_filter_distancepicker {
         a {
-            background-color: $grey_darkest;
+            background-color: variables.$grey_darkest;
             color: white;
             text-decoration: none;
             padding: 5px 0.5em 2px;
@@ -623,7 +623,7 @@ form.ui-filterable.autocomplete .ui-input-btn {
             display: inline-block;
             margin-bottom: 5px;
             &.active {
-                background-color: $green_light;
+                background-color: variables.$green_light;
             }
         }
         margin-bottom: 1em;

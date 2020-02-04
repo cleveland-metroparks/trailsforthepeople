@@ -150,9 +150,6 @@ module.exports = function(grunt) {
       },
       // Web app package:
       dist: {
-        //options: {
-        //  style: 'compact'
-        //},
         files: {
           'static/dist/css/mobile.css': 'static/src/scss/mobile.scss',
           'static/src/scss/jqm-themes/cm-jqm-theme.min.css': 'static/src/scss/jqm-themes/cm-jqm-theme.css'
@@ -160,9 +157,6 @@ module.exports = function(grunt) {
       },
       // For map embeds on external sites:
       embedded: {
-        //options: {
-        //  style: 'compact'
-        //},
         files: {
           'static/dist/css/embedded.css': 'static/src/scss/embedded.scss'
         }
