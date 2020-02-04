@@ -1,5 +1,7 @@
 module.exports = function(grunt) {
 
+  const sass = require('dart-sass');
+
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -143,11 +145,14 @@ module.exports = function(grunt) {
      *
      */
     sass: {
+      options: {
+        implementation: sass
+      },
       // Web app package:
       dist: {
-        options: {
-          style: 'compact'
-        },
+        //options: {
+        //  style: 'compact'
+        //},
         files: {
           'static/dist/css/mobile.css': 'static/src/scss/mobile.scss',
           'static/src/scss/jqm-themes/cm-jqm-theme.min.css': 'static/src/scss/jqm-themes/cm-jqm-theme.css'
@@ -155,9 +160,9 @@ module.exports = function(grunt) {
       },
       // For map embeds on external sites:
       embedded: {
-        options: {
-          style: 'compact'
-        },
+        //options: {
+        //  style: 'compact'
+        //},
         files: {
           'static/dist/css/embedded.css': 'static/src/scss/embedded.scss'
         }
@@ -296,7 +301,7 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-sass');
+  grunt.loadNpmTasks('grunt-sass');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-browserify');
 

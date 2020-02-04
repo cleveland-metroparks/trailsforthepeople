@@ -3,7 +3,6 @@
   "devDependencies": {
     "grunt": "^1.0.4",
     "grunt-contrib-concat": "^1.0.1",
-    "grunt-contrib-sass": "^1.0.0",
     "grunt-contrib-uglify": "^4.0.1",
     "grunt-contrib-watch": "^1.1.0",
     "lodash": "^4.17.14"
@@ -12,8 +11,10 @@
     "@popperjs/core": "^2.0.0",
     "@turf/turf": "^5.1.6",
     "browserify-shim": "^3.8.14",
+    "dart-sass": "^1.25.0",
     "fastclick": "^1.0.6",
     "grunt-browserify": "^5.3.0",
+    "grunt-sass": "^3.1.0",
     "jquery": "^1.12.4",
     "load-grunt-config": "^3.0.1",
     "mapbox-gl": "^1.6.1",
