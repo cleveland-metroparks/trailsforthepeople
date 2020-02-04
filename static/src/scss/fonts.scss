@@ -1,0 +1,350 @@
+@use "variables";
+
+@font-face {
+  font-family: 'cm-maps-icons';
+  src:  url(#{variables.$static_dir}/fonts/cm-maps-icons/fonts/cm-maps-icons.eot?o7d3qa);
+  src:  url(#{variables.$static_dir}/fonts/cm-maps-icons/fonts/cm-maps-icons.eot?o7d3qa#iefix) format('embedded-opentype'),
+        url(#{variables.$static_dir}/fonts/cm-maps-icons/fonts/cm-maps-icons.ttf?o7d3qa) format('truetype'),
+        url(#{variables.$static_dir}/fonts/cm-maps-icons/fonts/cm-maps-icons.woff?o7d3qa) format('woff'),
+        url(#{variables.$static_dir}/fonts/cm-maps-icons/fonts/cm-maps-icons.svg?o7d3qa#cm-maps-icons) format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="cm-icon-"], [class*=" cm-icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'cm-maps-icons' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.cm-icon-basketball:before {
+  content: "\e934";
+}
+.cm-icon-baseball:before {
+  content: "\e933";
+}
+.cm-icon-boat_rental:before {
+  content: "\e942";
+}
+.cm-icon-drink:before {
+  content: "\e943";
+}
+.cm-icon-gifts:before {
+  content: "\e944";
+}
+.cm-icon-playground:before {
+  content: "\e945";
+}
+.cm-icon-restroom:before {
+  content: "\e946";
+}
+.cm-icon-volleyball:before {
+  content: "\e947";
+}
+.cm-icon-info:before {
+  content: "\f129";
+}
+.cm-icon-share-alt:before {
+  content: "\f1e0";
+}
+.cm-icon-location-arrow:before {
+  content: "\f124";
+}
+.cm-icon-street-view:before {
+  content: "\f21d";
+}
+.cm-icon-search:before {
+  content: "\f002";
+}
+.cm-icon-walk:before {
+  content: "\e900";
+}
+.cm-icon-cm-logo:before {
+  content: "\e901";
+}
+.cm-icon-geologic-square .path1:before {
+  content: "\e902";
+  color: rgb(255, 255, 255);
+}
+.cm-icon-geologic-square .path2:before {
+  content: "\e903";
+  margin-left: -1em;
+  color: rgb(55, 53, 53);
+}
+.cm-icon-geologic-square .path3:before {
+  content: "\e904";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-golfing-square .path1:before {
+  content: "\e905";
+  color: rgb(255, 255, 255);
+}
+.cm-icon-golfing-square .path2:before {
+  content: "\e906";
+  margin-left: -1em;
+  color: rgb(55, 53, 53);
+}
+.cm-icon-golfing-square .path3:before {
+  content: "\e907";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-golfing-square .path4:before {
+  content: "\e908";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-mtnbiking-square .path1:before {
+  content: "\e909";
+  color: rgb(255, 255, 255);
+}
+.cm-icon-mtnbiking-square .path2:before {
+  content: "\e90a";
+  margin-left: -1em;
+  color: rgb(55, 53, 53);
+}
+.cm-icon-mtnbiking-square .path3:before {
+  content: "\e90b";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-mtnbiking-square .path4:before {
+  content: "\e90c";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-mtnbiking-square .path5:before {
+  content: "\e90d";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-mtnbiking-square .path6:before {
+  content: "\e90e";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-mtnbiking-square .path7:before {
+  content: "\e90f";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-mtnbiking-square .path8:before {
+  content: "\e910";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-mtnbiking-square .path9:before {
+  content: "\e911";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-mtnbiking-square .path10:before {
+  content: "\e912";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-picnic-square .path1:before {
+  content: "\e913";
+  color: rgb(255, 255, 255);
+}
+.cm-icon-picnic-square .path2:before {
+  content: "\e914";
+  margin-left: -1em;
+  color: rgb(55, 53, 53);
+}
+.cm-icon-picnic-square .path3:before {
+  content: "\e915";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-sledding-square .path1:before {
+  content: "\e916";
+  color: rgb(255, 255, 255);
+}
+.cm-icon-sledding-square .path2:before {
+  content: "\e917";
+  margin-left: -1em;
+  color: rgb(55, 53, 53);
+}
+.cm-icon-sledding-square .path3:before {
+  content: "\e918";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-sledding-square .path4:before {
+  content: "\e919";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-swimming-square .path1:before {
+  content: "\e91a";
+  color: rgb(255, 255, 255);
+}
+.cm-icon-swimming-square .path2:before {
+  content: "\e91b";
+  margin-left: -1em;
+  color: rgb(55, 53, 53);
+}
+.cm-icon-swimming-square .path3:before {
+  content: "\e91c";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-swimming-square .path4:before {
+  content: "\e91d";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-swimming-square .path5:before {
+  content: "\e91e";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-visitorcenter-square .path1:before {
+  content: "\e91f";
+  color: rgb(55, 53, 53);
+}
+.cm-icon-visitorcenter-square .path2:before {
+  content: "\e920";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-visitorcenter-square .path3:before {
+  content: "\e921";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-visitorcenter-square .path4:before {
+  content: "\e922";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-visitorcenter-square .path5:before {
+  content: "\e923";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-visitorcenter-square .path6:before {
+  content: "\e924";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-dining-square .path1:before {
+  content: "\e925";
+  color: rgb(255, 255, 255);
+}
+.cm-icon-dining-square .path2:before {
+  content: "\e926";
+  margin-left: -1em;
+  color: rgb(55, 53, 53);
+}
+.cm-icon-dining-square .path3:before {
+  content: "\e927";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-dining-square .path4:before {
+  content: "\e928";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-fishing-square .path1:before {
+  content: "\e929";
+  color: rgb(255, 255, 255);
+}
+.cm-icon-fishing-square .path2:before {
+  content: "\e92a";
+  margin-left: -1em;
+  color: rgb(55, 53, 53);
+}
+.cm-icon-fishing-square .path3:before {
+  content: "\e92b";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-fishing-square .path4:before {
+  content: "\e92c";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-boating-square .path1:before {
+  content: "\e92d";
+  color: rgb(255, 255, 255);
+}
+.cm-icon-boating-square .path2:before {
+  content: "\e92e";
+  margin-left: -1em;
+  color: rgb(55, 53, 53);
+}
+.cm-icon-boating-square .path3:before {
+  content: "\e92f";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-boating-square .path4:before {
+  content: "\e930";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-boating-square .path5:before {
+  content: "\e931";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-boating-square .path6:before {
+  content: "\e932";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.cm-icon-star:before {
+  content: "\f005";
+}
+.cm-icon-cog:before {
+  content: "\f013";
+}
+.cm-icon-gear:before {
+  content: "\f013";
+}
+.cm-icon-map-marker:before {
+  content: "\f041";
+}
+.cm-icon-twitter-square:before {
+  content: "\f081";
+}
+.cm-icon-facebook-square:before {
+  content: "\f082";
+}
+.cm-icon-caret-left:before {
+  content: "\f0d9";
+}
+.cm-icon-clipboard:before {
+  content: "\f0ea";
+}
+.cm-icon-paste:before {
+  content: "\f0ea";
+}
+.cm-icon-automobile:before {
+  content: "\f1b9";
+}
+.cm-icon-car:before {
+  content: "\f1b9";
+}
+.cm-icon-bicycle:before {
+  content: "\f206";
+}
+.cm-icon-bus:before {
+  content: "\f207";
+}
+.cm-icon-map-signs:before {
+  content: "\f277";
+}
