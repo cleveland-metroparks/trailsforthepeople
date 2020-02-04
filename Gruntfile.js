@@ -151,8 +151,7 @@ module.exports = function(grunt) {
       // Web app package:
       dist: {
         files: {
-          'static/dist/css/mobile.css': 'static/src/scss/mobile.scss',
-          'static/src/scss/jqm-themes/cm-jqm-theme.min.css': 'static/src/scss/jqm-themes/cm-jqm-theme.css'
+          'static/dist/css/mobile.css': 'static/src/scss/mobile.scss'
         }
       },
       // For map embeds on external sites:
