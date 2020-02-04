@@ -150,12 +150,18 @@ module.exports = function(grunt) {
       },
       // Web app package:
       dist: {
+        options: {
+          outputStyle: 'compressed'
+        },
         files: {
           'static/dist/css/mobile.css': 'static/src/scss/mobile.scss'
         }
       },
       // For map embeds on external sites:
       embedded: {
+        options: {
+          outputStyle: 'compressed'
+        },
         files: {
           'static/dist/css/embedded.css': 'static/src/scss/embedded.scss'
         }

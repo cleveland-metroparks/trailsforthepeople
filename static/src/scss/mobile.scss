@@ -1,6 +1,10 @@
 @use "variables";
 @use "tooltips";
 @use "map.scss";
+@use '../../lib/jquery.mobile-1.4.5/jquery.mobile-1.4.5.css';
+@use '../../lib/mapbox-gl-js-1.6.0/mapbox-gl.css';
+@use '../../lib/sidebar-v2/css/leaflet-sidebar.css';
+@use '../../fonts/cm-maps-icons/style.css';
 @use 'jqm-themes/cm-jqm-theme.css';
 
 html,
