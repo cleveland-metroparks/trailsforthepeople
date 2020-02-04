@@ -45,30 +45,8 @@ img {
     height: 100%;
 }
 
-.leaflet-popup .fakelink {
-    font-size: 12pt;
-}
-
-//  Leaflet popups which are large enough to induce scrolling, can't really scroll
-.leaflet-popup-scrolled .leaflet-popup-content {
-    overflow: hidden;
-}
-
-// Leaflet Zoom panel
-// Allow buttons to be disabled.
-.leaflet-control-zoom {
-    a {
-        color: #000000 !important;
-        &.leaflet-disabled {
-            color: #bbbbbb !important;
-        }
-        &.disabled {
-            display: none;
-        }
-        &.only {
-            margin: 0;
-        }
-    }
+.mapboxgl-ctrl.mapboxgl-ctrl-attrib a {
+    color: rgba(0, 0, 0, 0.6);
 }
 
 // -----------------------------------------------------------------------------------------------------------
