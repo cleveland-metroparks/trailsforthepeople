@@ -1,0 +1,469 @@
+/**
+ * Sidebar
+ */
+
+@use "variables";
+
+// Override the breakpoint for the super narrow sidebar,
+// making it just like the second narrowest.
+@media (min-width: 768px) and (max-width: 991px) {
+    .sidebar {
+        width: 390px;
+    }
+    .sidebar-pane {
+        min-width: 350px;
+    }
+    .sidebar-left ~ .sidebar-map .leaflet-left {
+        left: 400px;
+    }
+    .sidebar-right ~ .sidebar-map .leaflet-right {
+        right: 400px;
+    }
+}
+
+#sidebar {
+    //
+    // Sidebar Header
+    //
+    .sidebar-header {
+        background-color: variables.$green_dark;
+        margin-bottom: 20px;
+    }
+
+    //
+    // Sidebar Tabs
+    //
+    .sidebar-tabs {
+        .ui-link,
+        .ui-link:visited {
+            color: variables.$grey_darkest;
+        }
+        > ul > li.active {
+            background-color: variables.$green_dark;
+            a {
+                color: white !important;
+                text-shadow: 0 1px 0 variables.$grey_darkest;
+            }
+        }
+    }
+
+    //
+    // Sidebar Content
+    //
+    .sidebar-content {
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+
+        ul li {
+            padding-left: 0;
+            .cm-icon {
+                padding-right: 10px;
+                font-size: 24px;
+                width: 24px;
+                vertical-align: middle;
+                text-align: center;
+            }
+        }
+        h4 {
+            margin: 0;
+        }
+        .ui-li-icon {
+            // Reset jqM
+            max-height: initial !important;
+            max-width: initial !important;
+        }
+        .ui-li-count {
+            background-color: variables.$green_dark;
+            border: none;
+            color: white;
+            font-weight: normal;
+        }
+        .ui-li-heading {
+            font-weight: 600;
+            display: block;
+            overflow: hidden;
+            white-space: normal;
+        }
+        .ui-li-desc {
+            font-size: 90%;
+        }
+        .feature-description {
+            margin: 1em 0;
+        }
+        .distance_sortable {
+            a.ui-btn {
+                padding-right: 80px;
+                h4.ui-li-heading {
+                    margin-top: 0;
+                }
+                .ui-li-desc {
+                    font-weight: normal;
+                }
+            }
+        }
+        #alerts {
+            li {
+                padding-right: 80px;
+            }
+            h2 {
+                overflow: hidden;
+                white-space: normal;
+            }
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------------------
+//  Sidebar Panes
+// -----------------------------------------------------------------------------------------------------------
+
+//
+// Sidebar Pane: Welcome
+//
+#pane-welcome {
+    .image-link-grid {
+        &.ui-grid-a > .ui-block-a,
+        &.ui-grid-a > .ui-block-b {
+            padding: 3px;
+        }
+        .ui-bar {
+            height: 140px;
+            border-radius: 8px;
+            position: relative;
+            padding: .4em .6em;
+            border-width: 1px;
+            border-color: rgba(0, 0, 0, 0.1);
+            background-blend-mode: multiply;
+            font-size: 135%;
+        }
+        a .link-text {
+            position: absolute;
+            bottom: .3em;
+            color: white;
+            text-decoration: none;
+            text-shadow: 1px 1px #232222;
+        }
+    }
+    // Darken the bottom of the image so the text overlay is readable,
+    // using a CSS gradient background overlay/multiply.
+    $gradient_screen: center/cover no-repeat, linear-gradient(to bottom, white 70%, gray 90%);
+    .welcome-pane-parks .ui-bar {
+        background: url(#{variables.$static_dir}/images/welcome_pane/parks.jpg) $gradient_screen;
+    }
+    .welcome-pane-activities .ui-bar {
+        background: url(#{variables.$static_dir}/images/welcome_pane/activities.jpg) $gradient_screen;
+    }
+    .welcome-pane-visitorcenters .ui-bar {
+        background: url(#{variables.$static_dir}/images/welcome_pane/visitorcenters.jpg) $gradient_screen;
+    }
+    .welcome-pane-amenities .ui-bar {
+        background: url(#{variables.$static_dir}/images/welcome_pane/amenities.jpg) $gradient_screen;
+    }
+    .welcome-pane-trails .ui-bar {
+        background: url(#{variables.$static_dir}/images/welcome_pane/trails.jpg) $gradient_screen;
+    }
+    .welcome-pane-events .ui-bar {
+        background: url(#{variables.$static_dir}/images/welcome_pane/events.jpg) $gradient_screen;
+    }
+}
+
+//
+// Sidebar Pane: Browse
+//
+#pane-browse {
+    .browse-main {
+        margin-top: 1em;
+        li {
+            img {
+                margin-top: -20px; //  hack to make the icons align to the text
+            }
+        }
+    }
+}
+
+//
+// Sidebar Pane: Search
+//
+#pane-search {
+}
+
+//
+// Sidebar Pane: Browse Results
+//
+#pane-browse-results {
+    .sortpicker {
+        display: block;
+    }
+}
+
+//
+// Autocomplete Listviews
+//
+.ui-input-search.ui-input-has-clear .ui-btn.ui-input-clear,
+.ui-input-text.ui-input-has-clear .ui-btn.ui-input-clear {
+    // Fix clear button positioning
+    margin-top: -21px;
+}
+form.ui-filterable.autocomplete .ui-input-btn {
+    border-radius: .2em;
+}
+
+//
+// Sidebar Pane: Browse POIS Activity
+//
+#pane-activities {
+    ul {
+        li {
+            a {
+                min-height: 22px;
+                padding-left: 3em;
+                img.ui-li-icon {
+                    top: 7px !important;
+                    left: 6px !important;
+                    height: 30px !important;
+                    width: 30px !important;
+                }
+            }
+        }
+    }
+}
+
+//
+// Sidebar Pane: Nearby
+//
+#pane-nearby {
+    #alerts {
+    }
+}
+
+//
+// Sidebar Pane: Get Directions
+//
+#pane-getdirections {
+
+    #directions_target_title {
+        text-align: center;
+        font-size: 110%;
+        font-weight: bold;
+        margin-top: 1.5em;
+    }
+
+    #change_directions_target {
+        text-align: center;
+        font-size: 75%;
+        margin-top: .5em;
+        margin-bottom: 1.5em;
+        a {
+            font-weight: normal;
+        }
+    }
+
+    #directions_getgps {
+        float: right;
+        text-align: right;
+        font-size: 8pt;
+        margin-top: 10px;
+    }
+
+    #directions_button_wrapper {
+        .ui-btn {
+            margin-top: 1.5em;
+        }
+    }
+
+    .directions_functions {
+        margin-top: 1em;
+        font-weight: bold;
+        font-size: 10pt;
+    }
+}
+
+//
+// Sidebar Pane: Share
+//
+#pane-share {
+    #share_url_controls,
+    #make_share_url_controls {
+        margin-bottom: 1.5em;
+    }
+    #share_url_controls {
+        .ui-controlgroup-controls {
+            width: 100%;
+        }
+        div.controlgroup-textinput {
+            // Top/bottom padding make the box size to fit the buttom (via jQm docs)
+            // Left/right padding give us more room for the URL
+            padding: .22em;
+            width: 73%;
+        }
+    }
+    // Social share buttons
+    .share_button {
+        line-height: 2em;
+        .cm-icon {
+            font-size: 30px;
+            padding-right: .2em;
+        }
+    }
+}
+
+//
+// Sidebar Pane: Legend
+//
+#pane-legend {
+    img {
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+    }
+    ul.map-legend {
+        list-style: none;
+        padding: 0;
+        img {
+            margin: 5px 10px 5px 0;
+            vertical-align: middle;
+        }
+        .info {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        h4 {
+            // display: inline-block;
+        }
+        p {
+            margin: 0;
+        }
+    }
+    .map-legend-bt {
+        h3 {
+            margin-bottom: 0;
+        }
+        p {
+            margin: 0;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            li {
+                display: inline-block;
+                margin-right: 5px;
+            }
+        }
+    }
+}
+
+//
+// Sidebar Pane: Credits
+//
+#pane-credits {
+    .disclaimer {
+        font-size: 90%;
+    }
+}
+
+//
+// Sidebar Pane: Info (for a POI, etc)
+//
+#pane-info {
+    .activities-icon-list {
+        list-style-type: none;
+        margin-top: 0;
+        padding: 0;
+        li {
+            display: inline-block;
+            padding-right: .5em;
+            img {
+                width: 30px;
+                height: 30px;
+            }
+        }
+    }
+    .info-directions {
+        margin-top: 1em;
+        .ui-btn {
+            padding: 10px;
+            .cm-icon {
+                font-size: 24px;
+                min-width: 32px;
+            }
+        }
+    }
+}
+
+//
+// Sidebar Pane: Get Directions
+//
+#pane-getdirections {
+    #directions_steps {
+        li.did-you-mean {
+            border-top: none;
+            color: variables.$red_light;
+            font-weight: bold;
+        }
+        li.ui-first-child {
+            border-top: none;
+            .ui-li-heading {
+                font-weight: normal;
+            }
+        }
+        li.ui-last-child {
+            border-bottom: none;
+        }
+    }
+}
+
+//
+// Sidebar Pane: Featured Loops
+//
+#pane-trails {
+    #loops_typeicons {
+        img {
+            width: 50px;
+            margin: 0px 3px;
+            cursor: pointer;
+        }
+    }
+    h4.label {
+        margin-top: 1em !important;
+        margin-bottom: 0.5em !important;
+    }
+    #loops_filter_distancepicker {
+        a {
+            background-color: variables.$grey_darkest;
+            color: white;
+            text-decoration: none;
+            padding: 5px 0.5em 2px;
+            border-radius: 0.2em;
+            margin-right: 0.2em;
+            display: inline-block;
+            margin-bottom: 5px;
+            &.active {
+                background-color: variables.$green_light;
+            }
+        }
+        margin-bottom: 1em;
+    }
+    .sortpicker {
+        margin-top: 1.5em;
+    }
+}
+
+//
+// Sidebar Pane: Elevation profile
+//
+#pane-elevationprofile {}
+
+//
+// Sidebar Pane: Settings
+//
+#pane-settings {
+    div.controlgroup-textinput {
+        // Top/bottom padding make the box size to fit the buttom (via jQm docs)
+        // Left/right padding give us more room for the URL
+        padding: .22em;
+        width: 73%;
+    }
+    .ui-controlgroup-controls {
+        width: 100%;
+        margin-bottom: 1em;
+    }
+}
