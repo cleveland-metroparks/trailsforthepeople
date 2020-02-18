@@ -305,7 +305,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-browserify');
 
   // All tasks
-  grunt.registerTask('all', ['concat', 'uglify', 'sass']);
+  grunt.registerTask('all', ['concat', 'browserify', 'uglify', 'sass']);
   // Dist only (non-embedded, non-native)
   grunt.registerTask('dist', ['concat:dist', 'uglify:dist', 'sass:dist']);
   // Native tasks only
