@@ -567,7 +567,7 @@ $(document).ready(function () {
         var tofrom = $(this).val() == 'to' ? 'from' : 'to';
         $('#directions_type option').each(function () {
             var text = $(this).text();
-            text = tofrom + ' ' + text.replace(/^to /, '').replace(/^from /, '');
+            text = tofrom + ' ' + text.replace(/^to /i, '').replace(/^from /i, '');
             $(this).text(text);
         });
         $('#directions_type').selectmenu('refresh', true)
