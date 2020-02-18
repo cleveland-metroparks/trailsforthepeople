@@ -338,22 +338,37 @@ function shortenStr(str, maxLen, addEllipsis) {
 /**
  * Set query string parameters in window location.
  *
- * @param {strong} name
+ * @param {string} name
  * @param {string} value
  */
 function setWindowURLQueryStringParameter(name, value) {
     var urlParams = new URLSearchParams(location.search);
     urlParams.set(name, value);
 
-    // Remove deprecated x,y,z params
-    if (urlParams.has('y') && name == 'lat') urlParams.delete('y');
-    if (urlParams.has('x') && name == 'lng') urlParams.delete('x');
-    if (urlParams.has('z') && name == 'zoom') urlParams.delete('z');
+    //// Remove deprecated x,y,z params
+    //if (urlParams.has('y') && name == 'lat') urlParams.delete('y');
+    //if (urlParams.has('x') && name == 'lng') urlParams.delete('x');
+    //if (urlParams.has('z') && name == 'zoom') urlParams.delete('z');
 
     WINDOW_URL = decodeURIComponent(location.pathname + '?' + urlParams);
     window.history.replaceState(null, null, WINDOW_URL);
 }
 
+/**
+ * Set a bunch of query string parameters in window location.
+ *
+ * @param params
+ */
+function setAllWindowURLQueryStringParameters(params) {
+    var urlParams = new URLSearchParams();
+
+    $.each(params, function(index, value) {
+        urlParams.set(index, value);
+    });
+
+    WINDOW_URL = decodeURIComponent(location.pathname + '?' + urlParams);
+    window.history.replaceState(null, null, WINDOW_URL);
+}
 
 /**
  * Clear query string parameters in window location.
@@ -368,9 +383,9 @@ function clearWindowURLQueryStringParameters() {
  /**
  * mobile.js
  *
- * JS for main app map.
- *
  * Cleveland Metroparks
+ *
+ * JS for main app map.
  */
 
 // Maintain the current window URL (it changes with most user actions) so we can use in sharing.
@@ -1024,59 +1039,15 @@ function zoomToFeature(feature) {
 }
 
 /**
- * "Copy to clipboard" button handler
- */
-$(document).ready(function () {
-    $('.copy-to-clipboard').click(function() {
-        // Element ID to be copied is specified in the link's data-copy-id attribute
-        var copyElId = $(this).attr('data-copy-id');
-        var containerPane = $(this).closest('.sidebar-pane')[0];
-        var $textInput = $('#' + copyElId);
-
-        // Show a "Copied to clipboard" tooltip
-        var copiedTooltip = createCopiedToClipboardTooltip($textInput[0], containerPane);
-        copiedTooltip.show();
-        // Hide tooltip on subsequent click
-        $(document).on('click', function(event) {
-            // Make sure not to catch the original copy click
-            if (!$(event.target).closest('.copy-to-clipboard').length) {
-                copiedTooltip.hide();
-            }
-        });
-
-        // focus() and select() the input
-        $textInput.focus();
-        $textInput.select();
-        // setSelectionRange() for readonly inputs on iOS
-        $textInput[0].setSelectionRange(0, 9999);
-        // Copy
-        document.execCommand("copy");
-    });
-});
-
-/**
- * Create a "Copied to clipboard" tooltip.
- */
-function createCopiedToClipboardTooltip(textInputEl, container) {
-    var tooltip = new Tooltip(textInputEl, {
-        title: "Copied to clipboard.",
-        container: container,
-        placement: 'bottom',
-        trigger: 'manual'
-    });
-    return tooltip;
-}
-
-/**
  * Trigger window URL changes on map movements.
  */
-function setupWindowUrlUpdates() {
+function setupWindowURLUpdates() {
     MAP.on('zoomend', updateWindowURLZoom);
     MAP.on('moveend', updateWindowURLCenter);
     MAP.on('layerremove', updateWindowURLLayer);
     MAP.on('layeradd', updateWindowURLLayer);
 }
-$(document).on("mapReady", setupWindowUrlUpdates);
+$(document).on("mapReady", setupWindowURLUpdates);
 
 /**
  * Update the window URL with center lat/lng params.
@@ -1085,7 +1056,7 @@ function updateWindowURLCenter() {
     var center = MAP.getCenter();
     var lat = center.lat.toFixed(7);
     var lng = center.lng.toFixed(7);
-    invalidateMapURL();
+    invalidateWindowURL();
     setWindowURLQueryStringParameter('lat', lat);
     setWindowURLQueryStringParameter('lng', lng);
 }
@@ -1095,7 +1066,7 @@ function updateWindowURLCenter() {
  */
 function updateWindowURLZoom() {
     var zoom = MAP.getZoom().toFixed(1);
-    invalidateMapURL();
+    invalidateWindowURL();
     setWindowURLQueryStringParameter('zoom', zoom);
 }
 
@@ -1109,14 +1080,14 @@ function updateWindowURLLayer() {
     if (getBasemap() == 'photo') {
         layer = 'photo';
     }
-    invalidateMapURL();
+    invalidateWindowURL();
     setWindowURLQueryStringParameter('base', layer);
 }
 
 /**
  * Invalidate Map URL
  */
-function invalidateMapURL() {
+function invalidateWindowURL() {
     hideShareURL();
 }
 
@@ -1128,6 +1099,14 @@ function updateWindowURLAll() {
     updateWindowURLZoom();
     updateWindowURLLayer();
 }
+
+///**
+// * Clear/unset the window URL.
+// */
+//function clearWindowURL() {
+//    invalidateWindowURL();
+//    clearWindowURLQueryStringParameters();
+//}
 
 /**
  * Coordinate Format picker (on Settings pane) change handler
@@ -1162,7 +1141,6 @@ function changeCoordinateFormat(format) {
  */
 function getSessionCoordinateFormat() {
     $.get(API_BASEPATH + 'ajax/get_session_coordinate_format', {}, function (reply) {
-        // console.log('get_session_coordinate_format reply:', reply); // @DEBUG
         if (reply) {
             // Update UI setting and user location display.
             SETTINGS.coordinate_format = reply;
@@ -1183,9 +1161,7 @@ function setSessionCoordinateFormat(format) {
         coordinate_format: format
     };
 
-    // console.log('setSessionCoordinateFormat to ' + format); // @DEBUG
     $.get(API_BASEPATH + 'ajax/set_session_coordinate_format', params, function (reply) {
-        // console.log('set_session_coordinate_format reply:', reply);
         if (!reply) {
             console.log('Error: set_session_coordinate_format: No reply.');
         }
@@ -2071,21 +2047,18 @@ function renderDirectionsStructure(directions, target, options) {
     directionsFunctions.append(clearMapBtn);
 
     // Share button
-    if (! options.noshare) {
-        // if there are options given, check for noshare:true and skip on the Share link
-        var shareRouteBtn = $('<a></a>')
-            .addClass('ui-btn')
-            .addClass('ui-btn-inline')
-            .addClass('ui-corner-all')
-            .prop('id','share_route_button')
-            .text('Share');
-        shareRouteBtn.click(function () {
-            updateShareUrlByDirections();
-            makeAndShowShortURL();
-            sidebar.open('pane-share');
-        });
-        directionsFunctions.append(shareRouteBtn);
-    }
+    var shareRouteBtn = $('<a></a>')
+        .addClass('ui-btn')
+        .addClass('ui-btn-inline')
+        .addClass('ui-corner-all')
+        .prop('id','share_route_button')
+        .text('Share');
+    shareRouteBtn.click(function () {
+        updateWindowURLWithDirections();
+        makeAndShowShortURL();
+        sidebar.open('pane-share');
+    });
+    directionsFunctions.append(shareRouteBtn);
 
     // Print button
     if (! NATIVE_APP) {
@@ -2303,22 +2276,21 @@ $(document).ready(function () {
  /**
  * share.js
  *
- * JS for Sharing functionality.
- *
- * Included into app.js.
- *
- * pertaining to the Share box and RESTful params for loading map state
- * The basic workflow is:
- * - A map movement event triggers a call to udpateShareUrl(() et al,
- * - which compose the URL string and save it to SHARE_URL_STRING
- * - At a later time, when the user opens up the appropriate panel or sub-page as
- *   defined in mobile.js and desktop.js,
- *   an AJAX request is made to save the long URL and get a short URL in return
- * - This short URL is displayed in the #share_url panel for the end user.
- * We do not want to request a short URL with every single map movement;
- * that would consume network resources unnecessarily.
- *
  * Cleveland Metroparks
+ *
+ * Sharing functionality; the Share box and RESTful params for loading map state.
+ *
+ * (Included into app.js.)
+ *
+ * Basic workflow is:
+ * - Map movements/events trigger calls to updateWindowURL[...]() functions.
+ * - which call setWindowURLQueryStringParameter() to set the browser's location bar
+ *   as well as the WINDOW_URL variable.
+ * - At a later time, when the user opens up the share panel, an AJAX request
+ *   is made to save the long URL and get a short URL in return.
+ * - This short URL is displayed in the #share_url panel for the end user.
+ *
+ * We don't request a short URL with every map movement/change.
  */
 
 /*
@@ -2337,27 +2309,10 @@ $(document).ready(function() {
     $('#make_share_url_btn').click(function() {
         makeAndShowShortURL();
     });
-
-    /**
-     * Share Map button handler
-     *
-     * Reads from the Show On Map button to populate the Share Your Map box.
-     *
-     * @TODO: This was desktop only. Re-add the button to mobile.
-     */
-    $('#share_feature').click(function() {
-        var element = $('#show_on_map').data('zoomelement');
-        if (! element) {
-            return;
-        }
-        updateShareUrlByFeature(element);
-        makeAndShowShortURL();
-        sidebar.open('pane-share');
-    });
 });
 
 /**
- * Hide Share URL
+ * Show Share URL
  */
 function showShareURL() {
     $('#share_url_controls').show();
@@ -2366,7 +2321,7 @@ function showShareURL() {
 }
 
 /**
- * Show Share URL
+ * Hide Share URL
  */
 function hideShareURL() {
     $('#share_url_controls').hide();
@@ -2376,7 +2331,7 @@ function hideShareURL() {
 /**
  * Populate Share box
  *
- * Request [from the server] a shortened version of the current URL,
+ * Request [from the back-end] a shortened version of the current URL,
  * and put this into the share box.
  */
 function makeAndShowShortURL() {
@@ -2403,12 +2358,10 @@ function makeAndShowShortURL() {
 
         // In native mobile, our URL structure is not as in web
         var url = new URL(location.href);
-        console.log(url);
         var protocol =
             (url.protocol != 'file:')
             ? url.protocol
             : WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL;
-        console.log(protocol);
         var host = (url.host)
             ? url.host
             : WEBAPP_BASE_URL_ABSOLUTE_HOST;
@@ -2436,31 +2389,18 @@ function setShareURLBoxWidth() {
 }
 
 /**
- * Update Share URL by Feature
- *
- * Element form: take an element compatible with zoomToElement() and create an URL which will load its info on page load
- */
-function updateShareUrlByFeature(element) {
-    // only 2 params, taken from the element: its type and its name
-    var params = {};
-    params.type = element.attr('type');
-    params.name = element.attr('title');
-
-    // compile all of the params together and save it to the global. this is later read by makeAndShowShortURL()
-    SHARE_URL_STRING = $.param(params);
-}
-
-/**
  * Update Share URL by Directions
  *
  * Directions form: processes the directions form and fills in the Share to recreate the route
  */
-function updateShareUrlByDirections() {
-    // if the directions aren't filled in, we can't do this
+function updateWindowURLWithDirections() {
+    // If the directions aren't filled in, we can't do this.
     if (! $('#directions_source_lat').val() ) return;
 
-    // compose the params to bring up this route at page load: route title, to and from coordinates, via type, etc
+    // Compose the params to bring up this route at page load:
+    // route title, to and from coordinates, via type, etc.
     var params = {};
+
     if (getBasemap() == 'photo') {
         params.base = 'photo';
     } else {
@@ -2478,8 +2418,51 @@ function updateShareUrlByDirections() {
         params.routevia = $('#directions_via_trail').val();
     }
 
-    // compile all of the params together and save it to the global. this is later read by populateShareBox()
-    SHARE_URL_STRING = $.param(params);
+    setAllWindowURLQueryStringParameters(params);
+}
+
+/**
+ * "Copy to clipboard" button handler
+ */
+$(document).ready(function () {
+    $('.copy-to-clipboard').click(function() {
+        // Element ID to be copied is specified in the link's data-copy-id attribute
+        var copyElId = $(this).attr('data-copy-id');
+        var containerPane = $(this).closest('.sidebar-pane')[0];
+        var $textInput = $('#' + copyElId);
+
+        // Show a "Copied to clipboard" tooltip
+        var copiedTooltip = createCopiedToClipboardTooltip($textInput[0], containerPane);
+        copiedTooltip.show();
+        // Hide tooltip on subsequent click
+        $(document).on('click', function(event) {
+            // Make sure not to catch the original copy click
+            if (!$(event.target).closest('.copy-to-clipboard').length) {
+                copiedTooltip.hide();
+            }
+        });
+
+        // focus() and select() the input
+        $textInput.focus();
+        $textInput.select();
+        // setSelectionRange() for readonly inputs on iOS
+        $textInput[0].setSelectionRange(0, 9999);
+        // Copy
+        document.execCommand("copy");
+    });
+});
+
+/**
+ * Create a "Copied to clipboard" tooltip.
+ */
+function createCopiedToClipboardTooltip(textInputEl, container) {
+    var tooltip = new Tooltip(textInputEl, {
+        title: "Copied to clipboard.",
+        container: container,
+        placement: 'bottom',
+        trigger: 'manual'
+    });
+    return tooltip;
 }
 
 ;

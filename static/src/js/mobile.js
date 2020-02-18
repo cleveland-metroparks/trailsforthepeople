@@ -1,9 +1,9 @@
  /**
  * mobile.js
  *
- * JS for main app map.
- *
  * Cleveland Metroparks
+ *
+ * JS for main app map.
  */
 
 // Maintain the current window URL (it changes with most user actions) so we can use in sharing.
@@ -657,59 +657,15 @@ function zoomToFeature(feature) {
 }
 
 /**
- * "Copy to clipboard" button handler
- */
-$(document).ready(function () {
-    $('.copy-to-clipboard').click(function() {
-        // Element ID to be copied is specified in the link's data-copy-id attribute
-        var copyElId = $(this).attr('data-copy-id');
-        var containerPane = $(this).closest('.sidebar-pane')[0];
-        var $textInput = $('#' + copyElId);
-
-        // Show a "Copied to clipboard" tooltip
-        var copiedTooltip = createCopiedToClipboardTooltip($textInput[0], containerPane);
-        copiedTooltip.show();
-        // Hide tooltip on subsequent click
-        $(document).on('click', function(event) {
-            // Make sure not to catch the original copy click
-            if (!$(event.target).closest('.copy-to-clipboard').length) {
-                copiedTooltip.hide();
-            }
-        });
-
-        // focus() and select() the input
-        $textInput.focus();
-        $textInput.select();
-        // setSelectionRange() for readonly inputs on iOS
-        $textInput[0].setSelectionRange(0, 9999);
-        // Copy
-        document.execCommand("copy");
-    });
-});
-
-/**
- * Create a "Copied to clipboard" tooltip.
- */
-function createCopiedToClipboardTooltip(textInputEl, container) {
-    var tooltip = new Tooltip(textInputEl, {
-        title: "Copied to clipboard.",
-        container: container,
-        placement: 'bottom',
-        trigger: 'manual'
-    });
-    return tooltip;
-}
-
-/**
  * Trigger window URL changes on map movements.
  */
-function setupWindowUrlUpdates() {
+function setupWindowURLUpdates() {
     MAP.on('zoomend', updateWindowURLZoom);
     MAP.on('moveend', updateWindowURLCenter);
     MAP.on('layerremove', updateWindowURLLayer);
     MAP.on('layeradd', updateWindowURLLayer);
 }
-$(document).on("mapReady", setupWindowUrlUpdates);
+$(document).on("mapReady", setupWindowURLUpdates);
 
 /**
  * Update the window URL with center lat/lng params.
@@ -718,7 +674,7 @@ function updateWindowURLCenter() {
     var center = MAP.getCenter();
     var lat = center.lat.toFixed(7);
     var lng = center.lng.toFixed(7);
-    invalidateMapURL();
+    invalidateWindowURL();
     setWindowURLQueryStringParameter('lat', lat);
     setWindowURLQueryStringParameter('lng', lng);
 }
@@ -728,7 +684,7 @@ function updateWindowURLCenter() {
  */
 function updateWindowURLZoom() {
     var zoom = MAP.getZoom().toFixed(1);
-    invalidateMapURL();
+    invalidateWindowURL();
     setWindowURLQueryStringParameter('zoom', zoom);
 }
 
@@ -742,14 +698,14 @@ function updateWindowURLLayer() {
     if (getBasemap() == 'photo') {
         layer = 'photo';
     }
-    invalidateMapURL();
+    invalidateWindowURL();
     setWindowURLQueryStringParameter('base', layer);
 }
 
 /**
  * Invalidate Map URL
  */
-function invalidateMapURL() {
+function invalidateWindowURL() {
     hideShareURL();
 }
 
@@ -761,6 +717,14 @@ function updateWindowURLAll() {
     updateWindowURLZoom();
     updateWindowURLLayer();
 }
+
+///**
+// * Clear/unset the window URL.
+// */
+//function clearWindowURL() {
+//    invalidateWindowURL();
+//    clearWindowURLQueryStringParameters();
+//}
 
 /**
  * Coordinate Format picker (on Settings pane) change handler
@@ -795,7 +759,6 @@ function changeCoordinateFormat(format) {
  */
 function getSessionCoordinateFormat() {
     $.get(API_BASEPATH + 'ajax/get_session_coordinate_format', {}, function (reply) {
-        // console.log('get_session_coordinate_format reply:', reply); // @DEBUG
         if (reply) {
             // Update UI setting and user location display.
             SETTINGS.coordinate_format = reply;
@@ -816,9 +779,7 @@ function setSessionCoordinateFormat(format) {
         coordinate_format: format
     };
 
-    // console.log('setSessionCoordinateFormat to ' + format); // @DEBUG
     $.get(API_BASEPATH + 'ajax/set_session_coordinate_format', params, function (reply) {
-        // console.log('set_session_coordinate_format reply:', reply);
         if (!reply) {
             console.log('Error: set_session_coordinate_format: No reply.');
         }

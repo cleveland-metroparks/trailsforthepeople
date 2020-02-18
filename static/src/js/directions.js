@@ -423,21 +423,18 @@ function renderDirectionsStructure(directions, target, options) {
     directionsFunctions.append(clearMapBtn);
 
     // Share button
-    if (! options.noshare) {
-        // if there are options given, check for noshare:true and skip on the Share link
-        var shareRouteBtn = $('<a></a>')
-            .addClass('ui-btn')
-            .addClass('ui-btn-inline')
-            .addClass('ui-corner-all')
-            .prop('id','share_route_button')
-            .text('Share');
-        shareRouteBtn.click(function () {
-            updateShareUrlByDirections();
-            makeAndShowShortURL();
-            sidebar.open('pane-share');
-        });
-        directionsFunctions.append(shareRouteBtn);
-    }
+    var shareRouteBtn = $('<a></a>')
+        .addClass('ui-btn')
+        .addClass('ui-btn-inline')
+        .addClass('ui-corner-all')
+        .prop('id','share_route_button')
+        .text('Share');
+    shareRouteBtn.click(function () {
+        updateWindowURLWithDirections();
+        makeAndShowShortURL();
+        sidebar.open('pane-share');
+    });
+    directionsFunctions.append(shareRouteBtn);
 
     // Print button
     if (! NATIVE_APP) {

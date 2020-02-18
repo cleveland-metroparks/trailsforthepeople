@@ -407,22 +407,37 @@ function shortenStr(str, maxLen, addEllipsis) {
 /**
  * Set query string parameters in window location.
  *
- * @param {strong} name
+ * @param {string} name
  * @param {string} value
  */
 function setWindowURLQueryStringParameter(name, value) {
     var urlParams = new URLSearchParams(location.search);
     urlParams.set(name, value);
 
-    // Remove deprecated x,y,z params
-    if (urlParams.has('y') && name == 'lat') urlParams.delete('y');
-    if (urlParams.has('x') && name == 'lng') urlParams.delete('x');
-    if (urlParams.has('z') && name == 'zoom') urlParams.delete('z');
+    //// Remove deprecated x,y,z params
+    //if (urlParams.has('y') && name == 'lat') urlParams.delete('y');
+    //if (urlParams.has('x') && name == 'lng') urlParams.delete('x');
+    //if (urlParams.has('z') && name == 'zoom') urlParams.delete('z');
 
     WINDOW_URL = decodeURIComponent(location.pathname + '?' + urlParams);
     window.history.replaceState(null, null, WINDOW_URL);
 }
 
+/**
+ * Set a bunch of query string parameters in window location.
+ *
+ * @param params
+ */
+function setAllWindowURLQueryStringParameters(params) {
+    var urlParams = new URLSearchParams();
+
+    $.each(params, function(index, value) {
+        urlParams.set(index, value);
+    });
+
+    WINDOW_URL = decodeURIComponent(location.pathname + '?' + urlParams);
+    window.history.replaceState(null, null, WINDOW_URL);
+}
 
 /**
  * Clear query string parameters in window location.
