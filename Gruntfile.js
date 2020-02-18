@@ -313,7 +313,7 @@ module.exports = function(grunt) {
   // Default: dist and native (non-embedded)
   grunt.registerTask('default', [
     'concat:dist', 'browserify:deps', 'uglify:dist', 'sass:dist',
-    'uglify:deps',
+    // 'uglify:deps',
     'concat:native', 'uglify:native', 'sass:dist'
     ]
   );

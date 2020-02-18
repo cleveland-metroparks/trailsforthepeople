@@ -2444,6 +2444,18 @@ $(document).ready(function () {
         var containerPane = $(this).closest('.sidebar-pane')[0];
         var $textInput = $('#' + copyElId);
 
+        if (!NATIVE_APP) {
+            // focus() and select() the input
+            $textInput.focus();
+            $textInput.select();
+            // setSelectionRange() for readonly inputs on iOS
+            $textInput[0].setSelectionRange(0, 9999);
+            // Copy
+            document.execCommand("copy");
+        } else {
+            cordova.plugins.clipboard.copy($textInput.val());
+        }
+
         // Show a "Copied to clipboard" tooltip
         var copiedTooltip = createCopiedToClipboardTooltip($textInput[0], containerPane);
         copiedTooltip.show();
@@ -2454,14 +2466,6 @@ $(document).ready(function () {
                 copiedTooltip.hide();
             }
         });
-
-        // focus() and select() the input
-        $textInput.focus();
-        $textInput.select();
-        // setSelectionRange() for readonly inputs on iOS
-        $textInput[0].setSelectionRange(0, 9999);
-        // Copy
-        document.execCommand("copy");
     });
 });
 
