@@ -71,7 +71,7 @@ var MAP = null;
 
 var WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL = 'https';
 var WEBAPP_BASE_URL_ABSOLUTE_HOST = 'maps.clevelandmetroparks.com';
-var WEBAPP_BASE_URL_ABSOLUTE = WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL + '://' + WEBAPP_BASE_URL_ABSOLUTE_HOST + '/';
+var WEBAPP_BASE_URL_ABSOLUTE = WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL + '//' + WEBAPP_BASE_URL_ABSOLUTE_HOST + '/';
 
 // Web (mobile and desktop) vs native iOS/Android
 var NATIVE_APP = false;

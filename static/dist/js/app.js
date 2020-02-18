@@ -19,7 +19,7 @@ var MAP = null;
 
 var WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL = 'https';
 var WEBAPP_BASE_URL_ABSOLUTE_HOST = 'maps.clevelandmetroparks.com';
-var WEBAPP_BASE_URL_ABSOLUTE = WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL + '://' + WEBAPP_BASE_URL_ABSOLUTE_HOST + '/';
+var WEBAPP_BASE_URL_ABSOLUTE = WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL + '//' + WEBAPP_BASE_URL_ABSOLUTE_HOST + '/';
 
 // Web (mobile and desktop) vs native iOS/Android
 var NATIVE_APP = false;
@@ -2403,14 +2403,17 @@ function makeAndShowShortURL() {
 
         // In native mobile, our URL structure is not as in web
         var url = new URL(location.href);
-        var protocol = (url.protocol != 'file')
+        console.log(url);
+        var protocol =
+            (url.protocol != 'file:')
             ? url.protocol
             : WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL;
+        console.log(protocol);
         var host = (url.host)
             ? url.host
             : WEBAPP_BASE_URL_ABSOLUTE_HOST;
 
-        var shareUrl = protocol + '://' + host + '/url/' + shortURLString;
+        var shareUrl = protocol + '//' + host + '/url/' + shortURLString;
 
         $('#share_url').val(shareUrl);
         showShareURL();
