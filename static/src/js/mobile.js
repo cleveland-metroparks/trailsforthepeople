@@ -8,6 +8,8 @@
 
 // Maintain the current window URL (it changes with most user actions) so we can use in sharing.
 var WINDOW_URL = null;
+// Keep track of the query string separately, too, for native
+var WINDOW_URL_QUERYSTRING = null;
 
 // App sidebar (sidebar-v2)
 var sidebar = null;

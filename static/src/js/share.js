@@ -62,13 +62,21 @@ function hideShareURL() {
 function makeAndShowShortURL() {
     var baseUrl = '/';
 
-    var queryString = WINDOW_URL;
-    // Remove leading '/?'
-    if (queryString.charAt(0) == '/') {
-        queryString = queryString.substr(1);
-    }
-    if (queryString.charAt(0) == '?') {
-        queryString = queryString.substr(1);
+    var queryString;
+
+    if (NATIVE_APP) {
+        // WINDOW_URL includes a lot of extra stuff in the basepath in native,
+        // so we also keep track of just the query string
+        queryString = WINDOW_URL_QUERYSTRING;
+    } else {
+        queryString = WINDOW_URL;
+        // Remove leading '/?'
+        if (queryString.charAt(0) == '/') {
+            queryString = queryString.substr(1);
+        }
+        if (queryString.charAt(0) == '?') {
+            queryString = queryString.substr(1);
+        }
     }
 
     // submit the long URL param string to the server, get back a short param string

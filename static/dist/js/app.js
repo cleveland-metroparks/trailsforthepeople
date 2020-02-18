@@ -338,6 +338,18 @@ function shortenStr(str, maxLen, addEllipsis) {
 /**
  * Set query string parameters in window location.
  *
+ * @param {URLSearchParams} urlParams
+ */
+function saveWindowURL(urlParams) {
+    WINDOW_URL = decodeURIComponent(location.pathname + '?' + urlParams);
+    WINDOW_URL_QUERYSTRING = urlParams;
+    window.history.replaceState(null, null, WINDOW_URL);
+}
+
+/**
+ * Set a query string parameters in window location.
+ * Leaves any other existing parameters in place.
+ *
  * @param {string} name
  * @param {string} value
  */
@@ -350,12 +362,12 @@ function setWindowURLQueryStringParameter(name, value) {
     //if (urlParams.has('x') && name == 'lng') urlParams.delete('x');
     //if (urlParams.has('z') && name == 'zoom') urlParams.delete('z');
 
-    WINDOW_URL = decodeURIComponent(location.pathname + '?' + urlParams);
-    window.history.replaceState(null, null, WINDOW_URL);
+    saveWindowURL(urlParams);
 }
 
 /**
  * Set a bunch of query string parameters in window location.
+ * Clears any existing parameters.
  *
  * @param params
  */
@@ -366,17 +378,7 @@ function setAllWindowURLQueryStringParameters(params) {
         urlParams.set(index, value);
     });
 
-    WINDOW_URL = decodeURIComponent(location.pathname + '?' + urlParams);
-    window.history.replaceState(null, null, WINDOW_URL);
-}
-
-/**
- * Clear query string parameters in window location.
- */
-function clearWindowURLQueryStringParameters() {
-    var urlParams = new URLSearchParams();
-    WINDOW_URL = decodeURIComponent(location.pathname + '?' + urlParams);
-    window.history.replaceState(null, null, WINDOW_URL);
+    saveWindowURL(urlParams);
 }
 
 ;
@@ -390,6 +392,8 @@ function clearWindowURLQueryStringParameters() {
 
 // Maintain the current window URL (it changes with most user actions) so we can use in sharing.
 var WINDOW_URL = null;
+// Keep track of the query string separately, too, for native
+var WINDOW_URL_QUERYSTRING = null;
 
 // App sidebar (sidebar-v2)
 var sidebar = null;
@@ -2337,13 +2341,21 @@ function hideShareURL() {
 function makeAndShowShortURL() {
     var baseUrl = '/';
 
-    var queryString = WINDOW_URL;
-    // Remove leading '/?'
-    if (queryString.charAt(0) == '/') {
-        queryString = queryString.substr(1);
-    }
-    if (queryString.charAt(0) == '?') {
-        queryString = queryString.substr(1);
+    var queryString;
+
+    if (NATIVE_APP) {
+        // WINDOW_URL includes a lot of extra stuff in the basepath in native,
+        // so we also keep track of just the query string
+        queryString = WINDOW_URL_QUERYSTRING;
+    } else {
+        queryString = WINDOW_URL;
+        // Remove leading '/?'
+        if (queryString.charAt(0) == '/') {
+            queryString = queryString.substr(1);
+        }
+        if (queryString.charAt(0) == '?') {
+            queryString = queryString.substr(1);
+        }
     }
 
     // submit the long URL param string to the server, get back a short param string
