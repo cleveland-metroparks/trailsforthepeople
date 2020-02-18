@@ -355,7 +355,7 @@ function shortenStr(str, maxLen, addEllipsis) {
  */
 function saveWindowURL(urlParams) {
     WINDOW_URL = decodeURIComponent(location.pathname + '?' + urlParams);
-    WINDOW_URL_QUERYSTRING = urlParams;
+    WINDOW_URL_QUERYSTRING = urlParams.toString();
     window.history.replaceState(null, null, WINDOW_URL);
 }
 
@@ -2353,7 +2353,6 @@ function hideShareURL() {
  */
 function makeAndShowShortURL() {
     var baseUrl = '/';
-
     var queryString;
 
     if (NATIVE_APP) {

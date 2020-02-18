@@ -61,7 +61,6 @@ function hideShareURL() {
  */
 function makeAndShowShortURL() {
     var baseUrl = '/';
-
     var queryString;
 
     if (NATIVE_APP) {
