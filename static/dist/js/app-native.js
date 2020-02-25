@@ -3302,8 +3302,21 @@ $(document).on("mapInitialized", function () {
 
         // Filter by user
         // @dakotabenjamin's userkey: 0H-w-WeGPajZ_G_I1RTE-w
-        MAP.setFilter('mapillary',['all', ['==', 'userkey', '0H-w-WeGPajZ_G_I1RTE-w']]);
-        MAP.setFilter('mapillary-images',['all', ['==', 'userkey', '0H-w-WeGPajZ_G_I1RTE-w']]);
+        // @smathermather's userkey: U1iL4X_Qksh-UZfa96DWXw
+        //
+        // Mapbox filter documentation: https://docs.mapbox.com/mapbox-gl-js/style-spec/#other-filter
+        MAP.setFilter('mapillary',
+            ['any', // or:
+                ['==', 'userkey', '0H-w-WeGPajZ_G_I1RTE-w'],
+                ['==', 'userkey', 'U1iL4X_Qksh-UZfa96DWXw']
+            ]
+        );
+        MAP.setFilter('mapillary-images',
+            ['any', // or:
+                ['==', 'userkey', '0H-w-WeGPajZ_G_I1RTE-w'],
+                ['==', 'userkey', 'U1iL4X_Qksh-UZfa96DWXw']
+           ]
+        );
 
         // Create a popup, but don't add it to the map yet.
         var popup = new mapboxgl.Popup({
