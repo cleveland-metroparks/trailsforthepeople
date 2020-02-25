@@ -30,6 +30,7 @@ module.exports = function(grunt) {
           'static/src/js/nearby.js',
           'static/src/js/loopsandroutes.js',
           // 'static/src/js/print.js'
+          'static/src/js/mapillary.js',
         ],
         dest: 'static/dist/js/app.js'
       },
@@ -48,6 +49,7 @@ module.exports = function(grunt) {
           'static/src/js/nearby.js',
           'static/src/js/loopsandroutes.js',
           // 'static/src/js/print.js'
+          'static/src/js/mapillary.js',
         ],
         dest: 'static/dist/js/app-native.js'
       },
@@ -202,6 +204,7 @@ module.exports = function(grunt) {
           'static/src/js/nearby.js',
           'static/src/js/loopsandroutes.js',
           // 'static/src/js/print.js'
+          'static/src/js/mapillary.js',
         ],
         tasks: ['concat:dist']
       },
@@ -224,6 +227,7 @@ module.exports = function(grunt) {
           'static/src/js/nearby.js',
           'static/src/js/loopsandroutes.js',
           // 'static/src/js/print.js'
+          'static/src/js/mapillary.js',
         ],
         tasks: ['uglify:dist']
       },
@@ -241,6 +245,7 @@ module.exports = function(grunt) {
           'static/src/js/nearby.js',
           'static/src/js/loopsandroutes.js',
           // 'static/src/js/print.js'
+          'static/src/js/mapillary.js',
         ],
         tasks: ['concat:native']
       },
@@ -258,6 +263,7 @@ module.exports = function(grunt) {
           'static/src/js/nearby.js',
           'static/src/js/loopsandroutes.js',
           // 'static/src/js/print.js'
+          'static/src/js/mapillary.js',
         ],
         tasks: ['uglify:native']
       },
