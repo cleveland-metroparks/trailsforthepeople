@@ -1,9 +1,12 @@
-
-
-
 /**
+ * mapillary.js
  *
+ * Cleveland Metroparks
+ *
+ * JS for main app map.
  */
+
+
 $(document).on("mapInitialized", function () {
     MAP.on("load", function (event) {
 
@@ -33,6 +36,8 @@ $(document).on("mapInitialized", function () {
             }
         }, beforeLayer);
 
+        // Add Mapillary image layer.
+        // https://www.mapillary.com/developer/tiles-documentation/#image-layer
         MAP.addLayer({
           "id": "mapillary-images",
           "type": "circle",
@@ -49,7 +54,8 @@ $(document).on("mapInitialized", function () {
           }
         }, beforeLayer);
 
-        // Filter by user
+        // Filter by users
+        //
         // @dakotabenjamin's userkey: 0H-w-WeGPajZ_G_I1RTE-w
         // @smathermather's userkey: U1iL4X_Qksh-UZfa96DWXw
         //
@@ -67,7 +73,7 @@ $(document).on("mapInitialized", function () {
            ]
         );
 
-        // Create a popup, but don't add it to the map yet.
+        // Create a popup for images, but don't add it to the map yet.
         var popup = new mapboxgl.Popup({
           closeButton: false,
           closeOnClick: false
@@ -103,7 +109,25 @@ $(document).on("mapInitialized", function () {
             popup.remove();
         });
 
+    }); // MAP.on("load")
 
+    /**
+     * Basemap picker (on Settings pane) change handler
+     */
+    $('input#mapillary_enabled').change(function () {
+        toggleMapillary($(this).prop('checked'));
     });
-});
+
+}); // $(document).on("mapInitialized")
+
+/**
+ * Enable/disable the Mapillary map layer.
+ *
+ * @param {bool} enabled
+ */
+function toggleMapillary(enabled) {
+    var visibility = enabled ? 'visible' : 'none';
+    MAP.setLayoutProperty('mapillary', 'visibility', visibility);
+    MAP.setLayoutProperty('mapillary-images', 'visibility', visibility);
+}
 
