@@ -3258,6 +3258,9 @@ function filterLoops() {
 $(document).on("mapInitialized", function () {
     MAP.on("load", function (event) {
 
+        var beforeLayer = null;
+        var layerColor = '#ff7200'
+
         // Add Mapillary sequence layer.
         // https://www.mapillary.com/developer/tiles-documentation/#sequence-layer
         MAP.addLayer({
@@ -3276,14 +3279,10 @@ $(document).on("mapInitialized", function () {
             },
             "paint": {
                 "line-opacity": 0.6,
-                "line-color": "#39AF64",
+                "line-color": layerColor,
                 "line-width": 2
             }
-        }, "waterway-label");
-
-        // Filter by user and date
-        // Mapbox filter documentation: https://docs.mapbox.com/mapbox-gl-js/style-spec/#other-filter
-        // MAP.setFilter('mapillary',['all', ['==', 'userkey', '73Q3j-BDvHrsirf6gPYT4w'], ['>=', 'captured_at', 1514764800000]]);
+        }, beforeLayer);
 
         MAP.addLayer({
           "id": "mapillary-images",
@@ -3296,10 +3295,15 @@ $(document).on("mapInitialized", function () {
           },
           "source-layer": "mapillary-images",
           "paint": {
-              "circle-color": "#39AF64",
+              "circle-color": layerColor,
               "circle-radius": 6
           }
-        }, "waterway-label");
+        }, beforeLayer);
+
+        // Filter by user
+        // @dakotabenjamin's userkey: 0H-w-WeGPajZ_G_I1RTE-w
+        MAP.setFilter('mapillary',['all', ['==', 'userkey', '0H-w-WeGPajZ_G_I1RTE-w']]);
+        MAP.setFilter('mapillary-images',['all', ['==', 'userkey', '0H-w-WeGPajZ_G_I1RTE-w']]);
 
         // Create a popup, but don't add it to the map yet.
         var popup = new mapboxgl.Popup({
@@ -3314,6 +3318,9 @@ $(document).on("mapInitialized", function () {
             var coordinates = e.features[0].geometry.coordinates.slice();
             var key = e.features[0].properties.key;
             var url = "https://images.mapillary.com/" + key + "/thumb-320.jpg";
+
+            // [Debug] log the image's properties (including userkey)
+            // console.log(e.features[0].properties);
 
             // Ensure that if the map is zoomed out such that multiple
             // copies of the feature are visible, the popup appears
