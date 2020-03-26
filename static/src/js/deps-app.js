@@ -7,3 +7,4 @@ window.Wkt = require('wicket');
 window.turf = require('@turf/turf');
 require('@popperjs/core');
 window.Tooltip = require('tooltip.js');
+window.Handlebars = require("handlebars");
