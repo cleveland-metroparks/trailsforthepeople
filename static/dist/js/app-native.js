@@ -1357,9 +1357,9 @@ $(document).ready(function () {
         pane_title = 'Parks';
         set_pane_back_button('#pane-browse-results', '#pane-welcome');
 
-        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
-        $.get(API_BASEPATH + 'ajax/get_reservations', null, function (reply) {
-            display_attractions_results(pane_title, reply);
+        // @OLD:API: $.get(API_BASEPATH + 'ajax/get_reservations', null, function (reply) {
+        $.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
+            display_attractions_results_NEW(pane_title, reply, 'reservation_new');
         }, 'json');
     });
     // Activities button clicked
@@ -1372,6 +1372,97 @@ $(document).ready(function () {
         // Perform trails search upon opening the pane.
         filterLoops();
     });
+
+    /**
+     * Display Attractions results from [new] API call.
+     *
+     * @param pane_title
+     * @param reply
+     * @param attraction_type
+     */
+    display_attractions_results_NEW = function(pane_title, reply, attraction_type) {
+        if (!reply.success) {
+            // @TODO: Handle error
+            return;
+        }
+
+        // Pane header title
+        var header = $('#pane-browse-results h1.sidebar-header .title-text');
+        header.text(pane_title);
+
+        sidebar.open('pane-browse-results');
+
+        var target = $('ul#browse_results');
+        target.empty();
+
+        // Iterate over fetched results and render them into the target
+        for (var i=0, l=reply.data.length; i<l; i++) {
+            var result = reply.data[i];
+
+            // List item
+            // A lot of attributes to set pertaining to .zoom handling
+            var li = $('<li></li>')
+                .addClass('zoom')
+                .attr('title', result.pagetitle)
+                .attr('gid', result.gis_id)
+                .attr('record_id', result.record_id)
+                .attr('type', attraction_type)
+                .attr('w', result.boxw)
+                .attr('s', result.boxs)
+                .attr('e', result.boxe)
+                .attr('n', result.boxn)
+                .attr('lat', result.latitude)
+                .attr('lng', result.longitude)
+                .attr('backbutton', "#pane-browse-results");
+
+            // Link (fake, currently)
+            link = $('<a></a>');
+            link.attr('class', 'ui-btn ui-btn-text');
+            li.append(link);
+
+            // On click: center the map and load More Info
+            li.click(function () {
+                zoomElementClick($(this));
+            });
+
+            // Title
+            link.append(
+                $('<span></span>')
+                    .addClass('ui-li-heading')
+                    .text(result.pagetitle)
+                );
+
+            // @TODO:API: Still necessary?
+            //// Inner text
+            //if (result.note) {
+            //    link.append(
+            //        $('<span></span>')
+            //            .addClass('ui-li-desc')
+            //            .html(result.note)
+            //        );
+            //}
+
+            // Distance placeholder, to be populated later
+            link.append(
+                $('<span></span>')
+                    .addClass('zoom_distance')
+                    .addClass('ui-li-count')
+                    .addClass('ui-btn-up-c')
+                    .addClass('ui-btn-corner-all')
+                    .text('0 mi')
+                );
+
+            // Add to the list
+            li.append(link);
+            target.append(li);
+        }
+
+        // Finalize the list,
+        // have jQuery Mobile do its styling magic on the newly-loaded content,
+        // then calculate the distances and sort.
+        target.listview('refresh');
+        sortLists(target);
+    }
 
     /**
      * Display Attractions results from AJAX call.
