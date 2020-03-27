@@ -86,30 +86,36 @@ $(document).ready(function () {
     /*
      * Welcome pane (#pane-welcome)
      */
+
     // Visitor Centers button clicked
     $('#pane-welcome .welcome-pane-visitorcenters a').click(function() {
         pane_title = 'Visitor Centers';
         set_pane_back_button('#pane-browse-results', '#pane-welcome');
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
-        $.get(API_BASEPATH + 'ajax/get_visitor_centers', null, function (reply) {
-            display_attractions_results(pane_title, reply);
+        // @OLD:API: $.get(API_BASEPATH + 'ajax/get_visitor_centers', null, function (reply) {
+        $.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
+            display_attractions_results_NEW(pane_title, reply, 'attraction');
         }, 'json');
     });
+
     // Parks button clicked
     $('#pane-welcome .welcome-pane-parks a').click(function() {
         pane_title = 'Parks';
         set_pane_back_button('#pane-browse-results', '#pane-welcome');
 
+        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
         // @OLD:API: $.get(API_BASEPATH + 'ajax/get_reservations', null, function (reply) {
         $.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
             display_attractions_results_NEW(pane_title, reply, 'reservation_new');
         }, 'json');
     });
+
     // Activities button clicked
     $('#pane-welcome .welcome-pane-activities a').click(function() {
         set_pane_back_button('#pane-activities', '#pane-welcome');
     });
+
     // Trails button clicked
     $('#pane-welcome .welcome-pane-trails a').click(function() {
         set_pane_back_button('#pane-trails', '#pane-welcome');
