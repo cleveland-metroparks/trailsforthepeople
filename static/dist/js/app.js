@@ -445,6 +445,66 @@ $.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
     console.log('CM.attractions', CM.attractions);
 }, 'json');
 
+/**
+ * Get attractions that offer specified activities
+ *
+ * @param activity_ids
+ */
+function get_attractions_by_activity(activity_ids) {
+    // Accept either a single Activity ID or an array of them.
+    var activity_ids = Array.isArray(activity_ids) ? activity_ids : [activity_ids];
+
+    var filtered_attractions = [];
+
+    CM.attractions.forEach(function(attraction) {
+        var found = true;
+
+        // Check whether ALL searched-for activities are in this Attraction's list (ANDed)
+        for (var i = 0; i < activity_ids.length; i++) {
+            if (!attraction.activities || !attraction.activities.includes(activity_ids[i])) {
+                found = false;
+                break;
+            }
+        }
+
+        if (found) {
+            filtered_attractions.push(attraction);
+        }
+    });
+
+    return filtered_attractions;
+}
+
+/**
+ * Get attractions that have offer specified amenities
+ *
+ * @param amenity_ids
+ */
+function get_attractions_by_amenity(amenity_ids) {
+    // Accept either a single Amenity ID or an array of them.
+    var amenity_ids = Array.isArray(amenity_ids) ? amenity_ids : [amenity_ids];
+
+    var filtered_attractions = [];
+
+    CM.attractions.forEach(function(attraction) {
+        var found = true;
+
+        // Check whether ALL searched-for amenities are in this Attraction's list (ANDed)
+        for (var i = 0; i < amenity_ids.length; i++) {
+            if (!attraction.amenities || !attraction.amenities.includes(amenity_ids[i])) {
+                found = false;
+                break;
+            }
+        }
+
+        if (found) {
+            filtered_attractions.push(attraction);
+        }
+    });
+
+    return filtered_attractions;
+}
+
 ;
  /**
  * mobile.js
