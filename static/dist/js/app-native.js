@@ -414,20 +414,181 @@ function setAllWindowURLQueryStringParameters(params) {
 //
 var CM = {
     visitor_centers : [],
-    reservations : []
+    reservations : [],
+    attractions : []
 };
 
-// Get visitor centers
+//
+// Get visitor centers and populate global object
+//
 $.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
     CM.visitor_centers = reply.data;
+
+    // Explode pipe-delimited strings to arrays
+    CM.visitor_centers.forEach(function(visitor_center) {
+        visitor_center.categories = visitor_center.categories ? visitor_center.categories.split('|').map(Number) : null;
+        visitor_center.amenities = visitor_center.amenities ? visitor_center.amenities.split('|').map(Number) : null;;
+        visitor_center.activities = visitor_center.activities ? visitor_center.activities.split('|').map(Number) : null;;
+    });
+
+    console.log('CM.visitor_centers (' + memorySizeOf(CM.visitor_centers) + ')', CM.visitor_centers);
 }, 'json');
 
-
-// Get reservations
+//
+// Get reservations, and populate global object
+//
 $.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
     CM.reservations = reply.data;
+    console.log('CM.reservations (' + memorySizeOf(CM.reservations) + ')', CM.reservations);
 }, 'json');
 
+//
+// Get attractions, and populate global object
+//
+$.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
+    CM.attractions = reply.data;
+
+    // Explode pipe-delimited strings to arrays
+    CM.attractions.forEach(function(attraction) {
+        attraction.categories = attraction.categories ? attraction.categories.split('|').map(Number) : null;
+        attraction.amenities = attraction.amenities ? attraction.amenities.split('|').map(Number) : null;;
+        attraction.activities = attraction.activities ? attraction.activities.split('|').map(Number) : null;;
+    });
+
+    console.log('CM.attractions (' + memorySizeOf(CM.attractions) + ')', CM.attractions);
+}, 'json');
+
+
+
+/**
+ * Get attractions that offer specified activities
+ *
+ * @param activity_ids
+ */
+function get_attractions_by_activity(activity_ids) {
+    // Accept either a single Activity ID or an array of them.
+    var activity_ids = Array.isArray(activity_ids) ? activity_ids : [activity_ids];
+
+    var filtered_attractions = [];
+
+    CM.attractions.forEach(function(attraction) {
+        var found = true;
+
+        // Check whether ALL searched-for activities are in this Attraction's list (ANDed)
+        for (var i = 0; i < activity_ids.length; i++) {
+            if (!attraction.activities.includes(activity_ids[i])) {
+                found = false;
+                break;
+            }
+        }
+
+        if (found) {
+            filtered_attractions.push(attraction);
+        }
+    });
+
+    return filtered_attractions;
+}
+
+/**
+ * Get attractions that have offer specified amenities
+ *
+ * @param amenity_ids
+ */
+function get_attractions_by_amenity(amenity_ids) {
+    // Accept either a single Amenity ID or an array of them.
+    var amenity_ids = Array.isArray(amenity_ids) ? amenity_ids : [amenity_ids];
+
+    var filtered_attractions = [];
+
+    CM.attractions.forEach(function(attraction) {
+        var found = true;
+
+        // Check whether ALL searched-for amenities are in this Attraction's list (ANDed)
+        for (var i = 0; i < amenity_ids.length; i++) {
+            if (!attraction.amenities.includes(amenity_ids[i])) {
+                found = false;
+                break;
+            }
+        }
+
+        if (found) {
+            filtered_attractions.push(attraction);
+        }
+    });
+
+    return filtered_attractions;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ *
+ */
+function memorySizeOf(obj) {
+    var bytes = 0;
+
+    function sizeOf(obj) {
+        if(obj !== null && obj !== undefined) {
+            switch(typeof obj) {
+            case 'number':
+                bytes += 8;
+                break;
+            case 'string':
+                bytes += obj.length * 2;
+                break;
+            case 'boolean':
+                bytes += 4;
+                break;
+            case 'object':
+                var objClass = Object.prototype.toString.call(obj).slice(8, -1);
+                if(objClass === 'Object' || objClass === 'Array') {
+                    for(var key in obj) {
+                        if(!obj.hasOwnProperty(key)) continue;
+                        sizeOf(obj[key]);
+                    }
+                } else bytes += obj.toString().length * 2;
+                break;
+            }
+        }
+        return bytes;
+    };
+
+    function formatByteSize(bytes) {
+        if(bytes < 1024) return bytes + " bytes";
+        else if(bytes < 1048576) return(bytes / 1024).toFixed(3) + " KiB";
+        else if(bytes < 1073741824) return(bytes / 1048576).toFixed(3) + " MiB";
+        else return(bytes / 1073741824).toFixed(3) + " GiB";
+    };
+
+    return formatByteSize(sizeOf(obj));
+};
 ;
  /**
  * mobile.js
