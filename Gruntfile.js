@@ -174,6 +174,14 @@ module.exports = function(grunt) {
      *
      */
     watch: {
+      config_files: {
+        files: [
+          'Gruntfile.js'
+        ],
+        options: {
+          reload: true
+        }
+      },
       sass_dist: {
         files: [
           'static/src/scss/_variables.scss',
