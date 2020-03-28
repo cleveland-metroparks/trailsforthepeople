@@ -195,12 +195,12 @@ module.exports = function(grunt) {
         ],
         tasks: ['sass:dist']
       },
-      sass_embedded: {
-        files: [
-          'static/src/scss/embedded.scss'
-        ],
-        tasks: ['sass:embedded']
-      },
+      //sass_embedded: {
+      //  files: [
+      //    'static/src/scss/embedded.scss'
+      //  ],
+      //  tasks: ['sass:embedded']
+      //},
       concat_dist: {
         files: [
           'static/src/js/constants.js',
@@ -241,78 +241,78 @@ module.exports = function(grunt) {
         ],
         tasks: ['uglify:dist']
       },
-      concat_native: {
-        files: [
-          'static/src/js/constants.js',
-          'static/src/js/native-constants.js',
-          'static/src/js/common.js',
-          'static/src/js/data.js',
-          'static/src/js/mobile.js',
-          'static/src/js/sidebar.js',
-          'static/src/js/geolocate.js',
-          'static/src/js/directions.js',
-          'static/src/js/share.js',
-          'static/src/js/search.js',
-          'static/src/js/nearby.js',
-          'static/src/js/loopsandroutes.js',
-          // 'static/src/js/print.js'
-        ],
-        tasks: ['concat:native']
-      },
-      uglify_native: {
-        files: [
-          'static/src/js/constants.js',
-          'static/src/js/native-constants.js',
-          'static/src/js/common.js',
-          'static/src/js/data.js',
-          'static/src/js/mobile.js',
-          'static/src/js/sidebar.js',
-          'static/src/js/geolocate.js',
-          'static/src/js/directions.js',
-          'static/src/js/share.js',
-          'static/src/js/search.js',
-          'static/src/js/nearby.js',
-          'static/src/js/loopsandroutes.js',
-          // 'static/src/js/print.js'
-        ],
-        tasks: ['uglify:native']
-      },
-      concat_embedded_base: {
-        files: [
-          'static/lib/turf.js-5.1.6/turf.min.js',
-          'static/src/js/constants.js',
-          'static/src/js/common.js',
-          'static/src/js/data.js',
-          'static/src/js/embedded-constants.js'
-        ],
-        // tasks: ['concat:embedded_base', 'concat:embedded_base_nojq']
-        tasks: ['concat:embedded_base_nojq']
-      },
-      uglify_embedded_base: {
-        files: [
-          'static/lib/turf.js-5.1.6/turf.min.js',
-          'static/src/js/constants.js',
-          'static/src/js/common.js',
-          'static/src/js/data.js',
-          'static/src/js/embedded-constants.js',
-          'static/dist/js/map-embedded-base.js',
-          'static/dist/js/map-embedded-base-nojq.js'
-        ],
-        // tasks: ['uglify:embedded_base', 'uglify:embedded_base_nojq']
-        tasks: ['uglify:embedded_base_nojq']
-      },
-      uglify_embedded_visit: {
-        files: [
-          'static/src/js/embedded-visit.js'
-        ],
-        tasks: ['uglify:embedded_visit']
-      },
-      uglify_embedded_beach_closures: {
-        files: [
-          'static/src/js/embedded-beach_closures.js'
-        ],
-        tasks: ['uglify:embedded_beach_closures']
-      }
+      //concat_native: {
+      //  files: [
+      //    'static/src/js/constants.js',
+      //    'static/src/js/native-constants.js',
+      //    'static/src/js/common.js',
+      //    'static/src/js/data.js',
+      //    'static/src/js/mobile.js',
+      //    'static/src/js/sidebar.js',
+      //    'static/src/js/geolocate.js',
+      //    'static/src/js/directions.js',
+      //    'static/src/js/share.js',
+      //    'static/src/js/search.js',
+      //    'static/src/js/nearby.js',
+      //    'static/src/js/loopsandroutes.js',
+      //    // 'static/src/js/print.js'
+      //  ],
+      //  tasks: ['concat:native']
+      //},
+      //uglify_native: {
+      //  files: [
+      //    'static/src/js/constants.js',
+      //    'static/src/js/native-constants.js',
+      //    'static/src/js/common.js',
+      //    'static/src/js/data.js',
+      //    'static/src/js/mobile.js',
+      //    'static/src/js/sidebar.js',
+      //    'static/src/js/geolocate.js',
+      //    'static/src/js/directions.js',
+      //    'static/src/js/share.js',
+      //    'static/src/js/search.js',
+      //    'static/src/js/nearby.js',
+      //    'static/src/js/loopsandroutes.js',
+      //    // 'static/src/js/print.js'
+      //  ],
+      //  tasks: ['uglify:native']
+      //},
+      //concat_embedded_base: {
+      //  files: [
+      //    'static/lib/turf.js-5.1.6/turf.min.js',
+      //    'static/src/js/constants.js',
+      //    'static/src/js/common.js',
+      //    'static/src/js/data.js',
+      //    'static/src/js/embedded-constants.js'
+      //  ],
+      //  // tasks: ['concat:embedded_base', 'concat:embedded_base_nojq']
+      //  tasks: ['concat:embedded_base_nojq']
+      //},
+      //uglify_embedded_base: {
+      //  files: [
+      //    'static/lib/turf.js-5.1.6/turf.min.js',
+      //    'static/src/js/constants.js',
+      //    'static/src/js/common.js',
+      //    'static/src/js/data.js',
+      //    'static/src/js/embedded-constants.js',
+      //    'static/dist/js/map-embedded-base.js',
+      //    'static/dist/js/map-embedded-base-nojq.js'
+      //  ],
+      //  // tasks: ['uglify:embedded_base', 'uglify:embedded_base_nojq']
+      //  tasks: ['uglify:embedded_base_nojq']
+      //},
+      //uglify_embedded_visit: {
+      //  files: [
+      //    'static/src/js/embedded-visit.js'
+      //  ],
+      //  tasks: ['uglify:embedded_visit']
+      //},
+      //uglify_embedded_beach_closures: {
+      //  files: [
+      //    'static/src/js/embedded-beach_closures.js'
+      //  ],
+      //  tasks: ['uglify:embedded_beach_closures']
+      //}
     }
   });
 
