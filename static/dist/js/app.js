@@ -387,6 +387,35 @@ function setAllWindowURLQueryStringParameters(params) {
 }
 
 ;
+/**
+ * data.js
+ *
+ * JS for basic maps/trails data management.
+ *
+ * Cleveland Metroparks
+ */
+
+
+//
+// Create our global data object into which we'll pre-load necessary data from the API.
+//
+var CM = {
+    visitor_centers : [],
+    reservations : []
+};
+
+// Get visitor centers
+$.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
+    CM.visitor_centers = reply.data;
+}, 'json');
+
+
+// Get reservations
+$.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
+    CM.reservations = reply.data;
+}, 'json');
+
+;
  /**
  * mobile.js
  *
@@ -1242,7 +1271,11 @@ function wmsGetFeatureInfoByBbox(bounds, lngLat) {
 
 ;
 /**
- * Sidebar
+ * sidebar.js
+ *
+ * JS for app sidebar functionality.
+ *
+ * Cleveland Metroparks
  */
 
 /**
@@ -1336,10 +1369,7 @@ $(document).ready(function () {
         set_pane_back_button('#pane-browse-results', '#pane-welcome');
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
-        // @OLD:API: $.get(API_BASEPATH + 'ajax/get_visitor_centers', null, function (reply) {
-        $.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
-            display_attractions_results_NEW(pane_title, reply, 'attraction');
-        }, 'json');
+        display_attractions_results_NEW(pane_title, CM.visitor_centers, 'attraction');
     });
 
     // Parks button clicked
@@ -1348,10 +1378,7 @@ $(document).ready(function () {
         set_pane_back_button('#pane-browse-results', '#pane-welcome');
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
-        // @OLD:API: $.get(API_BASEPATH + 'ajax/get_reservations', null, function (reply) {
-        $.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
-            display_attractions_results_NEW(pane_title, reply, 'reservation_new');
-        }, 'json');
+        display_attractions_results_NEW(pane_title, CM.reservations, 'reservation_new');
     });
 
     // Activities button clicked
@@ -1370,15 +1397,10 @@ $(document).ready(function () {
      * Display Attractions results from [new] API call.
      *
      * @param pane_title
-     * @param reply
+     * @param data
      * @param attraction_type
      */
-    display_attractions_results_NEW = function(pane_title, reply, attraction_type) {
-        if (!reply.success) {
-            // @TODO: Handle error
-            return;
-        }
-
+    display_attractions_results_NEW = function(pane_title, data, attraction_type) {
         // Pane header title
         var header = $('#pane-browse-results h1.sidebar-header .title-text');
         header.text(pane_title);
@@ -1389,8 +1411,8 @@ $(document).ready(function () {
         target.empty();
 
         // Iterate over fetched results and render them into the target
-        for (var i=0, l=reply.data.length; i<l; i++) {
-            var result = reply.data[i];
+        for (var i=0, l=data.length; i<l; i++) {
+            var result = data[i];
 
             // List item
             // A lot of attributes to set pertaining to .zoom handling

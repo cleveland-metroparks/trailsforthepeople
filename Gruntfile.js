@@ -21,6 +21,7 @@ module.exports = function(grunt) {
         src: [
           'static/src/js/constants.js',
           'static/src/js/common.js',
+          'static/src/js/data.js',
           'static/src/js/mobile.js',
           'static/src/js/sidebar.js',
           'static/src/js/geolocate.js',
@@ -39,6 +40,7 @@ module.exports = function(grunt) {
           'static/src/js/constants.js',
           'static/src/js/native-constants.js',
           'static/src/js/common.js',
+          'static/src/js/data.js',
           'static/src/js/mobile.js',
           'static/src/js/sidebar.js',
           'static/src/js/geolocate.js',
@@ -59,7 +61,8 @@ module.exports = function(grunt) {
           'static/lib/mapbox-gl-js-1.6.0/mapbox-gl.js',
           'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
-          'static/src/js/common.js'
+          'static/src/js/common.js',
+          'static/src/js/data.js'
         ],
         dest: 'static/dist/js/map-embedded-base.js'
       },
@@ -70,7 +73,8 @@ module.exports = function(grunt) {
           'static/lib/mapbox-gl-js-1.6.0/mapbox-gl.js',
           'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
-          'static/src/js/common.js'
+          'static/src/js/common.js',
+          'static/src/js/data.js'
         ],
         dest: 'static/dist/js/map-embedded-base-nojq.js'
       }
@@ -201,6 +205,7 @@ module.exports = function(grunt) {
         files: [
           'static/src/js/constants.js',
           'static/src/js/common.js',
+          'static/src/js/data.js',
           'static/src/js/mobile.js',
           'static/src/js/sidebar.js',
           'static/src/js/geolocate.js',
@@ -223,6 +228,7 @@ module.exports = function(grunt) {
         files: [
           'static/src/js/constants.js',
           'static/src/js/common.js',
+          'static/src/js/data.js',
           'static/src/js/mobile.js',
           'static/src/js/sidebar.js',
           'static/src/js/geolocate.js',
@@ -240,6 +246,7 @@ module.exports = function(grunt) {
           'static/src/js/constants.js',
           'static/src/js/native-constants.js',
           'static/src/js/common.js',
+          'static/src/js/data.js',
           'static/src/js/mobile.js',
           'static/src/js/sidebar.js',
           'static/src/js/geolocate.js',
@@ -257,6 +264,7 @@ module.exports = function(grunt) {
           'static/src/js/constants.js',
           'static/src/js/native-constants.js',
           'static/src/js/common.js',
+          'static/src/js/data.js',
           'static/src/js/mobile.js',
           'static/src/js/sidebar.js',
           'static/src/js/geolocate.js',
@@ -274,6 +282,7 @@ module.exports = function(grunt) {
           'static/lib/turf.js-5.1.6/turf.min.js',
           'static/src/js/constants.js',
           'static/src/js/common.js',
+          'static/src/js/data.js',
           'static/src/js/embedded-constants.js'
         ],
         // tasks: ['concat:embedded_base', 'concat:embedded_base_nojq']
@@ -284,6 +293,7 @@ module.exports = function(grunt) {
           'static/lib/turf.js-5.1.6/turf.min.js',
           'static/src/js/constants.js',
           'static/src/js/common.js',
+          'static/src/js/data.js',
           'static/src/js/embedded-constants.js',
           'static/dist/js/map-embedded-base.js',
           'static/dist/js/map-embedded-base-nojq.js'
