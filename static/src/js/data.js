@@ -61,7 +61,7 @@ $.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
  *
  * @param activity_ids
  */
-function get_attractions_by_activity(activity_ids) {
+CM.get_attractions_by_activity = function(activity_ids) {
     // Accept either a single Activity ID or an array of them.
     var activity_ids = Array.isArray(activity_ids) ? activity_ids : [activity_ids];
     // Strings to ints
@@ -93,7 +93,7 @@ function get_attractions_by_activity(activity_ids) {
  *
  * @param amenity_ids
  */
-function get_attractions_by_amenity(amenity_ids) {
+CM.get_attractions_by_amenity = function(amenity_ids) {
     // Accept either a single Amenity ID or an array of them.
     var amenity_ids = Array.isArray(amenity_ids) ? amenity_ids : [amenity_ids];
     // Strings to ints
