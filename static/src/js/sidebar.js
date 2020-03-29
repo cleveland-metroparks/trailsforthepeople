@@ -59,10 +59,9 @@ $(document).ready(function () {
         pane_title = $(this).text().trim();
         set_pane_back_button('#pane-browse-results', '#pane-activities');
 
-        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
-        $.get(API_BASEPATH + 'ajax/get_attractions_by_activity', { activity_ids: activity_id }, function (reply) {
-            display_attractions_results(pane_title, reply);
-        }, 'json');
+        // Render to UL.zoom in the #pane-browse-results pane, and display it
+        var filtered_attractions = get_attractions_by_activity(activity_id);
+        display_attractions_results_NEW(pane_title, filtered_attractions, 'attraction');
     });
 
     /*
@@ -81,10 +80,9 @@ $(document).ready(function () {
         pane_title = $(this).text().trim();
         set_pane_back_button('#pane-browse-results', '#pane-amenities');
 
-        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
-        $.get(API_BASEPATH + 'ajax/get_attractions_by_amenity', { amenity_ids: amenity_id }, function (reply) {
-            display_attractions_results(pane_title, reply);
-        }, 'json');
+        // Render to UL.zoom in the #pane-browse-results pane, and display it
+        var filtered_attractions = get_attractions_by_amenity(amenity_id);
+        display_attractions_results_NEW(pane_title, filtered_attractions, 'attraction');
     });
 
     /*

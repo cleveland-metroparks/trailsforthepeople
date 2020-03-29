@@ -64,6 +64,8 @@ $.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
 function get_attractions_by_activity(activity_ids) {
     // Accept either a single Activity ID or an array of them.
     var activity_ids = Array.isArray(activity_ids) ? activity_ids : [activity_ids];
+    // Strings to ints
+    activity_ids = activity_ids.map(Number);
 
     var filtered_attractions = [];
 
@@ -94,6 +96,8 @@ function get_attractions_by_activity(activity_ids) {
 function get_attractions_by_amenity(amenity_ids) {
     // Accept either a single Amenity ID or an array of them.
     var amenity_ids = Array.isArray(amenity_ids) ? amenity_ids : [amenity_ids];
+    // Strings to ints
+    amenity_ids = amenity_ids.map(Number);
 
     var filtered_attractions = [];
 

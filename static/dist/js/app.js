@@ -453,6 +453,8 @@ $.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
 function get_attractions_by_activity(activity_ids) {
     // Accept either a single Activity ID or an array of them.
     var activity_ids = Array.isArray(activity_ids) ? activity_ids : [activity_ids];
+    // Strings to ints
+    activity_ids = activity_ids.map(Number);
 
     var filtered_attractions = [];
 
@@ -483,6 +485,8 @@ function get_attractions_by_activity(activity_ids) {
 function get_attractions_by_amenity(amenity_ids) {
     // Accept either a single Amenity ID or an array of them.
     var amenity_ids = Array.isArray(amenity_ids) ? amenity_ids : [amenity_ids];
+    // Strings to ints
+    amenity_ids = amenity_ids.map(Number);
 
     var filtered_attractions = [];
 
@@ -1421,10 +1425,9 @@ $(document).ready(function () {
         pane_title = $(this).text().trim();
         set_pane_back_button('#pane-browse-results', '#pane-activities');
 
-        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
-        $.get(API_BASEPATH + 'ajax/get_attractions_by_activity', { activity_ids: activity_id }, function (reply) {
-            display_attractions_results(pane_title, reply);
-        }, 'json');
+        // Render to UL.zoom in the #pane-browse-results pane, and display it
+        var filtered_attractions = get_attractions_by_activity(activity_id);
+        display_attractions_results_NEW(pane_title, filtered_attractions, 'attraction');
     });
 
     /*
@@ -1443,10 +1446,9 @@ $(document).ready(function () {
         pane_title = $(this).text().trim();
         set_pane_back_button('#pane-browse-results', '#pane-amenities');
 
-        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
-        $.get(API_BASEPATH + 'ajax/get_attractions_by_amenity', { amenity_ids: amenity_id }, function (reply) {
-            display_attractions_results(pane_title, reply);
-        }, 'json');
+        // Render to UL.zoom in the #pane-browse-results pane, and display it
+        var filtered_attractions = get_attractions_by_amenity(amenity_id);
+        display_attractions_results_NEW(pane_title, filtered_attractions, 'attraction');
     });
 
     /*
