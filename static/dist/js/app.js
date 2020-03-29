@@ -1051,20 +1051,17 @@ function clearHighlightLine() {
 /**
  * [Geocode and] Zoom to Address
  */
-function zoomToAddress(searchtext) {
-    if (!searchtext) return false;
+function zoomToAddress(addressSearchText) {
+    if (!addressSearchText) return false;
 
-    var params = {};
-    params.address  = searchtext;
-    params.bing_key = BING_API_KEY;
-    params.bbox     = GEOCODE_BIAS_BOX;
+    $.get(API_NEW_BASE_URL + 'geocode/' + addressSearchText, null, function (reply) {
+        console.log('reply', reply);
 
-    $.get(API_BASEPATH + 'ajax/geocode', params, function (result) {
-        if (!result) {
+        if (!reply.data) {
             return alert("We couldn't find that address or city.\nPlease try again.");
         }
 
-        var lngLat = new mapboxgl.LngLat(result.lng, result.lat);
+        var lngLat = new mapboxgl.LngLat(reply.data.lng, reply.data.lat);
 
         // if this point isn't even in the service area, complain and bail
         // tip: "post office" finds Post Office, India
@@ -1075,12 +1072,12 @@ function zoomToAddress(searchtext) {
         // zoom the point location, nice and close, and add a marker
         switchToMap();
 
-        placeMarker(MARKER_TARGET, result.lat, result.lng);
+        placeMarker(MARKER_TARGET, reply.data.lat, reply.data.lng);
         MAP.flyTo({center: lngLat, zoom: DEFAULT_POI_ZOOM});
         // Place a popup at the location with geocoded interpretation of the address
         // and a pseudo-link (with data-holding attributes) that triggers zoomElementClick().
-        var markup = '<h3 class="popup_title">' + result.title + '</h3>';
-        markup += '<span class="fakelink zoom" title="' + result.title + '" lat="' + result.lat + '" lng="' + result.lng + '" w="' + result.w + '" s="' + result.s + '" e="' + result.e + '" n="' + result.n + '" onClick="zoomElementClick( $(this) );">Directions</span>';
+        var markup = '<h3 class="popup_title">' + reply.data.title + '</h3>';
+        markup += '<span class="fakelink zoom" title="' + reply.data.title + '" lat="' + reply.data.lat + '" lng="' + reply.data.lng + '" w="' + reply.data.w + '" s="' + reply.data.s + '" e="' + reply.data.e + '" n="' + reply.data.n + '" onClick="zoomElementClick( $(this) );">Directions</span>';
 
         var popup = new mapboxgl.Popup()
             .setLngLat(lngLat)
