@@ -6,8 +6,6 @@ var OVERLAYS  = [];
 // Route Debugging layer for these maps
 OVERLAYS[OVERLAYS.length] = new L.TileLayer.WMS("//maps.clevelandmetroparks.com/wms", { id:'routedebug', visibility:false, layers:'cm:routing_barriers,cm:routing_segments,cm:routing_nodes,cm:route_problem_intersections', format:'image/png', transparent:'TRUE' });
 
-
-
 // an addon to the Date object, to return the date in yyyy-mm-dd format
 Date.prototype.yyyymmdd = function() {
     var yyyy = this.getFullYear().toString();
@@ -16,8 +14,9 @@ Date.prototype.yyyymmdd = function() {
     return yyyy + '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]); // padding
 };
 
-
-// on page load: start the map
+/**
+ * on page load: start the map
+ */
 function initContributorMap() {
     // start the map, add the basemap
     var options = {
@@ -89,42 +88,35 @@ function initContributorMap() {
 
 }
 
-
-
-
-
+/**
+ * Geocode and zoom contributor map
+ */
 function geocodeAndZoomContributorMap(map, searchtext) {
     if (!searchtext) return false;
-
-    var params = {};
-    params.address  = searchtext;
-    params.bing_key = BING_API_KEY;
-    params.bbox     = GEOCODE_BIAS_BOX;
 
     $('#cleocode_button').attr('disabled',true);
     $('#cleocode_button').val('Loading');
 
-    $.get(API_BASEPATH + 'ajax/geocode', params, function (result) {
+    $.get(API_NEW_BASE_URL + 'geocode/' + searchtext, null, function (reply) {
         $('#cleocode_button').removeAttr('disabled');
         $('#cleocode_button').val('Go >');
-        if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
+        if (!reply) return alert("We couldn't find that address or city.\nPlease try again.");
 
-        var latlng = new L.LatLng(result.lat,result.lng);
+        var latlng = new L.LatLng(reply.data.lat, result.data.lng);
         MAP.setView(latlng,16);
 
         if (typeof CENTER_MARKER_AFTER_GEOCODE !== 'undefined') {
             CENTER_MARKER_AFTER_GEOCODE.setLatLng( MAP.getCenter() );
             CENTER_MARKER_AFTER_GEOCODE.fire('drag');
         }
-
     }, 'json');
 }
 
-
-
-// do an AJAX call to fetch a park feature (reservation, etc) by keyword and feature type
-// see marker.phtml for a <select> element with all feature types, or see ajax.php::keyword()
-// this assumes that targetdiv is a UL, and appends LIs to it with results
+/**
+ * do an AJAX call to fetch a park feature (reservation, etc) by keyword and feature type
+ * see marker.phtml for a <select> element with all feature types, or see ajax.php::keyword()
+ * this assumes that targetdiv is a UL, and appends LIs to it with results
+ */
 function geocodeParkFeature(keyword,targetdiv) {
     $('#cleocode_button').attr('disabled',true);
     $('#cleocode_button').val('Loading');
@@ -177,9 +169,9 @@ function geocodeParkFeature(keyword,targetdiv) {
     }, 'json');
 }
 
-
-
-// utility functions: given a WSEN bounds, construct a real LatLngBounds from it so we can zoom
+/**
+ * utility functions: given a WSEN bounds, construct a real LatLngBounds from it so we can zoom
+ */
 function WSENtoBounds(west,south,east,north) {
     return L.latLngBounds([ [south,west] , [north,east] ]);
 }

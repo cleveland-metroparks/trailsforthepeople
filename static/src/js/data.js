@@ -28,8 +28,6 @@ $.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
         visitor_center.amenities = visitor_center.amenities ? visitor_center.amenities.split('|').map(Number) : null;;
         visitor_center.activities = visitor_center.activities ? visitor_center.activities.split('|').map(Number) : null;;
     });
-
-    console.log('CM.visitor_centers', CM.visitor_centers);
 }, 'json');
 
 //
@@ -37,7 +35,6 @@ $.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
 //
 $.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
     CM.reservations = reply.data;
-    console.log('CM.reservations', CM.reservations);
 }, 'json');
 
 //
@@ -52,8 +49,6 @@ $.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
         attraction.amenities = attraction.amenities ? attraction.amenities.split('|').map(Number) : null;;
         attraction.activities = attraction.activities ? attraction.activities.split('|').map(Number) : null;;
     });
-
-    console.log('CM.attractions', CM.attractions);
 }, 'json');
 
 /**

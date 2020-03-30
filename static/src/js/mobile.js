@@ -543,8 +543,6 @@ function zoomToAddress(addressSearchText) {
     if (!addressSearchText) return false;
 
     $.get(API_NEW_BASE_URL + 'geocode/' + addressSearchText, null, function (reply) {
-        console.log('reply', reply);
-
         if (!reply.data) {
             return alert("We couldn't find that address or city.\nPlease try again.");
         }

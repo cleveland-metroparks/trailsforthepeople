@@ -157,20 +157,13 @@ function processGetDirectionsForm() {
                 getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via);
             } else {
                 disableDirectionsButton();
-                var params = {};
-                params.address  = address;
-                params.bing_key = BING_API_KEY;
-                params.bbox     = GEOCODE_BIAS_BOX;
-                $.get(API_BASEPATH + 'ajax/geocode', params, function (result) {
+                $.get(API_NEW_BASE_URL + 'geocode/' + address, null, function (reply) {
                     enableDirectionsButton();
-                    if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
-                    sourcelat = result.lat;
-                    sourcelng = result.lng;
-
+                    if (!reply) return alert("We couldn't find that address or city.\nPlease try again.");
+                    var sourceLngLat = new mapboxgl.LngLat(reply.data.lng, reply.data.lat);
                     // if the address is outside of our max bounds, then we can't possibly do a Trails
                     // search, and driving routing would still be goofy since it would traverse area well off the map
                     // in this case, warn them that they should use Bing Maps, and send them there
-                    var sourceLngLat = new mapboxgl.LngLat(sourcelng, sourcelat);
                     if (!MAX_BOUNDS.contains(sourceLngLat)) {
                         var from = 'adr.' + address;
                         var to   = 'pos.' + targetlat + '_' + targetlng;
