@@ -7,7 +7,7 @@
  * Cleveland Metroparks
  */
 
-var API_ENDPOINT_GEOCODE = API_BASEPATH + 'ajax/geocode';
+
 var API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES = API_BASEPATH + 'ajax/get_attractions_by_activity';
 var API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY = API_BASEPATH + 'ajax/get_nearby_attractions_with_activities';
 
@@ -134,13 +134,13 @@ function processQueryParams() {
         } else if (location_searchtext) {
             // Search attractions nearby geocoded address
             data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY;
-            data.searchtext = location_searchtext;
+            // data.searchtext = location_searchtext;
 
             // Geocode address
-            callGeocodeAddress(data).then(function(reply, textStatus, jqXHR) {
+            callGeocodeAddress(location_searchtext).then(function(reply, textStatus, jqXHR) {
                 // Add new lat/lng to the data object.
-                data.lat = reply.lat;
-                data.lng = reply.lng;
+                data.lat = reply.data.lat;
+                data.lng = reply.data.lng;
 
                 callGetAttractions(data);
             });
@@ -199,31 +199,20 @@ function callGetAttractions(params) {
 /**
  * Geocode address (AJAX)
  */
-function callGeocodeAddress(params) {
-    var data = {};
-    data.address  = params.searchtext;
-    data.bing_key = BING_API_KEY;
-    data.bbox     = GEOCODE_BIAS_BOX;
-
-    return $.ajax({
-        url: API_ENDPOINT_GEOCODE,
-        dataType: 'json',
-        data: data
-        })
-        .done(function(reply) {
-            var lngLat = new mapboxgl.LngLat(reply.lng, reply.lat);
-            // Point outside service area
-            if (!MAX_BOUNDS.contains(lngLat)) {
-                showInfoPopup("The location we found for your address is too far away.", 'warning');
-                return;
-            }
-
-            // @TODO: GLJS: Add a marker for their location (fake the geolocation marker?)
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-            console.log(textStatus + ': ' + errorThrown);
-            showInfoPopup("We couldn't find that address or city.\nPlease try again.", 'warning');
-        });
+function callGeocodeAddress(addressSearchText) {
+    return $.get(API_NEW_BASE_URL + 'geocode/' + addressSearchText, null, function (reply) {
+        var lngLat = new mapboxgl.LngLat(reply.data.lng, reply.data.lat);
+        // Point outside service area
+        if (!MAX_BOUNDS.contains(lngLat)) {
+            showInfoPopup("The location we found for your address is too far away.", 'warning');
+            return;
+        }
+        // @TODO: GLJS: Add a marker for their location (fake the geolocation marker?)
+    })
+    .fail(function(jqXHR, textStatus, errorThrown) {
+        console.log(textStatus + ': ' + errorThrown);
+        showInfoPopup("We couldn't find that address or city.\nPlease try again.", 'warning');
+    });
 }
 
 /**
