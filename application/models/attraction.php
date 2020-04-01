@@ -220,7 +220,11 @@ function getVisitorCenters() {
  * @return array
  */
 function parseMultiIDsString($ids_str) {
-    return explode('|', $ids_str);
+    $ids = explode('|', $ids_str);
+    // Filter list to remove empty items (some of our strings are like "1|2|3|"):
+    $ids = array_filter($ids, function($val) { return !empty($val); });
+
+    return $ids;
 }
 
 
