@@ -38,6 +38,19 @@ UPDATE view_cmp_gisattractions SET geom = ST_Transform(ST_SetSRID(ST_MakePoint(l
 UPDATE view_cmp_gisattractions SET drivingdestination_geom = ST_Transform(ST_SetSRID(ST_MakePoint(drivingdestinationlongitude, drivingdestinationlatitude), 4326),3734);
 END;
 
+--
+-- Fix view_cmp_gisattractions activities by merging in our changes
+--
+
+BEGIN;
+UPDATE view_cmp_gisattractions v
+SET activities = t.activities
+FROM temp_activity_updates t
+WHERE (v.gis_id = t.gis_id)
+	AND (v.gis_id IS NOT NULL)
+	AND (v.pagetitle = t.pagetitle);
+END;
+
 
 --
 -- Update "materialized view": view_cmp_categories
