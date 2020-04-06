@@ -2482,11 +2482,14 @@ function trail_segments_by_trail_name() {
 /**
  * Make short URL
  *
- * @param uri
+ * @param uri: actually just path; no protocol, URL, or query string
  * @param querystring
  */
 function make_shorturl() {
-    print Shorturl::save_url($_GET['uri'], $_GET['querystring']);
+    $path = $_GET['uri'];
+    $queryStr = $_GET['querystring'];
+
+    print Shorturl::save_url($path, $queryStr);
 }
 
 /**

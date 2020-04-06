@@ -12,10 +12,17 @@ function __construct($id = NULL) {
 
 /**
  * Save URL
+ *
+ * @param $uri: just the path: no URL; typically just "/"
+ * @param $query_string, without the '?'
+ *
+ * @return {string} Just the lettered short-code
+ *         that will go at the end of the short URL,
+ *         i.e., https://maps.clevelandmetroparks.com/url/[SHORT-CODE]
  */
-public static function save_url($uri, $qstring) {
+public static function save_url($uri, $query_string) {
     $url = new Shorturl();
-    $url->querystring = $uri . '?' . $qstring;
+    $url->querystring = $uri . '?' . $query_string;
     $url->save();
 
     return Shorturl::alphaID($url->id, false);
@@ -23,6 +30,13 @@ public static function save_url($uri, $qstring) {
 
 /**
  * Fetch URL
+ *
+ * Take short code, turn it into the numeric ID, query the DB for its
+ * corresponding URL (path + query string).
+ *
+ * @param $key: short-code
+ *
+ * @return Query string, including path and '?', but not protocol or base URL.
  */
 public static function fetch_url($key) {
     if (!$key) return "";
@@ -37,8 +51,11 @@ public static function fetch_url($key) {
 /**
  * Convert between alpha code and number.
  *
- * The excellent AlphaID function from Kevin van Zonneveld (http://kevin.vanzonneveld.net),
- * adapted to our own needs
+ * The alpha code is the end of the short URL, and the
+ * number is the row ID in the shorturls DB table.
+ *
+ * The excellent AlphaID function from Kevin van Zonneveld,
+ * (http://kevin.vanzonneveld.net) adapted to our own needs.
  */
 protected static function alphaID($in, $to_num) {
     $index = "bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ";

@@ -60,7 +60,6 @@ function hideShareURL() {
  * and put this into the share box.
  */
 function makeAndShowShortURL() {
-    var baseUrl = '/';
     var queryString;
 
     if (NATIVE_APP) {
@@ -77,18 +76,15 @@ function makeAndShowShortURL() {
             queryString = queryString.substr(1);
         }
     }
+    // Re-prepend with '/?'
+    queryString = '/?' + queryString;
 
     // submit the long URL param string to the server, get back a short param string
-    var params = {
-        uri : baseUrl,
+    var data = {
         querystring : queryString
-    };
-    $.get(API_BASEPATH + 'ajax/make_shorturl', params, function(shortURLString) {
-        if (!shortURLString) {
-            return alert("Unable to fetch a short URL.\nPlease try again.");
-        }
-
-        // In native mobile, our URL structure is not as in web
+    }
+    $.post(API_NEW_BASE_URL + 'shorturls/', data, function(reply) {
+        // In native mobile, the URL structure is different than in web
         var url = new URL(location.href);
         var protocol =
             (url.protocol != 'file:')
@@ -98,10 +94,13 @@ function makeAndShowShortURL() {
             ? url.host
             : WEBAPP_BASE_URL_ABSOLUTE_HOST;
 
-        var shareUrl = protocol + '//' + host + '/url/' + shortURLString;
+        var shareUrl = protocol + '//' + host + '/url/' + reply.data.shortcode;
 
         $('#share_url').val(shareUrl);
         showShareURL();
+    })
+    .fail(function() {
+        alert("Unable to fetch a short URL.\nPlease try again.");
     });
 }
 

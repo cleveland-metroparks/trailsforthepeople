@@ -430,8 +430,6 @@ $.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
         visitor_center.amenities = visitor_center.amenities ? visitor_center.amenities.split('|').map(Number) : null;;
         visitor_center.activities = visitor_center.activities ? visitor_center.activities.split('|').map(Number) : null;;
     });
-
-    console.log('CM.visitor_centers (' + memorySizeOf(CM.visitor_centers) + ')', CM.visitor_centers);
 }, 'json');
 
 //
@@ -439,7 +437,6 @@ $.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
 //
 $.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
     CM.reservations = reply.data;
-    console.log('CM.reservations (' + memorySizeOf(CM.reservations) + ')', CM.reservations);
 }, 'json');
 
 //
@@ -454,20 +451,18 @@ $.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
         attraction.amenities = attraction.amenities ? attraction.amenities.split('|').map(Number) : null;;
         attraction.activities = attraction.activities ? attraction.activities.split('|').map(Number) : null;;
     });
-
-    console.log('CM.attractions (' + memorySizeOf(CM.attractions) + ')', CM.attractions);
 }, 'json');
-
-
 
 /**
  * Get attractions that offer specified activities
  *
  * @param activity_ids
  */
-function get_attractions_by_activity(activity_ids) {
+CM.get_attractions_by_activity = function(activity_ids) {
     // Accept either a single Activity ID or an array of them.
     var activity_ids = Array.isArray(activity_ids) ? activity_ids : [activity_ids];
+    // Strings to ints
+    activity_ids = activity_ids.map(Number);
 
     var filtered_attractions = [];
 
@@ -476,7 +471,7 @@ function get_attractions_by_activity(activity_ids) {
 
         // Check whether ALL searched-for activities are in this Attraction's list (ANDed)
         for (var i = 0; i < activity_ids.length; i++) {
-            if (!attraction.activities.includes(activity_ids[i])) {
+            if (!attraction.activities || !attraction.activities.includes(activity_ids[i])) {
                 found = false;
                 break;
             }
@@ -495,9 +490,11 @@ function get_attractions_by_activity(activity_ids) {
  *
  * @param amenity_ids
  */
-function get_attractions_by_amenity(amenity_ids) {
+CM.get_attractions_by_amenity = function(amenity_ids) {
     // Accept either a single Amenity ID or an array of them.
     var amenity_ids = Array.isArray(amenity_ids) ? amenity_ids : [amenity_ids];
+    // Strings to ints
+    amenity_ids = amenity_ids.map(Number);
 
     var filtered_attractions = [];
 
@@ -506,7 +503,7 @@ function get_attractions_by_amenity(amenity_ids) {
 
         // Check whether ALL searched-for amenities are in this Attraction's list (ANDed)
         for (var i = 0; i < amenity_ids.length; i++) {
-            if (!attraction.amenities.includes(amenity_ids[i])) {
+            if (!attraction.amenities || !attraction.amenities.includes(amenity_ids[i])) {
                 found = false;
                 break;
             }
@@ -520,75 +517,6 @@ function get_attractions_by_amenity(amenity_ids) {
     return filtered_attractions;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
- *
- */
-function memorySizeOf(obj) {
-    var bytes = 0;
-
-    function sizeOf(obj) {
-        if(obj !== null && obj !== undefined) {
-            switch(typeof obj) {
-            case 'number':
-                bytes += 8;
-                break;
-            case 'string':
-                bytes += obj.length * 2;
-                break;
-            case 'boolean':
-                bytes += 4;
-                break;
-            case 'object':
-                var objClass = Object.prototype.toString.call(obj).slice(8, -1);
-                if(objClass === 'Object' || objClass === 'Array') {
-                    for(var key in obj) {
-                        if(!obj.hasOwnProperty(key)) continue;
-                        sizeOf(obj[key]);
-                    }
-                } else bytes += obj.toString().length * 2;
-                break;
-            }
-        }
-        return bytes;
-    };
-
-    function formatByteSize(bytes) {
-        if(bytes < 1024) return bytes + " bytes";
-        else if(bytes < 1048576) return(bytes / 1024).toFixed(3) + " KiB";
-        else if(bytes < 1073741824) return(bytes / 1048576).toFixed(3) + " MiB";
-        else return(bytes / 1073741824).toFixed(3) + " GiB";
-    };
-
-    return formatByteSize(sizeOf(obj));
-};
 ;
  /**
  * mobile.js
@@ -1131,20 +1059,15 @@ function clearHighlightLine() {
 /**
  * [Geocode and] Zoom to Address
  */
-function zoomToAddress(searchtext) {
-    if (!searchtext) return false;
+function zoomToAddress(addressSearchText) {
+    if (!addressSearchText) return false;
 
-    var params = {};
-    params.address  = searchtext;
-    params.bing_key = BING_API_KEY;
-    params.bbox     = GEOCODE_BIAS_BOX;
-
-    $.get(API_BASEPATH + 'ajax/geocode', params, function (result) {
-        if (!result) {
+    $.get(API_NEW_BASE_URL + 'geocode/' + addressSearchText, null, function (reply) {
+        if (!reply.data) {
             return alert("We couldn't find that address or city.\nPlease try again.");
         }
 
-        var lngLat = new mapboxgl.LngLat(result.lng, result.lat);
+        var lngLat = new mapboxgl.LngLat(reply.data.lng, reply.data.lat);
 
         // if this point isn't even in the service area, complain and bail
         // tip: "post office" finds Post Office, India
@@ -1155,12 +1078,12 @@ function zoomToAddress(searchtext) {
         // zoom the point location, nice and close, and add a marker
         switchToMap();
 
-        placeMarker(MARKER_TARGET, result.lat, result.lng);
+        placeMarker(MARKER_TARGET, reply.data.lat, reply.data.lng);
         MAP.flyTo({center: lngLat, zoom: DEFAULT_POI_ZOOM});
         // Place a popup at the location with geocoded interpretation of the address
         // and a pseudo-link (with data-holding attributes) that triggers zoomElementClick().
-        var markup = '<h3 class="popup_title">' + result.title + '</h3>';
-        markup += '<span class="fakelink zoom" title="' + result.title + '" lat="' + result.lat + '" lng="' + result.lng + '" w="' + result.w + '" s="' + result.s + '" e="' + result.e + '" n="' + result.n + '" onClick="zoomElementClick( $(this) );">Directions</span>';
+        var markup = '<h3 class="popup_title">' + reply.data.title + '</h3>';
+        markup += '<span class="fakelink zoom" title="' + reply.data.title + '" lat="' + reply.data.lat + '" lng="' + reply.data.lng + '" w="' + reply.data.w + '" s="' + reply.data.s + '" e="' + reply.data.e + '" n="' + reply.data.n + '" onClick="zoomElementClick( $(this) );">Directions</span>';
 
         var popup = new mapboxgl.Popup()
             .setLngLat(lngLat)
@@ -1505,10 +1428,9 @@ $(document).ready(function () {
         pane_title = $(this).text().trim();
         set_pane_back_button('#pane-browse-results', '#pane-activities');
 
-        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
-        $.get(API_BASEPATH + 'ajax/get_attractions_by_activity', { activity_ids: activity_id }, function (reply) {
-            display_attractions_results(pane_title, reply);
-        }, 'json');
+        // Render to UL.zoom in the #pane-browse-results pane, and display it
+        var filtered_attractions = CM.get_attractions_by_activity(activity_id);
+        CM.display_attractions_results(pane_title, filtered_attractions, 'attraction');
     });
 
     /*
@@ -1527,10 +1449,9 @@ $(document).ready(function () {
         pane_title = $(this).text().trim();
         set_pane_back_button('#pane-browse-results', '#pane-amenities');
 
-        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
-        $.get(API_BASEPATH + 'ajax/get_attractions_by_amenity', { amenity_ids: amenity_id }, function (reply) {
-            display_attractions_results(pane_title, reply);
-        }, 'json');
+        // Render to UL.zoom in the #pane-browse-results pane, and display it
+        var filtered_attractions = CM.get_attractions_by_amenity(amenity_id);
+        CM.display_attractions_results(pane_title, filtered_attractions, 'attraction');
     });
 
     /*
@@ -1543,7 +1464,7 @@ $(document).ready(function () {
         set_pane_back_button('#pane-browse-results', '#pane-welcome');
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
-        display_attractions_results_NEW(pane_title, CM.visitor_centers, 'attraction');
+        CM.display_attractions_results(pane_title, CM.visitor_centers, 'attraction');
     });
 
     // Parks button clicked
@@ -1552,7 +1473,7 @@ $(document).ready(function () {
         set_pane_back_button('#pane-browse-results', '#pane-welcome');
 
         // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
-        display_attractions_results_NEW(pane_title, CM.reservations, 'reservation_new');
+        CM.display_attractions_results(pane_title, CM.reservations, 'reservation_new');
     });
 
     // Activities button clicked
@@ -1566,173 +1487,6 @@ $(document).ready(function () {
         // Perform trails search upon opening the pane.
         filterLoops();
     });
-
-    /**
-     * Display Attractions results from [new] API call.
-     *
-     * @param pane_title
-     * @param data
-     * @param attraction_type
-     */
-    display_attractions_results_NEW = function(pane_title, data, attraction_type) {
-        // Pane header title
-        var header = $('#pane-browse-results h1.sidebar-header .title-text');
-        header.text(pane_title);
-
-        sidebar.open('pane-browse-results');
-
-        var target = $('ul#browse_results');
-        target.empty();
-
-        // Iterate over fetched results and render them into the target
-        for (var i=0, l=data.length; i<l; i++) {
-            var result = data[i];
-
-            // List item
-            // A lot of attributes to set pertaining to .zoom handling
-            var li = $('<li></li>')
-                .addClass('zoom')
-                .attr('title', result.pagetitle)
-                .attr('gid', result.gis_id)
-                .attr('record_id', result.record_id)
-                .attr('type', attraction_type)
-                .attr('w', result.boxw)
-                .attr('s', result.boxs)
-                .attr('e', result.boxe)
-                .attr('n', result.boxn)
-                .attr('lat', result.latitude)
-                .attr('lng', result.longitude)
-                .attr('backbutton', "#pane-browse-results");
-
-            // Link (fake, currently)
-            link = $('<a></a>');
-            link.attr('class', 'ui-btn ui-btn-text');
-            li.append(link);
-
-            // On click: center the map and load More Info
-            li.click(function () {
-                zoomElementClick($(this));
-            });
-
-            // Title
-            link.append(
-                $('<span></span>')
-                    .addClass('ui-li-heading')
-                    .text(result.pagetitle)
-                );
-
-            // @TODO:API: Still necessary?
-            //// Inner text
-            //if (result.note) {
-            //    link.append(
-            //        $('<span></span>')
-            //            .addClass('ui-li-desc')
-            //            .html(result.note)
-            //        );
-            //}
-
-            // Distance placeholder, to be populated later
-            link.append(
-                $('<span></span>')
-                    .addClass('zoom_distance')
-                    .addClass('ui-li-count')
-                    .addClass('ui-btn-up-c')
-                    .addClass('ui-btn-corner-all')
-                    .text('0 mi')
-                );
-
-            // Add to the list
-            li.append(link);
-            target.append(li);
-        }
-
-        // Finalize the list,
-        // have jQuery Mobile do its styling magic on the newly-loaded content,
-        // then calculate the distances and sort.
-        target.listview('refresh');
-        sortLists(target);
-    }
-
-    /**
-     * Display Attractions results from AJAX call.
-     */
-    display_attractions_results = function(pane_title, reply) {
-        // Pane header title
-        var header = $('#pane-browse-results h1.sidebar-header .title-text');
-        header.text(pane_title);
-
-        sidebar.open('pane-browse-results');
-
-        var target = $('ul#browse_results');
-        target.empty();
-
-        // Iterate over fetched results and render them into the target
-        for (var i=0, l=reply.results.length; i<l; i++) {
-            var result = reply.results[i];
-
-            // List item
-            // A lot of attributes to set pertaining to .zoom handling
-            var li = $('<li></li>')
-                .addClass('zoom')
-                .attr('title', result.name)
-                .attr('gid',result.gid)
-                .attr('record_id',result.record_id)
-                .attr('type',result.type)
-                .attr('w',result.w)
-                .attr('s',result.s)
-                .attr('e',result.e)
-                .attr('n',result.n)
-                .attr('lat',result.lat)
-                .attr('lng',result.lng)
-                .attr('backbutton', "#pane-browse-results");
-
-            // Link (fake, currently)
-            link = $('<a></a>');
-            link.attr('class', 'ui-btn ui-btn-text');
-            li.append(link);
-
-            // On click: center the map and load More Info
-            li.click(function () {
-                zoomElementClick($(this));
-            });
-
-            // Title
-            link.append(
-                $('<span></span>')
-                    .addClass('ui-li-heading')
-                    .text(result.name)
-                );
-
-            // Inner text
-            if (result.note) {
-                link.append(
-                    $('<span></span>')
-                        .addClass('ui-li-desc')
-                        .html(result.note)
-                    );
-            }
-
-            // Distance placeholder, to be populated later
-            link.append(
-                $('<span></span>')
-                    .addClass('zoom_distance')
-                    .addClass('ui-li-count')
-                    .addClass('ui-btn-up-c')
-                    .addClass('ui-btn-corner-all')
-                    .text('0 mi')
-                );
-
-            // Add to the list
-            li.append(link);
-            target.append(li);
-        }
-
-        // Finalize the list,
-        // have jQuery Mobile do its styling magic on the newly-loaded content,
-        // then calculate the distances and sort.
-        target.listview('refresh');
-        sortLists(target);
-    };
 
     /*
      * Share pane (#pane-share)
@@ -1759,6 +1513,92 @@ $(document).ready(function () {
         return true;
     });
 });
+
+/**
+ * Display Attractions results from API call.
+ *
+ * @param pane_title
+ * @param data
+ * @param attraction_type
+ */
+CM.display_attractions_results = function(pane_title, data, attraction_type) {
+    // Pane header title
+    var header = $('#pane-browse-results h1.sidebar-header .title-text');
+    header.text(pane_title);
+
+    sidebar.open('pane-browse-results');
+
+    var target = $('ul#browse_results');
+    target.empty();
+
+    // Iterate over fetched results and render them into the target
+    for (var i=0, l=data.length; i<l; i++) {
+        var result = data[i];
+
+        // List item
+        // A lot of attributes to set pertaining to .zoom handling
+        var li = $('<li></li>')
+            .addClass('zoom')
+            .attr('title', result.pagetitle)
+            .attr('gid', result.gis_id)
+            .attr('record_id', result.record_id)
+            .attr('type', attraction_type)
+            .attr('w', result.boxw)
+            .attr('s', result.boxs)
+            .attr('e', result.boxe)
+            .attr('n', result.boxn)
+            .attr('lat', result.latitude)
+            .attr('lng', result.longitude)
+            .attr('backbutton', "#pane-browse-results");
+
+        // Link (fake, currently)
+        link = $('<a></a>');
+        link.attr('class', 'ui-btn ui-btn-text');
+        li.append(link);
+
+        // On click: center the map and load More Info
+        li.click(function () {
+            zoomElementClick($(this));
+        });
+
+        // Title
+        link.append(
+            $('<span></span>')
+                .addClass('ui-li-heading')
+                .text(result.pagetitle)
+            );
+
+        // @TODO:API: Still necessary?
+        //// Inner text
+        //if (result.note) {
+        //    link.append(
+        //        $('<span></span>')
+        //            .addClass('ui-li-desc')
+        //            .html(result.note)
+        //        );
+        //}
+
+        // Distance placeholder, to be populated later
+        link.append(
+            $('<span></span>')
+                .addClass('zoom_distance')
+                .addClass('ui-li-count')
+                .addClass('ui-btn-up-c')
+                .addClass('ui-btn-corner-all')
+                .text('0 mi')
+            );
+
+        // Add to the list
+        li.append(link);
+        target.append(li);
+    }
+
+    // Finalize the list,
+    // have jQuery Mobile do its styling magic on the newly-loaded content,
+    // then calculate the distances and sort.
+    target.listview('refresh');
+    sortLists(target);
+}
 
 ///**
 // * Resize the Share URL box if the size of the sidebar has potentially changed.
@@ -2083,20 +1923,13 @@ function processGetDirectionsForm() {
                 getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via);
             } else {
                 disableDirectionsButton();
-                var params = {};
-                params.address  = address;
-                params.bing_key = BING_API_KEY;
-                params.bbox     = GEOCODE_BIAS_BOX;
-                $.get(API_BASEPATH + 'ajax/geocode', params, function (result) {
+                $.get(API_NEW_BASE_URL + 'geocode/' + address, null, function (reply) {
                     enableDirectionsButton();
-                    if (! result) return alert("We couldn't find that address or city.\nPlease try again.");
-                    sourcelat = result.lat;
-                    sourcelng = result.lng;
-
+                    if (!reply) return alert("We couldn't find that address or city.\nPlease try again.");
+                    var sourceLngLat = new mapboxgl.LngLat(reply.data.lng, reply.data.lat);
                     // if the address is outside of our max bounds, then we can't possibly do a Trails
                     // search, and driving routing would still be goofy since it would traverse area well off the map
                     // in this case, warn them that they should use Bing Maps, and send them there
-                    var sourceLngLat = new mapboxgl.LngLat(sourcelng, sourcelat);
                     if (!MAX_BOUNDS.contains(sourceLngLat)) {
                         var from = 'adr.' + address;
                         var to   = 'pos.' + targetlat + '_' + targetlng;
@@ -2637,7 +2470,6 @@ function hideShareURL() {
  * and put this into the share box.
  */
 function makeAndShowShortURL() {
-    var baseUrl = '/';
     var queryString;
 
     if (NATIVE_APP) {
@@ -2654,18 +2486,15 @@ function makeAndShowShortURL() {
             queryString = queryString.substr(1);
         }
     }
+    // Re-prepend with '/?'
+    queryString = '/?' + queryString;
 
     // submit the long URL param string to the server, get back a short param string
-    var params = {
-        uri : baseUrl,
+    var data = {
         querystring : queryString
-    };
-    $.get(API_BASEPATH + 'ajax/make_shorturl', params, function(shortURLString) {
-        if (!shortURLString) {
-            return alert("Unable to fetch a short URL.\nPlease try again.");
-        }
-
-        // In native mobile, our URL structure is not as in web
+    }
+    $.post(API_NEW_BASE_URL + 'shorturls/', data, function(reply) {
+        // In native mobile, the URL structure is different than in web
         var url = new URL(location.href);
         var protocol =
             (url.protocol != 'file:')
@@ -2675,10 +2504,13 @@ function makeAndShowShortURL() {
             ? url.host
             : WEBAPP_BASE_URL_ABSOLUTE_HOST;
 
-        var shareUrl = protocol + '//' + host + '/url/' + shortURLString;
+        var shareUrl = protocol + '//' + host + '/url/' + reply.data.shortcode;
 
         $('#share_url').val(shareUrl);
         showShareURL();
+    })
+    .fail(function() {
+        alert("Unable to fetch a short URL.\nPlease try again.");
     });
 }
 
