@@ -437,6 +437,12 @@ $.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
 //
 $.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
     CM.reservations = reply.data;
+
+    console.log(CM.reservations);
+
+    $.event.trigger({
+        type: 'dataReadyReservations',
+    });
 }, 'json');
 
 //
@@ -450,6 +456,12 @@ $.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
         attraction.categories = attraction.categories ? attraction.categories.split('|').map(Number) : null;
         attraction.amenities = attraction.amenities ? attraction.amenities.split('|').map(Number) : null;;
         attraction.activities = attraction.activities ? attraction.activities.split('|').map(Number) : null;;
+    });
+
+    console.log(CM.attractions);
+
+    $.event.trigger({
+        type: 'dataReadyAttractions',
     });
 }, 'json');
 

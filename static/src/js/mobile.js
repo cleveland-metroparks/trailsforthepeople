@@ -139,49 +139,56 @@ $(document).ready(function () {
 
     // URL params query string: "type" and "gid"
     if (urlParams.get('type') && urlParams.get('gid') ) {
-
+        var gis_id = urlParams.get('gid');
         if (urlParams.get('type') == 'attraction') {
-            var params = {
-                gid: urlParams.get('gid')
-            };
-            $.get(API_BASEPATH + 'ajax/get_attraction', params, function (reply) {
-                if (!reply || ! reply.lat || ! reply.lng) {
+            // Wait to ensure we have the data
+            $(document).on("dataReadyAttractions", function() {
+                var attraction = {};
+                for (var i = 0; i < CM.attractions.length; i++) {
+                    if (CM.attractions[i].gis_id == gis_id) {
+                        attraction.gid   = CM.attractions[i].gis_id;
+                        attraction.title = CM.attractions[i].pagetitle;
+                        attraction.lat   = CM.attractions[i].latitude;
+                        attraction.lng   = CM.attractions[i].longitude;
+                        break;
+                    }
+                }
+                if (attraction.lat && attraction.lng) {
+                    zoomToFeature(attraction);
+                    // Show info in sidebar
+                    // @TODO: This is app-specific. Re-work.
+                    showAttractionInfo(urlParams.get('type'), attraction);
+                } else {
                     return alert("Cound not find that feature.");
                 }
-
-                zoomToFeature(reply);
-
-                // Show info in sidebar
-                // @TODO: This is app-specific. Re-work.
-                showAttractionInfo(urlParams.get('type'), reply);
-
-            }, 'json');
+            });
         } else if (urlParams.get('type') == 'reservation_new') {
-            var params = {
-                gid: urlParams.get('gid')
-            };
-            $.get(API_BASEPATH + 'ajax/get_reservation', params, function (reply) {
-                if (!reply || !reply.lat || !reply.lng) {
+            // Wait to ensure we have the data
+            $(document).on("dataReadyReservations", function() {
+                var reservation = {};
+                for (var i = 0; i < CM.reservations.length; i++) {
+                    if (CM.reservations[i].record_id == gis_id) {
+                        reservation.gid   = CM.reservations[i].record_id;
+                        reservation.w     = CM.reservations[i].boxw;
+                        reservation.n     = CM.reservations[i].boxn;
+                        reservation.e     = CM.reservations[i].boxe;
+                        reservation.s     = CM.reservations[i].boxs;
+                        reservation.lat   = CM.reservations[i].latitude;
+                        reservation.lng   = CM.reservations[i].longitude;
+                        break;
+                    }
+                }
+                if ((reservation.w && reservation.n && reservation.e && reservation.s)
+                    || (reservation.lat && reservation.lng)) {
+                    zoomToFeature(reservation);
+                    // Show info in sidebar
+                    // @TODO: This is app-specific. Re-work.
+                    showAttractionInfo(urlParams.get('type'), reservation);
+                } else {
                     return alert("Cound not find that reservation.");
                 }
-
-                feature = reply;
-
-                feature.gid = reply.record_id;
-                feature.w = reply.boxw;
-                feature.n = reply.boxn;
-                feature.e = reply.boxe;
-                feature.s = reply.boxs;
-
-                zoomToFeature(feature);
-
-                // Show info in sidebar
-                // @TODO: This is app-specific. Re-work.
-                showAttractionInfo(urlParams.get('type'), reply);
-
-            }, 'json');
+            });
         }
-
     }
 
     // URL params query string: "route"
