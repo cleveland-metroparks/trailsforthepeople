@@ -60,6 +60,42 @@ $.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
 }, 'json');
 
 /**
+ * Get reservation by record_id.
+ * Because our data comes in ordered alphabetically,
+ * because the db table has no primary key, and record_id
+ * can't necessarily be relied upon.
+ *
+ * @param record_id
+ *
+ * @return reservation if found, or null
+ */
+CM.get_reservation = function(record_id) {
+    for (var i = 0; i < CM.reservations.length; i++) {
+        if (CM.reservations[i].record_id == record_id) {
+            return CM.reservations[i];
+        }
+    }
+}
+
+/**
+ * Get attraction by gis_id.
+ * Because our data comes in ordered alphabetically,
+ * because the db table has no primary key, and gis_id
+ * is sometimes null.
+ *
+ * @param gis_id
+ *
+ * @return attraction if found, or null
+ */
+CM.get_attraction = function(gis_id) {
+    for (var i = 0; i < CM.attractions.length; i++) {
+        if (CM.attractions[i].gis_id == gis_id) {
+            return CM.attractions[i];
+        }
+    }
+}
+
+/**
  * Get attractions that offer specified activities
  *
  * @param activity_ids
