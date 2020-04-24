@@ -8,6 +8,32 @@
 
 
 $(document).on("mapInitialized", function () {
+
+    MLY = new Mapillary.Viewer(
+        'mly', // DOM ID
+        'STU0THdEbEt0QlY2enFZN0dKTGhyQTo3ODg5MTVhZTRkZDdmN2Qw',    // Client ID
+        null     // Image key for initializing the viewer
+    );
+    
+    //
+    MLY.on(Mapillary.Viewer.nodechanged, function (node) {
+        var lngLat = [node.latLon.lon, node.latLon.lat];
+    
+        var data = {
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: lngLat,
+            },
+            properties: {
+                'marker-symbol': 'marker',
+            }
+        };
+        MAP.getSource('mly-cur').setData(data);
+        MAP.flyTo({ center: lngLat });
+    });
+
+    //
     MAP.on("load", function (event) {
 
         var beforeLayer = null;
@@ -54,6 +80,28 @@ $(document).on("mapInitialized", function () {
           }
         }, beforeLayer);
 
+        // And marker layer for 
+        var mlyCurMarker = {
+            type: "geojson",
+            data: {
+                type: "Feature",
+                geometry: {
+                    type: "Point",
+                    coordinates: [12.695600612967427, 56.04351888068181],
+                },
+                properties: { },
+            },
+        };
+        MAP.addSource("mly-cur", mlyCurMarker);
+        MAP.addLayer({
+            id: "mly-cur",
+            type: "symbol",
+            source: "mly-cur",
+            layout: {
+                "icon-image": "{marker-symbol}-15",
+            },
+        });
+
         // Filter by users
         //
         // @dakotabenjamin's userkey: 0H-w-WeGPajZ_G_I1RTE-w
@@ -87,24 +135,28 @@ $(document).on("mapInitialized", function () {
             var key = e.features[0].properties.key;
             var url = "https://images.mapillary.com/" + key + "/thumb-320.jpg";
 
+            MLY.moveToKey(key).then(
+                function(node) { console.log('MLY loaded key:', node.key); },
+                function(error) { console.error('MLY error:', error); });
+
             // [Debug] log the image's properties (including userkey)
             // console.log(e.features[0].properties);
 
-            // Ensure that if the map is zoomed out such that multiple
-            // copies of the feature are visible, the popup appears
-            // over the copy being pointed to.
-            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-              coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-            }
-
-            // Populate the popup and set its coordinates
-            // based on the feature found.
-            popup.setLngLat(coordinates)
-            .setHTML("<img src='" + url + "' width='160'/>")
-            .addTo(MAP);
+            // // Ensure that if the map is zoomed out such that multiple
+            // // copies of the feature are visible, the popup appears
+            // // over the copy being pointed to.
+            // while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+            //   coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            // }
+            //
+            // // Populate the popup and set its coordinates
+            // // based on the feature found.
+            // popup.setLngLat(coordinates)
+            // .setHTML("<img src='" + url + "' width='160'/>")
+            // .addTo(MAP);
         });
 
-        MAP.on('mouseleave', 'mapillary-images', function() {
+        MAP.on("click", 'mapillary-images', function() {
             MAP.getCanvas().style.cursor = '';
             popup.remove();
         });

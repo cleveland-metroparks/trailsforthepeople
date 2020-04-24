@@ -120,6 +120,8 @@ var STYLE_NAMES = {
     'CM-Aerial' : 'photo'
 };
 
+// Mapillary viewer object
+var MLY = null;
 ;
  /**
  * embedded-constants.js
