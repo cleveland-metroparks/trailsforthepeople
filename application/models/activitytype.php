@@ -8,33 +8,33 @@ class ActivityType extends DataMapper {
 var $table    = 'view_cmp_gisactivitytype';
 
 var $chosen_activities = array(
-    'Archery', // 6
-    'Biking & Cycling', // 1
-    'Boating & Paddlesports', // 3
-    'Cross-Country Skiing', // 7
-    'Dining', // 21
-    //'Exercising', // 39
-    'Exploring Culture & History', // 20
-    'Exploring Nature', // 19
-    'Fishing & Ice Fishing', // 5
-    //'Fitness Circuit', // 25
-    'Geocaching', // 9
-    'Golfing', // 30
-    'Hiking & Walking', // 4
-    'Horseback Riding', // 11
-    'Mountain Biking', // 12
-    'Picnicking', // 13
-    'Rope Courses & Zip Lines', // 18
-    'Sledding', // 15
-    'Snowshoeing', // 16
-    'Swimming', // 2
-    //'Tobogganing', // 17
+    6, // 'Archery'
+    1, // 'Biking & Cycling'
+    3, // 'Boating, Sailing & Paddlesports'
+    7, // 'Cross-Country Skiing'
+    21, // 'Dining'
+    //39, // 'Exercising'
+    20, // 'Exploring Culture & History'
+    19, // 'Exploring Nature'
+    5, // 'Fishing & Ice Fishing'
+    //25, // 'Fitness Circuit'
+    9, // 'Geocaching'
+    30, // 'Golfing'
+    4, // 'Hiking & Walking'
+    11, // 'Horseback Riding'
+    12, // 'Mountain Biking'
+    13, // 'Picnicking'
+    18, // 'Rope Courses & Zip Lines'
+    15, // 'Sledding'
+    16, // 'Snowshoeing'
+    2, // 'Swimming'
+    //17, // 'Tobogganing'
 );
 // @TODO: Move this into the DB
 var $activity_type_icons_by_id = array(
      1 => 'bike.svg',      // Biking & Cycling
      2 => 'swim.svg',      // Swimming
-     3 => 'boat.svg',      // Boating & Paddlesports
+     3 => 'boat.svg',      // Boating, Sailing & Paddlesports
      4 => 'hike.svg',      // Hiking & Walking
      5 => 'fish.svg',      // Fishing & Ice Fishing
      6 => 'archery.svg',   // Archery
@@ -77,7 +77,7 @@ function getActivityTypesAndIcons($chosen_only=FALSE) {
     $output = array();
 
     foreach($activity_types as $activity) {
-        if ($chosen_only && !in_array($activity->pagetitle, $activity->chosen_activities)) {
+        if ($chosen_only && !in_array($activity->eventactivitytypeid, $activity->chosen_activities)) {
             continue;
         }
         $record = array(
@@ -113,7 +113,7 @@ function getActivitiesWithAttractions($chosen_only=FALSE) {
     $output = array();
 
     foreach($results as $activity) {
-        if ($chosen_only && !in_array($activity->pagetitle, $activity_types->chosen_activities)) {
+        if ($chosen_only && !in_array($activity->eventactivitytypeid, $activity_types->chosen_activities)) {
             continue;
         }
         $record = array(

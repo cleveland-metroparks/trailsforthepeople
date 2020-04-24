@@ -58,6 +58,7 @@ protected function getFilteredAttractions($filter, $filter_ids=array()) {
     // Get all attractions first
     $all_attractions
         ->order_by('pagetitle')
+        ->where('gis_id IS NOT NULL')
         ->get();
 
     // Then filter by those that have the activity or activities
@@ -99,7 +100,8 @@ function getNearbyAttractions($from_lat, $from_lng, $within_feet, $with_activiti
 
     $sql = "
         SELECT * FROM $table
-        WHERE ST_DISTANCE(
+        WHERE (gis_id IS NOT NULL) AND
+        ST_DISTANCE(
             geom,
             ST_TRANSFORM(ST_GEOMFROMTEXT('POINT($from_lng $from_lat)', 4326), 3734)) <= $within_feet
     ";
@@ -218,7 +220,11 @@ function getVisitorCenters() {
  * @return array
  */
 function parseMultiIDsString($ids_str) {
-    return explode('|', $ids_str);
+    $ids = explode('|', $ids_str);
+    // Filter list to remove empty items (some of our strings are like "1|2|3|"):
+    $ids = array_filter($ids, function($val) { return !empty($val); });
+
+    return $ids;
 }
 
 
