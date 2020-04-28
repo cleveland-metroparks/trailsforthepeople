@@ -30,6 +30,7 @@ module.exports = function(grunt) {
           'static/src/js/search.js',
           'static/src/js/nearby.js',
           'static/src/js/loopsandroutes.js',
+          'static/dist/js/handlebars-templates.js',
           // 'static/src/js/print.js'
         ],
         dest: 'static/dist/js/app.js'
@@ -49,6 +50,7 @@ module.exports = function(grunt) {
           'static/src/js/search.js',
           'static/src/js/nearby.js',
           'static/src/js/loopsandroutes.js',
+          'static/dist/js/handlebars-templates.js',
           // 'static/src/js/print.js'
         ],
         dest: 'static/dist/js/app-native.js'
@@ -89,6 +91,31 @@ module.exports = function(grunt) {
       deps: {
         src: 'static/src/js/deps-app.js',
         dest: 'static/dist/js/deps-app.js'
+      }
+    },
+
+    /**
+     *
+     * Handlebars
+     *
+     */
+    handlebars: {
+      all: {
+        options: {
+          namespace: 'CM.Templates',
+          processName: function(filePath) {
+            // Strip the path to leave the filename
+            var pieces = filePath.split('/');
+            var filename = pieces[pieces.length - 1];
+            // Remove the file extension
+            pieces = filename.split('.');
+            var name = pieces[0];
+            return name;
+          }
+        },
+        files: {
+          'static/dist/js/handlebars-templates.js': 'static/src/js/templates/*.hbs',
+        }
       }
     },
 
@@ -214,6 +241,7 @@ module.exports = function(grunt) {
           'static/src/js/search.js',
           'static/src/js/nearby.js',
           'static/src/js/loopsandroutes.js',
+          'static/dist/js/handlebars-templates.js',
           // 'static/src/js/print.js'
         ],
         tasks: ['concat:dist']
@@ -223,6 +251,12 @@ module.exports = function(grunt) {
           'static/src/js/deps-app.js'
         ],
         tasks: ['browserify:deps']
+      },
+      handlebars_all: {
+        files: [
+          'static/src/js/templates/*.hbs'
+        ],
+        tasks: ['handlebars:all']
       },
       uglify_dist: {
         files: [
@@ -237,6 +271,7 @@ module.exports = function(grunt) {
           'static/src/js/search.js',
           'static/src/js/nearby.js',
           'static/src/js/loopsandroutes.js',
+          'static/dist/js/handlebars-templates.js',
           // 'static/src/js/print.js'
         ],
         tasks: ['uglify:dist']
@@ -255,6 +290,7 @@ module.exports = function(grunt) {
       //    'static/src/js/search.js',
       //    'static/src/js/nearby.js',
       //    'static/src/js/loopsandroutes.js',
+      //    'static/dist/js/handlebars-templates.js',
       //    // 'static/src/js/print.js'
       //  ],
       //  tasks: ['concat:native']
@@ -273,6 +309,7 @@ module.exports = function(grunt) {
       //    'static/src/js/search.js',
       //    'static/src/js/nearby.js',
       //    'static/src/js/loopsandroutes.js',
+      //    'static/dist/js/handlebars-templates.js',
       //    // 'static/src/js/print.js'
       //  ],
       //  tasks: ['uglify:native']
@@ -324,14 +361,14 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-browserify');
 
   // All tasks
-  grunt.registerTask('all', ['concat', 'browserify', 'uglify', 'sass']);
+  grunt.registerTask('all', ['handlebars', 'concat', 'browserify', 'uglify', 'sass']);
   // Dist only (non-embedded, non-native)
-  grunt.registerTask('dist', ['concat:dist', 'uglify:dist', 'sass:dist']);
+  grunt.registerTask('dist', ['handlebars:all', 'concat:dist', 'browserify:deps', 'uglify:dist', 'sass:dist']);
   // Native tasks only
-  grunt.registerTask('native', ['concat:native', 'uglify:native', 'sass:dist']);
+  grunt.registerTask('native', ['handlebars:all', 'concat:native', 'browserify:deps', 'uglify:native', 'sass:dist']);
   // Default: dist and native (non-embedded)
   grunt.registerTask('default', [
-    'concat:dist', 'browserify:deps', 'uglify:dist', 'sass:dist',
+    'handlebars:all', 'concat:dist', 'browserify:deps', 'uglify:dist', 'sass:dist',
     // 'uglify:deps',
     'concat:native', 'uglify:native', 'sass:dist'
     ]
