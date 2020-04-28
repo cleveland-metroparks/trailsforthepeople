@@ -1,0 +1,18 @@
+<h2>{{feature.pagetitle}}</h2>
+
+{{#if img}}
+    <img src="{{img.src}}" width="{{img.width}}" height="{{img.height}}" alt="{{feature.pagetitle}}">
+{{/if}}
+
+<p>{{feature.descr}}</p>
+
+<h4>Hours of Operation</h4>
+{{feature.hoursofoperation}}
+
+{{#if feature.phone}}
+	<h4>Phone</h4>
+	<a title="Call {{feature.pagetitle}}" href="tel:{{feature.phone}}">{{feature.phone}}</a>
+{{/if}}
+
+<div class="lat_driving">{{feature.drivingdestinationlatitude}}</div>
+<div class="lng_driving">{{feature.drivingdestinationlongitude}}</div>

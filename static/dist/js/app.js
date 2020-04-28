@@ -872,15 +872,98 @@ function showAttractionInfo(attractionType, attraction) {
     $('#info-content').text("Loading...");
 
     // Get more info via AJAX
-    if (attraction.gid || attraction.record_id) {
-        var params = {};
-        params.type = attractionType;
-        params.gid = attraction.gid || attraction.record_id;
+    var id = attraction.gid || attraction.record_id;
+    if (id) {
+        showAttractionInfoContent(attractionType, id);
+    }
+}
 
-        // Get and display the "more info" plain HTML
-        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
-            $('#info-content').html(reply);
-        }, 'html');
+/**
+ * Make image from pagethumbnail
+ * (Was _transform_main_site_image_url in PHP)
+ *
+ * Take an image URL path (called pagethumbnail in the database) referring to an image on the main site, like:
+ * ~/getmedia/6cb586c0-e293-4ffa-b6c2-0be8904856b2/North_Chagrin_thumb_01.jpg.ashx?width=1440&height=864&ext=.jpg
+ * and turn it into an absolute URL, scaled proportionately to the width provided.
+ *
+ * @param url_str string
+ * @param new_width int: New image width
+ *
+ * @return object with src, width, and height (ready to become <img>)
+ */
+function make_image_from_pagethumbnail(url_str, new_width) {
+    var main_site_url = 'https://www.clevelandmetroparks.com/';
+    url_str = url_str.replace('~/', main_site_url);
+
+    var url = new URL(url_str);
+
+    var orig_width = url.searchParams.get('width');
+    var orig_height = url.searchParams.get('height');
+
+    var newParams = url.searchParams;
+    newParams.width = new_width;
+    newParams.height = parseInt(orig_height / (orig_width / new_width));
+
+    var new_url = url.protocol +
+                '//' +
+                url.hostname +
+                url.pathname +
+                '?' +
+                newParams.toString();
+
+    return {
+        src: new_url,
+        width: newParams.width,
+        height: newParams.height,
+    };
+}
+
+/**
+ * Show Attraction Info Content
+ */
+function showAttractionInfoContent(attractionType, id) {
+    var max_img_width = 320;
+    switch(attractionType) {
+        case 'attraction':
+            var attraction = CM.get_attraction(id);
+            var template = CM.Templates.info_attraction;
+            if (attraction.pagethumbnail) {
+               img = make_image_from_pagethumbnail(attraction.pagethumbnail, max_img_width);
+            }
+            var template_vars = {
+                feature: attraction,
+                img: img,
+            };
+            $('#info-content').html(template(template_vars));
+            break;
+
+        case 'reservation_new':
+            var reservation = CM.get_reservation(id);
+            var template = CM.Templates.info_reservation;
+            if (reservation.pagethumbnail) {
+               img = make_image_from_pagethumbnail(reservation.pagethumbnail, max_img_width);
+            }
+            var template_vars = {
+                feature: reservation,
+                img: img,
+            };
+            $('#info-content').html(template(template_vars));
+            break;
+
+        // Old style, to change-over to new API / preloaded-data model:
+        case 'trail':
+        case 'poi':
+        case 'reservation':
+        case 'loop':
+        default:
+            var params = {
+                type: attractionType,
+                gid: id,
+            };
+            // Get and display the "more info" plain HTML
+            $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
+                $('#info-content').html(reply);
+            }, 'html');
     }
 }
 
@@ -941,31 +1024,26 @@ function zoomElementClick(element) {
     // do some AJAX, fill in the page with the returned content
     // otherwise, fill in the title we were given and leave it at that
     if (type && gid) {
-        var params = {};
-        params.type = type;
-        params.gid  = gid;
-        params.lat  = LAST_KNOWN_LOCATION.lat;
-        params.lng  = LAST_KNOWN_LOCATION.lng;
-        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
-            // grab and display the plain HTML
-            $('#info-content').html(reply);
+        showAttractionInfoContent(type, gid);
 
-            // if there's a <wkt> element in the HTML, it's vector data to be handled by zoomElementHighlight()
-            // store it into the data but remove it from the DOM to free up some memory
-            var wktdiv = $('#info-content').find('div.wkt');
-            if (wktdiv) {
-                $('#show_on_map').data('wkt', wktdiv.text() );
-                wktdiv.remove();
-            }
+        //@TODO: Are these additions to the info content working...?:
 
-            // all set, the info is loaded
-            // there's a special case where they only got the info for the purpose of routing there
-            // handle that by clcking the Directions By Car button
-            if (SKIP_TO_DIRECTIONS) {
-                $('#directions_car').click();
-                SKIP_TO_DIRECTIONS = false;
-            }
-        }, 'html');
+        // if there's a <wkt> element in the HTML, it's vector data to be handled by zoomElementHighlight()
+        // store it into the data but remove it from the DOM to free up some memory
+        var wktdiv = $('#info-content').find('div.wkt');
+        if (wktdiv) {
+            $('#show_on_map').data('wkt', wktdiv.text() );
+            wktdiv.remove();
+        }
+
+        // all set, the info is loaded
+        // there's a special case where they only got the info for the purpose of routing there
+        // handle that by clcking the Directions By Car button
+        if (SKIP_TO_DIRECTIONS) {
+            $('#directions_car').click();
+            SKIP_TO_DIRECTIONS = false;
+        }
+
     } else {
         // fill in the title since we have little else,
         // then presume that the person wants to route there by clicking the Directions By Car button
@@ -3397,3 +3475,119 @@ function filterLoops() {
         sortLists(target);
     }, 'json');
 }
+
+;
+this["CM"] = this["CM"] || {};
+this["CM"]["Templates"] = this["CM"]["Templates"] || {};
+
+this["CM"]["Templates"]["info_attraction"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+    return "    <h4>Activities:</h4>\n    <ul class=\"activities-icon-list\">\n    </ul>\n";
+},"3":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "    <img src=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"img") : depth0)) != null ? lookupProperty(stack1,"src") : stack1), depth0))
+    + "\" width=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"img") : depth0)) != null ? lookupProperty(stack1,"width") : stack1), depth0))
+    + "\" height=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"img") : depth0)) != null ? lookupProperty(stack1,"height") : stack1), depth0))
+    + "\" alt=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
+    + "\">\n";
+},"5":function(container,depth0,helpers,partials,data) {
+    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "    <div class=\"feature-description\">"
+    + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"descr") : stack1), depth0))
+    + "</div>\n";
+},"7":function(container,depth0,helpers,partials,data) {
+    return "    <ul class=\"nobull\">\n        <li><a href=\"\" target=\"_blank\">More Info</a></li>\n    </ul>\n";
+},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, alias3=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "<h2>"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
+    + "</h2>\n\n"
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"activities") : stack1),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":3,"column":0},"end":{"line":18,"column":7}}})) != null ? stack1 : "")
+    + "\n"
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,(depth0 != null ? lookupProperty(depth0,"img") : depth0),{"name":"if","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":20,"column":0},"end":{"line":22,"column":7}}})) != null ? stack1 : "")
+    + "\n"
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"descr") : stack1),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":24,"column":0},"end":{"line":26,"column":7}}})) != null ? stack1 : "")
+    + "\n"
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"cmp_url") : stack1),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":28,"column":0},"end":{"line":32,"column":7}}})) != null ? stack1 : "")
+    + "\n<h4>GPS coordinates:</h4>\n<div class=\"small-light\">\n    "
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"latlng_userformatted") : stack1), depth0))
+    + "\n</div>";
+},"useData":true});
+
+this["CM"]["Templates"]["info_reservation"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "    <img src=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"img") : depth0)) != null ? lookupProperty(stack1,"src") : stack1), depth0))
+    + "\" width=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"img") : depth0)) != null ? lookupProperty(stack1,"width") : stack1), depth0))
+    + "\" height=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"img") : depth0)) != null ? lookupProperty(stack1,"height") : stack1), depth0))
+    + "\" alt=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
+    + "\">\n";
+},"3":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "	<h4>Phone</h4>\n	<a title=\"Call "
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
+    + "\" href=\"tel:"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"phone") : stack1), depth0))
+    + "\">"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"phone") : stack1), depth0))
+    + "</a>\n";
+},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, alias3=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "<h2>"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
+    + "</h2>\n\n"
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,(depth0 != null ? lookupProperty(depth0,"img") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":3,"column":0},"end":{"line":5,"column":7}}})) != null ? stack1 : "")
+    + "\n<p>"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"descr") : stack1), depth0))
+    + "</p>\n\n<h4>Hours of Operation</h4>\n"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"hoursofoperation") : stack1), depth0))
+    + "\n\n"
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"phone") : stack1),{"name":"if","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":12,"column":0},"end":{"line":15,"column":7}}})) != null ? stack1 : "")
+    + "\n<div class=\"lat_driving\">"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"drivingdestinationlatitude") : stack1), depth0))
+    + "</div>\n<div class=\"lng_driving\">"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"drivingdestinationlongitude") : stack1), depth0))
+    + "</div>";
+},"useData":true});

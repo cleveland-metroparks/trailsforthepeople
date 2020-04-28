@@ -321,15 +321,98 @@ function showAttractionInfo(attractionType, attraction) {
     $('#info-content').text("Loading...");
 
     // Get more info via AJAX
-    if (attraction.gid || attraction.record_id) {
-        var params = {};
-        params.type = attractionType;
-        params.gid = attraction.gid || attraction.record_id;
+    var id = attraction.gid || attraction.record_id;
+    if (id) {
+        showAttractionInfoContent(attractionType, id);
+    }
+}
 
-        // Get and display the "more info" plain HTML
-        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
-            $('#info-content').html(reply);
-        }, 'html');
+/**
+ * Make image from pagethumbnail
+ * (Was _transform_main_site_image_url in PHP)
+ *
+ * Take an image URL path (called pagethumbnail in the database) referring to an image on the main site, like:
+ * ~/getmedia/6cb586c0-e293-4ffa-b6c2-0be8904856b2/North_Chagrin_thumb_01.jpg.ashx?width=1440&height=864&ext=.jpg
+ * and turn it into an absolute URL, scaled proportionately to the width provided.
+ *
+ * @param url_str string
+ * @param new_width int: New image width
+ *
+ * @return object with src, width, and height (ready to become <img>)
+ */
+function make_image_from_pagethumbnail(url_str, new_width) {
+    var main_site_url = 'https://www.clevelandmetroparks.com/';
+    url_str = url_str.replace('~/', main_site_url);
+
+    var url = new URL(url_str);
+
+    var orig_width = url.searchParams.get('width');
+    var orig_height = url.searchParams.get('height');
+
+    var newParams = url.searchParams;
+    newParams.width = new_width;
+    newParams.height = parseInt(orig_height / (orig_width / new_width));
+
+    var new_url = url.protocol +
+                '//' +
+                url.hostname +
+                url.pathname +
+                '?' +
+                newParams.toString();
+
+    return {
+        src: new_url,
+        width: newParams.width,
+        height: newParams.height,
+    };
+}
+
+/**
+ * Show Attraction Info Content
+ */
+function showAttractionInfoContent(attractionType, id) {
+    var max_img_width = 320;
+    switch(attractionType) {
+        case 'attraction':
+            var attraction = CM.get_attraction(id);
+            var template = CM.Templates.info_attraction;
+            if (attraction.pagethumbnail) {
+               img = make_image_from_pagethumbnail(attraction.pagethumbnail, max_img_width);
+            }
+            var template_vars = {
+                feature: attraction,
+                img: img,
+            };
+            $('#info-content').html(template(template_vars));
+            break;
+
+        case 'reservation_new':
+            var reservation = CM.get_reservation(id);
+            var template = CM.Templates.info_reservation;
+            if (reservation.pagethumbnail) {
+               img = make_image_from_pagethumbnail(reservation.pagethumbnail, max_img_width);
+            }
+            var template_vars = {
+                feature: reservation,
+                img: img,
+            };
+            $('#info-content').html(template(template_vars));
+            break;
+
+        // Old style, to change-over to new API / preloaded-data model:
+        case 'trail':
+        case 'poi':
+        case 'reservation':
+        case 'loop':
+        default:
+            var params = {
+                type: attractionType,
+                gid: id,
+            };
+            // Get and display the "more info" plain HTML
+            $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
+                $('#info-content').html(reply);
+            }, 'html');
     }
 }
 
@@ -390,31 +473,26 @@ function zoomElementClick(element) {
     // do some AJAX, fill in the page with the returned content
     // otherwise, fill in the title we were given and leave it at that
     if (type && gid) {
-        var params = {};
-        params.type = type;
-        params.gid  = gid;
-        params.lat  = LAST_KNOWN_LOCATION.lat;
-        params.lng  = LAST_KNOWN_LOCATION.lng;
-        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
-            // grab and display the plain HTML
-            $('#info-content').html(reply);
+        showAttractionInfoContent(type, gid);
 
-            // if there's a <wkt> element in the HTML, it's vector data to be handled by zoomElementHighlight()
-            // store it into the data but remove it from the DOM to free up some memory
-            var wktdiv = $('#info-content').find('div.wkt');
-            if (wktdiv) {
-                $('#show_on_map').data('wkt', wktdiv.text() );
-                wktdiv.remove();
-            }
+        //@TODO: Are these additions to the info content working...?:
 
-            // all set, the info is loaded
-            // there's a special case where they only got the info for the purpose of routing there
-            // handle that by clcking the Directions By Car button
-            if (SKIP_TO_DIRECTIONS) {
-                $('#directions_car').click();
-                SKIP_TO_DIRECTIONS = false;
-            }
-        }, 'html');
+        // if there's a <wkt> element in the HTML, it's vector data to be handled by zoomElementHighlight()
+        // store it into the data but remove it from the DOM to free up some memory
+        var wktdiv = $('#info-content').find('div.wkt');
+        if (wktdiv) {
+            $('#show_on_map').data('wkt', wktdiv.text() );
+            wktdiv.remove();
+        }
+
+        // all set, the info is loaded
+        // there's a special case where they only got the info for the purpose of routing there
+        // handle that by clcking the Directions By Car button
+        if (SKIP_TO_DIRECTIONS) {
+            $('#directions_car').click();
+            SKIP_TO_DIRECTIONS = false;
+        }
+
     } else {
         // fill in the title since we have little else,
         // then presume that the person wants to route there by clicking the Directions By Car button

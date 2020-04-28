@@ -438,8 +438,6 @@ $.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
 $.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
     CM.reservations = reply.data;
 
-    console.log(CM.reservations);
-
     $.event.trigger({
         type: 'dataReadyReservations',
     });
@@ -458,12 +456,46 @@ $.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
         attraction.activities = attraction.activities ? attraction.activities.split('|').map(Number) : null;;
     });
 
-    console.log(CM.attractions);
-
     $.event.trigger({
         type: 'dataReadyAttractions',
     });
 }, 'json');
+
+/**
+ * Get reservation by record_id.
+ * Because our data comes in ordered alphabetically,
+ * because the db table has no primary key, and record_id
+ * can't necessarily be relied upon.
+ *
+ * @param record_id
+ *
+ * @return reservation if found, or null
+ */
+CM.get_reservation = function(record_id) {
+    for (var i = 0; i < CM.reservations.length; i++) {
+        if (CM.reservations[i].record_id == record_id) {
+            return CM.reservations[i];
+        }
+    }
+}
+
+/**
+ * Get attraction by gis_id.
+ * Because our data comes in ordered alphabetically,
+ * because the db table has no primary key, and gis_id
+ * is sometimes null.
+ *
+ * @param gis_id
+ *
+ * @return attraction if found, or null
+ */
+CM.get_attraction = function(gis_id) {
+    for (var i = 0; i < CM.attractions.length; i++) {
+        if (CM.attractions[i].gis_id == gis_id) {
+            return CM.attractions[i];
+        }
+    }
+}
 
 /**
  * Get attractions that offer specified activities
@@ -671,49 +703,51 @@ $(document).ready(function () {
 
     // URL params query string: "type" and "gid"
     if (urlParams.get('type') && urlParams.get('gid') ) {
-
         if (urlParams.get('type') == 'attraction') {
-            var params = {
-                gid: urlParams.get('gid')
-            };
-            $.get(API_BASEPATH + 'ajax/get_attraction', params, function (reply) {
-                if (!reply || ! reply.lat || ! reply.lng) {
+            // Wait to ensure we have the data
+            $(document).on("dataReadyAttractions", function() {
+                var gis_id = urlParams.get('gid');
+                var feature = {};
+                if (attraction = CM.get_attraction(gis_id)) {
+                    feature.gid   = attraction.gis_id;
+                    feature.title = attraction.pagetitle;
+                    feature.lat   = attraction.latitude;
+                    feature.lng   = attraction.longitude;
+                }
+                if (feature.lat && feature.lng) {
+                    zoomToFeature(feature);
+                    // Show info in sidebar
+                    // @TODO: This is app-specific. Re-work.
+                    showAttractionInfo(urlParams.get('type'), feature);
+                } else {
                     return alert("Cound not find that feature.");
                 }
-
-                zoomToFeature(reply);
-
-                // Show info in sidebar
-                // @TODO: This is app-specific. Re-work.
-                showAttractionInfo(urlParams.get('type'), reply);
-
-            }, 'json');
+            });
         } else if (urlParams.get('type') == 'reservation_new') {
-            var params = {
-                gid: urlParams.get('gid')
-            };
-            $.get(API_BASEPATH + 'ajax/get_reservation', params, function (reply) {
-                if (!reply || !reply.lat || !reply.lng) {
+            // Wait to ensure we have the data
+            $(document).on("dataReadyReservations", function() {
+                var record_id = urlParams.get('gid');
+                var feature = {};
+                if (reservation = CM.get_reservation(record_id)) {
+                    feature.gid   = reservation.record_id;
+                    feature.w     = reservation.boxw;
+                    feature.n     = reservation.boxn;
+                    feature.e     = reservation.boxe;
+                    feature.s     = reservation.boxs;
+                    feature.lat   = reservation.latitude;
+                    feature.lng   = reservation.longitude;
+                }
+                if ((feature.w && feature.n && feature.e && feature.s)
+                    || (feature.lat && feature.lng)) {
+                    zoomToFeature(feature);
+                    // Show info in sidebar
+                    // @TODO: This is app-specific. Re-work.
+                    showAttractionInfo(urlParams.get('type'), feature);
+                } else {
                     return alert("Cound not find that reservation.");
                 }
-
-                feature = reply;
-
-                feature.gid = reply.record_id;
-                feature.w = reply.boxw;
-                feature.n = reply.boxn;
-                feature.e = reply.boxe;
-                feature.s = reply.boxs;
-
-                zoomToFeature(feature);
-
-                // Show info in sidebar
-                // @TODO: This is app-specific. Re-work.
-                showAttractionInfo(urlParams.get('type'), reply);
-
-            }, 'json');
+            });
         }
-
     }
 
     // URL params query string: "route"
@@ -824,6 +858,7 @@ function showElevation(url) {
  * attraction.lng
  */
 function showAttractionInfo(attractionType, attraction) {
+    console.log('showAttractionInfo');
     // @TODO: Construct the #show_on_map button. We don't have an "element".
     //$('#show_on_map').data('zoomelement', element);
 
@@ -852,14 +887,50 @@ function showAttractionInfo(attractionType, attraction) {
 
     // Get more info via AJAX
     if (attraction.gid || attraction.record_id) {
-        var params = {};
-        params.type = attractionType;
-        params.gid = attraction.gid || attraction.record_id;
 
-        // Get and display the "more info" plain HTML
-        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
-            $('#info-content').html(reply);
-        }, 'html');
+        switch(attractionType) {
+            case 'attraction':
+                var attraction = CM.get_attraction(attraction.gid);
+                var template = Handlebars.templates.info_attraction;
+                var template_vars = {
+                    feature: attraction,
+                };
+                $('#info-content').html(template(template_vars));
+                break;
+
+            case 'reservation_new':
+                console.log('reservation_new');
+                var reservation = CM.get_reservation(attraction.record_id);
+                var template = Handlebars.templates.info_reservation;
+
+                //@TODO
+                //var max_img_width = 320;
+                //if (!empty($feature->pagethumbnail)) {
+                //    $this->load->helper('misc');
+                //    $img_url = _transform_main_site_image_url($feature->pagethumbnail, $max_img_width);
+                //}
+                var template_vars = {
+                    feature: reservation,
+                };
+                $('#info-content').html(template(template_vars));
+                break;
+
+            // Old style, to change-over to new API / preloaded-data model:
+            case 'trail':
+            case 'poi':
+            case 'reservation':
+            case 'loop':
+            default:
+                console.log('show: ' + attractionType);
+                var params = {
+                    type: attractionType,
+                    gid: attraction.gid || attraction.record_id,
+                };
+                // Get and display the "more info" plain HTML
+                $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
+                    $('#info-content').html(reply);
+                }, 'html');
+        }
     }
 }
 
@@ -1147,6 +1218,7 @@ function showOnMap() {
  * Zoom to a feature on the map
  */
 function zoomToFeature(feature) {
+    console.log('zoomToFeature');
     if (feature.type) {
         setWindowURLQueryStringParameter('type', feature.type);
     }
@@ -3376,3 +3448,96 @@ function filterLoops() {
         sortLists(target);
     }, 'json');
 }
+
+;
+this["CM"] = this["CM"] || {};
+this["CM"]["Templates"] = this["CM"]["Templates"] || {};
+
+this["CM"]["Templates"]["info_attraction"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+    return "    <h4>Activities:</h4>\n    <ul class=\"activities-icon-list\">\n    </ul>\n";
+},"3":function(container,depth0,helpers,partials,data) {
+    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "    <div class=\"feature-description\">"
+    + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"descr") : stack1), depth0))
+    + "</div>\n";
+},"5":function(container,depth0,helpers,partials,data) {
+    return "    <ul class=\"nobull\">\n        <li><a href=\"\" target=\"_blank\">More Info</a></li>\n    </ul>\n";
+},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, alias3=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "<h2>"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
+    + "</h2>\n\n"
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"activities") : stack1),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":3,"column":0},"end":{"line":17,"column":7}}})) != null ? stack1 : "")
+    + "\n\n"
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"descr") : stack1),{"name":"if","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":33,"column":0},"end":{"line":35,"column":7}}})) != null ? stack1 : "")
+    + "\n"
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"cmp_url") : stack1),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":37,"column":0},"end":{"line":41,"column":7}}})) != null ? stack1 : "")
+    + "\n<h4>GPS coordinates:</h4>\n<div class=\"small-light\">\n    "
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"latlng_userformatted") : stack1), depth0))
+    + "\n</div>";
+},"useData":true});
+
+this["CM"]["Templates"]["info_reservation"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "	<img src=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"img") : depth0)) != null ? lookupProperty(stack1,"url") : stack1), depth0))
+    + "\" alt=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
+    + "\">\n";
+},"3":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "	<h4>Phone</h4>\n	<a title=\"Call "
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
+    + "\" href=\"tel:"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"phone") : stack1), depth0))
+    + "\">"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"phone") : stack1), depth0))
+    + "</a>\n";
+},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, alias3=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "<h2>"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
+    + "</h2>\n\n"
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,(depth0 != null ? lookupProperty(depth0,"img") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":3,"column":0},"end":{"line":5,"column":7}}})) != null ? stack1 : "")
+    + "\n<p>"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"descr") : stack1), depth0))
+    + "</p>\n\n<h4>Hours of Operation</h4>\n"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"hoursofoperation") : stack1), depth0))
+    + "\n\n"
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"phone") : stack1),{"name":"if","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":12,"column":0},"end":{"line":15,"column":7}}})) != null ? stack1 : "")
+    + "\n<div class=\"lat_driving\">"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"drivingdestinationlatitude") : stack1), depth0))
+    + "</div>\n<div class=\"lng_driving\">"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"drivingdestinationlongitude") : stack1), depth0))
+    + "</div>";
+},"useData":true});
