@@ -886,8 +886,10 @@ function showAttractionInfo(attractionType, attraction) {
  * ~/getmedia/6cb586c0-e293-4ffa-b6c2-0be8904856b2/North_Chagrin_thumb_01.jpg.ashx?width=1440&height=864&ext=.jpg
  * and turn it into an absolute URL, scaled proportionately to the width provided.
  *
+ * We double the requested image size, for retina displays.
+ *
  * @param url_str string
- * @param new_width int: New image width
+ * @param new_width int: New image width, in pixels
  *
  * @return object with src, width, and height (ready to become <img>)
  */
@@ -901,8 +903,10 @@ function make_image_from_pagethumbnail(url_str, new_width) {
     var orig_height = url.searchParams.get('height');
 
     var newParams = url.searchParams;
-    newParams.width = new_width;
-    newParams.height = parseInt(orig_height / (orig_width / new_width));
+    new_height = parseInt(orig_height / (orig_width / new_width));
+    // Doubled, for retina displays
+    newParams.set('width', 2 * new_width);
+    newParams.set('height', 2 * new_height);
 
     var new_url = url.protocol +
                 '//' +
@@ -913,8 +917,8 @@ function make_image_from_pagethumbnail(url_str, new_width) {
 
     return {
         src: new_url,
-        width: newParams.width,
-        height: newParams.height,
+        width: new_width,
+        height: new_height,
     };
 }
 
