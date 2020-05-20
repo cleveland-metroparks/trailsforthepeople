@@ -372,6 +372,22 @@ function make_image_from_pagethumbnail(url_str, new_width) {
 }
 
 /**
+ * Make list of activity icon img objects
+ */
+function make_activity_icons_list(activity_ids) {
+    var imgs_list = [];
+    activity_ids.forEach(function(activity_id) {
+        // Object with image details for template
+        imgs_list.push({
+            src: CM.activities[activity_id].icon,
+            title: CM.activities[activity_id].pagetitle,
+            alt: CM.activities[activity_id].pagetitle
+        });
+    });
+    return imgs_list;
+}
+
+/**
  * Show Attraction Info Content
  */
 function showAttractionInfoContent(attractionType, id) {
@@ -380,12 +396,15 @@ function showAttractionInfoContent(attractionType, id) {
         case 'attraction':
             var attraction = CM.get_attraction(id);
             var template = CM.Templates.info_attraction;
+            var activity_icons = make_activity_icons_list(attraction.activities);
+            var img_props = [];
             if (attraction.pagethumbnail) {
-               img = make_image_from_pagethumbnail(attraction.pagethumbnail, max_img_width);
+               img_props = make_image_from_pagethumbnail(attraction.pagethumbnail, max_img_width);
             }
             var template_vars = {
                 feature: attraction,
-                img: img,
+                activity_icons: activity_icons,
+                img: img_props,
             };
             $('#info-content').html(template(template_vars));
             break;
@@ -394,11 +413,11 @@ function showAttractionInfoContent(attractionType, id) {
             var reservation = CM.get_reservation(id);
             var template = CM.Templates.info_reservation;
             if (reservation.pagethumbnail) {
-               img = make_image_from_pagethumbnail(reservation.pagethumbnail, max_img_width);
+               img_props = make_image_from_pagethumbnail(reservation.pagethumbnail, max_img_width);
             }
             var template_vars = {
                 feature: reservation,
-                img: img,
+                img: img_props,
             };
             $('#info-content').html(template(template_vars));
             break;

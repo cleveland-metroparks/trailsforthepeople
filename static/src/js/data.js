@@ -13,11 +13,12 @@
 var CM = {
     visitor_centers : [],
     reservations : [],
-    attractions : []
+    attractions : [],
+    activities : []
 };
 
 //
-// Get visitor centers and populate global object
+// Get visitor centers and populate global object, CM.visitor_centers
 //
 $.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
     CM.visitor_centers = reply.data;
@@ -28,10 +29,14 @@ $.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
         visitor_center.amenities = visitor_center.amenities ? visitor_center.amenities.split('|').map(Number) : null;;
         visitor_center.activities = visitor_center.activities ? visitor_center.activities.split('|').map(Number) : null;;
     });
+
+    $.event.trigger({
+        type: 'dataReadyVisitorCenters',
+    });
 }, 'json');
 
 //
-// Get reservations, and populate global object
+// Get reservations, and populate global object, CM.reservations
 //
 $.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
     CM.reservations = reply.data;
@@ -42,7 +47,7 @@ $.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
 }, 'json');
 
 //
-// Get attractions, and populate global object
+// Get attractions, and populate global object, CM.attractions
 //
 $.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
     CM.attractions = reply.data;
@@ -56,6 +61,66 @@ $.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
 
     $.event.trigger({
         type: 'dataReadyAttractions',
+    });
+}, 'json');
+
+/**
+ * Get and assemble activity icon file path from activity ID
+ */
+function activity_icon_filepath(activity_id) {
+    var icons_dir = '/static/images/activities/'; // @TODO: Put in config and include basepath
+    var activity_type_icons_by_id = {
+         1: 'bike',      // Biking & Cycling
+         2: 'swim',      // Swimming
+         3: 'boat',      // Boating, Sailing & Paddlesports
+         4: 'hike',      // Hiking & Walking
+         5: 'fish',      // Fishing & Ice Fishing
+         6: 'archery',   // Archery
+         7: 'xcski',     // Cross-Country Skiing
+         9: 'geocache',  // Geocaching
+        11: 'horse',     // Horseback Riding
+        12: 'mtnbike',   // Mountain Biking
+        13: 'picnic',    // Picnicking
+        14: '',          // Races & Competitions
+        15: 'sled',      // Sledding
+        16: 'snowshoe',  // Snowshoeing
+        17: '',          // Tobogganing
+        18: 'leafman',   // Rope Courses & Zip Lines
+        19: 'geology',   // Exploring Nature
+        20: 'history',   // Exploring Culture & History
+        21: 'dine',      // Dining
+        22: '',          // Classes, Workshops, & Lectures
+        23: 'leafman',   // Special Events & Programs
+        24: '',          // Concerts & Movies
+        25: 'fitness',   // Fitness Circuit
+        26: '',          // Disc Golf
+        30: 'golf',      // Golfing
+        39: 'fitness',   // Exercising
+        41: '',          // FootGolf
+    };
+    var filename = activity_type_icons_by_id[activity_id];
+    if (filename) {
+        var icon_path = icons_dir + filename + '.svg';
+        return icon_path;
+    } else {
+        return null;
+    }
+}
+
+//
+// Get activities, and populate global object, CM.activities
+// Keyed by eventactivitytypeid.
+//
+$.get(API_NEW_BASE_URL + 'activities', null, function (reply) {
+    // Key by eventactivitytypeid
+    for (var i = 0; i < reply.data.length; i++) {
+        var id = reply.data[i].eventactivitytypeid;
+        CM.activities[id] = reply.data[i];
+        CM.activities[id].icon = activity_icon_filepath(id);
+    }
+
+    $.event.trigger({
+        type: 'dataReadyActivities',
     });
 }, 'json');
 

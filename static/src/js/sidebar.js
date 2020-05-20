@@ -94,7 +94,7 @@ $(document).ready(function () {
         pane_title = 'Visitor Centers';
         set_pane_back_button('#pane-browse-results', '#pane-welcome');
 
-        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
+        // Display visitor centers from pre-loaded data.
         CM.display_attractions_results(pane_title, CM.visitor_centers, 'attraction');
     });
 
@@ -103,7 +103,7 @@ $(document).ready(function () {
         pane_title = 'Parks';
         set_pane_back_button('#pane-browse-results', '#pane-welcome');
 
-        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
+        // Display visitor centers from pre-loaded data.
         CM.display_attractions_results(pane_title, CM.reservations, 'reservation_new');
     });
 

@@ -7,6 +7,7 @@ class ActivityType extends DataMapper {
 
 var $table    = 'view_cmp_gisactivitytype';
 
+// @TODO: Move this into the DB
 var $chosen_activities = array(
     6, // 'Archery'
     1, // 'Biking & Cycling'
@@ -30,7 +31,6 @@ var $chosen_activities = array(
     2, // 'Swimming'
     //17, // 'Tobogganing'
 );
-// @TODO: Move this into the DB
 var $activity_type_icons_by_id = array(
      1 => 'bike.svg',      // Biking & Cycling
      2 => 'swim.svg',      // Swimming

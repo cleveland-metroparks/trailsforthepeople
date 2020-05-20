@@ -11,9 +11,9 @@
  * - Map movements/events trigger calls to updateWindowURL[...]() functions.
  * - which call setWindowURLQueryStringParameter() to set the browser's location bar
  *   as well as the WINDOW_URL variable.
- * - At a later time, when the user opens up the share panel, an AJAX request
- *   is made to save the long URL and get a short URL in return.
- * - This short URL is displayed in the #share_url panel for the end user.
+ * - If-and-when the user opens the share panel, an API request is made:
+ *   to save the long URL and get a short URL in return.
+ * - This short URL is displayed in the #share_url panel for the user to copy.
  *
  * We don't request a short URL with every map movement/change.
  */

@@ -402,11 +402,12 @@ function setAllWindowURLQueryStringParameters(params) {
 var CM = {
     visitor_centers : [],
     reservations : [],
-    attractions : []
+    attractions : [],
+    activities : []
 };
 
 //
-// Get visitor centers and populate global object
+// Get visitor centers and populate global object, CM.visitor_centers
 //
 $.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
     CM.visitor_centers = reply.data;
@@ -417,10 +418,14 @@ $.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
         visitor_center.amenities = visitor_center.amenities ? visitor_center.amenities.split('|').map(Number) : null;;
         visitor_center.activities = visitor_center.activities ? visitor_center.activities.split('|').map(Number) : null;;
     });
+
+    $.event.trigger({
+        type: 'dataReadyVisitorCenters',
+    });
 }, 'json');
 
 //
-// Get reservations, and populate global object
+// Get reservations, and populate global object, CM.reservations
 //
 $.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
     CM.reservations = reply.data;
@@ -431,7 +436,7 @@ $.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
 }, 'json');
 
 //
-// Get attractions, and populate global object
+// Get attractions, and populate global object, CM.attractions
 //
 $.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
     CM.attractions = reply.data;
@@ -445,6 +450,66 @@ $.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
 
     $.event.trigger({
         type: 'dataReadyAttractions',
+    });
+}, 'json');
+
+/**
+ * Get and assemble activity icon file path from activity ID
+ */
+function activity_icon_filepath(activity_id) {
+    var icons_dir = '/static/images/activities/'; // @TODO: Put in config and include basepath
+    var activity_type_icons_by_id = {
+         1: 'bike',      // Biking & Cycling
+         2: 'swim',      // Swimming
+         3: 'boat',      // Boating, Sailing & Paddlesports
+         4: 'hike',      // Hiking & Walking
+         5: 'fish',      // Fishing & Ice Fishing
+         6: 'archery',   // Archery
+         7: 'xcski',     // Cross-Country Skiing
+         9: 'geocache',  // Geocaching
+        11: 'horse',     // Horseback Riding
+        12: 'mtnbike',   // Mountain Biking
+        13: 'picnic',    // Picnicking
+        14: '',          // Races & Competitions
+        15: 'sled',      // Sledding
+        16: 'snowshoe',  // Snowshoeing
+        17: '',          // Tobogganing
+        18: 'leafman',   // Rope Courses & Zip Lines
+        19: 'geology',   // Exploring Nature
+        20: 'history',   // Exploring Culture & History
+        21: 'dine',      // Dining
+        22: '',          // Classes, Workshops, & Lectures
+        23: 'leafman',   // Special Events & Programs
+        24: '',          // Concerts & Movies
+        25: 'fitness',   // Fitness Circuit
+        26: '',          // Disc Golf
+        30: 'golf',      // Golfing
+        39: 'fitness',   // Exercising
+        41: '',          // FootGolf
+    };
+    var filename = activity_type_icons_by_id[activity_id];
+    if (filename) {
+        var icon_path = icons_dir + filename + '.svg';
+        return icon_path;
+    } else {
+        return null;
+    }
+}
+
+//
+// Get activities, and populate global object, CM.activities
+// Keyed by eventactivitytypeid.
+//
+$.get(API_NEW_BASE_URL + 'activities', null, function (reply) {
+    // Key by eventactivitytypeid
+    for (var i = 0; i < reply.data.length; i++) {
+        var id = reply.data[i].eventactivitytypeid;
+        CM.activities[id] = reply.data[i];
+        CM.activities[id].icon = activity_icon_filepath(id);
+    }
+
+    $.event.trigger({
+        type: 'dataReadyActivities',
     });
 }, 'json');
 
@@ -923,6 +988,22 @@ function make_image_from_pagethumbnail(url_str, new_width) {
 }
 
 /**
+ * Make list of activity icon img objects
+ */
+function make_activity_icons_list(activity_ids) {
+    var imgs_list = [];
+    activity_ids.forEach(function(activity_id) {
+        // Object with image details for template
+        imgs_list.push({
+            src: CM.activities[activity_id].icon,
+            title: CM.activities[activity_id].pagetitle,
+            alt: CM.activities[activity_id].pagetitle
+        });
+    });
+    return imgs_list;
+}
+
+/**
  * Show Attraction Info Content
  */
 function showAttractionInfoContent(attractionType, id) {
@@ -931,12 +1012,15 @@ function showAttractionInfoContent(attractionType, id) {
         case 'attraction':
             var attraction = CM.get_attraction(id);
             var template = CM.Templates.info_attraction;
+            var activity_icons = make_activity_icons_list(attraction.activities);
+            var img_props = [];
             if (attraction.pagethumbnail) {
-               img = make_image_from_pagethumbnail(attraction.pagethumbnail, max_img_width);
+               img_props = make_image_from_pagethumbnail(attraction.pagethumbnail, max_img_width);
             }
             var template_vars = {
                 feature: attraction,
-                img: img,
+                activity_icons: activity_icons,
+                img: img_props,
             };
             $('#info-content').html(template(template_vars));
             break;
@@ -945,11 +1029,11 @@ function showAttractionInfoContent(attractionType, id) {
             var reservation = CM.get_reservation(id);
             var template = CM.Templates.info_reservation;
             if (reservation.pagethumbnail) {
-               img = make_image_from_pagethumbnail(reservation.pagethumbnail, max_img_width);
+               img_props = make_image_from_pagethumbnail(reservation.pagethumbnail, max_img_width);
             }
             var template_vars = {
                 feature: reservation,
-                img: img,
+                img: img_props,
             };
             $('#info-content').html(template(template_vars));
             break;
@@ -1578,7 +1662,7 @@ $(document).ready(function () {
         pane_title = 'Visitor Centers';
         set_pane_back_button('#pane-browse-results', '#pane-welcome');
 
-        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
+        // Display visitor centers from pre-loaded data.
         CM.display_attractions_results(pane_title, CM.visitor_centers, 'attraction');
     });
 
@@ -1587,7 +1671,7 @@ $(document).ready(function () {
         pane_title = 'Parks';
         set_pane_back_button('#pane-browse-results', '#pane-welcome');
 
-        // Fetch JSON data via AJAX, render to UL.zoom in the #pane-browse-results pane, and display it
+        // Display visitor centers from pre-loaded data.
         CM.display_attractions_results(pane_title, CM.reservations, 'reservation_new');
     });
 
@@ -2536,9 +2620,9 @@ $(document).ready(function () {
  * - Map movements/events trigger calls to updateWindowURL[...]() functions.
  * - which call setWindowURLQueryStringParameter() to set the browser's location bar
  *   as well as the WINDOW_URL variable.
- * - At a later time, when the user opens up the share panel, an AJAX request
- *   is made to save the long URL and get a short URL in return.
- * - This short URL is displayed in the #share_url panel for the end user.
+ * - If-and-when the user opens the share panel, an API request is made:
+ *   to save the long URL and get a short URL in return.
+ * - This short URL is displayed in the #share_url panel for the user to copy.
  *
  * We don't request a short URL with every map movement/change.
  */
@@ -3485,8 +3569,32 @@ this["CM"] = this["CM"] || {};
 this["CM"]["Templates"] = this["CM"]["Templates"] || {};
 
 this["CM"]["Templates"]["info_attraction"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
-    return "    <h4>Activities:</h4>\n    <ul class=\"activities-icon-list\">\n    </ul>\n";
-},"3":function(container,depth0,helpers,partials,data) {
+    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "    <h4>Activities:</h4>\n    <ul class=\"activities-icon-list\">\n"
+    + ((stack1 = lookupProperty(helpers,"each").call(depth0 != null ? depth0 : (container.nullContext || {}),(depth0 != null ? lookupProperty(depth0,"activity_icons") : depth0),{"name":"each","hash":{},"fn":container.program(2, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":8},"end":{"line":8,"column":17}}})) != null ? stack1 : "")
+    + "    </ul>\n";
+},"2":function(container,depth0,helpers,partials,data) {
+    var alias1=container.lambda, alias2=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "            <li><img src=\""
+    + alias2(alias1((depth0 != null ? lookupProperty(depth0,"src") : depth0), depth0))
+    + "\" title=\""
+    + alias2(alias1((depth0 != null ? lookupProperty(depth0,"title") : depth0), depth0))
+    + "\" alt=\""
+    + alias2(alias1((depth0 != null ? lookupProperty(depth0,"title") : depth0), depth0))
+    + "\"></li>\n";
+},"4":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=container.lambda, alias2=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -3503,7 +3611,7 @@ this["CM"]["Templates"]["info_attraction"] = Handlebars.template({"1":function(c
     + "\" alt=\""
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
     + "\">\n";
-},"5":function(container,depth0,helpers,partials,data) {
+},"6":function(container,depth0,helpers,partials,data) {
     var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -3514,7 +3622,7 @@ this["CM"]["Templates"]["info_attraction"] = Handlebars.template({"1":function(c
   return "    <div class=\"feature-description\">"
     + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"descr") : stack1), depth0))
     + "</div>\n";
-},"7":function(container,depth0,helpers,partials,data) {
+},"8":function(container,depth0,helpers,partials,data) {
     return "    <ul class=\"nobull\">\n        <li><a href=\"\" target=\"_blank\">More Info</a></li>\n    </ul>\n";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=container.lambda, alias2=container.escapeExpression, alias3=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
@@ -3527,13 +3635,13 @@ this["CM"]["Templates"]["info_attraction"] = Handlebars.template({"1":function(c
   return "<h2>"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
     + "</h2>\n\n"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"activities") : stack1),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":3,"column":0},"end":{"line":18,"column":7}}})) != null ? stack1 : "")
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"activities") : stack1),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":3,"column":0},"end":{"line":10,"column":7}}})) != null ? stack1 : "")
     + "\n"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias3,(depth0 != null ? lookupProperty(depth0,"img") : depth0),{"name":"if","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":20,"column":0},"end":{"line":22,"column":7}}})) != null ? stack1 : "")
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,(depth0 != null ? lookupProperty(depth0,"img") : depth0),{"name":"if","hash":{},"fn":container.program(4, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":12,"column":0},"end":{"line":14,"column":7}}})) != null ? stack1 : "")
     + "\n"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"descr") : stack1),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":24,"column":0},"end":{"line":26,"column":7}}})) != null ? stack1 : "")
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"descr") : stack1),{"name":"if","hash":{},"fn":container.program(6, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":16,"column":0},"end":{"line":18,"column":7}}})) != null ? stack1 : "")
     + "\n"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"cmp_url") : stack1),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":28,"column":0},"end":{"line":32,"column":7}}})) != null ? stack1 : "")
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"cmp_url") : stack1),{"name":"if","hash":{},"fn":container.program(8, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":20,"column":0},"end":{"line":24,"column":7}}})) != null ? stack1 : "")
     + "\n<h4>GPS coordinates:</h4>\n<div class=\"small-light\">\n    "
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"latlng_userformatted") : stack1), depth0))
     + "\n</div>";

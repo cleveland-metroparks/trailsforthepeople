@@ -3,17 +3,9 @@
 {{#if feature.activities}}
     <h4>Activities:</h4>
     <ul class="activities-icon-list">
-{{!--
-    @TODO
-        $activity_icons_dir = '/static/images/activities/';
-        foreach ($activities as $activity) {
-            if ($activity->icon) {
-                $icon_url = site_url($activity_icons_dir . $activity->icon);
-                $activity_title = htmlspecialchars($activity->pagetitle);
-                print '<li><img src="' . $icon_url . '" title="' . $activity_title . '" alt="' . $activity_title . '" /></li>';
-            }
-        }
---}}
+        {{#each activity_icons}}
+            <li><img src="{{this.src}}" title="{{this.title}}" alt="{{this.title}}"></li>
+        {{/each}}
     </ul>
 {{/if}}
 
