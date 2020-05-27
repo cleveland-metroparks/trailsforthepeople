@@ -437,42 +437,43 @@ function get_attraction() {
     print json_encode($result);
 }
 
-/**
- * Exact name search
- *
- * @param type
- * @param name
- */
-function exactnamesearch() {
-    switch($_GET['type']) {
-        case 'trail':
-            $result = new Trail();
-            $result->where('name',$_GET['name'])->get();
-            $result = array( 'w' => (float) $result->boxw, 's' => (float) $result->boxs, 'e' => (float) $result->boxe, 'n' => (float) $result->boxn, 'wkt' => $result->wkt );
-            break;
-        case 'poi':
-            $result = new Usearea();
-            $result->where('use_area',$_GET['name'])->get();
-            $result = array( 'w' => (float) $result->boxw, 's' => (float) $result->boxs, 'e' => (float) $result->boxe, 'n' => (float) $result->boxn, 'lat' => (float) $result->lat, 'lng' => (float) $result->lng );
-            break;
-        case 'reservation':
-            $result = new Park();
-            $result->where('res',$_GET['name'])->get();
-            $result = array( 'w' => (float) $result->boxw, 's' => (float) $result->boxs, 'e' => (float) $result->boxe, 'n' => (float) $result->boxn, 'lat' => (float) $result->lat, 'lng' => (float) $result->lng );
-            break;
-        case 'loop':
-            $result = new Loop();
-            $result->where('name',$_GET['name'])->get();
-            $result = array( 'w' => (float) $result->boxw, 's' => (float) $result->boxs, 'e' => (float) $result->boxe, 'n' => (float) $result->boxn, 'wkt' => $result->wkt );
-            break;
-        default:
-            return;
-            break;
-    }
+///**
+// * Exact name search
+// * @TODO: Do we still have a way to get here?
+// *
+// * @param type
+// * @param name
+// */
+//function exactnamesearch() {
+//    switch($_GET['type']) {
+//        case 'trail':
+//            $result = new Trail();
+//            $result->where('name',$_GET['name'])->get();
+//            $result = array( 'w' => (float) $result->boxw, 's' => (float) $result->boxs, 'e' => (float) $result->boxe, 'n' => (float) $result->boxn, 'wkt' => $result->wkt );
+//            break;
+//        case 'poi':
+//            $result = new Usearea();
+//            $result->where('use_area',$_GET['name'])->get();
+//            $result = array( 'w' => (float) $result->boxw, 's' => (float) $result->boxs, 'e' => (float) $result->boxe, 'n' => (float) $result->boxn, 'lat' => (float) $result->lat, 'lng' => (float) $result->lng );
+//            break;
+//        case 'reservation':
+//            $result = new Park();
+//            $result->where('res',$_GET['name'])->get();
+//            $result = array( 'w' => (float) $result->boxw, 's' => (float) $result->boxs, 'e' => (float) $result->boxe, 'n' => (float) $result->boxn, 'lat' => (float) $result->lat, 'lng' => (float) $result->lng );
+//            break;
+//        case 'loop':
+//            $result = new Loop();
+//            $result->where('name',$_GET['name'])->get();
+//            $result = array( 'w' => (float) $result->boxw, 's' => (float) $result->boxs, 'e' => (float) $result->boxe, 'n' => (float) $result->boxn, 'wkt' => $result->wkt );
+//            break;
+//        default:
+//            return;
+//            break;
+//    }
 
-    // done; print the JSON-encoded bbox, or a JSON-encoded nothing if there was no match
-    print json_encode($result);
-}
+//    // done; print the JSON-encoded bbox, or a JSON-encoded nothing if there was no match
+//    print json_encode($result);
+//}
 
 /**
  * Directions

@@ -728,30 +728,30 @@ $(document).ready(function () {
     // Initialize the map
     initMap(mapOptions);
 
-    // URL params query string: "type" and "name"
-    // @TODO: Do we still have a way to get here?
-    if (urlParams.get('type') && urlParams.get('name') ) {
-        var params = {
-            type: urlParams.get('type'),
-            name: urlParams.get('name')
-        };
-        $.get(API_BASEPATH + 'ajax/exactnamesearch', params, function (reply) {
-            if (!(reply && reply.s && reply.w && reply.n && reply.e)) {
-                return alert("Cound not find that feature.");
-            }
-
-            // Zoom to the bbox
-            MAP.fitBounds([[reply.w, reply.s], [reply.e, reply.n]]);
-
-            // Lay down the WKT or a marker to highlight it
-            if (reply.lat && reply.lng) {
-                placeMarker(MARKER_TARGET, reply.lat, reply.lng);
-            } else if (reply.wkt) {
-                wkt = new Wkt.Wkt(reply.wkt);
-                drawHighlightLine(wkt.toJson());
-            }
-        }, 'json');
-    }
+//    // URL params query string: "type" and "name"
+//    // @TODO: Do we still have a way to get here?
+//    if (urlParams.get('type') && urlParams.get('name') ) {
+//        var params = {
+//            type: urlParams.get('type'),
+//            name: urlParams.get('name')
+//        };
+//        $.get(API_BASEPATH + 'ajax/exactnamesearch', params, function (reply) {
+//            if (!(reply && reply.s && reply.w && reply.n && reply.e)) {
+//                return alert("Cound not find that feature.");
+//            }
+//
+//            // Zoom to the bbox
+//            MAP.fitBounds([[reply.w, reply.s], [reply.e, reply.n]]);
+//
+//            // Lay down the WKT or a marker to highlight it
+//            if (reply.lat && reply.lng) {
+//                placeMarker(MARKER_TARGET, reply.lat, reply.lng);
+//            } else if (reply.wkt) {
+//                wkt = new Wkt.Wkt(reply.wkt);
+//                drawHighlightLine(wkt.toJson());
+//            }
+//        }, 'json');
+//    }
 
     // URL params query string: "type" and "gid"
     if (urlParams.get('type') && urlParams.get('gid') ) {
