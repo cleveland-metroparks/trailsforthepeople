@@ -403,7 +403,8 @@ var CM = {
     visitor_centers : [],
     reservations : [],
     attractions : [],
-    activities : []
+    activities : [],
+    autocomplete_keywords : []
 };
 
 //
@@ -510,6 +511,19 @@ $.get(API_NEW_BASE_URL + 'activities', null, function (reply) {
 
     $.event.trigger({
         type: 'dataReadyActivities',
+    });
+}, 'json');
+
+//
+// Get autocomplete keywords, and populate global object, CM.autocomplete_keywords
+//
+$.get(API_NEW_BASE_URL + 'autocomplete_keywords', null, function (reply) {
+    for (var i = 0; i < reply.data.length; i++) {
+        CM.autocomplete_keywords.push(reply.data[i].word);
+    }
+
+    $.event.trigger({
+        type: 'dataReadyAutocompleteKeywords',
     });
 }, 'json');
 
@@ -3030,35 +3044,31 @@ function searchByKeyword(keyword) {
 /**
  * Load autocomplete keywords via AJAX, and enable autocomplete on the Keyword Search
  */
-$(document).ready(function () {
-    $.get(API_BASEPATH + 'ajax/autocomplete_keywords', {}, function (words) {
+$(document).on("dataReadyAutocompleteKeywords", function() {
+    $.each(CM.autocomplete_keywords, function(index, value) {
+        var li = '';
+        li += '<li data-icon="arrow-r">';
+        li += '<a href="#" data-transition="fade" class="ui-btn ui-btn-icon-right ui-icon-arrow-r">' + value + '</a>';
+        li += '</li>';
+        $('#browse_keyword_autocomplete').append(li);
+        $('#search_keyword_autocomplete').append(li);
+    });
 
-        $.each(words, function(index, value) {
-            var li = '';
-            li += '<li data-icon="arrow-r">';
-            li += '<a href="#" data-transition="fade" class="ui-btn ui-btn-icon-right ui-icon-arrow-r">' + value + '</a>';
-            li += '</li>';
-            $('#browse_keyword_autocomplete').append(li);
-            $('#search_keyword_autocomplete').append(li);
-        });
+    // Make sure the newly-added items get hidden
+    $('#browse_keyword_autocomplete').listview("refresh").trigger("updatelayout");
+    $('#search_keyword_autocomplete').listview("refresh").trigger("updatelayout");
 
-        // Make sure the newly-added items get hidden
-        $('#browse_keyword_autocomplete').listview("refresh").trigger("updatelayout");
-        $('#search_keyword_autocomplete').listview("refresh").trigger("updatelayout");
+    $('#browse_keyword_autocomplete li').click(function () {
+        $('#browse_keyword').val('').trigger("change"); // Clear the autocomplete list
+        $('#browse_keyword').val($(this).text()); // Put the selected word in the text input
+        $('#browse_keyword_button').click(); // Trigger search
+    });
 
-        $('#browse_keyword_autocomplete li').click(function () {
-            $('#browse_keyword').val('').trigger("change"); // Clear the autocomplete list
-            $('#browse_keyword').val($(this).text()); // Put the selected word in the text input
-            $('#browse_keyword_button').click(); // Trigger search
-        });
-
-        $('#search_keyword_autocomplete li').click(function () {
-            $('#search_keyword').val('').trigger("change"); // Clear the autocomplete list
-            $('#search_keyword').val($(this).text()); // Put the selected word in the text input
-            $('#search_keyword_button').click(); // Trigger search
-        });
-
-    },'json');
+    $('#search_keyword_autocomplete li').click(function () {
+        $('#search_keyword').val('').trigger("change"); // Clear the autocomplete list
+        $('#search_keyword').val($(this).text()); // Put the selected word in the text input
+        $('#search_keyword_button').click(); // Trigger search
+    });
 });
 
 ;

@@ -14,7 +14,8 @@ var CM = {
     visitor_centers : [],
     reservations : [],
     attractions : [],
-    activities : []
+    activities : [],
+    autocomplete_keywords : []
 };
 
 //
@@ -121,6 +122,19 @@ $.get(API_NEW_BASE_URL + 'activities', null, function (reply) {
 
     $.event.trigger({
         type: 'dataReadyActivities',
+    });
+}, 'json');
+
+//
+// Get autocomplete keywords, and populate global object, CM.autocomplete_keywords
+//
+$.get(API_NEW_BASE_URL + 'autocomplete_keywords', null, function (reply) {
+    for (var i = 0; i < reply.data.length; i++) {
+        CM.autocomplete_keywords.push(reply.data[i].word);
+    }
+
+    $.event.trigger({
+        type: 'dataReadyAutocompleteKeywords',
     });
 }, 'json');
 
