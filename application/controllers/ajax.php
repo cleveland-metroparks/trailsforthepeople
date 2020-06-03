@@ -2281,53 +2281,6 @@ function load_pois() {
 }
 
 /**
- * Trail segments by trail name
- *
- * This is used solely by the Trail Closures subsystem of the Contributors,
- * so it's fairly single-purpose in its output.
- *
- * @param trailname
- */
-function trail_segments_by_trail_name() {
-    $output = array();
-
-    // fetch the Trail with this exact name, to make sure it's a real valid Trail 
-    // instead of something goofy like "Bridle" which would match WAY TOO MANY segments
-    // If we don't find anything, bail. if we do, correct the submitted trail name to the official Trail name
-    $trailname = strtolower(trim(@$_GET['trailname']));
-    $trail_exists = new Trail();
-    $trail_exists->where('LOWER(name)',$trailname)->get();
-    if (! $trail_exists->gid) return print json_encode( new stdClass() );
-    $trailname = $trail_exists->name;
-
-    // okay, it's a valid Trail name. Look for any Trailpiece segments which have that name
-    $output['boxw'] = null;
-    $output['boxs'] = null;
-    $output['boxe'] = null;
-    $output['boxn'] = null;
-    $trailpiece = new Trailpiece();
-    foreach ($trailpiece::getByName($trailname) as $segment) {
-        $output['segments'][] = array(
-            'gid'   => $segment->gid,
-            'title' => $segment->label_name,
-            'boxw'  => $segment->boxw,
-            'boxs'  => $segment->boxs,
-            'boxe'  => $segment->boxe,
-            'boxn'  => $segment->boxn,
-            'wkt'   => Trailpiece::getWKT($segment),
-        );
-
-        if (!$output['boxw'] or $segment->boxw < $output['boxw']) $output['boxw'] = $segment->boxw;
-        if (!$output['boxs'] or $segment->boxs < $output['boxs']) $output['boxs'] = $segment->boxs;
-        if (!$output['boxe'] or $segment->boxe > $output['boxe']) $output['boxe'] = $segment->boxe;
-        if (!$output['boxn'] or $segment->boxn > $output['boxn']) $output['boxn'] = $segment->boxn;
-    }
-
-    // done!
-    print json_encode($output);
-}
-
-/**
  * Make short URL
  *
  * @param uri: actually just path; no protocol, URL, or query string
