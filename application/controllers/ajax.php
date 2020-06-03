@@ -188,47 +188,6 @@ function query() {
 }
 
 /**
- * Admin query
- *
- * @param n
- * @param s
- * @param e
- * @param w
- * @param wkt
- */
-function adminquery() {
-    // a new version of Query with different priorities and output templates
-    $result = null; // yes, the first one is an "if" against a known null; enhances readability when we want to bump something up the priority list
-
-    if (! $result) {
-        $result = new Trailpiece();
-        $result = $result->getByBBOX($_GET['w'],$_GET['s'],$_GET['e'],$_GET['n']);
-
-        // add the WKT if requested
-        $result->wkt = @$_GET['wkt'] ? Trailpiece::getWKT($result) : '';
-
-        $template = 'ajax/admin_query_trailpiece.phtml';
-    }
-    if (! $result) {
-        $result = new Usearea();
-        $result = $result->getByBBOX($_GET['w'],$_GET['s'],$_GET['e'],$_GET['n']);
-        $template = 'ajax/admin_query_usearea.phtml';
-    }
-    if (! $result) {
-        $result = new Park();
-        $result = $result->getByBBOX($_GET['w'],$_GET['s'],$_GET['e'],$_GET['n']);
-        $template = 'ajax/admin_query_reservation.phtml';
-    }
-
-    // found nothing? bail silently
-    if (! $result) return;
-
-    // load its template to produce HTML
-    // yeah, it's not JSON and AJAX but we're hitting the limits of that sort of hijinks when it comes to layouts
-    $this->load->view($template, array('feature'=>$result) );
-}
-
-/**
  * Keyword
  *
  * @param keyword
