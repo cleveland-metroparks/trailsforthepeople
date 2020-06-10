@@ -1,0 +1,22 @@
+<h2>{{feature.title}}</h2>
+
+<p>
+Length: {{feature.distancetext}}<br/>
+{{#if feature.hike}}
+	Est time, walking: {{feature.durationtext_hike}}<br/>
+{{/if}}
+{{#if feature.bike}}
+	Est time, bicycle: {{feature.durationtext_bike}}<br/>
+{{/if}}
+{{#if feature.bridle}}
+	Est time, horseback: {{feature.durationtext_bridle}}<br/>
+{{/if}}
+</p>
+
+{{{feature.description}}}
+
+{{#if img_src}}
+<div class="elevationprofileimage" style="text-align:center;">
+    <img src="{{img_src}}" alt="Elevation profile">
+</div>
+{{/if}}

@@ -422,11 +422,25 @@ function showAttractionInfoContent(attractionType, id) {
             $('#info-content').html(template(template_vars));
             break;
 
-        // Old style, to change-over to new API / preloaded-data model:
+        case 'loop': // "Blessed trail"
+            if (id in CM.trails) {
+                var trail = CM.trails[id];
+                var template = CM.Templates.info_trail;
+                var template_vars = {
+                    feature: trail,
+                    img_src: 'static/images/loops/' + trail.id + '.jpg'
+                };
+                $('#info-content').html(template(template_vars));
+            } else {
+                console.log("ERROR: loop id: " + id + " does not exist in CM.trails (app_view_trails).");
+            }
+            break;
+
+        // Old style
+        // @TODO: Change-over to new API & preloaded-data model:
         case 'trail':
         case 'poi':
         case 'reservation':
-        case 'loop':
         default:
             var params = {
                 type: attractionType,

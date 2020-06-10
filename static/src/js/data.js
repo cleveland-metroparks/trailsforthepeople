@@ -140,12 +140,47 @@ $.get(API_NEW_BASE_URL + 'autocomplete_keywords', null, function (reply) {
 }, 'json');
 
 //
+// Transform string interpretations of booleans into actual booleans.
+// Really only need "Yes" and "No", but adding some extras for safety.
+//
+function str_to_bool(str) {
+    switch (str) {
+        case "Yes":
+        case "yes":
+        case "True":
+        case "true":
+        case "1":
+        case 1:
+        case true:
+            return true;
+        case "No":
+        case "no":
+        case "False":
+        case "false":
+        case "0":
+        case 0:
+        case false:
+        case "":
+        case null:
+        default:
+            return false;
+    }
+}
+
+//
 // Get trails, and populate global object, CM.trails
 //
 $.get(API_NEW_BASE_URL + 'trails', null, function (reply) {
     // Key by id
     for (var i = 0; i < reply.data.length; i++) {
-        CM.trails[reply.data[i].id] = reply.data[i];
+        trail = reply.data[i];
+        // Change string versions of "Yes" & "No" into booleans
+        trail.bike = str_to_bool(trail.bike);
+        trail.hike = str_to_bool(trail.hike);
+        trail.bridle = str_to_bool(trail.bridle);
+        trail.mountainbike = str_to_bool(trail.mountainbike);
+
+        CM.trails[reply.data[i].id] = trail;
     }
 
     $.event.trigger({

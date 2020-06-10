@@ -529,12 +529,47 @@ $.get(API_NEW_BASE_URL + 'autocomplete_keywords', null, function (reply) {
 }, 'json');
 
 //
+// Transform string interpretations of booleans into actual booleans.
+// Really only need "Yes" and "No", but adding some extras for safety.
+//
+function str_to_bool(str) {
+    switch (str) {
+        case "Yes":
+        case "yes":
+        case "True":
+        case "true":
+        case "1":
+        case 1:
+        case true:
+            return true;
+        case "No":
+        case "no":
+        case "False":
+        case "false":
+        case "0":
+        case 0:
+        case false:
+        case "":
+        case null:
+        default:
+            return false;
+    }
+}
+
+//
 // Get trails, and populate global object, CM.trails
 //
 $.get(API_NEW_BASE_URL + 'trails', null, function (reply) {
     // Key by id
     for (var i = 0; i < reply.data.length; i++) {
-        CM.trails[reply.data[i].id] = reply.data[i];
+        trail = reply.data[i];
+        // Change string versions of "Yes" & "No" into booleans
+        trail.bike = str_to_bool(trail.bike);
+        trail.hike = str_to_bool(trail.hike);
+        trail.bridle = str_to_bool(trail.bridle);
+        trail.mountainbike = str_to_bool(trail.mountainbike);
+
+        CM.trails[reply.data[i].id] = trail;
     }
 
     $.event.trigger({
@@ -1067,11 +1102,25 @@ function showAttractionInfoContent(attractionType, id) {
             $('#info-content').html(template(template_vars));
             break;
 
-        // Old style, to change-over to new API / preloaded-data model:
+        case 'loop': // "Blessed trail"
+            if (id in CM.trails) {
+                var trail = CM.trails[id];
+                var template = CM.Templates.info_trail;
+                var template_vars = {
+                    feature: trail,
+                    img_src: 'static/images/loops/' + trail.id + '.jpg'
+                };
+                $('#info-content').html(template(template_vars));
+            } else {
+                console.log("ERROR: loop id: " + id + " does not exist in CM.trails (app_view_trails).");
+            }
+            break;
+
+        // Old style
+        // @TODO: Change-over to new API & preloaded-data model:
         case 'trail':
         case 'poi':
         case 'reservation':
-        case 'loop':
         default:
             var params = {
                 type: attractionType,
@@ -3727,4 +3776,70 @@ this["CM"]["Templates"]["info_reservation"] = Handlebars.template({"1":function(
     + "</div>\n<div class=\"lng_driving\">"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"drivingdestinationlongitude") : stack1), depth0))
     + "</div>";
+},"useData":true});
+
+this["CM"]["Templates"]["info_trail"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "	Est time, walking: "
+    + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"durationtext_hike") : stack1), depth0))
+    + "<br/>\n";
+},"3":function(container,depth0,helpers,partials,data) {
+    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "	Est time, bicycle: "
+    + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"durationtext_bike") : stack1), depth0))
+    + "<br/>\n";
+},"5":function(container,depth0,helpers,partials,data) {
+    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "	Est time, horseback: "
+    + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"durationtext_bridle") : stack1), depth0))
+    + "<br/>\n";
+},"7":function(container,depth0,helpers,partials,data) {
+    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "<div class=\"elevationprofileimage\" style=\"text-align:center;\">\n    <img src=\""
+    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"img_src") || (depth0 != null ? lookupProperty(depth0,"img_src") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"img_src","hash":{},"data":data,"loc":{"start":{"line":20,"column":14},"end":{"line":20,"column":25}}}) : helper)))
+    + "\" alt=\"Elevation profile\">\n</div>\n";
+},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, alias3=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "<h2>"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"title") : stack1), depth0))
+    + "</h2>\n\n<p>\nLength: "
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"distancetext") : stack1), depth0))
+    + "<br/>\n"
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"hike") : stack1),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":5,"column":0},"end":{"line":7,"column":7}}})) != null ? stack1 : "")
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"bike") : stack1),{"name":"if","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":8,"column":0},"end":{"line":10,"column":7}}})) != null ? stack1 : "")
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"bridle") : stack1),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":11,"column":0},"end":{"line":13,"column":7}}})) != null ? stack1 : "")
+    + "</p>\n\n"
+    + ((stack1 = alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"description") : stack1), depth0)) != null ? stack1 : "")
+    + "\n\n"
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,(depth0 != null ? lookupProperty(depth0,"img_src") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":18,"column":0},"end":{"line":22,"column":7}}})) != null ? stack1 : "");
 },"useData":true});
