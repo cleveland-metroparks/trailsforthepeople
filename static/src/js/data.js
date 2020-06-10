@@ -11,11 +11,12 @@
 // Create our global data object into which we'll pre-load necessary data from the API.
 //
 var CM = {
-    visitor_centers : [],
-    reservations : [],
-    attractions : [],
     activities : [],
-    autocomplete_keywords : []
+    attractions : [],
+    autocomplete_keywords : [],
+    reservations : [],
+    trails : [],
+    visitor_centers : []
 };
 
 //
@@ -135,6 +136,20 @@ $.get(API_NEW_BASE_URL + 'autocomplete_keywords', null, function (reply) {
 
     $.event.trigger({
         type: 'dataReadyAutocompleteKeywords',
+    });
+}, 'json');
+
+//
+// Get trails, and populate global object, CM.trails
+//
+$.get(API_NEW_BASE_URL + 'trails', null, function (reply) {
+    // Key by id
+    for (var i = 0; i < reply.data.length; i++) {
+        CM.trails[reply.data[i].id] = reply.data[i];
+    }
+
+    $.event.trigger({
+        type: 'dataReadyTrails',
     });
 }, 'json');
 
