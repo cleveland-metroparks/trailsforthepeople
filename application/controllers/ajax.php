@@ -1996,12 +1996,9 @@ function search_trails() {
  * Search loops
  *
  * @param filter_type
- * @param filter_paved
  * @param reservation
  * @param minfeet
  * @param maxfeet
- * @param minseconds
- * @param maxseconds
  */
 function search_loops() {
     $matches = new Loop();
@@ -2077,11 +2074,6 @@ function search_loops() {
             break;
     }
 
-    // the Paved? filter
-    if (@$_GET['filter_paved']) {
-        $matches->where('paved',$_GET['filter_paved']);
-    }
-
     // the Reservation filter
     if (@$_GET['reservation']) {
         $resids = array(0); // can't have an empty array, so start with a list of 1 impossible ID
@@ -2093,14 +2085,6 @@ function search_loops() {
     // the distance filter
     $matches->where("distance_feet >=", $_GET['minfeet']);
     $matches->where("distance_feet <=", $_GET['maxfeet']);
-
-    // bike queries only: duration
-    // but we use $durationfield anyway for output
-    $durationfield = "duration_" . $shorttype;
-    if (substr($_GET['filter_type'],0,4) == 'bike') {
-        $matches->where("$durationfield >=", $_GET['minseconds']);
-        $matches->where("$durationfield <=", $_GET['maxseconds']);
-    }
 
     // phase 2: iterate and collect the results
     $matches->get();

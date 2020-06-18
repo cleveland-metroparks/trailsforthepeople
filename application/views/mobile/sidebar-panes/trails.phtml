@@ -31,14 +31,6 @@
         <!--<img data-value="exercise" src="<?= site_url('static/images/activities/fitness.svg') ?>" />-->
         <img alt="Mountain Biking" data-value="mountainbike" src="<?= site_url('static/images/activities/mtnbike.svg') ?>" />
     </div>
-    
-    <div style="display:none;">
-        <select id="loops_filter_paved">
-            <option value="">Paved or unpaved</option>
-            <option value="Yes">Paved</option>
-            <option value="No">Unpaved</option>
-        </select>
-    </div>
 
     <h4 class="label">Filter by Route Length:</h4>
     <!-- Hidden form controls connected to clickable buttons -->
@@ -56,16 +48,6 @@
         <a href="#" data-min="2" data-max="5">2-5 mi</a>
         <a href="#" data-min="5" data-max="10">5-10 mi</a>
         <a href="#" data-min="10" data-max="100">10+ mi</a>
-    </div>
-    
-    <div data-role="fieldcontain" id="loops_filter_duration" style="display:none;">
-        <b>Duration</b>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <span id="loops_filter_duration_min_text"></span> - <span id="loops_filter_duration_max_text"></span>
-        <br/>
-        Min: <input type="range" id="loops_filter_duration_min" min="0" max="300" value="0" />
-        <br/>
-        Max: <input type="range" id="loops_filter_duration_max" min="0" max="300" value="300" />
     </div>
 
     <h4 class="label">Filter by Reservation:</h4>

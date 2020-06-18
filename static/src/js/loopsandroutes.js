@@ -72,20 +72,12 @@ $(document).ready(function () {
     // having set up the sliders 'change' handlers, trigger them now to set the displayed text
     $('#loops_filter_distance_min').change();
     $('#loops_filter_distance_max').change();
-    $('#loops_filter_duration_min').change();
-    $('#loops_filter_duration_max').change();
 
     // the loop type selector doesn't filter immediately,
     // but it does show/hide the time slider and the time estimates for each loop,
     // since the estimate of time is dependent on the travel mode
     $('#loops_filter_type').change(function () {
         var type = $(this).val();
-
-        // show/hide the time filter slider
-        /* May 2014 we never show this
-        var timeslider = $('#loops_filter_duration');
-        type ? timeslider.show() : timeslider.hide();
-        */
 
         // show only .time_estimate entries matching this 'type'
         switch (type) {
@@ -128,10 +120,7 @@ function filterLoops() {
     $('#loops_list li').show();
 
     var params = {};
-    params.filter_type  = $('#loops_filter_type').val();
-    params.filter_paved = $('#loops_filter_paved').val();
-    params.minseconds   = 60 * parseInt( $('#loops_filter_duration_min').val() );
-    params.maxseconds   = 60 * parseInt( $('#loops_filter_duration_max').val() );
+    params.filter_type  = $('#loops_filter_type').val(); // Activity
     params.minfeet      = 5280 * parseInt( $('#loops_filter_distance_min').val() );
     params.maxfeet      = 5280 * parseInt( $('#loops_filter_distance_max').val() );
     params.reservation  = $('#loops_filter_reservation').val();
