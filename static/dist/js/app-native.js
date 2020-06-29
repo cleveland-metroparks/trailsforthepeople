@@ -1690,7 +1690,7 @@ $(document).ready(function () {
     $('#pane-browse li a[href="#pane-trails"]').click(function() {
         set_pane_back_button('#pane-trails', '#pane-browse');
         // Perform trails search upon opening the pane.
-        filterLoops();
+        doTrailSearch();
     });
 
     /*
@@ -1775,7 +1775,7 @@ $(document).ready(function () {
     $('#pane-welcome .welcome-pane-trails a').click(function() {
         set_pane_back_button('#pane-trails', '#pane-welcome');
         // Perform trails search upon opening the pane.
-        filterLoops();
+        doTrailSearch();
     });
 
     /*
@@ -3448,7 +3448,7 @@ $(document).ready(function () {
 /**
  * Event handlers for Loops listing and filtering
  *
- * @see also filterLoops() below
+ * @see also doTrailSearch() below
  */
 $(document).ready(function () {
     // the event handlers below are for the sliders and textboxes within #pane-loops,
@@ -3496,14 +3496,14 @@ $(document).ready(function () {
         });
 
         // ready, now trigger a search
-        filterLoops();
+        doTrailSearch();
     //}).first().click();
     });
 
     // Reservation <select>
     $('#loops_filter_reservation').change(function () {
         // Perform search
-        filterLoops();
+        doTrailSearch();
     })
 
     // having set up the sliders 'change' handlers, trigger them now to set the displayed text
@@ -3546,100 +3546,162 @@ $(document).ready(function () {
         }
 
         // then trigger a search
-        filterLoops();
+        doTrailSearch();
     });
 });
 
 /**
+ * Filter trails
+ *
+ * @param activity {string} 'hike', 'bike*', 'bridle', or 'mountainbike'
+ * @param reservation {string}
+ * @param minDist: in feet
+ * @param maxDist: in feet
+ *
+ * @return {array}
+ */
+function filterTrails(activity, reservation, minDist, maxDist) {
+    results = [];
+
+    // Change 'bike_Advanced', etc, to 'bike'
+    if (activity.substr(0,4) == 'bike') {
+        activity = 'bike';
+    }
+
+    var results = CM.trails.filter(function(trail) {
+        // Filter by activity
+        if (activity) {
+            if (!trail[activity]) {
+                return false;
+            }
+        }
+
+        // Filter by reservation
+        if (reservation) {
+            if (trail['res'] != reservation) { // @TODO: if in reservation
+                return false;
+            }
+        }
+
+        // Filter by distance
+        if ((typeof minDist !== 'undefined') && maxDist) {
+            if (trail.distance_feet < minDist || trail.distance_feet > maxDist) {
+                return false;
+            }
+        }
+
+        return true;
+    });
+
+    // Note that results are no longer keyed by id.
+    // filter() turns it in to a normal array.
+    return results;
+}
+
+/**
  * Featured Routes list
  */
-function filterLoops() {
+function doTrailSearch() {
     $('#loops_list li').show();
 
-    var params = {};
-    params.filter_type  = $('#loops_filter_type').val(); // Activity
-    params.minseconds   = 0;
-    params.maxseconds   = 18000; // 5 hours
-    params.minfeet      = 5280 * parseInt( $('#loops_filter_distance_min').val() );
-    params.maxfeet      = 5280 * parseInt( $('#loops_filter_distance_max').val() );
-    params.reservation  = $('#loops_filter_reservation').val();
+    // Filters
+    var activity    = $('#loops_filter_type').val();
+    var reservation = $('#loops_filter_reservation').val();
+    var minDist     = 5280 * parseInt($('#loops_filter_distance_min').val());
+    var maxDist     = 5280 * parseInt($('#loops_filter_distance_max').val());
 
-    $.get(API_BASEPATH + 'ajax/search_loops', params, function (results) {
-        // find and empty the target UL
-        var target = $('#loops_list');
-        target.empty();
+    var results = filterTrails(activity, reservation, minDist, maxDist);
 
-        // No results text
-        $('.results-notes').remove();
-        if (! results || ! results.length) {
-            var markup = '<p class="results-notes">No results.</p>';
-            target.after(markup);
+    // Find and empty the target UL
+    var target = $('#loops_list');
+    target.empty();
+
+    // No results text
+    $('.results-notes').remove();
+    if (!results || !results.length) {
+        var markup = '<p class="results-notes">No results.</p>';
+        target.after(markup);
+    }
+
+    // Iterate over the results, add them to the output
+    for (var i=0; i<results.length; i++) {
+        var result = results[i];
+
+        var li = $('<li></li>')
+            .addClass('zoom')
+            .addClass('ui-li-has-count');
+
+        li.attr('title', result.name)
+            .attr('gid', result.id)
+            .attr('type','loop')
+            .attr('w', result.boxw)
+            .attr('s', result.boxs)
+            .attr('e', result.boxe)
+            .attr('n', result.boxn)
+            .attr('lat', result.lat)
+            .attr('lng', result.lng);
+
+        li.attr('backbutton', '#pane-trails');
+
+        // Link (fake, currently)
+        link = $('<a></a>');
+        link.attr('class', 'ui-btn ui-btn-text');
+        //link.attr('href', 'javascript:zoomElementClick(this)');
+
+        // On click: center the map and load More Info
+        li.click(function () {
+            zoomElementClick( $(this) );
+        });
+        li.append(link);
+
+        // Title
+        link.append(
+            $('<h4></h4>')
+                .addClass('ui-li-heading')
+                .text(result.name)
+        );
+
+        // Select duration value based on chosen activity, defaulting to hike
+        var duration;
+        switch (activity) {
+            case 'mountainbike':
+            case 'bike_Advanced':
+                duration = result.durationtext_bike;
+                break;
+            case 'bridle':
+                duration = result.durationtext_bridle;
+                break;
+            case 'hike':
+            default:
+                duration = result.durationtext_hike;
         }
 
-        // iterate over the results, add them to the output
-        for (var i=0, l=results.length; i<l; i++) {
-            var result = results[i];
+        // Inner text: distance and duration
+        link.append(
+            $('<span></span>')
+                .addClass('ui-li-desc')
+                .html(result.distancetext + ' &nbsp;&nbsp; ' + duration)
+        );
 
-            var li = $('<li></li>')
-                .addClass('zoom')
-                .addClass('ui-li-has-count');
+        // Distance placeholder, to be populated later
+        link.append(
+            $('<span></span>')
+                .addClass('zoom_distance')
+                .addClass('ui-li-count')
+                .addClass('ui-btn-up-c')
+                .addClass('ui-btn-corner-all')
+                .text('0 mi')
+        );
 
-            li.attr('title', result.title)
-                .attr('gid', result.gid)
-                .attr('type','loop')
-                .attr('w', result.w)
-                .attr('s', result.s)
-                .attr('e', result.e)
-                .attr('n', result.n)
-                .attr('lat', result.lat)
-                .attr('lng', result.lng);
+        // Add to the list
+        li.append(link);
+        target.append(li);
+    }
 
-            li.attr('backbutton', '#pane-trails');
-
-            // Link (fake, currently)
-            link = $('<a></a>');
-            link.attr('class', 'ui-btn ui-btn-text');
-            //link.attr('href', 'javascript:zoomElementClick(this)');
-
-            // On click: center the map and load More Info
-            li.click(function () {
-                zoomElementClick( $(this) );
-            });
-            li.append(link);
-
-            // Title
-            link.append(
-                $('<h4></h4>')
-                    .addClass('ui-li-heading')
-                    .text(result.title)
-            );
-            // Inner text
-            link.append(
-                $('<span></span>')
-                    .addClass('ui-li-desc')
-                    .html(result.distance + ' &nbsp;&nbsp; ' + result.duration)
-            );
-
-            // Distance placeholder, to be populated later
-            link.append(
-                $('<span></span>')
-                    .addClass('zoom_distance')
-                    .addClass('ui-li-count')
-                    .addClass('ui-btn-up-c')
-                    .addClass('ui-btn-corner-all')
-                    .text('0 mi')
-            );
-
-            // Add to the list
-            li.append(link);
-            target.append(li);
-        }
-
-        // sort it by distance and have jQuery Mobile refresh it
-        $('#pane-trails .sortpicker').show();
-        target.listview('refresh');
-        sortLists(target);
-    }, 'json');
+    // sort it by distance and have jQuery Mobile refresh it
+    $('#pane-trails .sortpicker').show();
+    target.listview('refresh');
+    sortLists(target);
 }
 
 ;
