@@ -31,7 +31,7 @@ $(document).ready(function () {
     $('#pane-browse li a[href="#pane-trails"]').click(function() {
         set_pane_back_button('#pane-trails', '#pane-browse');
         // Perform trails search upon opening the pane.
-        filterLoops();
+        doTrailSearch();
     });
 
     /*
@@ -116,7 +116,7 @@ $(document).ready(function () {
     $('#pane-welcome .welcome-pane-trails a').click(function() {
         set_pane_back_button('#pane-trails', '#pane-welcome');
         // Perform trails search upon opening the pane.
-        filterLoops();
+        doTrailSearch();
     });
 
     /*
