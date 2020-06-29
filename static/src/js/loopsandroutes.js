@@ -223,11 +223,27 @@ function doTrailSearch() {
                 .addClass('ui-li-heading')
                 .text(result.name)
         );
-        // Inner text
+
+        // Select duration value based on chosen activity, defaulting to hike
+        var duration;
+        switch (activity) {
+            case 'mountainbike':
+            case 'bike_Advanced':
+                duration = result.durationtext_bike;
+                break;
+            case 'bridle':
+                duration = result.durationtext_bridle;
+                break;
+            case 'hike':
+            default:
+                duration = result.durationtext_hike;
+        }
+
+        // Inner text: distance and duration
         link.append(
             $('<span></span>')
                 .addClass('ui-li-desc')
-                .html(result.distancetext + ' &nbsp;&nbsp; ' + result.duration)
+                .html(result.distancetext + ' &nbsp;&nbsp; ' + duration)
         );
 
         // Distance placeholder, to be populated later
