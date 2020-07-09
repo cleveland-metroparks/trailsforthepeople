@@ -1118,18 +1118,18 @@ function showAttractionInfoContent(attractionType, id) {
 
         // Old style
         // @TODO: Change-over to new API & preloaded-data model:
-        case 'trail':
-        case 'poi':
-        case 'reservation':
-        default:
-            var params = {
-                type: attractionType,
-                gid: id,
-            };
-            // Get and display the "more info" plain HTML
-            $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
-                $('#info-content').html(reply);
-            }, 'html');
+        // case 'trail':
+        // case 'poi':
+        // case 'reservation':
+        //default:
+        //    var params = {
+        //        type: attractionType,
+        //        gid: id,
+        //    };
+        //    // Get and display the "more info" plain HTML
+        //    $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
+        //        $('#info-content').html(reply);
+        //    }, 'html');
     }
 }
 
