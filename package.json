@@ -17,6 +17,7 @@
     "@popperjs/core": "^2.4.4",
     "@turf/turf": "^5.1.6",
     "fastclick": "^1.0.6",
+    "fuse.js": "^6.4.1",
     "handlebars": "^4.7.3",
     "jquery": "^1.12.4",
     "mapbox-gl": "^1.11.1",

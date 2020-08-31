@@ -139,80 +139,80 @@ function searchByKeyword(keyword) {
     disableKeywordButton();
     $('#pane-search .sortpicker').hide();
 
-    $.get(API_BASEPATH + 'ajax/keyword', { keyword:keyword, limit:100 }, function (reply) {
-        enableKeywordButton();
-        $('#pane-search .sortpicker').show();
+    var results = fuse.search(keyword);
 
-        if (! reply.length) {
-            // No matches. Pass on to an address search, and say so.
-            $('<li></li>').text('No Cleveland Metroparks results found. Trying an address search.').appendTo(target);
-            zoomToAddress(keyword);
-            return;
-        }
+    enableKeywordButton();
+    $('#pane-search .sortpicker').show();
 
-        for (var i=0, l=reply.length; i<l; i++) {
-            var result = reply[i];
+    if (!results.length) {
+        // No matches. Pass on to an address search, and say so.
+        $('<li></li>').text('No Cleveland Metroparks results found. Trying an address search.').appendTo(target);
+        zoomToAddress(keyword);
+        return;
+    }
 
-            var li = $('<li></li>')
-                .addClass('zoom')
-                .addClass('ui-li-has-count');
+    for (var i=0, l=results.length; i<l; i++) {
+        var result = results[i].item;
 
-            li.attr('title', result.name)
-                .attr('gid', result.gid)
-                .attr('type', result.type)
-                .attr('w', result.w)
-                .attr('s', result.s)
-                .attr('e', result.e)
-                .attr('n', result.n)
-                .attr('lat', result.lat)
-                .attr('lng', result.lng);
+        var li = $('<li></li>')
+            .addClass('zoom')
+            .addClass('ui-li-has-count');
 
-            li.attr('backbutton', '#pane-search');
+        li.attr('title', result.title)
+            .attr('gid', result.gid)
+            .attr('type', result.type)
+            .attr('w', result.w)
+            .attr('s', result.s)
+            .attr('e', result.e)
+            .attr('n', result.n)
+            .attr('lat', result.lat)
+            .attr('lng', result.lng);
 
-            // Link (fake, currently)
-            link = $('<a></a>');
-            link.attr('class', 'ui-btn ui-btn-text');
-            //link.attr('href', 'javascript:zoomElementClick(this)');
+        li.attr('backbutton', '#pane-search');
 
-            // On click: center the map and load More Info
-            li.click(function () {
-                zoomElementClick( $(this) );
-            });
+        // Fake link
+        link = $('<a></a>');
+        link.attr('class', 'ui-btn ui-btn-text');
 
-            li.append(link);
+        // On click: center the map and load More Info
+        li.click(function () {
+            zoomElementClick($(this));
+        });
 
-            // Title
-            link.append(
-                $('<h4></h4>')
-                    .addClass('ui-li-heading')
-                    .text(result.name)
-            );
-            // Subtitle: type
-            link.append(
-                $('<span></span>')
-                    .addClass('ui-li-desc')
-                    .text(result.description)
-            );
+        li.append(link);
+
+        // Title
+        link.append(
+            $('<h4></h4>')
+                .addClass('ui-li-heading')
+                .text(result.title)
+        );
+        // Subtitle: type
+        link.append(
+            $('<span></span>')
+                .addClass('ui-li-desc')
+                .text(result.description)
+        );
     
-            // Distance placeholder, to be populated later
-            link.append(
-                $('<span></span>')
-                    .addClass('zoom_distance')
-                    .addClass('ui-li-count')
-                    .addClass('ui-btn-up-c')
-                    .addClass('ui-btn-corner-all')
-                    .text('0 mi')
-            );
+        // Distance placeholder, to be populated later (in sortLists())
+        link.append(
+            $('<span></span>')
+                .addClass('zoom_distance')
+                .addClass('ui-li-count')
+                .addClass('ui-btn-up-c')
+                .addClass('ui-btn-corner-all')
+                .text('0 mi')
+        );
 
-            // Add to the list
-            li.append(link);
-            target.append(li);
-        }
+        // Add to the list
+        li.append(link);
+        target.append(li);
+    }
 
-        // finally, have jQuery Mobile do its magic, then trigger distance calculation and sorting
-        target.listview('refresh');
-        sortLists(target);
-    }, 'json');
+    // Have jQuery turn into a proper listview
+    target.listview('refresh');
+    // Trigger distance calculation and sorting
+    sortLists(target);
 }
 
 /**

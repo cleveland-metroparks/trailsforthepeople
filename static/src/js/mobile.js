@@ -473,7 +473,7 @@ $(document).ready(function () {
 function zoomElementClick(element) {
     var type = element.attr('type');
     var gid  = element.attr('gid');
-    if (type=='reservation_new') {
+    if (type=='reservation_new' && !gid) {
         gid  = element.attr('record_id');
     }
 
@@ -720,7 +720,7 @@ function showOnMap() {
         feature.wkt = $(this).data('wkt');
 
         feature.gid = element.attr('gid');
-        if (feature.type=='reservation_new') {
+        if (feature.type=='reservation_new' && !feature.gid) {
             feature.gid  = element.attr('record_id');
         }
 

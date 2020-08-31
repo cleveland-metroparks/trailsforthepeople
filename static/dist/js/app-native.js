@@ -2024,9 +2024,9 @@ $(document).on("mapInitialized", function () {
 
         // Check the Nearby alerts to see if anything relevant is within range
         if ( $('#nearby_enabled').is(':checked') ) {
-            var meters = $('#nearby_radius').val();
+            var meters = $('#nearby-radius').val();
             var categories = [];
-            $('input[name="nearby_category"]:checked').each(
+            $('input[name="nearby-category"]:checked').each(
                 function () {
                     categories[categories.length] = $(this).val()
                 }
@@ -3248,16 +3248,16 @@ function bearingToInNESW(from, to) {
  * Add activity types options to the Nearby pane
  */
 function addActivityTypesToNearby() {
-
+    var optionsMarkup = '<fieldset id="nearby-activities" data-role="controlgroup">';
     $.each(CM.activities, function(index, value) {
-        console.log(index);
-        console.log(value);
-        // $('#nearby-activities').append()
+        if (value && value.pagetitle) {
+            optionsMarkup += '<label><input type="checkbox" name="nearby-category" value="' + value.pagetitle + '">' + value.pagetitle + '</label>';
+        }
     });
-
-    // <label><input type="checkbox" name="nearby_category" value="$CATEGORY">$CATEGORY</label>
+    optionsMarkup += '</fieldset>';
+    $('.form-group-wrapper').append(optionsMarkup).enhanceWithin();
 }
-// Populate 
+// Populate DOM elements
 $(document).on("dataReadyAttractions", function() {
     addActivityTypesToNearby();
 });
@@ -3440,7 +3440,7 @@ $(document).ready(function () {
     $('#nearby_enabled').change(function () {
         // toggle the nearby config: category pickers, distance selector, etc.
         var enabled = $(this).is(':checked');
-        enabled ? $('#nearby_config').show() : $('#nearby_config').hide();
+        enabled ? $('#nearby-config').show() : $('#nearby-config').hide();
 
         // if it's not checked, unfilter the results listing to show everything, and remove the circle
         if (! enabled) {
