@@ -62,7 +62,7 @@ var WEBAPP_BASEPATH = '/';
 var API_BASEPATH = '/';
 var MAP = null;
 
-var API_NEW_HOST = 'maps-api-local.clevelandmetroparks.com';
+var API_NEW_HOST = 'maps-api.clevelandmetroparks.com';
 var API_NEW_PROTOCOL = 'https:';
 var API_NEW_BASEPATH = '/api/v1/';
 var API_NEW_BASE_URL = API_NEW_PROTOCOL + '//' + API_NEW_HOST + API_NEW_BASEPATH;
@@ -470,6 +470,22 @@ var CM = {
     visitor_centers : []
 };
 
+// Search index
+
+var fuseOptions = { keys: ['title'] };
+var dummySearchItem = {
+    title: 'title',
+    gid: 'gid',
+    type: 'type',
+    w: 'boxw',
+    s: 'boxs',
+    e: 'boxe',
+    n: 'boxn',
+    lat: 'latitude',
+    lng: 'longitude'
+};
+var fuse = new Fuse([dummySearchItem], fuseOptions);
+
 //
 // Get visitor centers and populate global object, CM.visitor_centers
 //
@@ -494,6 +510,22 @@ $.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
 $.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
     CM.reservations = reply.data;
 
+    // Add to Fuse search index
+    CM.reservations.forEach(function(reservation) {
+        searchItem = {
+            title: reservation.pagetitle,
+            gid: reservation.record_id,
+            type: 'reservation_new',
+            w: reservation.boxw,
+            s: reservation.boxs,
+            e: reservation.boxe,
+            n: reservation.boxn,
+            lat: reservation.latitude,
+            lng: reservation.longitude
+        };
+        fuse.add(searchItem);
+    });
+
     $.event.trigger({
         type: 'dataReadyReservations',
     });
@@ -512,6 +544,21 @@ $.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
         attraction.activities = attraction.activities ? attraction.activities.split('|').map(Number) : null;;
     });
 
+    // Add to Fuse search index
+    CM.attractions.forEach(function(attraction) {
+        searchItem = {
+            title: attraction.pagetitle,
+            gid: attraction.gis_id, // @TODO: record_id or gis_id ?
+            type: 'attraction',
+            w: null,
+            s: null,
+            e: null,
+            n: null,
+            lat: attraction.latitude,
+            lng: attraction.longitude
+        };
+        fuse.add(searchItem);
+    });
     $.event.trigger({
         type: 'dataReadyAttractions',
     });
@@ -633,6 +680,22 @@ $.get(API_NEW_BASE_URL + 'trails', null, function (reply) {
 
         CM.trails[reply.data[i].id] = trail;
     }
+
+    // Add to Fuse search index
+    CM.trails.forEach(function(trail) {
+        searchItem = {
+            title: trail.pagetitle,
+            gid: trail.record_id,
+            type: 'trail',
+            w: trail.boxw,
+            s: trail.boxs,
+            e: trail.boxe,
+            n: trail.boxn,
+            lat: trail.latitude,
+            lng: trail.longitude
+        };
+        fuse.add(searchItem);
+    });
 
     $.event.trigger({
         type: 'dataReadyTrails',
