@@ -188,7 +188,6 @@ function processGetDirectionsForm() {
             params.limit   = 30 ;
             params.lat     = LAST_KNOWN_LOCATION.lat;
             params.lng     = LAST_KNOWN_LOCATION.lng;
-            params.via     = via;
 
             $.get(API_BASEPATH + 'ajax/keyword', params, function (reply) {
                 enableDirectionsButton();

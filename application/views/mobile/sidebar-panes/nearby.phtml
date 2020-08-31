@@ -6,30 +6,25 @@
 
     <label><input type="checkbox" id="nearby_enabled" /> Enable alerts</label>
 
-    <br />
+    <div id="nearby-config">
+        <div class="form-group-wrapper">
+            <h4>Alert me when I am within:</h4>
+            <select id="nearby-radius">
+                <option value="6.10">20 feet</option>
+                <option value="15.24">50 feet</option>
+                <option value="30.48">100 feet</option>
+                <option value="76.2">250 feet</option>
+                <option value="152.4" selected="true">500 feet</option>
+                <option value="402.336">&frac14; mile</option>
+                <option value="804.672">&frac12; mile</option>
+                <option value="1207.08">&frac34; mile</option>
+                <option value="1609.344">1 mile</option>
+            </select>
+        </div>
 
-    <div id="nearby_config" style="display:none;">
-        <strong>Alert me when I am within:</strong>
-        <select id="nearby_radius">
-            <option value="6.10">20 feet</option>
-            <option value="15.24">50 feet</option>
-            <option value="30.48">100 feet</option>
-            <option value="76.2">250 feet</option>
-            <option value="152.4" selected="true">500 feet</option>
-            <option value="402.336">&frac14; mile</option>
-            <option value="804.672">&frac12; mile</option>
-            <option value="1207.08">&frac34; mile</option>
-            <option value="1609.344">1 mile</option>
-        </select>
-
-        <br />
-
-        <strong>Watch for these types of features:</strong>
-        <fieldset data-role="controlgroup">
-            <?php foreach ($poicategories as $category) { ?>
-                <label><input type="checkbox" name="nearby_category" value="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($category) ?></label>
-            <?php } ?>
-        </fieldset>
+        <div class="form-group-wrapper">
+            <h4>Watch for these types of activities:</h4>
+        </div>
     </div>
 
     <br/>

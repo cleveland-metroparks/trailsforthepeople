@@ -21,10 +21,6 @@ function index() {
     $loop_reservations = $loop->listReservations();
     $data['loopreservations'] = $loop_reservations;
 
-    // the placeholder categories for POIs
-    $use_area = new Usearea();
-    $data['poicategories'] = $use_area->listCategories();
-
     // Activities (chosen sub-set only)
     //$data['activities'] = ActivityType::getActivityTypesAndIcons(TRUE);
     // Only chosen activities that have attractions

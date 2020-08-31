@@ -232,7 +232,11 @@ form.ui-filterable.autocomplete .ui-input-btn {
 // Sidebar Pane: Nearby
 //
 #pane-nearby {
-    #alerts {
+    #nearby-config {
+        display: none;
+        .form-group-wrapper {
+            margin: 1em 0;
+        }
     }
 }
 

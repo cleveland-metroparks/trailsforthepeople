@@ -216,9 +216,12 @@ module.exports = function(grunt) {
       sass_dist: {
         files: [
           'static/src/scss/_variables.scss',
-          'static/src/scss/mobile.scss',
+          'static/src/scss/sidebar.scss',
+          'static/src/scss/map.scss',
+          'static/src/scss/fonts.scss',
           'static/src/scss/jqm-themes/cm-jqm-theme.css',
-          'static/src/scss/tooltips.scss'
+          'static/src/scss/tooltips.scss',
+          'static/src/scss/mobile.scss'
         ],
         tasks: ['sass:dist']
       },

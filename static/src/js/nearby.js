@@ -95,6 +95,24 @@ function bearingToInNESW(from, to) {
 };
 
 /**
+ * Add activity types options to the Nearby pane
+ */
+function addActivityTypesToNearby() {
+    var optionsMarkup = '<fieldset id="nearby-activities" data-role="controlgroup">';
+    $.each(CM.activities, function(index, value) {
+        if (value && value.pagetitle) {
+            optionsMarkup += '<label><input type="checkbox" name="nearby-category" value="' + value.pagetitle + '">' + value.pagetitle + '</label>';
+        }
+    });
+    optionsMarkup += '</fieldset>';
+    $('.form-group-wrapper').append(optionsMarkup).enhanceWithin();
+}
+// Populate DOM elements
+$(document).on("dataReadyAttractions", function() {
+    addActivityTypesToNearby();
+});
+
+/**
  * Update Near You Now
  *
  * update the Near You Now listing from ALL_POIS; called on a location update
@@ -272,7 +290,7 @@ $(document).ready(function () {
     $('#nearby_enabled').change(function () {
         // toggle the nearby config: category pickers, distance selector, etc.
         var enabled = $(this).is(':checked');
-        enabled ? $('#nearby_config').show() : $('#nearby_config').hide();
+        enabled ? $('#nearby-config').show() : $('#nearby-config').hide();
 
         // if it's not checked, unfilter the results listing to show everything, and remove the circle
         if (! enabled) {

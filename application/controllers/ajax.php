@@ -191,7 +191,6 @@ function query() {
  * Keyword
  *
  * @param keyword
- * @param type
  * @param limit
  * @param lat
  * @param lng
@@ -199,100 +198,87 @@ function query() {
 function keyword() {
     $results = array();
 
-    // the keyword for matching searchByKeywords(), pruned of any non-alphanumeric characters
+    // The keyword for matching searchByKeywords(), pruned of any non-alphanumeric characters
     $keyword = preg_replace('/\W/', ' ', $_GET['keyword'] );
 
-    // the types filter. may be a comma-joined list (see in_array($types) below) or blank (do them all)
-    if (@$_GET['type']) {
-        $types = explode(",", $_GET['type']);
-    } else {
-        $types = array();
-    }
-
-    // the limit on how many results to return; not typically used except for geocoding use (returns 1)
-    $limit = (integer) @$_GET['limit'];
-
-    // the repetitive part: use searchByKeywords() to fetch all results fitting the type filter
+    //
+    // For each type, use searchByKeywords() to fetch results
+    //
 
     // POIs
-    if (!sizeof($types) or in_array('poi', $types)) {
-        $use_area = new Usearea();
-        foreach ($use_area->searchByKeywords($keyword) as $r) {
-            $results[] = array(
-                'name' => $r->use_area,
-                'gid' => (integer) $r->gid,
-                'rank' => (float) $r->rank,
-                'lat' => (float) $r->lat,
-                'lng' => (float) $r->lng,
-                'w' => (float) $r->boxw,
-                's' => (float) $r->boxs,
-                'e' => (float) $r->boxe,
-                'n' => (float) $r->boxn,
-                'description' => 'Point of interest',
-                'type' => 'poi',
-            );
-        }
+    $use_area = new Usearea();
+    foreach ($use_area->searchByKeywords($keyword) as $r) {
+        $results[] = array(
+            'name' => $r->use_area,
+            'gid' => (integer) $r->gid,
+            'rank' => (float) $r->rank,
+            'lat' => (float) $r->lat,
+            'lng' => (float) $r->lng,
+            'w' => (float) $r->boxw,
+            's' => (float) $r->boxs,
+            'e' => (float) $r->boxe,
+            'n' => (float) $r->boxn,
+            'description' => 'Point of interest',
+            'type' => 'poi',
+        );
     }
+
     // Reservations
-    if (!sizeof($types) or in_array('reservation', $types)) {
-        $park = new Park();
-        foreach ($park->searchByKeywords($keyword) as $r) {
-            // when fetching this for directions, some params will be supplied:  lat  lng  via
-            // weight our choice of location to whatever's closest to that latlng
-            if (@$_GET['lat'] and $_GET['lng'] and $_GET['lng']) {
-                $driving_latlng = $park->closestDrivingDestinationToLatLng($r->reservation_id,$_GET['lat'],$_GET['lng']);
-                if ($driving_latlng) {
-                    $r->lat = $driving_latlng->lat;
-                    $r->lng = $driving_latlng->lng;
-                }
+    $park = new Park();
+    foreach ($park->searchByKeywords($keyword) as $r) {
+        // when fetching this for directions, some params will be supplied:  lat  lng  via
+        // weight our choice of location to whatever's closest to that latlng
+        if (@$_GET['lat'] and $_GET['lng'] and $_GET['lng']) {
+            $driving_latlng = $park->closestDrivingDestinationToLatLng($r->reservation_id,$_GET['lat'],$_GET['lng']);
+            if ($driving_latlng) {
+                $r->lat = $driving_latlng->lat;
+                $r->lng = $driving_latlng->lng;
             }
-
-            $results[] = array(
-                'name' => $r->res,
-                'gid' => (integer) $r->gid,
-                'rank' => (float) $r->rank,
-                'lat' => (float) $r->lat,
-                'lng' => (float) $r->lng,
-                'w' => (float) $r->boxw,
-                's' => (float) $r->boxs,
-                'e' => (float) $r->boxe,
-                'n' => (float) $r->boxn,
-                'description' => 'Reservation',
-                'type' => 'reservation'
-            );
         }
+
+        $results[] = array(
+            'name' => $r->res,
+            'gid' => (integer) $r->gid,
+            'rank' => (float) $r->rank,
+            'lat' => (float) $r->lat,
+            'lng' => (float) $r->lng,
+            'w' => (float) $r->boxw,
+            's' => (float) $r->boxs,
+            'e' => (float) $r->boxe,
+            'n' => (float) $r->boxn,
+            'description' => 'Reservation',
+            'type' => 'reservation'
+        );
     }
+
     // Trails/Loops (Featured Trails)
-    if (!sizeof($types) or in_array('loop', $types)) {
-        $loop = new Loop();
-        foreach ($loop->searchByKeywords($keyword) as $r) {
-            $results[] = array(
-                'name' => $r->name,
-                'gid' => $r->id,
-                'rank' => (float) $r->rank,
-                'lat' => (float) $r->lat,
-                'lng' => (float) $r->lng,
-                'w' => (float) $r->boxw,
-                's' => (float) $r->boxs,
-                'e' => (float) $r->boxe,
-                'n' => (float) $r->boxn,
-                'description' => 'Trail',
-                'type' => 'loop'
-            );
-        }
+    $loop = new Loop();
+    foreach ($loop->searchByKeywords($keyword) as $r) {
+        $results[] = array(
+            'name' => $r->name,
+            'gid' => $r->id,
+            'rank' => (float) $r->rank,
+            'lat' => (float) $r->lat,
+            'lng' => (float) $r->lng,
+            'w' => (float) $r->boxw,
+            's' => (float) $r->boxs,
+            'e' => (float) $r->boxe,
+            'n' => (float) $r->boxn,
+            'description' => 'Trail',
+            'type' => 'loop'
+        );
     }
 
-    // sort the results by their relevance score; we do this here rather than within each searchByKeywords() call, so we can
-    // have the list sorted by relevance rather than by type and then by relevance
-    function order_by_rank($p,$q) {
+    // Sort results by relevance score
+    function order_by_rank($p, $q) {
         return $p['rank'] > $q['rank'] ? -1 : 1;
     }
     usort($results, 'order_by_rank');
 
-    // was there a limit? if so, slice the list
-    if ($limit) $results = array_slice($results,0,$limit);
+    // If result limit specified
+    $limit = (integer) @$_GET['limit'];
+    if ($limit) $results = array_slice($results, 0, $limit);
 
-    // done, send 'em out!
     print json_encode($results);
 }
 
@@ -678,9 +664,9 @@ function _directions_via_trails($params) {
         list($source,$target) = array($target,$source);
     }
 
-    // creative use of views to do filtering, means that this single set of routing logic can work for all cases
-    // routing_trails is all trails, routing_trails_bike_novice is bike trails tagged as Novice only, and so on
-    // Also define the presumed speed in feet per second:  3mph walking/hiking, 5mph equestrian, 10mph biking
+    // Creative use of views to do filtering, means that this single set of routing logic can work for all cases.
+    // routing_trails is all trails, routing_trails_bike_novice is bike trails tagged as Novice only, and so on.
+    // Also define the presumed speed in feet per second:  3mph walking/hiking, 5mph equestrian, 10mph biking.
     switch ($_GET['via']) {
         case 'hike':
             $route_table     = "routing_trails_hike";
@@ -688,40 +674,12 @@ function _directions_via_trails($params) {
             $cost_column     = "cost_hike";
             $oneway = false;
             break;
-        /*
-        case 'hike_paved':
-            $route_table     = "routing_trails_hike_paved";
-            $duration_column = "duration_hike";
-            $cost_column     = "cost_hike";
-            $oneway = false;
-            break;
-        case 'hike_unpaved':
-            $route_table     = "routing_trails_hike_unpaved";
-            $duration_column = "duration_hike";
-            $cost_column     = "cost_hike";
-            $oneway = false;
-            break;
-        */
         case 'bridle':
             $route_table     = "routing_trails_bridle";
             $duration_column = "duration_bridle";
             $cost_column     = "cost_bridle";
             $oneway = false;
             break;
-        /*
-        case 'bridle_paved':
-            $route_table     = "routing_trails_bridle_paved";
-            $duration_column = "duration_bridle";
-            $cost_column     = "cost_bridle";
-            $oneway = false;
-            break;
-        case 'bridle_unpaved':
-            $route_table     = "routing_trails_bridle_unpaved";
-            $duration_column = "duration_bridle";
-            $cost_column     = "cost_bridle";
-            $oneway = false;
-            break;
-        */
         case 'bike':
             $route_table     = "routing_trails_bike";
             $duration_column = "duration_bike";
@@ -752,44 +710,6 @@ function _directions_via_trails($params) {
             $cost_column     = "cost_bike";
             $oneway = true;
             break;
-        /*
-        case 'bike_beginner_paved':
-            $route_table     = "routing_trails_bike_beginner_paved";
-            $duration_column = "duration_bike";
-            $cost_column     = "cost_bike";
-            $oneway = true;
-            break;
-        case 'bike_intermediate_paved':
-            $route_table     = "routing_trails_bike_intermediate_paved";
-            $duration_column = "duration_bike";
-            $cost_column     = "cost_bike";
-            $oneway = true;
-            break;
-        case 'bike_advanced_paved':
-            $route_table     = "routing_trails_bike_advanced_paved";
-            $duration_column = "duration_bike";
-            $cost_column     = "cost_bike";
-            $oneway = true;
-            break;
-        case 'bike_beginner_unpaved':
-            $route_table     = "routing_trails_bike_beginner_unpaved";
-            $duration_column = "duration_bike";
-            $cost_column     = "cost_bike";
-            $oneway = true;
-            break;
-        case 'bike_intermediate_unpaved':
-            $route_table     = "routing_trails_bike_intermediate_unpaved";
-            $duration_column = "duration_bike";
-            $cost_column     = "cost_bike";
-            $oneway = true;
-            break;
-        case 'bike_advanced_unpaved':
-            $route_table     = "routing_trails_bike_advanced_unpaved";
-            $duration_column = "duration_bike";
-            $cost_column     = "cost_bike";
-            $oneway = true;
-            break;
-        */
         default:
             $route_table     = null;
             $duration_column = null;
@@ -798,8 +718,8 @@ function _directions_via_trails($params) {
     }
     if (! $route_table or ! $duration_column) return array();
 
-    // do they prefer the shortest distance, the fastest travel, or our own weighting recommendations?
-    // this appends to the table name (actually a view) defined in $route_table above, to pick a different view
+    // Do they prefer the shortest distance, the fastest travel, or our own weighting recommendations?
+    // This appends to the table name (actually a view) defined in $route_table above, to pick a different view.
     switch (@$_GET['prefer']) {
         case 'shortest':
             $route_table .= "_shortest";
@@ -809,11 +729,12 @@ function _directions_via_trails($params) {
             break;
     }
 
-    // a multi-phase attempt to find a route, given that we want very specific routes (hiking, paved)
-    // and they may not match whatever is closest to us. The strategy:
+    // A multi-phase attempt to find a route, given that we want very specific routes (hiking, paved)
+    // and they may not match whatever is closest to us.
+    // The strategy:
     // - start with the closest start & end nodes to the selected locations
     // - see if they have a route with the requested params
-    // - if so, that's the route, ta-da
+    // - if so, that's the route, (ta-da!)
     // - if not, fan out from those nodes and find 10 of the 100 closest nodes, and try them
 
     // initialize the output
@@ -1096,7 +1017,8 @@ function _directions_via_trails($params) {
 /**
  * Route waypoints
  *
- * Unlike the directions methods above, this one doesn't need to adhere to an API as it's for admin use only.
+ * Unlike the directions methods above, this one doesn't need to adhere to an API as it's
+ *   ** for admin use only. **
  * This one is custom-tuned for the admin tool for generating routes and loops.
  *
  * @param $context

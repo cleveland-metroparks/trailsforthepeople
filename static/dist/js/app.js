@@ -17,7 +17,7 @@ var WEBAPP_BASEPATH = '/';
 var API_BASEPATH = '/';
 var MAP = null;
 
-var API_NEW_HOST = 'maps-api.clevelandmetroparks.com';
+var API_NEW_HOST = 'maps-api-local.clevelandmetroparks.com';
 var API_NEW_PROTOCOL = 'https:';
 var API_NEW_BASEPATH = '/api/v1/';
 var API_NEW_BASE_URL = API_NEW_PROTOCOL + '//' + API_NEW_HOST + API_NEW_BASEPATH;
@@ -2011,9 +2011,9 @@ $(document).on("mapInitialized", function () {
 
         // Check the Nearby alerts to see if anything relevant is within range
         if ( $('#nearby_enabled').is(':checked') ) {
-            var meters = $('#nearby_radius').val();
+            var meters = $('#nearby-radius').val();
             var categories = [];
-            $('input[name="nearby_category"]:checked').each(
+            $('input[name="nearby-category"]:checked').each(
                 function () {
                     categories[categories.length] = $(this).val()
                 }
@@ -2231,7 +2231,6 @@ function processGetDirectionsForm() {
             params.limit   = 30 ;
             params.lat     = LAST_KNOWN_LOCATION.lat;
             params.lng     = LAST_KNOWN_LOCATION.lng;
-            params.via     = via;
 
             $.get(API_BASEPATH + 'ajax/keyword', params, function (reply) {
                 enableDirectionsButton();
@@ -3233,6 +3232,24 @@ function bearingToInNESW(from, to) {
 };
 
 /**
+ * Add activity types options to the Nearby pane
+ */
+function addActivityTypesToNearby() {
+    var optionsMarkup = '<fieldset id="nearby-activities" data-role="controlgroup">';
+    $.each(CM.activities, function(index, value) {
+        if (value && value.pagetitle) {
+            optionsMarkup += '<label><input type="checkbox" name="nearby-category" value="' + value.pagetitle + '">' + value.pagetitle + '</label>';
+        }
+    });
+    optionsMarkup += '</fieldset>';
+    $('.form-group-wrapper').append(optionsMarkup).enhanceWithin();
+}
+// Populate DOM elements
+$(document).on("dataReadyAttractions", function() {
+    addActivityTypesToNearby();
+});
+
+/**
  * Update Near You Now
  *
  * update the Near You Now listing from ALL_POIS; called on a location update
@@ -3410,7 +3427,7 @@ $(document).ready(function () {
     $('#nearby_enabled').change(function () {
         // toggle the nearby config: category pickers, distance selector, etc.
         var enabled = $(this).is(':checked');
-        enabled ? $('#nearby_config').show() : $('#nearby_config').hide();
+        enabled ? $('#nearby-config').show() : $('#nearby-config').hide();
 
         // if it's not checked, unfilter the results listing to show everything, and remove the circle
         if (! enabled) {

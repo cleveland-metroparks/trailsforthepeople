@@ -72,9 +72,9 @@ $(document).on("mapInitialized", function () {
 
         // Check the Nearby alerts to see if anything relevant is within range
         if ( $('#nearby_enabled').is(':checked') ) {
-            var meters = $('#nearby_radius').val();
+            var meters = $('#nearby-radius').val();
             var categories = [];
-            $('input[name="nearby_category"]:checked').each(
+            $('input[name="nearby-category"]:checked').each(
                 function () {
                     categories[categories.length] = $(this).val()
                 }

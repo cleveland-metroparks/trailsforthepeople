@@ -17,7 +17,7 @@ var WEBAPP_BASEPATH = '/';
 var API_BASEPATH = '/';
 var MAP = null;
 
-var API_NEW_HOST = 'maps-api.clevelandmetroparks.com';
+var API_NEW_HOST = 'maps-api-local.clevelandmetroparks.com';
 var API_NEW_PROTOCOL = 'https:';
 var API_NEW_BASEPATH = '/api/v1/';
 var API_NEW_BASE_URL = API_NEW_PROTOCOL + '//' + API_NEW_HOST + API_NEW_BASEPATH;
@@ -2244,7 +2244,6 @@ function processGetDirectionsForm() {
             params.limit   = 30 ;
             params.lat     = LAST_KNOWN_LOCATION.lat;
             params.lng     = LAST_KNOWN_LOCATION.lng;
-            params.via     = via;
 
             $.get(API_BASEPATH + 'ajax/keyword', params, function (reply) {
                 enableDirectionsButton();
@@ -3244,6 +3243,24 @@ function bearingToInNESW(from, to) {
     else if (bearing >= 292 && bearing <= 337) return 'NW';
     else if (bearing >= 337 || bearing <= 22)  return 'N';
 };
+
+/**
+ * Add activity types options to the Nearby pane
+ */
+function addActivityTypesToNearby() {
+
+    $.each(CM.activities, function(index, value) {
+        console.log(index);
+        console.log(value);
+        // $('#nearby-activities').append()
+    });
+
+    // <label><input type="checkbox" name="nearby_category" value="$CATEGORY">$CATEGORY</label>
+}
+// Populate 
+$(document).on("dataReadyAttractions", function() {
+    addActivityTypesToNearby();
+});
 
 /**
  * Update Near You Now
