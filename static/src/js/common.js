@@ -167,12 +167,11 @@ function latlng_formatted(latlng, coordinate_format) {
         format = SETTINGS.coordinate_format;
     }
     switch (format) {
-        case 'dms':
-            return latlng_as_dms(latlng);
         case 'ddm':
             return latlng_as_ddm(latlng);
         case 'dd':
             return latlng_as_dd(latlng);
+        case 'dms':
         default:
             return latlng_as_dms(latlng);
     }

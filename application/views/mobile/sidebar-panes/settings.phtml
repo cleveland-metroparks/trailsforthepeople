@@ -19,16 +19,12 @@
             'ddm' => 'Degrees Decimal Minutes',
             'dd' => 'Decimal Degrees'
         );
-        // Get user's choice from session
-        $user_coordinate_format = $this->session->userdata('coordinate_format');
-        if (!$user_coordinate_format) {
-            $user_coordinate_format = 'dms'; // Default
-        }
+        $default_coordinate_format = 'dms';
         // Make choices HTML
         foreach ($coordinate_formats as $format_key => $format_label) {
             $item = '<label><input type="radio" name="coordinate_format" value="' . $format_key . '"';
             // Mark user's choice as selected
-            $item .= ($format_key == $user_coordinate_format) ? ' checked="true"' : '';
+            $item .= ($format_key == $default_coordinate_format) ? ' checked="true"' : '';
             $item .= '/>' . $format_label . '</label>';
             print $item . "\n";
         }
@@ -37,7 +33,7 @@
     
     <label for="gps_location">Your location</label>
     <div data-role="controlgroup" data-type="horizontal">
-        <input type="text" class="js-url-field" value="unknown" id="gps_location" data-wrapper-class="controlgroup-textinput ui-btn" readonly="" style="text-align:center;" value="Enable geolocation" />
+        <input type="text" class="js-url-field" value="unknown" id="gps_location" data-wrapper-class="controlgroup-textinput ui-btn" readonly="" value="Enable geolocation" />
         <a href="#" title="Copy to clipboard" alt="Copy" data-copy-id="gps_location" class="ui-btn ui-btn-inline ui-corner-all copy-to-clipboard">
             <i class="cm-icon cm-icon-clipboard"></i>
         </a>

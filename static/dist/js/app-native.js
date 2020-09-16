@@ -1615,46 +1615,26 @@ $(document).ready(function () {
 });
 
 /**
- * Change the GPS coordinate format used in the interface.
+ * Change the GPS coordinate format used in the interface, and store in localStorage.
  *
  * @param format: 'dms', 'ddm', or 'dd'.
  */
 function changeCoordinateFormat(format) {
     SETTINGS.coordinate_format = format;
-    setSessionCoordinateFormat(format);
+    localStorage.setItem('coordinateFormat', format);
 }
 
 /**
- * Get user's coordinate format setting from session config, and update UI.
+ * Get user's coordinate format setting from localStorage, and update UI.
  */
 function getSessionCoordinateFormat() {
-    $.get(API_BASEPATH + 'ajax/get_session_coordinate_format', {}, function (reply) {
-        if (reply) {
-            // Update UI setting and user location display.
-            SETTINGS.coordinate_format = reply;
-            update_user_latlon_display();
-            return reply;
-        } else {
-            console.log('Error: get_session_coordinate_format: Could not get coordinate format.');
-            return;
-        }
-    }, 'json');
+    SETTINGS.coordinate_format = localStorage.getItem('coordinateFormat');
+    update_user_latlon_display();
 }
 
 /**
  * Set user's coordinate format setting from session config.
  */
-function setSessionCoordinateFormat(format) {
-    var params = {
-        coordinate_format: format
-    };
-
-    $.get(API_BASEPATH + 'ajax/set_session_coordinate_format', params, function (reply) {
-        if (!reply) {
-            console.log('Error: set_session_coordinate_format: No reply.');
-        }
-    }, 'json');
-}
 
 /**
  * Map click handling
