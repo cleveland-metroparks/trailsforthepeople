@@ -59,8 +59,7 @@ module.exports = function(grunt) {
       embedded_base: {
         src: [
           'static/lib/jquery-1.12.4.min.js',
-          'static/lib/turf.js-5.1.6/turf.min.js',
-          'static/lib/mapbox-gl-js-1.6.0/mapbox-gl.js',
+          'static/dist/js/deps-embedded.js',
           'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
           'static/src/js/common.js',
@@ -71,8 +70,7 @@ module.exports = function(grunt) {
       // Base for map embeds on external sites that already have jQuery included (we don't package it):
       embedded_base_nojq: {
         src: [
-          'static/lib/turf.js-5.1.6/turf.min.js',
-          'static/lib/mapbox-gl-js-1.6.0/mapbox-gl.js',
+          'static/dist/js/deps-embedded.js',
           'static/src/js/constants.js',
           'static/src/js/embedded-constants.js',
           'static/src/js/common.js',
@@ -91,6 +89,10 @@ module.exports = function(grunt) {
       deps: {
         src: 'static/src/js/deps-app.js',
         dest: 'static/dist/js/deps-app.js'
+      },
+      deps_embedded: {
+        src: 'static/src/js/deps-embedded.js',
+        dest: 'static/dist/js/deps-embedded.js'
       }
     },
 
@@ -255,6 +257,12 @@ module.exports = function(grunt) {
         ],
         tasks: ['browserify:deps']
       },
+      browserify_deps_embedded: {
+        files: [
+          'static/src/js/deps-embedded.js'
+        ],
+        tasks: ['browserify:deps_embedded']
+      },
       handlebars_all: {
         files: [
           'static/src/js/templates/*.hbs'
@@ -378,6 +386,8 @@ module.exports = function(grunt) {
   );
   // Embedded tasks only
   grunt.registerTask('embedded', [
+    'browserify:deps_embedded',
+
     'concat:embedded_base',
     'concat:embedded_base_nojq',
 
@@ -389,6 +399,13 @@ module.exports = function(grunt) {
     'sass:embedded'
   ]);
   // Embedded tasks only, without uglify
-  grunt.registerTask('embedded_nougly', ['concat:embedded_base', 'concat:embedded_base_nojq', 'sass:embedded']);
+  grunt.registerTask('embedded_nougly', [
+    'browserify:deps_embedded',
+
+    'concat:embedded_base',
+    'concat:embedded_base_nojq',
+
+    'sass:embedded'
+  ]);
 
 };
