@@ -7,10 +7,6 @@
  * Cleveland Metroparks
  */
 
-
-var API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES = API_BASEPATH + 'ajax/get_attractions_by_activity';
-var API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY = API_BASEPATH + 'ajax/get_nearby_attractions_with_activities';
-
 var USER_LOCATION;
 
 var ALL_MARKERS = [];
@@ -117,38 +113,40 @@ function processQueryParams() {
      * Make the right call, based on options
      */
     if (activities) {
+        var nearby = false;
         if (geolocate_enabled) {
-            data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY;
-
             if (USER_LOCATION !== null && USER_LOCATION !== undefined) {
+                nearby = true;
                 data.lat = USER_LOCATION.coords.latitude;
                 data.lng = USER_LOCATION.coords.longitude;
             } else if (lat && lng) {
+                nearby = true;
                 data.lat = lat;
                 data.lng = lng;
             } else {
-                // No lat/lng. Don't do nearby search.
-                data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES;
+                // No lat/lng
+                nearby = false;
             }
-            callGetAttractions(data);
         } else if (location_searchtext) {
             // Search attractions nearby geocoded address
-            data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES_NEARBY;
+            nearby = true;
             // data.searchtext = location_searchtext;
-
             // Geocode address
             callGeocodeAddress(location_searchtext).then(function(reply, textStatus, jqXHR) {
                 // Add new lat/lng to the data object.
                 data.lat = reply.data.lat;
                 data.lng = reply.data.lng;
-
-                callGetAttractions(data);
             });
         } else {
             // Search activities without nearby
-            data.get_attractions_url = API_ENDPOINT_ATTRACTIONS_WITH_ACTIVITIES;
-            delete data.within_feet;
-            callGetAttractions(data);
+            nearby = false;
+        }
+
+        if (nearby) {
+            callGetNearbyAttractions(data);
+        } else {
+            var attractions = CM.get_attractions_by_activity(activities);
+            displayAttractions(attractions);
         }
     }
 }
@@ -177,21 +175,21 @@ function disableGeolocation() {
 }
 
 /**
- * Get activities (AJAX)
+ * Get attractions (AJAX)
  *
  * Works with Nearby and without.
  */
-function callGetAttractions(params) {
+function callGetNearbyAttractions(params) {
     return $.ajax({
-        url: params.get_attractions_url,
-        dataType: 'json',
-        data: params
+            url: API_BASEPATH + 'ajax/get_nearby_attractions_with_activities',
+            dataType: 'json',
+            data: params
         })
         .done(function(reply) {
-            displayActivities(reply.results);
+            displayAttractions(reply.results);
         })
         .fail(function(jqXHR, textStatus, errorThrown) {
-            console.log('callGetAttractions error');
+            console.log('callGetNearbyAttractions error');
             console.log(textStatus + ': ' + errorThrown);
         });
 }
@@ -227,18 +225,22 @@ function clearMarkers() {
 }
 
 /**
- * Display activities on the map.
+ * Display attractions on the map.
  */
-function displayActivities(activities) {
+function displayAttractions(attractions) {
     clearMarkers();
-    for (var i = 0; i < activities.length; i++) {
-        var activity = activities[i];
+    for (var i = 0; i < attractions.length; i++) {
+        var attraction = attractions[i];
 
         var popup = new mapboxgl.Popup({ offset: 25 })
-            .setHTML(attractionPopupMarkup(activity));
+            .setHTML(attractionPopupMarkup(attraction));
+
+        // @TODO: Remove this (just use attraction.latitude) when callGetNearbyAttractions() is phased-out
+        var longitude = attraction.lng ? attraction.lng : attraction.longitude;
+        var latitude = attraction.lat ? attraction.lat : attraction.latitude;
 
         var marker = new mapboxgl.Marker()
-            .setLngLat([activity.lng, activity.lat])
+            .setLngLat([longitude, latitude])
             .setPopup(popup)
             .addTo(MAP);
 
@@ -252,23 +254,29 @@ function displayActivities(activities) {
  * Make marker popup
  */
 function attractionPopupMarkup(attraction) {
+    // @TODO: Remove these (just use first items) when callGetNearbyAttractions() is phased-out
+    var thumbnail = attraction.pagethumbnail ? attraction.pagethumbnail : attraction.thumbnail;
+    var name = attraction.pagetitle ? attraction.pagetitle : attraction.name;
+    var description = attraction.descr ? attraction.descr : attraction.description;
+    var gis_id = attraction.gis_id ? attraction.gis_id : attraction.gid;
+
     // Only show description & thumbnail if we have room for tall popups
     showImage = ($("#map_canvas").height() >= 500);
 
-    markup = "<h3>" + attraction.name + "</h3>";
+    markup = "<h3>" + name + "</h3>";
 
-    if (typeof attraction.description === 'string') {
-        attraction.description = shortenStr(attraction.description, 100, true);
-        markup += "<p>" + attraction.description + "</p>";
+    if (typeof description === 'string') {
+        description = shortenStr(description, 100, true);
+        markup += "<p>" + description + "</p>";
     }
 
     if (typeof attraction.cmp_url === 'string') {
-        markup += '<p><a href="' + attraction.cmp_url + '" title="Find out more about ' + attraction.name + '." target="_blank">More info</a></p>';
+        markup += '<p><a href="' + attraction.cmp_url + '" title="Find out more about ' + name + '." target="_blank">More info</a></p>';
     }
 
-    if (showImage && attraction.thumbnail) {
+    if (showImage && thumbnail) {
         // Remove "~/" and prepend CM site URL
-        thumbnailPath = CM_SITE_BASEURL + attraction.thumbnail.replace('~/', '');
+        thumbnailPath = CM_SITE_BASEURL + thumbnail.replace('~/', '');
         // Get original width & height from image URL
         origWidth = thumbnailPath.match(/width=(\d*)/);
         origHeight = thumbnailPath.match(/height=(\d*)/);
@@ -282,12 +290,12 @@ function attractionPopupMarkup(attraction) {
             thumbnailPath = thumbnailPath.replace(/width=(\d*)\&height=(\d)*\&/, 'height=' + thumbnailHeight + '&');
             // Build the img markup
             markup += '<div style="text-align:center">';
-            markup += '<img src="' + thumbnailPath + '" height="' + thumbnailHeight + '" width="' + thumbnailWidth + '" alt="' + attraction.name + '" /></div>';
+            markup += '<img src="' + thumbnailPath + '" height="' + thumbnailHeight + '" width="' + thumbnailWidth + '" alt="' + name + '" /></div>';
             markup += '</div>';
         }
     }
 
-    mapLink = WEBAPP_BASEPATH + 'mobile?type=attraction&gid=' + attraction.gid;
+    mapLink = WEBAPP_BASEPATH + 'mobile?type=attraction&gid=' + gis_id;
     markup += '<p><a href="' + mapLink + '" target="_blank">See on full map </a></p>';
 
     return markup;
