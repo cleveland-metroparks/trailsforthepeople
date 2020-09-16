@@ -16,12 +16,12 @@
     <div id="getdirections_disabled">
         Please select a destination.
         <br/>
-        <input type="button" id="change_directions_target2" class="change_directions_link" value="Select a destination" />
+        <input type="button" class="set-directions-target" value="Select a destination" />
     </div>
 
     <div id="getdirections_enabled" style="display:none;">
 
-        <fieldset data=role="controlgroup">
+        <fieldset>
 
             <select id="directions_reverse">
                 <option value="to">Get directions to</option>
@@ -30,7 +30,7 @@
 
             <div id="directions_target_title"></div>
 
-            <div id="change_directions_target" class="change_directions_link">
+            <div id="change-directions-target" class="set-directions-target">
                 <a href="#pane-browse" class="sidebar-pane-link">Change destination</a>
             </div>
 
@@ -76,5 +76,6 @@
         </fieldset>
         <br/>
         <ul id="directions_steps" data-role="listview"></ul>
+
     </div>
 </div>
