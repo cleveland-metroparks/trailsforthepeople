@@ -23,17 +23,9 @@ $(document).ready(function(){
  * Get beach closures (AJAX)
  */
 function callGetBeachClosures(params) {
-    return $.ajax({
-        url: API_BASEPATH + 'ajax/get_beach_closures',
-        dataType: 'json',
-        data: params
-        })
-        .done(function(reply) {
-            displayBeachClosures(reply.results);
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-            console.log('callGetBeachClosures ' + textStatus + ': ' + errorThrown);
-        });
+    $.get(API_NEW_BASE_URL + 'beach_closures', null, function (reply) {
+        displayBeachClosures(reply.data);
+    }, 'json');
 }
 
 /**
@@ -42,24 +34,22 @@ function callGetBeachClosures(params) {
 function displayBeachClosures(beach_closures) {
     var points = [];
 
-    for (var i = 0; i < beach_closures.length; i++) {
-        var result = beach_closures[i];
-
+    beach_closures.forEach(function(beach) {
         points.push(
             turf.point(
-                [result.lng, result.lat],
+                [beach.longitude, beach.latitude],
                 {
                     // Properties
-                    'status_color': result.status_color,
-                    'name': result.name,
-                    'date_updated': result.date_updated,
-                    'external_link': result.external_link,
-                    'status_color': result.status_color,
-                    'status_text': result.status_text
+                    'status_color': beach.status_color,
+                    'name': beach.title,
+                    'date_updated': beach.date_updated,
+                    'external_link': beach.external_link,
+                    'status_color': beach.status_color,
+                    'status_text': beach.beachstatus
                 }
             )
         );
-    }
+    });
 
     // Looks like it's not yet possible to set "icon-color"
     // for Mapbox GL JS's built-in (Maki) icons, but that
