@@ -1580,28 +1580,33 @@ function randomwaypoints_radiusbased($context=null) {
  * @param $context
  */
 function elevationprofilebysegments($context=null) {
-    // check permission on the target directory where we save chart images
-    // if it doesn't work, there's no point in making the chart: bail with an error message
-    // intended callers for this endpoint, should expect to either get an URL or else an error message
+    // Check the target directory where chart images are saved.
+    // If it doesn't work, there's no point in making the chart: bail with an error.
+    // Intended callers for this endpoint should expect to either get a URL or else an error message.
     $directory = "static/tmp";
-    if (! is_dir($directory) or ! is_writable($directory) ) return print "Can't write elevation profile chart  to disk. Check permissions on $directory";
+    if (!is_dir($directory) or !is_writable($directory)) {
+        return print "Can't write elevation profile chart to disk. Check permissions on '${directory}'.";
+    }
 
     require "static/lib/jpgraph-4.2.6/src/jpgraph.php";
     require "static/lib/jpgraph-4.2.6/src/jpgraph_line.php";
     require "static/lib/jpgraph-4.2.6/src/jpgraph_date.php";
 
-    // if artificial POST content was given, load it
-    if ($context) $_POST = $context;
+    // If artificial POST content was given, load it
+    if ($context) {
+        $_POST = $context;
+    }
 
-    // split the comma-joined lists, and they're ready to push into jpGraph
-    // $elevations is the Y axis, elevation values at each point
-    // $distances is the X axis, the cumulative distance at which that elevation is reached
-    $elevations = explode(',',$_POST['y']);
-    $distances  = explode(',',$_POST['x']);
+    // Split the comma-joined lists, and they're ready to push into jpGraph.
+    // $elevations is the Y axis; elevation values at each point.
+    // $distances is the X axis; the cumulative distance at which that elevation is reached.
+    $elevations = explode(',', $_POST['y']);
+    $distances = explode(',', $_POST['x']);
 
-    // how far apart should we space the X axis ticks?
-    // based on distance:, e.g. 1/4-mile ticks are cramped over 20 miles, and too thin at <1 mile
-    $highest_distance = $distances[ sizeof($distances)-1 ];
+    // How far apart should the X axis ticks be spaced?
+    // Based on distance:
+    //     e.g. 1/4-mile ticks are cramped over 20 miles, and too thin at <1 mile.
+    $highest_distance = $distances[sizeof($distances) - 1];
     $tickinterval = 1320;
     if ($highest_distance < 5300)   $tickinterval = 528;
     if ($highest_distance > 30000)  $tickinterval = 1640;
@@ -1610,53 +1615,58 @@ function elevationprofilebysegments($context=null) {
     if ($highest_distance > 260000) $tickinterval = 26400;
 
     function graph_axis_feet_to_miles($feet) {
-        if ($feet <= 0) return "Start";
-        return sprintf("%.2f", $feet / 5280 );
+        if ($feet <= 0) {
+            return "Start";
+        }
+        return sprintf("%.2f", $feet / 5280);
     }
 
-    // create a line chart and lay down the points; we pull a trick here to make the X distance scale linearly
-    // we use a datlin scale and pretend it's a date and let jpGraph auto-scale the horizontal "time"
-    // we then use graph_axis_feet_to_miles() as a callback to format the distance-date as a quarter-mile string
-    $graph = new Graph(450,200,"auto");
+    // Create a line chart and lay down the points.
+    // There's a trick here to make the X distance scale linearly:
+    // Use a datlin scale, pretend it's a date, and let jpGraph auto-scale the horizontal "time".
+    // Then, use graph_axis_feet_to_miles() as a callback to format the distance-date as a quarter-mile string.
+    $graph = new Graph(450, 200, "auto");
     $graph->SetScale("datlin");
-    $graph->img->SetMargin(50,10,10,65);
-    //$graph->img->SetAntiAliasing(); // disabled on Ubuntu  :(
+    $graph->img->SetMargin(50, 10, 10, 65);
+    //$graph->img->SetAntiAliasing(); // Disabled on Ubuntu :(
     $graph->SetFrame(false);
     $graph->SetColor("azure");
     $graph->xgrid->Show(true);
-    $graph->yaxis->title->Set("Elevation, feet");
-    $graph->yaxis->title->SetFont(FF_ARIAL,FS_BOLD);
+    $graph->yaxis->title->Set("Elevation (feet)");
+    $graph->yaxis->title->SetFont(FF_ARIAL, FS_BOLD);
     $graph->yaxis->title->SetMargin(7);
-    $graph->yaxis->SetFont(FF_ARIAL,FS_NORMAL);
+    $graph->yaxis->SetFont(FF_ARIAL, FS_NORMAL);
     $graph->yaxis->SetTickSide(SIDE_LEFT);
     $graph->yaxis->SetLabelMargin(5);
 
-    $graph->xaxis->title->Set("Distance, miles                                          ");
-    $graph->xaxis->title->SetFont(FF_ARIAL,FS_BOLD);
+    $graph->xaxis->title->Set("Distance (miles)                                         ");
+    $graph->xaxis->title->SetFont(FF_ARIAL, FS_BOLD);
     $graph->xaxis->title->SetMargin(10);
 
-    $graph->xaxis->scale->ticks->Set($tickinterval); // ticks every quarter-mile
+    $graph->xaxis->scale->ticks->Set($tickinterval); // Ticks every quarter-mile
     $graph->xaxis->SetLabelFormatCallback('graph_axis_feet_to_miles');
     $graph->xaxis->SetLabelAngle(90);
     $graph->xaxis->SetLabelMargin(5);
     $graph->xaxis->SetLabelSide(SIDE_DOWN);
-    $graph->xaxis->SetFont(FF_ARIAL,FS_NORMAL, 8);
+    $graph->xaxis->SetFont(FF_ARIAL, FS_NORMAL, 8);
 
-    $plot = new LinePlot($elevations,$distances);
+    $plot = new LinePlot($elevations, $distances);
     $graph->Add($plot);
     $plot->SetStyle("solid");
     $plot->SetColor("black");
     $plot->SetWeight(2);
-    #$plot->mark->SetType(MARK_X);
-    #$plot->mark->SetWidth(1);
-    #$plot->mark->SetColor("#000000");
+    //$plot->mark->SetType(MARK_X);
+    //$plot->mark->SetWidth(1);
+    //$plot->mark->SetColor("#000000");
 
     $random   = md5(microtime() . mt_rand());
     $tempfile = "$directory/$random.jpg";
     $tempurl  = site_url($tempfile);
-    $graph = $graph->Stroke($tempfile); // permissions issues aren't impossible
+    $graph = $graph->Stroke($tempfile); // Permissions issues aren't impossible
     //header("Content-type: image/jpeg"); readfile($tempfile); return;
-    if ($context) return $tempurl;
+    if ($context) {
+        return $tempurl;
+    }
     print $tempurl;
 }
 
