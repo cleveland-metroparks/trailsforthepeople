@@ -454,7 +454,11 @@ form.ui-filterable.autocomplete .ui-input-btn {
 //
 // Sidebar Pane: Elevation profile
 //
-#pane-elevationprofile {}
+#pane-elevationprofile {
+    #elevation-profile {
+        width: 100%;
+    }
+}
 
 //
 // Sidebar Pane: Settings
