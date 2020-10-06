@@ -16,6 +16,7 @@
   "dependencies": {
     "@popperjs/core": "^2.4.4",
     "@turf/turf": "^5.1.6",
+    "chart.js": "^2.9.3",
     "fastclick": "^1.0.6",
     "fuse.js": "^6.4.1",
     "handlebars": "^4.7.3",
