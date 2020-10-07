@@ -2740,7 +2740,7 @@ function makeElevationProfileChart() {
                     },
                     ticks: {
                         min: 0,
-                        stepSize: 0.5,
+                        // stepSize: 0.5,
                         // @TODO: Ideally (previous functionality) ticks every quarter-mile
                         // but precision isn't working, here: if we set stepSize to 0.25,
                         // the .05s are rounded (0.25 => 0.3).
