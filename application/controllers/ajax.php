@@ -93,7 +93,7 @@ function geocode_for_directions() {
             $output['type'] = 'driving';
 
             // find the closest driving_lat driving_lng to the given coordinates, replace the ones stored in the reservation itself
-            $driving_latlng = Park::closestDrivingDestinationToLatLng($result->reservation_id,$_GET['lat'],$_GET['lng']);
+            $driving_latlng = $result->closestDrivingDestinationToLatLng($result->reservation_id,$_GET['lat'],$_GET['lng']);
             if ($driving_latlng) {
                 $output['lat']  = (float) $driving_latlng->lat;
                 $output['lng']  = (float) $driving_latlng->lng;
