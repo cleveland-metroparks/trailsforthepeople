@@ -395,7 +395,8 @@ function renderDirectionsStructure(directions, target, options) {
             .attr('value0', 'Loading');
         elevationProfileBtn
             .click(function () {
-                openElevationProfileBySegments();
+                makeElevationProfileChart();
+                sidebar.open('pane-elevationprofile');
             });
 
         directionsFunctions.append(elevationProfileBtn);
@@ -429,7 +430,7 @@ function renderDirectionsStructure(directions, target, options) {
     directionsFunctions.append(shareRouteBtn);
 
     // Print button
-    if (! NATIVE_APP) {
+    if (!NATIVE_APP) {
         var printMeBtn = $('<a></a>')
             .addClass('ui-btn')
             .addClass('ui-btn-inline')
@@ -587,24 +588,65 @@ $(document).ready(function () {
 });
 
 /**
- * Open elevation profile by segments
+ * Make elevation profile chart
  */
-function openElevationProfileBySegments() {
-    if (! ELEVATION_PROFILE) return;
-
-    // The vertices have horizontal and vertical info (feet and elev). make a pair of arrays
-    var x = [];
-    var y = [];
-    for (var i=0, l=ELEVATION_PROFILE.length; i<l; i++) {
-        x[x.length] = ELEVATION_PROFILE[i].x;
-        y[y.length] = ELEVATION_PROFILE[i].y;
+function makeElevationProfileChart() {
+    if (!ELEVATION_PROFILE) {
+        return;
     }
-    x = x.join(',');
-    y = y.join(',');
 
-    $.post(API_BASEPATH + 'ajax/elevationprofilebysegments', { 'x':x, 'y':y }, function (url) {
-        if (url.indexOf('http') != 0) return alert(url);
-        showElevation(url);
+    var pointData = [];
+    for (var i=0, l=ELEVATION_PROFILE.length; i<l; i++) {
+        pointData.push({
+            x: ELEVATION_PROFILE[i].x / 5280, // Feet to miles
+            y: ELEVATION_PROFILE[i].y
+        });
+    }
+
+    var ctx = document.getElementById('elevation-profile').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Elevation Profile',
+                // @TODO: Remove label
+                data: pointData,
+                pointRadius: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                borderColor: 'rgba(0, 0, 0, 1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Elevation (feet)',
+                        fontColor: '#000'
+                    }
+                }],
+                xAxes: [{
+                    type: 'linear',
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Distance (miles)',
+                        fontColor: '#000'
+                    },
+                    ticks: {
+                        min: 0,
+                        stepSize: 0.5,
+                        // @TODO: Ideally (previous functionality) ticks every quarter-mile
+                        // but precision isn't working, here: if we set stepSize to 0.25,
+                        // the .05s are rounded (0.25 => 0.3).
+                        // Looks like it should've been fixed here:
+                        //   https://github.com/chartjs/Chart.js/pull/5786
+                        precision: 2
+                    }
+                }],
+            }
+        }
     });
 }
 

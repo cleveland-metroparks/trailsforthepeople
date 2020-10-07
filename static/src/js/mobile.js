@@ -272,14 +272,6 @@ $(document).ready(function () {
 });
 
 /**
- * Show Elevation
- */
-function showElevation(url) {
-    $('#elevation').prop('src',url);
-    sidebar.open('pane-elevationprofile');
-}
-
-/**
  * Show Attraction Info
  *
  * Show attraction info in the sidebar pane.
@@ -388,7 +380,7 @@ function make_activity_icons_list(activity_ids) {
 }
 
 /**
- * Show Attraction Info Content
+ * Show "Attraction Info" content
  */
 function showAttractionInfoContent(attractionType, id) {
     var max_img_width = 320;
