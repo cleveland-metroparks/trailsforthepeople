@@ -339,46 +339,44 @@ function shortenStr(str, maxLen, addEllipsis) {
  * Set query string parameters in window location.
  *
  * @param {URLSearchParams} urlParams
+ * @param {Boolean} pushState: Whether to push the new URL onto the stack
+ *        so that the back button can be used.
  */
-function saveWindowURL(urlParams) {
+function saveWindowURL(urlParams, pushState) {
     WINDOW_URL = decodeURIComponent(location.pathname + '?' + urlParams);
     WINDOW_URL_QUERYSTRING = urlParams.toString();
-    window.history.replaceState(null, null, WINDOW_URL);
-}
-
-/**
- * Set a query string parameters in window location.
- * Leaves any other existing parameters in place.
- *
- * @param {string} name
- * @param {string} value
- */
-function setWindowURLQueryStringParameter(name, value) {
-    var urlParams = new URLSearchParams(location.search);
-    urlParams.set(name, value);
-
-    //// Remove deprecated x,y,z params
-    //if (urlParams.has('y') && name == 'lat') urlParams.delete('y');
-    //if (urlParams.has('x') && name == 'lng') urlParams.delete('x');
-    //if (urlParams.has('z') && name == 'zoom') urlParams.delete('z');
-
-    saveWindowURL(urlParams);
+    if (pushState) {
+        // Add this state to the window's history stack,
+        // so the user can use the back button to get back to it.
+        window.history.pushState(null, null, WINDOW_URL);
+    } else {
+        // Simply change the URL in the address bar,
+        // not adding to the stack.
+        window.history.replaceState(null, null, WINDOW_URL);
+    }
 }
 
 /**
  * Set a bunch of query string parameters in window location.
- * Clears any existing parameters.
  *
- * @param params
+ * @param {object} params: 
+ * @param {Boolean} reset: Whether to clear all existing parameters.
+ * @param {Boolean} pushState: Whether to push the new URL onto the stack
+ *        so that the back button can be used.
  */
-function setAllWindowURLQueryStringParameters(params) {
-    var urlParams = new URLSearchParams();
+function setWindowURLQueryStringParameters(params, reset, pushState) {
+    var urlParams;
+    if (reset) {
+        urlParams = new URLSearchParams();
+    } else {
+        urlParams = new URLSearchParams(location.search);
+    }
 
     $.each(params, function(index, value) {
         urlParams.set(index, value);
     });
 
-    saveWindowURL(urlParams);
+    saveWindowURL(urlParams, pushState);
 }
 
 ;
@@ -412,7 +410,9 @@ var DEFAULT_SORT = 'distance';
 
 // Load sidebar when map has been initialized
 $(document).on("mapInitialized", function () {
-    sidebar = $('#sidebar').sidebar();
+    if (!sidebar) {
+        sidebar = $('#sidebar').sidebar();
+    }
 
     // Open "Welcome" sidebar pane on startup if:
     //   User loads the app without a path or query string AND
@@ -472,9 +472,23 @@ function switchToMap() {
 }
 
 /**
- * Load the map, handling query strings
+ * Load the map and process query string parameters on doc ready.
  */
 $(document).ready(function () {
+    loadMapAndStartingState();
+});
+
+/**
+ * When the back button is clicked, re-load map and state.
+ */
+window.onpopstate = function() {
+    loadMapAndStartingState();
+};
+
+/**
+ * Load the map and process query string parameters to initiate state.
+ */
+function loadMapAndStartingState() {
     var urlParams = new URLSearchParams(location.search);
 
     // lat,lng,zoom params are appended to the user's URL from normal map movement
@@ -629,7 +643,7 @@ $(document).ready(function () {
     $.event.trigger({
         type: 'mapReady',
     });
-});
+}
 
 /**
  * Basemap picker (on Settings pane) change handler
@@ -996,6 +1010,16 @@ function showOnMap() {
             feature.gid  = element.attr('record_id');
         }
 
+        // Push this state change onto window URL history stack
+        var params = {};
+        if (feature.type) {
+            params.type = feature.type;
+        }
+        if (feature.gid && feature.gid != 0) {
+            params.gid = feature.gid;
+        }
+        setWindowURLQueryStringParameters(params, false, true);
+
         zoomToFeature(feature);
     }
 };
@@ -1004,12 +1028,6 @@ function showOnMap() {
  * Zoom to a feature on the map
  */
 function zoomToFeature(feature) {
-    if (feature.type) {
-        setWindowURLQueryStringParameter('type', feature.type);
-    }
-    if (feature.gid && feature.gid != 0) {
-        setWindowURLQueryStringParameter('gid', feature.gid);
-    }
 
     // Clear existing points & lines
     clearMarker(MARKER_TARGET);
@@ -1061,8 +1079,11 @@ function updateWindowURLCenter() {
     var lat = center.lat.toFixed(7);
     var lng = center.lng.toFixed(7);
     invalidateWindowURL();
-    setWindowURLQueryStringParameter('lat', lat);
-    setWindowURLQueryStringParameter('lng', lng);
+    params = {
+        lat: lat,
+        lng: lng
+    }
+    setWindowURLQueryStringParameters(params, false, false);
 }
 
 /**
@@ -1071,7 +1092,7 @@ function updateWindowURLCenter() {
 function updateWindowURLZoom() {
     var zoom = MAP.getZoom().toFixed(1);
     invalidateWindowURL();
-    setWindowURLQueryStringParameter('zoom', zoom);
+    setWindowURLQueryStringParameters({zoom: zoom}, false);
 }
 
 /**
@@ -1085,7 +1106,7 @@ function updateWindowURLLayer() {
         layer = 'photo';
     }
     invalidateWindowURL();
-    setWindowURLQueryStringParameter('base', layer);
+    setWindowURLQueryStringParameters({base: layer}, false);
 }
 
 /**
@@ -1094,23 +1115,6 @@ function updateWindowURLLayer() {
 function invalidateWindowURL() {
     hideShareURL();
 }
-
-/**
- * Update the window URL with all setting params.
- */
-function updateWindowURLAll() {
-    updateWindowURLCenter();
-    updateWindowURLZoom();
-    updateWindowURLLayer();
-}
-
-///**
-// * Clear/unset the window URL.
-// */
-//function clearWindowURL() {
-//    invalidateWindowURL();
-//    clearWindowURLQueryStringParameters();
-//}
 
 /**
  * Coordinate Format picker (on Settings pane) change handler
@@ -2288,7 +2292,7 @@ $(document).ready(function () {
  *
  * Basic workflow is:
  * - Map movements/events trigger calls to updateWindowURL[...]() functions.
- * - which call setWindowURLQueryStringParameter() to set the browser's location bar
+ * - which call setWindowURLQueryStringParameters() to set the browser's location bar
  *   as well as the WINDOW_URL variable.
  * - At a later time, when the user opens up the share panel, an AJAX request
  *   is made to save the long URL and get a short URL in return.
@@ -2429,7 +2433,7 @@ function updateWindowURLWithDirections() {
         params.routevia = $('#directions_via_trail').val();
     }
 
-    setAllWindowURLQueryStringParameters(params);
+    setWindowURLQueryStringParameters(params, true, true);
 }
 
 /**

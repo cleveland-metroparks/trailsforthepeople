@@ -28,7 +28,9 @@ var DEFAULT_SORT = 'distance';
 
 // Load sidebar when map has been initialized
 $(document).on("mapInitialized", function () {
-    sidebar = $('#sidebar').sidebar();
+    if (!sidebar) {
+        sidebar = $('#sidebar').sidebar();
+    }
 
     // Open "Welcome" sidebar pane on startup if:
     //   User loads the app without a path or query string AND
@@ -88,9 +90,23 @@ function switchToMap() {
 }
 
 /**
- * Load the map, handling query strings
+ * Load the map and process query string parameters on doc ready.
  */
 $(document).ready(function () {
+    loadMapAndStartingState();
+});
+
+/**
+ * When the back button is clicked, re-load map and state.
+ */
+window.onpopstate = function() {
+    loadMapAndStartingState();
+};
+
+/**
+ * Load the map and process query string parameters to initiate state.
+ */
+function loadMapAndStartingState() {
     var urlParams = new URLSearchParams(location.search);
 
     // lat,lng,zoom params are appended to the user's URL from normal map movement
@@ -245,7 +261,7 @@ $(document).ready(function () {
     $.event.trigger({
         type: 'mapReady',
     });
-});
+}
 
 /**
  * Basemap picker (on Settings pane) change handler
@@ -612,6 +628,16 @@ function showOnMap() {
             feature.gid  = element.attr('record_id');
         }
 
+        // Push this state change onto window URL history stack
+        var params = {};
+        if (feature.type) {
+            params.type = feature.type;
+        }
+        if (feature.gid && feature.gid != 0) {
+            params.gid = feature.gid;
+        }
+        setWindowURLQueryStringParameters(params, false, true);
+
         zoomToFeature(feature);
     }
 };
@@ -620,12 +646,6 @@ function showOnMap() {
  * Zoom to a feature on the map
  */
 function zoomToFeature(feature) {
-    if (feature.type) {
-        setWindowURLQueryStringParameter('type', feature.type);
-    }
-    if (feature.gid && feature.gid != 0) {
-        setWindowURLQueryStringParameter('gid', feature.gid);
-    }
 
     // Clear existing points & lines
     clearMarker(MARKER_TARGET);
@@ -677,8 +697,11 @@ function updateWindowURLCenter() {
     var lat = center.lat.toFixed(7);
     var lng = center.lng.toFixed(7);
     invalidateWindowURL();
-    setWindowURLQueryStringParameter('lat', lat);
-    setWindowURLQueryStringParameter('lng', lng);
+    params = {
+        lat: lat,
+        lng: lng
+    }
+    setWindowURLQueryStringParameters(params, false, false);
 }
 
 /**
@@ -687,7 +710,7 @@ function updateWindowURLCenter() {
 function updateWindowURLZoom() {
     var zoom = MAP.getZoom().toFixed(1);
     invalidateWindowURL();
-    setWindowURLQueryStringParameter('zoom', zoom);
+    setWindowURLQueryStringParameters({zoom: zoom}, false);
 }
 
 /**
@@ -701,7 +724,7 @@ function updateWindowURLLayer() {
         layer = 'photo';
     }
     invalidateWindowURL();
-    setWindowURLQueryStringParameter('base', layer);
+    setWindowURLQueryStringParameters({base: layer}, false);
 }
 
 /**
@@ -710,23 +733,6 @@ function updateWindowURLLayer() {
 function invalidateWindowURL() {
     hideShareURL();
 }
-
-/**
- * Update the window URL with all setting params.
- */
-function updateWindowURLAll() {
-    updateWindowURLCenter();
-    updateWindowURLZoom();
-    updateWindowURLLayer();
-}
-
-///**
-// * Clear/unset the window URL.
-// */
-//function clearWindowURL() {
-//    invalidateWindowURL();
-//    clearWindowURLQueryStringParameters();
-//}
 
 /**
  * Coordinate Format picker (on Settings pane) change handler

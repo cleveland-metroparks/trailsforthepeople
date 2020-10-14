@@ -408,44 +408,42 @@ function shortenStr(str, maxLen, addEllipsis) {
  * Set query string parameters in window location.
  *
  * @param {URLSearchParams} urlParams
+ * @param {Boolean} pushState: Whether to push the new URL onto the stack
+ *        so that the back button can be used.
  */
-function saveWindowURL(urlParams) {
+function saveWindowURL(urlParams, pushState) {
     WINDOW_URL = decodeURIComponent(location.pathname + '?' + urlParams);
     WINDOW_URL_QUERYSTRING = urlParams.toString();
-    window.history.replaceState(null, null, WINDOW_URL);
-}
-
-/**
- * Set a query string parameters in window location.
- * Leaves any other existing parameters in place.
- *
- * @param {string} name
- * @param {string} value
- */
-function setWindowURLQueryStringParameter(name, value) {
-    var urlParams = new URLSearchParams(location.search);
-    urlParams.set(name, value);
-
-    //// Remove deprecated x,y,z params
-    //if (urlParams.has('y') && name == 'lat') urlParams.delete('y');
-    //if (urlParams.has('x') && name == 'lng') urlParams.delete('x');
-    //if (urlParams.has('z') && name == 'zoom') urlParams.delete('z');
-
-    saveWindowURL(urlParams);
+    if (pushState) {
+        // Add this state to the window's history stack,
+        // so the user can use the back button to get back to it.
+        window.history.pushState(null, null, WINDOW_URL);
+    } else {
+        // Simply change the URL in the address bar,
+        // not adding to the stack.
+        window.history.replaceState(null, null, WINDOW_URL);
+    }
 }
 
 /**
  * Set a bunch of query string parameters in window location.
- * Clears any existing parameters.
  *
- * @param params
+ * @param {object} params: 
+ * @param {Boolean} reset: Whether to clear all existing parameters.
+ * @param {Boolean} pushState: Whether to push the new URL onto the stack
+ *        so that the back button can be used.
  */
-function setAllWindowURLQueryStringParameters(params) {
-    var urlParams = new URLSearchParams();
+function setWindowURLQueryStringParameters(params, reset, pushState) {
+    var urlParams;
+    if (reset) {
+        urlParams = new URLSearchParams();
+    } else {
+        urlParams = new URLSearchParams(location.search);
+    }
 
     $.each(params, function(index, value) {
         urlParams.set(index, value);
     });
 
-    saveWindowURL(urlParams);
+    saveWindowURL(urlParams, pushState);
 }
