@@ -154,51 +154,58 @@ function loadMapAndStartingState() {
 
     // URL params query string: "type" and "gid"
     if (urlParams.get('type') && urlParams.get('gid') ) {
+        switch (urlParams.get('type')) {
+            case 'attraction':
+                // Attraction
+                var params = {
+                    gid: urlParams.get('gid')
+                };
+                $.get(API_BASEPATH + 'ajax/get_attraction', params, function (reply) {
+                    if (!reply || ! reply.lat || ! reply.lng) {
+                        return alert("Cound not find that feature.");
+                    }
 
-        if (urlParams.get('type') == 'attraction') {
-            // Attraction
-            var params = {
-                gid: urlParams.get('gid')
-            };
-            $.get(API_BASEPATH + 'ajax/get_attraction', params, function (reply) {
-                if (!reply || ! reply.lat || ! reply.lng) {
-                    return alert("Cound not find that feature.");
-                }
+                    // Reformat reply as a "feature" with the properties necessary for zoomToFeature()
+                    var feature = reply;
+                    feature.type = 'attraction';
 
-                // Reformat reply as a "feature" with the properties necessary for zoomToFeature()
-                var feature = reply;
-                reply.type = 'attraction';
+                    zoomToFeature(feature);
+                    showFeatureInfo(feature);
+                }, 'json');
+                break;
 
-                zoomToFeature(reply);
+            case 'reservation_new':
+                var params = {
+                    gid: urlParams.get('gid')
+                };
+                $.get(API_BASEPATH + 'ajax/get_reservation', params, function (reply) {
+                    if (!reply || !reply.lat || !reply.lng) {
+                        return alert("Cound not find that reservation.");
+                    }
+                    // Reformat reply as a "feature" with the properties named as necessary for zoomToFeature()
+                    var feature = reply;
+                    feature.gid = reply.record_id;
+                    feature.w = reply.boxw;
+                    feature.n = reply.boxn;
+                    feature.e = reply.boxe;
+                    feature.s = reply.boxs;
+                    feature.type = 'reservation_new';
 
-                showAttractionInfo('attraction', reply);
+                    zoomToFeature(feature);
+                    showFeatureInfo(feature);
+                }, 'json');
+                break;
 
-            }, 'json');
-        } else if (urlParams.get('type') == 'reservation_new') {
-            // Reservation
-            var params = {
-                gid: urlParams.get('gid')
-            };
-            $.get(API_BASEPATH + 'ajax/get_reservation', params, function (reply) {
-                if (!reply || !reply.lat || !reply.lng) {
-                    return alert("Cound not find that reservation.");
-                }
-                // Reformat reply as a "feature" with the properties named as necessary for zoomToFeature()
-                var feature = reply;
-                feature.gid = reply.record_id;
-                feature.w = reply.boxw;
-                feature.n = reply.boxn;
-                feature.e = reply.boxe;
-                feature.s = reply.boxs;
-                feature.type = 'reservation_new';
+            case 'loop':
+                // Loop
+                var feature = {
+                    type: 'loop',
+                    gid: urlParams.get('gid')
+                };
 
-                zoomToFeature(feature);
-
-                showAttractionInfo('reservation_new', reply);
-
-            }, 'json');
+                showFeatureInfo(feature, true);
+                break;
         }
-
     }
 
     // URL params query string: "route"
@@ -295,61 +302,20 @@ function showElevation(url) {
 }
 
 /**
- * Show Attraction Info
- *
- * Show attraction info in the sidebar pane.
- *
- * Starting to split up / improve upon zoomElementClick()
- * (Moving away from using a DOM element to pass info.)
- * We can generalize this for other types of POIs later.
- *
- * attraction.gid
- * attraction.title
- * attraction.lat
- * attraction.lng
+ * Get and show Feature info in the sidebar pane
  */
-function showAttractionInfo(attractionType, attraction) {
-    prepareInfoPaneForFeature(attraction);
-
-    // Get more info via AJAX
-    if (attraction.gid || attraction.record_id) {
-        var params = {};
-        params.type = attractionType;
-        params.gid = attraction.gid || attraction.record_id;
-
-        // Get and display the "more info" plain HTML
-        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
-            $('#info-content').html(reply);
-        }, 'html');
-    }
-}
-
-/**
- * zoomElementClick
- * 
- * Given a .zoom element with {lon, lat, WSEN, type, gid},
- * fetch info about it and show it in a panel.
- */
-function zoomElementClick(element) {
-    var feature = getFeatureFromElement(element);
-
+function showFeatureInfo(feature, andFlyTo) {
     prepareInfoPaneForFeature(feature);
 
-    showOnMap(feature);
-
-    // If the feature has a type and a gid, then we can fetch info about it
-    // do some AJAX, fill in the page with the returned content
-    // otherwise, fill in the title we were given and leave it at that
+    // Get more info via AJAX
     if (feature.type && feature.gid) {
-        var params = {};
-        params.type = feature.type;
-        params.gid  = feature.gid;
-        params.lat  = LAST_KNOWN_LOCATION.lat;
-        params.lng  = LAST_KNOWN_LOCATION.lng;
+        var params = {
+            type: feature.type,
+            gid: feature.gid || feature.record_id
+        };
+
         $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
-            // All set, the info is loaded
-            // there's a special case where they only got the info for the purpose of routing there
-            // handle that by clcking the Directions By Car button
+            // Special case where the user only got the info for the purpose of directing there.
             if (SKIP_TO_DIRECTIONS) {
                 $('#directions_car').click();
                 SKIP_TO_DIRECTIONS = false;
@@ -357,6 +323,10 @@ function zoomElementClick(element) {
             }
 
             $('#info-content').html(reply);
+
+            if (andFlyTo) {
+                zoomToFeature(reply);
+            }
 
             // If there's a <div class="wkt"> element in the HTML,
             //   (this happens in moreinfo_trail.phtml and moreinfo_loop.phtml)
@@ -373,11 +343,28 @@ function zoomElementClick(element) {
             }
         }, 'html');
     } else {
-        // fill in the title since we have little else,
-        // then presume that the person wants to route there by clicking the Directions By Car button
+        // Fill in the title since we have little else,
+        // then presume that the person wants to route there
+        // by clicking the Directions By Car button.
         $('#info-content').html( $('<h1></h1>').text(feature.title));
         $('#directions_car').click();
     }
+}
+
+/**
+ * zoomElementClick
+ *
+ * Given a .zoom element with {lon, lat, WSEN, type, gid},
+ * fetch info about it and show it in a panel.
+ */
+function zoomElementClick(element) {
+    var feature = getFeatureFromElement(element);
+
+    prepareInfoPaneForFeature(feature);
+
+    showFeatureInfo(feature);
+
+    showOnMap(feature);
 }
 
 /**
