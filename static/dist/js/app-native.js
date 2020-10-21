@@ -559,10 +559,13 @@ function loadMapAndStartingState() {
                 if (!reply || ! reply.lat || ! reply.lng) {
                     return alert("Cound not find that feature.");
                 }
+
+                // Reformat reply as a "feature" with the properties necessary for zoomToFeature()
+                var feature = reply;
+                reply.type = 'attraction';
+
                 zoomToFeature(reply);
 
-                // Show info in sidebar
-                // @TODO: This is app-specific. Re-work.
                 showAttractionInfo('attraction', reply);
 
             }, 'json');
@@ -575,18 +578,17 @@ function loadMapAndStartingState() {
                 if (!reply || !reply.lat || !reply.lng) {
                     return alert("Cound not find that reservation.");
                 }
-                // Reformat reply as a "feature" with the properties named as we need for zoomToFeature()
+                // Reformat reply as a "feature" with the properties named as necessary for zoomToFeature()
                 var feature = reply;
                 feature.gid = reply.record_id;
                 feature.w = reply.boxw;
                 feature.n = reply.boxn;
                 feature.e = reply.boxe;
                 feature.s = reply.boxs;
+                feature.type = 'reservation_new';
 
                 zoomToFeature(feature);
 
-                // Show info in sidebar
-                // @TODO: This is app-specific. Re-work.
                 showAttractionInfo('reservation_new', reply);
 
             }, 'json');
