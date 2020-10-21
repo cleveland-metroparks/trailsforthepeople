@@ -529,8 +529,7 @@ function loadMapAndStartingState() {
             if (reply.lat && reply.lng) {
                 placeMarker(MARKER_TARGET, reply.lat, reply.lng);
             } else if (reply.wkt) {
-                wkt = new Wkt.Wkt(reply.wkt);
-                drawHighlightLine(wkt.toJson());
+                showWkt(reply.wkt);
             }
         }, 'json');
     }
@@ -539,6 +538,7 @@ function loadMapAndStartingState() {
     if (urlParams.get('type') && urlParams.get('gid') ) {
 
         if (urlParams.get('type') == 'attraction') {
+            // Attraction
             var params = {
                 gid: urlParams.get('gid')
             };
@@ -546,15 +546,15 @@ function loadMapAndStartingState() {
                 if (!reply || ! reply.lat || ! reply.lng) {
                     return alert("Cound not find that feature.");
                 }
-
                 zoomToFeature(reply);
 
                 // Show info in sidebar
                 // @TODO: This is app-specific. Re-work.
-                showAttractionInfo(urlParams.get('type'), reply);
+                showAttractionInfo('attraction', reply);
 
             }, 'json');
         } else if (urlParams.get('type') == 'reservation_new') {
+            // Reservation
             var params = {
                 gid: urlParams.get('gid')
             };
@@ -562,9 +562,8 @@ function loadMapAndStartingState() {
                 if (!reply || !reply.lat || !reply.lng) {
                     return alert("Cound not find that reservation.");
                 }
-
-                feature = reply;
-
+                // Reformat reply as a "feature" with the properties named as we need for zoomToFeature()
+                var feature = reply;
                 feature.gid = reply.record_id;
                 feature.w = reply.boxw;
                 feature.n = reply.boxn;
@@ -575,7 +574,7 @@ function loadMapAndStartingState() {
 
                 // Show info in sidebar
                 // @TODO: This is app-specific. Re-work.
-                showAttractionInfo(urlParams.get('type'), reply);
+                showAttractionInfo('reservation_new', reply);
 
             }, 'json');
         }
@@ -681,7 +680,7 @@ function showElevation(url) {
  * Show attraction info in the sidebar pane.
  *
  * Starting to split up / improve upon zoomElementClick()
- * (Don't use a DOM element to pass info.)
+ * (Moving away from using a DOM element to pass info.)
  * We can generalize this for other types of POIs later.
  *
  * attraction.gid
@@ -690,31 +689,7 @@ function showElevation(url) {
  * attraction.lng
  */
 function showAttractionInfo(attractionType, attraction) {
-    // @TODO: Construct the #show_on_map button. We don't have an "element".
-    //$('#show_on_map').data('zoomelement', element);
-
-    // Set our directions element
-    // @TODO: Do this differently.
-    $('#directions_target_lat').val(attraction.lat);
-    $('#directions_target_lng').val(attraction.lng);
-    $('#directions_target_type').val(attraction.type);
-    $('#directions_target_gid').val(attraction.gid);
-    $('#directions_target_title').text(attraction.title);
-
-    // Open the Info pane
-    sidebar.open('pane-info');
-
-    set_pane_back_button('#pane-info', '#pane-browse');
-
-    // Enable "Get Directions"
-    $('#getdirections_disabled').hide();
-    $('#getdirections_enabled').show();
-
-    // Purge any vector data from the Show On Map button;
-    // the moreinfo template will populate it if necessary
-    $('#show_on_map').data('wkt', null);
-
-    $('#info-content').text("Loading...");
+    prepareInfoPaneForFeature(attraction);
 
     // Get more info via AJAX
     if (attraction.gid || attraction.record_id) {
@@ -730,6 +705,126 @@ function showAttractionInfo(attractionType, attraction) {
 }
 
 /**
+ * zoomElementClick
+ * 
+ * Given a .zoom element with {lon, lat, WSEN, type, gid},
+ * fetch info about it and show it in a panel.
+ */
+function zoomElementClick(element) {
+    var feature = getFeatureFromElement(element);
+
+    prepareInfoPaneForFeature(feature);
+
+    showOnMap(feature);
+
+    // If the feature has a type and a gid, then we can fetch info about it
+    // do some AJAX, fill in the page with the returned content
+    // otherwise, fill in the title we were given and leave it at that
+    if (feature.type && feature.gid) {
+        var params = {};
+        params.type = feature.type;
+        params.gid  = feature.gid;
+        params.lat  = LAST_KNOWN_LOCATION.lat;
+        params.lng  = LAST_KNOWN_LOCATION.lng;
+        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
+            // All set, the info is loaded
+            // there's a special case where they only got the info for the purpose of routing there
+            // handle that by clcking the Directions By Car button
+            if (SKIP_TO_DIRECTIONS) {
+                $('#directions_car').click();
+                SKIP_TO_DIRECTIONS = false;
+                return;
+            }
+
+            $('#info-content').html(reply);
+
+            // If there's a <div class="wkt"> element in the HTML,
+            //   (this happens in moreinfo_trail.phtml and moreinfo_loop.phtml)
+            // it is vector data to be handled by zoomToFeature().
+            // Display it, and move its data into the Show On Map button.
+            var $wkt_el = $('#info-content').find('div.wkt');
+            if ($wkt_el) {
+                var wkt_data = $wkt_el.text();
+                if (wkt_data) {
+                    showWkt(wkt_data);
+                    $('#show_on_map').data('wkt', wkt_data);
+                    $wkt_el.remove();
+                }
+            }
+        }, 'html');
+    } else {
+        // fill in the title since we have little else,
+        // then presume that the person wants to route there by clicking the Directions By Car button
+        $('#info-content').html( $('<h1></h1>').text(feature.title));
+        $('#directions_car').click();
+    }
+}
+
+/**
+ * Set up info pane to populate.
+ *
+ * @param: {Object} feature
+ */
+function prepareInfoPaneForFeature(feature) {
+    // Assign this feature to the Show On Map button, so it knows what to zoom to
+    $('#show_on_map').data('zoomelement', feature);
+
+    // Purge any vector data from the Show On Map button;
+    // the moreinfo template will populate it if necessary
+    $('#show_on_map').data('wkt', null);
+
+    // Set up our directions target element so we can route to it.
+    $('#directions_target_lat').val(feature.lat);
+    $('#directions_target_lng').val(feature.lng);
+    $('#directions_target_type').val(feature.type);
+    $('#directions_target_gid').val(feature.gid);
+    $('#directions_target_title').text(feature.title);
+
+    // Change to the Info pane
+    sidebar.open('pane-info');
+
+    // Make the Back button link to the URL if specified, else to Browse
+    if (!feature.back_url) {
+        feature.back_url = '#pane-browse';
+    }
+    set_pane_back_button('#pane-info', feature.back_url);
+
+    // Enable "Get Directions"
+    $('#getdirections_disabled').hide();
+    $('#getdirections_enabled').show();
+
+    $('#info-content').text("Loading...");
+}
+
+/**
+ * Given a DOM element, extract/assemble "feature" object data.
+ */
+function getFeatureFromElement(element) {
+    var feature = {};
+
+    feature.title = element.attr('title');
+
+    feature.w   = element.attr('w');
+    feature.s   = element.attr('s');
+    feature.e   = element.attr('e');
+    feature.n   = element.attr('n');
+
+    feature.lat   = element.attr('lat');
+    feature.lng   = element.attr('lng');
+
+    feature.type  = element.attr('type');
+    if (feature.type=='reservation_new') {
+        feature.gid  = element.attr('record_id');
+    } else {
+        feature.gid   = element.attr('gid');
+    }
+
+    feature.back_url = element.attr('backbutton');
+
+    return feature;
+}
+
+/**
  * Zoom button handlers
  *
  * Click it to bring up info window, configure the Show On Map button.
@@ -739,85 +834,6 @@ $(document).ready(function () {
         zoomElementClick($(this));
     });
 });
-
-/**
- * zoomElementClick
- * 
- * Given a .zoom element with {lon, lat, WSEN, type, gid},
- * fetch info about it and show it in a panel.
- */
-function zoomElementClick(element) {
-    var type = element.attr('type');
-    var gid  = element.attr('gid');
-    if (type=='reservation_new') {
-        gid  = element.attr('record_id');
-    }
-
-    // Assign this element to the Show On Map button, so it knows how to zoom to our location
-    // and to the getdirections form so we can route to it
-    // and so the pagechange event handler can see that we really do have a target
-    $('#show_on_map').data('zoomelement', element);
-
-    $('#directions_target_lat').val( element.attr('lat'));
-    $('#directions_target_lng').val( element.attr('lng'));
-    $('#directions_target_type').val( element.attr('type'));
-    $('#directions_target_gid').val( element.attr('gid'));
-    $('#directions_target_title').text( element.attr('title'));
-
-    // Change to the Info pane
-    sidebar.open('pane-info');
-
-    // correct the Back button to go to the URL specified in the element, or else to the map
-    var back_url = element.attr('backbutton');
-    if (! back_url) {
-        back_url = '#pane-browse';
-    }
-    set_pane_back_button('#pane-info', back_url)
-
-    // now that we have a location defined, enable the Get Directions
-    $('#getdirections_disabled').hide();
-    $('#getdirections_enabled').show();
-
-    // purge any vector data from the Show On Map button; the moreinfo template will populate it if necessary
-    $('#show_on_map').data('wkt', null);
-    $('#info-content').text("Loading...");
-
-    // if the feature has a type and a gid, then we can fetch info about it
-    // do some AJAX, fill in the page with the returned content
-    // otherwise, fill in the title we were given and leave it at that
-    if (type && gid) {
-        var params = {};
-        params.type = type;
-        params.gid  = gid;
-        params.lat  = LAST_KNOWN_LOCATION.lat;
-        params.lng  = LAST_KNOWN_LOCATION.lng;
-        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
-            // grab and display the plain HTML
-            $('#info-content').html(reply);
-
-            // if there's a <wkt> element in the HTML, it's vector data to be handled by zoomElementHighlight()
-            // store it into the data but remove it from the DOM to free up some memory
-            var wktdiv = $('#info-content').find('div.wkt');
-            if (wktdiv) {
-                $('#show_on_map').data('wkt', wktdiv.text() );
-                wktdiv.remove();
-            }
-
-            // all set, the info is loaded
-            // there's a special case where they only got the info for the purpose of routing there
-            // handle that by clcking the Directions By Car button
-            if (SKIP_TO_DIRECTIONS) {
-                $('#directions_car').click();
-                SKIP_TO_DIRECTIONS = false;
-            }
-        }, 'html');
-    } else {
-        // fill in the title since we have little else,
-        // then presume that the person wants to route there by clicking the Directions By Car button
-        $('#info-content').html( $('<h1></h1>').text(element.attr('title')) );
-        $('#directions_car').click();
-    }
-}
 
 /**
  * Sort Lists
@@ -895,6 +911,16 @@ $(document).ready(function () {
 });
 
 /**
+ * Show WKT data
+ *
+ * @param wkt_data
+ */
+function showWkt(wkt_data) {
+    var wkt = new Wkt.Wkt(wkt_data);
+    drawHighlightLine(wkt.toJson());
+}
+
+/**
  * Draw highlight line
  *
  * @param linestring {geojson}
@@ -966,7 +992,7 @@ function zoomToAddress(searchtext) {
         // Place a popup at the location with geocoded interpretation of the address
         // and a pseudo-link (with data-holding attributes) that triggers zoomElementClick().
         var markup = '<h3 class="popup_title">' + result.title + '</h3>';
-        markup += '<span class="fakelink zoom" title="' + result.title + '" lat="' + result.lat + '" lng="' + result.lng + '" w="' + result.w + '" s="' + result.s + '" e="' + result.e + '" n="' + result.n + '" onClick="zoomElementClick( $(this) );">Directions</span>';
+        markup += '<span class="fakelink zoom" title="'+result.title+'" lat="'+result.lat+'" lng="'+result.lng+'" w="'+result.w+'" s="'+result.s+'" e="'+result.e+'" n="'+result.n+'" onClick="zoomElementClick($(this));">Directions</span>';
 
         var popup = new mapboxgl.Popup()
             .setLngLat(lngLat)
@@ -977,75 +1003,68 @@ function zoomToAddress(searchtext) {
 
 /**
  * "Show on Map" button handler
+ *
+ * When the "Show on Map" button is clicked (in a details pane),
+ * gather its associated data from the DOM element, and call showOnMap().
  */
 $(document).ready(function () {
-    $('#show_on_map').click(showOnMap);
+    $('#show_on_map').click(function() {
+        var feature = $(this).data('zoomelement');
+        if (feature) {
+            feature.wkt = $(this).data('wkt');
+            showOnMap(feature);
+        }
+    });
 });
 
 /**
  * Show on map
  *
- * When the "Show on Map" button is clicked (in a details pane)
- * gather its associated data from the DOM element and zoom to the feature.
+ * Push feature info params to window history
+ * and zoom/flyto.
  */
-function showOnMap() {
-    // zoom the map to the feature's bounds, and place a marker if appropriate
-    var element = $(this).data('zoomelement');
-    var feature = {};
-
-    if (element) {
-        feature.w = element.attr('w');
-        feature.s = element.attr('s');
-        feature.e = element.attr('e');
-        feature.n = element.attr('n');
-
-        feature.lng = element.attr('lng');
-        feature.lat = element.attr('lat');
-
-        feature.type = element.attr('type');
-        feature.wkt = $(this).data('wkt');
-
-        feature.gid = element.attr('gid');
-        if (feature.type=='reservation_new') {
-            feature.gid  = element.attr('record_id');
-        }
-
-        // Push this state change onto window URL history stack
-        var params = {};
-        if (feature.type) {
-            params.type = feature.type;
-        }
-        if (feature.gid && feature.gid != 0) {
-            params.gid = feature.gid;
-        }
+function showOnMap(feature) {
+    // Push this state change onto window URL history stack
+    if (feature.type && feature.gid && feature.gid != 0) {
+        var params = {
+            type: feature.type,
+            gid: feature.gid
+        };
         setWindowURLQueryStringParameters(params, false, true);
-
-        zoomToFeature(feature);
     }
+
+    zoomToFeature(feature);
 };
 
 /**
  * Zoom to a feature on the map
+ *
+ * @param {Object} feature:
+ *     w,s,e,n (optional)
+ *     lat,lng (optional)
+ *     type (optional)
+ *     wkt (optional)
  */
 function zoomToFeature(feature) {
-
     // Clear existing points & lines
     clearMarker(MARKER_TARGET);
     clearHighlightLine();
 
-    // Switch to the map and add the feature.
+    // Switch to the map if necessary (close sidebar in mobile)
     switchToMap();
 
     // Zoom the map into the stated bbox, if we have one.
-    if ((feature.w && feature.s && feature.e && feature.n) &&
-        (feature.w != 0 && feature.s != 0 && feature.e != 0 && feature.n != 0)) {
+    if (    (feature.w && feature.s && feature.e && feature.n) &&
+            (feature.w != 0 && feature.s != 0 && feature.e != 0 && feature.n != 0)  ) {
         var sw = new mapboxgl.LngLat(feature.w, feature.s);
         var ne = new mapboxgl.LngLat(feature.e, feature.n);
         var bounds = new mapboxgl.LngLatBounds(sw, ne);
         MAP.fitBounds(bounds, {padding: 10});
-    } else if(feature.lng && feature.lat)  {
-        // Re-center and zoom
-        MAP.flyTo({center: [feature.lng, feature.lat], zoom: DEFAULT_POI_ZOOM});
+    } else {
+        if (feature.lng && feature.lat) {
+            // Or, zoom to a lat/lng
+            MAP.flyTo({center: [feature.lng, feature.lat], zoom: DEFAULT_POI_ZOOM});
+        }
     }
 
     // Drop a marker if this is a point feature
@@ -1055,8 +1074,7 @@ function zoomToFeature(feature) {
 
     // Draw the line geometry if this is a line feature.
     if (feature.wkt) {
-        wkt = new Wkt.Wkt(feature.wkt);
-        drawHighlightLine(wkt.toJson());
+        showWkt(feature.wkt);
     }
 }
 
@@ -2215,13 +2233,11 @@ $(document).ready(function () {
         if(key.keyCode == 13) $('#directions_button').click();
     });
 
-    // This button changes over to the Find subpage, so they can pick a destination
-    $('#change_directions_target2').click(function () {
+    // The Change Directions buttons switch to the Find pane, so the user can choose a destination
+    $('.change_directions_link').click(function () {
         sidebar.open('pane-browse');
-
-        // If they clicked this button, it means that they will be looking for a place,
-        // with the specific purpose of getting Directions there.
-        // Make zoomElementClick() skip showing the info and go straight to directions.
+        // Set this flag to make zoomElementClick() skip showing the feature info,
+        // simply injecting it into directions.
         SKIP_TO_DIRECTIONS = true;
     });
 });
