@@ -172,7 +172,6 @@ function loadMapAndStartingState() {
                     // Reformat reply as a "feature" with the properties necessary for zoomToFeature()
                     var feature = reply;
                     feature.type = 'attraction';
-
                     zoomToFeature(feature);
                     showFeatureInfo(feature);
                 }, 'json');
@@ -206,6 +205,8 @@ function loadMapAndStartingState() {
                     type: 'loop',
                     gid: urlParams.get('gid')
                 };
+
+                // @TODO: Lookup loop feature.
 
                 showFeatureInfo(feature, true);
                 break;
@@ -595,7 +596,7 @@ function zoomToAddress(searchtext) {
             return alert("The only results we could find are too far away to zoom the map there.");
         }
 
-        // zoom the point location, nice and close, and add a marker
+        // Zoom to the point location, and add a marker.
         switchToMap();
 
         placeMarker(MARKER_TARGET, result.lat, result.lng);
@@ -623,7 +624,7 @@ $(document).ready(function () {
         var feature = $(this).data('zoomelement');
         if (feature) {
             feature.wkt = $(this).data('wkt');
-            showOnMap(feature);
+            showOnMap(feature, true);
         }
     });
 });
@@ -631,10 +632,9 @@ $(document).ready(function () {
 /**
  * Show on map
  *
- * Push feature info params to window history
- * and zoom/flyto.
+ * Push feature info params to window history, and zoom/flyto.
  */
-function showOnMap(feature) {
+function showOnMap(feature, closeSidebarInMobile) {
     // Push this state change onto window URL history stack
     if (feature.type && feature.gid && feature.gid != 0) {
         var params = {
@@ -644,11 +644,11 @@ function showOnMap(feature) {
         setWindowURLQueryStringParameters(params, false, true);
     }
 
-    zoomToFeature(feature);
+    zoomToFeature(feature, closeSidebarInMobile);
 };
 
 /**
- * Zoom to a feature on the map
+ * Zoom/fly to a feature on the map
  *
  * @param {Object} feature:
  *     w,s,e,n (optional)
@@ -656,13 +656,15 @@ function showOnMap(feature) {
  *     type (optional)
  *     wkt (optional)
  */
-function zoomToFeature(feature) {
+function zoomToFeature(feature, closeSidebarInMobile) {
     // Clear existing points & lines
     clearMarker(MARKER_TARGET);
     clearHighlightLine();
 
     // Switch to the map if necessary (close sidebar in mobile)
-    switchToMap();
+    if (closeSidebarInMobile) {
+        switchToMap();
+    }
 
     // Zoom the map into the stated bbox, if we have one.
     if (    (feature.w && feature.s && feature.e && feature.n) &&
