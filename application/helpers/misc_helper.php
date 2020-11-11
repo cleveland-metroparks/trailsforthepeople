@@ -36,27 +36,37 @@ if (!function_exists('_transform_main_site_image_url'))
         $url = str_replace('~/', $main_site_url, $url);
 
         $url_parts = parse_url($url);
-        parse_str($url_parts['query'], $query_vars);
+        if (isset($url_parts['query']) &&
+            isset($url_parts['scheme']) &&
+            isset($url_parts['host']) &&
+            isset($url_parts['path'])
+        ) {
+            parse_str($url_parts['query'], $query_vars);
 
-        $orig_width = $query_vars['width'];
-        $orig_height = $query_vars['height'];
+            if (isset($query_vars['width']) && isset($query_vars['height'])) {
+                $orig_width = $query_vars['width'];
+                $orig_height = $query_vars['height'];
 
-        $scale_ratio = $orig_width / $new_width;
-        $new_sizes = array(
-            'width' => $new_width,
-            'height' => intval($orig_height / $scale_ratio),
-        );
+                $scale_ratio = $orig_width / $new_width;
+                $new_sizes = array(
+                    'width' => $new_width,
+                    'height' => intval($orig_height / $scale_ratio),
+                );
 
-        $query_vars = array_merge($query_vars, $new_sizes);
-        $new_query = http_build_query($query_vars);
-        $new_url = $url_parts['scheme'] .
-                    '://' .
-                    $url_parts['host'] .
-                    $url_parts['path'] .
-                    '?' .
-                    $new_query;
+                $query_vars = array_merge($query_vars, $new_sizes);
+                $new_query = http_build_query($query_vars);
+                $new_url = $url_parts['scheme'] .
+                            '://' .
+                            $url_parts['host'] .
+                            $url_parts['path'] .
+                            '?' .
+                            $new_query;
 
-        return $new_url;
+                return $new_url;
+            }
+        }
+
+        return $url;
     }
 }
 

@@ -28,7 +28,9 @@ var DEFAULT_SORT = 'distance';
 
 // Load sidebar when map has been initialized
 $(document).on("mapInitialized", function () {
-    sidebar = $('#sidebar').sidebar();
+    if (!sidebar) {
+        sidebar = $('#sidebar').sidebar();
+    }
 
     // Open "Welcome" sidebar pane on startup if:
     //   User loads the app without a path or query string AND
@@ -69,14 +71,18 @@ function createStartHereTooltip() {
 }
 
 // @TODO: GLJS: Necessary?
-/**
- * Refresh the map on resize or orientation change to prevent a flash/disappearance.
- */
-$(document).on("mapInitialized", function () {
-    $(window).bind('orientationchange pageshow resize', function() {
-        MAP.resize();
-    });
-});
+// We don't resize the map programmatically or hide/show the map with CSS.
+// See https://docs.mapbox.com/mapbox-gl-js/api/map/#map#resize
+// and https://github.com/mapbox/mapbox-gl-js/pull/9083
+//
+///**
+// * Refresh the map on resize or orientation change to prevent a flash/disappearance.
+// */
+//$(document).on("mapInitialized", function () {
+//    $(window).bind('orientationchange pageshow resize', function() {
+//        MAP.resize();
+//    });
+//});
 
 /**
  * If the user has a small screen, close the sidebar to see the map.
@@ -88,9 +94,23 @@ function switchToMap() {
 }
 
 /**
- * Load the map, handling query strings
+ * Load the map and process query string parameters on doc ready.
  */
 $(document).ready(function () {
+    loadMapAndStartingState();
+});
+
+/**
+ * When the back button is clicked, re-load map and state.
+ */
+window.onpopstate = function() {
+    loadMapAndStartingState();
+};
+
+/**
+ * Load the map and process query string parameters to initiate state.
+ */
+function loadMapAndStartingState() {
     var urlParams = new URLSearchParams(location.search);
 
     // lat,lng,zoom params are appended to the user's URL from normal map movement
@@ -131,58 +151,73 @@ $(document).ready(function () {
 //            if (reply.lat && reply.lng) {
 //                placeMarker(MARKER_TARGET, reply.lat, reply.lng);
 //            } else if (reply.wkt) {
-//                wkt = new Wkt.Wkt(reply.wkt);
-//                drawHighlightLine(wkt.toJson());
+//                showWkt(reply.wkt);
 //            }
 //        }, 'json');
 //    }
 
     // URL params query string: "type" and "gid"
     if (urlParams.get('type') && urlParams.get('gid') ) {
-        if (urlParams.get('type') == 'attraction') {
-            // Wait to ensure we have the data
-            $(document).on("dataReadyAttractions", function() {
-                var gis_id = urlParams.get('gid');
-                var feature = {};
-                if (attraction = CM.get_attraction(gis_id)) {
-                    feature.gid   = attraction.gis_id;
-                    feature.title = attraction.pagetitle;
-                    feature.lat   = attraction.latitude;
-                    feature.lng   = attraction.longitude;
-                }
-                if (feature.lat && feature.lng) {
-                    zoomToFeature(feature);
-                    // Show info in sidebar
-                    // @TODO: This is app-specific. Re-work.
-                    showAttractionInfo(urlParams.get('type'), feature);
-                } else {
-                    return alert("Cound not find that feature.");
-                }
-            });
-        } else if (urlParams.get('type') == 'reservation_new') {
-            // Wait to ensure we have the data
-            $(document).on("dataReadyReservations", function() {
-                var record_id = urlParams.get('gid');
-                var feature = {};
-                if (reservation = CM.get_reservation(record_id)) {
-                    feature.gid   = reservation.record_id;
-                    feature.w     = reservation.boxw;
-                    feature.n     = reservation.boxn;
-                    feature.e     = reservation.boxe;
-                    feature.s     = reservation.boxs;
-                    feature.lat   = reservation.latitude;
-                    feature.lng   = reservation.longitude;
-                }
-                if ((feature.w && feature.n && feature.e && feature.s)
-                    || (feature.lat && feature.lng)) {
-                    zoomToFeature(feature);
-                    // Show info in sidebar
-                    // @TODO: This is app-specific. Re-work.
-                    showAttractionInfo(urlParams.get('type'), feature);
-                } else {
-                    return alert("Cound not find that reservation.");
-                }
-            });
+        switch (urlParams.get('type')) {
+            case 'attraction':
+                // Wait to ensure we have the data
+                $(document).on("dataReadyAttractions", function() {
+                    var gis_id = urlParams.get('gid');
+                    var feature = {};
+                    if (attraction = CM.get_attraction(gis_id)) {
+                        feature.gid   = attraction.gis_id;
+                        feature.title = attraction.pagetitle;
+                        feature.lat   = attraction.latitude;
+                        feature.lng   = attraction.longitude;
+                    }
+                    if (feature.lat && feature.lng) {
+                        zoomToFeature(feature);
+                        // Show info in sidebar
+                        // @TODO: This is app-specific. Re-work.
+                        showAttractionInfo(urlParams.get('type'), feature);
+                    } else {
+                        return alert("Cound not find that feature.");
+                    }
+                });
+                break;
+
+            case 'reservation_new':
+                // Wait to ensure we have the data
+                $(document).on("dataReadyReservations", function() {
+                    var record_id = urlParams.get('gid');
+                    var feature = {};
+                    feature.type = 'reservation_new';
+                    if (reservation = CM.get_reservation(record_id)) {
+                        feature.gid   = reservation.record_id;
+                        feature.w     = reservation.boxw;
+                        feature.n     = reservation.boxn;
+                        feature.e     = reservation.boxe;
+                        feature.s     = reservation.boxs;
+                        feature.lat   = reservation.latitude;
+                        feature.lng   = reservation.longitude;
+                    }
+
+                    if ((feature.w && feature.n && feature.e && feature.s)
+                            || (feature.lat && feature.lng)) {
+                        zoomToFeature(feature);
+                        showFeatureInfo(feature);
+                    } else {
+                        return alert("Cound not find that reservation.");
+                    }
+                });
+                break;
+
+            case 'loop':
+                // Loop
+                var feature = {
+                    type: 'loop',
+                    gid: urlParams.get('gid')
+                };
+
+                // @TODO: Lookup loop feature.
+
+                showFeatureInfo(feature, true);
+                break;
         }
     }
 
@@ -247,7 +282,7 @@ $(document).ready(function () {
     $.event.trigger({
         type: 'mapReady',
     });
-});
+}
 
 /**
  * Basemap picker (on Settings pane) change handler
@@ -446,6 +481,144 @@ function showAttractionInfoContent(attractionType, id) {
 }
 
 /**
+ * Show Elevation
+ */
+function showElevation(url) {
+    $('#elevation').prop('src',url);
+    sidebar.open('pane-elevationprofile');
+}
+
+/**
+ * Get and show Feature info in the sidebar pane
+ */
+function showFeatureInfo(feature, andFlyTo) {
+    prepareInfoPaneForFeature(feature);
+
+    // Get more info via AJAX
+    if (feature.type && feature.gid) {
+        var params = {
+            type: feature.type,
+            gid: feature.gid || feature.record_id
+        };
+
+        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
+            // Special case where the user only got the info for the purpose of directing there.
+            if (SKIP_TO_DIRECTIONS) {
+                $('#directions_car').click();
+                SKIP_TO_DIRECTIONS = false;
+                return;
+            }
+
+            $('#info-content').html(reply);
+
+            if (andFlyTo) {
+                zoomToFeature(reply);
+            }
+
+            // If there's a <div class="wkt"> element in the HTML,
+            //   (this happens in moreinfo_trail.phtml and moreinfo_loop.phtml)
+            // it is vector data to be handled by zoomToFeature().
+            // Display it, and move its data into the Show On Map button.
+            var $wkt_el = $('#info-content').find('div.wkt');
+            if ($wkt_el) {
+                var wkt_data = $wkt_el.text();
+                if (wkt_data) {
+                    showWkt(wkt_data);
+                    $('#show_on_map').data('wkt', wkt_data);
+                    $wkt_el.remove();
+                }
+            }
+        }, 'html');
+    } else {
+        // Fill in the title since we have little else,
+        // then presume that the person wants to route there
+        // by clicking the Directions By Car button.
+        $('#info-content').html( $('<h1></h1>').text(feature.title));
+        $('#directions_car').click();
+    }
+}
+
+/**
+ * zoomElementClick
+ *
+ * Given a .zoom element with {lon, lat, WSEN, type, gid},
+ * fetch info about it and show it in a panel.
+ */
+function zoomElementClick(element) {
+    var feature = getFeatureFromElement(element);
+
+    prepareInfoPaneForFeature(feature);
+
+    showFeatureInfo(feature);
+
+    showOnMap(feature);
+}
+
+/**
+ * Set up info pane to populate.
+ *
+ * @param: {Object} feature
+ */
+function prepareInfoPaneForFeature(feature) {
+    // Assign this feature to the Show On Map button, so it knows what to zoom to
+    $('#show_on_map').data('zoomelement', feature);
+
+    // Purge any vector data from the Show On Map button;
+    // the moreinfo template will populate it if necessary
+    $('#show_on_map').data('wkt', null);
+
+    // Set up our directions target element so we can route to it.
+    $('#directions_target_lat').val(feature.lat);
+    $('#directions_target_lng').val(feature.lng);
+    $('#directions_target_type').val(feature.type);
+    $('#directions_target_gid').val(feature.gid);
+    $('#directions_target_title').text(feature.title);
+
+    // Change to the Info pane
+    sidebar.open('pane-info');
+
+    // Make the Back button link to the URL if specified, else to Browse
+    if (!feature.back_url) {
+        feature.back_url = '#pane-browse';
+    }
+    set_pane_back_button('#pane-info', feature.back_url);
+
+    // Enable "Get Directions"
+    $('#getdirections_disabled').hide();
+    $('#getdirections_enabled').show();
+
+    $('#info-content').text("Loading...");
+}
+
+/**
+ * Given a DOM element, extract/assemble "feature" object data.
+ */
+function getFeatureFromElement(element) {
+    var feature = {};
+
+    feature.title = element.attr('title');
+
+    feature.w   = element.attr('w');
+    feature.s   = element.attr('s');
+    feature.e   = element.attr('e');
+    feature.n   = element.attr('n');
+
+    feature.lat   = element.attr('lat');
+    feature.lng   = element.attr('lng');
+
+    feature.type  = element.attr('type');
+    if (feature.type=='reservation_new') {
+        feature.gid  = element.attr('record_id');
+    } else {
+        feature.gid   = element.attr('gid');
+    }
+
+    feature.back_url = element.attr('backbutton');
+
+    return feature;
+}
+
+/**
  * Zoom button handlers
  *
  * Click it to bring up info window, configure the Show On Map button.
@@ -455,80 +628,6 @@ $(document).ready(function () {
         zoomElementClick($(this));
     });
 });
-
-/**
- * zoomElementClick
- * 
- * Given a .zoom element with {lon, lat, WSEN, type, gid},
- * fetch info about it and show it in a panel.
- */
-function zoomElementClick(element) {
-    var type = element.attr('type');
-    var gid  = element.attr('gid');
-    if (type=='reservation_new' && !gid) {
-        gid  = element.attr('record_id');
-    }
-
-    // Assign this element to the Show On Map button, so it knows how to zoom to our location
-    // and to the getdirections form so we can route to it
-    // and so the pagechange event handler can see that we really do have a target
-    $('#show_on_map').data('zoomelement', element);
-
-    $('#directions_target_lat').val( element.attr('lat'));
-    $('#directions_target_lng').val( element.attr('lng'));
-    $('#directions_target_type').val( element.attr('type'));
-    $('#directions_target_gid').val( element.attr('gid'));
-    $('#directions_target_title').text( element.attr('title'));
-
-    // Change to the Info pane
-    sidebar.open('pane-info');
-
-    // correct the Back button to go to the URL specified in the element, or else to the map
-    var back_url = element.attr('backbutton');
-    if (! back_url) {
-        back_url = '#pane-browse';
-    }
-    set_pane_back_button('#pane-info', back_url)
-
-    // now that we have a location defined, enable the Get Directions
-    $('#getdirections_disabled').hide();
-    $('#getdirections_enabled').show();
-
-    // purge any vector data from the Show On Map button; the moreinfo template will populate it if necessary
-    $('#show_on_map').data('wkt', null);
-    $('#info-content').text("Loading...");
-
-    // if the feature has a type and a gid, then we can fetch info about it
-    // do some AJAX, fill in the page with the returned content
-    // otherwise, fill in the title we were given and leave it at that
-    if (type && gid) {
-        showAttractionInfoContent(type, gid);
-
-        //@TODO: Are these additions to the info content working...?:
-
-        // if there's a <wkt> element in the HTML, it's vector data to be handled by zoomElementHighlight()
-        // store it into the data but remove it from the DOM to free up some memory
-        var wktdiv = $('#info-content').find('div.wkt');
-        if (wktdiv) {
-            $('#show_on_map').data('wkt', wktdiv.text() );
-            wktdiv.remove();
-        }
-
-        // all set, the info is loaded
-        // there's a special case where they only got the info for the purpose of routing there
-        // handle that by clcking the Directions By Car button
-        if (SKIP_TO_DIRECTIONS) {
-            $('#directions_car').click();
-            SKIP_TO_DIRECTIONS = false;
-        }
-
-    } else {
-        // fill in the title since we have little else,
-        // then presume that the person wants to route there by clicking the Directions By Car button
-        $('#info-content').html( $('<h1></h1>').text(element.attr('title')) );
-        $('#directions_car').click();
-    }
-}
 
 /**
  * Sort Lists
@@ -606,6 +705,16 @@ $(document).ready(function () {
 });
 
 /**
+ * Show WKT data
+ *
+ * @param wkt_data
+ */
+function showWkt(wkt_data) {
+    var wkt = new Wkt.Wkt(wkt_data);
+    drawHighlightLine(wkt.toJson());
+}
+
+/**
  * Draw highlight line
  *
  * @param linestring {geojson}
@@ -664,15 +773,15 @@ function zoomToAddress(addressSearchText) {
             return alert("The only results we could find are too far away to zoom the map there.");
         }
 
-        // zoom the point location, nice and close, and add a marker
+        // Zoom to the point location, and add a marker.
         switchToMap();
 
         placeMarker(MARKER_TARGET, reply.data.lat, reply.data.lng);
         MAP.flyTo({center: lngLat, zoom: DEFAULT_POI_ZOOM});
         // Place a popup at the location with geocoded interpretation of the address
         // and a pseudo-link (with data-holding attributes) that triggers zoomElementClick().
-        var markup = '<h3 class="popup_title">' + reply.data.title + '</h3>';
-        markup += '<span class="fakelink zoom" title="' + reply.data.title + '" lat="' + reply.data.lat + '" lng="' + reply.data.lng + '" w="' + reply.data.w + '" s="' + reply.data.s + '" e="' + reply.data.e + '" n="' + reply.data.n + '" onClick="zoomElementClick( $(this) );">Directions</span>';
+        var markup = '<h3 class="popup_title">'+reply.data.title+'</h3>';
+        markup += '<span class="fakelink zoom" title="'+reply.data.title+'" lat="'+reply.data.lat+'" lng="'+reply.data.lng+'" w="'+reply.data.w+'" s="'+reply.data.s+'" e="'+reply.data.e+'" n="'+reply.data.n+'" onClick="zoomElementClick($(this));">Directions</span>';
 
         var popup = new mapboxgl.Popup()
             .setLngLat(lngLat)
@@ -683,71 +792,69 @@ function zoomToAddress(addressSearchText) {
 
 /**
  * "Show on Map" button handler
+ *
+ * When the "Show on Map" button is clicked (in a details pane),
+ * gather its associated data from the DOM element, and call showOnMap().
  */
 $(document).ready(function () {
-    $('#show_on_map').click(showOnMap);
+    $('#show_on_map').click(function() {
+        var feature = $(this).data('zoomelement');
+        if (feature) {
+            feature.wkt = $(this).data('wkt');
+            showOnMap(feature, true);
+        }
+    });
 });
 
 /**
  * Show on map
  *
- * When the "Show on Map" button is clicked (in a details pane)
- * gather its associated data from the DOM element and zoom to the feature.
+ * Push feature info params to window history, and zoom/flyto.
  */
-function showOnMap() {
-    // zoom the map to the feature's bounds, and place a marker if appropriate
-    var element = $(this).data('zoomelement');
-    var feature = {};
-
-    if (element) {
-        feature.w = element.attr('w');
-        feature.s = element.attr('s');
-        feature.e = element.attr('e');
-        feature.n = element.attr('n');
-
-        feature.lng = element.attr('lng');
-        feature.lat = element.attr('lat');
-
-        feature.type = element.attr('type');
-        feature.wkt = $(this).data('wkt');
-
-        feature.gid = element.attr('gid');
-        if (feature.type=='reservation_new' && !feature.gid) {
-            feature.gid  = element.attr('record_id');
-        }
-
-        zoomToFeature(feature);
+function showOnMap(feature, closeSidebarInMobile) {
+    // Push this state change onto window URL history stack
+    if (feature.type && feature.gid && feature.gid != 0) {
+        var params = {
+            type: feature.type,
+            gid: feature.gid
+        };
+        setWindowURLQueryStringParameters(params, false, true);
     }
+
+    zoomToFeature(feature, closeSidebarInMobile);
 };
 
 /**
- * Zoom to a feature on the map
+ * Zoom/fly to a feature on the map
+ *
+ * @param {Object} feature:
+ *     w,s,e,n (optional)
+ *     lat,lng (optional)
+ *     type (optional)
+ *     wkt (optional)
  */
-function zoomToFeature(feature) {
-    if (feature.type) {
-        setWindowURLQueryStringParameter('type', feature.type);
-    }
-    if (feature.gid && feature.gid != 0) {
-        setWindowURLQueryStringParameter('gid', feature.gid);
-    }
-
+function zoomToFeature(feature, closeSidebarInMobile) {
     // Clear existing points & lines
     clearMarker(MARKER_TARGET);
     clearHighlightLine();
 
-    // Switch to the map and add the feature.
-    switchToMap();
+    // Switch to the map if necessary (close sidebar in mobile)
+    if (closeSidebarInMobile) {
+        switchToMap();
+    }
 
     // Zoom the map into the stated bbox, if we have one.
-    if ((feature.w && feature.s && feature.e && feature.n) &&
-        (feature.w != 0 && feature.s != 0 && feature.e != 0 && feature.n != 0)) {
+    if (    (feature.w && feature.s && feature.e && feature.n) &&
+            (feature.w != 0 && feature.s != 0 && feature.e != 0 && feature.n != 0)  ) {
         var sw = new mapboxgl.LngLat(feature.w, feature.s);
         var ne = new mapboxgl.LngLat(feature.e, feature.n);
         var bounds = new mapboxgl.LngLatBounds(sw, ne);
         MAP.fitBounds(bounds, {padding: 10});
-    } else if(feature.lng && feature.lat)  {
-        // Re-center and zoom
-        MAP.flyTo({center: [feature.lng, feature.lat], zoom: DEFAULT_POI_ZOOM});
+    } else {
+        if (feature.lng && feature.lat) {
+            // Or, zoom to a lat/lng
+            MAP.flyTo({center: [feature.lng, feature.lat], zoom: DEFAULT_POI_ZOOM});
+        }
     }
 
     // Drop a marker if this is a point feature
@@ -757,8 +864,7 @@ function zoomToFeature(feature) {
 
     // Draw the line geometry if this is a line feature.
     if (feature.wkt) {
-        wkt = new Wkt.Wkt(feature.wkt);
-        drawHighlightLine(wkt.toJson());
+        showWkt(feature.wkt);
     }
 }
 
@@ -781,8 +887,11 @@ function updateWindowURLCenter() {
     var lat = center.lat.toFixed(7);
     var lng = center.lng.toFixed(7);
     invalidateWindowURL();
-    setWindowURLQueryStringParameter('lat', lat);
-    setWindowURLQueryStringParameter('lng', lng);
+    params = {
+        lat: lat,
+        lng: lng
+    }
+    setWindowURLQueryStringParameters(params, false, false);
 }
 
 /**
@@ -791,7 +900,7 @@ function updateWindowURLCenter() {
 function updateWindowURLZoom() {
     var zoom = MAP.getZoom().toFixed(1);
     invalidateWindowURL();
-    setWindowURLQueryStringParameter('zoom', zoom);
+    setWindowURLQueryStringParameters({zoom: zoom}, false);
 }
 
 /**
@@ -805,7 +914,7 @@ function updateWindowURLLayer() {
         layer = 'photo';
     }
     invalidateWindowURL();
-    setWindowURLQueryStringParameter('base', layer);
+    setWindowURLQueryStringParameters({base: layer}, false);
 }
 
 /**
@@ -814,23 +923,6 @@ function updateWindowURLLayer() {
 function invalidateWindowURL() {
     hideShareURL();
 }
-
-/**
- * Update the window URL with all setting params.
- */
-function updateWindowURLAll() {
-    updateWindowURLCenter();
-    updateWindowURLZoom();
-    updateWindowURLLayer();
-}
-
-///**
-// * Clear/unset the window URL.
-// */
-//function clearWindowURL() {
-//    invalidateWindowURL();
-//    clearWindowURLQueryStringParameters();
-//}
 
 /**
  * Coordinate Format picker (on Settings pane) change handler

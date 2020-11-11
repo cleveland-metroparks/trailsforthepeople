@@ -576,13 +576,11 @@ $(document).ready(function () {
         if(key.keyCode == 13) $('#directions_button').click();
     });
 
-    // This button changes over to the Find subpage, so they can pick a destination
-    $('#change_directions_target2').click(function () {
+    // The Change Directions buttons switch to the Find pane, so the user can choose a destination
+    $('.change_directions_link').click(function () {
         sidebar.open('pane-browse');
-
-        // If they clicked this button, it means that they will be looking for a place,
-        // with the specific purpose of getting Directions there.
-        // Make zoomElementClick() skip showing the info and go straight to directions.
+        // Set this flag to make zoomElementClick() skip showing the feature info,
+        // simply injecting it into directions.
         SKIP_TO_DIRECTIONS = true;
     });
 });

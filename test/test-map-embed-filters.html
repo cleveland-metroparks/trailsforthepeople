@@ -31,20 +31,20 @@
         $(document).ready(function() {
 
             $('#update-results-button').click(function() {
-                setAllWindowURLQueryStringParameters([]);
+                setWindowURLQueryStringParameters({}, true, true);
 
                 // Process form state, updating window URL query params
 
                 useDist = false;
                 if ($('#nearme').prop("checked")) {
-                    setWindowURLQueryStringParameter('nearme', 'True');
+                    setWindowURLQueryStringParameters({nearme: 'True'});
                     useDist = true;
                 } else if ($('#location').val().length > 0) {
-                    setWindowURLQueryStringParameter('location', $('#location').val());
+                    setWindowURLQueryStringParameters({location: $('#location').val()});
                     useDist = true;
                 }
                 if (useDist) {
-                    setWindowURLQueryStringParameter('distance', $('#distance').val());
+                    setWindowURLQueryStringParameters({distance: $('#distance').val()});
                 }
                 var activityTypes = [];
                 $('.activities-checkbox').each(function() {
@@ -53,7 +53,7 @@
                     }
                 });
                 if (activityTypes.length > 0) {
-                    setWindowURLQueryStringParameter('activitytype', activityTypes.join('|'));
+                    setWindowURLQueryStringParameters({activitytype: activityTypes.join('|')});
                 }
 
                 processQueryParams();

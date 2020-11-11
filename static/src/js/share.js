@@ -9,7 +9,7 @@
  *
  * Basic workflow is:
  * - Map movements/events trigger calls to updateWindowURL[...]() functions.
- * - which call setWindowURLQueryStringParameter() to set the browser's location bar
+ * - which call setWindowURLQueryStringParameters() to set the browser's location bar
  *   as well as the WINDOW_URL variable.
  * - If-and-when the user opens the share panel, an API request is made:
  *   to save the long URL and get a short URL in return.
@@ -149,7 +149,7 @@ function updateWindowURLWithDirections() {
         params.routevia = $('#directions_via_trail').val();
     }
 
-    setAllWindowURLQueryStringParameters(params);
+    setWindowURLQueryStringParameters(params, true, true);
 }
 
 /**
