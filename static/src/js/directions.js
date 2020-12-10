@@ -274,26 +274,66 @@ function processGetDirectionsForm() {
 
 /**
  * Geocode location for directions
- * For type: poi, attraction, reservation, and trail
+ *
+ * @param {String} loc_type: 'poi', 'attraction', 'reservation', or 'trail'
+ * @param {Integer} loc_gid
+ * @param {Float} lat (optional)
+ * @param {Float} lng (optional)
+ * @param {String} via (optional)
  */
 function geocodeLocationForDirections(loc_type, loc_gid, lat, lng, via, lat_el_id, lng_el_id) {
-    var output_location = new Object();
-    var params = {
-        type : loc_type,
-        gid : loc_gid,
-        // If this data source uses weighting, this will pick the closest one to our starting location
-        lat : lat,
-        lng : lng,
-        via : via
-    };
-    $.get(API_BASEPATH + 'ajax/geocode_for_directions', params, function (reply) {
-        output_location.lat = reply.lat;
-        output_location.lng = reply.lng;
+    var output_location = {};
 
+    console.log('____geocodeLocationForDirections()____');
+    console.log('loc_type:', loc_type);
+
+    switch (loc_type) {
+        case 'attraction':
+            var attraction = CM.get_attraction(loc_gid);
+            console.log(attraction);
+            console.log('via:', via);
+            if (via == 'car' && attraction.drivingdestinationlatitude && attraction.drivingdestinationlongitude) {
+                output_location.lat = attraction.drivingdestinationlatitude;
+                output_location.lng = attraction.drivingdestinationlongitude;
+            } else {
+                output_location.lat = attraction.latitude;
+                output_location.lng = attraction.longitude;
+            }
+            break;
+
+        case 'trail':
+            var trail = CM.trails[loc_gid];
+            console.log(trail);
+            break;
+
+        case 'reservation':
+        case 'reservation_new':
+            var reservation = CM.get_reservation([loc_gid]);
+            console.log(reservation);
+            console.log('via:', via);
+            // @TODO: Choose the closest driving destination
+            // currently stored in northlatitude, northlongitude, southlatitude, southlongitude, etc.
+            if (via == 'car' && reservation.drivingdestinationlatitude && reservation.drivingdestinationlongitude) {
+                output_location.lat = reservation.drivingdestinationlatitude;
+                output_location.lng = reservation.drivingdestinationlongitude;
+            } else {
+                output_location.lat = reservation.latitude;
+                output_location.lng = reservation.longitude;
+            }
+            break;
+
+        default:
+            console.log('ERROR: in geocodeLocationForDirections(), type: ' + loc_type);
+            break;
+    }
+
+    if (output_location[lat] && output_location[lng]) {
         // Save them into the input fields too, so they'd get shared
         $(lat_el_id).val(reply.lat);
         $(lng_el_id).val(reply.lng);
-    }, 'json');
+    }
+
+    console.log('output_location:', output_location);
     return output_location;
 }
 
