@@ -13,6 +13,7 @@
 var CM = {
     activities : [],
     attractions : [],
+    attractions_nearby : [],
     autocomplete_keywords : [],
     reservations : [],
     trails : [],

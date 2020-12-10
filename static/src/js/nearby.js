@@ -2,32 +2,17 @@
  * Nearby
  *********************************************/
 
-// ALL_POIS:
-//
-// Used by "Near You Now" and then later by Nearby, a structure of all POIs
-// we cannot render them all into the Nearby pane at the same time, but we can store them in memory
-//
-// Each item within has:
-//     from DB:
-//         lat, lng, title, categories, n, s, e, w
-//     and computed:
-//         meters, miles, feet, range, bearing
-var ALL_POIS = [];
 
 /**
- * Load all POIs via AJAX on window load,
+ * CM.attractions_nearby:
  *
- * but don't render them into the DOM yet.
- * Rendering to DOM is done later by updateNearYouNow() to do only the
- * closest few POIs, so we don't overload.
+ * Copy of CM.attractions, but each item within has computed:
+ *     meters, miles, feet, range, bearing
+ * and are ordered
  */
-$(document).ready(function () {
-    $.get(API_BASEPATH + 'ajax/load_pois', {}, function (pois) {
-        for (var i=0, l=pois.length; i<l; i++) {
-            ALL_POIS[ALL_POIS.length] = pois[i];
-        }
-        updateNearYouNow();
-    }, 'json');
+$(document).on("dataReadyAttractions", function() {
+    CM.attractions_nearby = CM.attractions.slice(0); // Copy array
+    updateNearYouNow();
 });
 
 /**
@@ -115,51 +100,52 @@ $(document).on("dataReadyAttractions", function() {
 /**
  * Update Near You Now
  *
- * update the Near You Now listing from ALL_POIS; called on a location update
+ * update the Near You Now listing from CM.attractions_nearby;
+ * called on a location update
  * this is a significant exception to the sortLists() system,
  * as we need to do the distance and sorting BEFORE rendering, an unusual case
  */
 function updateNearYouNow() {
-    var target = $('#alerts');
+    var target_el = $('#alerts');
 
-    // iterate over ALL_POIS and calculate their distance from our last known location
-    // poi.meters   poi.miles   poi.feet   poi.range
+    // Iterate over CM.attractions_nearby and calculate distance from our last known location
     // this is instrumental in sorting by distance and picking the nearest
-    for (var i=0, l=ALL_POIS.length; i<l; i++) {
-        var poi       = ALL_POIS[i];
-        var destpoint = new mapboxgl.LngLat(poi.lng, poi.lat);
+    for (var i=0, l=CM.attractions_nearby.length; i<l; i++) {
+        var attraction       = CM.attractions_nearby[i];
+        var destpoint = new mapboxgl.LngLat(attraction.longitude, attraction.latitude);
 
-        poi.meters    = distanceTo(LAST_KNOWN_LOCATION, destpoint);
-        poi.miles     = poi.meters / 1609.344;
-        poi.feet      = poi.meters * 3.2808399;
-        poi.range     = (poi.feet > 900) ? poi.miles.toFixed(1) + ' mi' : poi.feet.toFixed(0) + ' ft';
+        attraction.meters    = distanceTo(LAST_KNOWN_LOCATION, destpoint);
+        attraction.miles     = attraction.meters / 1609.344;
+        attraction.feet      = attraction.meters * 3.2808399;
+        attraction.range     = (attraction.feet > 900) ? attraction.miles.toFixed(1) + ' mi' : attraction.feet.toFixed(0) + ' ft';
 
-        poi.bearing   = bearingToInNESW(LAST_KNOWN_LOCATION, destpoint);
+        attraction.bearing   = bearingToInNESW(LAST_KNOWN_LOCATION, destpoint);
     }
 
-    // sort ALL_POIS by distance, then take the first (closest) few
-    ALL_POIS.sort(function (p,q) {
+    // Sort CM.attractions_nearby by distance
+    CM.attractions_nearby.sort(function (p,q) {
         return p.meters - q.meters;
     });
-    var render_pois = ALL_POIS.slice(0,25);
+    // Take the closest few
+    var closest_attractions = CM.attractions_nearby.slice(0,25);
 
-    // go over the rendering POIs, and render them to DOM
-    target.empty();
-    for (var i=0, l=render_pois.length; i<l; i++) {
-        var poi = render_pois[i];
+    // Go over the closest attractions and render them to the DOM
+    target_el.empty();
+    for (var i=0, l=closest_attractions.length; i<l; i++) {
+        var attraction = closest_attractions[i];
 
         var li = $('<li></li>').addClass('zoom').addClass('ui-li-has-count');
-        li.attr('title', poi.title);
-        li.attr('category', poi.categories);
-        li.attr('type', 'poi').attr('gid', poi.gid);
-        li.attr('w', poi.w).attr('s', poi.s).attr('e', poi.e).attr('n', poi.n);
-        li.attr('lat', poi.lat).attr('lng', poi.lng);
+        li.attr('title', attraction.pagetitle);
+        li.attr('category', attraction.categories);
+        li.attr('type', 'attraction').attr('gid', attraction.gis_id);
+        // li.attr('w', attraction.w).attr('s', attraction.s).attr('e', attraction.e).attr('n', attraction.n);
+        li.attr('lat', attraction.latitude).attr('lng', attraction.longitude);
         li.attr('backbutton', '#pane-nearby');
 
         var div = $('<div></div>').addClass('ui-btn-text');
-        div.append( $('<h2></h2>').text(poi.title) );
-        div.append( $('<p></p>').text(poi.categories) );
-        div.append( $('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text(poi.range + ' ' + poi.bearing) );
+        div.append( $('<h2></h2>').text(attraction.pagetitle) );
+        div.append( $('<p></p>').text(attraction.categories) );
+        div.append( $('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text(attraction.range + ' ' + attraction.bearing) );
 
         // On click, call zoomElementClick() to load more info
         li.click(function () {
@@ -167,11 +153,11 @@ function updateNearYouNow() {
         });
 
         li.append(div);
-        target.append(li);
+        target_el.append(li);
     }
 
-    // done loading POIs, refresh the styling magic
-    target.listview('refresh');
+    // Done loading attractions; refresh the styling magic
+    target_el.listview('refresh');
 }
 
 /**
@@ -225,11 +211,11 @@ function checkNearby(lngLat, maxMeters, categories) {
     // 1: go over the Near You Now entries, find which ones are within distance and matching the filters
     maxMeters = parseFloat(maxMeters); // passed in as a .attr() string sometimes
 
-    // iterate over ALL_POIS and calculate their distance, make sure they fit the category filters, add the distance and text, append them to alerts
+    // Iterate over CM.attractions_nearby and calculate their distance, make sure they fit the category filters, add the distance and text, append them to alerts
     var alerts = [];
-    for (var i=0, l=ALL_POIS.length; i<l; i++) {
-        var poi = ALL_POIS[i];
-        var poiLngLat = new mapboxgl.LngLat(poi.lng, poi.lat);
+    for (var i=0, l=CM.attractions_nearby.length; i<l; i++) {
+        var attraction = CM.attractions_nearby[i];
+        var poiLngLat = new mapboxgl.LngLat(attraction.longitude, attraction.latitude);
         var meters = distanceTo(lngLat, poiLngLat);
 
         // filter: distance
@@ -237,7 +223,7 @@ function checkNearby(lngLat, maxMeters, categories) {
 
         // filter: category
         if (categories) {
-            var thesecategories = poi.categories.split("; ");
+            var thesecategories = attraction.categories.split("; ");
             var catmatch = false;
             for (var ti=0, tl=thesecategories.length; ti<tl; ti++) {
                 for (var ci=0, cl=categories.length; ci<cl; ci++) {
@@ -251,7 +237,7 @@ function checkNearby(lngLat, maxMeters, categories) {
         var miles  = meters / 1609.344;
         var feet   = meters * 3.2808399;
         var range  = (feet > 900) ? miles.toFixed(1) + ' mi' : feet.toFixed(0) + ' ft';
-        alerts[alerts.length] = { gid:poi.gid, title:poi.title, range:range };
+        alerts[alerts.length] = { gid:attraction.gid, title:attraction.title, range:range };
     }
 
     // 2: go over the alerts, see if any of them are not in LAST_BEEP_IDS
