@@ -414,6 +414,7 @@ var CM = {
     attractions : [],
     attractions_nearby : [],
     autocomplete_keywords : [],
+    categories : [],
     reservations : [],
     trails : [],
     visitor_centers : []
@@ -434,6 +435,23 @@ var dummySearchItem = {
     lng: 'longitude'
 };
 var fuse = new Fuse([dummySearchItem], fuseOptions);
+
+//
+// Get categories, and populate global object, CM.categories
+//
+$.get(API_NEW_BASE_URL + 'categories', null, function (reply) {
+    // Key by categorytypeid
+    for (var i = 0; i < reply.data.length; i++) {
+        var id = reply.data[i].categorytypeid;
+        CM.categories[id] = {
+            name: reply.data[i].name
+        };
+    }
+
+    $.event.trigger({
+        type: 'dataReadyCategories',
+    });
+}, 'json');
 
 //
 // Get visitor centers and populate global object, CM.visitor_centers
@@ -3472,9 +3490,19 @@ function updateNearYouNow() {
         li.attr('backbutton', '#pane-nearby');
 
         var div = $('<div></div>').addClass('ui-btn-text');
-        div.append( $('<h2></h2>').text(attraction.pagetitle) );
-        div.append( $('<p></p>').text(attraction.categories) );
-        div.append( $('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text(attraction.range + ' ' + attraction.bearing) );
+        div.append($('<h2></h2>').text(attraction.pagetitle));
+
+        // Build a semicolon-separated string of the attraction's categories
+        var categories_str = '';
+        attraction.categories.forEach(function(category_id, index) {
+            if (index > 0) {
+                categories_str += '; ';
+            }
+            categories_str += CM.categories[category_id].name;
+        });
+
+        div.append($('<p></p>').text(categories_str));
+        div.append($('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text(attraction.range + ' ' + attraction.bearing));
 
         // On click, call zoomElementClick() to load more info
         li.click(function () {

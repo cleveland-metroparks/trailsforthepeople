@@ -2710,6 +2710,7 @@ var CM = {
     attractions : [],
     attractions_nearby : [],
     autocomplete_keywords : [],
+    categories : [],
     reservations : [],
     trails : [],
     visitor_centers : []
@@ -2730,6 +2731,23 @@ var dummySearchItem = {
     lng: 'longitude'
 };
 var fuse = new Fuse([dummySearchItem], fuseOptions);
+
+//
+// Get categories, and populate global object, CM.categories
+//
+$.get(API_NEW_BASE_URL + 'categories', null, function (reply) {
+    // Key by categorytypeid
+    for (var i = 0; i < reply.data.length; i++) {
+        var id = reply.data[i].categorytypeid;
+        CM.categories[id] = {
+            name: reply.data[i].name
+        };
+    }
+
+    $.event.trigger({
+        type: 'dataReadyCategories',
+    });
+}, 'json');
 
 //
 // Get visitor centers and populate global object, CM.visitor_centers
