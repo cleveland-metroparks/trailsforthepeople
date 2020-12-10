@@ -3293,6 +3293,12 @@ function searchByKeyword(keyword) {
     for (var i=0, l=results.length; i<l; i++) {
         var result = results[i].item;
 
+        // Skip any results that don't have a location
+        // @TODO: Why is this ever the case?
+        if (!result.lat || !result.lng) {
+            continue;
+        }
+
         var li = $('<li></li>')
             .addClass('zoom')
             .addClass('ui-li-has-count');
