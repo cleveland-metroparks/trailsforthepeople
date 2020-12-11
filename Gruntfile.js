@@ -93,7 +93,7 @@ module.exports = function(grunt) {
      * Minify
      *
      */
-    uglify: {
+    terser: {
       // Web app package:
       dist: {
         files: {
@@ -219,7 +219,7 @@ module.exports = function(grunt) {
         ],
         tasks: ['browserify:deps']
       },
-      uglify_dist: {
+      terser_dist: {
         files: [
           'static/src/js/constants.js',
           'static/src/js/common.js',
@@ -233,7 +233,7 @@ module.exports = function(grunt) {
           'static/src/js/loopsandroutes.js',
           // 'static/src/js/print.js'
         ],
-        tasks: ['uglify:dist']
+        tasks: ['terser:dist']
       },
       concat_native: {
         files: [
@@ -252,7 +252,7 @@ module.exports = function(grunt) {
         ],
         tasks: ['concat:native']
       },
-      uglify_native: {
+      terser_native: {
         files: [
           'static/src/js/constants.js',
           'static/src/js/native-constants.js',
@@ -267,7 +267,7 @@ module.exports = function(grunt) {
           'static/src/js/loopsandroutes.js',
           // 'static/src/js/print.js'
         ],
-        tasks: ['uglify:native']
+        tasks: ['terser:native']
       },
       concat_embedded_base: {
         files: [
@@ -279,7 +279,7 @@ module.exports = function(grunt) {
         // tasks: ['concat:embedded_base', 'concat:embedded_base_nojq']
         tasks: ['concat:embedded_base_nojq']
       },
-      uglify_embedded_base: {
+      terser_embedded_base: {
         files: [
           'static/lib/turf.js-5.1.6/turf.min.js',
           'static/src/js/constants.js',
@@ -288,41 +288,41 @@ module.exports = function(grunt) {
           'static/dist/js/map-embedded-base.js',
           'static/dist/js/map-embedded-base-nojq.js'
         ],
-        // tasks: ['uglify:embedded_base', 'uglify:embedded_base_nojq']
-        tasks: ['uglify:embedded_base_nojq']
+        // tasks: ['terser:embedded_base', 'terser:embedded_base_nojq']
+        tasks: ['terser:embedded_base_nojq']
       },
-      uglify_embedded_visit: {
+      terser_embedded_visit: {
         files: [
           'static/src/js/embedded-visit.js'
         ],
-        tasks: ['uglify:embedded_visit']
+        tasks: ['terser:embedded_visit']
       },
-      uglify_embedded_beach_closures: {
+      terser_embedded_beach_closures: {
         files: [
           'static/src/js/embedded-beach_closures.js'
         ],
-        tasks: ['uglify:embedded_beach_closures']
+        tasks: ['terser:embedded_beach_closures']
       }
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-terser');
   grunt.loadNpmTasks('grunt-sass');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-browserify');
 
   // All tasks
-  grunt.registerTask('all', ['concat', 'browserify', 'uglify', 'sass']);
+  grunt.registerTask('all', ['concat', 'browserify', 'terser', 'sass']);
   // Dist only (non-embedded, non-native)
-  grunt.registerTask('dist', ['concat:dist', 'uglify:dist', 'sass:dist']);
+  grunt.registerTask('dist', ['concat:dist', 'terser:dist', 'sass:dist']);
   // Native tasks only
-  grunt.registerTask('native', ['concat:native', 'uglify:native', 'sass:dist']);
+  grunt.registerTask('native', ['concat:native', 'terser:native', 'sass:dist']);
   // Default: dist and native (non-embedded)
   grunt.registerTask('default', [
-    'concat:dist', 'browserify:deps', 'uglify:dist', 'sass:dist',
-    // 'uglify:deps',
-    'concat:native', 'uglify:native', 'sass:dist'
+    'concat:dist', 'browserify:deps', 'terser:dist', 'sass:dist',
+    // 'terser:deps',
+    'concat:native', 'terser:native', 'sass:dist'
     ]
   );
   // Embedded tasks only
@@ -330,14 +330,14 @@ module.exports = function(grunt) {
     'concat:embedded_base',
     'concat:embedded_base_nojq',
 
-    'uglify:embedded_base',
-    'uglify:embedded_base_nojq',
-    'uglify:embedded_visit',
-    'uglify:embedded_beach_closures',
+    'terser:embedded_base',
+    'terser:embedded_base_nojq',
+    'terser:embedded_visit',
+    'terser:embedded_beach_closures',
 
     'sass:embedded'
   ]);
-  // Embedded tasks only, without uglify
+  // Embedded tasks only, without terser
   grunt.registerTask('embedded_nougly', ['concat:embedded_base', 'concat:embedded_base_nojq', 'sass:embedded']);
 
 };
