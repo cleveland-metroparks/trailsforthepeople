@@ -400,7 +400,7 @@ var sidebar = null;
 var LAST_BEEP_IDS = [];
 
 // other stuff pertaining to our last known location and auto-centering
-var LAST_KNOWN_LOCATION = new mapboxgl.LngLat.convert(START_CENTER);
+var LAST_KNOWN_LOCATION = mapboxgl.LngLat.convert(START_CENTER);
 
 var AUTO_CENTER_ON_LOCATION = false;
 
@@ -2788,7 +2788,7 @@ $(document).ready(function () {
  * @return {mapboxgl.LngLat}
  */
 function turfPointToLngLat(point) {
-    return new mapboxgl.LngLat.convert(point.geometry.coordinates);
+    return mapboxgl.LngLat.convert(point.geometry.coordinates);
 }
 
 /**
