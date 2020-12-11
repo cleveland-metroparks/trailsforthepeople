@@ -23,7 +23,7 @@ $(document).on("dataReadyAttractions", function() {
  * @return {mapboxgl.LngLat}
  */
 function turfPointToLngLat(point) {
-    return new mapboxgl.LngLat.convert(point.geometry.coordinates);
+    return mapboxgl.LngLat.convert(point.geometry.coordinates);
 }
 
 /**
