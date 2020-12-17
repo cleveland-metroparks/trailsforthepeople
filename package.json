@@ -13,7 +13,7 @@
     "lodash": "^4.17.20"
   },
   "dependencies": {
-    "@popperjs/core": "^2.5.4",
+    "@popperjs/core": "^2.6.0",
     "@turf/turf": "^5.1.6",
     "fastclick": "^1.0.6",
     "jquery": "^1.12.4",
