@@ -175,23 +175,25 @@ function disableGeolocation() {
 }
 
 /**
- * Get attractions (AJAX)
- *
- * Works with Nearby and without.
+ * Get nearby attractions
  */
 function callGetNearbyAttractions(params) {
-    return $.ajax({
-            url: API_BASEPATH + 'ajax/get_nearby_attractions_with_activities',
-            dataType: 'json',
-            data: params
-        })
-        .done(function(reply) {
-            displayAttractions(reply.results);
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-            console.log('callGetNearbyAttractions error');
-            console.log(textStatus + ': ' + errorThrown);
-        });
+    var activities = params.activity_ids.join('|');
+
+    var data = {
+        nearby_lat: params.lat,
+        nearby_lng: params.lng,
+        within_feet: params.within_feet,
+        with_activities: activities
+    };
+
+    return $.get(API_NEW_BASE_URL + 'attractions/', data, function(reply) {
+        displayAttractions(reply.results);
+    })
+    .fail(function(jqXHR, textStatus, errorThrown) {
+        showInfoPopup("Could not find any nearby attractions.", 'error');
+        console.log(textStatus + ': ' + errorThrown);
+    });
 }
 
 /**
