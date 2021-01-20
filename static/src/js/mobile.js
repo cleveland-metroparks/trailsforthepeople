@@ -258,7 +258,7 @@ function loadMapAndStartingState() {
         $('#directions_type').val( urlParams.get('loctype') );
 
         // make the Directions request
-        getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via);
+        getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via);
     }
 
     // Set the appropriate basemap radio button in Settings

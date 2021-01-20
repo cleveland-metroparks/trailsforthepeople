@@ -1017,7 +1017,7 @@ function loadMapAndStartingState() {
         $('#directions_type').val( urlParams.get('loctype') );
 
         // make the Directions request
-        getDirections(sourcelat,sourcelng,targetlat,targetlng,tofrom,via);
+        getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via);
     }
 
     // Set the appropriate basemap radio button in Settings
@@ -2256,39 +2256,86 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, 
     // do they prefer fast, short, or weighted?
     var prefer = $('#directions_prefer').val();
 
-    // Launch external map app for native car/transit directions
+    // In mobile, launch external map app for native car/transit directions
     if (NATIVE_APP && (via=='car' || via=='bus')) {
         launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, from_geolocation);
         enableDirectionsButton();
         return;
     }
 
-    // make up the params and run the request
-    var params = {
-        sourcelat: sourcelat,
-        sourcelng: sourcelng,
-        targetlat: targetlat,
-        targetlng: targetlng,
-        tofrom: tofrom,
-        via: via,
-        prefer: prefer,
-        bing_key: BING_API_KEY
-    };
+    var data = {};
+    if (tofrom == 'to') {
+        data.sourcelat = sourcelat,
+        data.sourcelng = sourcelng,
+        data.targetlat = targetlat,
+        data.targetlng = targetlng
+    } else {
+        // Reverse source & target
+        data.sourcelat = targetlat,
+        data.sourcelng = targetlng,
+        data.targetlat = sourcelat,
+        data.targetlng = sourcelng
+    }
 
-    $.get(API_BASEPATH + 'ajax/directions', params, function (reply) {
-        if (! reply || ! reply.wkt) {
-            var message = "Could not find directions.";
-            if (via != 'hike') message += "\nTry a different type of trail, terrain, or difficulty.";
-            return alert(message);
-        }
-        renderDirectionsStructure(reply);
-    }, 'json')
-    .fail(function() {
-        console.log('Error getting directions.');
-    })
-    .always(function() {
-        enableDirectionsButton();
-    });
+    switch (via) {
+        // Driving directions from Bing, via our API
+        case 'car':
+                $.get(API_NEW_BASE_URL + 'directions_driving', data, function (reply) {
+                    renderDirectionsStructure(reply.data);
+                },'json')
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    showInfoPopup("Error getting driving directions.", 'error');
+                    console.log(textStatus + ': ' + errorThrown);
+                })
+                .always(function() {
+                    enableDirectionsButton();
+                });
+            break;
+
+        // Transit directions from Bing, via our API
+        case 'bus':
+                $.get(API_NEW_BASE_URL + 'directions_transit', data, function (reply) {
+                    renderDirectionsStructure(reply.data);
+                },'json')
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    showInfoPopup("Error getting transit directions.", 'error');
+                    console.log(textStatus + ': ' + errorThrown);
+                })
+                .always(function() {
+                    enableDirectionsButton();
+                });
+            break;
+
+        // Directions over trails, via our API
+        default:
+            var params = {
+                sourcelat: sourcelat,
+                sourcelng: sourcelng,
+                targetlat: targetlat,
+                targetlng: targetlng,
+                tofrom: tofrom,
+                via: via,
+                prefer: prefer,
+                bing_key: BING_API_KEY
+            };
+
+            $.get(API_BASEPATH + 'ajax/directions', params, function (reply) {
+                if (! reply || ! reply.wkt) {
+                    var message = "Could not find directions.";
+                    if (via != 'hike') message += "\nTry a different type of trail, terrain, or difficulty.";
+                    return alert(message);
+                }
+                renderDirectionsStructure(reply);
+            }, 'json')
+            .fail(function() {
+                console.log('Error getting directions.');
+            })
+            .always(function() {
+                enableDirectionsButton();
+            });
+            break;
+    }
+
 }
 
 /**
