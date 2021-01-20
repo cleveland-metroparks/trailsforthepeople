@@ -2269,7 +2269,7 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, 
     // do they prefer fast, short, or weighted?
     var prefer = $('#directions_prefer').val();
 
-    // In mobile, simply launch external map app for native car/transit directions
+    // In mobile, launch external map app for native car/transit directions
     if (NATIVE_APP && (via=='car' || via=='bus')) {
         launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, from_geolocation);
         enableDirectionsButton();
@@ -2294,6 +2294,7 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, 
         // Driving directions from Bing, via our API
         case 'car':
                 $.get(API_NEW_BASE_URL + 'directions_driving', data, function (reply) {
+                    renderDirectionsStructure(reply.data);
                 },'json')
                 .fail(function(jqXHR, textStatus, errorThrown) {
                     showInfoPopup("Error getting driving directions.", 'error');
@@ -2307,7 +2308,7 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, 
         // Transit directions from Bing, via our API
         case 'bus':
                 $.get(API_NEW_BASE_URL + 'directions_transit', data, function (reply) {
-
+                    renderDirectionsStructure(reply.data);
                 },'json')
                 .fail(function(jqXHR, textStatus, errorThrown) {
                     showInfoPopup("Error getting transit directions.", 'error');
