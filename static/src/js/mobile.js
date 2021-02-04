@@ -132,33 +132,10 @@ function loadMapAndStartingState() {
     // Initialize the map
     initMap(mapOptions);
 
-//    // URL params query string: "type" and "name"
-//    // @TODO: Do we still have a way to get here?
-//    if (urlParams.get('type') && urlParams.get('name') ) {
-//        var params = {
-//            type: urlParams.get('type'),
-//            name: urlParams.get('name')
-//        };
-//        $.get(API_BASEPATH + 'ajax/exactnamesearch', params, function (reply) {
-//            if (!(reply && reply.s && reply.w && reply.n && reply.e)) {
-//                return alert("Cound not find that feature.");
-//            }
-//
-//            // Zoom to the bbox
-//            MAP.fitBounds([[reply.w, reply.s], [reply.e, reply.n]]);
-//
-//            // Lay down the WKT or a marker to highlight it
-//            if (reply.lat && reply.lng) {
-//                placeMarker(MARKER_TARGET, reply.lat, reply.lng);
-//            } else if (reply.wkt) {
-//                showWkt(reply.wkt);
-//            }
-//        }, 'json');
-//    }
-
     // URL params query string: "type" and "gid"
     if (urlParams.get('type') && urlParams.get('gid') ) {
-        switch (urlParams.get('type')) {
+        var featureType = urlParams.get('type');
+        switch (featureType) {
             case 'attraction':
                 // Wait to ensure we have the data
                 $(document).on("dataReadyAttractions", function() {
@@ -172,9 +149,7 @@ function loadMapAndStartingState() {
                     }
                     if (feature.lat && feature.lng) {
                         zoomToFeature(feature);
-                        // Show info in sidebar
-                        // @TODO: This is app-specific. Re-work.
-                        showAttractionInfo(urlParams.get('type'), feature);
+                        showFeatureInfo(featureType, feature);
                     } else {
                         return alert("Cound not find that feature.");
                     }
@@ -200,7 +175,7 @@ function loadMapAndStartingState() {
                     if ((feature.w && feature.n && feature.e && feature.s)
                             || (feature.lat && feature.lng)) {
                         zoomToFeature(feature);
-                        showFeatureInfo(feature);
+                        showFeatureInfo(featureType, feature);
                     } else {
                         return alert("Cound not find that reservation.");
                     }
@@ -216,7 +191,7 @@ function loadMapAndStartingState() {
 
                 // @TODO: Lookup loop feature.
 
-                showFeatureInfo(feature, true);
+                showFeatureInfo(featureType, feature);
                 break;
         }
     }
@@ -307,54 +282,6 @@ $(document).ready(function () {
 });
 
 /**
- * Show Attraction Info
- *
- * Show attraction info in the sidebar pane.
- *
- * Starting to split up / improve upon zoomElementClick()
- * (Don't use a DOM element to pass info.)
- * We can generalize this for other types of POIs later.
- *
- * attraction.gid
- * attraction.title
- * attraction.lat
- * attraction.lng
- */
-function showAttractionInfo(attractionType, attraction) {
-    // @TODO: Construct the #show_on_map button. We don't have an "element".
-    //$('#show_on_map').data('zoomelement', element);
-
-    // Set our directions element
-    // @TODO: Do this differently.
-    $('#directions_target_lat').val(attraction.lat);
-    $('#directions_target_lng').val(attraction.lng);
-    $('#directions_target_type').val(attraction.type);
-    $('#directions_target_gid').val(attraction.gid);
-    $('#directions_target_title').text(attraction.title);
-
-    // Open the Info pane
-    sidebar.open('pane-info');
-
-    set_pane_back_button('#pane-info', '#pane-browse');
-
-    // Enable "Get Directions"
-    $('#getdirections_disabled').hide();
-    $('#getdirections_enabled').show();
-
-    // Purge any vector data from the Show On Map button;
-    // the moreinfo template will populate it if necessary
-    $('#show_on_map').data('wkt', null);
-
-    $('#info-content').text("Loading...");
-
-    // Get more info via AJAX
-    var id = attraction.gid || attraction.record_id;
-    if (id) {
-        showAttractionInfoContent(attractionType, id);
-    }
-}
-
-/**
  * Make image from pagethumbnail
  * (Was _transform_main_site_image_url in PHP)
  *
@@ -405,11 +332,15 @@ function make_activity_icons_list(activity_ids) {
     var imgs_list = [];
     activity_ids.forEach(function(activity_id) {
         // Object with image details for template
-        imgs_list.push({
-            src: CM.activities[activity_id].icon,
-            title: CM.activities[activity_id].pagetitle,
-            alt: CM.activities[activity_id].pagetitle
-        });
+        if (CM.activities[activity_id]) {
+            imgs_list.push({
+                src: CM.activities[activity_id].icon,
+                title: CM.activities[activity_id].pagetitle,
+                alt: CM.activities[activity_id].pagetitle
+            });
+        } else {
+            console.log('ERROR in make_activity_icons_list(): Activity ' + activity_id + ' does not exist.');
+        }
     });
     return imgs_list;
 }
@@ -417,22 +348,32 @@ function make_activity_icons_list(activity_ids) {
 /**
  * Show "Attraction Info" content
  */
-function showAttractionInfoContent(attractionType, id) {
+function showFeatureInfoContent(attractionType, id) {
+    // console.log('showFeatureInfoContent');
+    // console.log('attractionType:', attractionType);
+    // console.log('id:', id);
     var max_img_width = 320;
     switch(attractionType) {
         case 'attraction':
             var attraction = CM.get_attraction(id);
             var template = CM.Templates.info_attraction;
-            var activity_icons = make_activity_icons_list(attraction.activities);
+
+            var activity_icons = [];
+            if (attraction.activities) {
+                activity_icons = make_activity_icons_list(attraction.activities);
+            }
+
             var img_props = [];
             if (attraction.pagethumbnail) {
                img_props = make_image_from_pagethumbnail(attraction.pagethumbnail, max_img_width);
             }
+
             var template_vars = {
                 feature: attraction,
                 activity_icons: activity_icons,
                 img: img_props,
             };
+
             $('#info-content').html(template(template_vars));
             break;
 
@@ -462,21 +403,6 @@ function showAttractionInfoContent(attractionType, id) {
                 console.log("ERROR: loop id: " + id + " does not exist in CM.trails (app_view_trails).");
             }
             break;
-
-        // Old style
-        // @TODO: Change-over to new API & preloaded-data model:
-        // case 'trail':
-        // case 'poi':
-        // case 'reservation':
-        //default:
-        //    var params = {
-        //        type: attractionType,
-        //        gid: id,
-        //    };
-        //    // Get and display the "more info" plain HTML
-        //    $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
-        //        $('#info-content').html(reply);
-        //    }, 'html');
     }
 }
 
@@ -489,56 +415,6 @@ function showElevation(url) {
 }
 
 /**
- * Get and show Feature info in the sidebar pane
- */
-function showFeatureInfo(feature, andFlyTo) {
-    prepareInfoPaneForFeature(feature);
-
-    // Get more info via AJAX
-    if (feature.type && feature.gid) {
-        var params = {
-            type: feature.type,
-            gid: feature.gid || feature.record_id
-        };
-
-        $.get(API_BASEPATH + 'ajax/moreinfo', params, function (reply) {
-            // Special case where the user only got the info for the purpose of directing there.
-            if (SKIP_TO_DIRECTIONS) {
-                $('#directions_car').click();
-                SKIP_TO_DIRECTIONS = false;
-                return;
-            }
-
-            $('#info-content').html(reply);
-
-            if (andFlyTo) {
-                zoomToFeature(reply);
-            }
-
-            // If there's a <div class="wkt"> element in the HTML,
-            //   (this happens in moreinfo_trail.phtml and moreinfo_loop.phtml)
-            // it is vector data to be handled by zoomToFeature().
-            // Display it, and move its data into the Show On Map button.
-            var $wkt_el = $('#info-content').find('div.wkt');
-            if ($wkt_el) {
-                var wkt_data = $wkt_el.text();
-                if (wkt_data) {
-                    showWkt(wkt_data);
-                    $('#show_on_map').data('wkt', wkt_data);
-                    $wkt_el.remove();
-                }
-            }
-        }, 'html');
-    } else {
-        // Fill in the title since we have little else,
-        // then presume that the person wants to route there
-        // by clicking the Directions By Car button.
-        $('#info-content').html( $('<h1></h1>').text(feature.title));
-        $('#directions_car').click();
-    }
-}
-
-/**
  * zoomElementClick
  *
  * Given a .zoom element with {lon, lat, WSEN, type, gid},
@@ -546,48 +422,69 @@ function showFeatureInfo(feature, andFlyTo) {
  */
 function zoomElementClick(element) {
     var feature = getFeatureFromElement(element);
-
-    prepareInfoPaneForFeature(feature);
-
-    showFeatureInfo(feature);
-
+    showFeatureInfo(feature.type, feature);
     showOnMap(feature);
 }
 
 /**
- * Set up info pane to populate.
- *
- * @param: {Object} feature
+ * Set up the directions target element so we can route to it.
  */
-function prepareInfoPaneForFeature(feature) {
-    // Assign this feature to the Show On Map button, so it knows what to zoom to
-    $('#show_on_map').data('zoomelement', feature);
-
-    // Purge any vector data from the Show On Map button;
-    // the moreinfo template will populate it if necessary
-    $('#show_on_map').data('wkt', null);
-
-    // Set up our directions target element so we can route to it.
+function setUpDirectionsTarget(feature) {
     $('#directions_target_lat').val(feature.lat);
     $('#directions_target_lng').val(feature.lng);
     $('#directions_target_type').val(feature.type);
     $('#directions_target_gid').val(feature.gid);
     $('#directions_target_title').text(feature.title);
+}
 
-    // Change to the Info pane
+/**
+ * Show Attraction Info
+ *
+ * Show attraction info in the sidebar pane.
+ *
+ * Starting to split up / improve upon zoomElementClick()
+ * (Don't use a DOM element to pass info.)
+ * We can generalize this for other types of POIs later.
+ *
+ * attraction.gid
+ * attraction.title
+ * attraction.lat
+ * attraction.lng
+ */
+function showFeatureInfo(attractionType, attraction) {
+    // console.log('showFeatureInfo');
+    // console.log('attractionType: ', attractionType);
+    // console.log('attraction: ', attraction);
+
+    // Assign this feature to the Show On Map button, so it knows what to zoom to
+    $('#show_on_map').data('zoomelement', attraction);
+
+    // Purge any vector data from the Show On Map button;
+    // the moreinfo template will populate it if necessary
+    $('#show_on_map').data('wkt', null);
+
+    setUpDirectionsTarget(attraction);
+
+    // Open the Info pane
     sidebar.open('pane-info');
 
     // Make the Back button link to the URL if specified, else to Browse
-    if (!feature.back_url) {
-        feature.back_url = '#pane-browse';
+    if (!attraction.back_url) {
+        attraction.back_url = '#pane-browse';
     }
-    set_pane_back_button('#pane-info', feature.back_url);
+    set_pane_back_button('#pane-info', attraction.back_url);
 
     // Enable "Get Directions"
     $('#getdirections_disabled').hide();
     $('#getdirections_enabled').show();
 
     $('#info-content').text("Loading...");
+
+    // Get more info via AJAX
+    var id = attraction.gid || attraction.record_id;
+    if (id) {
+        showFeatureInfoContent(attractionType, id);
+    }
 }
 
 /**
