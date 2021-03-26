@@ -80,6 +80,7 @@
             <li><a href="#pane-legend" role="tab" title="Trail Legend"><i class="cm-icon cm-icon-map-signs"></i></a></li>
             <li><a href="#pane-settings" role="tab" title="Settings"><i class="cm-icon cm-icon-cog"></i></a></li>
             <li><a href="#pane-credits" role="tab" title="Credits"><i class="cm-icon cm-icon-info"></i></a></li>
+            <li><a href="#pane-debug" role="tab" title="Debug"><i class="cm-icon cm-icon-star"></i></a></li>
         </ul>
     </div>
 
@@ -102,6 +103,9 @@
 
         <!-- Sidebar Pane: Share: #pane-share -->
         <?php $this->load->view('mobile/sidebar-panes/share.phtml'); ?>
+
+        <!-- Sidebar Pane: Share: #pane-debug -->
+        <?php $this->load->view('mobile/sidebar-panes/debug.phtml'); ?>
 
         <!-- Sidebar Pane: Credits: #pane-legend -->
         <?php $this->load->view('mobile/sidebar-panes/legend.phtml'); ?>

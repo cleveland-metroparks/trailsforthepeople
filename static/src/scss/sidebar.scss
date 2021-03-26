@@ -478,3 +478,14 @@ form.ui-filterable.autocomplete .ui-input-btn {
         text-align: center;
     }
 }
+
+//
+// Sidebar Pane: Debug
+//
+#pane-debug {
+    #debug-features {
+        font-family: monospace;
+        font-size: 80%;
+        //overflow: auto;
+    }
+}
