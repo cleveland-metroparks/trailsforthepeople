@@ -1203,6 +1203,16 @@ function setSessionCoordinateFormat(format) {
 }
 
 /**
+ * Show Mapbox features info in debug pane.
+ */
+$(document).on("mapReady", function() {
+    MAP.on('mousemove', function (e) {
+        var features = MAP.queryRenderedFeatures(e.point);
+        document.getElementById('debug-features').innerHTML = JSON.stringify(features, null, 2);
+    });
+});
+
+/**
  * Map click handling
  *
  * Our version of a WMS GetFeatureInfo control:

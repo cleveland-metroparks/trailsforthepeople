@@ -467,3 +467,14 @@ form.ui-filterable.autocomplete .ui-input-btn {
         margin-bottom: 1em;
     }
 }
+
+//
+// Sidebar Pane: Debug
+//
+#pane-debug {
+    #debug-features {
+        font-family: monospace;
+        font-size: 80%;
+        //overflow: auto;
+    }
+}
