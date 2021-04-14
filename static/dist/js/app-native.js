@@ -1649,10 +1649,6 @@ function getSessionCoordinateFormat() {
 }
 
 /**
- * Set user's coordinate format setting from session config.
- */
-
-/**
  * Show Mapbox features info in debug pane.
  */
 $(document).on("mapReady", function() {
@@ -1661,69 +1657,6 @@ $(document).on("mapReady", function() {
         document.getElementById('debug-features').innerHTML = JSON.stringify(features, null, 2);
     });
 });
-
-/**
- * Map click handling
- *
- * Our version of a WMS GetFeatureInfo control:
- * A map click calls query.php to get JSON info, and we construct a bubble.
- * But, we only call this if a popup is not open: if one is open, we instead close it.
- */
-$(document).on("mapReady", function() {
-    MAP.on('click', function (event) {
-        // Is there a popup currently visible?
-        // If so, no query at all but close the popup and bail.
-        // Sorry, Leaflet: closePopupOnClick doesn't work for this, as it clears the popup before we get the click.
-        if ($('.leaflet-popup').length) {
-            return MAP.closePopup();
-        }
-
-        // Made it here? Good, do a query.
-        wmsGetFeatureInfoByPoint(event.point, event.lngLat);
-    });
-});
-
-/**
- * Get WMS feature info by point
- */
-function wmsGetFeatureInfoByPoint(point, lngLat) {
-    var pixBuf = 20; // Pixel buffer; number of pixels to pad for the bounding box
-
-    // unproject() changes pixel-based point locations to LngLats
-    var sw = MAP.unproject([(point.x - pixBuf), (point.y + pixBuf)]);
-    var ne = MAP.unproject([(point.x + pixBuf), (point.y - pixBuf)]);
-    var bounds = new mapboxgl.LngLatBounds(sw, ne);
-
-    wmsGetFeatureInfoByBbox(bounds, lngLat);
-}
-
-/**
- * Get WMS feature info by LngLat BBOX
- *
- * @param {LngLatBounds} bounds
- * @param {LngLat} lngLat
- */
-function wmsGetFeatureInfoByBbox(bounds, lngLat) {
-    var data = {
-        w: bounds.getWest(),
-        s: bounds.getSouth(),
-        e: bounds.getEast(),
-        n: bounds.getNorth(),
-        zoom: MAP.getZoom()
-    };
-
-    $.get(API_BASEPATH + 'ajax/query', data, function (markup) {
-        if (!markup) {
-            return;
-        }
-
-        var popup = new mapboxgl.Popup()
-            .setLngLat(lngLat)
-            .setHTML(markup)
-            .addTo(MAP);
-
-    }, 'html');
-}
 
 ;
 /**
