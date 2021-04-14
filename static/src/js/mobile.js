@@ -135,7 +135,9 @@ function loadMapAndStartingState() {
     // URL params query string: "type" and "gid"
     if (urlParams.get('type') && urlParams.get('gid') ) {
         var featureType = urlParams.get('type');
+
         switch (featureType) {
+
             case 'attraction':
                 // Wait to ensure we have the data
                 $(document).on("dataReadyAttractions", function() {
@@ -183,15 +185,17 @@ function loadMapAndStartingState() {
                 break;
 
             case 'loop':
-                // Loop
-                var feature = {
-                    type: 'loop',
-                    gid: urlParams.get('gid')
-                };
+                // Wait to ensure we have the data
+                $(document).on("dataReadyTrails", function() {
+                    var feature = {
+                        type: 'loop',
+                        gid: urlParams.get('gid')
+                    };
 
-                // @TODO: Lookup loop feature.
+                    // @TODO: Lookup loop feature.
 
-                showFeatureInfo(featureType, feature);
+                    showFeatureInfo(featureType, feature);
+                });
                 break;
         }
     }
@@ -349,10 +353,8 @@ function make_activity_icons_list(activity_ids) {
  * Show "Attraction Info" content
  */
 function showFeatureInfoContent(attractionType, id) {
-    // console.log('showFeatureInfoContent');
-    // console.log('attractionType:', attractionType);
-    // console.log('id:', id);
     var max_img_width = 320;
+
     switch(attractionType) {
         case 'attraction':
             var attraction = CM.get_attraction(id);
@@ -392,6 +394,13 @@ function showFeatureInfoContent(attractionType, id) {
 
         case 'loop': // "Blessed trail"
             if (id in CM.trails) {
+                // Query API for trail geometry
+                $.get(API_NEW_BASE_URL + 'trail_geometries/' + id, null, function (reply) {
+                    if (reply.data.geom_geojson) {
+                        var geom_geojson = JSON.parse(reply.data.geom_geojson);
+                        drawHighlightLine(geom_geojson);
+                    }
+                });
                 var trail = CM.trails[id];
                 var template = CM.Templates.info_trail;
                 var template_vars = {
@@ -452,10 +461,6 @@ function setUpDirectionsTarget(feature) {
  * attraction.lng
  */
 function showFeatureInfo(attractionType, attraction) {
-    // console.log('showFeatureInfo');
-    // console.log('attractionType: ', attractionType);
-    // console.log('attraction: ', attraction);
-
     // Assign this feature to the Show On Map button, so it knows what to zoom to
     $('#show_on_map').data('zoomelement', attraction);
 
@@ -741,8 +746,8 @@ function zoomToFeature(feature, closeSidebarInMobile) {
     }
 
     // Zoom the map into the stated bbox, if we have one.
-    if (    (feature.w && feature.s && feature.e && feature.n) &&
-            (feature.w != 0 && feature.s != 0 && feature.e != 0 && feature.n != 0)  ) {
+    if ((feature.w && feature.s && feature.e && feature.n) &&
+        (feature.w != 0 && feature.s != 0 && feature.e != 0 && feature.n != 0)  ) {
         var sw = new mapboxgl.LngLat(feature.w, feature.s);
         var ne = new mapboxgl.LngLat(feature.e, feature.n);
         var bounds = new mapboxgl.LngLatBounds(sw, ne);

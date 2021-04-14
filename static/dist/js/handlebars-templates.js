@@ -190,7 +190,7 @@ this["CM"]["Templates"]["info_trail"] = Handlebars.template({"1":function(contai
     };
 
   return "<h2>"
-    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"title") : stack1), depth0))
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"name") : stack1), depth0))
     + "</h2>\n\n<p>\nLength: "
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"distancetext") : stack1), depth0))
     + "<br/>\n"
