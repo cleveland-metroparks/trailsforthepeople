@@ -2098,9 +2098,6 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, 
     $('#directions_source_lat').val(sourcelat);
     $('#directions_source_lng').val(sourcelng);
 
-    // do they prefer fast, short, or weighted?
-    var prefer = $('#directions_prefer').val();
-
     // In mobile, launch external map app for native car/transit directions
     if (NATIVE_APP && (via=='car' || via=='bus')) {
         launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, from_geolocation);
@@ -2156,7 +2153,6 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, 
         // Directions over trails from our API
         default:
             data.via = via;
-            data.prefer = prefer;
 
             $.get(API_NEW_BASE_URL + 'directions_trails', data, function (reply) {
                 if (reply.data.wkt) {
@@ -2211,11 +2207,6 @@ function processGetDirectionsForm() {
     var tofrom    = $('#directions_reverse').val();
     // Transportation mode
     var via       = $('#directions_via').val();
-
-    if (via == 'bike') {
-        // Ability level for bike
-        via = $('#directions_via_bike').val();
-    }
 
     // empty these fields because we probably don't need them
     // they will be repopulated in the 'feature' switch below if we're routing to a Park Feature
@@ -2800,26 +2791,6 @@ $(document).ready(function () {
         clearDirectionsLine();
         $('#directions_steps').empty();
     });
-
-    // Selecting "By Trail", "By Car", etc. shows & hides the second filter, e.g. paved/unpaved for "By foot" only
-    $('#directions_via').change(function () {
-        // hide all secondaries
-        $('#directions_via_bike_wrap').hide();
-
-        // now show the appropriate one (if any, only for Bike: basic/advanced; formerly Hike had paved status as a picker)
-        var which = $(this).val();
-        switch (which) {
-            case 'bike':
-                $('#directions_via_bike_wrap').show();
-                break;
-            case 'hike':
-                break;
-            case 'car':
-                break;
-            default:
-                break;
-        }
-    });
 });
 
 ;
@@ -2963,7 +2934,6 @@ function updateWindowURLWithDirections() {
         params.base = 'map';
     }
     params.routevia        = $('#directions_via').val();
-    params.routevia_bike   = $('#directions_via_bike').val();
     params.routefrom       = $('#directions_source_lat').val() + ',' + $('#directions_source_lng').val();
     params.routeto         = $('#directions_target_lat').val() + ',' + $('#directions_target_lng').val();
     params.routetitle      = $('#directions_target_title').text();

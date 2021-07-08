@@ -138,7 +138,6 @@ function updateWindowURLWithDirections() {
         params.base = 'map';
     }
     params.routevia        = $('#directions_via').val();
-    params.routevia_bike   = $('#directions_via_bike').val();
     params.routefrom       = $('#directions_source_lat').val() + ',' + $('#directions_source_lng').val();
     params.routeto         = $('#directions_target_lat').val() + ',' + $('#directions_target_lng').val();
     params.routetitle      = $('#directions_target_title').text();
