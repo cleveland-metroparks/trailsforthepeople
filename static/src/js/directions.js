@@ -78,7 +78,7 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, 
     }
 
     switch (via) {
-        // Driving directions from Bing, via our API
+        // Driving directions from Bing, by way of our API
         case 'car':
                 $.get(API_NEW_BASE_URL + 'directions_driving', data, function (reply) {
                     renderDirectionsStructure(reply.data);
@@ -90,9 +90,10 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, 
                 .always(function() {
                     enableDirectionsButton();
                 });
+
             break;
 
-        // Transit directions from Bing, via our API
+        // Transit directions from Bing, by way of our API
         case 'bus':
                 $.get(API_NEW_BASE_URL + 'directions_transit', data, function (reply) {
                     renderDirectionsStructure(reply.data);
@@ -104,35 +105,33 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, 
                 .always(function() {
                     enableDirectionsButton();
                 });
+
             break;
 
-        // Directions over trails, via our API
+        // Directions over trails from our API
         default:
-            var params = {
-                sourcelat: sourcelat,
-                sourcelng: sourcelng,
-                targetlat: targetlat,
-                targetlng: targetlng,
-                tofrom: tofrom,
-                via: via,
-                prefer: prefer,
-                bing_key: BING_API_KEY
-            };
+            data.via = via;
+            data.prefer = prefer;
 
-            $.get(API_BASEPATH + 'ajax/directions', params, function (reply) {
-                if (! reply || ! reply.wkt) {
-                    var message = "Could not find directions.";
-                    if (via != 'hike') message += "\nTry a different type of trail, terrain, or difficulty.";
-                    return alert(message);
+            $.get(API_NEW_BASE_URL + 'directions_trails', data, function (reply) {
+                if (reply.data.wkt) {
+                    renderDirectionsStructure(reply.data);
+                } else {
+                    var message = "Could not find directions over trails for this start and endpoint.";
+                    if (via != 'hike') {
+                        message += "\nTry a different type of trail, terrain, or difficulty.";
+                    }
+                    showInfoPopup(message, 'error');
                 }
-                renderDirectionsStructure(reply);
-            }, 'json')
-            .fail(function() {
-                console.log('Error getting directions.');
+            },'json')
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                showInfoPopup("Error getting directions.", 'error');
+                console.log(textStatus + ': ' + errorThrown);
             })
             .always(function() {
                 enableDirectionsButton();
             });
+
             break;
     }
 
@@ -439,9 +438,8 @@ function populateDidYouMean(results) {
 /**
  * Render directions structure
  */
-function renderDirectionsStructure(directions, target, options) {
-    // no options, no problem
-    if (! options) options = {};
+function renderDirectionsStructure(directions) {
+    console.log(directions);
 
     // Draw the route on the map
     var startPoint = new mapboxgl.LngLat(directions.start.lng, directions.start.lat);
@@ -456,15 +454,13 @@ function renderDirectionsStructure(directions, target, options) {
     MAP.fitBounds(bounds, {padding: 10});
 
     // phase 2: put the directions into the panel
-    if (! target) {
-        target = $('#directions_steps');
-    }
+    var target = $('#directions_steps');
     target.empty();
 
     for (var i=0, l=directions.steps.length; i<l; i++) {
         var step     = directions.steps[i];
         var li       = $('<li></li>');
-        var title    = step.stepnumber ? step.stepnumber + '. ' + ( step.turnword ? step.turnword : '') + ' ' + step.text : step.turnword + ' ' + step.text;
+        var title    = step.stepnumber ? (i+1) + '. ' + ( step.step_action ? step.step_action : '') + ' ' + step.text : step.step_action + ' ' + step.text;
         li.append( $('<span></span>').addClass('ui-li-heading').text(title) );
         if (step.distance && step.duration && step.distance.substr(0,1)!='0') {
             var subtitle = step.distance + ', ' + step.duration;
