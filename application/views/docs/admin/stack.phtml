@@ -108,7 +108,7 @@ zoomElementClick(link);
 <p>All calls for directions are made to the server, even Google driving directions. The input and output follow a specific format, and  is best illustrated by example:</p>
 
 <p>
-<code>http://maps.clemetparks.com/ajax/directions?sourcelat=41.4962105&amp;sourcelng=-81.68516749999998&amp;targetlat=41.4127044549537&amp;targetlng=-81.9622779057202&amp;tofrom=to&amp;via=hike</code>
+<code>http://maps.clemetparks.com/ajax/directions?sourcelat=41.4962105&amp;sourcelng=-81.68516749999998&amp;targetlat=41.4127044549537&amp;targetlng=-81.9622779057202&amp;via=hike</code>
 </p>
 
 <p>In the case of Google driving directions (<code>&amp;via=car</code>), the server makes the request for directions, then massages   them to fit the format. For all others, routing is done over the roads and network using whatever database view is appropriate: hike,   hike_paved, bridle, etc.</p>

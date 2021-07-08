@@ -209,7 +209,6 @@ function loadMapAndStartingState() {
         var targetlat = urlParams.get('routeto').split(",")[0];
         var targetlng = urlParams.get('routeto').split(",")[1];
         var via       = urlParams.get('routevia');
-        var tofrom    = 'to';
 
         // toggle the directions panel so it shows directions instead of Select A Destination
         sidebar.open('pane-getdirections');
@@ -228,16 +227,11 @@ function loadMapAndStartingState() {
         $('#directions_target_lng').val(targetlng);
         $('#directions_via').trigger('change');
         $('#directions_address').val( urlParams.get('fromaddr') );
-        $('#directions_reverse').val( urlParams.get('whichway') );
         $('#directions_via_bike').val( urlParams.get('routevia_bike') );
-
-        setTimeout(function () {
-            $('#directions_reverse').trigger('change');
-        },1000);
         $('#directions_type').val( urlParams.get('loctype') );
 
         // make the Directions request
-        getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via);
+        getDirections(sourcelat, sourcelng, targetlat, targetlng, via);
     }
 
     // Set the appropriate basemap radio button in Settings

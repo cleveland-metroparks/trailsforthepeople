@@ -13,18 +13,13 @@
  * Launch external app for directions
  * Uses launchnavigator [cordova] plugin.
  */
-function launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, from_geolocation) {
+function launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geolocation) {
     var source = [sourcelat, sourcelng],
-        target = [targetlat, targetlng];
-    // Or reverse
-    if (tofrom == 'from') {
-        source = [targetlat, targetlng];
-        target = [sourcelat, sourcelng];
-    }
-    options = {
-        enableDebug: true,
-        transportMode: transportMode
-    };
+        target = [targetlat, targetlng],
+        options = {
+            enableDebug: true,
+            transportMode: transportMode
+        };
     if (!from_geolocation) {
         options.start = source;
     }
@@ -44,7 +39,7 @@ function launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetl
  * and render them to the screen and to the map,
  * (or launch native mobile directions).
  */
-function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, from_geolocation) {
+function getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geolocation) {
     // empty out the old directions and disable the button as a visual effect
     $('#directions_steps').empty();
     disableDirectionsButton();
@@ -55,23 +50,16 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, 
 
     // In mobile, launch external map app for native car/transit directions
     if (NATIVE_APP && (via=='car' || via=='bus')) {
-        launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, from_geolocation);
+        launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geolocation);
         enableDirectionsButton();
         return;
     }
 
-    var data = {};
-    if (tofrom == 'to') {
-        data.sourcelat = sourcelat,
-        data.sourcelng = sourcelng,
-        data.targetlat = targetlat,
-        data.targetlng = targetlng
-    } else {
-        // Reverse source & target
-        data.sourcelat = targetlat,
-        data.sourcelng = targetlng,
-        data.targetlat = sourcelat,
-        data.targetlng = sourcelng
+    var data = {
+        sourcelat = sourcelat,
+        sourcelng = sourcelng,
+        targetlat = targetlat,
+        targetlng = targetlng
     }
 
     switch (via) {
@@ -159,9 +147,8 @@ function enableDirectionsButton() {
  * then calls either getDirections() et al
  */
 function processGetDirectionsForm() {
-    var tofrom    = $('#directions_reverse').val();
     // Transportation mode
-    var via       = $('#directions_via').val();
+    var via = $('#directions_via').val();
 
     // empty these fields because we probably don't need them
     // they will be repopulated in the 'feature' switch below if we're routing to a Park Feature
@@ -199,7 +186,7 @@ function processGetDirectionsForm() {
             if (is_coords) {
                 sourcelat = parseFloat(is_coords[1]);
                 sourcelng = parseFloat(is_coords[2]);
-                getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via);
+                getDirections(sourcelat, sourcelng, targetlat, targetlng, via);
             } else {
                 disableDirectionsButton();
                 $.get(API_NEW_BASE_URL + 'geocode/' + address, null, function (reply) {
@@ -320,7 +307,7 @@ function processGetDirectionsForm() {
     // Re-enable asynchronous AJAX
     $.ajaxSetup({ async:true });
 
-    getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, from_geolocation);
+    getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geolocation);
 }
 
 /**
@@ -624,8 +611,8 @@ $(document).ready(function () {
     function launchGetDirections(transport_method) {
         $('#directions_via').val(transport_method);
         $('#directions_via').trigger('change');
-        // update that selector: render the page if it's not already been visited, then restyle the selector so it shows the value it has
-        // $('#pane-getdirections').page(); // @TODO: GLJS. Still necessary?
+        // update that selector: render the page if it's not already been visited,
+        // then restyle the selector so it shows the value it has
         $('#directions_via').selectmenu("refresh");
         // and change to the Get Directions panel
         sidebar.open('pane-getdirections');

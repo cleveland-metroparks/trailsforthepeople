@@ -968,7 +968,6 @@ function loadMapAndStartingState() {
         var targetlat = urlParams.get('routeto').split(",")[0];
         var targetlng = urlParams.get('routeto').split(",")[1];
         var via       = urlParams.get('routevia');
-        var tofrom    = 'to';
 
         // toggle the directions panel so it shows directions instead of Select A Destination
         sidebar.open('pane-getdirections');
@@ -987,16 +986,11 @@ function loadMapAndStartingState() {
         $('#directions_target_lng').val(targetlng);
         $('#directions_via').trigger('change');
         $('#directions_address').val( urlParams.get('fromaddr') );
-        $('#directions_reverse').val( urlParams.get('whichway') );
         $('#directions_via_bike').val( urlParams.get('routevia_bike') );
-
-        setTimeout(function () {
-            $('#directions_reverse').trigger('change');
-        },1000);
         $('#directions_type').val( urlParams.get('loctype') );
 
         // make the Directions request
-        getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via);
+        getDirections(sourcelat, sourcelng, targetlat, targetlng, via);
     }
 
     // Set the appropriate basemap radio button in Settings
@@ -2058,18 +2052,13 @@ $(document).on("mapInitialized", function () {
  * Launch external app for directions
  * Uses launchnavigator [cordova] plugin.
  */
-function launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, from_geolocation) {
+function launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geolocation) {
     var source = [sourcelat, sourcelng],
-        target = [targetlat, targetlng];
-    // Or reverse
-    if (tofrom == 'from') {
-        source = [targetlat, targetlng];
-        target = [sourcelat, sourcelng];
-    }
-    options = {
-        enableDebug: true,
-        transportMode: transportMode
-    };
+        target = [targetlat, targetlng],
+        options = {
+            enableDebug: true,
+            transportMode: transportMode
+        };
     if (!from_geolocation) {
         options.start = source;
     }
@@ -2089,7 +2078,7 @@ function launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetl
  * and render them to the screen and to the map,
  * (or launch native mobile directions).
  */
-function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, from_geolocation) {
+function getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geolocation) {
     // empty out the old directions and disable the button as a visual effect
     $('#directions_steps').empty();
     disableDirectionsButton();
@@ -2100,23 +2089,16 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, 
 
     // In mobile, launch external map app for native car/transit directions
     if (NATIVE_APP && (via=='car' || via=='bus')) {
-        launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, from_geolocation);
+        launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geolocation);
         enableDirectionsButton();
         return;
     }
 
-    var data = {};
-    if (tofrom == 'to') {
-        data.sourcelat = sourcelat,
-        data.sourcelng = sourcelng,
-        data.targetlat = targetlat,
-        data.targetlng = targetlng
-    } else {
-        // Reverse source & target
-        data.sourcelat = targetlat,
-        data.sourcelng = targetlng,
-        data.targetlat = sourcelat,
-        data.targetlng = sourcelng
+    var data = {
+        sourcelat = sourcelat,
+        sourcelng = sourcelng,
+        targetlat = targetlat,
+        targetlng = targetlng
     }
 
     switch (via) {
@@ -2204,9 +2186,8 @@ function enableDirectionsButton() {
  * then calls either getDirections() et al
  */
 function processGetDirectionsForm() {
-    var tofrom    = $('#directions_reverse').val();
     // Transportation mode
-    var via       = $('#directions_via').val();
+    var via = $('#directions_via').val();
 
     // empty these fields because we probably don't need them
     // they will be repopulated in the 'feature' switch below if we're routing to a Park Feature
@@ -2244,7 +2225,7 @@ function processGetDirectionsForm() {
             if (is_coords) {
                 sourcelat = parseFloat(is_coords[1]);
                 sourcelng = parseFloat(is_coords[2]);
-                getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via);
+                getDirections(sourcelat, sourcelng, targetlat, targetlng, via);
             } else {
                 disableDirectionsButton();
                 $.get(API_NEW_BASE_URL + 'geocode/' + address, null, function (reply) {
@@ -2365,7 +2346,7 @@ function processGetDirectionsForm() {
     // Re-enable asynchronous AJAX
     $.ajaxSetup({ async:true });
 
-    getDirections(sourcelat, sourcelng, targetlat, targetlng, tofrom, via, from_geolocation);
+    getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geolocation);
 }
 
 /**
@@ -2669,8 +2650,8 @@ $(document).ready(function () {
     function launchGetDirections(transport_method) {
         $('#directions_via').val(transport_method);
         $('#directions_via').trigger('change');
-        // update that selector: render the page if it's not already been visited, then restyle the selector so it shows the value it has
-        // $('#pane-getdirections').page(); // @TODO: GLJS. Still necessary?
+        // update that selector: render the page if it's not already been visited,
+        // then restyle the selector so it shows the value it has
         $('#directions_via').selectmenu("refresh");
         // and change to the Get Directions panel
         sidebar.open('pane-getdirections');
@@ -2926,7 +2907,6 @@ function updateWindowURLWithDirections() {
     params.routefrom       = $('#directions_source_lat').val() + ',' + $('#directions_source_lng').val();
     params.routeto         = $('#directions_target_lat').val() + ',' + $('#directions_target_lng').val();
     params.routetitle      = $('#directions_target_title').text();
-    params.whichway        = $('#directions_reverse').val();
     params.loctype         = $('#directions_type').val();
     params.fromaddr        = $('#directions_address').val();
     if (params.routevia == 'trail') {

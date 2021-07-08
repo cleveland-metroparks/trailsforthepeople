@@ -177,14 +177,12 @@ function printMap() {
 
         // and as an afterthought, the text directions: try the Directions first, then see if there are Measure directions
         paper += " with directions";
-        var tofrom1   = $('#directions_reverse').val()
-        var tofrom2   = tofrom1 == 'to' ? 'from' : 'to';
         var placename = $('#directions_target_title').text();
         var addrname  = $('#directions_address').val();
         var via       = $('#directions_via option:selected').text().toLowerCase();
         var steps;
-        if (tofrom1 && tofrom2 && placename && addrname) {
-            page2title = "Directions\n" + tofrom1 + " " + placename + "\n" + tofrom2 + " " + addrname + "\n" + via;
+        if (placename && addrname) {
+            page2title = "Directions\n" + "from " + placename + "\n" + "to " + addrname + "\n" + via;
             steps = $('#directions_steps li');
         } else {
             page2title = "Measurement directions";

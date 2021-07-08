@@ -141,7 +141,6 @@ function updateWindowURLWithDirections() {
     params.routefrom       = $('#directions_source_lat').val() + ',' + $('#directions_source_lng').val();
     params.routeto         = $('#directions_target_lat').val() + ',' + $('#directions_target_lng').val();
     params.routetitle      = $('#directions_target_title').text();
-    params.whichway        = $('#directions_reverse').val();
     params.loctype         = $('#directions_type').val();
     params.fromaddr        = $('#directions_address').val();
     if (params.routevia == 'trail') {

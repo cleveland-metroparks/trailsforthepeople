@@ -425,8 +425,8 @@ function _directions_bing_driving($params) {
     // prepare the request
     $source      = sprintf("%f,%f", $_GET['sourcelat'], $_GET['sourcelng'] );
     $target      = sprintf("%f,%f", $_GET['targetlat'], $_GET['targetlng'] );
-    $origin      = $_GET['tofrom']=='to' ? $source : $target;
-    $destination = $_GET['tofrom']=='to' ? $target : $source;
+    $origin      = $source;
+    $destination = $target;
 
     $url = sprintf("http://dev.virtualearth.net/REST/v1/Routes/%s?wp.1=%s&wp.2=%s&distanceUnit=mi&maxSolutions=1&key=%s&route&routePathOutput=Points",
         'Driving',
@@ -525,8 +525,8 @@ function _directions_bing_transit($params) {
     // prepare the request
     $source      = sprintf("%f,%f", $_GET['sourcelat'], $_GET['sourcelng'] );
     $target      = sprintf("%f,%f", $_GET['targetlat'], $_GET['targetlng'] );
-    $origin      = $_GET['tofrom']=='to' ? $source : $target;
-    $destination = $_GET['tofrom']=='to' ? $target : $source;
+    $origin      = $source;
+    $destination = $target;
 
     $url = sprintf("http://dev.virtualearth.net/REST/v1/Routes/%s?wp.1=%s&wp.2=%s&distanceUnit=mi&maxSolutions=1&key=%s&timeType=Departure&dateTime=%s&routePathOutput=Points",
         'Transit',
