@@ -451,9 +451,9 @@ function renderDirectionsStructure(directions) {
     for (var i=0, l=directions.steps.length; i<l; i++) {
         var step     = directions.steps[i];
         var li       = $('<li></li>');
-        var title    = step.stepnumber ? (i+1) + '. ' + ( step.step_action ? step.step_action : '') + ' ' + step.text : step.step_action + ' ' + step.text;
+        var title    = (i+1) + '. ' + (step.step_action ? step.step_action : '') + ' ' + step.text : step.step_action + ' ' + step.text;
         li.append( $('<span></span>').addClass('ui-li-heading').text(title) );
-        if (step.distance && step.duration && step.distance.substr(0,1)!='0') {
+        if (step.distance && step.duration) {
             var subtitle = step.distance + ', ' + step.duration;
             li.append( $('<span></span>').addClass('ui-li-desc').text(subtitle) );
         }
@@ -641,17 +641,6 @@ $(document).ready(function () {
         } else {
             target.show();
         }
-    });
-
-    // The To/From selector should update all of the selector options to read To XXX and From XXX
-    $('#directions_reverse').change(function () {
-        var tofrom = $(this).val() == 'to' ? 'from' : 'to';
-        $('#directions_type option').each(function () {
-            var text = $(this).text();
-            text = tofrom + ' ' + text.replace(/^to /i, '').replace(/^from /i, '');
-            $(this).text(text);
-        });
-        $('#directions_type').selectmenu('refresh', true)
     });
 
     // This button triggers a geocode and directions, using the common.js interface
