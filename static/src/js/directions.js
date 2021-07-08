@@ -451,7 +451,7 @@ function renderDirectionsStructure(directions) {
     for (var i=0, l=directions.steps.length; i<l; i++) {
         var step     = directions.steps[i];
         var li       = $('<li></li>');
-        var title    = (i+1) + '. ' + (step.step_action ? step.step_action : '') + ' ' + step.text : step.step_action + ' ' + step.text;
+        var title    = (i+1) + '. ' + (step.step_action ? step.step_action : '') + ' ' + step.text;
         li.append( $('<span></span>').addClass('ui-li-heading').text(title) );
         if (step.distance && step.duration) {
             var subtitle = step.distance + ', ' + step.duration;
