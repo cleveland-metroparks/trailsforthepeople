@@ -959,8 +959,8 @@ function loadMapAndStartingState() {
         }
     }
 
-    // URL params query string: "route"
-    // Fill in the boxes and run it now
+    // URL params query string: "route": get directions.
+    // Fill in the dirextions form fields and run the query
     if (urlParams.get('routefrom') && urlParams.get('routeto') && urlParams.get('routevia') ) {
         // split out the params
         var sourcelat = urlParams.get('routefrom').split(",")[0];
@@ -968,6 +968,7 @@ function loadMapAndStartingState() {
         var targetlat = urlParams.get('routeto').split(",")[0];
         var targetlng = urlParams.get('routeto').split(",")[1];
         var via       = urlParams.get('routevia');
+        var locType = urlParams.get('loctype')
 
         // toggle the directions panel so it shows directions instead of Select A Destination
         sidebar.open('pane-getdirections');
@@ -978,16 +979,21 @@ function loadMapAndStartingState() {
         $('#directions_target_title').text(urlParams.get('routetitle'));
         $('#directions_via').val(urlParams.get('routevia'));
         $("#directions_via").selectmenu('refresh');
-        $('#directions_type').val('geocode');
-        $("#directions_type").selectmenu('refresh');
+
+        if (locType) {
+            $('#directions_type').val(locType);
+        } else {
+            $('#directions_type').val('geocode');
+        }
         $('#directions_type_geocode_wrap').show();
+        $("#directions_type").selectmenu('refresh');
+
         $('#directions_address').val(urlParams.get('routefrom'));
         $('#directions_target_lat').val(targetlat);
         $('#directions_target_lng').val(targetlng);
         $('#directions_via').trigger('change');
-        $('#directions_address').val( urlParams.get('fromaddr') );
-        $('#directions_via_bike').val( urlParams.get('routevia_bike') );
-        $('#directions_type').val( urlParams.get('loctype') );
+        $('#directions_address').val(urlParams.get('fromaddr'));
+        $('#directions_via_bike').val(urlParams.get('routevia_bike'));
 
         // make the Directions request
         getDirections(sourcelat, sourcelng, targetlat, targetlng, via);
@@ -2106,6 +2112,7 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geo
         case 'car':
                 $.get(API_NEW_BASE_URL + 'directions_driving', data, function (reply) {
                     renderDirectionsStructure(reply.data);
+                    updateWindowURLWithDirections();
                 },'json')
                 .fail(function(jqXHR, textStatus, errorThrown) {
                     showInfoPopup("Error getting driving directions.", 'error');
@@ -2121,6 +2128,7 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geo
         case 'bus':
                 $.get(API_NEW_BASE_URL + 'directions_transit', data, function (reply) {
                     renderDirectionsStructure(reply.data);
+                    updateWindowURLWithDirections();
                 },'json')
                 .fail(function(jqXHR, textStatus, errorThrown) {
                     showInfoPopup("Error getting transit directions.", 'error');
@@ -2139,6 +2147,7 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geo
             $.get(API_NEW_BASE_URL + 'directions_trails', data, function (reply) {
                 if (reply.data.wkt) {
                     renderDirectionsStructure(reply.data);
+                    updateWindowURLWithDirections();
                 } else {
                     var message = "Could not find directions over trails for this start and endpoint.";
                     if (via != 'hike') {
@@ -2361,14 +2370,9 @@ function processGetDirectionsForm() {
 function geocodeLocationForDirections(loc_type, loc_gid, lat, lng, via, lat_el_id, lng_el_id) {
     var output_location = {};
 
-    console.log('____geocodeLocationForDirections()____');
-    console.log('loc_type:', loc_type);
-
     switch (loc_type) {
         case 'attraction':
             var attraction = CM.get_attraction(loc_gid);
-            console.log(attraction);
-            console.log('via:', via);
             if (via == 'car' && attraction.drivingdestinationlatitude && attraction.drivingdestinationlongitude) {
                 output_location.lat = attraction.drivingdestinationlatitude;
                 output_location.lng = attraction.drivingdestinationlongitude;
@@ -2380,14 +2384,11 @@ function geocodeLocationForDirections(loc_type, loc_gid, lat, lng, via, lat_el_i
 
         case 'trail':
             var trail = CM.trails[loc_gid];
-            console.log(trail);
             break;
 
         case 'reservation':
         case 'reservation_new':
             var reservation = CM.get_reservation([loc_gid]);
-            console.log(reservation);
-            console.log('via:', via);
             // @TODO: Choose the closest driving destination
             // currently stored in northlatitude, northlongitude, southlatitude, southlongitude, etc.
             if (via == 'car' && reservation.drivingdestinationlatitude && reservation.drivingdestinationlongitude) {
@@ -2410,7 +2411,6 @@ function geocodeLocationForDirections(loc_type, loc_gid, lat, lng, via, lat_el_i
         $(lng_el_id).val(output_location.lng);
     }
 
-    console.log('output_location:', output_location);
     return output_location;
 }
 
@@ -2456,8 +2456,6 @@ function populateDidYouMean(results) {
  * Render directions structure
  */
 function renderDirectionsStructure(directions) {
-    console.log(directions);
-
     // Draw the route on the map
     var startPoint = new mapboxgl.LngLat(directions.start.lng, directions.start.lat);
     var endPoint = new mapboxgl.LngLat(directions.end.lng, directions.end.lat);
@@ -2537,7 +2535,6 @@ function renderDirectionsStructure(directions) {
         .prop('id','share_route_button')
         .text('Share');
     shareRouteBtn.click(function () {
-        updateWindowURLWithDirections();
         makeAndShowShortURL();
         sidebar.open('pane-share');
     });
@@ -2568,6 +2565,35 @@ function renderDirectionsStructure(directions) {
     target.listview('refresh');
     // jQM assigns this class, screwing up the position & size of the first button IMG:
     $('.directions_functions img:first').removeClass('ui-li-thumb');
+}
+
+/**
+ * Update window URL with directions
+ */
+function updateWindowURLWithDirections() {
+    // If the directions aren't filled in, we can't do this.
+    if (!$('#directions_source_lat').val()) {
+        return;
+    }
+
+    // Assemble the URL params from directions form
+    var params = {};
+    if (getBasemap() == 'photo') {
+        params.base = 'photo';
+    } else {
+        params.base = 'map';
+    }
+    params.routevia        = $('#directions_via').val();
+    params.routefrom       = $('#directions_source_lat').val() + ',' + $('#directions_source_lng').val();
+    params.routeto         = $('#directions_target_lat').val() + ',' + $('#directions_target_lng').val();
+    params.routetitle      = $('#directions_target_title').text();
+    params.loctype         = $('#directions_type').val();
+    params.fromaddr        = $('#directions_address').val();
+    if (params.routevia == 'trail') {
+        params.routevia = $('#directions_via_trail').val();
+    }
+
+    setWindowURLQueryStringParameters(params, true, true);
 }
 
 /**
@@ -2883,37 +2909,6 @@ function setShareURLBoxWidth() {
     // Calculate and set new width
     var textInputWidth = paneWidth - clipboardBtnWidth - textInputExtraWidth;
     $textInput.width(textInputWidth);
-}
-
-/**
- * Update Share URL by Directions
- *
- * Directions form: processes the directions form and fills in the Share to recreate the route
- */
-function updateWindowURLWithDirections() {
-    // If the directions aren't filled in, we can't do this.
-    if (! $('#directions_source_lat').val() ) return;
-
-    // Compose the params to bring up this route at page load:
-    // route title, to and from coordinates, via type, etc.
-    var params = {};
-
-    if (getBasemap() == 'photo') {
-        params.base = 'photo';
-    } else {
-        params.base = 'map';
-    }
-    params.routevia        = $('#directions_via').val();
-    params.routefrom       = $('#directions_source_lat').val() + ',' + $('#directions_source_lng').val();
-    params.routeto         = $('#directions_target_lat').val() + ',' + $('#directions_target_lng').val();
-    params.routetitle      = $('#directions_target_title').text();
-    params.loctype         = $('#directions_type').val();
-    params.fromaddr        = $('#directions_address').val();
-    if (params.routevia == 'trail') {
-        params.routevia = $('#directions_via_trail').val();
-    }
-
-    setWindowURLQueryStringParameters(params, true, true);
 }
 
 /**

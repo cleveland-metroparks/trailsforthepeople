@@ -200,8 +200,8 @@ function loadMapAndStartingState() {
         }
     }
 
-    // URL params query string: "route"
-    // Fill in the boxes and run it now
+    // URL params query string: "route": get directions.
+    // Fill in the dirextions form fields and run the query
     if (urlParams.get('routefrom') && urlParams.get('routeto') && urlParams.get('routevia') ) {
         // split out the params
         var sourcelat = urlParams.get('routefrom').split(",")[0];
@@ -209,6 +209,7 @@ function loadMapAndStartingState() {
         var targetlat = urlParams.get('routeto').split(",")[0];
         var targetlng = urlParams.get('routeto').split(",")[1];
         var via       = urlParams.get('routevia');
+        var locType = urlParams.get('loctype')
 
         // toggle the directions panel so it shows directions instead of Select A Destination
         sidebar.open('pane-getdirections');
@@ -219,16 +220,21 @@ function loadMapAndStartingState() {
         $('#directions_target_title').text(urlParams.get('routetitle'));
         $('#directions_via').val(urlParams.get('routevia'));
         $("#directions_via").selectmenu('refresh');
-        $('#directions_type').val('geocode');
-        $("#directions_type").selectmenu('refresh');
+
+        if (locType) {
+            $('#directions_type').val(locType);
+        } else {
+            $('#directions_type').val('geocode');
+        }
         $('#directions_type_geocode_wrap').show();
+        $("#directions_type").selectmenu('refresh');
+
         $('#directions_address').val(urlParams.get('routefrom'));
         $('#directions_target_lat').val(targetlat);
         $('#directions_target_lng').val(targetlng);
         $('#directions_via').trigger('change');
-        $('#directions_address').val( urlParams.get('fromaddr') );
-        $('#directions_via_bike').val( urlParams.get('routevia_bike') );
-        $('#directions_type').val( urlParams.get('loctype') );
+        $('#directions_address').val(urlParams.get('fromaddr'));
+        $('#directions_via_bike').val(urlParams.get('routevia_bike'));
 
         // make the Directions request
         getDirections(sourcelat, sourcelng, targetlat, targetlng, via);

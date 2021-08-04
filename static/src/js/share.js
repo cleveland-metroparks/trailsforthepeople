@@ -120,37 +120,6 @@ function setShareURLBoxWidth() {
 }
 
 /**
- * Update Share URL by Directions
- *
- * Directions form: processes the directions form and fills in the Share to recreate the route
- */
-function updateWindowURLWithDirections() {
-    // If the directions aren't filled in, we can't do this.
-    if (! $('#directions_source_lat').val() ) return;
-
-    // Compose the params to bring up this route at page load:
-    // route title, to and from coordinates, via type, etc.
-    var params = {};
-
-    if (getBasemap() == 'photo') {
-        params.base = 'photo';
-    } else {
-        params.base = 'map';
-    }
-    params.routevia        = $('#directions_via').val();
-    params.routefrom       = $('#directions_source_lat').val() + ',' + $('#directions_source_lng').val();
-    params.routeto         = $('#directions_target_lat').val() + ',' + $('#directions_target_lng').val();
-    params.routetitle      = $('#directions_target_title').text();
-    params.loctype         = $('#directions_type').val();
-    params.fromaddr        = $('#directions_address').val();
-    if (params.routevia == 'trail') {
-        params.routevia = $('#directions_via_trail').val();
-    }
-
-    setWindowURLQueryStringParameters(params, true, true);
-}
-
-/**
  * "Copy to clipboard" button handler
  */
 $(document).ready(function () {
