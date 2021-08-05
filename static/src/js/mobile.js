@@ -532,12 +532,9 @@ $(document).ready(function () {
 });
 
 /**
- * Sort Lists
- * a unified interface to calculate distances of items in a list, then sort that list by distance
- * this ended up being so common a design pattern, putting it here saves a lot of repeat
- * look for the magic tag ul.distance_sortable and populate the .zoom_distance boxes within it, then sort the ul.distance_sortable
+ *
  */
-function sortLists(target) {
+function getListDistances(target) {
     // if no target was specified, get the first (only) ul.distance_sortable on the currently visible page
     // if there isn't one there, bail
     if (! target) {
@@ -567,6 +564,25 @@ function sortLists(target) {
         $(this).text(distext);
         element.data('meters',meters);
     });
+}
+
+/**
+ * Sort Lists
+ * a unified interface to calculate distances of items in a list, then sort that list by distance
+ * this ended up being so common a design pattern, putting it here saves a lot of repeat
+ * look for the magic tag ul.distance_sortable and populate the .zoom_distance boxes within it, then sort the ul.distance_sortable
+ */
+function sortLists(target) {
+    // if no target was specified, get the first (only) ul.distance_sortable on the currently visible page
+    // if there isn't one there, bail
+    if (! target) {
+        target = $(".sidebar-pane.active ul.distance_sortable").eq(0);
+        if (! target.length) {
+            return;
+        }
+    }
+
+    getListDistances(target);
 
     // finally, the sort!
     switch (DEFAULT_SORT) {

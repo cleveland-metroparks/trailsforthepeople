@@ -407,9 +407,18 @@ var CM = {
     visitor_centers : []
 };
 
-// Search index
-
-var fuseOptions = { keys: ['title'] };
+//
+// Initialize search index
+//
+var fuseOptions = {
+    keys: ['title'],
+    includeScore: true,
+    // Don't set threshold on search pattern location in string
+    // See:
+    //   https://fusejs.io/api/options.html
+    //   https://fusejs.io/concepts/scoring-theory.html
+    ignoreLocation: true
+};
 var dummySearchItem = {
     title: 'title',
     gid: 'gid',
@@ -1291,12 +1300,9 @@ $(document).ready(function () {
 });
 
 /**
- * Sort Lists
- * a unified interface to calculate distances of items in a list, then sort that list by distance
- * this ended up being so common a design pattern, putting it here saves a lot of repeat
- * look for the magic tag ul.distance_sortable and populate the .zoom_distance boxes within it, then sort the ul.distance_sortable
+ *
  */
-function sortLists(target) {
+function getListDistances(target) {
     // if no target was specified, get the first (only) ul.distance_sortable on the currently visible page
     // if there isn't one there, bail
     if (! target) {
@@ -1326,6 +1332,25 @@ function sortLists(target) {
         $(this).text(distext);
         element.data('meters',meters);
     });
+}
+
+/**
+ * Sort Lists
+ * a unified interface to calculate distances of items in a list, then sort that list by distance
+ * this ended up being so common a design pattern, putting it here saves a lot of repeat
+ * look for the magic tag ul.distance_sortable and populate the .zoom_distance boxes within it, then sort the ul.distance_sortable
+ */
+function sortLists(target) {
+    // if no target was specified, get the first (only) ul.distance_sortable on the currently visible page
+    // if there isn't one there, bail
+    if (! target) {
+        target = $(".sidebar-pane.active ul.distance_sortable").eq(0);
+        if (! target.length) {
+            return;
+        }
+    }
+
+    getListDistances(target);
 
     // finally, the sort!
     switch (DEFAULT_SORT) {
@@ -3106,19 +3131,23 @@ function searchByKeyword(keyword) {
     enableKeywordButton();
     $('#pane-search .sortpicker').show();
 
-    if (!results.length) {
+
+    var maxSearchScore = .5;
+    var filteredResults = results.filter(result => result.score < maxSearchScore);
+
+    if (!filteredResults.length) {
         // No matches. Pass on to an address search, and say so.
         $('<li></li>').text('No Cleveland Metroparks results found. Trying an address search.').appendTo(target);
         zoomToAddress(keyword);
         return;
     }
 
-    for (var i=0, l=results.length; i<l; i++) {
-        var result = results[i].item;
+    for (var i=0, l=filteredResults.length; i<l; i++) {
+        var result = filteredResults[i];
 
         // Skip any results that don't have a location
         // @TODO: Why is this ever the case?
-        if (!result.lat || !result.lng) {
+        if (!result.item.lat || !result.item.lng) {
             continue;
         }
 
@@ -3126,15 +3155,15 @@ function searchByKeyword(keyword) {
             .addClass('zoom')
             .addClass('ui-li-has-count');
 
-        li.attr('title', result.title)
-            .attr('gid', result.gid)
-            .attr('type', result.type)
-            .attr('w', result.w)
-            .attr('s', result.s)
-            .attr('e', result.e)
-            .attr('n', result.n)
-            .attr('lat', result.lat)
-            .attr('lng', result.lng);
+        li.attr('title', result.item.title)
+            .attr('gid', result.item.gid)
+            .attr('type', result.item.type)
+            .attr('w', result.item.w)
+            .attr('s', result.item.s)
+            .attr('e', result.item.e)
+            .attr('n', result.item.n)
+            .attr('lat', result.item.lat)
+            .attr('lng', result.item.lng);
 
         li.attr('backbutton', '#pane-search');
 
@@ -3153,14 +3182,24 @@ function searchByKeyword(keyword) {
         link.append(
             $('<h4></h4>')
                 .addClass('ui-li-heading')
-                .text(result.title)
+                .text(result.item.title)
         );
-        // Subtitle: type
-        link.append(
-            $('<span></span>')
-                .addClass('ui-li-desc')
-                .text(result.description)
-        );
+        // Subtitle: Result type
+        if (resultTypeNames[result.item.type]) {
+            link.append(
+                $('<span></span>')
+                    .addClass('ui-li-desc')
+                    .text(resultTypeNames[result.item.type])
+            );
+        }
+        // // Subtitle: Search score
+        // if (result.score) {
+        //     link.append(
+        //         $('<div></div>')
+        //             .addClass('ui-li-desc')
+        //             .text(result.score)
+        //     );
+        // }
     
         // Distance placeholder, to be populated later (in sortLists())
         link.append(
@@ -3179,9 +3218,18 @@ function searchByKeyword(keyword) {
 
     // Have jQuery turn into a proper listview
     target.listview('refresh');
-    // Trigger distance calculation and sorting
-    sortLists(target);
+
+    // Do distance calculations on list
+    getListDistances(target);
+    // sortLists(target);
 }
+
+var resultTypeNames = {
+    'attraction': 'Attraction',
+    'trail': 'Trail',
+    'reservation': 'Reservation',
+    'reservation_new': 'Reservation',
+};
 
 /**
  * Load autocomplete keywords via AJAX, and enable autocomplete on the Keyword Search

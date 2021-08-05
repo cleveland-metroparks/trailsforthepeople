@@ -21,9 +21,18 @@ var CM = {
     visitor_centers : []
 };
 
-// Search index
-
-var fuseOptions = { keys: ['title'] };
+//
+// Initialize search index
+//
+var fuseOptions = {
+    keys: ['title'],
+    includeScore: true,
+    // Don't set threshold on search pattern location in string
+    // See:
+    //   https://fusejs.io/api/options.html
+    //   https://fusejs.io/concepts/scoring-theory.html
+    ignoreLocation: true
+};
 var dummySearchItem = {
     title: 'title',
     gid: 'gid',
