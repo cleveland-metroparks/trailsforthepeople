@@ -1277,7 +1277,7 @@ function getFeatureFromElement(element) {
     feature.lng   = element.attr('lng');
 
     feature.type  = element.attr('type');
-    if (feature.type=='reservation_new') {
+    if (feature.type=='reservation_new' && element.attr('record_id')) {
         feature.gid  = element.attr('record_id');
     } else {
         feature.gid   = element.attr('gid');
