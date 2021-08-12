@@ -647,15 +647,15 @@ $.get(API_NEW_BASE_URL + 'trails', null, function (reply) {
     // Add to Fuse search index
     CM.trails.forEach(function(trail) {
         searchItem = {
-            title: trail.pagetitle,
-            gid: trail.record_id,
+            title: trail.name,
+            gid: trail.id,
             type: 'trail',
             w: trail.boxw,
             s: trail.boxs,
             e: trail.boxe,
             n: trail.boxn,
-            lat: trail.latitude,
-            lng: trail.longitude
+            lat: trail.lat,
+            lng: trail.lng
         };
         fuse.add(searchItem);
     });
@@ -3131,7 +3131,6 @@ function searchByKeyword(keyword) {
     enableKeywordButton();
     $('#pane-search .sortpicker').show();
 
-
     var maxSearchScore = .5;
     var filteredResults = results.filter(result => result.score < maxSearchScore);
 
@@ -3146,7 +3145,6 @@ function searchByKeyword(keyword) {
         var result = filteredResults[i];
 
         // Skip any results that don't have a location
-        // @TODO: Why is this ever the case?
         if (!result.item.lat || !result.item.lng) {
             continue;
         }
@@ -3192,7 +3190,7 @@ function searchByKeyword(keyword) {
                     .text(resultTypeNames[result.item.type])
             );
         }
-        // // Subtitle: Search score
+        // // @DEBUG: Search score
         // if (result.score) {
         //     link.append(
         //         $('<div></div>')
@@ -3221,7 +3219,6 @@ function searchByKeyword(keyword) {
 
     // Do distance calculations on list
     getListDistances(target);
-    // sortLists(target);
 }
 
 var resultTypeNames = {

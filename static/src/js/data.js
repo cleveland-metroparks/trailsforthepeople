@@ -261,15 +261,15 @@ $.get(API_NEW_BASE_URL + 'trails', null, function (reply) {
     // Add to Fuse search index
     CM.trails.forEach(function(trail) {
         searchItem = {
-            title: trail.pagetitle,
-            gid: trail.record_id,
+            title: trail.name,
+            gid: trail.id,
             type: 'trail',
             w: trail.boxw,
             s: trail.boxs,
             e: trail.boxe,
             n: trail.boxn,
-            lat: trail.latitude,
-            lng: trail.longitude
+            lat: trail.lat,
+            lng: trail.lng
         };
         fuse.add(searchItem);
     });
