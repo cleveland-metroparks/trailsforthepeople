@@ -263,7 +263,7 @@ $.get(API_NEW_BASE_URL + 'trails', null, function (reply) {
         searchItem = {
             title: trail.name,
             gid: trail.id,
-            type: 'trail',
+            type: 'loop',
             w: trail.boxw,
             s: trail.boxs,
             e: trail.boxe,

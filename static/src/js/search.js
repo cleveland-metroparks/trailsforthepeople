@@ -236,7 +236,8 @@ function searchByKeyword(keyword) {
 
 var resultTypeNames = {
     'attraction': 'Attraction',
-    'trail': 'Trail',
+    // 'trail': 'Trail',
+    'loop': 'Trail',
     'reservation': 'Reservation',
     'reservation_new': 'Reservation',
 };
