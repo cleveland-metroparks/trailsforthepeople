@@ -37,7 +37,7 @@
         <img height="100" src="<?= $local_image_url ?>" alt="<?= htmlspecialchars($hint_map->title) ?>" target="_blank" />
       </a>
     </td>
-    <?
+    <?php
       $date_format = 'Y-m-d, g:i a';
       $last_edited = date($date_format, strtotime($hint_map->last_edited));
       $last_refreshed = date($date_format, strtotime($hint_map->last_refreshed));
