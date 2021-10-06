@@ -10,22 +10,24 @@ function __construct($id = NULL) {
     parent::__construct($id);
 }
 
-
-
-function fetch_messages($howmany=500) {
+/**
+ * Get all audit log messages.
+ */
+public static function fetch_messages($howmany=500) {
     $logs = new Auditlog();
     $logs->limit($howmany)->get();
     return $logs;
 }
 
-
-function log_message($message,$username=null) {
+/**
+ * Add an audit log message.
+ */
+public static function log_message($message, $username=null) {
     $msg = new Auditlog();
     $msg->username    = $username;
     $msg->message     = $message;
     $msg->ipaddress   = $_SERVER['REMOTE_ADDR'];
     $msg->save();
 }
-
 
 }
