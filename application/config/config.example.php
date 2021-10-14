@@ -72,21 +72,6 @@ $config['recaptcha_private_key'] = "prikeyhere";
 
 /*
 |--------------------------------------------------------------------------
-| where does TileStache store the basemap tiles?
-| used for some admin facilities which administer TileStache
-|--------------------------------------------------------------------------
-*/
-$config['tilestache_tiles_directory'] = "/var/www/tilestache/tiles";
-$config['tilestache_seed'] = "/usr/local/bin/tilestache-seed.py";
-$config['tilestache_cfg'] = "/var/www/tilestache/tilestache.cfg";
-$config['tilestache_seed_bbox'] = "40.73 -82.437 41.887 -80.798";
-$config['tilestache_seed_layer'] = "basemap";
-$config['tilestache_seed_levels'] = array(10, 11, 12, 13, 14, 15, 16, 17);
-$config['tilestache_progress_file'] = '/var/www/static/tmp/tilestache.progress.json';
-
-
-/*
-|--------------------------------------------------------------------------
 | Temporary files directory
 |--------------------------------------------------------------------------
 */

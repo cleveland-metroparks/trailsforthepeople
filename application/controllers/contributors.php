@@ -12,27 +12,6 @@ function __construct() {
     $this->_add_js_include('static/contributors/contributors.js');
 }
 
-
-// purge the tile cache for a given type of change, e.g. clear the Closures tiles
-// Dec 2014: the $changedfeauretype has no effect as Closures and Markers are both in the same tile layer (geoserver_features)
-//           but this is in place should they be teased apart again some day, or otherwise require special treatment
-private function _clearTileCache($changedfeauretype) {
-    $layers = array('geoserver_features','geoserver_labels','geoserver_labels_aerial','satphoto_mobilestack','basemap_mobilestack');
-    foreach ($layers as $layer) {
-        $tiledirs = glob("/var/tilestache/tiles/$layer/[1][0-9]");
-        foreach ($tiledirs as $tilesubdir) $this->delTree($tilesubdir);
-    }
-}
-private function delTree($dir) {
-    if (! $dir) throw new Exception("delTree called without a directory!");
-    $files = array_diff(scandir($dir), array('.','..'));
-    foreach ($files as $file) {
-      error_log("$dir/$file");
-      (is_dir("$dir/$file")) ? $this->delTree("$dir/$file") : unlink("$dir/$file");
-    }
-    return rmdir($dir);
-}
-
 /*
  * Login
  *
@@ -246,9 +225,6 @@ function marker_delete($id) {
             return redirect(ssl_url('contributors/markers'));
         }
 
-        // purge the tile cache
-        $this->_clearTileCache('marker');
-
         redirect(ssl_url('contributors/markers'));
     }
 }
@@ -310,9 +286,6 @@ function marker_save() {
         $marker->enabled = 0;
     }
     $marker->save();
-
-    // purge the tile cache
-    $this->_clearTileCache('marker');
 
     // done
     $email = $this->loggedin;

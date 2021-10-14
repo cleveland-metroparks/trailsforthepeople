@@ -217,30 +217,6 @@ function deletecontributor() {
 }
 
 /*
- * Purge Tilestache
- */
-function purge_tilestache() {
-    // Require SSL
-    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require admin user
-    if ($this->_user_access('admin') !== NULL) return;
-
-    return $this->load->view('administration/purge_tilestache.phtml');
-}
-
-/*
- * Seed Tilestache
- */
-function seed_tilestache() {
-    // Require SSL
-    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-    // Require admin user
-    if ($this->_user_access('admin') !== NULL) return;
-
-    return $this->load->view('administration/seed_tilestache.phtml');
-}
-
-/*
  * List Hint Maps
  */
 function hint_maps() {

@@ -249,16 +249,6 @@ private function _mainmenu_left_array() {
           'access' => 'admin',
         ),
         array(
-          'url' => 'administration/purge_tilestache',
-          'title' => 'Purge TileStache',
-          'access' => 'admin',
-        ),
-        array(
-          'url' => 'administration/seed_tilestache',
-          'title' => 'Seed TileStache',
-          'access' => 'admin',
-        ),
-        array(
           'url' => 'administration/hint_maps',
           'title' => 'Hint Maps',
           'access' => 'admin',

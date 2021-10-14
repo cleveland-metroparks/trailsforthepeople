@@ -59,10 +59,6 @@ var PRINT_SIZES = {
     'Ledger landscape' : [ 1178, 690 ]
 };
 
-// these basemaps are really basemaps WITH baked-in labels and features, so the map can function with only one overlay visible
-//var LAYER_TILESTACHE_SAT = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/satphoto_mobilestack/{z}/{x}/{y}.jpg", { name:'photo', subdomains:'123' });
-//var LAYER_TILESTACHE_MAP = new L.TileLayer("//maps.clevelandmetroparks.com/tilestache/tilestache.cgi/basemap_mobilestack/{z}/{x}/{y}.jpg", { name:'terrain', subdomains:'123' });
-
 // Mapbox access token
 var MAPBOX_TOKEN = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiWHRKaDhuRSJ9.FGqNSOHwiCr2dmTH2JTMAA';
 L.mapbox.accessToken = MAPBOX_TOKEN;
@@ -93,8 +89,6 @@ var LAYER_MAPBOX_GL_MAP = L.mapboxGL({
 });
 
 var ALL_LAYERS = [
-    //LAYER_TILESTACHE_MAP,
-    //LAYER_TILESTACHE_SAT,
     LAYER_MAPBOX_MAP,
     LAYER_MAPBOX_SAT,
     LAYER_MAPBOX_GL_MAP
