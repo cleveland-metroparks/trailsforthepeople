@@ -228,25 +228,10 @@ private function _mainmenu_left_array() {
           'title' => 'Markers',
           'access' => 'allow_markers',
         ),
-        /*
-         * Contributors: Loops
-         */
         array(
           'url' => 'contributors/loops',
           'title' => 'Loops',
           'access' => 'allow_loops',
-          'submenu' => array(
-            array(
-              'url' => 'contributors/autoloop',
-              'title' => 'Autoloop Manual',
-              'access' => 'allow_loops',
-            ),
-            array(
-              'url' => 'contributors/autoloop_csv',
-              'title' => 'Autoloop CSV',
-              'access' => 'allow_loops',
-            ),
-          ),
         ),
       ),
     ),

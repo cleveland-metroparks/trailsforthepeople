@@ -259,46 +259,6 @@ $('#recalculate_button').click(function () {
     }, 'json');
 });
 
-
-// random loop generator
-$('#random_button').click(function () {
-    // fetch Waypoint 0 and bail if it's not set
-    var wp0lat = parseFloat( $('#wp0 .lat').val() );
-    var wp0lng = parseFloat( $('#wp0 .lng').val() );
-    if (! wp0lat || ! wp0lng ) return alert("Pan and center the map and place Waypoint 0 to define your start.");
-
-    // clear the existing waypoints
-    $('.wpremove:visible').click();
-
-    // visual effects: disable the button
-    var button = $(this);
-    button.val( button.attr('value0') );
-    button.attr("disabled", "disabled");
-
-    // get the center and radius, GET them to the server
-    var center = MAP.getCenter();
-    var miles  = $('#random_miles').val();
-    var closed = parseInt( $('[name="closedloop"]').val() );
-    var filter = $('select[name="terrain_filter"]').val();
-    var params = { lat:wp0lat, lng:wp0lng, miles:miles, closed:closed, filter:filter };
-    $.get(API_BASEPATH + 'ajax/randomwaypoints', params, function (reply) {
-        // re-enable the button
-        button.val( button.attr('value1') );
-        button.removeAttr("disabled");
-
-        if (! reply.length) return alert(reply);
-
-        // the return is an array of waypoint objects: WP#, lat, lng
-        // load them into the corresponding WP boxes
-        for (var i=0, l=reply.length; i<l; i++) {
-            var div = $('#wp' + reply[i].wp );
-            div.find('.lat').val( reply[i].lat );
-            div.find('.lng').val( reply[i].lng );
-            div.find('.wpadd').click();
-        }
-    }, 'json');
-});
-
 // Since the embedded map is initially hidden in an inactive tab,
 // we have to re-initialize the size/zoom when we show it for the
 // first time.
