@@ -223,16 +223,6 @@ private function _mainmenu_left_array() {
       'url' => 'contributors',
       'title' => 'Contributors',
       'submenu' => array(
-        //array(
-        //  'url' => 'contributors/trails',
-        //  'title' => 'Trails',
-        //  'access' => 'allow_trails',
-        //),
-        //array(
-        //  'url' => 'contributors/use_areas',
-        //  'title' => 'Use Areas',
-        //  'access' => 'allow_use_areas',
-        //),
         array(
           'url' => 'contributors/markers',
           'title' => 'Markers',
@@ -295,95 +285,6 @@ private function _mainmenu_left_array() {
         ),
       ),
     ),
-    /*
-     * Docs
-     */
-    array(
-      'url' => 'docs',
-      'title' => 'Docs',
-      'submenu' => array(
-        /*
-         * Docs: Contributors
-         */
-        array(
-          'url' => 'docs/index/contributors/panel',
-          'title' => 'Contributors',
-          'submenu' => array(
-            array(
-              'url' => 'docs/index/contributors/panel',
-              'title' => 'Contributors Panel',
-            ),
-          ),
-        ),
-        /*
-         * Docs: Admin
-         */
-        array(
-          'url' => 'docs/index/admin/panel',
-          'title' => 'Administration',
-          'access' => 'admin',
-          'submenu' => array(
-            array(
-              'url' => 'docs/index/admin/panel',
-              'title' => 'Admin Panel',
-              'access' => 'admin',
-            ),
-            array(
-              'url' => 'docs/index/admin/stack',
-              'title' => 'Programming Language, Frameworks, Techniques',
-              'access' => 'admin',
-            ),
-            array(
-              'url' => 'docs/index/admin/js_compression',
-              'title' => 'Javascript Compression',
-              'access' => 'admin',
-            ),
-            array(
-              'url' => 'docs/index/admin/mapfish_print',
-              'title' => 'MapFish Print',
-              'access' => 'admin',
-            ),
-            array(
-              'url' => 'docs/index/admin/db_load',
-              'title' => 'Database Load',
-              'access' => 'admin',
-            ),
-            array(
-              'url' => 'docs/index/admin/db_update',
-              'title' => 'Database Update',
-              'access' => 'admin',
-            ),
-            array(
-              'url' => 'docs/index/admin/tilestache',
-              'title' => 'TileStache Basemap',
-              'access' => 'admin',
-            ),
-            array(
-              'url' => 'docs/index/admin/native_app_releases',
-              'title' => 'Native App Releases',
-              'access' => 'admin',
-            ),
-            array(
-              'url' => 'docs/index/admin/url_params',
-              'title' => 'Controlling map start view',
-              'access' => 'admin',
-            ),
-            array(
-              'url' => 'docs/index/admin/loops',
-              'title' => 'Loops',
-              'access' => 'admin',
-            ),
-          ),
-        ),
-      ),
-    ),
-    ///*
-    // * Testing
-    // */
-    //array(
-    //  'url' => 'administration/testing',
-    //  'title' => 'Testing'
-    //),
   );
 
   return $menu;

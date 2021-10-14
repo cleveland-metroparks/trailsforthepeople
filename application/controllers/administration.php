@@ -520,17 +520,5 @@ function hint_map_retrieve($id) {
     return redirect(ssl_url($hint_map->local_image_url()));
 }
 
-///*
-// * Testing
-// */
-//function testing() {
-//    // Require SSL
-//    if (! is_ssl() ) return $this->load->view('administration/sslrequired.phtml');
-//    // Require admin user
-//    if ($this->_user_access('admin') !== NULL) return;
-//
-//    $this->load->view('administration/testing.phtml');
-//}
-
 
 }
