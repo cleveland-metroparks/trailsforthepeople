@@ -147,12 +147,14 @@ function updateNearYouNow() {
 
         // Build a semicolon-separated string of the attraction's categories
         var categories_str = '';
-        attraction.categories.forEach(function(category_id, index) {
-            if (index > 0) {
-                categories_str += '; ';
-            }
-            categories_str += CM.categories[category_id].name;
-        });
+        if (Array.isArray(attraction.categories)) {
+            attraction.categories.forEach(function(category_id, index) {
+                if (index > 0) {
+                    categories_str += '; ';
+                }
+                categories_str += CM.categories[category_id].name;
+            }); 
+        };
 
         div.append($('<p></p>').text(categories_str));
         div.append($('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text(attraction.range + ' ' + attraction.bearing));

@@ -1,0 +1,126 @@
+<div class="sidebar-pane" id="pane-directions">
+    <h1 class="sidebar-header">
+        <span class="title-text">Get Directions</span>
+        <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
+    </h1>
+
+    <input type="hidden" id="directions_source_lat" value="" />
+    <input type="hidden" id="directions_source_lng" value="" />
+    <input type="hidden" id="directions_source_type" value="" />
+    <input type="hidden" id="directions_source_gid"  value="" />
+    <input type="hidden" id="directions_target_lat" value="" />
+    <input type="hidden" id="directions_target_lng" value="" />
+    <input type="hidden" id="directions_target_type" value="" />
+    <input type="hidden" id="directions_target_gid"  value="" />
+
+    <!-- #getdirections_disabled -->
+    <!-- #getdirections_enabled -->
+    <!-- .set-directions-target -->
+    <!-- #directions_target_title -->
+    <!-- #change-directions-target -->
+    <!-- .set-directions-target -->
+    <!-- #directions_type_geocode_wrap -->
+    <!-- #directions_type -->
+    <!-- #directions_address -->
+    <!-- #directions_button_wrapper -->
+
+    <div data-role="tabs" id="directions-tab-container">
+
+        <div data-role="navbar" class="tabs-horiz">
+            <ul>
+              <li><a href="#tab-directions-inside" class="ui-btn-active">Inside the parks</a></li>
+              <li><a href="#tab-directions-outside">From outside</a></li>
+            </ul>
+        </div>
+
+        <!-- Directions with in the parks -->
+        <div id="tab-directions-inside" class="tab-content">
+
+            <fieldset data-role="controlgroup">
+                <h4>From:</h4>
+                <input type="text" id="inside-from-input" class="feature-search-input" placeholder="Search for park features" />
+                <ul id="inside-from-autocomplete" data-role="listview" data-inset="true" data-filter="true" data-input="#inside-from-input" class="feature-search-autocomplete ui-listview ui-listview-inset ui-corner-all ui-shadow">
+                    <li class="ui-li-static ui-body-inherit ui-screen-hidden">
+                        <div class="ui-loader">
+                            <span class="ui-icon ui-icon-loading"></span>
+                        </div>
+                    </li>
+                </ul>
+            </fieldset>
+
+            <fieldset data-role="controlgroup">
+                <h4>To:</h4>
+                <input type="text" id="inside-to-input" class="feature-search-input" placeholder="Search for park features" />
+                <ul id="inside-from-autocomplete" data-role="listview" data-inset="true" data-filter="true" data-input="#inside-to-input" class="feature-search-autocomplete ui-listview ui-listview-inset ui-corner-all ui-shadow" data-filter-reveal="true">
+                    <li class="ui-li-static ui-body-inherit ui-screen-hidden">
+                        <div class="ui-loader">
+                            <span class="ui-icon ui-icon-loading"></span>
+                        </div>
+                    </li>
+                </ul>
+            </fieldset>
+
+            <div id="inside-via" class="via-buttons">
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-hike" title="On foot">
+                    <i class="cm-icon cm-icon-walk" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-bike" title="By Bicycle">
+                    <i class="cm-icon cm-icon-bicycle" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-car" title="By car">
+                    <i class="cm-icon cm-icon-car" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-bus" title="Via public transit">
+                    <i class="cm-icon cm-icon-bus" aria-hidden="true"></i>
+                </a>
+            </div>
+
+            <fieldset data-role="controlgroup">
+                <input type="button" id="inside-go" value="Get directions" value0="Loading" value1="Get directions" />
+            </fieldset>
+        </div>
+
+        <!-- Directions from outside the parks -->
+        <div id="tab-directions-outside" class="tab-content">
+            <fieldset data-role="controlgroup">
+                <h4>From:</h4>
+                <input type="text" id="outside-from-input" placeholder="Enter address or place name" />
+            </fieldset>
+
+            <fieldset data-role="controlgroup">
+                <h4>To:</h4>
+                <input type="text" id="outside-to-input" class="feature-search-input" placeholder="Search for park features" />
+                <ul id="outside-from-autocomplete" data-role="listview" data-inset="true" data-filter="true" data-input="#outside-to-input" class="feature-search-autocomplete ui-listview ui-listview-inset ui-corner-all ui-shadow">
+                    <li class="ui-li-static ui-body-inherit ui-screen-hidden">
+                        <div class="ui-loader">
+                            <span class="ui-icon ui-icon-loading"></span>
+                        </div>
+                    </li>
+                </ul>
+            </fieldset>
+
+            <div id="outside-via" class="via-buttons">
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-hike" title="On foot">
+                    <i class="cm-icon cm-icon-walk" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-bike" title="By Bicycle">
+                    <i class="cm-icon cm-icon-bicycle" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-car" title="By car">
+                    <i class="cm-icon cm-icon-car" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-bus" title="Via public transit">
+                    <i class="cm-icon cm-icon-bus" aria-hidden="true"></i>
+                </a>
+            </div>
+
+            <fieldset data-role="controlgroup">
+                <input type="button" id="outside-go" value="Get directions" value0="Loading" value1="Get directions" />
+            </fieldset>
+        </div>
+
+    </div>
+
+    <ul id="directions_steps" data-role="listview"></ul>
+
+</div>

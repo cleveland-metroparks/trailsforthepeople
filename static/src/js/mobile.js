@@ -212,7 +212,7 @@ function loadMapAndStartingState() {
         var locType = urlParams.get('loctype')
 
         // toggle the directions panel so it shows directions instead of Select A Destination
-        sidebar.open('pane-getdirections');
+        sidebar.open('pane-directions');
         $('#getdirections_disabled').hide();
         $('#getdirections_enabled').show();
 

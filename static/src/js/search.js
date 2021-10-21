@@ -234,6 +234,9 @@ function searchByKeyword(keyword) {
     getListDistances(target);
 }
 
+/**
+ *
+ */
 var resultTypeNames = {
     'attraction': 'Attraction',
     // 'trail': 'Trail',

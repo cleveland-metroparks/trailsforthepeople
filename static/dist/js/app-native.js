@@ -662,7 +662,7 @@ $.get(API_NEW_BASE_URL + 'trails', null, function (reply) {
         searchItem = {
             title: trail.name,
             gid: trail.id,
-            type: 'trail',
+            type: 'loop',
             w: trail.boxw,
             s: trail.boxs,
             e: trail.boxe,
@@ -1290,7 +1290,7 @@ function getFeatureFromElement(element) {
     feature.lng   = element.attr('lng');
 
     feature.type  = element.attr('type');
-    if (feature.type=='reservation_new') {
+    if (feature.type=='reservation_new' && element.attr('record_id')) {
         feature.gid  = element.attr('record_id');
     } else {
         feature.gid   = element.attr('gid');
@@ -3236,7 +3236,8 @@ function searchByKeyword(keyword) {
 
 var resultTypeNames = {
     'attraction': 'Attraction',
-    'trail': 'Trail',
+    // 'trail': 'Trail',
+    'loop': 'Trail',
     'reservation': 'Reservation',
     'reservation_new': 'Reservation',
 };

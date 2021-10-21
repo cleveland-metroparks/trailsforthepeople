@@ -100,7 +100,7 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geo
             data.via = via;
 
             $.get(API_NEW_BASE_URL + 'directions_trails', data, function (reply) {
-                if (reply.data.wkt) {
+                if (reply.data && reply.data.wkt) {
                     renderDirectionsStructure(reply.data);
                     updateWindowURLWithDirections();
                 } else {
@@ -635,7 +635,7 @@ $(document).ready(function () {
         // then restyle the selector so it shows the value it has
         $('#directions_via').selectmenu("refresh");
         // and change to the Get Directions panel
-        sidebar.open('pane-getdirections');
+        sidebar.open('pane-directions');
     }
 
     // the directions-type picker (GPS, address, POI, etc) mostly shows and hides elements
@@ -666,6 +666,32 @@ $(document).ready(function () {
         // Set this flag to make zoomElementClick() skip showing the feature info,
         // simply injecting it into directions.
         SKIP_TO_DIRECTIONS = true;
+    });
+
+    // Autocomplete on To/From inputs
+    $(".feature-search-autocomplete").on("filterablebeforefilter", function(e, data) {
+        var $ul = $(this),
+            $input = $(data.input),
+            value = $input.val(),
+            listItems = "";
+        $ul.html("");
+        if (value && value.length > 2) {
+            // $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
+            // $ul.listview("refresh");
+            var fuse_results = fuse.search(value);
+            if (fuse_results) {
+                $.each(fuse_results, function (i, val) {
+                    var li = '';
+                    li += '<li>';
+                    li += '<a href="#" data-transition="fade" class="ui-btn">' + val.item.title + '</a>';
+                    li += '</li>';
+                    listItems += li;
+                });
+                $ul.html(listItems);
+                $ul.show();
+                $ul.listview("refresh").trigger("updatelayout");
+            }
+        }
     });
 });
 
