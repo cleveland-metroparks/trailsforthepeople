@@ -39,7 +39,7 @@
             <fieldset data-role="controlgroup">
                 <h4>From:</h4>
                 <input type="text" id="inside-from-input" class="feature-search-input" placeholder="Search for park features" />
-                <ul id="inside-from-autocomplete" data-role="listview" data-inset="true" data-filter="true" data-input="#inside-from-input" class="feature-search-autocomplete ui-listview ui-listview-inset ui-corner-all ui-shadow">
+                <ul id="inside-from-autocomplete" data-role="listview" data-inset="true" data-filter="true" data-input="#inside-from-input" data-value-tofrom="from" class="feature-search-autocomplete ui-listview ui-listview-inset ui-corner-all ui-shadow">
                     <li class="ui-li-static ui-body-inherit ui-screen-hidden">
                         <div class="ui-loader">
                             <span class="ui-icon ui-icon-loading"></span>
@@ -51,7 +51,7 @@
             <fieldset data-role="controlgroup">
                 <h4>To:</h4>
                 <input type="text" id="inside-to-input" class="feature-search-input" placeholder="Search for park features" />
-                <ul id="inside-from-autocomplete" data-role="listview" data-inset="true" data-filter="true" data-input="#inside-to-input" class="feature-search-autocomplete ui-listview ui-listview-inset ui-corner-all ui-shadow" data-filter-reveal="true">
+                <ul id="inside-to-autocomplete" data-role="listview" data-inset="true" data-filter="true" data-input="#inside-to-input" data-value-tofrom="to" class="feature-search-autocomplete ui-listview ui-listview-inset ui-corner-all ui-shadow" data-filter-reveal="true">
                     <li class="ui-li-static ui-body-inherit ui-screen-hidden">
                         <div class="ui-loader">
                             <span class="ui-icon ui-icon-loading"></span>
@@ -84,13 +84,13 @@
         <div id="tab-directions-outside" class="tab-content">
             <fieldset data-role="controlgroup">
                 <h4>From:</h4>
-                <input type="text" id="outside-from-input" placeholder="Enter address or place name" />
+                <input type="text" id="outside-from-input" data-value-tofrom="from" placeholder="Enter address or place name" />
             </fieldset>
 
             <fieldset data-role="controlgroup">
                 <h4>To:</h4>
                 <input type="text" id="outside-to-input" class="feature-search-input" placeholder="Search for park features" />
-                <ul id="outside-from-autocomplete" data-role="listview" data-inset="true" data-filter="true" data-input="#outside-to-input" class="feature-search-autocomplete ui-listview ui-listview-inset ui-corner-all ui-shadow">
+                <ul id="outside-from-autocomplete" data-role="listview" data-inset="true" data-filter="true" data-input="#outside-to-input" data-value-tofrom="to" class="feature-search-autocomplete ui-listview ui-listview-inset ui-corner-all ui-shadow">
                     <li class="ui-li-static ui-body-inherit ui-screen-hidden">
                         <div class="ui-loader">
                             <span class="ui-icon ui-icon-loading"></span>

@@ -604,98 +604,6 @@ function clearDirectionsLine() {
 }
 
 /**
- * Event handlers for the directions subsystem
- */
-$(document).ready(function () {
-    // The 4 icons launch the Get Directions panel
-    // selecting the appropriate transport method
-    $('#directions_hike').click(function () {
-        launchGetDirections('hike');
-    });
-    $('#directions_bike').click(function () {
-        launchGetDirections('bike');
-    });
-    $('#directions_bridle').click(function () {
-        launchGetDirections('bridle');
-    });
-    $('#directions_car').click(function () {
-        launchGetDirections('car');
-    });
-    $('#directions_bus').click(function () {
-        launchGetDirections('bus');
-    });
-
-    /**
-     * Launch Get Directions
-     */
-    function launchGetDirections(transport_method) {
-        $('#directions_via').val(transport_method);
-        $('#directions_via').trigger('change');
-        // update that selector: render the page if it's not already been visited,
-        // then restyle the selector so it shows the value it has
-        $('#directions_via').selectmenu("refresh");
-        // and change to the Get Directions panel
-        sidebar.open('pane-directions');
-    }
-
-    // the directions-type picker (GPS, address, POI, etc) mostly shows and hides elements
-    // its value is used in processGetDirectionsForm() for choosing how to figure out which element to use
-    $('#directions_type').change(function () {
-        var which  = $(this).val();
-        var target = $('#directions_type_geocode_wrap');
-        if (which == 'gps') {
-            target.hide();
-        } else {
-            target.show();
-        }
-    });
-
-    // This button triggers a geocode and directions, using the common.js interface
-    $('#directions_button').click(function () {
-        $('#directions_steps').empty();
-        $('.directions_functions').remove();
-        processGetDirectionsForm();
-    });
-    $('#directions_address').keydown(function (key) {
-        if(key.keyCode == 13) $('#directions_button').click();
-    });
-
-    // These buttons change over to the Find subpage for picking a destination
-    $('.set-directions-target').click(function () {
-        sidebar.open('pane-browse');
-        // Set this flag to make zoomElementClick() skip showing the feature info,
-        // simply injecting it into directions.
-        SKIP_TO_DIRECTIONS = true;
-    });
-
-    // Autocomplete on To/From inputs
-    $(".feature-search-autocomplete").on("filterablebeforefilter", function(e, data) {
-        var $ul = $(this),
-            $input = $(data.input),
-            value = $input.val(),
-            listItems = "";
-        $ul.html("");
-        if (value && value.length > 2) {
-            // $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
-            // $ul.listview("refresh");
-            var fuse_results = fuse.search(value);
-            if (fuse_results) {
-                $.each(fuse_results, function (i, val) {
-                    var li = '';
-                    li += '<li>';
-                    li += '<a href="#" data-transition="fade" class="ui-btn">' + val.item.title + '</a>';
-                    li += '</li>';
-                    listItems += li;
-                });
-                $ul.html(listItems);
-                $ul.show();
-                $ul.listview("refresh").trigger("updatelayout");
-            }
-        }
-    });
-});
-
-/**
  * Make elevation profile chart
  */
 function makeElevationProfileChart() {
@@ -759,13 +667,125 @@ function makeElevationProfileChart() {
 }
 
 /**
- * the directions button does an async geocode on the address,
- * then an async directions lookup between the points,
- * then draws the polyline path and prints the directions
+ * Launch Get Directions
+ */
+function launchGetDirections(transport_method) {
+    $('#directions_via').val(transport_method);
+    $('#directions_via').trigger('change');
+    // update that selector: render the page if it's not already been visited,
+    // then restyle the selector so it shows the value it has
+    $('#directions_via').selectmenu("refresh");
+    // and change to the Get Directions panel
+    sidebar.open('pane-directions');
+}
+
+/**
+ * Misc handlers
  */
 $(document).ready(function () {
+    // The 4 icons launch the Get Directions panel
+    // selecting the appropriate transport method
+    $('#directions_hike').click(function () {
+        launchGetDirections('hike');
+    });
+    $('#directions_bike').click(function () {
+        launchGetDirections('bike');
+    });
+    $('#directions_bridle').click(function () {
+        launchGetDirections('bridle');
+    });
+    $('#directions_car').click(function () {
+        launchGetDirections('car');
+    });
+    $('#directions_bus').click(function () {
+        launchGetDirections('bus');
+    });
+
+    // the directions-type picker (GPS, address, POI, etc) mostly shows and hides elements
+    // its value is used in processGetDirectionsForm() for choosing how to figure out which element to use
+    $('#directions_type').change(function () {
+        var which  = $(this).val();
+        var target = $('#directions_type_geocode_wrap');
+        if (which == 'gps') {
+            target.hide();
+        } else {
+            target.show();
+        }
+    });
+
+    // This button triggers a geocode and directions, using the common.js interface
+    $('#directions_button').click(function () {
+        $('#directions_steps').empty();
+        $('.directions_functions').remove();
+        processGetDirectionsForm();
+    });
+    $('#directions_address').keydown(function (key) {
+        if(key.keyCode == 13) $('#directions_button').click();
+    });
+
+    // These buttons change over to the Find subpage for picking a destination
+    $('.set-directions-target').click(function () {
+        sidebar.open('pane-browse');
+        // Set this flag to make zoomElementClick() skip showing the feature info,
+        // simply injecting it into directions.
+        SKIP_TO_DIRECTIONS = true;
+    });
+
+    /**
+     * Get directions button does an async geocode on the address,
+     * then an async directions lookup between the points,
+     * then draws the polyline path and prints the directions
+     */
     $('#getdirections_clear').click(function () {
         clearDirectionsLine();
         $('#directions_steps').empty();
+    });
+
+    // Autocomplete on To/From inputs
+    $(".feature-search-autocomplete").on("filterablebeforefilter", function(e, data) {
+        var $ul = $(this),
+            $input = $(data.input),
+            value = $input.val(),
+            listItems = "",
+            toFrom = $ul.attr('data-value-tofrom');
+        $ul.html("");
+        if (value && value.length > 2) {
+            var fuse_results = fuse.search(value);
+            if (fuse_results) {
+                $.each(fuse_results, function (i, val) {
+                    var li = '';
+                    li += '<li>';
+                    li += '<a href="#" data-transition="fade" class="ui-btn"';
+                    li += 'data-value-gid="' + val.item.gid + '" ';
+                    li += 'data-value-lat="' + val.item.lat + '" ';
+                    li += 'data-value-lng="' + val.item.lng + '" ';
+                    li += 'data-value-type="' + val.item.type + '"';
+                    li += '>' + val.item.title + '</a>';
+                    li += '</li>';
+                    listItems += li;
+                });
+                $ul.html(listItems);
+                $ul.show();
+                $ul.listview("refresh").trigger("updatelayout");
+                $ul.children().each(function() {
+                    $(this).click(function() {
+                        $input.val($(this).text());
+                        $ul.hide();
+                        var lat = $(this).children('a').attr('data-value-lat');
+                        var lng = $(this).children('a').attr('data-value-lng');
+
+                        var marker;
+                        if (toFrom == 'from') {
+                            marker = MARKER_START;
+                        } else {
+                            marker = MARKER_END;
+                        }
+                        placeMarker(marker, lat, lng);
+                        // @TODO: If both markers are shown, zoom to fit both.
+                        MAP.flyTo({center: [lng, lat]});
+                    });
+                });
+            }
+        }
     });
 });
