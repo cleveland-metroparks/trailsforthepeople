@@ -211,12 +211,10 @@ function loadMapAndStartingState() {
         var via       = urlParams.get('routevia');
         var locType = urlParams.get('loctype')
 
-        // toggle the directions panel so it shows directions instead of Select A Destination
+        // Open directions pane
         sidebar.open('pane-directions');
-        $('#getdirections_disabled').hide();
-        $('#getdirections_enabled').show();
 
-        // fill in the directions field: the title, route via, the target type and coordinate, the starting coordinates
+        // Fill in directions field: title, route via, the target type and coordinate, the starting coordinates
         $('#directions_target_title').text(urlParams.get('routetitle'));
         $('#directions_via').val(urlParams.get('routevia'));
         $("#directions_via").selectmenu('refresh');
@@ -478,10 +476,6 @@ function showFeatureInfo(attractionType, attraction) {
         attraction.back_url = '#pane-browse';
     }
     set_pane_back_button('#pane-info', attraction.back_url);
-
-    // Enable "Get Directions"
-    $('#getdirections_disabled').hide();
-    $('#getdirections_enabled').show();
 
     $('#info-content').text("Loading...");
 

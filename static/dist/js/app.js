@@ -979,12 +979,10 @@ function loadMapAndStartingState() {
         var via       = urlParams.get('routevia');
         var locType = urlParams.get('loctype')
 
-        // toggle the directions panel so it shows directions instead of Select A Destination
+        // Open directions pane
         sidebar.open('pane-directions');
-        $('#getdirections_disabled').hide();
-        $('#getdirections_enabled').show();
 
-        // fill in the directions field: the title, route via, the target type and coordinate, the starting coordinates
+        // Fill in directions field: title, route via, the target type and coordinate, the starting coordinates
         $('#directions_target_title').text(urlParams.get('routetitle'));
         $('#directions_via').val(urlParams.get('routevia'));
         $("#directions_via").selectmenu('refresh');
@@ -1246,10 +1244,6 @@ function showFeatureInfo(attractionType, attraction) {
         attraction.back_url = '#pane-browse';
     }
     set_pane_back_button('#pane-info', attraction.back_url);
-
-    // Enable "Get Directions"
-    $('#getdirections_disabled').hide();
-    $('#getdirections_enabled').show();
 
     $('#info-content').text("Loading...");
 
@@ -2110,9 +2104,10 @@ function launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetl
  * (or launch native mobile directions).
  */
 function getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geolocation) {
+    console.log('getDirections()');
     // empty out the old directions and disable the button as a visual effect
-    $('#directions_steps').empty();
-    disableDirectionsButton();
+    $('#directions-steps').empty();
+    disableDirectionsButtons();
 
     // store the source coordinates
     $('#directions_source_lat').val(sourcelat);
@@ -2121,7 +2116,7 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geo
     // In mobile, launch external map app for native car/transit directions
     if (NATIVE_APP && (via=='car' || via=='bus')) {
         launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geolocation);
-        enableDirectionsButton();
+        enableDirectionsButtons();
         return;
     }
 
@@ -2144,7 +2139,7 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geo
                     console.log(textStatus + ': ' + errorThrown);
                 })
                 .always(function() {
-                    enableDirectionsButton();
+                    enableDirectionsButtons();
                 });
 
             break;
@@ -2160,7 +2155,7 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geo
                     console.log(textStatus + ': ' + errorThrown);
                 })
                 .always(function() {
-                    enableDirectionsButton();
+                    enableDirectionsButtons();
                 });
 
             break;
@@ -2186,7 +2181,7 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geo
                 console.log(textStatus + ': ' + errorThrown);
             })
             .always(function() {
-                enableDirectionsButton();
+                enableDirectionsButtons();
             });
 
             break;
@@ -2197,19 +2192,36 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geo
 /**
  * Disable directions button
  */
-function disableDirectionsButton() {
-    var button = $('#directions_button');
-    button.button('disable');
-    button.closest('.ui-btn').find('.ui-btn-text').text(button.attr('value0'));
+function disableDirectionsButtons() {
+    console.log('disableDirectionsButtons()');
+    $('#get-directions-inside').prop('disabled', true);
+    $('#get-directions-outside').prop('disabled', true);
 }
 
 /**
  * Enable directions button
  */
-function enableDirectionsButton() {
-    var button = $('#directions_button');
-    button.button('enable');
-    button.closest('.ui-btn').find('.ui-btn-text').text(button.attr('value1'));
+function enableDirectionsButtons() {
+    console.log('enableDirectionsButtons()');
+    $('#get-directions-inside').prop('disabled', false);
+    $('#get-directions-outside').prop('disabled', false);
+}
+
+/**
+ * Process Get Directions (Inside) form
+ */
+function processGetDirectionsInside() {
+    console.log('processGetDirectionsInside()');
+
+    // Transport mode
+    var via = $('#inside-via').attr('data-value');
+}
+
+/**
+ * Process Get Directions (Outside) form
+ */
+function processGetDirectionsOutside() {
+    console.log('processGetDirectionsOutside()');
 }
 
 /**
@@ -2261,9 +2273,9 @@ function processGetDirectionsForm() {
                 sourcelng = parseFloat(is_coords[2]);
                 getDirections(sourcelat, sourcelng, targetlat, targetlng, via);
             } else {
-                disableDirectionsButton();
+                disableDirectionsButtons();
                 $.get(API_NEW_BASE_URL + 'geocode/' + address, null, function (reply) {
-                    enableDirectionsButton();
+                    enableDirectionsButtons();
                     if (!reply) return alert("We couldn't find that address or city.\nPlease try again.");
                     var sourceLngLat = new mapboxgl.LngLat(reply.data.lng, reply.data.lat);
                     sourcelat = parseFloat(reply.data.lat);
@@ -2278,7 +2290,7 @@ function processGetDirectionsForm() {
                             rtp : from+'~'+to,
                         };
                         var gmapsurl = 'http://bing.com/maps/default.aspx' + '?' + $.param(params);
-                        var target = $('#directions_steps');
+                        var target = $('#directions-steps');
                         target.empty();
                         target.append( $('<div></div>').html("The address you have chosen is outside of the covered area.<br/>Click the link below to go to Bing Maps for directions.") );
                         target.append( $('<a></a>').text("Click here for directions from Bing Maps").prop('href',gmapsurl).prop('target','_blank') );
@@ -2289,12 +2301,12 @@ function processGetDirectionsForm() {
             break;
 
         case 'features':
-            disableDirectionsButton();
+            disableDirectionsButtons();
 
             var keyword = $('#directions_address').val();
             var results = fuse.search(keyword);
 
-            enableDirectionsButton();
+            enableDirectionsButtons();
 
             if (!results.length) {
                 return alert("We couldn't find any matching landmarks."); // @TODO: Don't alert()
@@ -2443,7 +2455,7 @@ function geocodeLocationForDirections(loc_type, loc_gid, lat, lng, via, lat_el_i
  * Populate "Did you mean:?"
  */
 function populateDidYouMean(results) {
-    var target = $('#directions_steps');
+    var target = $('#directions-steps');
     target.empty();
 
     // Item 0 is not a result, but the words "Did you mean:"
@@ -2494,7 +2506,7 @@ function renderDirectionsStructure(directions) {
     MAP.fitBounds(bounds, {padding: 10});
 
     // phase 2: put the directions into the panel
-    var target = $('#directions_steps');
+    var target = $('#directions-steps');
     target.empty();
 
     for (var i=0, l=directions.steps.length; i<l; i++) {
@@ -2517,7 +2529,7 @@ function renderDirectionsStructure(directions) {
     var total = $('<span></span>').addClass('ui-li-heading').html('<b>Total:</b> ' + directions.totals.distance + ', ' + directions.totals.duration);
     target.append( $('<li></li>').append(total).append(note) );
 
-    var directionsFunctions = $('<div></div>').addClass('directions_functions');
+    var directionsFunctions = $('<div></div>').addClass('directions-functions');
 
     // Elevation Profile button
     if (directions.elevationprofile) {
@@ -2546,9 +2558,9 @@ function renderDirectionsStructure(directions) {
         .addClass('ui-corner-all')
         .text('Clear');
     clearMapBtn.click(function () {
-        $('#directions_steps').empty();
+        $('#directions-steps').empty();
         clearDirectionsLine();
-        $('.directions_functions').empty();
+        $('.directions-functions').empty();
     });
     directionsFunctions.append(clearMapBtn);
 
@@ -2589,7 +2601,7 @@ function renderDirectionsStructure(directions) {
     // give the list that jQuery Mobile magic
     target.listview('refresh');
     // jQM assigns this class, screwing up the position & size of the first button IMG:
-    $('.directions_functions img:first').removeClass('ui-li-thumb');
+    $('.directions-functions img:first').removeClass('ui-li-thumb');
 }
 
 /**
@@ -2669,7 +2681,7 @@ function clearDirectionsLine() {
     // and both the Directions and Measure need their content erased, so they aren't confused with each other
     // don't worry, clearDirectionsLine() is always a prelude to repopulating one of these
     //
-    $('#directions_steps').empty();
+    $('#directions-steps').empty();
     $('#measure_steps').empty();
 }
 
@@ -2783,22 +2795,21 @@ $(document).ready(function () {
         }
     });
 
-    // This button triggers a geocode and directions, using the common.js interface
-    $('#directions_button').click(function () {
-        $('#directions_steps').empty();
-        $('.directions_functions').remove();
-        processGetDirectionsForm();
+    // Get Directions (Inside) click
+    $('#get-directions-inside').click(function () {
+        $('#directions-steps').empty();
+        $('.directions-functions').remove();
+        processGetDirectionsInside();
     });
-    $('#directions_address').keydown(function (key) {
-        if(key.keyCode == 13) $('#directions_button').click();
+    // Get Directions (Outside) click
+    $('#get-directions-outside').click(function () {
+        $('#directions-steps').empty();
+        $('.directions-functions').remove();
+        processGetDirectionsOutside();
     });
 
-    // These buttons change over to the Find subpage for picking a destination
-    $('.set-directions-target').click(function () {
-        sidebar.open('pane-browse');
-        // Set this flag to make zoomElementClick() skip showing the feature info,
-        // simply injecting it into directions.
-        SKIP_TO_DIRECTIONS = true;
+    $('#directions_address').keydown(function (key) {
+        if(key.keyCode == 13) $('#directions_button').click();
     });
 
     /**
@@ -2808,7 +2819,16 @@ $(document).ready(function () {
      */
     $('#getdirections_clear').click(function () {
         clearDirectionsLine();
-        $('#directions_steps').empty();
+        $('#directions-steps').empty();
+    });
+
+    /**
+     * Directions "Via" button clicks
+     */
+    $('.via-buttons a').click(function () {
+        $(this).parent().attr('data-value', $(this).attr('data-value'));
+        $(this).parent().children().removeClass('active');
+        $(this).addClass('active');
     });
 
     // Autocomplete on To/From inputs

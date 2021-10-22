@@ -183,7 +183,7 @@ function printMap() {
         var steps;
         if (placename && addrname) {
             page2title = "Directions\n" + "from " + placename + "\n" + "to " + addrname + "\n" + via;
-            steps = $('#directions_steps li');
+            steps = $('#directions-steps li');
         } else {
             page2title = "Measurement directions";
             steps = $('#measure_steps li');

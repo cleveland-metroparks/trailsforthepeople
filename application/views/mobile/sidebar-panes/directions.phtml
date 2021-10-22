@@ -4,6 +4,7 @@
         <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
     </h1>
 
+    <!-- @TODO: Remove/accommodate -->
     <input type="hidden" id="directions_source_lat" value="" />
     <input type="hidden" id="directions_source_lng" value="" />
     <input type="hidden" id="directions_source_type" value="" />
@@ -13,16 +14,12 @@
     <input type="hidden" id="directions_target_type" value="" />
     <input type="hidden" id="directions_target_gid"  value="" />
 
-    <!-- #getdirections_disabled -->
-    <!-- #getdirections_enabled -->
-    <!-- .set-directions-target -->
     <!-- #directions_target_title -->
-    <!-- #change-directions-target -->
-    <!-- .set-directions-target -->
     <!-- #directions_type_geocode_wrap -->
     <!-- #directions_type -->
     <!-- #directions_address -->
-    <!-- #directions_button_wrapper -->
+    <!-- #directions_button -->
+    <!-- /@TODO -->
 
     <div data-role="tabs" id="directions-tab-container">
 
@@ -60,23 +57,23 @@
                 </ul>
             </fieldset>
 
-            <div id="inside-via" class="via-buttons">
-                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-hike" title="On foot">
+            <div id="inside-via" class="via-buttons" data-value="hike">
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-hike active" data-value="hike" title="On foot">
                     <i class="cm-icon cm-icon-walk" aria-hidden="true"></i>
                 </a>
-                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-bike" title="By Bicycle">
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-bike" data-value="bike" title="By Bicycle">
                     <i class="cm-icon cm-icon-bicycle" aria-hidden="true"></i>
                 </a>
-                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-car" title="By car">
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-car" data-value="car" title="By car">
                     <i class="cm-icon cm-icon-car" aria-hidden="true"></i>
                 </a>
-                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-bus" title="Via public transit">
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-bus" data-value="bus" title="Via public transit">
                     <i class="cm-icon cm-icon-bus" aria-hidden="true"></i>
                 </a>
             </div>
 
             <fieldset data-role="controlgroup">
-                <input type="button" id="inside-go" value="Get directions" value0="Loading" value1="Get directions" />
+                <input type="button" id="get-directions-inside" value="Get directions" />
             </fieldset>
         </div>
 
@@ -99,28 +96,28 @@
                 </ul>
             </fieldset>
 
-            <div id="outside-via" class="via-buttons">
-                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-hike" title="On foot">
+            <div id="outside-via" class="via-buttons" data-value="car">
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-hike" data-value="hike" title="On foot">
                     <i class="cm-icon cm-icon-walk" aria-hidden="true"></i>
                 </a>
-                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-bike" title="By Bicycle">
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-bike" data-value="bike" title="By Bicycle">
                     <i class="cm-icon cm-icon-bicycle" aria-hidden="true"></i>
                 </a>
-                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-car" title="By car">
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-car active" data-value="car" title="By car">
                     <i class="cm-icon cm-icon-car" aria-hidden="true"></i>
                 </a>
-                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-bus" title="Via public transit">
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-bus" data-value="bus" title="Via public transit">
                     <i class="cm-icon cm-icon-bus" aria-hidden="true"></i>
                 </a>
             </div>
 
             <fieldset data-role="controlgroup">
-                <input type="button" id="outside-go" value="Get directions" value0="Loading" value1="Get directions" />
+                <input type="button" id="get-directions-outside" value="Get directions" />
             </fieldset>
         </div>
 
     </div>
 
-    <ul id="directions_steps" data-role="listview"></ul>
+    <ul id="directions-steps" data-role="listview"></ul>
 
 </div>
