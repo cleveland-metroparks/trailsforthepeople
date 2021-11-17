@@ -200,42 +200,61 @@ function loadMapAndStartingState() {
         }
     }
 
-    // URL params query string: "route": get directions.
-    // Fill in the dirextions form fields and run the query
-    if (urlParams.get('routefrom') && urlParams.get('routeto') && urlParams.get('routevia') ) {
-        // split out the params
-        var sourcelat = urlParams.get('routefrom').split(",")[0];
-        var sourcelng = urlParams.get('routefrom').split(",")[1];
-        var targetlat = urlParams.get('routeto').split(",")[0];
-        var targetlng = urlParams.get('routeto').split(",")[1];
-        var via       = urlParams.get('routevia');
-        var locType = urlParams.get('loctype')
+    // URL params: Directions
+    if (urlParams.get('action') == 'directions') {
+        // @DEBUG:
+        // urlParams.forEach(function(value, key) {
+        //   console.log(key + ': ' + value);
+        // });
+
+        var via = urlParams.get('via');
+
+        var sourceText = urlParams.get('sourceText');
+        if (sourceText) {
+            $('#source-input').val(sourceText);
+        }
+
+        var sourceLat = urlParams.get('sourceLatLng').split(",")[0];
+        var sourceLng = urlParams.get('sourceLatLng').split(",")[1];
+        $('#source-input').data('lat', sourceLat);
+        $('#source-input').data('lng', sourceLng);
+
+        var targetText = urlParams.get('targetText');
+        if (targetText) {
+            $('#target-input').val(targetText);
+        }
+
+        var targetLat = urlParams.get('targetLatLng').split(",")[0];
+        var targetLng = urlParams.get('targetLatLng').split(",")[1];
+        $('#target-input').data('lat', targetLat);
+        $('#target-input').data('lng', targetLng);
+
+        // var locType = urlParams.get('loctype')
 
         // Open directions pane
         sidebar.open('pane-directions');
 
-        // Fill in directions field: title, route via, the target type and coordinate, the starting coordinates
-        $('#directions_target_title').text(urlParams.get('routetitle'));
-        $('#directions_via').val(urlParams.get('routevia'));
-        $("#directions_via").selectmenu('refresh');
+        // // Fill in directions field: title, route via, the target type and coordinate, the starting coordinates
+        // $('#directions_target_title').text(urlParams.get('routetitle'));
+        // $('#directions_via').val(urlParams.get('via'));
+        // $("#directions_via").selectmenu('refresh');
 
-        if (locType) {
-            $('#directions_type').val(locType);
-        } else {
-            $('#directions_type').val('geocode');
-        }
-        $('#directions_type_geocode_wrap').show();
-        $("#directions_type").selectmenu('refresh');
+        // if (locType) {
+        //     $('#directions_type').val(locType);
+        // } else {
+        //     $('#directions_type').val('geocode');
+        // }
+        // $('#directions_type_geocode_wrap').show();
+        // $("#directions_type").selectmenu('refresh');
 
-        $('#directions_address').val(urlParams.get('routefrom'));
-        $('#directions_target_lat').val(targetlat);
-        $('#directions_target_lng').val(targetlng);
-        $('#directions_via').trigger('change');
-        $('#directions_address').val(urlParams.get('fromaddr'));
-        $('#directions_via_bike').val(urlParams.get('routevia_bike'));
+        // $('#directions_address').val(urlParams.get('sourceLatLng'));
+        // $('#directions_target_lat').val(targetlat);
+        // $('#directions_target_lng').val(targetlng);
+        // $('#directions_via').trigger('change');
+        // $('#directions_via_bike').val(urlParams.get('routevia_bike'));
 
         // make the Directions request
-        getDirections(sourcelat, sourcelng, targetlat, targetlng, via);
+        getDirections(sourceLat, sourceLng, targetLat, targetLng, via);
     }
 
     // Set the appropriate basemap radio button in Settings
