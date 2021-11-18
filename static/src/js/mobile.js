@@ -200,7 +200,7 @@ function loadMapAndStartingState() {
         }
     }
 
-    // URL params: Directions
+    // URL params: Get Directions
     if (urlParams.get('action') == 'directions') {
         // @DEBUG:
         // urlParams.forEach(function(value, key) {
@@ -216,8 +216,8 @@ function loadMapAndStartingState() {
 
         var sourceLat = urlParams.get('sourceLatLng').split(",")[0];
         var sourceLng = urlParams.get('sourceLatLng').split(",")[1];
-        $('#source-input').data('lat', sourceLat);
-        $('#source-input').data('lng', sourceLng);
+        var sourceLngLat = new mapboxgl.LngLat(sourceLng, sourceLat);
+        setDirectionsInputLngLat($('#source-input'), sourceLngLat);
 
         var targetText = urlParams.get('targetText');
         if (targetText) {
@@ -226,35 +226,13 @@ function loadMapAndStartingState() {
 
         var targetLat = urlParams.get('targetLatLng').split(",")[0];
         var targetLng = urlParams.get('targetLatLng').split(",")[1];
-        $('#target-input').data('lat', targetLat);
-        $('#target-input').data('lng', targetLng);
-
-        // var locType = urlParams.get('loctype')
+        var targetLngLat = new mapboxgl.LngLat(targetLng, targetLat);
+        setDirectionsInputLngLat($('#target-input'), targetLngLat);
 
         // Open directions pane
         sidebar.open('pane-directions');
 
-        // // Fill in directions field: title, route via, the target type and coordinate, the starting coordinates
-        // $('#directions_target_title').text(urlParams.get('routetitle'));
-        // $('#directions_via').val(urlParams.get('via'));
-        // $("#directions_via").selectmenu('refresh');
-
-        // if (locType) {
-        //     $('#directions_type').val(locType);
-        // } else {
-        //     $('#directions_type').val('geocode');
-        // }
-        // $('#directions_type_geocode_wrap').show();
-        // $("#directions_type").selectmenu('refresh');
-
-        // $('#directions_address').val(urlParams.get('sourceLatLng'));
-        // $('#directions_target_lat').val(targetlat);
-        // $('#directions_target_lng').val(targetlng);
-        // $('#directions_via').trigger('change');
-        // $('#directions_via_bike').val(urlParams.get('routevia_bike'));
-
-        // make the Directions request
-        getDirections(sourceLat, sourceLng, targetLat, targetLng, via);
+        getDirections(sourceLngLat, targetLngLat, via);
     }
 
     // Set the appropriate basemap radio button in Settings
