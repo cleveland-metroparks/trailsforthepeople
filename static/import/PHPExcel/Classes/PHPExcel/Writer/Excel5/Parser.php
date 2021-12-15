@@ -1206,7 +1206,7 @@ class PHPExcel_Writer_Excel5_Parser
 	{
 		$this->_current_char = 0;
 		$this->_formula      = $formula;
-		$this->_lookahead    = isset($formula{1}) ? $formula{1} : '';
+		$this->_lookahead    = isset($formula[1]) ? $formula[1] : '';
 		$this->_advance();
 		$this->_parse_tree   = $this->_condition();
 		return true;

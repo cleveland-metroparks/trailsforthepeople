@@ -146,7 +146,7 @@ function MakeFont($fontfile, $fmfile, $embedded=true, $enc='cp1252', $patch=arra
 		fclose($f);
 		if ($type == 'Type1') {
 			//Find first two sections and discard third one
-			$header = (ord($file{0}) == 128);
+			$header = (ord($file[0]) == 128);
 			if ($header) {
 				//Strip first binary header
 				$file = substr($file, 6);
@@ -219,7 +219,7 @@ function ReadMap($enc) {
 	}
 	$cc2gn = array();
 	foreach ($a as $l) {
-		if ($l{0} == '!') {
+		if ($l[0] == '!') {
 			$e = preg_split('/[ \\t]+/',rtrim($l));
 			$cc = hexdec(substr($e[0],1));
 			$gn = $e[2];

@@ -159,7 +159,7 @@ class PHPExcel_Calculation_FormulaParser {
 
 		// Check if the formula has a valid starting =
 		$formulaLength = strlen($this->_formula);
-		if ($formulaLength < 2 || $this->_formula{0} != '=') return;
+		if ($formulaLength < 2 || $this->_formula[0] != '=') return;
 
 		// Helper variables
 		$tokens1	= $tokens2 	= $stack = array();
