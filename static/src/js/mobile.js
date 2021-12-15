@@ -98,6 +98,7 @@ function switchToMap() {
  */
 $(document).ready(function () {
     loadMapAndStartingState();
+    populateSidebarPanes();
 });
 
 /**
@@ -106,6 +107,73 @@ $(document).ready(function () {
 window.onpopstate = function() {
     loadMapAndStartingState();
 };
+
+/**
+ * Populate the sidebar panes with data.
+ */
+function populateSidebarPanes() {
+    // Activities pane
+    $(document).on("dataReadyActivities", function() {
+        populatePaneActivities();
+    }
+
+    // Amenities pane
+    // @TODO: We don't have data or API endpoint here yet?
+    $(document).on("dataReadyAmenities", function() {
+        populatePaneAmenities();
+    }
+
+    // Reservations in Trails pane
+    $(document).on("dataReadyReservations", function() {
+        populatePaneTrails();
+    }
+}
+
+/**
+ * Populate the Activities sidebar pane.
+ */
+function populatePaneActivities() {
+    var template = CM.Templates.pane_activities_item;
+
+    CM.activities.forEach(function(activity) {
+        var link_param_category = 'pois_usetype_' + activity.title; // @TODO: urlencode the title
+        activity.link_url = "#browse-results?id="
+                            + activity.eventactivitytypeid
+                            + "&category="
+                            + link_param_category;
+        var template_vars = {
+            activity: activity
+        };
+        $('#activities-list').append(template(template_vars));
+    });
+}
+
+/**
+ * Populate the Activities sidebar pane.
+ */
+function populatePaneAmenities() {
+    var template = CM.Templates.pane_amenities_item;
+    CM.amenities.forEach(function(amenity) {
+        amenity.link_url = '#browse-results?amenity_id=' + amenitytypeid;
+        var template_vars = {
+            amenity: amenity,
+        };
+        $('#amenities-list').append(template(template_vars));
+    });
+}
+
+/**
+ * Populate the Trails sidebar pane's reservations dropdown.
+ */
+function populatePaneTrails() {
+    var template = CM.Templates.pane_trails_reservation_filter_option;
+    CM.reservations.forEach(function(reservation) {
+        var template_vars = {
+            reservation: reservation,
+        };
+        $('#loops_filter_reservation').append(template(template_vars));
+    });
+}
 
 /**
  * Load the map and process query string parameters to initiate state.

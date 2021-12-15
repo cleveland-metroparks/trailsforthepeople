@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cleveland Metroparks Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, width=device-width, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <!-- Facebook Sharing -->
+    <meta property="og:url" content="/" />
+    <meta property="og:title" content="Cleveland Metroparks Map" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="Plan your visit at any of Cleveland Metroparks' 18 park reservations spanning over 23,000 acres!" />
+    <!-- Facebook OG Image: Sample Map -->
+    <meta property="og:image" content="/static/images/misc/map-preview-og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="627" />
+    <meta property="og:image:alt" content="Cleveland Metroparks map" />
+    <!-- Facebook OG Image: CM Logo -->
+    <meta property="og:image" content="/static/images/favicons/android-chrome-512x512.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="Cleveland Metroparks logo" />
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/images/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicons/favicon-16x16.png">
+    <link rel="manifest" href="/static/images/favicons/manifest.json">
+    <link rel="mask-icon" href="/static/images/favicons/safari-pinned-tab.svg" color="#13624b">
+    <link rel="shortcut icon" href="/static/images/favicons/favicon.ico">
+    <meta name="msapplication-config" content="/static/images/favicons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Ext JS Libs -->
+    <script type="text/javascript" src="/static/dist/js/deps-app.min.js"></script>
+    <script type="text/javascript" src="/static/lib/jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <script type="text/javascript" src="/static/lib/jquery.sort.js"></script>
+    <script type="text/javascript" src="/static/lib/sidebar-v2/js/jquery-sidebar.min.js"></script>
+
+    <!-- App JS -->
+    <script type="text/javascript" src="/static/dist/js/app.min.js"></script>
+
+    <!-- App CSS -->
+    <link type="text/css" rel="stylesheet" href="/static/dist/css/mobile.css" />
+
+    <!-- Typekit -->
+    <script>
+        (function(d) {
+            var config = {
+                kitId: 'bqx0vwd',
+                scriptTimeout: 3000,
+                async: true
+            },
+            h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,"")+" wf-inactive";},config.scriptTimeout),tk=d.createElement("script"),f=false,s=d.getElementsByTagName("script")[0],a;h.className+=" wf-loading";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!="complete"&&a!="loaded")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
+        })(document);
+    </script>
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar collapsed">
+
+    <!-- Nav tabs -->
+    <div class="sidebar-tabs">
+        <!-- Top -->
+        <ul role="tablist">
+            <li><a href="#pane-welcome" role="tab" title="Welcome"><i class="cm-icon cm-icon-cm-logo"></i></a></li>
+            <li><a href="#pane-browse" role="tab" title="Find"><i class="cm-icon cm-icon-search"></i></a></li>
+            <li><a href="#pane-nearby" role="tab" title="Nearby"><i class="cm-icon cm-icon-street-view"></i></a></li>
+            <li><a href="#pane-directions" role="tab" title="Directions"><i class="cm-icon cm-icon-location-arrow"></i></a></li>
+            <li><a href="#pane-share" role="tab" title="Share"><i class="cm-icon cm-icon-share-alt"></i></a></li>
+        </ul>
+
+        <!-- Bottom -->
+        <ul role="tablist">
+            <li><a href="#pane-legend" role="tab" title="Trail Legend"><i class="cm-icon cm-icon-map-signs"></i></a></li>
+            <li><a href="#pane-settings" role="tab" title="Settings"><i class="cm-icon cm-icon-cog"></i></a></li>
+            <li><a href="#pane-credits" role="tab" title="Credits"><i class="cm-icon cm-icon-info"></i></a></li>
+        </ul>
+    </div>
+
+    <!-- Tab panes -->
+    <div class="sidebar-content">
+        <!-- Sidebar Pane: Find: #pane-welcome -->
+        <div class="sidebar-pane" id="pane-welcome">
+            <h1 class="sidebar-header">
+                <span class="title-text">Welcome!</span>
+                <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
+            </h1>
+
+            <div class="ui-grid-a image-link-grid">
+                <div class="ui-block-a welcome-pane-parks">
+                    <a href="#pane-browse-results" class="sidebar-pane-link">
+                        <div class="ui-bar"><span class="link-text">Parks</span></div>
+                    </a>
+                </div>
+                <div class="ui-block-b welcome-pane-activities">
+                    <a href="#pane-activities" class="sidebar-pane-link">
+                        <div class="ui-bar"><span class="link-text">Activities</span></div>
+                    </a>
+                </div>
+                <div class="ui-block-a welcome-pane-visitorcenters">
+                    <a href="#pane-browse-results" class="sidebar-pane-link">
+                        <div class="ui-bar"><span class="link-text">Visitor Centers</span></div>
+                    </a>
+                </div>
+                <div class="ui-block-b welcome-pane-amenities">
+                    <a href="#pane-amenities" class="sidebar-pane-link">
+                        <div class="ui-bar"><span class="link-text">Amenities</span></div>
+                    </a>
+                </div>
+                <div class="ui-block-a welcome-pane-trails">
+                    <a href="#pane-trails" class="sidebar-pane-link">
+                        <div class="ui-bar"><span class="link-text">Trails</span></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- /#pane-welcome -->
+
+        <!-- Sidebar Pane: Find: #pane-browse -->
+        <div class="sidebar-pane" id="pane-browse">
+            <h1 class="sidebar-header">
+                <span class="title-text">Find</span>
+                <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
+            </h1>
+
+            <fieldset data-role="controlgroup">
+                <h4>Keyword search</h4>
+
+                <form class="ui-filterable autocomplete">
+                    <input type="text" id="browse_keyword" data-type="search" />
+                    <input type="button" id="browse_keyword_button" value="Search &raquo;" />
+                </form>
+
+                <ul id="browse_keyword_autocomplete" data-role="listview" data-inset="true" data-filter="true"  data-input="#browse_keyword" data-filter-reveal="true"></ul>
+            </fieldset>
+
+            <ul class="browse-main" data-role="listview" data-inset="true">
+                <li><a href="#pane-activities" class="sidebar-pane-link">
+                    <i class="cm-icon cm-icon-map-marker"></i>
+                    Activities</a>
+                </li>
+                <li><a href="#pane-trails" class="sidebar-pane-link">
+                    <i class="cm-icon cm-icon-map-signs"></i>
+                    Trails</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /#pane-browse -->
+
+        <!-- Sidebar Pane: Find: #pane-amenities -->
+        <div class="sidebar-pane" id="pane-amenities">
+            <h1 class="sidebar-header">
+                <span class="title-text">Amenities</span>
+                <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
+            </h1>
+
+            <a href="#pane-welcome" class="sidebar-pane-link sidebar-back ui-btn ui-btn-inline ui-icon-back ui-btn-icon-left ui-corner-all">Back</a>
+
+            <ul id="amenities-list" data-role="listview" data-inset="true"></ul>
+        </div>
+        <!-- /#pane-amenities -->
+
+        <!-- Sidebar Pane: Nearby: #pane-nearby -->
+        <div class="sidebar-pane" id="pane-nearby">
+            <h1 class="sidebar-header">
+                <span class="title-text">Nearby</span>
+                <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
+            </h1>
+
+            <label><input type="checkbox" id="nearby_enabled" /> Enable alerts</label>
+
+            <div id="nearby-config">
+                <div class="form-group-wrapper">
+                    <h4>Alert me when I am within:</h4>
+                    <select id="nearby-radius">
+                        <option value="6.10">20 feet</option>
+                        <option value="15.24">50 feet</option>
+                        <option value="30.48">100 feet</option>
+                        <option value="76.2">250 feet</option>
+                        <option value="152.4" selected="true">500 feet</option>
+                        <option value="402.336">&frac14; mile</option>
+                        <option value="804.672">&frac12; mile</option>
+                        <option value="1207.08">&frac34; mile</option>
+                        <option value="1609.344">1 mile</option>
+                    </select>
+                </div>
+
+                <div class="form-group-wrapper">
+                    <h4>Watch for these types of activities:</h4>
+                </div>
+            </div>
+
+            <br/>
+
+            <ul id="alerts" data-role="listview"></ul>
+        </div>
+        <!-- /#pane-nearby -->
+
+        <!-- Sidebar Pane: Directions: #pane-directions -->
+        <div class="sidebar-pane" id="pane-directions">
+            <h1 class="sidebar-header">
+                <span class="title-text">Get Directions</span>
+                <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
+            </h1>
+
+            <!-- @TODO: Remove/accommodate -->
+            <input type="hidden" id="directions_source_lat" value="" />
+            <input type="hidden" id="directions_source_lng" value="" />
+            <input type="hidden" id="directions_source_type" value="" />
+            <input type="hidden" id="directions_source_gid"  value="" />
+            <input type="hidden" id="directions_target_lat" value="" />
+            <input type="hidden" id="directions_target_lng" value="" />
+            <input type="hidden" id="directions_target_type" value="" />
+            <input type="hidden" id="directions_target_gid"  value="" />
+
+            <!-- #directions_target_title -->
+            <!-- #directions_type_geocode_wrap -->
+            <!-- #directions_type -->
+            <!-- #directions_button -->
+
+            <fieldset data-role="controlgroup">
+                <h4>From:</h4>
+                <input type="text" id="source-input" class="feature-search-input" placeholder="Park feature or address" />
+                <ul id="source-autocomplete" data-role="listview" data-inset="true" data-filter="true" data-input="#source-input" data-value-sourcetarget="source" class="feature-search-autocomplete ui-listview ui-listview-inset ui-corner-all ui-shadow">
+                    <li class="ui-li-static ui-body-inherit ui-screen-hidden">
+                        <div class="ui-loader">
+                            <span class="ui-icon ui-icon-loading"></span>
+                        </div>
+                    </li>
+                </ul>
+            </fieldset>
+
+            <fieldset data-role="controlgroup">
+                <h4>To:</h4>
+                <input type="text" id="target-input" class="feature-search-input" placeholder="Park feature or address" />
+                <ul id="target-autocomplete" data-role="listview" data-inset="true" data-filter="true" data-input="#target-input" data-value-sourcetarget="target" class="feature-search-autocomplete ui-listview ui-listview-inset ui-corner-all ui-shadow" data-filter-reveal="true">
+                    <li class="ui-li-static ui-body-inherit ui-screen-hidden">
+                        <div class="ui-loader">
+                            <span class="ui-icon ui-icon-loading"></span>
+                        </div>
+                    </li>
+                </ul>
+            </fieldset>
+
+            <div id="directions-via" class="via-buttons" data-value="hike">
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-hike active" data-value="hike" title="On foot">
+                    <i class="cm-icon cm-icon-walk" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-bike" data-value="bike" title="By Bicycle">
+                    <i class="cm-icon cm-icon-bicycle" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-car" data-value="car" title="By car">
+                    <i class="cm-icon cm-icon-car" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="ui-btn ui-btn-inline ui-corner-all via-bus" data-value="bus" title="Via public transit">
+                    <i class="cm-icon cm-icon-bus" aria-hidden="true"></i>
+                </a>
+            </div>
+
+            <fieldset data-role="controlgroup">
+                <input type="button" id="get-directions" value="Get directions" />
+            </fieldset>
+
+            <ul id="directions-steps" data-role="listview"></ul>
+        </div>
+        <!-- /#pane-directions -->
+
+        <!-- Sidebar Pane: Share: #pane-share -->
+        <div class="sidebar-pane" id="pane-share">
+            <h1 class="sidebar-header">
+                <span class="title-text">Share Your Map</span>
+                <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
+            </h1>
+
+            <label for="share_url">Share Link</label>
+            <div data-role="controlgroup" id="make_share_url_controls">
+                <input type="button" id="make_share_url_btn" value="Make a short URL" />
+            </div>
+            <div data-role="controlgroup" data-type="horizontal" id="share_url_controls">
+                <input type="text" class="js-url-field" value="" id="share_url" data-wrapper-class="controlgroup-textinput ui-btn" readonly="" />
+                <a href="#" title="Copy to clipboard" alt="Copy" data-copy-id="share_url" class="ui-btn ui-btn-inline ui-corner-all copy-to-clipboard">
+                    <i class="cm-icon cm-icon-clipboard"></i>
+                </a>
+            </div>
+
+            <label>Social</label>
+            <div class="share_button">
+                <a target="_blank" href="javascript:void(0);" id="share_facebook">
+                    <i class="cm-icon cm-icon-facebook-square"></i>Share on Facebook</a>
+            </div>
+            <div class="share_button">
+                <a target="_blank" href="javascript:void(0);" id="share_twitter">
+                    <i class="cm-icon cm-icon-twitter-square"></i>Share on Twitter</a>
+            </div>
+
+        </div>
+        <!-- /#pane-share -->
+
+        <!-- Sidebar Pane: Share: #pane-debug -->
+        <div class="sidebar-pane" id="pane-debug">
+            <h1 class="sidebar-header">
+                <span class="title-text">Debug</span>
+                <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+            </h1>
+
+            <pre id="debug-features"></pre>
+        </div>
+        <!-- /#pane-debug -->
+
+        <!-- Sidebar Pane: Credits: #pane-legend -->
+        <div class="sidebar-pane" id="pane-legend">
+
+            <h1 class="sidebar-header">
+                <span class="title-text">Trail Legend</span>
+                <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
+            </h1>
+
+            <ul class="map-legend">
+                <li>
+                    <img src="/static/images/legend/legend-all_purpose.gif" width="50" height="50" alt="All Purpose Trail icon" />
+                    <span class="info">
+                        <h4>All Purpose Trail</h4>
+                    </span>
+                </li>
+                <li>
+                    <img src="/static/images/legend/legend-towpath.gif" width="50" height="50" alt="Towpath Trail icon" />
+                    <span class="info">
+                        <h4>Towpath Trail</h4>
+                        <p><em>On-road portions are dashed</em></p>
+                    </span>
+                </li>
+                <li>
+                    <img src="/static/images/legend/legend-lakefront_bikeway.gif" width="50" height="50" alt="Cleveland Lakefront Bikeway icon" />
+                    <span class="info">
+                        <h4>Cleveland Lakefront Bikeway</h4>
+                        <p><em>On-road portions are dashed</em></p>
+                    </span>
+                </li>
+                <li>
+                    <img src="/static/images/legend/legend-bridle.gif" width="50" height="50" alt="Bridle Trail icon" />
+                    <span class="info">
+                        <h4>Bridle Trail</h4>
+                    </span>
+                </li>
+                <li>
+                    <img src="/static/images/legend/legend-hiking.gif" width="50" height="50" alt="Hiking Trail icon" />
+                    <span class="info">
+                        <h4>Hiking Trail</h4>
+                    </span>
+                </li>
+                <li>
+                    <img src="/static/images/legend/legend-mtb.gif" width="50" height="50" alt="Mountain Bike Trail icon" />
+                    <span class="info">
+                        <h4>Mountain Bike Trail</h4>
+                    </span>
+                </li>
+                <li>
+                    <img src="/static/images/legend/legend-walkway.gif" width="50" height="50" alt="Walkway icon" />
+                    <span class="info">
+                        <h4>Walkway</h4>
+                    </span>
+                </li>
+            </ul>
+
+            <div class="map-legend-bt">
+                <h3>Buckeye Trail</h3>
+                <p><em>Displayed along trail or road it follows</em></p>
+                <ul>
+                    <li><img src="/static/images/legend/legend-bt1.gif" width="50" height="50" alt="Buckeye Trail icon" /></li>
+                    <li><img src="/static/images/legend/legend-bt2.gif" width="50" height="50" alt="Buckeye Trail icon" /></li>
+                    <li><img src="/static/images/legend/legend-bt3.gif" width="50" height="50" alt="Buckeye Trail icon" /></li>
+                </ul>
+            </div>
+
+        </div>
+        <!-- /#pane-legend -->
+
+        <!-- Sidebar Pane: Settings: #pane-settings -->
+        <div class="sidebar-pane" id="pane-settings">
+            <h1 class="sidebar-header">
+                <span class="title-text">Settings</span>
+                <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
+            </h1>
+
+            <label for="map_type">Map type</label>
+            <fieldset id="map_type" data-role="controlgroup">
+                <label><input type="radio" name="basemap" value="map" checked="true" />Default</label>
+                <label><input type="radio" name="basemap" value="photo" />Satellite</label>
+            </fieldset>
+
+            <label for="coordinate_format">Coordinate format</label>
+            <fieldset id="coordinate_format" data-role="controlgroup">
+                <label><input type="radio" name="coordinate_format" value="dms" checked="true"/>Degrees Minutes Seconds</label>
+                <label><input type="radio" name="coordinate_format" value="ddm"/>Degrees Decimal Minutes</label>
+                <label><input type="radio" name="coordinate_format" value="dd"/>Decimal Degrees</label>
+            </fieldset>
+
+            <label for="gps_location">Your location</label>
+            <div data-role="controlgroup" data-type="horizontal">
+                <input type="text" class="js-url-field" value="unknown" id="gps_location" data-wrapper-class="controlgroup-textinput ui-btn" readonly="" value="Enable geolocation" />
+                <a href="#" title="Copy to clipboard" alt="Copy" data-copy-id="gps_location" class="ui-btn ui-btn-inline ui-corner-all copy-to-clipboard">
+                    <i class="cm-icon cm-icon-clipboard"></i>
+                </a>
+            </div>
+        </div>
+        <!-- /#pane-settings -->
+
+        <!-- Sidebar Pane: Credits: #pane-credits -->
+        <div class="sidebar-pane" id="pane-credits">
+            <h1 class="sidebar-header">
+                <span class="title-text">Credits</span>
+                <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
+            </h1>
+
+            <p>Parks and facilities data by:<br />
+                <a target="_blank" href="https://clevelandmetroparks.com/">Cleveland Metroparks</a></p>
+            <p>Some base map data:<br />
+                &copy; <a target="_blank" href="http://www.openstreetmap.org/copyright">OpenStreetMap contributors</a></p>
+            <p>Driving and transit directions courtesy of:<br />
+                <a target="_blank" href="http://www.bing.com/maps/">Bing Maps</a></p>
+            <p>Map interface developed by:<br />
+                <a target="_blank" href="https://www.websubstrate.com/">Substrate Websoft</a> and <a target="_blank" href="http://www.greeninfo.org/">GreenInfo Network</a></p>
+
+            <h4>Disclaimer</h4>
+
+            <p class="disclaimer">This information is for display purposes only. Cleveland Metroparks makes no warranties, expressed or implied, with respect to the accuracy of and the use of this map and mapping application for any specific purpose. Cleveland Metroparks expressly disclaims any liability that may result from the use of this map or mapping application. For more information, please contact: Stephen Mather, GIS Manager, 4101 Fulton Pkwy, Cleveland, Ohio 44144 (216) 635-3243</p>
+        </div>
+        <!-- /#pane-credits -->
+
+        <!-- Sidebar Pane: Search: #pane-search -->
+        <!-- Triggered via JS: On clicking Search button -->
+        <div class="sidebar-pane" id="pane-search">
+            <h1 class="sidebar-header">
+                <span class="title-text">Search</span>
+                <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
+            </h1>
+
+            <a href="#pane-browse" class="sidebar-pane-link sidebar-back ui-btn ui-btn-inline ui-icon-back ui-btn-icon-left ui-corner-all">Back</a>
+
+            <fieldset data-role="controlgroup">
+                <h4>Keyword search</h4>
+
+                <form class="ui-filterable autocomplete">
+                    <input type="text" id="search_keyword" data-type="search" />
+                    <input type="button" id="search_keyword_button" value="Search &raquo;" value0="Loading" value1="Search &raquo;" />
+                </form>
+
+                <ul id="search_keyword_autocomplete" data-role="listview" data-inset="true" data-filter="true"  data-input="#search_keyword" data-filter-reveal="true"></ul>
+            </fieldset>
+
+            <br/>
+
+            <div class="sortpicker">
+                <span class="fakelink" value="distance">Sort by distance away</span>
+                &bull;
+                <span class="fakelink" value="alphabetical">Sort alphabetically</span>
+                <br/>
+                <br/>
+            </div>
+
+            <ul id="keyword_results" data-role="listview" class="distance_sortable"></ul>
+        </div>
+        <!-- /#pane-search -->
+
+        <!-- Sidebar Pane: Browse Results: #pane-browse-results -->
+        <div class="sidebar-pane" id="pane-browse-results">
+            <h1 class="sidebar-header">
+                <span class="title-text">Attractions</span>
+                <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
+            </h1>
+
+            <a href="#pane-browse" class="sidebar-pane-link sidebar-back ui-btn ui-btn-inline ui-icon-back ui-btn-icon-left ui-corner-all">Back</a>
+
+            <div class="sortpicker">
+                <span class="fakelink" value="distance">Sort by distance away</span>
+                &bull;
+                <span class="fakelink" value="alphabetical">Sort alphabetically</span>
+            </div>
+
+            <ul id="browse_results" data-role="listview" data-inset="true" class="distance_sortable">
+            </ul>
+        </div>
+        <!-- /#pane-browse-results -->
+
+        <!-- Sidebar Pane: Info: #pane-info -->
+        <!-- Triggered via JS: When clicking on map points -->
+        <div class="sidebar-pane" id="pane-info">
+            <h1 class="sidebar-header">
+                <span class="title-text">Info</span>
+                <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
+            </h1>
+
+            <a href="#pane-map" class="sidebar-pane-link sidebar-back ui-btn ui-btn-inline ui-icon-back ui-btn-icon-left ui-corner-all">Back</a>
+
+            <div id="info-content"></div>
+
+            <a class="ui-btn ui-btn-inline ui-icon-location ui-btn-icon-left ui-corner-all" id="show_on_map">Show on Map</a>
+
+            <div class="info-directions">
+                <h4>Get directions</h4>
+                <div>
+                    <a href="" class="ui-btn ui-btn-inline ui-corner-all" id="directions_hike" title="Get directions via hiking trails">
+                        <i class="cm-icon cm-icon-walk" aria-hidden="true"></i>
+                    </a>
+                    <a href="" class="ui-btn ui-btn-inline ui-corner-all" id="directions_bike" title="Get directions via bicycle trails">
+                        <i class="cm-icon cm-icon-bicycle" aria-hidden="true"></i>
+                    </a>
+                    <a href="" class="ui-btn ui-btn-inline ui-corner-all" id="directions_car" title="Get driving directions">
+                        <i class="cm-icon cm-icon-car" aria-hidden="true"></i>
+                    </a>
+                    <a href="" class="ui-btn ui-btn-inline ui-corner-all" id="directions_bus" title="Get directions via public transit">
+                        <i class="cm-icon cm-icon-bus" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- /#pane-info -->
+
+        <!-- Sidebar Pane: Activities: #pane-activities -->
+        <div class="sidebar-pane" id="pane-activities">
+            <h1 class="sidebar-header">
+                <span class="title-text">Activities</span>
+                <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
+            </h1>
+
+            <a href="#pane-browse" class="sidebar-pane-link sidebar-back ui-btn ui-btn-inline ui-icon-back ui-btn-icon-left ui-corner-all">Back</a>
+
+            <ul id="activities-list" data-role="listview" data-inset="true"></ul>
+        </div>
+        <!-- /#pane-activities -->
+
+        <!-- Sidebar Pane: Elevation: #elevationprofile -->
+        <div class="sidebar-pane" id="pane-elevationprofile">
+            <h1 class="sidebar-header">
+                <span class="title-text">Elevation</span>
+                <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
+            </h1>
+
+            <a href="#pane-directions" class="sidebar-pane-link sidebar-back ui-btn ui-btn-inline ui-icon-back ui-btn-icon-left ui-corner-all">Back</a>
+
+            <canvas id="elevation-profile"></canvas>
+        </div>
+        <!-- /#elevationprofile -->
+
+        <!-- Sidebar Pane: Trails: #pane-trails -->
+        <div class="sidebar-pane" id="pane-trails">
+            <h1 class="sidebar-header">
+                <span class="title-text">Trails</span>
+                <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
+            </h1>
+
+            <a href="#pane-browse" class="sidebar-pane-link sidebar-back ui-btn ui-btn-inline ui-icon-back ui-btn-icon-left ui-corner-all">Back</a>
+
+            <fieldset data-role="controlgroup">
+
+            <h4 class="label">Filter by Activity:</h4>
+            <!-- Hidden form controls connected to clickable image buttons -->
+            <div style="display:none;">
+                <select id="loops_filter_type">
+                <!-- <option value="">All trail types</option> -->
+                <option value="hike">Hiking / Walking</option>
+                <option value="bike_Novice">Bicycle, Novice</option>
+                <option value="bike_Beginner">Bicycle, Beginner</option>
+                <option value="bike_Intermediate">Bicycle, Intermediate</option>
+                <option value="bike_Advanced">Bicycle, Advanced</option>
+                <option value="bridle">Equestrian</option>
+                <option value="exercise">Exercise Trail</option>
+                <option value="mountainbike">Mountain Biking Trail</option>
+                </select>
+            </div>
+            <div id="loops_typeicons">
+                <img alt="Hiking/Walking" data-value="hike" src="/static/images/activities/hike.svg" />
+                <img alt="Bicycling" data-value="bike_Advanced" src="/static/images/activities/bike.svg" />
+                <img alt="Equestrian" data-value="bridle" src="/static/images/activities/horse.svg" />
+                <!--<img data-value="exercise" src="/static/images/activities/fitness.svg" />-->
+                <img alt="Mountain Biking" data-value="mountainbike" src="/static/images/activities/mtnbike.svg" />
+            </div>
+
+            <h4 class="label">Filter by Route Length:</h4>
+            <!-- Hidden form controls connected to clickable buttons -->
+            <div data-role="fieldcontain" style="display:none;">
+                <b>Length</b>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <span id="loops_filter_distance_min_text"></span> - <span id="loops_filter_distance_max_text"></span>
+                <br/>
+                Min: <input type="range" id="loops_filter_distance_min" min="0" max="100" value="0" />
+                <br/>
+                Max: <input type="range" id="loops_filter_distance_max" min="0" max="50" value="50" />
+            </div>
+            <div id="loops_filter_distancepicker">
+                <a href="#" data-min="0" data-max="2">0-2 mi</a>
+                <a href="#" data-min="2" data-max="5">2-5 mi</a>
+                <a href="#" data-min="5" data-max="10">5-10 mi</a>
+                <a href="#" data-min="10" data-max="100">10+ mi</a>
+            </div>
+
+            <h4 class="label">Filter by Reservation:</h4>
+            <select id="loops_filter_reservation">
+                <option value="">(any reservation)</option>
+            </select>
+
+            </fieldset>
+
+            <div class="sortpicker">
+                <span class="fakelink" value="distance">Sort by distance away</span>
+                &bull;
+                <span class="fakelink" value="alphabetical">Sort alphabetically</span>
+                <br/>
+            </div>
+
+            <ul id="loops_list" data-role="listview" data-inset="true" class="distance_sortable"></ul>
+        </div>
+        <!-- /#pane-trails -->
+
+    </div>
+    <!-- /Tab panes -->
+
+</div>
+<!-- /Sidebar -->
+
+<!-- Map -->
+<div id="map_canvas" class="sidebar-map"></div>
+
+<!-- Audio -->
+<audio autoboffer id="alert_beep">
+    <source src="/static/audio/alert.ogg" />
+    <source src="/static/audio/alert.mp3" />
+</audio>
+
+<!-- No JavaScript -->
+<noscript>
+    Your browser appears to have JavaScript disabled.<br />
+    Please check your browser's security settings, and reload this page.
+</noscript>
+
+<!-- Google Analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-42809637-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+</body>
+</html>
