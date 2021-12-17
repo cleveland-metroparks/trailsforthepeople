@@ -6,6 +6,124 @@
  * Cleveland Metroparks
  */
 
+
+/**
+ * Populate the sidebar panes with data.
+ */
+function populateSidebarPanes() {
+    // Activities pane
+    $(document).on("dataReadyActivities", function() {
+        populatePaneActivities();
+    });
+
+    // Amenities pane
+    // @TODO: We don't have data or API endpoint here yet?
+    $(document).on("dataReadyAmenities", function() {
+        populatePaneAmenities();
+    });
+
+    // Reservations in Trails pane
+    $(document).on("dataReadyReservations", function() {
+        populatePaneTrails();
+    });
+}
+
+/**
+ * Populate the Activities sidebar pane.
+ */
+function populatePaneActivities() {
+    var template = CM.Templates.pane_activities_item;
+
+    CM.activities.forEach(function(activity) {
+        if (activity.icon) {
+            var link_param_category = 'pois_usetype_' + encodeURIComponent(activity.pagetitle);
+            activity.link_url = "#browse-results?id="
+                                + activity.eventactivitytypeid
+                                + "&category="
+                                + link_param_category;
+            var template_vars = {
+                activity: activity
+            };
+            $('#activities-list').append(template(template_vars));
+        }
+    });
+
+    $('#activities-list').listview('refresh');
+    sortLists($('#activities-list'), 'alphabetical');
+
+    /*
+     * Set click event
+     */
+    $('#activities-list li a').click(function() {
+        // Get Activity ID from query string params
+        // (purl.js apparently doesn't parse query string if URL begins with '#')
+        re = /id=(\d*)/;
+        var matches = this.hash.match(re);
+        if (matches.length == 2) {
+            activity_id = matches[1];
+        }
+
+        sidebar.open('pane-browse-results');
+
+        pane_title = $(this).text().trim();
+        set_pane_back_button('#pane-browse-results', '#pane-activities');
+
+        // Render to UL.zoom in the #pane-browse-results pane, and display it
+        var filtered_attractions = CM.get_attractions_by_activity(activity_id);
+        CM.display_attractions_results(pane_title, filtered_attractions, 'attraction');
+    });
+}
+
+/**
+ * Populate the Activities sidebar pane.
+ */
+function populatePaneAmenities() {
+    var template = CM.Templates.pane_amenities_item;
+    CM.amenities.forEach(function(amenity) {
+        amenity.link_url = '#browse-results?amenity_id=' + amenity.amenitytypeid;
+        var template_vars = {
+            amenity: amenity,
+        };
+        $('#amenities-list').append(template(template_vars));
+    });
+
+    $('#amenities-list').listview('refresh');
+    sortLists($('#amenities-list'), 'alphabetical');
+
+    /*
+     * Set click event
+     */
+    $('#amenities-list li a').click(function() {
+        // Get Amenity ID from query string param
+        // (purl.js apparently doesn't parse query string if URL begins with '#')
+        re = /amenity_id=(\d*)/;
+        var matches = this.hash.match(re);
+        if (matches.length == 2) {
+            amenity_id = matches[1];
+        }
+
+        pane_title = $(this).text().trim();
+        set_pane_back_button('#pane-browse-results', '#pane-amenities');
+
+        // Render to UL.zoom in the #pane-browse-results pane, and display it
+        var filtered_attractions = CM.get_attractions_by_amenity(amenity_id);
+        CM.display_attractions_results(pane_title, filtered_attractions, 'attraction');
+    });
+}
+
+/**
+ * Populate the Trails sidebar pane's reservations dropdown.
+ */
+function populatePaneTrails() {
+    var template = CM.Templates.pane_trails_reservation_filter_option;
+    CM.reservations.forEach(function(reservation) {
+        var template_vars = {
+            reservation: reservation,
+        };
+        $('#loops_filter_reservation').append(template(template_vars));
+    });
+}
+
 /**
  * Handle clicks on various sidebar elements
  */
@@ -39,50 +157,6 @@ $(document).ready(function () {
      */
     $('.sidebar-tabs li a[href="#pane-nearby"]').click(function() {
         updateNearYouNow();
-    });
-
-    /*
-     * Activities pane (#pane-activities)
-     */
-    // When an Activity is clicked:
-    $('#pane-activities li a').click(function() {
-        // Get Activity ID from query string params
-        // (purl.js apparently doesn't parse query string if URL begins with '#')
-        re = /id=(\d*)/;
-        var matches = this.hash.match(re);
-        if (matches.length == 2) {
-            activity_id = matches[1];
-        }
-
-        sidebar.open('pane-browse-results');
-
-        pane_title = $(this).text().trim();
-        set_pane_back_button('#pane-browse-results', '#pane-activities');
-
-        // Render to UL.zoom in the #pane-browse-results pane, and display it
-        var filtered_attractions = CM.get_attractions_by_activity(activity_id);
-        CM.display_attractions_results(pane_title, filtered_attractions, 'attraction');
-    });
-
-    /*
-     * Amenities pane (#pane-amenities)
-     */
-    // When an amenity is clicked:
-    $('#pane-amenities li a').click(function() {
-        // Get Amenity ID from query string param
-        // (purl.js apparently doesn't parse query string if URL begins with '#')
-        re = /amenity_id=(\d*)/;
-        var matches = this.hash.match(re);
-        if (matches.length == 2) {
-            amenity_id = matches[1];
-        }
-
-        pane_title = $(this).text().trim();
-        set_pane_back_button('#pane-browse-results', '#pane-amenities');
-
-        // Render to UL.zoom in the #pane-browse-results pane, and display it
-        var filtered_attractions = CM.get_attractions_by_amenity(amenity_id);
-        CM.display_attractions_results(pane_title, filtered_attractions, 'attraction');
     });
 
     /*

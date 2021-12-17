@@ -109,73 +109,6 @@ window.onpopstate = function() {
 };
 
 /**
- * Populate the sidebar panes with data.
- */
-function populateSidebarPanes() {
-    // Activities pane
-    $(document).on("dataReadyActivities", function() {
-        populatePaneActivities();
-    }
-
-    // Amenities pane
-    // @TODO: We don't have data or API endpoint here yet?
-    $(document).on("dataReadyAmenities", function() {
-        populatePaneAmenities();
-    }
-
-    // Reservations in Trails pane
-    $(document).on("dataReadyReservations", function() {
-        populatePaneTrails();
-    }
-}
-
-/**
- * Populate the Activities sidebar pane.
- */
-function populatePaneActivities() {
-    var template = CM.Templates.pane_activities_item;
-
-    CM.activities.forEach(function(activity) {
-        var link_param_category = 'pois_usetype_' + activity.title; // @TODO: urlencode the title
-        activity.link_url = "#browse-results?id="
-                            + activity.eventactivitytypeid
-                            + "&category="
-                            + link_param_category;
-        var template_vars = {
-            activity: activity
-        };
-        $('#activities-list').append(template(template_vars));
-    });
-}
-
-/**
- * Populate the Activities sidebar pane.
- */
-function populatePaneAmenities() {
-    var template = CM.Templates.pane_amenities_item;
-    CM.amenities.forEach(function(amenity) {
-        amenity.link_url = '#browse-results?amenity_id=' + amenitytypeid;
-        var template_vars = {
-            amenity: amenity,
-        };
-        $('#amenities-list').append(template(template_vars));
-    });
-}
-
-/**
- * Populate the Trails sidebar pane's reservations dropdown.
- */
-function populatePaneTrails() {
-    var template = CM.Templates.pane_trails_reservation_filter_option;
-    CM.reservations.forEach(function(reservation) {
-        var template_vars = {
-            reservation: reservation,
-        };
-        $('#loops_filter_reservation').append(template(template_vars));
-    });
-}
-
-/**
  * Load the map and process query string parameters to initiate state.
  */
 function loadMapAndStartingState() {
@@ -627,32 +560,38 @@ function getListDistances(target) {
 
 /**
  * Sort Lists
+ *
  * a unified interface to calculate distances of items in a list, then sort that list by distance
- * this ended up being so common a design pattern, putting it here saves a lot of repeat
  * look for the magic tag ul.distance_sortable and populate the .zoom_distance boxes within it, then sort the ul.distance_sortable
+ *
+ * @param target
+ * @param sortType: 'distance' or 'alphabetical'
  */
-function sortLists(target) {
+function sortLists(target, sortType) {
     // if no target was specified, get the first (only) ul.distance_sortable on the currently visible page
     // if there isn't one there, bail
     if (! target) {
         target = $(".sidebar-pane.active ul.distance_sortable").eq(0);
-        if (! target.length) {
+        if (!target.length) {
             return;
         }
     }
 
     getListDistances(target);
 
-    // finally, the sort!
-    switch (DEFAULT_SORT) {
+    if (!sortType) {
+        sortType = DEFAULT_SORT;
+    }
+
+    switch (sortType) {
         case 'distance':
             target.children('li').sort(function (p,q) {
-                return ( $(p).data('meters') > $(q).data('meters') ) ? 1 : -1;
+                return ($(p).data('meters') > $(q).data('meters') ) ? 1 : -1;
             });
             break;
         case 'alphabetical':
             target.children('li').sort(function (p,q) {
-                return ( $(p).attr('title') > $(q).attr('title') ) ? 1 : -1;
+                return ($(p).text() > $(q).text()) ? 1 : -1;
             });
             break;
     }

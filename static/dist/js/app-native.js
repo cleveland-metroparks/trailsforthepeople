@@ -879,6 +879,7 @@ function switchToMap() {
  */
 $(document).ready(function () {
     loadMapAndStartingState();
+    populateSidebarPanes();
 });
 
 /**
@@ -887,6 +888,73 @@ $(document).ready(function () {
 window.onpopstate = function() {
     loadMapAndStartingState();
 };
+
+/**
+ * Populate the sidebar panes with data.
+ */
+function populateSidebarPanes() {
+    // Activities pane
+    $(document).on("dataReadyActivities", function() {
+        populatePaneActivities();
+    }
+
+    // Amenities pane
+    // @TODO: We don't have data or API endpoint here yet?
+    $(document).on("dataReadyAmenities", function() {
+        populatePaneAmenities();
+    }
+
+    // Reservations in Trails pane
+    $(document).on("dataReadyReservations", function() {
+        populatePaneTrails();
+    }
+}
+
+/**
+ * Populate the Activities sidebar pane.
+ */
+function populatePaneActivities() {
+    var template = CM.Templates.pane_activities_item;
+
+    CM.activities.forEach(function(activity) {
+        var link_param_category = 'pois_usetype_' + activity.title; // @TODO: urlencode the title
+        activity.link_url = "#browse-results?id="
+                            + activity.eventactivitytypeid
+                            + "&category="
+                            + link_param_category;
+        var template_vars = {
+            activity: activity
+        };
+        $('#activities-list').append(template(template_vars));
+    });
+}
+
+/**
+ * Populate the Activities sidebar pane.
+ */
+function populatePaneAmenities() {
+    var template = CM.Templates.pane_amenities_item;
+    CM.amenities.forEach(function(amenity) {
+        amenity.link_url = '#browse-results?amenity_id=' + amenitytypeid;
+        var template_vars = {
+            amenity: amenity,
+        };
+        $('#amenities-list').append(template(template_vars));
+    });
+}
+
+/**
+ * Populate the Trails sidebar pane's reservations dropdown.
+ */
+function populatePaneTrails() {
+    var template = CM.Templates.pane_trails_reservation_filter_option;
+    CM.reservations.forEach(function(reservation) {
+        var template_vars = {
+            reservation: reservation,
+        };
+        $('#loops_filter_reservation').append(template(template_vars));
+    });
+}
 
 /**
  * Load the map and process query string parameters to initiate state.
@@ -981,44 +1049,39 @@ function loadMapAndStartingState() {
         }
     }
 
-    // URL params query string: "route": get directions.
-    // Fill in the dirextions form fields and run the query
-    if (urlParams.get('routefrom') && urlParams.get('routeto') && urlParams.get('routevia') ) {
-        // split out the params
-        var sourcelat = urlParams.get('routefrom').split(",")[0];
-        var sourcelng = urlParams.get('routefrom').split(",")[1];
-        var targetlat = urlParams.get('routeto').split(",")[0];
-        var targetlng = urlParams.get('routeto').split(",")[1];
-        var via       = urlParams.get('routevia');
-        var locType = urlParams.get('loctype')
+    // URL params: Get Directions
+    if (urlParams.get('action') == 'directions') {
+        // @DEBUG:
+        // urlParams.forEach(function(value, key) {
+        //   console.log(key + ': ' + value);
+        // });
 
-        // toggle the directions panel so it shows directions instead of Select A Destination
-        sidebar.open('pane-getdirections');
-        $('#getdirections_disabled').hide();
-        $('#getdirections_enabled').show();
+        var via = urlParams.get('via');
 
-        // fill in the directions field: the title, route via, the target type and coordinate, the starting coordinates
-        $('#directions_target_title').text(urlParams.get('routetitle'));
-        $('#directions_via').val(urlParams.get('routevia'));
-        $("#directions_via").selectmenu('refresh');
-
-        if (locType) {
-            $('#directions_type').val(locType);
-        } else {
-            $('#directions_type').val('geocode');
+        var sourceText = urlParams.get('sourceText');
+        if (sourceText) {
+            $('#source-input').val(sourceText);
         }
-        $('#directions_type_geocode_wrap').show();
-        $("#directions_type").selectmenu('refresh');
 
-        $('#directions_address').val(urlParams.get('routefrom'));
-        $('#directions_target_lat').val(targetlat);
-        $('#directions_target_lng').val(targetlng);
-        $('#directions_via').trigger('change');
-        $('#directions_address').val(urlParams.get('fromaddr'));
-        $('#directions_via_bike').val(urlParams.get('routevia_bike'));
+        var sourceLat = urlParams.get('sourceLatLng').split(",")[0];
+        var sourceLng = urlParams.get('sourceLatLng').split(",")[1];
+        var sourceLngLat = new mapboxgl.LngLat(sourceLng, sourceLat);
+        setDirectionsInputLngLat($('#source-input'), sourceLngLat);
 
-        // make the Directions request
-        getDirections(sourcelat, sourcelng, targetlat, targetlng, via);
+        var targetText = urlParams.get('targetText');
+        if (targetText) {
+            $('#target-input').val(targetText);
+        }
+
+        var targetLat = urlParams.get('targetLatLng').split(",")[0];
+        var targetLng = urlParams.get('targetLatLng').split(",")[1];
+        var targetLngLat = new mapboxgl.LngLat(targetLng, targetLat);
+        setDirectionsInputLngLat($('#target-input'), targetLngLat);
+
+        // Open directions pane
+        sidebar.open('pane-directions');
+
+        getDirections(sourceLngLat, targetLngLat, via);
     }
 
     // Set the appropriate basemap radio button in Settings
@@ -1259,10 +1322,6 @@ function showFeatureInfo(attractionType, attraction) {
         attraction.back_url = '#pane-browse';
     }
     set_pane_back_button('#pane-info', attraction.back_url);
-
-    // Enable "Get Directions"
-    $('#getdirections_disabled').hide();
-    $('#getdirections_enabled').show();
 
     $('#info-content').text("Loading...");
 
@@ -2096,14 +2155,14 @@ $(document).on("mapInitialized", function () {
  * Launch external app for directions
  * Uses launchnavigator [cordova] plugin.
  */
-function launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geolocation) {
-    var source = [sourcelat, sourcelng],
-        target = [targetlat, targetlng],
+function launchNativeExternalDirections(sourceLat, sourceLng, targetLat, targetLng, via, isFromGeolocation) {
+    var source = [sourceLat, sourceLng],
+        target = [targetLat, targetLng],
         options = {
             enableDebug: true,
             transportMode: transportMode
         };
-    if (!from_geolocation) {
+    if (!isFromGeolocation) {
         options.start = source;
     }
     // Car or Transit
@@ -2121,28 +2180,32 @@ function launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetl
  * request directions from the API
  * and render them to the screen and to the map,
  * (or launch native mobile directions).
+ *
+ * @param sourceLat {float}
+ * @param sourceLng {float}
+ * @param targetLat {float}
+ * @param targetLng {float}
+ * @param via {string}
+ * @param isFromGeolocation {boolean}
  */
-function getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geolocation) {
-    // empty out the old directions and disable the button as a visual effect
-    $('#directions_steps').empty();
+function getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation) {
     disableDirectionsButton();
 
-    // store the source coordinates
-    $('#directions_source_lat').val(sourcelat);
-    $('#directions_source_lng').val(sourcelng);
+    // Empty out the old directions steps
+    $('#directions-steps').empty();
 
     // In mobile, launch external map app for native car/transit directions
     if (NATIVE_APP && (via=='car' || via=='bus')) {
-        launchNativeExternalDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geolocation);
+        launchNativeExternalDirections(sourceLngLat.lat, sourceLngLat.lng, targetLngLat.lat, targetLngLat.lng, via, isFromGeolocation);
         enableDirectionsButton();
         return;
     }
 
     var data = {
-        sourcelat = sourcelat,
-        sourcelng = sourcelng,
-        targetlat = targetlat,
-        targetlng = targetlng
+        sourcelat = parseFloat(sourceLngLat.lat),
+        sourcelng = parseFloat(sourceLngLat.lng),
+        targetlat = parseFloat(targetLngLat.lat),
+        targetlng = parseFloat(targetLngLat.lng)
     }
 
     switch (via) {
@@ -2183,7 +2246,7 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geo
             data.via = via;
 
             $.get(API_NEW_BASE_URL + 'directions_trails', data, function (reply) {
-                if (reply.data.wkt) {
+                if (reply.data && reply.data.wkt) {
                     renderDirectionsStructure(reply.data);
                     updateWindowURLWithDirections();
                 } else {
@@ -2204,110 +2267,143 @@ function getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geo
 
             break;
     }
-
 }
 
 /**
  * Disable directions button
  */
 function disableDirectionsButton() {
-    var button = $('#directions_button');
-    button.button('disable');
-    button.closest('.ui-btn').find('.ui-btn-text').text(button.attr('value0'));
+    $('#get-directions').prop('disabled', true);
 }
 
 /**
  * Enable directions button
  */
 function enableDirectionsButton() {
-    var button = $('#directions_button');
-    button.button('enable');
-    button.closest('.ui-btn').find('.ui-btn-text').text(button.attr('value1'));
+    $('#get-directions').prop('disabled', false);
 }
 
 /**
- * Process Get Directions form
+ * Set directions input lng and lat
+ */
+function setDirectionsInputLngLat($input, lngLat) {
+    // Set lat & lng in input element
+    $input.data('lat', lngLat.lat);
+    $input.data('lng', lngLat.lng);
+}
+
+/**
+ * Geolocate user for directions input
+ */
+function geolocateUserForDirectionsInput($input) {
+    // @TODO: Do user geolocation
+    isFromGeolocation = true;
+    setDirectionsInputLngLat($input, LAST_KNOWN_LOCATION);
+}
+
+/**
+ * Check if coordinates are within park boundaries.
+ */
+function isWithinParkBounds(lngLat) {
+    // @TODO: Check if within actual parks (not just greater rectangle bounds)
+    return MAX_BOUNDS.contains(lngLat);
+}
+
+/**
+ * Geocode directions form input
+ */
+function geocodeDirectionsInput($input) {
+    var inputText = ($input).val();
+    var lat, lng;
+
+    // Text is "geolocate" (temp til we make a button)
+    if (inputText == 'geolocate') {
+        geolocateUserForDirectionsInput($input);
+        return;
+    }
+
+    // Text looks like lat & lng.
+    var latLngStr = /^(-?\d+\.\d+)\,\s*(-?\d+\.\d+)$/.exec(inputText);
+    if (latLngStr) {
+        var lngLat = new mapboxgl.LngLat(latLngStr[2], latLngStr[1]);
+        setDirectionsInputLngLat($input, lngLat)
+        return;
+    }
+
+    // Otherwise, make a geocode API call
+    $.get(API_NEW_BASE_URL + 'geocode/' + inputText, null, function (reply) {
+        if (reply) {
+            var lngLat = new mapboxgl.LngLat(reply.data.lng, reply.data.lat);
+            setDirectionsInputLngLat($input, lngLat)
+        } else {
+            // Geocode failed
+            // @TODO: Figure out and specify input (source or target)
+            var message = "Can't find that address.\nPlease try again.";
+            showInfoPopup(message, 'error');
+        }
+    },'json');
+}
+
+/**
+ * Check directions input
+ */
+function checkDirectionsInput($input) {
+    if ($input.data('autocompleted') == true) {
+        // @TODO: Do we really need this? Can we just rely on lat/lng?
+        return true;
+    }
+
+    if ($input.data('lat') && $input.data('lng')) {
+        return true;
+    }
+
+    geocodeDirectionsInput($input);
+
+    if ($input.data('lat') && $input.data('lng')) {
+        return true;
+    }
+}
+
+/**
+ * Process Get Directions
  *
- * This wrapper checks the directions_type field and other Get Directions fields,
- * decides what to use for the address field and the other params,
- * then calls either getDirections() et al
+ * Replacing processGetDirectionsForm()...
+ */
+function processGetDirections() {
+    var sourceIsRoutable = checkDirectionsInput($('#source-input'));
+    var targetIsRoutable = checkDirectionsInput($('#target-input'));
+
+    if (sourceIsRoutable && targetIsRoutable) {
+        var sourceLat = parseFloat($('#source-input').data('lat'));
+        var sourceLng = parseFloat($('#source-input').data('lng'));
+        var sourceLngLat = new mapboxgl.LngLat(sourceLng, sourceLat);
+
+        var targetLat = parseFloat($('#target-input').data('lat'));
+        var targetLng = parseFloat($('#target-input').data('lng'));
+        var targetLngLat = new mapboxgl.LngLat(targetLng, targetLat);
+
+        var isFromGeolocation = $('#target-input').data('isFromGeolocation') ? true : false;
+
+        var via = $('#directions-via').attr('data-value');
+
+        getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation);
+
+        // @TODO: If this didn't work, trigger outside directions call
+    }
+}
+
+/**
+ * DEPRECATING
  */
 function processGetDirectionsForm() {
-    // Transportation mode
-    var via = $('#directions_via').val();
-
-    // empty these fields because we probably don't need them
-    // they will be repopulated in the 'feature' switch below if we're routing to a Park Feature
-    $('#directions_source_gid').val('');
-    $('#directions_source_type').val('');
-
     // Use synchronous AJAX so the location finding happens in the required order
     // @TODO: Synchronous XMLHttpRequest is deprecated
     $.ajaxSetup({ async:false });
 
-    // figure out the source: address geocode, latlon already properly formatted, current GPS location, etc.
-    // Done before the target is resolved (below) because resolving the target can mean weighting based on the starting point
-    // e.g. directions to parks/reservations pick the closest entry point to our starting location
-    var sourcelat, sourcelng;
-    var addresstype = $('#directions_type').val();
-
-    // If we're routing from the user's current location
-    var from_geolocation = false;
-
     switch (addresstype) {
-        case 'gps':
-            from_geolocation = true;
-            sourcelat = LAST_KNOWN_LOCATION.lat;
-            sourcelng = LAST_KNOWN_LOCATION.lng;
-            break;
-
-        case 'geocode':
-            var address  = $('#directions_address').val();
-            if (! address) {
-                return alert("Please enter an address, city, or landmark.");
-            }
-
-            // If lat,lng are entered for the street address, parse as such
-            var is_coords = /^(-?\d+\.\d+)\,(-?\d+\.\d+)$/.exec(address);
-            if (is_coords) {
-                sourcelat = parseFloat(is_coords[1]);
-                sourcelng = parseFloat(is_coords[2]);
-                getDirections(sourcelat, sourcelng, targetlat, targetlng, via);
-            } else {
-                disableDirectionsButton();
-                $.get(API_NEW_BASE_URL + 'geocode/' + address, null, function (reply) {
-                    enableDirectionsButton();
-                    if (!reply) return alert("We couldn't find that address or city.\nPlease try again.");
-                    var sourceLngLat = new mapboxgl.LngLat(reply.data.lng, reply.data.lat);
-                    sourcelat = parseFloat(reply.data.lat);
-                    sourcelng = parseFloat(reply.data.lng);
-                    // if the address is outside of our max bounds, then we can't possibly do a Trails
-                    // search, and driving routing would still be goofy since it would traverse area well off the map
-                    // in this case, warn them that they should use Bing Maps, and send them there
-                    if (!MAX_BOUNDS.contains(sourceLngLat)) {
-                        var from = 'adr.' + address;
-                        var to   = 'pos.' + targetlat + '_' + targetlng;
-                        var params = {
-                            rtp : from+'~'+to,
-                        };
-                        var gmapsurl = 'http://bing.com/maps/default.aspx' + '?' + $.param(params);
-                        var target = $('#directions_steps');
-                        target.empty();
-                        target.append( $('<div></div>').html("The address you have chosen is outside of the covered area.<br/>Click the link below to go to Bing Maps for directions.") );
-                        target.append( $('<a></a>').text("Click here for directions from Bing Maps").prop('href',gmapsurl).prop('target','_blank') );
-                        return;
-                    }
-                },'json');
-            }
-            break;
-
         case 'features':
-            disableDirectionsButton();
-
             var keyword = $('#directions_address').val();
             var results = fuse.search(keyword);
-
-            enableDirectionsButton();
 
             if (!results.length) {
                 return alert("We couldn't find any matching landmarks."); // @TODO: Don't alert()
@@ -2326,8 +2422,8 @@ function processGetDirectionsForm() {
             }
 
             if (!exactMatch) {
-                sourcelat = null;
-                sourcelng = null;
+                sourceLat = null;
+                sourceLng = null;
                 populateDidYouMean(results);
                 return;
             }
@@ -2342,58 +2438,19 @@ function processGetDirectionsForm() {
             $('#directions_source_gid').val(exactMatch.gid);
             $('#directions_source_type').val(exactMatch.type);
 
-            sourcelat = parseFloat(exactMatch.lat);
-            sourcelng = parseFloat(exactMatch.lng);
+            sourceLat = parseFloat(exactMatch.lat);
+            sourceLng = parseFloat(exactMatch.lng);
 
-            if (!sourcelat || !sourcelng) {
+            if (!sourceLat || !sourceLng) {
                 return;
             }
             break;
-    } // end addresstype switch
-
-    // Sometimes we don't actually route between these two points, but use the type & gid to
-    // find the closest target points, e.g. the closest entry gate at a Reservation, or a parking lot for a POI
-    // do this for both the Target (the chosen location before the Directions panel opened)
-    // and for the Source (whatever address or park feature they entered/selected as the other endpoint)
-    var targetlat = parseFloat( $('#directions_target_lat').val() );
-    var targetlng = parseFloat( $('#directions_target_lng').val() );
-
-    // Get the source location
-    var source_gid  = $('#directions_source_gid').val();
-    var source_type = $('#directions_source_type').val();
-
-    if (source_type == 'poi'
-        || source_type == 'attraction'
-        || source_type == 'reservation'
-        || source_type == 'trail')
-    {
-        var source_loc = geocodeLocationForDirections(source_type, source_gid, targetlat, targetlng, via, '#directions_source_lat', '#directions_source_lng');
-        sourcelat = source_loc.lat;
-        sourcelng = source_loc.lng;
-    }
-
-    // Get the target location
-    var target_gid  = $('#directions_target_gid').val();
-    var target_type = $('#directions_target_type').val();
-
-    if (target_type == 'poi'
-        || target_type == 'attraction'
-        || target_type == 'reservation'
-        || target_type == 'trail')
-    {
-        var target_loc = geocodeLocationForDirections(target_type, target_gid, sourcelat, sourcelng, via, '#directions_target_lat', '#directions_target_lng');
-        targetlat = target_loc.lat;
-        targetlng = target_loc.lng;
-    }
-
-    if (! targetlat || ! targetlng) {
-        return alert("Please close the directions panel, and pick a location.");
     }
 
     // Re-enable asynchronous AJAX
     $.ajaxSetup({ async:true });
 
-    getDirections(sourcelat, sourcelng, targetlat, targetlng, via, from_geolocation);
+    getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation);
 }
 
 /**
@@ -2456,7 +2513,7 @@ function geocodeLocationForDirections(loc_type, loc_gid, lat, lng, via, lat_el_i
  * Populate "Did you mean:?"
  */
 function populateDidYouMean(results) {
-    var target = $('#directions_steps');
+    var target = $('#directions-steps');
     target.empty();
 
     // Item 0 is not a result, but the words "Did you mean:"
@@ -2507,7 +2564,7 @@ function renderDirectionsStructure(directions) {
     MAP.fitBounds(bounds, {padding: 10});
 
     // phase 2: put the directions into the panel
-    var target = $('#directions_steps');
+    var target = $('#directions-steps');
     target.empty();
 
     for (var i=0, l=directions.steps.length; i<l; i++) {
@@ -2530,7 +2587,7 @@ function renderDirectionsStructure(directions) {
     var total = $('<span></span>').addClass('ui-li-heading').html('<b>Total:</b> ' + directions.totals.distance + ', ' + directions.totals.duration);
     target.append( $('<li></li>').append(total).append(note) );
 
-    var directionsFunctions = $('<div></div>').addClass('directions_functions');
+    var directionsFunctions = $('<div></div>').addClass('directions-functions');
 
     // Elevation Profile button
     if (directions.elevationprofile) {
@@ -2559,9 +2616,9 @@ function renderDirectionsStructure(directions) {
         .addClass('ui-corner-all')
         .text('Clear');
     clearMapBtn.click(function () {
-        $('#directions_steps').empty();
+        $('#directions-steps').empty();
         clearDirectionsLine();
-        $('.directions_functions').empty();
+        $('.directions-functions').empty();
     });
     directionsFunctions.append(clearMapBtn);
 
@@ -2602,34 +2659,42 @@ function renderDirectionsStructure(directions) {
     // give the list that jQuery Mobile magic
     target.listview('refresh');
     // jQM assigns this class, screwing up the position & size of the first button IMG:
-    $('.directions_functions img:first').removeClass('ui-li-thumb');
+    $('.directions-functions img:first').removeClass('ui-li-thumb');
 }
 
 /**
  * Update window URL with directions
  */
 function updateWindowURLWithDirections() {
-    // If the directions aren't filled in, we can't do this.
-    if (!$('#directions_source_lat').val()) {
-        return;
+    var params = {};
+
+    params.base = (getBasemap() == 'photo') ? 'photo' : 'map';
+
+    params.action = 'directions';
+
+    var via = $('#directions-via').attr('data-value');
+    params.via = via ? via : 'hike';
+
+    params.sourceText = $('#source-input').val();
+    var sourceLat = parseFloat($('#source-input').data('lat'));
+    var sourceLng = parseFloat($('#source-input').data('lng'));
+    if (sourceLat && sourceLng) {
+        params.sourceLatLng = sourceLat + ',' + sourceLng;
     }
 
-    // Assemble the URL params from directions form
-    var params = {};
-    if (getBasemap() == 'photo') {
-        params.base = 'photo';
-    } else {
-        params.base = 'map';
+    params.targetText = $('#target-input').val();
+    var targetLat = parseFloat($('#target-input').data('lat'));
+    var targetLng = parseFloat($('#target-input').data('lng'));
+    if (targetLat && targetLng) {
+        params.targetLatLng = targetLat + ',' + targetLng;
     }
-    params.routevia        = $('#directions_via').val();
-    params.routefrom       = $('#directions_source_lat').val() + ',' + $('#directions_source_lng').val();
-    params.routeto         = $('#directions_target_lat').val() + ',' + $('#directions_target_lng').val();
-    params.routetitle      = $('#directions_target_title').text();
-    params.loctype         = $('#directions_type').val();
-    params.fromaddr        = $('#directions_address').val();
-    if (params.routevia == 'trail') {
-        params.routevia = $('#directions_via_trail').val();
+
+    if (params.via == 'trail') {
+        params.via = $('#directions_via_trail').val();
     }
+
+    // params.loctype = $('#directions_type').val();
+    // var isFromGeolocation = $('#target-input').data('isFromGeolocation') ? true : false;
 
     setWindowURLQueryStringParameters(params, true, true);
 }
@@ -2682,75 +2747,9 @@ function clearDirectionsLine() {
     // and both the Directions and Measure need their content erased, so they aren't confused with each other
     // don't worry, clearDirectionsLine() is always a prelude to repopulating one of these
     //
-    $('#directions_steps').empty();
+    $('#directions-steps').empty();
     $('#measure_steps').empty();
 }
-
-/**
- * Event handlers for the directions subsystem
- */
-$(document).ready(function () {
-    // The 4 icons launch the Get Directions panel
-    // selecting the appropriate transport method
-    $('#directions_hike').click(function () {
-        launchGetDirections('hike');
-    });
-    $('#directions_bike').click(function () {
-        launchGetDirections('bike');
-    });
-    $('#directions_bridle').click(function () {
-        launchGetDirections('bridle');
-    });
-    $('#directions_car').click(function () {
-        launchGetDirections('car');
-    });
-    $('#directions_bus').click(function () {
-        launchGetDirections('bus');
-    });
-
-    /**
-     * Launch Get Directions
-     */
-    function launchGetDirections(transport_method) {
-        $('#directions_via').val(transport_method);
-        $('#directions_via').trigger('change');
-        // update that selector: render the page if it's not already been visited,
-        // then restyle the selector so it shows the value it has
-        $('#directions_via').selectmenu("refresh");
-        // and change to the Get Directions panel
-        sidebar.open('pane-getdirections');
-    }
-
-    // the directions-type picker (GPS, address, POI, etc) mostly shows and hides elements
-    // its value is used in processGetDirectionsForm() for choosing how to figure out which element to use
-    $('#directions_type').change(function () {
-        var which  = $(this).val();
-        var target = $('#directions_type_geocode_wrap');
-        if (which == 'gps') {
-            target.hide();
-        } else {
-            target.show();
-        }
-    });
-
-    // This button triggers a geocode and directions, using the common.js interface
-    $('#directions_button').click(function () {
-        $('#directions_steps').empty();
-        $('.directions_functions').remove();
-        processGetDirectionsForm();
-    });
-    $('#directions_address').keydown(function (key) {
-        if(key.keyCode == 13) $('#directions_button').click();
-    });
-
-    // These buttons change over to the Find subpage for picking a destination
-    $('.set-directions-target').click(function () {
-        sidebar.open('pane-browse');
-        // Set this flag to make zoomElementClick() skip showing the feature info,
-        // simply injecting it into directions.
-        SKIP_TO_DIRECTIONS = true;
-    });
-});
 
 /**
  * Make elevation profile chart
@@ -2816,14 +2815,136 @@ function makeElevationProfileChart() {
 }
 
 /**
- * the directions button does an async geocode on the address,
- * then an async directions lookup between the points,
- * then draws the polyline path and prints the directions
+ * Launch Get Directions
+ */
+function launchGetDirections(transport_method) {
+    $('#directions_via').val(transport_method);
+    $('#directions_via').trigger('change');
+    // update that selector: render the page if it's not already been visited,
+    // then restyle the selector so it shows the value it has
+    $('#directions_via').selectmenu("refresh");
+    // and change to the Get Directions panel
+    sidebar.open('pane-directions');
+}
+
+/**
+ * Misc handlers
  */
 $(document).ready(function () {
+    // The 4 icons launch the Get Directions panel
+    // selecting the appropriate transport method
+    $('#directions_hike').click(function () {
+        launchGetDirections('hike');
+    });
+    $('#directions_bike').click(function () {
+        launchGetDirections('bike');
+    });
+    $('#directions_bridle').click(function () {
+        launchGetDirections('bridle');
+    });
+    $('#directions_car').click(function () {
+        launchGetDirections('car');
+    });
+    $('#directions_bus').click(function () {
+        launchGetDirections('bus');
+    });
+
+    // the directions-type picker (GPS, address, POI, etc) mostly shows and hides elements
+    // its value is used in processGetDirectionsForm() for choosing how to figure out which element to use
+    $('#directions_type').change(function () {
+        var which  = $(this).val();
+        var target = $('#directions_type_geocode_wrap');
+        if (which == 'gps') {
+            target.hide();
+        } else {
+            target.show();
+        }
+    });
+
+    // Get Directions click
+    $('#get-directions').click(function () {
+        $('#directions-steps').empty();
+        $('.directions-functions').remove();
+        processGetDirections();
+    });
+
+    $('#directions_address').keydown(function (key) {
+        if(key.keyCode == 13) $('#directions_button').click();
+    });
+
+    /**
+     * Get directions button does an async geocode on the address,
+     * then an async directions lookup between the points,
+     * then draws the polyline path and prints the directions
+     */
     $('#getdirections_clear').click(function () {
         clearDirectionsLine();
-        $('#directions_steps').empty();
+        $('#directions-steps').empty();
+    });
+
+    /**
+     * Directions "Via" button clicks
+     */
+    $('.via-buttons a').click(function () {
+        $(this).parent().attr('data-value', $(this).attr('data-value'));
+        $(this).parent().children().removeClass('active');
+        $(this).addClass('active');
+    });
+
+    // Autocomplete on To/From inputs
+    $(".feature-search-autocomplete").on("filterablebeforefilter", function(e, data) {
+        var $ul = $(this),
+            $input = $(data.input),
+            value = $input.val(),
+            listItems = "",
+            sourceOrTarget = $ul.attr('data-value-sourcetarget');
+
+        $ul.html("");
+
+        if (value && value.length > 2) {
+            var fuse_results = fuse.search(value);
+            if (fuse_results) {
+                $.each(fuse_results, function (i, val) {
+                    var li = '';
+                    li += '<li>';
+                    li += '<a href="#" data-transition="fade" class="ui-btn"';
+                    li += 'data-value-gid="' + val.item.gid + '" ';
+                    li += 'data-value-lat="' + val.item.lat + '" ';
+                    li += 'data-value-lng="' + val.item.lng + '" ';
+                    li += 'data-value-type="' + val.item.type + '"';
+                    li += '>' + val.item.title + '</a>';
+                    li += '</li>';
+                    listItems += li;
+                });
+                $ul.html(listItems);
+                $ul.show();
+                $ul.listview("refresh").trigger("updatelayout");
+                $ul.children().each(function() {
+                    $(this).click(function() {
+                        $input.val($(this).text());
+                        $ul.hide();
+                        var lat = $(this).children('a').attr('data-value-lat');
+                        var lng = $(this).children('a').attr('data-value-lng');
+                        // Set lat/lng data inside element
+                        $input.data('lat', lat);
+                        $input.data('lng', lng);
+                        $input.data('autocompleted', true); // @TODO: Need to reset this to false at some point
+
+                        var marker;
+                        if (sourceOrTarget == 'source') {
+                            marker = MARKER_START;
+                        } else {
+                            marker = MARKER_END;
+                        }
+                        placeMarker(marker, lat, lng);
+                        MAP.flyTo({center: [lng, lat]});
+                        // @TODO: If both markers are shown, zoom to fit both.
+                        //        We do a fit in the Directions call, but should probably do something here too.
+                    });
+                });
+            }
+        }
+
     });
 });
 
@@ -3234,6 +3355,9 @@ function searchByKeyword(keyword) {
     getListDistances(target);
 }
 
+/**
+ *
+ */
 var resultTypeNames = {
     'attraction': 'Attraction',
     // 'trail': 'Trail',
@@ -3422,12 +3546,14 @@ function updateNearYouNow() {
 
         // Build a semicolon-separated string of the attraction's categories
         var categories_str = '';
-        attraction.categories.forEach(function(category_id, index) {
-            if (index > 0) {
-                categories_str += '; ';
-            }
-            categories_str += CM.categories[category_id].name;
-        });
+        if (Array.isArray(attraction.categories)) {
+            attraction.categories.forEach(function(category_id, index) {
+                if (index > 0) {
+                    categories_str += '; ';
+                }
+                categories_str += CM.categories[category_id].name;
+            }); 
+        };
 
         div.append($('<p></p>').text(categories_str));
         div.append($('<span></span>').addClass('zoom_distance').addClass('ui-li-count').addClass('ui-btn-up-c').addClass('ui-btn-corner-all').text(attraction.range + ' ' + attraction.bearing));
@@ -4046,4 +4172,53 @@ this["CM"]["Templates"]["info_trail"] = Handlebars.template({"1":function(contai
     + ((stack1 = alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"description") : stack1), depth0)) != null ? stack1 : "")
     + "\n\n"
     + ((stack1 = lookupProperty(helpers,"if").call(alias3,(depth0 != null ? lookupProperty(depth0,"img_src") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":18,"column":0},"end":{"line":22,"column":7}}})) != null ? stack1 : "");
+},"useData":true});
+
+this["CM"]["Templates"]["pane_activities_item"] = Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "<li>\n    <a href=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"activity") : depth0)) != null ? lookupProperty(stack1,"link_url") : stack1), depth0))
+    + "\">\n        <img class=\"ui-li-icon\" src=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"activity") : depth0)) != null ? lookupProperty(stack1,"icon") : stack1), depth0))
+    + "\" /> "
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"activity") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
+    + "\n    </a>\n</li>\n";
+},"useData":true});
+
+this["CM"]["Templates"]["pane_amenities_item"] = Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "<li>\n    <a href=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"link_url") : stack1), depth0))
+    + "\">\n        <i class=\"cm-icon cm-icon-"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"icon") : stack1), depth0))
+    + "\"></i>\n        "
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"title") : stack1), depth0))
+    + "\n    </a>\n</li>\n";
+},"useData":true});
+
+this["CM"]["Templates"]["pane_trails_reservation_filter_option"] = Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "<option value=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"reservation") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
+    + "\">"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"reservation") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
+    + "</option>\n";
 },"useData":true});

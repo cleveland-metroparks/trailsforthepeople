@@ -866,6 +866,7 @@ function switchToMap() {
  */
 $(document).ready(function () {
     loadMapAndStartingState();
+    populateSidebarPanes();
 });
 
 /**
@@ -1327,32 +1328,38 @@ function getListDistances(target) {
 
 /**
  * Sort Lists
+ *
  * a unified interface to calculate distances of items in a list, then sort that list by distance
- * this ended up being so common a design pattern, putting it here saves a lot of repeat
  * look for the magic tag ul.distance_sortable and populate the .zoom_distance boxes within it, then sort the ul.distance_sortable
+ *
+ * @param target
+ * @param sortType: 'distance' or 'alphabetical'
  */
-function sortLists(target) {
+function sortLists(target, sortType) {
     // if no target was specified, get the first (only) ul.distance_sortable on the currently visible page
     // if there isn't one there, bail
     if (! target) {
         target = $(".sidebar-pane.active ul.distance_sortable").eq(0);
-        if (! target.length) {
+        if (!target.length) {
             return;
         }
     }
 
     getListDistances(target);
 
-    // finally, the sort!
-    switch (DEFAULT_SORT) {
+    if (!sortType) {
+        sortType = DEFAULT_SORT;
+    }
+
+    switch (sortType) {
         case 'distance':
             target.children('li').sort(function (p,q) {
-                return ( $(p).data('meters') > $(q).data('meters') ) ? 1 : -1;
+                return ($(p).data('meters') > $(q).data('meters') ) ? 1 : -1;
             });
             break;
         case 'alphabetical':
             target.children('li').sort(function (p,q) {
-                return ( $(p).attr('title') > $(q).attr('title') ) ? 1 : -1;
+                return ($(p).text() > $(q).text()) ? 1 : -1;
             });
             break;
     }
@@ -1670,6 +1677,124 @@ $(document).on("mapReady", function() {
  * Cleveland Metroparks
  */
 
+
+/**
+ * Populate the sidebar panes with data.
+ */
+function populateSidebarPanes() {
+    // Activities pane
+    $(document).on("dataReadyActivities", function() {
+        populatePaneActivities();
+    });
+
+    // Amenities pane
+    // @TODO: We don't have data or API endpoint here yet?
+    $(document).on("dataReadyAmenities", function() {
+        populatePaneAmenities();
+    });
+
+    // Reservations in Trails pane
+    $(document).on("dataReadyReservations", function() {
+        populatePaneTrails();
+    });
+}
+
+/**
+ * Populate the Activities sidebar pane.
+ */
+function populatePaneActivities() {
+    var template = CM.Templates.pane_activities_item;
+
+    CM.activities.forEach(function(activity) {
+        if (activity.icon) {
+            var link_param_category = 'pois_usetype_' + encodeURIComponent(activity.pagetitle);
+            activity.link_url = "#browse-results?id="
+                                + activity.eventactivitytypeid
+                                + "&category="
+                                + link_param_category;
+            var template_vars = {
+                activity: activity
+            };
+            $('#activities-list').append(template(template_vars));
+        }
+    });
+
+    $('#activities-list').listview('refresh');
+    sortLists($('#activities-list'), 'alphabetical');
+
+    /*
+     * Set click event
+     */
+    $('#activities-list li a').click(function() {
+        // Get Activity ID from query string params
+        // (purl.js apparently doesn't parse query string if URL begins with '#')
+        re = /id=(\d*)/;
+        var matches = this.hash.match(re);
+        if (matches.length == 2) {
+            activity_id = matches[1];
+        }
+
+        sidebar.open('pane-browse-results');
+
+        pane_title = $(this).text().trim();
+        set_pane_back_button('#pane-browse-results', '#pane-activities');
+
+        // Render to UL.zoom in the #pane-browse-results pane, and display it
+        var filtered_attractions = CM.get_attractions_by_activity(activity_id);
+        CM.display_attractions_results(pane_title, filtered_attractions, 'attraction');
+    });
+}
+
+/**
+ * Populate the Activities sidebar pane.
+ */
+function populatePaneAmenities() {
+    var template = CM.Templates.pane_amenities_item;
+    CM.amenities.forEach(function(amenity) {
+        amenity.link_url = '#browse-results?amenity_id=' + amenity.amenitytypeid;
+        var template_vars = {
+            amenity: amenity,
+        };
+        $('#amenities-list').append(template(template_vars));
+    });
+
+    $('#amenities-list').listview('refresh');
+    sortLists($('#amenities-list'), 'alphabetical');
+
+    /*
+     * Set click event
+     */
+    $('#amenities-list li a').click(function() {
+        // Get Amenity ID from query string param
+        // (purl.js apparently doesn't parse query string if URL begins with '#')
+        re = /amenity_id=(\d*)/;
+        var matches = this.hash.match(re);
+        if (matches.length == 2) {
+            amenity_id = matches[1];
+        }
+
+        pane_title = $(this).text().trim();
+        set_pane_back_button('#pane-browse-results', '#pane-amenities');
+
+        // Render to UL.zoom in the #pane-browse-results pane, and display it
+        var filtered_attractions = CM.get_attractions_by_amenity(amenity_id);
+        CM.display_attractions_results(pane_title, filtered_attractions, 'attraction');
+    });
+}
+
+/**
+ * Populate the Trails sidebar pane's reservations dropdown.
+ */
+function populatePaneTrails() {
+    var template = CM.Templates.pane_trails_reservation_filter_option;
+    CM.reservations.forEach(function(reservation) {
+        var template_vars = {
+            reservation: reservation,
+        };
+        $('#loops_filter_reservation').append(template(template_vars));
+    });
+}
+
 /**
  * Handle clicks on various sidebar elements
  */
@@ -1703,50 +1828,6 @@ $(document).ready(function () {
      */
     $('.sidebar-tabs li a[href="#pane-nearby"]').click(function() {
         updateNearYouNow();
-    });
-
-    /*
-     * Activities pane (#pane-activities)
-     */
-    // When an Activity is clicked:
-    $('#pane-activities li a').click(function() {
-        // Get Activity ID from query string params
-        // (purl.js apparently doesn't parse query string if URL begins with '#')
-        re = /id=(\d*)/;
-        var matches = this.hash.match(re);
-        if (matches.length == 2) {
-            activity_id = matches[1];
-        }
-
-        sidebar.open('pane-browse-results');
-
-        pane_title = $(this).text().trim();
-        set_pane_back_button('#pane-browse-results', '#pane-activities');
-
-        // Render to UL.zoom in the #pane-browse-results pane, and display it
-        var filtered_attractions = CM.get_attractions_by_activity(activity_id);
-        CM.display_attractions_results(pane_title, filtered_attractions, 'attraction');
-    });
-
-    /*
-     * Amenities pane (#pane-amenities)
-     */
-    // When an amenity is clicked:
-    $('#pane-amenities li a').click(function() {
-        // Get Amenity ID from query string param
-        // (purl.js apparently doesn't parse query string if URL begins with '#')
-        re = /amenity_id=(\d*)/;
-        var matches = this.hash.match(re);
-        if (matches.length == 2) {
-            amenity_id = matches[1];
-        }
-
-        pane_title = $(this).text().trim();
-        set_pane_back_button('#pane-browse-results', '#pane-amenities');
-
-        // Render to UL.zoom in the #pane-browse-results pane, and display it
-        var filtered_attractions = CM.get_attractions_by_amenity(amenity_id);
-        CM.display_attractions_results(pane_title, filtered_attractions, 'attraction');
     });
 
     /*
@@ -4091,4 +4172,53 @@ this["CM"]["Templates"]["info_trail"] = Handlebars.template({"1":function(contai
     + ((stack1 = alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"description") : stack1), depth0)) != null ? stack1 : "")
     + "\n\n"
     + ((stack1 = lookupProperty(helpers,"if").call(alias3,(depth0 != null ? lookupProperty(depth0,"img_src") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":18,"column":0},"end":{"line":22,"column":7}}})) != null ? stack1 : "");
+},"useData":true});
+
+this["CM"]["Templates"]["pane_activities_item"] = Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "<li>\n    <a href=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"activity") : depth0)) != null ? lookupProperty(stack1,"link_url") : stack1), depth0))
+    + "\">\n        <img class=\"ui-li-icon\" src=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"activity") : depth0)) != null ? lookupProperty(stack1,"icon") : stack1), depth0))
+    + "\" /> <span class=\"title\">"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"activity") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
+    + "</span>\n    </a>\n</li>\n";
+},"useData":true});
+
+this["CM"]["Templates"]["pane_amenities_item"] = Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "<li>\n    <a href=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"link_url") : stack1), depth0))
+    + "\">\n        <i class=\"cm-icon cm-icon-"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"icon") : stack1), depth0))
+    + "\"></i>\n        "
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"title") : stack1), depth0))
+    + "\n    </a>\n</li>\n";
+},"useData":true});
+
+this["CM"]["Templates"]["pane_trails_reservation_filter_option"] = Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "<option value=\""
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"reservation") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
+    + "\">"
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"reservation") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
+    + "</option>\n";
 },"useData":true});
