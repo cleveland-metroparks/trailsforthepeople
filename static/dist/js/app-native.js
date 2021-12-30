@@ -411,6 +411,7 @@ function setWindowURLQueryStringParameters(params, reset, pushState) {
 //
 var CM = {
     activities : [],
+    amenities : [],
     attractions : [],
     attractions_nearby : [],
     autocomplete_keywords : [],
@@ -459,6 +460,25 @@ $.get(API_NEW_BASE_URL + 'categories', null, function (reply) {
 
     $.event.trigger({
         type: 'dataReadyCategories',
+    });
+}, 'json');
+
+//
+// Get amenities, and populate global object, CM.amenities
+//
+$.get(API_NEW_BASE_URL + 'amenities', null, function (reply) {
+    CM.amenities = reply.data;
+
+    // Add to Fuse search index
+    CM.amenities.forEach(function(amenity) {
+        searchItem = {
+            amenitytypeid: amenity.amenitytypeid,
+            name: amenity.name
+        };
+    });
+
+    $.event.trigger({
+        type: 'dataReadyAmenities',
     });
 }, 'json');
 
@@ -888,73 +908,6 @@ $(document).ready(function () {
 window.onpopstate = function() {
     loadMapAndStartingState();
 };
-
-/**
- * Populate the sidebar panes with data.
- */
-function populateSidebarPanes() {
-    // Activities pane
-    $(document).on("dataReadyActivities", function() {
-        populatePaneActivities();
-    }
-
-    // Amenities pane
-    // @TODO: We don't have data or API endpoint here yet?
-    $(document).on("dataReadyAmenities", function() {
-        populatePaneAmenities();
-    }
-
-    // Reservations in Trails pane
-    $(document).on("dataReadyReservations", function() {
-        populatePaneTrails();
-    }
-}
-
-/**
- * Populate the Activities sidebar pane.
- */
-function populatePaneActivities() {
-    var template = CM.Templates.pane_activities_item;
-
-    CM.activities.forEach(function(activity) {
-        var link_param_category = 'pois_usetype_' + activity.title; // @TODO: urlencode the title
-        activity.link_url = "#browse-results?id="
-                            + activity.eventactivitytypeid
-                            + "&category="
-                            + link_param_category;
-        var template_vars = {
-            activity: activity
-        };
-        $('#activities-list').append(template(template_vars));
-    });
-}
-
-/**
- * Populate the Activities sidebar pane.
- */
-function populatePaneAmenities() {
-    var template = CM.Templates.pane_amenities_item;
-    CM.amenities.forEach(function(amenity) {
-        amenity.link_url = '#browse-results?amenity_id=' + amenitytypeid;
-        var template_vars = {
-            amenity: amenity,
-        };
-        $('#amenities-list').append(template(template_vars));
-    });
-}
-
-/**
- * Populate the Trails sidebar pane's reservations dropdown.
- */
-function populatePaneTrails() {
-    var template = CM.Templates.pane_trails_reservation_filter_option;
-    CM.reservations.forEach(function(reservation) {
-        var template_vars = {
-            reservation: reservation,
-        };
-        $('#loops_filter_reservation').append(template(template_vars));
-    });
-}
 
 /**
  * Load the map and process query string parameters to initiate state.
@@ -1408,32 +1361,38 @@ function getListDistances(target) {
 
 /**
  * Sort Lists
+ *
  * a unified interface to calculate distances of items in a list, then sort that list by distance
- * this ended up being so common a design pattern, putting it here saves a lot of repeat
  * look for the magic tag ul.distance_sortable and populate the .zoom_distance boxes within it, then sort the ul.distance_sortable
+ *
+ * @param target
+ * @param sortType: 'distance' or 'alphabetical'
  */
-function sortLists(target) {
+function sortLists(target, sortType) {
     // if no target was specified, get the first (only) ul.distance_sortable on the currently visible page
     // if there isn't one there, bail
     if (! target) {
         target = $(".sidebar-pane.active ul.distance_sortable").eq(0);
-        if (! target.length) {
+        if (!target.length) {
             return;
         }
     }
 
     getListDistances(target);
 
-    // finally, the sort!
-    switch (DEFAULT_SORT) {
+    if (!sortType) {
+        sortType = DEFAULT_SORT;
+    }
+
+    switch (sortType) {
         case 'distance':
             target.children('li').sort(function (p,q) {
-                return ( $(p).data('meters') > $(q).data('meters') ) ? 1 : -1;
+                return ($(p).data('meters') > $(q).data('meters') ) ? 1 : -1;
             });
             break;
         case 'alphabetical':
             target.children('li').sort(function (p,q) {
-                return ( $(p).attr('title') > $(q).attr('title') ) ? 1 : -1;
+                return ($(p).text() > $(q).text()) ? 1 : -1;
             });
             break;
     }
@@ -1751,46 +1710,55 @@ $(document).on("mapReady", function() {
  * Cleveland Metroparks
  */
 
+
 /**
- * Handle clicks on various sidebar elements
+ * Populate the sidebar panes with data.
  */
-$(document).ready(function () {
+function populateSidebarPanes() {
+    // Activities pane
+    $(document).on("dataReadyActivities", function() {
+        populatePaneActivities();
+    });
 
-    // To make links that open new sidebar panes,
-    // give them the class ".sidebar-pane-link"
-    // and make the href an anchor with the pane name, (#panename)
-    $('.sidebar-pane-link').click(function() {
-        link = $(this).attr('href');
-        if (link.charAt(0) == '#') {
-            pane = link.substr(1);
+    // Amenities pane
+    // @TODO: We don't have data or API endpoint here yet?
+    $(document).on("dataReadyAmenities", function() {
+        populatePaneAmenities();
+    });
+
+    // Reservations in Trails pane
+    $(document).on("dataReadyReservations", function() {
+        populatePaneTrails();
+    });
+}
+
+/**
+ * Populate the Activities sidebar pane.
+ */
+function populatePaneActivities() {
+    var template = CM.Templates.pane_activities_item;
+
+    CM.activities.forEach(function(activity) {
+        if (activity.icon) {
+            var link_param_category = 'pois_usetype_' + encodeURIComponent(activity.pagetitle);
+            activity.link_url = "#browse-results?id="
+                                + activity.eventactivitytypeid
+                                + "&category="
+                                + link_param_category;
+            var template_vars = {
+                activity: activity
+            };
+            $('#activities-list').append(template(template_vars));
         }
-        sidebar.open(pane);
     });
 
-    /*
-     * Find pane (#pane-browse)
-     */
-    $('#pane-browse li a[href="#pane-activities"]').click(function() {
-        set_pane_back_button('#pane-activities', '#pane-browse');
-    });
-    $('#pane-browse li a[href="#pane-trails"]').click(function() {
-        set_pane_back_button('#pane-trails', '#pane-browse');
-        // Perform trails search upon opening the pane.
-        doTrailSearch();
-    });
+    $('#activities-list').listview('refresh');
+    sortLists($('#activities-list'), 'alphabetical');
 
-    /*
-     * Nearby pane (#pane-nearby)
+    /**
+     * Set click event
      */
-    $('.sidebar-tabs li a[href="#pane-nearby"]').click(function() {
-        updateNearYouNow();
-    });
-
-    /*
-     * Activities pane (#pane-activities)
-     */
-    // When an Activity is clicked:
-    $('#pane-activities li a').click(function() {
+    $('#activities-list li a').click(function() {
         // Get Activity ID from query string params
         // (purl.js apparently doesn't parse query string if URL begins with '#')
         re = /id=(\d*)/;
@@ -1808,12 +1776,28 @@ $(document).ready(function () {
         var filtered_attractions = CM.get_attractions_by_activity(activity_id);
         CM.display_attractions_results(pane_title, filtered_attractions, 'attraction');
     });
+}
 
-    /*
-     * Amenities pane (#pane-amenities)
+/**
+ * Populate the Activities sidebar pane.
+ */
+function populatePaneAmenities() {
+    var template = CM.Templates.pane_amenities_item;
+    CM.amenities.forEach(function(amenity) {
+        amenity.link_url = '#browse-results?amenity_id=' + amenity.amenitytypeid;
+        var template_vars = {
+            amenity: amenity,
+        };
+        $('#amenities-list').append(template(template_vars));
+    });
+
+    $('#amenities-list').listview('refresh');
+    sortLists($('#amenities-list'), 'alphabetical');
+
+    /**
+     * Set click event
      */
-    // When an amenity is clicked:
-    $('#pane-amenities li a').click(function() {
+    $('#amenities-list li a').click(function() {
         // Get Amenity ID from query string param
         // (purl.js apparently doesn't parse query string if URL begins with '#')
         re = /amenity_id=(\d*)/;
@@ -1829,8 +1813,57 @@ $(document).ready(function () {
         var filtered_attractions = CM.get_attractions_by_amenity(amenity_id);
         CM.display_attractions_results(pane_title, filtered_attractions, 'attraction');
     });
+}
 
-    /*
+/**
+ * Populate the Trails sidebar pane's reservations dropdown.
+ */
+function populatePaneTrails() {
+    var template = CM.Templates.pane_trails_reservation_filter_option;
+    CM.reservations.forEach(function(reservation) {
+        var template_vars = {
+            reservation: reservation,
+        };
+        $('#loops_filter_reservation').append(template(template_vars));
+    });
+}
+
+/**
+ * Handle clicks on various sidebar elements
+ */
+$(document).ready(function () {
+
+    // To make links that open new sidebar panes,
+    // give them the class ".sidebar-pane-link"
+    // and make the href an anchor with the pane name, (#panename)
+    $('.sidebar-pane-link').click(function() {
+        link = $(this).attr('href');
+        if (link.charAt(0) == '#') {
+            pane = link.substr(1);
+        }
+        sidebar.open(pane);
+    });
+
+    /**
+     * Find pane (#pane-browse)
+     */
+    $('#pane-browse li a[href="#pane-activities"]').click(function() {
+        set_pane_back_button('#pane-activities', '#pane-browse');
+    });
+    $('#pane-browse li a[href="#pane-trails"]').click(function() {
+        set_pane_back_button('#pane-trails', '#pane-browse');
+        // Perform trails search upon opening the pane.
+        doTrailSearch();
+    });
+
+    /**
+     * Nearby pane (#pane-nearby)
+     */
+    $('.sidebar-tabs li a[href="#pane-nearby"]').click(function() {
+        updateNearYouNow();
+    });
+
+    /**
      * Welcome pane (#pane-welcome)
      */
 
@@ -1864,7 +1897,7 @@ $(document).ready(function () {
         doTrailSearch();
     });
 
-    /*
+    /**
      * Share pane (#pane-share)
      */
 
@@ -4186,9 +4219,9 @@ this["CM"]["Templates"]["pane_activities_item"] = Handlebars.template({"compiler
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"activity") : depth0)) != null ? lookupProperty(stack1,"link_url") : stack1), depth0))
     + "\">\n        <img class=\"ui-li-icon\" src=\""
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"activity") : depth0)) != null ? lookupProperty(stack1,"icon") : stack1), depth0))
-    + "\" /> "
+    + "\" /> <span class=\"title\">"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"activity") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
-    + "\n    </a>\n</li>\n";
+    + "</span>\n    </a>\n</li>\n";
 },"useData":true});
 
 this["CM"]["Templates"]["pane_amenities_item"] = Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {

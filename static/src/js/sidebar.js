@@ -51,7 +51,7 @@ function populatePaneActivities() {
     $('#activities-list').listview('refresh');
     sortLists($('#activities-list'), 'alphabetical');
 
-    /*
+    /**
      * Set click event
      */
     $('#activities-list li a').click(function() {
@@ -90,7 +90,7 @@ function populatePaneAmenities() {
     $('#amenities-list').listview('refresh');
     sortLists($('#amenities-list'), 'alphabetical');
 
-    /*
+    /**
      * Set click event
      */
     $('#amenities-list li a').click(function() {
@@ -140,7 +140,7 @@ $(document).ready(function () {
         sidebar.open(pane);
     });
 
-    /*
+    /**
      * Find pane (#pane-browse)
      */
     $('#pane-browse li a[href="#pane-activities"]').click(function() {
@@ -152,14 +152,14 @@ $(document).ready(function () {
         doTrailSearch();
     });
 
-    /*
+    /**
      * Nearby pane (#pane-nearby)
      */
     $('.sidebar-tabs li a[href="#pane-nearby"]').click(function() {
         updateNearYouNow();
     });
 
-    /*
+    /**
      * Welcome pane (#pane-welcome)
      */
 
@@ -193,7 +193,7 @@ $(document).ready(function () {
         doTrailSearch();
     });
 
-    /*
+    /**
      * Share pane (#pane-share)
      */
 

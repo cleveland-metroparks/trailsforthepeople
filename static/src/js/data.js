@@ -12,6 +12,7 @@
 //
 var CM = {
     activities : [],
+    amenities : [],
     attractions : [],
     attractions_nearby : [],
     autocomplete_keywords : [],
@@ -60,6 +61,33 @@ $.get(API_NEW_BASE_URL + 'categories', null, function (reply) {
 
     $.event.trigger({
         type: 'dataReadyCategories',
+    });
+}, 'json');
+
+//
+// Get amenities, and populate global object, CM.amenities
+//
+$.get(API_NEW_BASE_URL + 'amenities', null, function (reply) {
+    CM.amenities = reply.data;
+
+    var amenity_icons = {
+        '221': 'baseball',     // Ball Field
+        '231': 'basketball',   // Basketball Court
+        '280': 'boat_rental',  // Boat Rentals
+        '14':  'drink',        // Drinking Fountain
+        '243': 'playground',   // Play Area
+        '13':  'restroom',     // Restrooms
+        '28':  'gifts',        // Shopping/Souvenirs
+        '240': 'volleyball'    // Volleyball Courts
+    };
+
+    // Add icons
+    CM.amenities.forEach(function(amenity) {
+        amenity.icon = amenity_icons[amenity.amenitytypeid];
+    });
+
+    $.event.trigger({
+        type: 'dataReadyAmenities',
     });
 }, 'json');
 

@@ -2902,6 +2902,7 @@ function setWindowURLQueryStringParameters(params, reset, pushState) {
 //
 var CM = {
     activities : [],
+    amenities : [],
     attractions : [],
     attractions_nearby : [],
     autocomplete_keywords : [],
@@ -2950,6 +2951,25 @@ $.get(API_NEW_BASE_URL + 'categories', null, function (reply) {
 
     $.event.trigger({
         type: 'dataReadyCategories',
+    });
+}, 'json');
+
+//
+// Get amenities, and populate global object, CM.amenities
+//
+$.get(API_NEW_BASE_URL + 'amenities', null, function (reply) {
+    CM.amenities = reply.data;
+
+    // Add to Fuse search index
+    CM.amenities.forEach(function(amenity) {
+        searchItem = {
+            amenitytypeid: amenity.amenitytypeid,
+            name: amenity.name
+        };
+    });
+
+    $.event.trigger({
+        type: 'dataReadyAmenities',
     });
 }, 'json');
 
@@ -3153,7 +3173,7 @@ $.get(API_NEW_BASE_URL + 'trails', null, function (reply) {
         searchItem = {
             title: trail.name,
             gid: trail.id,
-            type: 'trail',
+            type: 'loop',
             w: trail.boxw,
             s: trail.boxs,
             e: trail.boxe,

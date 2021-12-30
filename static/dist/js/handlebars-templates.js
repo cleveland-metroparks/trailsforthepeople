@@ -233,7 +233,7 @@ this["CM"]["Templates"]["pane_amenities_item"] = Handlebars.template({"compiler"
     + "\">\n        <i class=\"cm-icon cm-icon-"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"icon") : stack1), depth0))
     + "\"></i>\n        "
-    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"title") : stack1), depth0))
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"name") : stack1), depth0))
     + "\n    </a>\n</li>\n";
 },"useData":true});
 

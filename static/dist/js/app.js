@@ -398,6 +398,7 @@ function setWindowURLQueryStringParameters(params, reset, pushState) {
 //
 var CM = {
     activities : [],
+    amenities : [],
     attractions : [],
     attractions_nearby : [],
     autocomplete_keywords : [],
@@ -446,6 +447,33 @@ $.get(API_NEW_BASE_URL + 'categories', null, function (reply) {
 
     $.event.trigger({
         type: 'dataReadyCategories',
+    });
+}, 'json');
+
+//
+// Get amenities, and populate global object, CM.amenities
+//
+$.get(API_NEW_BASE_URL + 'amenities', null, function (reply) {
+    CM.amenities = reply.data;
+
+    var amenity_icons = {
+        '221': 'baseball',     // Ball Field
+        '231': 'basketball',   // Basketball Court
+        '280': 'boat_rental',  // Boat Rentals
+        '14':  'drink',        // Drinking Fountain
+        '243': 'playground',   // Play Area
+        '13':  'restroom',     // Restrooms
+        '28':  'gifts',        // Shopping/Souvenirs
+        '240': 'volleyball'    // Volleyball Courts
+    };
+
+    // Add icons
+    CM.amenities.forEach(function(amenity) {
+        amenity.icon = amenity_icons[amenity.amenitytypeid];
+    });
+
+    $.event.trigger({
+        type: 'dataReadyAmenities',
     });
 }, 'json');
 
@@ -1722,7 +1750,7 @@ function populatePaneActivities() {
     $('#activities-list').listview('refresh');
     sortLists($('#activities-list'), 'alphabetical');
 
-    /*
+    /**
      * Set click event
      */
     $('#activities-list li a').click(function() {
@@ -1761,7 +1789,7 @@ function populatePaneAmenities() {
     $('#amenities-list').listview('refresh');
     sortLists($('#amenities-list'), 'alphabetical');
 
-    /*
+    /**
      * Set click event
      */
     $('#amenities-list li a').click(function() {
@@ -1811,7 +1839,7 @@ $(document).ready(function () {
         sidebar.open(pane);
     });
 
-    /*
+    /**
      * Find pane (#pane-browse)
      */
     $('#pane-browse li a[href="#pane-activities"]').click(function() {
@@ -1823,14 +1851,14 @@ $(document).ready(function () {
         doTrailSearch();
     });
 
-    /*
+    /**
      * Nearby pane (#pane-nearby)
      */
     $('.sidebar-tabs li a[href="#pane-nearby"]').click(function() {
         updateNearYouNow();
     });
 
-    /*
+    /**
      * Welcome pane (#pane-welcome)
      */
 
@@ -1864,7 +1892,7 @@ $(document).ready(function () {
         doTrailSearch();
     });
 
-    /*
+    /**
      * Share pane (#pane-share)
      */
 
@@ -4204,7 +4232,7 @@ this["CM"]["Templates"]["pane_amenities_item"] = Handlebars.template({"compiler"
     + "\">\n        <i class=\"cm-icon cm-icon-"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"icon") : stack1), depth0))
     + "\"></i>\n        "
-    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"title") : stack1), depth0))
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"name") : stack1), depth0))
     + "\n    </a>\n</li>\n";
 },"useData":true});
 
