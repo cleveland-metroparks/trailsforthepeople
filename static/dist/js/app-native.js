@@ -469,12 +469,20 @@ $.get(API_NEW_BASE_URL + 'categories', null, function (reply) {
 $.get(API_NEW_BASE_URL + 'amenities', null, function (reply) {
     CM.amenities = reply.data;
 
-    // Add to Fuse search index
+    var amenity_icons = {
+        '221': 'baseball',     // Ball Field
+        '231': 'basketball',   // Basketball Court
+        '280': 'boat_rental',  // Boat Rentals
+        '14':  'drink',        // Drinking Fountain
+        '243': 'playground',   // Play Area
+        '13':  'restroom',     // Restrooms
+        '28':  'gifts',        // Shopping/Souvenirs
+        '240': 'volleyball'    // Volleyball Courts
+    };
+
+    // Add icons
     CM.amenities.forEach(function(amenity) {
-        searchItem = {
-            amenitytypeid: amenity.amenitytypeid,
-            name: amenity.name
-        };
+        amenity.icon = amenity_icons[amenity.amenitytypeid];
     });
 
     $.event.trigger({
@@ -3733,9 +3741,9 @@ $(document).ready(function () {
 
 ;
 /**
- * loopsandroutes.js
+ * trails.js
  *
- * JS for loops and routes functionality.
+ * JS for "blessed" trails (AKA loops) functionality.
  *
  * Included into app.js.
  *
@@ -4237,7 +4245,7 @@ this["CM"]["Templates"]["pane_amenities_item"] = Handlebars.template({"compiler"
     + "\">\n        <i class=\"cm-icon cm-icon-"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"icon") : stack1), depth0))
     + "\"></i>\n        "
-    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"title") : stack1), depth0))
+    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"name") : stack1), depth0))
     + "\n    </a>\n</li>\n";
 },"useData":true});
 

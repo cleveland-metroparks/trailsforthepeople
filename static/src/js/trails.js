@@ -1,7 +1,7 @@
 /**
- * loopsandroutes.js
+ * trails.js
  *
- * JS for loops and routes functionality.
+ * JS for "blessed" trails (AKA loops) functionality.
  *
  * Included into app.js.
  *

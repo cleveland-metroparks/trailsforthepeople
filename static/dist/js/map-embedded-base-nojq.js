@@ -2953,12 +2953,20 @@ $.get(API_NEW_BASE_URL + 'categories', null, function (reply) {
 $.get(API_NEW_BASE_URL + 'amenities', null, function (reply) {
     CM.amenities = reply.data;
 
-    // Add to Fuse search index
+    var amenity_icons = {
+        '221': 'baseball',     // Ball Field
+        '231': 'basketball',   // Basketball Court
+        '280': 'boat_rental',  // Boat Rentals
+        '14':  'drink',        // Drinking Fountain
+        '243': 'playground',   // Play Area
+        '13':  'restroom',     // Restrooms
+        '28':  'gifts',        // Shopping/Souvenirs
+        '240': 'volleyball'    // Volleyball Courts
+    };
+
+    // Add icons
     CM.amenities.forEach(function(amenity) {
-        searchItem = {
-            amenitytypeid: amenity.amenitytypeid,
-            name: amenity.name
-        };
+        amenity.icon = amenity_icons[amenity.amenitytypeid];
     });
 
     $.event.trigger({
