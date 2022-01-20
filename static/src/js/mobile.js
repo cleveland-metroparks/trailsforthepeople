@@ -397,6 +397,12 @@ function showFeatureInfoContent(attractionType, id) {
                         drawHighlightLine(geom_geojson);
                     }
                 });
+                // Query API for trail elevation profile
+                $.get(API_NEW_BASE_URL + 'trail_profiles/' + id, null, function (reply) {
+                    if (reply.data.elevation_profile) {
+                        makeElevationProfileChart(reply.data.elevation_profile, 'elevation-profile-trail');
+                    }
+                });
                 var trail = CM.trails[id];
                 var template = CM.Templates.info_trail;
                 var template_vars = {
@@ -412,11 +418,75 @@ function showFeatureInfoContent(attractionType, id) {
 }
 
 /**
- * Show Elevation
+ * Make elevation profile chart.
+ *
+ * For both Directions and Trails.
  */
-function showElevation(url) {
-    $('#elevation').prop('src',url);
-    sidebar.open('pane-elevationprofile');
+function makeElevationProfileChart(elevationProfileData, elementId) {
+    if (!elevationProfileData) {
+        // Storing profile data in our global object
+        // so it can be fetched async after directions
+        if (!CM.elevationProfileData) {
+            return;
+        }
+        elevationProfileData = CM.elevationProfileData;
+    }
+
+    var pointData = [];
+    for (var i=0, l=elevationProfileData.length; i<l; i++) {
+        pointData.push({
+            x: elevationProfileData[i].x / 5280, // Feet to miles
+            y: elevationProfileData[i].y
+        });
+    }
+
+    if (!elementId) {
+        elementId = 'elevation-profile';
+    }
+    var chartContext = document.getElementById(elementId).getContext('2d');
+    var profileChart = new Chart(chartContext, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Elevation Profile',
+                data: pointData,
+                pointRadius: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                borderColor: 'rgba(0, 0, 0, 1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: false,
+                },
+            },
+            responsive: true,
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Elevation (feet)',
+                        color: '#000'
+                    }
+                },
+                x: {
+                    type: 'linear',
+                    title: {
+                        display: true,
+                        text: 'Distance (miles)',
+                        color: '#000'
+                    },
+                    ticks: {
+                        min: 0,
+                        precision: 2
+                    },
+                },
+            }
+        }
+    });
 }
 
 /**

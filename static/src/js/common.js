@@ -13,8 +13,6 @@ var MARKER_TARGET = new mapboxgl.Marker({ color: '#207FD0' });
 var MARKER_START = new mapboxgl.Marker({ color: '#6BB03E' }); // Directions start
 var MARKER_END = new mapboxgl.Marker({ color: '#FF7866' }); // Directions end
 
-var ELEVATION_PROFILE = null;
-
 var SKIP_TO_DIRECTIONS = false;
 
 var ctrlGeolocate;

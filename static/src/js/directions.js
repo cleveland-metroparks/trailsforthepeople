@@ -508,9 +508,9 @@ function renderDirectionsStructure(directions) {
     target.after(directionsFunctions);
 
     // phase 3: save the elevation profile given, if any, so it can be recalled later
-    ELEVATION_PROFILE = [];
+    CM.elevationProfileData = [];
     if (directions.elevationprofile) {
-        ELEVATION_PROFILE = directions.elevationprofile;
+        CM.elevationProfileData = directions.elevationprofile;
     }
 
     // phase 4: any additional postprocessing
@@ -607,69 +607,6 @@ function clearDirectionsLine() {
     //
     $('#directions-steps').empty();
     $('#measure_steps').empty();
-}
-
-/**
- * Make elevation profile chart
- */
-function makeElevationProfileChart() {
-    if (!ELEVATION_PROFILE) {
-        return;
-    }
-
-    var pointData = [];
-    for (var i=0, l=ELEVATION_PROFILE.length; i<l; i++) {
-        pointData.push({
-            x: ELEVATION_PROFILE[i].x / 5280, // Feet to miles
-            y: ELEVATION_PROFILE[i].y
-        });
-    }
-
-    var ctx = document.getElementById('elevation-profile').getContext('2d');
-    var myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            datasets: [{
-                label: 'Elevation Profile',
-                // @TODO: Remove label
-                data: pointData,
-                pointRadius: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.2)',
-                borderColor: 'rgba(0, 0, 0, 1)',
-                borderWidth: 2,
-                fill: false
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Elevation (feet)',
-                        fontColor: '#000'
-                    }
-                }],
-                xAxes: [{
-                    type: 'linear',
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Distance (miles)',
-                        fontColor: '#000'
-                    },
-                    ticks: {
-                        min: 0,
-                        // stepSize: 0.5,
-                        // @TODO: Ideally (previous functionality) ticks every quarter-mile
-                        // but precision isn't working, here: if we set stepSize to 0.25,
-                        // the .05s are rounded (0.25 => 0.3).
-                        // Looks like it should've been fixed here:
-                        //   https://github.com/chartjs/Chart.js/pull/5786
-                        precision: 2
-                    }
-                }],
-            }
-        }
-    });
 }
 
 /**

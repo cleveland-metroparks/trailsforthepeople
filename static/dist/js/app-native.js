@@ -109,8 +109,6 @@ var MARKER_TARGET = new mapboxgl.Marker({ color: '#207FD0' });
 var MARKER_START = new mapboxgl.Marker({ color: '#6BB03E' }); // Directions start
 var MARKER_END = new mapboxgl.Marker({ color: '#FF7866' }); // Directions end
 
-var ELEVATION_PROFILE = null;
-
 var SKIP_TO_DIRECTIONS = false;
 
 var ctrlGeolocate;
@@ -1206,6 +1204,12 @@ function showFeatureInfoContent(attractionType, id) {
                         drawHighlightLine(geom_geojson);
                     }
                 });
+                // Query API for trail elevation profile
+                $.get(API_NEW_BASE_URL + 'trail_profiles/' + id, null, function (reply) {
+                    if (reply.data.elevation_profile) {
+                        makeElevationProfileChart(reply.data.elevation_profile, 'elevation-profile-trail');
+                    }
+                });
                 var trail = CM.trails[id];
                 var template = CM.Templates.info_trail;
                 var template_vars = {
@@ -1221,11 +1225,75 @@ function showFeatureInfoContent(attractionType, id) {
 }
 
 /**
- * Show Elevation
+ * Make elevation profile chart.
+ *
+ * For both Directions and Trails.
  */
-function showElevation(url) {
-    $('#elevation').prop('src',url);
-    sidebar.open('pane-elevationprofile');
+function makeElevationProfileChart(elevationProfileData, elementId) {
+    if (!elevationProfileData) {
+        // Storing profile data in our global object
+        // so it can be fetched async after directions
+        if (!CM.elevationProfileData) {
+            return;
+        }
+        elevationProfileData = CM.elevationProfileData;
+    }
+
+    var pointData = [];
+    for (var i=0, l=elevationProfileData.length; i<l; i++) {
+        pointData.push({
+            x: elevationProfileData[i].x / 5280, // Feet to miles
+            y: elevationProfileData[i].y
+        });
+    }
+
+    if (!elementId) {
+        elementId = 'elevation-profile';
+    }
+    var chartContext = document.getElementById(elementId).getContext('2d');
+    var profileChart = new Chart(chartContext, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Elevation Profile',
+                data: pointData,
+                pointRadius: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                borderColor: 'rgba(0, 0, 0, 1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: false,
+                },
+            },
+            responsive: true,
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Elevation (feet)',
+                        color: '#000'
+                    }
+                },
+                x: {
+                    type: 'linear',
+                    title: {
+                        display: true,
+                        text: 'Distance (miles)',
+                        color: '#000'
+                    },
+                    ticks: {
+                        min: 0,
+                        precision: 2
+                    },
+                },
+            }
+        }
+    });
 }
 
 /**
@@ -2691,9 +2759,9 @@ function renderDirectionsStructure(directions) {
     target.after(directionsFunctions);
 
     // phase 3: save the elevation profile given, if any, so it can be recalled later
-    ELEVATION_PROFILE = [];
+    CM.elevationProfileData = [];
     if (directions.elevationprofile) {
-        ELEVATION_PROFILE = directions.elevationprofile;
+        CM.elevationProfileData = directions.elevationprofile;
     }
 
     // phase 4: any additional postprocessing
@@ -2790,69 +2858,6 @@ function clearDirectionsLine() {
     //
     $('#directions-steps').empty();
     $('#measure_steps').empty();
-}
-
-/**
- * Make elevation profile chart
- */
-function makeElevationProfileChart() {
-    if (!ELEVATION_PROFILE) {
-        return;
-    }
-
-    var pointData = [];
-    for (var i=0, l=ELEVATION_PROFILE.length; i<l; i++) {
-        pointData.push({
-            x: ELEVATION_PROFILE[i].x / 5280, // Feet to miles
-            y: ELEVATION_PROFILE[i].y
-        });
-    }
-
-    var ctx = document.getElementById('elevation-profile').getContext('2d');
-    var myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            datasets: [{
-                label: 'Elevation Profile',
-                // @TODO: Remove label
-                data: pointData,
-                pointRadius: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.2)',
-                borderColor: 'rgba(0, 0, 0, 1)',
-                borderWidth: 2,
-                fill: false
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Elevation (feet)',
-                        fontColor: '#000'
-                    }
-                }],
-                xAxes: [{
-                    type: 'linear',
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Distance (miles)',
-                        fontColor: '#000'
-                    },
-                    ticks: {
-                        min: 0,
-                        // stepSize: 0.5,
-                        // @TODO: Ideally (previous functionality) ticks every quarter-mile
-                        // but precision isn't working, here: if we set stepSize to 0.25,
-                        // the .05s are rounded (0.25 => 0.3).
-                        // Looks like it should've been fixed here:
-                        //   https://github.com/chartjs/Chart.js/pull/5786
-                        precision: 2
-                    }
-                }],
-            }
-        }
-    });
 }
 
 /**
@@ -4192,7 +4197,7 @@ this["CM"]["Templates"]["info_trail"] = Handlebars.template({"1":function(contai
 
   return "<div class=\"elevationprofileimage\" style=\"text-align:center;\">\n    <img src=\""
     + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"img_src") || (depth0 != null ? lookupProperty(depth0,"img_src") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"img_src","hash":{},"data":data,"loc":{"start":{"line":20,"column":14},"end":{"line":20,"column":25}}}) : helper)))
-    + "\" alt=\"Elevation profile\">\n</div>\n";
+    + "\" alt=\"Elevation profile\">\n    <canvas id=\"elevation-profile-trail\" alt=\"Elevation profile\"></canvas>\n</div>\n";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=container.lambda, alias2=container.escapeExpression, alias3=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -4212,7 +4217,7 @@ this["CM"]["Templates"]["info_trail"] = Handlebars.template({"1":function(contai
     + "</p>\n\n"
     + ((stack1 = alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"description") : stack1), depth0)) != null ? stack1 : "")
     + "\n\n"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias3,(depth0 != null ? lookupProperty(depth0,"img_src") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":18,"column":0},"end":{"line":22,"column":7}}})) != null ? stack1 : "");
+    + ((stack1 = lookupProperty(helpers,"if").call(alias3,(depth0 != null ? lookupProperty(depth0,"img_src") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":18,"column":0},"end":{"line":23,"column":7}}})) != null ? stack1 : "");
 },"useData":true});
 
 this["CM"]["Templates"]["pane_activities_item"] = Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
