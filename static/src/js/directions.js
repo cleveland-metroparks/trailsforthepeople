@@ -108,6 +108,7 @@ function getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation) {
                     renderDirectionsStructure(reply.data);
                     updateWindowURLWithDirections();
                 } else {
+                    // @TODO: bubble-this up?
                     var message = "Could not find directions over trails for this start and endpoint.";
                     if (via != 'hike') {
                         message += "\nTry a different type of trail, terrain, or difficulty.";
@@ -145,9 +146,24 @@ function enableDirectionsButton() {
  * Set directions input lng and lat
  */
 function setDirectionsInputLngLat($input, lngLat) {
+    console.log('setDirectionsInputLngLat');
     // Set lat & lng in input element
     $input.data('lat', lngLat.lat);
     $input.data('lng', lngLat.lng);
+}
+
+/**
+ * Clear data saved in directions input.
+ *
+ * When the user starts entering something new,
+ * remove old data saved in the input.
+ */
+function clearDirectionsInputData($input, lngLat) {
+    console.log('clearDirectionsInputData');
+
+    $input.removeData('lat');
+    $input.removeData('lng');
+    $input.removeData('isFromGeolocation');
 }
 
 /**
@@ -171,6 +187,7 @@ function isWithinParkBounds(lngLat) {
  * Geocode directions form input
  */
 function geocodeDirectionsInput($input) {
+    console.log('geocodeDirectionsInput');
     var inputText = ($input).val();
     var lat, lng;
 
@@ -180,17 +197,9 @@ function geocodeDirectionsInput($input) {
         return;
     }
 
-    // Text looks like lat & lng.
-    var latLngStr = /^(-?\d+\.\d+)\,\s*(-?\d+\.\d+)$/.exec(inputText);
-    if (latLngStr) {
-        var lngLat = new mapboxgl.LngLat(latLngStr[2], latLngStr[1]);
-        setDirectionsInputLngLat($input, lngLat)
-        return;
-    }
-
     // Otherwise, make a geocode API call
     $.get(API_NEW_BASE_URL + 'geocode/' + inputText, null, function (reply) {
-        if (reply) {
+        if (reply && reply.data.lng && reply.data.lat) {
             var lngLat = new mapboxgl.LngLat(reply.data.lng, reply.data.lat);
             setDirectionsInputLngLat($input, lngLat)
         } else {
@@ -206,28 +215,63 @@ function geocodeDirectionsInput($input) {
  * Check directions input
  */
 function checkDirectionsInput($input) {
-    if ($input.data('autocompleted') == true) {
-        // @TODO: Do we really need this? Can we just rely on lat/lng?
-        return true;
+    var inputText = $input.val();
+
+    console.log("checkDirectionsInput (" + getSourceTargetInputId($input) + "): \"" + inputText + "\"");
+
+    if (inputText.length == 0) {
+        console.log("empty");
+        return false;
     }
 
+    // If lat & lng are set - stored in input.
     if ($input.data('lat') && $input.data('lng')) {
+        console.log("lat/lng is set");
         return true;
     }
 
-    geocodeDirectionsInput($input);
-
-    if ($input.data('lat') && $input.data('lng')) {
+    // If text looks like lat & lng (ex: "41.30230166, -81.80350554")
+    // Parse with regex:
+    var latLngStr = /(^[-+]?(?:[1-8]?\d(?:\.\d+)?|90(?:\.0+)?))\s*,\s*([-+]?(?:180(?:\.0+)?|(?:(?:1[0-7]\d)|(?:[1-9]?\d))(?:\.\d+)?))$/.exec(inputText);
+    if (latLngStr) {
+        var lngLat = new mapboxgl.LngLat(latLngStr[2], latLngStr[1]);
+        console.log('lat/lng text: ' + latLngStr[1] + ', ' + latLngStr[2]);
+        setDirectionsInputLngLat($input, lngLat);
         return true;
     }
+
+    // Check for exact text match from search DB (but not autocompleted)
+    var fuseResults = fuse.search(inputText);
+    if (fuseResults.length) {
+        // If it's exact it should already be the first choice in the list
+        // ... but we could potentially go through all results
+        var firstResult = fuseResults[0].item;
+        var firstResultTitle = firstResult.title;
+        if (simplifyTextForMatch(firstResultTitle) == simplifyTextForMatch(inputText)) {
+            console.log('Exact match');
+            // @TODO: Choose from autocomplete (if it's still showing)
+            var lngLat = new mapboxgl.LngLat(firstResult.lng, firstResult.lat);
+            setDirectionsInputLngLat($input, lngLat);
+            return true;
+        }
+    }
+
+    // Geocode the text
+    // geocodeDirectionsInput($input);
+
+    // if ($input.data('lat') && $input.data('lng')) {
+    //     console.log(3);
+    //     return true;
+    // }
 }
 
 /**
- * Process Get Directions
- *
- * Replacing processGetDirectionsForm()...
+ * Process "Get Directions" action
  */
-function processGetDirections() {
+function processGetDirectionsForm() {
+    console.log('processGetDirectionsForm()');
+    clearDirectionsLine();
+
     var sourceIsRoutable = checkDirectionsInput($('#source-input'));
     var targetIsRoutable = checkDirectionsInput($('#target-input'));
 
@@ -245,70 +289,18 @@ function processGetDirections() {
         var via = $('#directions-via').attr('data-value');
 
         getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation);
-
-        // @TODO: If this didn't work, trigger outside directions call
+    } else {
+        // @TODO: If this didn't work...
     }
 }
 
 /**
- * DEPRECATING
+ * Simplify text string for matching.
+ *
+ * Remove whitespace and convert to lowercase.
  */
-function processGetDirectionsForm() {
-    // Use synchronous AJAX so the location finding happens in the required order
-    // @TODO: Synchronous XMLHttpRequest is deprecated
-    $.ajaxSetup({ async:false });
-
-    switch (addresstype) {
-        case 'features':
-            var keyword = $('#directions_address').val();
-            var results = fuse.search(keyword);
-
-            if (!results.length) {
-                return alert("We couldn't find any matching landmarks."); // @TODO: Don't alert()
-            }
-
-            // Look for exact match in results; if so, use it.
-            // if there's still more than one match, then multiple ambiguous results; show a "Did You Mean?" listing
-            var keywordSimple = keyword.replace(/\W/g, '').toLowerCase(); // Just alphanumerics
-            var exactMatch = null;
-            for (var i=0; i<results.length; i++) {
-                var resultSimple = results[i].item.title.replace(/\W/g, '').toLowerCase();
-                if (resultSimple == keywordSimple) {
-                    exactMatch = results[i].item;
-                    break;
-                }
-            }
-
-            if (!exactMatch) {
-                sourceLat = null;
-                sourceLng = null;
-                populateDidYouMean(results);
-                return;
-            }
-
-            // Exact match.
-            // Swap out their stated location name for this one, so they know where we're taking them
-            // Then populate the location from the reply
-            var placename = exactMatch.title.trim();
-            $('#directions_address').val(placename);
-
-            // fill in the GID and Type so we can do more intelligent routing, e.g. destination points for POIs
-            $('#directions_source_gid').val(exactMatch.gid);
-            $('#directions_source_type').val(exactMatch.type);
-
-            sourceLat = parseFloat(exactMatch.lat);
-            sourceLng = parseFloat(exactMatch.lng);
-
-            if (!sourceLat || !sourceLng) {
-                return;
-            }
-            break;
-    }
-
-    // Re-enable asynchronous AJAX
-    $.ajaxSetup({ async:true });
-
-    getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation);
+function simplifyTextForMatch(str) {
+    return str.replace(/\W/g, '').toLowerCase();
 }
 
 /**
@@ -365,44 +357,6 @@ function geocodeLocationForDirections(loc_type, loc_gid, lat, lng, via, lat_el_i
     }
 
     return output_location;
-}
-
-/**
- * Populate "Did you mean:?"
- */
-function populateDidYouMean(results) {
-    var target = $('#directions-steps');
-    target.empty();
-
-    // Item 0 is not a result, but the words "Did you mean:"
-    var item = $('<li></li>')
-        //.append( $('<span></span>')
-        .addClass('did-you-mean')
-        .text("Did you mean:");
-    target.append(item);
-
-    // add the results as a list; each item has a click handler, to populate the address box with the proper name
-    for (var i=0, l=results.length; i<l; i++) {
-        var result = results[i].item;
-        var placename = result.title.replace(/^\s*/,'').replace(/\s*$/,'');
-
-        var item = $('<li></li>');
-        item.append( $('<span></span>').addClass('ui-li-heading').text(placename) ).attr('type',result.type).attr('gid',result.gid);
-
-        var tapToFill = function () {
-            $('#directions_address').val( $(this).text() );
-            $('#directions_source_gid').val( $(this).attr('gid') );
-            $('#directions_source_type').val( $(this).attr('type') );
-            $('#directions_button').click();
-        };
-        item.click(tapToFill);
-
-        item.css({ cursor:'pointer' }); // more for Desktop
-
-        target.append(item);
-    }
-
-    target.listview('refresh');
 }
 
 /**
@@ -623,6 +577,26 @@ function launchGetDirections(transport_method) {
 }
 
 /**
+ * Return whether the given input element is our directions "source" or "target".
+ *
+ * @return: "source", "target", or null
+ */
+function getSourceTargetInputId($input) {
+    // First try the data-value-sourcetarget element
+    if ($input.attr('data-value-sourcetarget')) {
+        return $input.attr('data-value-sourcetarget');
+    }
+    console.log('getSourceTargetInputId(): not in data-value-sourcetarget; check id');
+
+    // Then try parsing the id
+    var inputId = /^(.+)-input$/.exec($input.attr('id'));
+    console.log(inputId);
+    if (inputId[1].length) {
+        return inputId[1];
+    }
+}
+
+/**
  * Misc handlers
  */
 $(document).ready(function () {
@@ -660,11 +634,7 @@ $(document).ready(function () {
     $('#get-directions').click(function () {
         $('#directions-steps').empty();
         $('.directions-functions').remove();
-        processGetDirections();
-    });
-
-    $('#directions_address').keydown(function (key) {
-        if(key.keyCode == 13) $('#directions_button').click();
+        processGetDirectionsForm();
     });
 
     /**
@@ -686,20 +656,67 @@ $(document).ready(function () {
         $(this).addClass('active');
     });
 
-    // Autocomplete on To/From inputs
+    ///**
+    // * On blur (focus out) of inputs
+    // */
+    //$(".feature-search-input").blur(function(e) {
+    //    console.log('on blur');
+    //    checkDirectionsInput($(this));
+    //});
+
+    ///**
+    // * On change of inputs
+    // */
+    //$(".feature-search-input").change(function(e) {
+    //    console.log('on change');
+    //    checkDirectionsInput($(this));
+    //    e.preventDefault();
+    //    e.stopPropagation();
+    //    console.log('end on change');
+    //});
+
+    ///**
+    // * On keypress in input
+    // */
+    //$(".feature-search-input").keypress(function(e) {
+    //    console.log(e.which);
+    //});
+
+    ///**
+    // * On keydown in input
+    // */
+    //$(".feature-search-input").keydown(function(e) {
+    //    if (e.which == 9) { // Tab key
+    //        e.preventDefault();
+    //        if (getSourceTargetInputId($(this)) == 'source') {
+    //            $('#target-input').focus();
+    //        } else {
+    //            $('#get-directions').focus();
+    //        }
+    //    }
+    //});
+
+    /**
+     * Autocomplete for to/from inputs
+     */
     $(".feature-search-autocomplete").on("filterablebeforefilter", function(e, data) {
         var $ul = $(this),
             $input = $(data.input),
             value = $input.val(),
             listItems = "",
-            sourceOrTarget = $ul.attr('data-value-sourcetarget');
+            sourceOrTarget = getSourceTargetInputId($ul);
+
+        console.log('on filterablebeforefilter: ' + sourceOrTarget);
 
         $ul.html("");
 
+        clearDirectionsInputData($input);
+
         if (value && value.length > 2) {
-            var fuse_results = fuse.search(value);
-            if (fuse_results) {
-                $.each(fuse_results, function (i, val) {
+            var fuseResults = fuse.search(value);
+            if (fuseResults) {
+                // Provide search results as autocomplete options
+                $.each(fuseResults, function (i, val) {
                     var li = '';
                     li += '<li>';
                     li += '<a href="#" data-transition="fade" class="ui-btn"';
@@ -715,15 +732,25 @@ $(document).ready(function () {
                 $ul.show();
                 $ul.listview("refresh").trigger("updatelayout");
                 $ul.children().each(function() {
+                    // When an autocomplete option is clicked:
+
+                    //// First, use preventDefault() to make sure our blur() handler
+                    //// on the input does not fire on mousedown
+                    //$(this).mousedown(function(e) {
+                    //    console.log('autocomplete mousedown');
+                    //    e.preventDefault();
+                    //    e.stopPropagation();
+                    //});
+
+                    // Then, handle a click on a filtered list item
                     $(this).click(function() {
+                        console.log('autocomplete click');
                         $input.val($(this).text());
                         $ul.hide();
                         var lat = $(this).children('a').attr('data-value-lat');
                         var lng = $(this).children('a').attr('data-value-lng');
                         // Set lat/lng data inside element
-                        $input.data('lat', lat);
-                        $input.data('lng', lng);
-                        $input.data('autocompleted', true); // @TODO: Need to reset this to false at some point
+                        setDirectionsInputLngLat($input, {'lng': lng, 'lat': lat})
 
                         var marker;
                         if (sourceOrTarget == 'source') {
@@ -732,9 +759,9 @@ $(document).ready(function () {
                             marker = MARKER_END;
                         }
                         placeMarker(marker, lat, lng);
-                        MAP.flyTo({center: [lng, lat]});
                         // @TODO: If both markers are shown, zoom to fit both.
                         //        We do a fit in the Directions call, but should probably do something here too.
+                        MAP.flyTo({center: [lng, lat]});
                     });
                 });
             }
