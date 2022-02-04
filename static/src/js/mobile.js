@@ -505,11 +505,11 @@ function zoomElementClick(element) {
  * Set up the directions target element so we can route to it.
  */
 function setUpDirectionsTarget(feature) {
-    $('#directions_target_lat').val(feature.lat);
-    $('#directions_target_lng').val(feature.lng);
-    $('#directions_target_type').val(feature.type);
-    $('#directions_target_gid').val(feature.gid);
-    $('#directions_target_title').text(feature.title);
+    // $('#directions_target_lat').val(feature.lat);
+    // $('#directions_target_lng').val(feature.lng);
+    // $('#directions_target_type').val(feature.type);
+    // $('#directions_target_gid').val(feature.gid);
+    // $('#directions_target_title').text(feature.title);
 }
 
 /**

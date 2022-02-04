@@ -77,6 +77,7 @@
 
         <!-- Bottom -->
         <ul role="tablist">
+            <!-- <li><a href="#pane-debug" role="tab" title="Debug"><i class="cm-icon cm-icon-star"></i></a></li> -->
             <li><a href="#pane-legend" role="tab" title="Trail Legend"><i class="cm-icon cm-icon-map-signs"></i></a></li>
             <li><a href="#pane-settings" role="tab" title="Settings"><i class="cm-icon cm-icon-cog"></i></a></li>
             <li><a href="#pane-credits" role="tab" title="Credits"><i class="cm-icon cm-icon-info"></i></a></li>
@@ -209,23 +210,11 @@
                 <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
             </h1>
 
-            <!-- @TODO: Remove/accommodate -->
-            <input type="hidden" id="directions_source_lat" value="" />
-            <input type="hidden" id="directions_source_lng" value="" />
-            <input type="hidden" id="directions_source_type" value="" />
-            <input type="hidden" id="directions_source_gid"  value="" />
-            <input type="hidden" id="directions_target_lat" value="" />
-            <input type="hidden" id="directions_target_lng" value="" />
-            <input type="hidden" id="directions_target_type" value="" />
-            <input type="hidden" id="directions_target_gid"  value="" />
-
-            <!-- #directions_target_title -->
-            <!-- #directions_type_geocode_wrap -->
-            <!-- #directions_type -->
-            <!-- #directions_button -->
-
-            <fieldset data-role="controlgroup">
+            <fieldset id="source-fieldset" class="directions-form-fieldset" data-role="controlgroup">
                 <h4>From:</h4>
+                <a href="#" id="source-geolocate-btn" class="ui-btn ui-btn-inline ui-corner-all button-directions-geolocate" title="Use my location">
+                    <i class="cm-icon cm-icon-crosshairs" aria-hidden="true"></i>
+                </a>
                 <input type="text" id="source-input" class="feature-search-input" data-value-sourcetarget="source" placeholder="Park feature or address" />
                 <ul id="source-autocomplete" data-role="listview" data-inset="true" data-filter="true" data-input="#source-input" data-value-sourcetarget="source" class="feature-search-autocomplete ui-listview ui-listview-inset ui-corner-all ui-shadow">
                     <li class="ui-li-static ui-body-inherit ui-screen-hidden">
@@ -236,7 +225,7 @@
                 </ul>
             </fieldset>
 
-            <fieldset data-role="controlgroup">
+            <fieldset id="target-fieldgroup" class="directions-form-fieldset" data-role="controlgroup">
                 <h4>To:</h4>
                 <input type="text" id="target-input" class="feature-search-input" data-value-sourcetarget="target" placeholder="Park feature or address" />
                 <ul id="target-autocomplete" data-role="listview" data-inset="true" data-filter="true" data-input="#target-input" data-value-sourcetarget="target" class="feature-search-autocomplete ui-listview ui-listview-inset ui-corner-all ui-shadow" data-filter-reveal="true">
@@ -306,7 +295,7 @@
         <div class="sidebar-pane" id="pane-debug">
             <h1 class="sidebar-header">
                 <span class="title-text">Debug</span>
-                <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+                <span class="sidebar-close"><i class="cm-icon cm-icon-caret-left"></i></span>
             </h1>
 
             <pre id="debug-features"></pre>

@@ -1299,11 +1299,11 @@ function zoomElementClick(element) {
  * Set up the directions target element so we can route to it.
  */
 function setUpDirectionsTarget(feature) {
-    $('#directions_target_lat').val(feature.lat);
-    $('#directions_target_lng').val(feature.lng);
-    $('#directions_target_type').val(feature.type);
-    $('#directions_target_gid').val(feature.gid);
-    $('#directions_target_title').text(feature.title);
+    // $('#directions_target_lat').val(feature.lat);
+    // $('#directions_target_lng').val(feature.lng);
+    // $('#directions_target_type').val(feature.type);
+    // $('#directions_target_gid').val(feature.gid);
+    // $('#directions_target_title').text(feature.title);
 }
 
 /**
@@ -2743,9 +2743,6 @@ function updateWindowURLWithDirections() {
         params.via = $('#directions_via_trail').val();
     }
 
-    // params.loctype = $('#directions_type').val();
-    // var isFromGeolocation = $('#target-input').data('isFromGeolocation') ? true : false;
-
     setWindowURLQueryStringParameters(params, true, true);
 }
 
@@ -2856,17 +2853,6 @@ $(document).ready(function () {
         launchGetDirections('bus');
     });
 
-    // the directions-type picker (GPS, address, POI, etc) mostly shows and hides elements
-    // its value is used in processGetDirectionsForm() for choosing how to figure out which element to use
-    $('#directions_type').change(function () {
-        var which  = $(this).val();
-        var target = $('#directions_type_geocode_wrap');
-        if (which == 'gps') {
-            target.hide();
-        } else {
-            target.show();
-        }
-    });
 
     // Get Directions click
     $('#get-directions').click(function () {

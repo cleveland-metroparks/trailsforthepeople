@@ -247,18 +247,24 @@ form.ui-filterable.autocomplete .ui-input-btn {
 //
 #pane-directions {
 
-    #directions_target_title {
-        text-align: center;
-        font-size: 110%;
-        font-weight: bold;
-        margin-top: 1.5em;
-    }
-
-    #directions_getgps {
-        float: right;
-        text-align: right;
-        font-size: 8pt;
-        margin-top: 10px;
+    #source-fieldset {
+        .ui-controlgroup-controls {
+            position: relative;
+        }
+        .ui-input-text {
+            // max-width: 200px;
+        }
+        #source-geolocate-btn {
+            position: absolute;
+            right: 0;
+            border: none;
+            margin: 1em 8px;
+            padding: 0;
+            line-height: 1.4em;
+            .cm-icon {
+                min-width: 20px;
+            }
+        }
     }
 
     .directions-functions {
