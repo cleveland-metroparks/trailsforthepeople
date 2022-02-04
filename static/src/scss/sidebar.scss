@@ -54,11 +54,13 @@
         overflow-y: scroll;
         -webkit-overflow-scrolling: touch;
 
+        .cm-icon {
+            font-size: 24px;
+        }
         ul li {
             padding-left: 0;
             .cm-icon {
                 padding-right: 10px;
-                font-size: 24px;
                 width: 24px;
                 vertical-align: middle;
                 text-align: center;
@@ -268,7 +270,7 @@ form.ui-filterable.autocomplete .ui-input-btn {
     .via-buttons {
         margin: .5em 0 1em;
         a {
-            min-width: 20px;
+            min-width: 32px;
             &.active {
                 background-color: variables.$green_light;
                 border-color: #3a6022;
@@ -388,7 +390,6 @@ form.ui-filterable.autocomplete .ui-input-btn {
         .ui-btn {
             padding: 10px;
             .cm-icon {
-                font-size: 24px;
                 min-width: 32px;
             }
         }
