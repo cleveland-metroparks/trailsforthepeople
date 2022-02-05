@@ -2384,7 +2384,7 @@ function enableDirectionsButton() {
  * Set directions input lng and lat
  */
 function setDirectionsInputLngLat($input, lngLat) {
-    console.log('setDirectionsInputLngLat');
+    console.log('setDirectionsInputLngLat: ' + $input.attr('id') + ': ' + lngLat);
     // Set lat & lng in input element
     $input.data('lat', lngLat.lat);
     $input.data('lng', lngLat.lng);
@@ -2408,9 +2408,28 @@ function clearDirectionsInputData($input, lngLat) {
  * Geolocate user for directions input
  */
 function geolocateUserForDirectionsInput($input) {
-    // @TODO: Do user geolocation
+    basicGeolocate();
     isFromGeolocation = true;
-    setDirectionsInputLngLat($input, LAST_KNOWN_LOCATION);
+    var userLocation = LAST_KNOWN_LOCATION;
+    $input.val(userLocation.lat + ', ' + userLocation.lng);
+    placeMarker(MARKER_START, userLocation.lat, userLocation.lng);
+    setDirectionsInputLngLat($input, userLocation);
+}
+
+/**
+ *
+ */
+function zoomToDirectionsBounds() {
+    // if () {
+
+    // }
+}
+
+/**
+ *
+ */
+function setDirectionsMarker() {
+    
 }
 
 /**
@@ -2428,12 +2447,6 @@ function geocodeDirectionsInput($input) {
     console.log('geocodeDirectionsInput');
     var inputText = ($input).val();
     var lat, lng;
-
-    // Text is "geolocate" (temp til we make a button)
-    if (inputText == 'geolocate') {
-        geolocateUserForDirectionsInput($input);
-        return;
-    }
 
     // Otherwise, make a geocode API call
     $.get(API_NEW_BASE_URL + 'geocode/' + inputText, null, function (reply) {
@@ -2494,13 +2507,8 @@ function checkDirectionsInput($input) {
         }
     }
 
-    // Geocode the text
+    // @TODO: Geocode the text
     // geocodeDirectionsInput($input);
-
-    // if ($input.data('lat') && $input.data('lng')) {
-    //     console.log(3);
-    //     return true;
-    // }
 }
 
 /**
@@ -2853,6 +2861,10 @@ $(document).ready(function () {
         launchGetDirections('bus');
     });
 
+    // Source geolocation click
+    $('#source-geolocate-btn').click(function () {
+        geolocateUserForDirectionsInput($('#source-input'));
+    });
 
     // Get Directions click
     $('#get-directions').click(function () {
@@ -2982,6 +2994,7 @@ $(document).ready(function () {
                         } else {
                             marker = MARKER_END;
                         }
+                        // setDirectionsMarker(marker, lat, lng);
                         placeMarker(marker, lat, lng);
                         // @TODO: If both markers are shown, zoom to fit both.
                         //        We do a fit in the Directions call, but should probably do something here too.
