@@ -1312,11 +1312,11 @@ function zoomElementClick(element) {
  * Set up the directions target element so we can route to it.
  */
 function setUpDirectionsTarget(feature) {
-    $('#directions_target_lat').val(feature.lat);
-    $('#directions_target_lng').val(feature.lng);
-    $('#directions_target_type').val(feature.type);
-    $('#directions_target_gid').val(feature.gid);
-    $('#directions_target_title').text(feature.title);
+    // $('#directions_target_lat').val(feature.lat);
+    // $('#directions_target_lng').val(feature.lng);
+    // $('#directions_target_type').val(feature.type);
+    // $('#directions_target_gid').val(feature.gid);
+    // $('#directions_target_title').text(feature.title);
 }
 
 /**
@@ -2397,7 +2397,7 @@ function enableDirectionsButton() {
  * Set directions input lng and lat
  */
 function setDirectionsInputLngLat($input, lngLat) {
-    console.log('setDirectionsInputLngLat');
+    console.log('setDirectionsInputLngLat: ' + $input.attr('id') + ': ' + lngLat);
     // Set lat & lng in input element
     $input.data('lat', lngLat.lat);
     $input.data('lng', lngLat.lng);
@@ -2405,7 +2405,7 @@ function setDirectionsInputLngLat($input, lngLat) {
 
 /**
  * Clear data saved in directions input.
- * 
+ *
  * When the user starts entering something new,
  * remove old data saved in the input.
  */
@@ -2421,9 +2421,28 @@ function clearDirectionsInputData($input, lngLat) {
  * Geolocate user for directions input
  */
 function geolocateUserForDirectionsInput($input) {
-    // @TODO: Do user geolocation
+    basicGeolocate();
     isFromGeolocation = true;
-    setDirectionsInputLngLat($input, LAST_KNOWN_LOCATION);
+    var userLocation = LAST_KNOWN_LOCATION;
+    $input.val(userLocation.lat + ', ' + userLocation.lng);
+    placeMarker(MARKER_START, userLocation.lat, userLocation.lng);
+    setDirectionsInputLngLat($input, userLocation);
+}
+
+/**
+ *
+ */
+function zoomToDirectionsBounds() {
+    // if () {
+
+    // }
+}
+
+/**
+ *
+ */
+function setDirectionsMarker() {
+    
 }
 
 /**
@@ -2441,12 +2460,6 @@ function geocodeDirectionsInput($input) {
     console.log('geocodeDirectionsInput');
     var inputText = ($input).val();
     var lat, lng;
-
-    // Text is "geolocate" (temp til we make a button)
-    if (inputText == 'geolocate') {
-        geolocateUserForDirectionsInput($input);
-        return;
-    }
 
     // Otherwise, make a geocode API call
     $.get(API_NEW_BASE_URL + 'geocode/' + inputText, null, function (reply) {
@@ -2507,13 +2520,8 @@ function checkDirectionsInput($input) {
         }
     }
 
-    // Geocode the text
+    // @TODO: Geocode the text
     // geocodeDirectionsInput($input);
-
-    // if ($input.data('lat') && $input.data('lng')) {
-    //     console.log(3);
-    //     return true;
-    // }
 }
 
 /**
@@ -2756,9 +2764,6 @@ function updateWindowURLWithDirections() {
         params.via = $('#directions_via_trail').val();
     }
 
-    // params.loctype = $('#directions_type').val();
-    // var isFromGeolocation = $('#target-input').data('isFromGeolocation') ? true : false;
-
     setWindowURLQueryStringParameters(params, true, true);
 }
 
@@ -2869,16 +2874,9 @@ $(document).ready(function () {
         launchGetDirections('bus');
     });
 
-    // the directions-type picker (GPS, address, POI, etc) mostly shows and hides elements
-    // its value is used in processGetDirectionsForm() for choosing how to figure out which element to use
-    $('#directions_type').change(function () {
-        var which  = $(this).val();
-        var target = $('#directions_type_geocode_wrap');
-        if (which == 'gps') {
-            target.hide();
-        } else {
-            target.show();
-        }
+    // Source geolocation click
+    $('#source-geolocate-btn').click(function () {
+        geolocateUserForDirectionsInput($('#source-input'));
     });
 
     // Get Directions click
@@ -2886,10 +2884,6 @@ $(document).ready(function () {
         $('#directions-steps').empty();
         $('.directions-functions').remove();
         processGetDirectionsForm();
-    });
-
-    $('#directions_address').keydown(function (key) {
-        if(key.keyCode == 13) $('#directions_button').click();
     });
 
     /**
@@ -3013,6 +3007,7 @@ $(document).ready(function () {
                         } else {
                             marker = MARKER_END;
                         }
+                        // setDirectionsMarker(marker, lat, lng);
                         placeMarker(marker, lat, lng);
                         // @TODO: If both markers are shown, zoom to fit both.
                         //        We do a fit in the Directions call, but should probably do something here too.
