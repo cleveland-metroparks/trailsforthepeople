@@ -2394,13 +2394,22 @@ function enableDirectionsButton() {
 }
 
 /**
- * Set directions input lng and lat
+ * Set lng and lat in a directions input element
  */
 function setDirectionsInputLngLat($input, lngLat) {
-    console.log('setDirectionsInputLngLat: ' + $input.attr('id') + ': ' + lngLat);
-    // Set lat & lng in input element
     $input.data('lat', lngLat.lat);
     $input.data('lng', lngLat.lng);
+}
+
+/**
+ * Get directions input lng and lat
+ */
+function getDirectionsInputLngLat($input) {
+    var lat = $input.data('lat');
+    var lng = $input.data('lng');
+    if (lat && lng) {
+        return new mapboxgl.LngLat(lng, lat);
+    }
 }
 
 /**
@@ -2410,8 +2419,6 @@ function setDirectionsInputLngLat($input, lngLat) {
  * remove old data saved in the input.
  */
 function clearDirectionsInputData($input, lngLat) {
-    console.log('clearDirectionsInputData');
-
     $input.removeData('lat');
     $input.removeData('lng');
     $input.removeData('isFromGeolocation');
@@ -2433,16 +2440,28 @@ function geolocateUserForDirectionsInput($input) {
  *
  */
 function zoomToDirectionsBounds() {
-    // if () {
+    console.log('zoomToDirectionsBounds');
+    var bounds = new mapboxgl.LngLatBounds();
 
-    // }
-}
+    var sourceCoords = getDirectionsInputLngLat($('#source-input'));
+    if (sourceCoords) {
+        console.log('sourceCoords: ', sourceCoords);
+        bounds.extend(sourceCoords);
+    }
+    console.log('source only bounds: ', bounds);
 
-/**
- *
- */
-function setDirectionsMarker() {
-    
+    var targetCoords = getDirectionsInputLngLat($('#target-input'));
+    if (targetCoords) {
+        console.log('targetCoords: ', targetCoords);
+        bounds.extend(targetCoords);
+    }
+    console.log('new bounds: ', bounds);
+
+    if (sourceCoords || targetCoords) {
+        MAP.fitBounds(bounds, {padding: 100});
+    }
+
+    // MAP.flyTo({center: [lng, lat]});
 }
 
 /**
@@ -2481,7 +2500,7 @@ function geocodeDirectionsInput($input) {
 function checkDirectionsInput($input) {
     var inputText = $input.val();
 
-    console.log("checkDirectionsInput (" + getSourceTargetInputId($input) + "): \"" + inputText + "\"");
+    // console.log("checkDirectionsInput (" + getSourceTargetInputId($input) + "): \"" + inputText + "\"");
 
     if (inputText.length == 0) {
         console.log("empty");
@@ -2490,7 +2509,7 @@ function checkDirectionsInput($input) {
 
     // If lat & lng are set - stored in input.
     if ($input.data('lat') && $input.data('lng')) {
-        console.log("lat/lng is set");
+        // console.log("lat/lng is set");
         return true;
     }
 
@@ -2955,7 +2974,7 @@ $(document).ready(function () {
             listItems = "",
             sourceOrTarget = getSourceTargetInputId($ul);
 
-        console.log('on filterablebeforefilter: ' + sourceOrTarget);
+        // console.log('on filterablebeforefilter: ' + sourceOrTarget);
 
         $ul.html("");
 
@@ -2993,7 +3012,7 @@ $(document).ready(function () {
 
                     // Then, handle a click on a filtered list item
                     $(this).click(function() {
-                        console.log('autocomplete click');
+                        // console.log('autocomplete click');
                         $input.val($(this).text());
                         $ul.hide();
                         var lat = $(this).children('a').attr('data-value-lat');
@@ -3009,9 +3028,7 @@ $(document).ready(function () {
                         }
                         // setDirectionsMarker(marker, lat, lng);
                         placeMarker(marker, lat, lng);
-                        // @TODO: If both markers are shown, zoom to fit both.
-                        //        We do a fit in the Directions call, but should probably do something here too.
-                        MAP.flyTo({center: [lng, lat]});
+                        zoomToDirectionsBounds();
                     });
                 });
             }
