@@ -2445,23 +2445,21 @@ function zoomToDirectionsBounds() {
 
     var sourceCoords = getDirectionsInputLngLat($('#source-input'));
     if (sourceCoords) {
-        console.log('sourceCoords: ', sourceCoords);
+        // console.log('sourceCoords: ', sourceCoords);
         bounds.extend(sourceCoords);
     }
-    console.log('source only bounds: ', bounds);
+    // console.log('source only bounds: ', bounds);
 
     var targetCoords = getDirectionsInputLngLat($('#target-input'));
     if (targetCoords) {
-        console.log('targetCoords: ', targetCoords);
+        // console.log('targetCoords: ', targetCoords);
         bounds.extend(targetCoords);
     }
-    console.log('new bounds: ', bounds);
+    // console.log('new bounds: ', bounds);
 
     if (sourceCoords || targetCoords) {
         MAP.fitBounds(bounds, {padding: 100});
     }
-
-    // MAP.flyTo({center: [lng, lat]});
 }
 
 /**
@@ -2476,14 +2474,15 @@ function isWithinParkBounds(lngLat) {
  * Geocode directions form input
  */
 function geocodeDirectionsInput($input) {
-    console.log('geocodeDirectionsInput');
+    console.log('geocodeDirectionsInput()');
     var inputText = ($input).val();
+    console.log(inputText);
     var lat, lng;
 
-    // Otherwise, make a geocode API call
-    $.get(API_NEW_BASE_URL + 'geocode/' + inputText, null, function (reply) {
+    return $.get(API_NEW_BASE_URL + 'geocode/' + inputText, null, function (reply) {
         if (reply && reply.data.lng && reply.data.lat) {
             var lngLat = new mapboxgl.LngLat(reply.data.lng, reply.data.lat);
+            console.log('Geocode success');
             setDirectionsInputLngLat($input, lngLat)
         } else {
             // Geocode failed
@@ -2495,15 +2494,23 @@ function geocodeDirectionsInput($input) {
 }
 
 /**
+ * Show notes about directions, such as Bing provenance.
+ */
+// setRoutingNotes('Directions from Bing');
+function setRoutingNotes(notes) {
+    $('#directions-notes').text(notes);
+}
+
+/**
  * Check directions input
  */
-function checkDirectionsInput($input) {
+async function checkDirectionsInput($input) {
     var inputText = $input.val();
 
-    // console.log("checkDirectionsInput (" + getSourceTargetInputId($input) + "): \"" + inputText + "\"");
+    console.log("checkDirectionsInput (" + getSourceTargetInputId($input) + "): \"" + inputText + "\"");
 
     if (inputText.length == 0) {
-        console.log("empty");
+        console.log("CHECK: empty");
         return false;
     }
 
@@ -2518,7 +2525,7 @@ function checkDirectionsInput($input) {
     var latLngStr = /(^[-+]?(?:[1-8]?\d(?:\.\d+)?|90(?:\.0+)?))\s*,\s*([-+]?(?:180(?:\.0+)?|(?:(?:1[0-7]\d)|(?:[1-9]?\d))(?:\.\d+)?))$/.exec(inputText);
     if (latLngStr) {
         var lngLat = new mapboxgl.LngLat(latLngStr[2], latLngStr[1]);
-        console.log('lat/lng text: ' + latLngStr[1] + ', ' + latLngStr[2]);
+        // console.log('lat/lng text: ' + latLngStr[1] + ', ' + latLngStr[2]);
         setDirectionsInputLngLat($input, lngLat);
         return true;
     }
@@ -2531,7 +2538,7 @@ function checkDirectionsInput($input) {
         var firstResult = fuseResults[0].item;
         var firstResultTitle = firstResult.title;
         if (simplifyTextForMatch(firstResultTitle) == simplifyTextForMatch(inputText)) {
-            console.log('Exact match');
+            // console.log('Exact match');
             // @TODO: Choose from autocomplete (if it's still showing)
             var lngLat = new mapboxgl.LngLat(firstResult.lng, firstResult.lat);
             setDirectionsInputLngLat($input, lngLat);
@@ -2539,28 +2546,43 @@ function checkDirectionsInput($input) {
         }
     }
 
-    // @TODO: Geocode the text
-    // geocodeDirectionsInput($input);
+    // Otherwise, make a geocode API call with the text data
+    var geocoded = await geocodeDirectionsInput($input);
+    return geocoded
+        .done(function() {
+            console.log('geocode success');
+        })
+        .fail(function() {
+            console.log('geocode failure');
+        })
+        .always(function() {
+            console.log('geocode after');
+        });
 }
 
 /**
  * Process "Get Directions" action
  */
-function processGetDirectionsForm() {
+async function processGetDirectionsForm() {
     console.log('processGetDirectionsForm()');
     clearDirectionsLine();
+    // clearDirectionsMarkers();
 
-    var sourceIsRoutable = checkDirectionsInput($('#source-input'));
-    var targetIsRoutable = checkDirectionsInput($('#target-input'));
+    var sourceIsRoutable = await checkDirectionsInput($('#source-input'));
+    var targetIsRoutable = await checkDirectionsInput($('#target-input'));
+    console.log('sourceIsRoutable: ', sourceIsRoutable);
+    console.log('targetIsRoutable: ', targetIsRoutable);
 
     if (sourceIsRoutable && targetIsRoutable) {
         var sourceLat = parseFloat($('#source-input').data('lat'));
         var sourceLng = parseFloat($('#source-input').data('lng'));
         var sourceLngLat = new mapboxgl.LngLat(sourceLng, sourceLat);
+        console.log("source: " + sourceLngLat);
 
         var targetLat = parseFloat($('#target-input').data('lat'));
         var targetLng = parseFloat($('#target-input').data('lng'));
         var targetLngLat = new mapboxgl.LngLat(targetLng, targetLat);
+        console.log("target: " + targetLngLat);
 
         var isFromGeolocation = $('#target-input').data('isFromGeolocation') ? true : false;
 
@@ -2708,6 +2730,7 @@ function renderDirectionsStructure(directions) {
     clearMapBtn.click(function () {
         $('#directions-steps').empty();
         clearDirectionsLine();
+        clearDirectionsMarkers();
         $('.directions-functions').empty();
     });
     directionsFunctions.append(clearMapBtn);
@@ -2793,6 +2816,10 @@ function updateWindowURLWithDirections() {
  */
 function drawDirectionsLine(polyline, from, to) {
     clearDirectionsLine();
+    clearDirectionsMarkers();
+
+    placeMarker(MARKER_START, from.lat, from.lng);
+    placeMarker(MARKER_END, to.lat, to.lng);
 
     MAP.addLayer({
         'id': 'directionsLine',
@@ -2811,9 +2838,6 @@ function drawDirectionsLine(polyline, from, to) {
             'line-opacity': 0.50
         }
     });
-
-    placeMarker(MARKER_START, from.lat, from.lng);
-    placeMarker(MARKER_END, to.lat, to.lng);
 }
 
 /**
@@ -2827,15 +2851,20 @@ function clearDirectionsLine() {
         MAP.removeSource('directionsLine');
     }
 
-    clearMarker(MARKER_START);
-    clearMarker(MARKER_END);
-
     // @TODO: Check this...
     // and both the Directions and Measure need their content erased, so they aren't confused with each other
     // don't worry, clearDirectionsLine() is always a prelude to repopulating one of these
     //
     $('#directions-steps').empty();
     $('#measure_steps').empty();
+}
+
+/**
+ * Clear directions line
+ */
+function clearDirectionsMarkers() {
+    clearMarker(MARKER_START);
+    clearMarker(MARKER_END);
 }
 
 /**
@@ -2912,6 +2941,7 @@ $(document).ready(function () {
      */
     $('#getdirections_clear').click(function () {
         clearDirectionsLine();
+        clearDirectionsMarkers();
         $('#directions-steps').empty();
     });
 

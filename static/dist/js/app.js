@@ -2287,9 +2287,6 @@ function launchNativeExternalDirections(sourceLat, sourceLng, targetLat, targetL
 function getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation) {
     disableDirectionsButton();
 
-    // Empty out the old directions steps
-    $('#directions-steps').empty();
-
     // In mobile, launch external map app for native car/transit directions
     if (NATIVE_APP && (via=='car' || via=='bus')) {
         launchNativeExternalDirections(sourceLngLat.lat, sourceLngLat.lng, targetLngLat.lat, targetLngLat.lng, via, isFromGeolocation);
@@ -2427,7 +2424,7 @@ function geolocateUserForDirectionsInput($input) {
  *
  */
 function zoomToDirectionsBounds() {
-    console.log('zoomToDirectionsBounds');
+    // console.log('zoomToDirectionsBounds');
     var bounds = new mapboxgl.LngLatBounds();
 
     var sourceCoords = getDirectionsInputLngLat($('#source-input'));
@@ -2461,23 +2458,28 @@ function isWithinParkBounds(lngLat) {
  * Geocode directions form input
  */
 function geocodeDirectionsInput($input) {
-    console.log('geocodeDirectionsInput()');
     var inputText = ($input).val();
-    console.log(inputText);
-    var lat, lng;
+    console.log('geocodeDirectionsInput(): ' + inputText);
 
-    $.get(API_NEW_BASE_URL + 'geocode/' + inputText, null, function (reply) {
-        if (reply && reply.data.lng && reply.data.lat) {
-            var lngLat = new mapboxgl.LngLat(reply.data.lng, reply.data.lat);
-            console.log('Geocode success');
-            setDirectionsInputLngLat($input, lngLat)
-        } else {
-            // Geocode failed
-            // @TODO: Figure out and specify input (source or target)
-            var message = "Can't find that address.\nPlease try again.";
-            showInfoPopup(message, 'error');
+    var geocodeResponse = $.ajax({
+        url: API_NEW_BASE_URL + 'geocode/' + inputText,
+        dataType: 'json',
+        success: function (reply) {
+            if (reply && reply.data.lng && reply.data.lat) {
+                var lngLat = new mapboxgl.LngLat(reply.data.lng, reply.data.lat);
+                console.log('geocodeDirectionsInput(): success: ', lngLat);
+                setDirectionsInputLngLat($input, lngLat)
+            } else {
+                // Geocode failed
+                console.log('geocodeDirectionsInput(): failure');
+                // @TODO: Figure out and specify input (source or target)
+                var message = "Can't find that address.\nPlease try again.";
+                showInfoPopup(message, 'error');
+            }
         }
-    },'json');
+    });
+
+    return geocodeResponse;
 }
 
 /**
@@ -2491,7 +2493,7 @@ function setRoutingNotes(notes) {
 /**
  * Check directions input
  */
-async function checkDirectionsInput($input) {
+function checkDirectionsInput($input) {
     var inputText = $input.val();
 
     console.log("checkDirectionsInput (" + getSourceTargetInputId($input) + "): \"" + inputText + "\"");
@@ -2534,39 +2536,60 @@ async function checkDirectionsInput($input) {
     }
 
     // Otherwise, make a geocode API call with the text data
-    // let promise geocodeDirectionsInput($input);
+    var geocodeResponse = geocodeDirectionsInput($input)
+        .done(function() {
+            console.log('geocode success (done)');
+        })
+        .fail(function() {
+            console.log('geocode failure (fail)');
+        })
+        .always(function() {
+            console.log('geocode after (always)');
+        });
+
+    console.log('geocodeDirectionsInput() response:', geocodeResponse);
+
+    return geocodeResponse;
 }
 
 /**
  * Process "Get Directions" action
  */
-function processGetDirectionsForm() {
+async function processGetDirectionsForm() {
     console.log('processGetDirectionsForm()');
     clearDirectionsLine();
-    clearDirectionsMarkers();
 
     var sourceIsRoutable = checkDirectionsInput($('#source-input'));
+    console.log('sourceIsRoutable: ', sourceIsRoutable);
+
     var targetIsRoutable = checkDirectionsInput($('#target-input'));
+    console.log('targetIsRoutable: ', targetIsRoutable);
 
-    if (sourceIsRoutable && targetIsRoutable) {
-        var sourceLat = parseFloat($('#source-input').data('lat'));
-        var sourceLng = parseFloat($('#source-input').data('lng'));
-        var sourceLngLat = new mapboxgl.LngLat(sourceLng, sourceLat);
-        console.log(sourceLngLat);
+    $.when(sourceIsRoutable, targetIsRoutable).done(function() {
+        console.log('Source and target both routable!');
+        processDirectionsInputsWithLatLngs();
+    });
+}
 
-        var targetLat = parseFloat($('#target-input').data('lat'));
-        var targetLng = parseFloat($('#target-input').data('lng'));
-        var targetLngLat = new mapboxgl.LngLat(targetLng, targetLat);
-        console.log(targetLngLat);
+/**
+ *
+ */
+function processDirectionsInputsWithLatLngs() {
+    var sourceLat = parseFloat($('#source-input').data('lat'));
+    var sourceLng = parseFloat($('#source-input').data('lng'));
+    var sourceLngLat = new mapboxgl.LngLat(sourceLng, sourceLat);
+    console.log("source: " + sourceLngLat);
 
-        var isFromGeolocation = $('#target-input').data('isFromGeolocation') ? true : false;
+    var targetLat = parseFloat($('#target-input').data('lat'));
+    var targetLng = parseFloat($('#target-input').data('lng'));
+    var targetLngLat = new mapboxgl.LngLat(targetLng, targetLat);
+    console.log("target: " + targetLngLat);
 
-        var via = $('#directions-via').attr('data-value');
+    var isFromGeolocation = $('#target-input').data('isFromGeolocation') ? true : false;
 
-        getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation);
-    } else {
-        // @TODO: If this didn't work...
-    }
+    var via = $('#directions-via').attr('data-value');
+
+    getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation);
 }
 
 /**
@@ -2674,6 +2697,7 @@ function renderDirectionsStructure(directions) {
     var total = $('<span></span>').addClass('ui-li-heading').html('<b>Total:</b> ' + directions.totals.distance + ', ' + directions.totals.duration);
     target.append( $('<li></li>').append(total).append(note) );
 
+    // Add buttons to the bottom of the steps
     var directionsFunctions = $('<div></div>').addClass('directions-functions');
 
     // Elevation Profile button
@@ -2696,19 +2720,18 @@ function renderDirectionsStructure(directions) {
         directionsFunctions.append(elevationProfileBtn);
     }
 
-    // Clear button
-    var clearMapBtn = $('<a></a>')
+    // Clear (Directions) button
+    var clearDirectionsBtn = $('<a></a>')
         .addClass('ui-btn')
         .addClass('ui-btn-inline')
         .addClass('ui-corner-all')
         .text('Clear');
-    clearMapBtn.click(function () {
-        $('#directions-steps').empty();
+    clearDirectionsBtn.click(function () {
         clearDirectionsLine();
         clearDirectionsMarkers();
-        $('.directions-functions').empty();
+        clearDirectionsSteps();
     });
-    directionsFunctions.append(clearMapBtn);
+    directionsFunctions.append(clearDirectionsBtn);
 
     // Share button
     var shareRouteBtn = $('<a></a>')
@@ -2746,8 +2769,10 @@ function renderDirectionsStructure(directions) {
     // phase 4: any additional postprocessing
     // give the list that jQuery Mobile magic
     target.listview('refresh');
+
+    // @TODO: Still necessary?:
     // jQM assigns this class, screwing up the position & size of the first button IMG:
-    $('.directions-functions img:first').removeClass('ui-li-thumb');
+    // $('.directions-functions img:first').removeClass('ui-li-thumb'); //
 }
 
 /**
@@ -2825,13 +2850,6 @@ function clearDirectionsLine() {
     if (MAP.getSource('directionsLine')) {
         MAP.removeSource('directionsLine');
     }
-
-    // @TODO: Check this...
-    // and both the Directions and Measure need their content erased, so they aren't confused with each other
-    // don't worry, clearDirectionsLine() is always a prelude to repopulating one of these
-    //
-    $('#directions-steps').empty();
-    $('#measure_steps').empty();
 }
 
 /**
@@ -2840,6 +2858,14 @@ function clearDirectionsLine() {
 function clearDirectionsMarkers() {
     clearMarker(MARKER_START);
     clearMarker(MARKER_END);
+}
+
+/**
+ * Clear directions steps & functions
+ */
+function clearDirectionsSteps() {
+    $('#directions-steps').empty();
+    $('.directions-functions').remove();
 }
 
 /**
@@ -2904,20 +2930,8 @@ $(document).ready(function () {
 
     // Get Directions click
     $('#get-directions').click(function () {
-        $('#directions-steps').empty();
-        $('.directions-functions').remove();
+        clearDirectionsSteps();
         processGetDirectionsForm();
-    });
-
-    /**
-     * Get directions button does an async geocode on the address,
-     * then an async directions lookup between the points,
-     * then draws the polyline path and prints the directions
-     */
-    $('#getdirections_clear').click(function () {
-        clearDirectionsLine();
-        clearDirectionsMarkers();
-        $('#directions-steps').empty();
     });
 
     /**
@@ -2928,46 +2942,6 @@ $(document).ready(function () {
         $(this).parent().children().removeClass('active');
         $(this).addClass('active');
     });
-
-    ///**
-    // * On blur (focus out) of inputs
-    // */
-    //$(".feature-search-input").blur(function(e) {
-    //    console.log('on blur');
-    //    checkDirectionsInput($(this));
-    //});
-
-    ///**
-    // * On change of inputs
-    // */
-    //$(".feature-search-input").change(function(e) {
-    //    console.log('on change');
-    //    checkDirectionsInput($(this));
-    //    e.preventDefault();
-    //    e.stopPropagation();
-    //    console.log('end on change');
-    //});
-
-    ///**
-    // * On keypress in input
-    // */
-    //$(".feature-search-input").keypress(function(e) {
-    //    console.log(e.which);
-    //});
-
-    ///**
-    // * On keydown in input
-    // */
-    //$(".feature-search-input").keydown(function(e) {
-    //    if (e.which == 9) { // Tab key
-    //        e.preventDefault();
-    //        if (getSourceTargetInputId($(this)) == 'source') {
-    //            $('#target-input').focus();
-    //        } else {
-    //            $('#get-directions').focus();
-    //        }
-    //    }
-    //});
 
     /**
      * Autocomplete for to/from inputs
