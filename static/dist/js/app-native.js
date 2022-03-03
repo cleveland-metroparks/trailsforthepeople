@@ -4222,17 +4222,6 @@ this["CM"]["Templates"]["info_trail"] = Handlebars.template({"1":function(contai
   return "	Est time, horseback: "
     + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"durationtext_bridle") : stack1), depth0))
     + "<br/>\n";
-},"7":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
-    };
-
-  return "<div class=\"elevationprofileimage\" style=\"text-align:center;\">\n    <img src=\""
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"img_src") || (depth0 != null ? lookupProperty(depth0,"img_src") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"img_src","hash":{},"data":data,"loc":{"start":{"line":20,"column":14},"end":{"line":20,"column":25}}}) : helper)))
-    + "\" alt=\"Elevation profile\">\n    <canvas id=\"elevation-profile-trail\" alt=\"Elevation profile\"></canvas>\n</div>\n";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=container.lambda, alias2=container.escapeExpression, alias3=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -4251,8 +4240,7 @@ this["CM"]["Templates"]["info_trail"] = Handlebars.template({"1":function(contai
     + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"bridle") : stack1),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":11,"column":0},"end":{"line":13,"column":7}}})) != null ? stack1 : "")
     + "</p>\n\n"
     + ((stack1 = alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"description") : stack1), depth0)) != null ? stack1 : "")
-    + "\n\n"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias3,(depth0 != null ? lookupProperty(depth0,"img_src") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":18,"column":0},"end":{"line":23,"column":7}}})) != null ? stack1 : "");
+    + "\n\n<div class=\"elevationprofileimage\" style=\"text-align:center;\">\n    <canvas id=\"elevation-profile-trail\" alt=\"Elevation profile\"></canvas>\n</div>\n";
 },"useData":true});
 
 this["CM"]["Templates"]["pane_activities_item"] = Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
