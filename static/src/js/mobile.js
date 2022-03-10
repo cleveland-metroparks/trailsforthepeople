@@ -70,20 +70,6 @@ function createStartHereTooltip() {
     return tooltip;
 }
 
-// @TODO: GLJS: Necessary?
-// We don't resize the map programmatically or hide/show the map with CSS.
-// See https://docs.mapbox.com/mapbox-gl-js/api/map/#map#resize
-// and https://github.com/mapbox/mapbox-gl-js/pull/9083
-//
-///**
-// * Refresh the map on resize or orientation change to prevent a flash/disappearance.
-// */
-//$(document).on("mapInitialized", function () {
-//    $(window).bind('orientationchange pageshow resize', function() {
-//        MAP.resize();
-//    });
-//});
-
 /**
  * If the user has a small screen, close the sidebar to see the map.
  */

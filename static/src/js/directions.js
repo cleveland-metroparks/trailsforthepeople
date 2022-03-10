@@ -72,7 +72,7 @@ function getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation) {
                 },'json')
                 .fail(function(jqXHR, textStatus, errorThrown) {
                     showInfoPopup("Error getting driving directions.", 'error');
-                    console.log(textStatus + ': ' + errorThrown);
+                    console.error(textStatus + ': ' + errorThrown);
                 })
                 .always(function() {
                     enableDirectionsButton();
@@ -88,7 +88,7 @@ function getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation) {
                 },'json')
                 .fail(function(jqXHR, textStatus, errorThrown) {
                     showInfoPopup("Error getting transit directions.", 'error');
-                    console.log(textStatus + ': ' + errorThrown);
+                    console.error(textStatus + ': ' + errorThrown);
                 })
                 .always(function() {
                     enableDirectionsButton();
@@ -105,7 +105,6 @@ function getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation) {
                     renderDirectionsStructure(reply.data);
                     updateWindowURLWithDirections();
                 } else {
-                    // @TODO: bubble-this up?
                     var message = "Could not find directions over trails for this start and endpoint.";
                     if (via != 'hike') {
                         message += "\nTry a different type of trail, terrain, or difficulty.";
@@ -115,7 +114,7 @@ function getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation) {
             },'json')
             .fail(function(jqXHR, textStatus, errorThrown) {
                 showInfoPopup("Error getting directions.", 'error');
-                console.log(textStatus + ': ' + errorThrown);
+                console.error(textStatus + ': ' + errorThrown);
             })
             .always(function() {
                 enableDirectionsButton();
@@ -140,11 +139,87 @@ function enableDirectionsButton() {
 }
 
 /**
- * Set lng and lat in a directions input element
+ * Set the lng and lat inside a directions input element,
+ * then place marker and do zoom.
+ *
+ * Can optionally set the trail-specific location and the
+ * driving destination/location so that they can be switched
+ * when choosing "via" transport method.
+ *
+ * @param $input
+ * @param lngLat
+ * @param trailLngLat (optional)
+ * @param drivingLngLat (optional)
  */
-function setDirectionsInputLngLat($input, lngLat) {
+function setDirectionsInputLngLat($input, lngLat, trailLngLat, drivingLngLat) {
     $input.data('lat', lngLat.lat);
     $input.data('lng', lngLat.lng);
+
+    if (trailLngLat) {
+        $input.data('trail-lat', trailLngLat.lat);
+        $input.data('trail-lng', trailLngLat.lng);
+    } else {
+        $input.removeData('trail-lat');
+        $input.removeData('trail-lng');
+    }
+
+    if (drivingLngLat) {
+        $input.data('driving-lat', drivingLngLat.lat);
+        $input.data('driving-lng', drivingLngLat.lng);
+    } else {
+        $input.removeData('driving-lat');
+        $input.removeData('driving-lng');
+    }
+
+    var marker;
+    if (getSourceTargetInputId($input) == 'target') {
+        marker = MARKER_END;
+    } else {
+        marker = MARKER_START;
+    }
+    placeMarker(marker, lngLat.lat, lngLat.lng);
+    zoomToDirectionsBounds();
+}
+
+/**
+ * Set the location of the source/target input to either the driving destination
+ * or the trail destination (of the given feature);
+ * whichever's appropriate based on transport method (via).
+ *
+ * These specific destinations must already be set in the input;
+ * this is just a switcher.
+ */
+function setAppropriateDestination($input) {
+    var sourceOrTarget = getSourceTargetInputId($input); // For debug console.log
+    if (useDrivingDestination()) {
+        if ($input.data('driving-lat') && $input.data('driving-lat')) {
+            $input.data('lat', $input.data('driving-lat'));
+            $input.data('lng', $input.data('driving-lng'));
+            console.log('Successfully set ' + sourceOrTarget + ' to driving destination.');
+        } else {
+            console.log('No driving destination exists for ' + sourceOrTarget + '.');
+        }
+    } else {
+        if ($input.data('trail-lat') && $input.data('trail-lat')) {
+            $input.data('lat', $input.data('trail-lat'));
+            $input.data('lng', $input.data('trail-lng'));
+            console.log('Successfully set ' + sourceOrTarget + ' to trail destination.');
+        } else {
+            console.log('No trail destination exists for ' + sourceOrTarget + '.');
+        }
+    }
+}
+
+/**
+ * Should we use the driving destination for the location?
+ *
+ * @return boolean
+ *   Check via setting:
+ *     If hiking, FALSE: (normal trail lat/lng)
+ *     If driving, bicycling, or transit: TRUE (use driving destination lat/lng)
+ */
+function useDrivingDestination() {
+    return $('#directions-via').attr('data-value') != 'hike';
 }
 
 /**
@@ -153,6 +228,7 @@ function setDirectionsInputLngLat($input, lngLat) {
 function getDirectionsInputLngLat($input) {
     var lat = $input.data('lat');
     var lng = $input.data('lng');
+
     if (lat && lng) {
         return new mapboxgl.LngLat(lng, lat);
     }
@@ -178,7 +254,6 @@ function geolocateUserForDirectionsInput($input) {
     isFromGeolocation = true;
     var userLocation = LAST_KNOWN_LOCATION;
     $input.val(userLocation.lat + ', ' + userLocation.lng);
-    placeMarker(MARKER_START, userLocation.lat, userLocation.lng);
     setDirectionsInputLngLat($input, userLocation);
 }
 
@@ -209,15 +284,9 @@ function zoomToDirectionsBounds() {
 }
 
 /**
- * Check if coordinates are within park boundaries.
- */
-function isWithinParkBounds(lngLat) {
-    // @TODO: Check if within actual parks (not just greater rectangle bounds)
-    return MAX_BOUNDS.contains(lngLat);
-}
-
-/**
  * Geocode directions form input
+ *
+ * @return: (promise)
  */
 function geocodeDirectionsInput($input) {
     var inputText = ($input).val();
@@ -233,9 +302,16 @@ function geocodeDirectionsInput($input) {
                 setDirectionsInputLngLat($input, lngLat)
             } else {
                 // Geocode failed
-                console.log('geocodeDirectionsInput(): failure');
-                // @TODO: Figure out and specify input (source or target)
-                var message = "Can't find that address.\nPlease try again.";
+                console.error('geocodeDirectionsInput(): failure');
+
+                var message;
+                var sourceOrTarget = getSourceTargetInputId($input);
+                if (sourceOrTarget == 'source') {
+                    message = "Can't find the source (\"From:\") address.\nPlease try again.";
+                } else {
+                    message = "Can't find the target (\"To:\") address.\nPlease try again.";
+                }
+
                 showInfoPopup(message, 'error');
             }
         }
@@ -246,8 +322,9 @@ function geocodeDirectionsInput($input) {
 
 /**
  * Show notes about directions, such as Bing provenance.
+ *
+ * @example: setRoutingNotes('Directions from Bing');
  */
-// setRoutingNotes('Directions from Bing');
 function setRoutingNotes(notes) {
     $('#directions-notes').text(notes);
 }
@@ -267,7 +344,7 @@ function checkDirectionsInput($input) {
 
     // If lat & lng are set - stored in input.
     if ($input.data('lat') && $input.data('lng')) {
-        // console.log("lat/lng is set");
+        console.log("lat/lng is set");
         return true;
     }
 
@@ -289,21 +366,27 @@ function checkDirectionsInput($input) {
         var firstResult = fuseResults[0].item;
         var firstResultTitle = firstResult.title;
         if (simplifyTextForMatch(firstResultTitle) == simplifyTextForMatch(inputText)) {
-            // console.log('Exact match');
-            // @TODO: Choose from autocomplete (if it's still showing)
-            var lngLat = new mapboxgl.LngLat(firstResult.lng, firstResult.lat);
-            setDirectionsInputLngLat($input, lngLat);
+            console.log('Exact match');
+            setInputToKnownFeature(
+                $input,
+                firstResult.title,
+                firstResult.lng,
+                firstResult.lat,
+                firstResult.drivingLng,
+                firstResult.drivingLat
+            );
             return true;
         }
     }
 
     // Otherwise, make a geocode API call with the text data
+    // and return the promise
     var geocodeResponse = geocodeDirectionsInput($input)
         .done(function() {
             console.log('geocode success (done)');
         })
         .fail(function() {
-            console.log('geocode failure (fail)');
+            console.error('geocode failure (fail)');
         })
         .always(function() {
             console.log('geocode after (always)');
@@ -315,11 +398,14 @@ function checkDirectionsInput($input) {
 }
 
 /**
- * Process "Get Directions" action
+ * Process "Get Directions" action.
+ *
+ * checkDirectionsInput() returns a promise
  */
 async function processGetDirectionsForm() {
     console.log('processGetDirectionsForm()');
     clearDirectionsLine();
+    clearDirectionsSteps();
 
     var sourceIsRoutable = checkDirectionsInput($('#source-input'));
     console.log('sourceIsRoutable: ', sourceIsRoutable);
@@ -334,7 +420,8 @@ async function processGetDirectionsForm() {
 }
 
 /**
- *
+ * Process directions inputs that have the lats & lngs set.
+ * Run "get directions" on the given data.
  */
 function processDirectionsInputsWithLatLngs() {
     var sourceLat = parseFloat($('#source-input').data('lat'));
@@ -361,62 +448,6 @@ function processDirectionsInputsWithLatLngs() {
  */
 function simplifyTextForMatch(str) {
     return str.replace(/\W/g, '').toLowerCase();
-}
-
-/**
- * Geocode location for directions
- *
- * @param {String} loc_type: 'poi', 'attraction', 'reservation', or 'trail'
- * @param {Integer} loc_gid
- * @param {Float} lat (optional)
- * @param {Float} lng (optional)
- * @param {String} via (optional)
- */
-function geocodeLocationForDirections(loc_type, loc_gid, lat, lng, via, lat_el_id, lng_el_id) {
-    var output_location = {};
-
-    switch (loc_type) {
-        case 'attraction':
-            var attraction = CM.get_attraction(loc_gid);
-            if (via == 'car' && attraction.drivingdestinationlatitude && attraction.drivingdestinationlongitude) {
-                output_location.lat = attraction.drivingdestinationlatitude;
-                output_location.lng = attraction.drivingdestinationlongitude;
-            } else {
-                output_location.lat = attraction.latitude;
-                output_location.lng = attraction.longitude;
-            }
-            break;
-
-        case 'trail':
-            var trail = CM.trails[loc_gid];
-            break;
-
-        case 'reservation':
-        case 'reservation_new':
-            var reservation = CM.get_reservation([loc_gid]);
-            // @TODO: Choose the closest driving destination
-            // currently stored in northlatitude, northlongitude, southlatitude, southlongitude, etc.
-            if (via == 'car' && reservation.drivingdestinationlatitude && reservation.drivingdestinationlongitude) {
-                output_location.lat = reservation.drivingdestinationlatitude;
-                output_location.lng = reservation.drivingdestinationlongitude;
-            } else {
-                output_location.lat = reservation.latitude;
-                output_location.lng = reservation.longitude;
-            }
-            break;
-
-        default:
-            console.log('ERROR: in geocodeLocationForDirections(), type: ' + loc_type);
-            break;
-    }
-
-    if (output_location[lat] && output_location[lng]) {
-        // Save them into the input fields too, so they'd get shared
-        $(lat_el_id).val(output_location.lat);
-        $(lng_el_id).val(output_location.lng);
-    }
-
-    return output_location;
 }
 
 /**
@@ -531,10 +562,6 @@ function renderDirectionsStructure(directions) {
     // phase 4: any additional postprocessing
     // give the list that jQuery Mobile magic
     target.listview('refresh');
-
-    // @TODO: Still necessary?:
-    // jQM assigns this class, screwing up the position & size of the first button IMG:
-    // $('.directions-functions img:first').removeClass('ui-li-thumb'); //
 }
 
 /**
@@ -562,10 +589,6 @@ function updateWindowURLWithDirections() {
     var targetLng = parseFloat($('#target-input').data('lng'));
     if (targetLat && targetLng) {
         params.targetLatLng = targetLat + ',' + targetLng;
-    }
-
-    if (params.via == 'trail') {
-        params.via = $('#directions_via_trail').val();
     }
 
     setWindowURLQueryStringParameters(params, true, true);
@@ -631,15 +654,15 @@ function clearDirectionsSteps() {
 }
 
 /**
- * Launch Get Directions
+ * Launch "Get Directions" from the info pane
  */
-function launchGetDirections(transport_method) {
-    $('#directions_via').val(transport_method);
-    $('#directions_via').trigger('change');
-    // update that selector: render the page if it's not already been visited,
-    // then restyle the selector so it shows the value it has
-    $('#directions_via').selectmenu("refresh");
-    // and change to the Get Directions panel
+function launchGetDirections(via) {
+    // Set "via" to the correct transport mode
+    $("#directions-via a[data-value='" + via + "']").click();
+
+    // @TODO: Put the destination in the directions target box.
+    // $("#pane-info")
+
     sidebar.open('pane-directions');
 }
 
@@ -649,34 +672,44 @@ function launchGetDirections(transport_method) {
  * @return: "source", "target", or null
  */
 function getSourceTargetInputId($input) {
-    // First try the data-value-sourcetarget element
     if ($input.attr('data-value-sourcetarget')) {
         return $input.attr('data-value-sourcetarget');
     }
-    console.log('getSourceTargetInputId(): not in data-value-sourcetarget; check id');
+}
 
-    // Then try parsing the id
-    var inputId = /^(.+)-input$/.exec($input.attr('id'));
-    console.log(inputId);
-    if (inputId[1].length) {
-        return inputId[1];
+/**
+ * Set an input's data to a feature.
+ * We do this when autocompleting from search results.
+ */
+function setInputToKnownFeature($input, title, lng, lat, drivingLng, drivingLat) {
+    $input.val(title);
+
+    var trailLngLat = new mapboxgl.LngLat(lng, lat);
+
+    var drivingLngLat;
+    if (drivingLng && drivingLat) {
+        drivingLngLat = new mapboxgl.LngLat(drivingLng, drivingLat);
     }
+
+    // Choose the appropriate destination (driving or trail).
+    var lngLat = (useDrivingDestination() && drivingLngLat) ? drivingLngLat : trailLngLat;
+
+    // Set those locations inside the element, place marker and zoom.
+    setDirectionsInputLngLat($input, lngLat, trailLngLat, drivingLngLat);
 }
 
 /**
  * Misc handlers
  */
 $(document).ready(function () {
-    // The 4 icons launch the Get Directions panel
-    // selecting the appropriate transport method
+
+    // For launching "Get Directions" from other (feature) panes,
+    // by clicking a transport mode button:
     $('#directions_hike').click(function () {
         launchGetDirections('hike');
     });
     $('#directions_bike').click(function () {
         launchGetDirections('bike');
-    });
-    $('#directions_bridle').click(function () {
-        launchGetDirections('bridle');
     });
     $('#directions_car').click(function () {
         launchGetDirections('car');
@@ -685,6 +718,7 @@ $(document).ready(function () {
         launchGetDirections('bus');
     });
 
+
     // Source geolocation click
     $('#source-geolocate-btn').click(function () {
         geolocateUserForDirectionsInput($('#source-input'));
@@ -692,7 +726,6 @@ $(document).ready(function () {
 
     // Get Directions click
     $('#get-directions').click(function () {
-        clearDirectionsSteps();
         processGetDirectionsForm();
     });
 
@@ -703,6 +736,12 @@ $(document).ready(function () {
         $(this).parent().attr('data-value', $(this).attr('data-value'));
         $(this).parent().children().removeClass('active');
         $(this).addClass('active');
+
+        // Switch to driving/trails destinations if appropriate
+        setAppropriateDestination($('#source-input'));
+        setAppropriateDestination($('#target-input'));
+
+        processGetDirectionsForm();
     });
 
     /**
@@ -712,10 +751,7 @@ $(document).ready(function () {
         var $ul = $(this),
             $input = $(data.input),
             value = $input.val(),
-            listItems = "",
-            sourceOrTarget = getSourceTargetInputId($ul);
-
-        // console.log('on filterablebeforefilter: ' + sourceOrTarget);
+            listItems = "";
 
         $ul.html("");
 
@@ -729,10 +765,10 @@ $(document).ready(function () {
                     var li = '';
                     li += '<li>';
                     li += '<a href="#" data-transition="fade" class="ui-btn"';
-                    li += 'data-value-gid="' + val.item.gid + '" ';
                     li += 'data-value-lat="' + val.item.lat + '" ';
                     li += 'data-value-lng="' + val.item.lng + '" ';
-                    li += 'data-value-type="' + val.item.type + '"';
+                    li += 'data-value-drivinglat="' + val.item.drivingLat + '" ';
+                    li += 'data-value-drivinglng="' + val.item.drivingLng + '" ';
                     li += '>' + val.item.title + '</a>';
                     li += '</li>';
                     listItems += li;
@@ -741,35 +777,17 @@ $(document).ready(function () {
                 $ul.show();
                 $ul.listview("refresh").trigger("updatelayout");
                 $ul.children().each(function() {
-                    // When an autocomplete option is clicked:
-
-                    //// First, use preventDefault() to make sure our blur() handler
-                    //// on the input does not fire on mousedown
-                    //$(this).mousedown(function(e) {
-                    //    console.log('autocomplete mousedown');
-                    //    e.preventDefault();
-                    //    e.stopPropagation();
-                    //});
-
-                    // Then, handle a click on a filtered list item
+                    // Handle click on autocomplete option:
                     $(this).click(function() {
-                        // console.log('autocomplete click');
-                        $input.val($(this).text());
+                        setInputToKnownFeature(
+                            $input,
+                            $(this).text(),
+                            $(this).children('a').attr('data-value-lng'),
+                            $(this).children('a').attr('data-value-lat'),
+                            $(this).children('a').attr('data-value-drivinglng'),
+                            $(this).children('a').attr('data-value-drivinglat')
+                        );
                         $ul.hide();
-                        var lat = $(this).children('a').attr('data-value-lat');
-                        var lng = $(this).children('a').attr('data-value-lng');
-                        // Set lat/lng data inside element
-                        setDirectionsInputLngLat($input, {'lng': lng, 'lat': lat})
-
-                        var marker;
-                        if (sourceOrTarget == 'source') {
-                            marker = MARKER_START;
-                        } else {
-                            marker = MARKER_END;
-                        }
-                        // setDirectionsMarker(marker, lat, lng);
-                        placeMarker(marker, lat, lng);
-                        zoomToDirectionsBounds();
                     });
                 });
             }
