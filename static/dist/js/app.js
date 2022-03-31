@@ -26,6 +26,8 @@ var WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL = 'https:';
 var WEBAPP_BASE_URL_ABSOLUTE_HOST = 'maps.clevelandmetroparks.com';
 var WEBAPP_BASE_URL_ABSOLUTE = WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL + '//' + WEBAPP_BASE_URL_ABSOLUTE_HOST + '/';
 
+var CM_SITE_BASEURL = 'https://www.clevelandmetroparks.com/';
+
 // the bounding box of the mappable area, for setting the initial view
 // and potentially for restricting the map from zooming away (not enforced)
 var MAX_BOUND_SW = new mapboxgl.LngLat(-82.08504, 41.11816);
@@ -1143,26 +1145,41 @@ function showFeatureInfoContent(attractionType, id) {
                img_props = make_image_from_pagethumbnail(attraction.pagethumbnail, max_img_width);
             }
 
+            if (attraction.latitude && attraction.longitude) {
+               attraction.latlng_userformatted = attraction.latitude + ', ' + attraction.longitude;
+            }
+
+            if (attraction.cmp_url) {
+                var urlPath = attraction.cmp_url;
+                const regex = /^\//; // Trim leading slash
+                attraction.main_site_url = CM_SITE_BASEURL + urlPath.replace(regex, '');
+            }
+
             var template_vars = {
                 feature: attraction,
                 activity_icons: activity_icons,
-                img: img_props,
+                img: img_props
             };
 
             $('#info-content').html(template(template_vars));
+
             break;
 
         case 'reservation_new':
             var reservation = CM.get_reservation(id);
             var template = CM.Templates.info_reservation;
+
             if (reservation.pagethumbnail) {
                img_props = make_image_from_pagethumbnail(reservation.pagethumbnail, max_img_width);
             }
+
             var template_vars = {
                 feature: reservation,
                 img: img_props,
             };
+
             $('#info-content').html(template(template_vars));
+
             break;
 
         case 'loop': // "Blessed trail"
@@ -1190,6 +1207,7 @@ function showFeatureInfoContent(attractionType, id) {
             } else {
                 console.log("ERROR: loop id: " + id + " does not exist in CM.trails (app_view_trails).");
             }
+
             break;
     }
 }
@@ -4040,7 +4058,16 @@ this["CM"]["Templates"]["info_attraction"] = Handlebars.template({"1":function(c
     + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"descr") : stack1), depth0))
     + "</div>\n";
 },"8":function(container,depth0,helpers,partials,data) {
-    return "    <ul class=\"nobull\">\n        <li><a href=\"\" target=\"_blank\">More Info</a></li>\n    </ul>\n";
+    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "    <ul class=\"nobull\">\n        <li><a href=\""
+    + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"main_site_url") : stack1), depth0))
+    + "\" target=\"_blank\">More info</a></li>\n    </ul>\n";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=container.lambda, alias2=container.escapeExpression, alias3=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {

@@ -12,5 +12,3 @@
 // (For local development, comment these out.)
 WEBAPP_BASEPATH = 'https://maps.clevelandmetroparks.com/';
 API_BASEPATH = 'https://maps.clevelandmetroparks.com/'; // (Old API server)
-
-var CM_SITE_BASEURL = 'https://www.clevelandmetroparks.com/';

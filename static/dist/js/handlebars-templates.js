@@ -56,7 +56,16 @@ this["CM"]["Templates"]["info_attraction"] = Handlebars.template({"1":function(c
     + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"descr") : stack1), depth0))
     + "</div>\n";
 },"8":function(container,depth0,helpers,partials,data) {
-    return "    <ul class=\"nobull\">\n        <li><a href=\"\" target=\"_blank\">More Info</a></li>\n    </ul>\n";
+    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "    <ul class=\"nobull\">\n        <li><a href=\""
+    + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"main_site_url") : stack1), depth0))
+    + "\" target=\"_blank\">More info</a></li>\n    </ul>\n";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=container.lambda, alias2=container.escapeExpression, alias3=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {

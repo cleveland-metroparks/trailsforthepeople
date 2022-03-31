@@ -26,6 +26,8 @@ var WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL = 'https:';
 var WEBAPP_BASE_URL_ABSOLUTE_HOST = 'maps.clevelandmetroparks.com';
 var WEBAPP_BASE_URL_ABSOLUTE = WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL + '//' + WEBAPP_BASE_URL_ABSOLUTE_HOST + '/';
 
+var CM_SITE_BASEURL = 'https://www.clevelandmetroparks.com/';
+
 // the bounding box of the mappable area, for setting the initial view
 // and potentially for restricting the map from zooming away (not enforced)
 var MAX_BOUND_SW = new mapboxgl.LngLat(-82.08504, 41.11816);
