@@ -45,7 +45,6 @@ $(document).on("mapInitialized", function () {
 
         // Auto-center
         if (MAX_BOUNDS.contains(lngLat)) {
-            // console.log('ease');
             // MAP.easeTo({center: lngLat});
         } else {
             showInfoPopup('Sorry, your current location is too far away.', 'warning');
@@ -103,9 +102,11 @@ function processQueryParams() {
     }
     distance_feet = Number.isInteger(distance_feet) ? distance_feet : 0;
 
+    var activitiesParamStr = activities ? activities.join('|') : '';
+
     // Begin assembling API call data
     var data = {
-        activity_ids: activities,
+        with_activities: activitiesParamStr,
         within_feet: distance_feet
     };
 
@@ -113,38 +114,57 @@ function processQueryParams() {
      * Make the right call, based on options
      */
     if (activities) {
-        var nearby = false;
         if (geolocate_enabled) {
+            // Search attractions nearby user geolocation, (with activities)
             if (USER_LOCATION !== null && USER_LOCATION !== undefined) {
-                nearby = true;
-                data.lat = USER_LOCATION.coords.latitude;
-                data.lng = USER_LOCATION.coords.longitude;
+                data.nearby_lat = USER_LOCATION.coords.latitude;
+                data.nearby_lng = USER_LOCATION.coords.longitude;
             } else if (lat && lng) {
-                nearby = true;
-                data.lat = lat;
-                data.lng = lng;
-            } else {
-                // No lat/lng
-                nearby = false;
+                data.nearby_lat = lat;
+                data.nearby_lng = lng;
             }
-        } else if (location_searchtext) {
-            // Search attractions nearby geocoded address
-            nearby = true;
-            // data.searchtext = location_searchtext;
-            // Geocode address
-            callGeocodeAddress(location_searchtext).then(function(reply, textStatus, jqXHR) {
-                // Add new lat/lng to the data object.
-                data.lat = reply.data.lat;
-                data.lng = reply.data.lng;
-            });
-        } else {
-            // Search activities without nearby
-            nearby = false;
-        }
 
-        if (nearby) {
-            callGetNearbyAttractions(data);
-        } else {
+            if (data.nearby_lat && data.nearby_lng) {
+                return $.get(API_NEW_BASE_URL + 'attractions', data, function(attractionsReply) {
+                    if (attractionsReply.data.length > 0) {
+                        displayAttractions(attractionsReply.data);
+                    } else {
+                        showInfoPopup("Didn't find any attractions with those activities within the given radius from your location.", 'error');
+                    }
+                })
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    showInfoPopup("Could not find any nearby attractions.", 'error');
+                    console.log(textStatus + ': ' + errorThrown);
+                });
+            }
+        }
+        else if (location_searchtext) {
+            // Search attractions nearby geocoded address, (with activities)
+            // Geocode address
+            callGeocodeAddress(location_searchtext).then(function(geocodeReply, textStatus, jqXHR) {
+                // Add new lat/lng to the data object.
+                data.nearby_lat = geocodeReply.data.lat;
+                data.nearby_lng = geocodeReply.data.lng;
+
+                return $.get(API_NEW_BASE_URL + 'attractions', data, function(attractionsReply) {
+                    if (attractionsReply.data.length > 0) {
+                        displayAttractions(attractionsReply.data);
+                    } else {
+                        showInfoPopup("Didn't find any attractions with those activities within the given radius from your address.", 'error');
+                    }
+                })
+                .fail(function(jqXHR, textStatus, errorThrown) {
+                    showInfoPopup("Failed searching for attractions nearby the given address.", 'error');
+                    console.log(textStatus + ': ' + errorThrown);
+                });
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                showInfoPopup("Failed finding the address you provided.", 'error');
+                console.log(textStatus + ': ' + errorThrown);
+            });
+        }
+        else {
+            // Search activities without nearby
             var attractions = CM.get_attractions_by_activity(activities);
             displayAttractions(attractions);
         }
@@ -172,28 +192,6 @@ function geolocateSuccess(lngLat) {
 */
 function disableGeolocation() {
     USER_LOCATION = null;
-}
-
-/**
- * Get nearby attractions
- */
-function callGetNearbyAttractions(params) {
-    var activities = params.activity_ids.join('|');
-
-    var data = {
-        nearby_lat: params.lat,
-        nearby_lng: params.lng,
-        within_feet: params.within_feet,
-        with_activities: activities
-    };
-
-    return $.get(API_NEW_BASE_URL + 'attractions/', data, function(reply) {
-        displayAttractions(reply.results);
-    })
-    .fail(function(jqXHR, textStatus, errorThrown) {
-        showInfoPopup("Could not find any nearby attractions.", 'error');
-        console.log(textStatus + ': ' + errorThrown);
-    });
 }
 
 /**
@@ -237,12 +235,8 @@ function displayAttractions(attractions) {
         var popup = new mapboxgl.Popup({ offset: 25 })
             .setHTML(attractionPopupMarkup(attraction));
 
-        // @TODO: Remove this (just use attraction.latitude) when callGetNearbyAttractions() is phased-out
-        var longitude = attraction.lng ? attraction.lng : attraction.longitude;
-        var latitude = attraction.lat ? attraction.lat : attraction.latitude;
-
         var marker = new mapboxgl.Marker()
-            .setLngLat([longitude, latitude])
+            .setLngLat([attraction.longitude, attraction.latitude])
             .setPopup(popup)
             .addTo(MAP);
 

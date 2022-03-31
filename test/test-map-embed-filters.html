@@ -68,18 +68,17 @@
 
     <!-- Filters -->
     <div style="margin: 20px 0">
-        <h3>Distance from me</h3>
-        <span>
+        <h3>Distance from</h3>
+        <div>
             <label>Enter a location</label>
             <input name="location" id="location" type="text">
             <span>or</span>
-        </span>
-        <span>
             <span>
                 <input name="nearme" id="nearme" type="checkbox">
                 <label>Near me</label>
             </span>
-
+        </div>
+        <div>
             <label>within</label>
             <select name="distance" id="distance">
                 <option value="1">1 miles</option>
@@ -90,11 +89,11 @@
                 <option value="20">20 miles</option>
                 <option value="25">25 miles</option>
             </select>
-        </span>
+        </div>
     </div>
 
     <div style="margin: 20px 0">
-        <h3>Activities</h3>
+        <h3>Activities (ANDed)</h3>
         <ul class="activity-filters">
             <li>
                 <input type="checkbox" class="activities-checkbox" name="field-activities-6" id="field-activities-6" value="6">

@@ -2930,7 +2930,9 @@ var dummySearchItem = {
     e: 'boxe',
     n: 'boxn',
     lat: 'latitude',
-    lng: 'longitude'
+    lng: 'longitude',
+    drivingLat: 'drivingDestinationLatitude',
+    drivingLng: 'drivingDestinationLongitude'
 };
 var fuse = new Fuse([dummySearchItem], fuseOptions);
 
@@ -2987,8 +2989,8 @@ $.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
     // Explode pipe-delimited strings to arrays
     CM.visitor_centers.forEach(function(visitor_center) {
         visitor_center.categories = visitor_center.categories ? visitor_center.categories.split('|').map(Number) : null;
-        visitor_center.amenities = visitor_center.amenities ? visitor_center.amenities.split('|').map(Number) : null;;
-        visitor_center.activities = visitor_center.activities ? visitor_center.activities.split('|').map(Number) : null;;
+        visitor_center.amenities = visitor_center.amenities ? visitor_center.amenities.split('|').map(Number) : null;
+        visitor_center.activities = visitor_center.activities ? visitor_center.activities.split('|').map(Number) : null;
     });
 
     $.event.trigger({
@@ -3013,7 +3015,9 @@ $.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
             e: reservation.boxe,
             n: reservation.boxn,
             lat: reservation.latitude,
-            lng: reservation.longitude
+            lng: reservation.longitude,
+            drivingLat: reservation.drivingdestinationlatitude,
+            drivingLng: reservation.drivingdestinationlongitude
         };
         fuse.add(searchItem);
     });
@@ -3032,8 +3036,8 @@ $.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
     // Explode pipe-delimited strings to arrays
     CM.attractions.forEach(function(attraction) {
         attraction.categories = attraction.categories ? attraction.categories.split('|').map(Number) : null;
-        attraction.amenities = attraction.amenities ? attraction.amenities.split('|').map(Number) : null;;
-        attraction.activities = attraction.activities ? attraction.activities.split('|').map(Number) : null;;
+        attraction.amenities = attraction.amenities ? attraction.amenities.split('|').map(Number) : null;
+        attraction.activities = attraction.activities ? attraction.activities.split('|').map(Number) : null;
     });
 
     // Add to Fuse search index
@@ -3047,7 +3051,9 @@ $.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
             e: null,
             n: null,
             lat: attraction.latitude,
-            lng: attraction.longitude
+            lng: attraction.longitude,
+            drivingLat: attraction.drivingdestinationlatitude,
+            drivingLng: attraction.drivingdestinationlongitude
         };
         fuse.add(searchItem);
     });
