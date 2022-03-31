@@ -29,14 +29,6 @@ function geolocateSuccess(position) {
 }
 
 /**
-* If in Native app, trigger geolocation when Cordova's geolocation plugin has come online.
-* @TODO: GLJS: Do we need to wait for this to enable ctrlGeolocate?
-*/
-(function() {
-   document.addEventListener("deviceready", basicGeolocate, false);
-});
-
-/**
  * Update display of user's lat/lng in Settings pane.
  */
 function update_user_latlon_display(latlng) {
@@ -94,10 +86,5 @@ $(document).on("mapInitialized", function () {
     //    there's also a workaround there)
     // and then clearCirle() when we see it.
 
-    // Start constant geolocation, which triggers all of the 'locationfound' events above,
-    // unless the user is in the native app, in which case we trigger this when
-    // Cordova's geolocation plugin has come online (see "deviceready", above).
-    if (!NATIVE_APP) {
-        basicGeolocate();
-    }
+    basicGeolocate();
 });

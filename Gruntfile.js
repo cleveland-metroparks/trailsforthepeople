@@ -35,26 +35,6 @@ module.exports = function(grunt) {
         ],
         dest: 'static/dist/js/app.js'
       },
-      // Web app package:
-      native: {
-        src: [
-          'static/src/js/constants.js',
-          'static/src/js/native-constants.js',
-          'static/src/js/common.js',
-          'static/src/js/data.js',
-          'static/src/js/mobile.js',
-          'static/src/js/sidebar.js',
-          'static/src/js/geolocate.js',
-          'static/src/js/directions.js',
-          'static/src/js/share.js',
-          'static/src/js/search.js',
-          'static/src/js/nearby.js',
-          'static/src/js/trails.js',
-          'static/dist/js/handlebars-templates.js',
-          // 'static/src/js/print.js'
-        ],
-        dest: 'static/dist/js/app-native.js'
-      },
       // Base for map embeds on external sites:
       embedded_base: {
         src: [
@@ -139,11 +119,6 @@ module.exports = function(grunt) {
       deps: {
         files: {
           'static/dist/js/deps-app.min.js':  ['static/dist/js/deps-app.js']
-        }
-      },
-      native: {
-        files: {
-          'static/dist/js/app-native.min.js': ['static/dist/js/app-native.js']
         }
       },
       // Base for map embeds on external sites:
@@ -287,44 +262,6 @@ module.exports = function(grunt) {
         ],
         tasks: ['terser:dist']
       },
-      //concat_native: {
-      //  files: [
-      //    'static/src/js/constants.js',
-      //    'static/src/js/native-constants.js',
-      //    'static/src/js/common.js',
-      //    'static/src/js/data.js',
-      //    'static/src/js/mobile.js',
-      //    'static/src/js/sidebar.js',
-      //    'static/src/js/geolocate.js',
-      //    'static/src/js/directions.js',
-      //    'static/src/js/share.js',
-      //    'static/src/js/search.js',
-      //    'static/src/js/nearby.js',
-      //    'static/src/js/trails.js',
-      //    'static/dist/js/handlebars-templates.js',
-      //    // 'static/src/js/print.js'
-      //  ],
-      //  tasks: ['concat:native']
-      //},
-      //terser_native: {
-      //  files: [
-      //    'static/src/js/constants.js',
-      //    'static/src/js/native-constants.js',
-      //    'static/src/js/common.js',
-      //    'static/src/js/data.js',
-      //    'static/src/js/mobile.js',
-      //    'static/src/js/sidebar.js',
-      //    'static/src/js/geolocate.js',
-      //    'static/src/js/directions.js',
-      //    'static/src/js/share.js',
-      //    'static/src/js/search.js',
-      //    'static/src/js/nearby.js',
-      //    'static/src/js/trails.js',
-      //    'static/dist/js/handlebars-templates.js',
-      //    // 'static/src/js/print.js'
-      //  ],
-      //  tasks: ['terser:native']
-      //},
       //concat_embedded_base: {
       //  files: [
       //    'static/lib/turf.js-5.1.6/turf.min.js',
@@ -373,17 +310,8 @@ module.exports = function(grunt) {
 
   // All tasks
   grunt.registerTask('all', ['handlebars', 'concat', 'browserify', 'terser', 'sass']);
-  // Dist only (non-embedded, non-native)
-  grunt.registerTask('dist', ['handlebars:all', 'concat:dist', 'browserify:deps', 'terser:dist', 'sass:dist']);
-  // Native tasks only
-  grunt.registerTask('native', ['handlebars:all', 'concat:native', 'browserify:deps', 'terser:native', 'sass:dist']);
-  // Default: dist and native (non-embedded)
-  grunt.registerTask('default', [
-    'handlebars:all', 'concat:dist', 'browserify:deps', 'terser:dist', 'sass:dist',
-    // 'terser:deps',
-    'concat:native', 'terser:native', 'sass:dist'
-    ]
-  );
+  // Default: dist (non-embedded)
+  grunt.registerTask('default', ['handlebars:all', 'concat:dist', 'browserify:deps', 'terser:dist', 'sass:dist']);
   // Embedded tasks only
   grunt.registerTask('embedded', [
     'browserify:deps_embedded',

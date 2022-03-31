@@ -11,7 +11,7 @@
 ///// for Admin and Contributors maps, see admin.js and contributors.js
 
 // How we get to our app's base files and to the API.
-// These change to remote URLs for native app and web-embedded scenarios.
+// These change to remote URLs web-embedded scenarios.
 // @TODO: Put these into a local config so we can handle non-root basedirs.
 var WEBAPP_BASEPATH = '/';
 var API_BASEPATH = '/';
@@ -25,9 +25,6 @@ var API_NEW_BASE_URL = API_NEW_PROTOCOL + '//' + API_NEW_HOST + API_NEW_BASEPATH
 var WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL = 'https:';
 var WEBAPP_BASE_URL_ABSOLUTE_HOST = 'maps.clevelandmetroparks.com';
 var WEBAPP_BASE_URL_ABSOLUTE = WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL + '//' + WEBAPP_BASE_URL_ABSOLUTE_HOST + '/';
-
-// Web (mobile and desktop) vs native iOS/Android
-var NATIVE_APP = false;
 
 // the bounding box of the mappable area, for setting the initial view
 // and potentially for restricting the map from zooming away (not enforced)

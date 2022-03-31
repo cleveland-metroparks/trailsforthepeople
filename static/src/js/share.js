@@ -60,22 +60,15 @@ function hideShareURL() {
  * and put this into the share box.
  */
 function makeAndShowShortURL() {
-    var queryString;
-
-    if (NATIVE_APP) {
-        // WINDOW_URL includes a lot of extra stuff in the basepath in native,
-        // so we also keep track of just the query string
-        queryString = WINDOW_URL_QUERYSTRING;
-    } else {
-        queryString = WINDOW_URL;
-        // Remove leading '/?'
-        if (queryString.charAt(0) == '/') {
-            queryString = queryString.substr(1);
-        }
-        if (queryString.charAt(0) == '?') {
-            queryString = queryString.substr(1);
-        }
+    var queryString = WINDOW_URL;
+    // Remove leading '/?'
+    if (queryString.charAt(0) == '/') {
+        queryString = queryString.substr(1);
     }
+    if (queryString.charAt(0) == '?') {
+        queryString = queryString.substr(1);
+    }
+
     // Re-prepend with '/?'
     queryString = '/?' + queryString;
 
@@ -129,17 +122,13 @@ $(document).ready(function () {
         var containerPane = $(this).closest('.sidebar-pane')[0];
         var $textInput = $('#' + copyElId);
 
-        if (!NATIVE_APP) {
-            // focus() and select() the input
-            $textInput.focus();
-            $textInput.select();
-            // setSelectionRange() for readonly inputs on iOS
-            $textInput[0].setSelectionRange(0, 9999);
-            // Copy
-            document.execCommand("copy");
-        } else {
-            cordova.plugins.clipboard.copy($textInput.val());
-        }
+        // focus() and select() the input
+        $textInput.focus();
+        $textInput.select();
+        // setSelectionRange() for readonly inputs on iOS
+        $textInput[0].setSelectionRange(0, 9999);
+        // Copy
+        document.execCommand("copy");
 
         // Show a "Copied to clipboard" tooltip
         var copiedTooltip = createCopiedToClipboardTooltip($textInput[0], containerPane);

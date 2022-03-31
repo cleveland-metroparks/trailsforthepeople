@@ -35,13 +35,7 @@ $(document).on("mapInitialized", function () {
     // Open "Welcome" sidebar pane on startup if:
     //   User loads the app without a path or query string AND
     //   their screen is big enough that the sidebar won't cover the map.
-    if (
-        (window.location.pathname == '/' ||
-         window.location.pathname.endsWith("index.html")) // For cordova
-        &&
-        window.location.search == '' &&
-        !sidebarCoversMap()
-    ) {
+    if (window.location.pathname == '/' && window.location.search == '' && !sidebarCoversMap()) {
         sidebar.open('pane-welcome');
     } else {
         var startHereTooltip = createStartHereTooltip();

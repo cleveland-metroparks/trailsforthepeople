@@ -8,36 +8,13 @@
  * Cleveland Metroparks
  */
 
-
-/**
- * Launch external app for directions
- * Uses launchnavigator [cordova] plugin.
- */
-function launchNativeExternalDirections(sourceLat, sourceLng, targetLat, targetLng, via, isFromGeolocation) {
-    var source = [sourceLat, sourceLng],
-        target = [targetLat, targetLng],
-        options = {
-            enableDebug: true,
-            transportMode: transportMode
-        };
-    if (!isFromGeolocation) {
-        options.start = source;
-    }
-    // Car or Transit
-    var transportMode = (via == 'bus') ? launchnavigator.TRANSPORT_MODE.TRANSIT : launchnavigator.TRANSPORT_MODE.DRIVING;
-
-    // Launch app
-    launchnavigator.navigate(target, options);
-}
-
 /**
  * Get directions
  *
  * Part of the Get Directions system:
  * Given source (lat,lng) and target (lat,lng) and other route options,
  * request directions from the API
- * and render them to the screen and to the map,
- * (or launch native mobile directions).
+ * and render them to the screen and to the map.
  *
  * @param sourceLat {float}
  * @param sourceLng {float}
@@ -48,13 +25,6 @@ function launchNativeExternalDirections(sourceLat, sourceLng, targetLat, targetL
  */
 function getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation) {
     disableDirectionsButton();
-
-    // In mobile, launch external map app for native car/transit directions
-    if (NATIVE_APP && (via=='car' || via=='bus')) {
-        launchNativeExternalDirections(sourceLngLat.lat, sourceLngLat.lng, targetLngLat.lat, targetLngLat.lng, via, isFromGeolocation);
-        enableDirectionsButton();
-        return;
-    }
 
     var data = {
         sourcelat = parseFloat(sourceLngLat.lat),
@@ -540,17 +510,15 @@ function renderDirectionsStructure(directions) {
     directionsFunctions.append(shareRouteBtn);
 
     // Print button
-    if (!NATIVE_APP) {
-        var printMeBtn = $('<a></a>')
-            .addClass('ui-btn')
-            .addClass('ui-btn-inline')
-            .addClass('ui-corner-all')
-            .text('Print');
-        printMeBtn.click(function () {
-            $('#button_print').click();
-        });
-        directionsFunctions.append(printMeBtn);
-    }
+    var printMeBtn = $('<a></a>')
+        .addClass('ui-btn')
+        .addClass('ui-btn-inline')
+        .addClass('ui-corner-all')
+        .text('Print');
+    printMeBtn.click(function () {
+        $('#button_print').click();
+    });
+    directionsFunctions.append(printMeBtn);
     target.after(directionsFunctions);
 
     // phase 3: save the elevation profile given, if any, so it can be recalled later

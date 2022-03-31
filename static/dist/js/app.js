@@ -11,7 +11,7 @@
 ///// for Admin and Contributors maps, see admin.js and contributors.js
 
 // How we get to our app's base files and to the API.
-// These change to remote URLs for native app and web-embedded scenarios.
+// These change to remote URLs web-embedded scenarios.
 // @TODO: Put these into a local config so we can handle non-root basedirs.
 var WEBAPP_BASEPATH = '/';
 var API_BASEPATH = '/';
@@ -25,9 +25,6 @@ var API_NEW_BASE_URL = API_NEW_PROTOCOL + '//' + API_NEW_HOST + API_NEW_BASEPATH
 var WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL = 'https:';
 var WEBAPP_BASE_URL_ABSOLUTE_HOST = 'maps.clevelandmetroparks.com';
 var WEBAPP_BASE_URL_ABSOLUTE = WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL + '//' + WEBAPP_BASE_URL_ABSOLUTE_HOST + '/';
-
-// Web (mobile and desktop) vs native iOS/Android
-var NATIVE_APP = false;
 
 // the bounding box of the mappable area, for setting the initial view
 // and potentially for restricting the map from zooming away (not enforced)
@@ -835,13 +832,7 @@ $(document).on("mapInitialized", function () {
     // Open "Welcome" sidebar pane on startup if:
     //   User loads the app without a path or query string AND
     //   their screen is big enough that the sidebar won't cover the map.
-    if (
-        (window.location.pathname == '/' ||
-         window.location.pathname.endsWith("index.html")) // For cordova
-        &&
-        window.location.search == '' &&
-        !sidebarCoversMap()
-    ) {
+    if (window.location.pathname == '/' && window.location.search == '' && !sidebarCoversMap()) {
         sidebar.open('pane-welcome');
     } else {
         var startHereTooltip = createStartHereTooltip();
@@ -2155,14 +2146,6 @@ function geolocateSuccess(position) {
 }
 
 /**
-* If in Native app, trigger geolocation when Cordova's geolocation plugin has come online.
-* @TODO: GLJS: Do we need to wait for this to enable ctrlGeolocate?
-*/
-(function() {
-   document.addEventListener("deviceready", basicGeolocate, false);
-});
-
-/**
  * Update display of user's lat/lng in Settings pane.
  */
 function update_user_latlon_display(latlng) {
@@ -2220,12 +2203,7 @@ $(document).on("mapInitialized", function () {
     //    there's also a workaround there)
     // and then clearCirle() when we see it.
 
-    // Start constant geolocation, which triggers all of the 'locationfound' events above,
-    // unless the user is in the native app, in which case we trigger this when
-    // Cordova's geolocation plugin has come online (see "deviceready", above).
-    if (!NATIVE_APP) {
-        basicGeolocate();
-    }
+    basicGeolocate();
 });
 ;
  /**
@@ -2238,36 +2216,13 @@ $(document).on("mapInitialized", function () {
  * Cleveland Metroparks
  */
 
-
-/**
- * Launch external app for directions
- * Uses launchnavigator [cordova] plugin.
- */
-function launchNativeExternalDirections(sourceLat, sourceLng, targetLat, targetLng, via, isFromGeolocation) {
-    var source = [sourceLat, sourceLng],
-        target = [targetLat, targetLng],
-        options = {
-            enableDebug: true,
-            transportMode: transportMode
-        };
-    if (!isFromGeolocation) {
-        options.start = source;
-    }
-    // Car or Transit
-    var transportMode = (via == 'bus') ? launchnavigator.TRANSPORT_MODE.TRANSIT : launchnavigator.TRANSPORT_MODE.DRIVING;
-
-    // Launch app
-    launchnavigator.navigate(target, options);
-}
-
 /**
  * Get directions
  *
  * Part of the Get Directions system:
  * Given source (lat,lng) and target (lat,lng) and other route options,
  * request directions from the API
- * and render them to the screen and to the map,
- * (or launch native mobile directions).
+ * and render them to the screen and to the map.
  *
  * @param sourceLat {float}
  * @param sourceLng {float}
@@ -2278,13 +2233,6 @@ function launchNativeExternalDirections(sourceLat, sourceLng, targetLat, targetL
  */
 function getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation) {
     disableDirectionsButton();
-
-    // In mobile, launch external map app for native car/transit directions
-    if (NATIVE_APP && (via=='car' || via=='bus')) {
-        launchNativeExternalDirections(sourceLngLat.lat, sourceLngLat.lng, targetLngLat.lat, targetLngLat.lng, via, isFromGeolocation);
-        enableDirectionsButton();
-        return;
-    }
 
     var data = {
         sourcelat = parseFloat(sourceLngLat.lat),
@@ -2770,17 +2718,15 @@ function renderDirectionsStructure(directions) {
     directionsFunctions.append(shareRouteBtn);
 
     // Print button
-    if (!NATIVE_APP) {
-        var printMeBtn = $('<a></a>')
-            .addClass('ui-btn')
-            .addClass('ui-btn-inline')
-            .addClass('ui-corner-all')
-            .text('Print');
-        printMeBtn.click(function () {
-            $('#button_print').click();
-        });
-        directionsFunctions.append(printMeBtn);
-    }
+    var printMeBtn = $('<a></a>')
+        .addClass('ui-btn')
+        .addClass('ui-btn-inline')
+        .addClass('ui-corner-all')
+        .text('Print');
+    printMeBtn.click(function () {
+        $('#button_print').click();
+    });
+    directionsFunctions.append(printMeBtn);
     target.after(directionsFunctions);
 
     // phase 3: save the elevation profile given, if any, so it can be recalled later
@@ -3089,22 +3035,15 @@ function hideShareURL() {
  * and put this into the share box.
  */
 function makeAndShowShortURL() {
-    var queryString;
-
-    if (NATIVE_APP) {
-        // WINDOW_URL includes a lot of extra stuff in the basepath in native,
-        // so we also keep track of just the query string
-        queryString = WINDOW_URL_QUERYSTRING;
-    } else {
-        queryString = WINDOW_URL;
-        // Remove leading '/?'
-        if (queryString.charAt(0) == '/') {
-            queryString = queryString.substr(1);
-        }
-        if (queryString.charAt(0) == '?') {
-            queryString = queryString.substr(1);
-        }
+    var queryString = WINDOW_URL;
+    // Remove leading '/?'
+    if (queryString.charAt(0) == '/') {
+        queryString = queryString.substr(1);
     }
+    if (queryString.charAt(0) == '?') {
+        queryString = queryString.substr(1);
+    }
+
     // Re-prepend with '/?'
     queryString = '/?' + queryString;
 
@@ -3158,17 +3097,13 @@ $(document).ready(function () {
         var containerPane = $(this).closest('.sidebar-pane')[0];
         var $textInput = $('#' + copyElId);
 
-        if (!NATIVE_APP) {
-            // focus() and select() the input
-            $textInput.focus();
-            $textInput.select();
-            // setSelectionRange() for readonly inputs on iOS
-            $textInput[0].setSelectionRange(0, 9999);
-            // Copy
-            document.execCommand("copy");
-        } else {
-            cordova.plugins.clipboard.copy($textInput.val());
-        }
+        // focus() and select() the input
+        $textInput.focus();
+        $textInput.select();
+        // setSelectionRange() for readonly inputs on iOS
+        $textInput[0].setSelectionRange(0, 9999);
+        // Copy
+        document.execCommand("copy");
 
         // Show a "Copied to clipboard" tooltip
         var copiedTooltip = createCopiedToClipboardTooltip($textInput[0], containerPane);
