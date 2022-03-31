@@ -250,11 +250,10 @@ function displayAttractions(attractions) {
  * Make marker popup
  */
 function attractionPopupMarkup(attraction) {
-    // @TODO: Remove these (just use first items) when callGetNearbyAttractions() is phased-out
-    var thumbnail = attraction.pagethumbnail ? attraction.pagethumbnail : attraction.thumbnail;
-    var name = attraction.pagetitle ? attraction.pagetitle : attraction.name;
-    var description = attraction.descr ? attraction.descr : attraction.description;
-    var gis_id = attraction.gis_id ? attraction.gis_id : attraction.gid;
+    var thumbnail = attraction.pagethumbnail;
+    var name = attraction.pagetitle;
+    var description = attraction.descr;
+    var gis_id = attraction.gis_id;
 
     // Only show description & thumbnail if we have room for tall popups
     showImage = ($("#map_canvas").height() >= 500);
