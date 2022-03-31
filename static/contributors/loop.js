@@ -467,7 +467,6 @@ function renderDirections(steps) {
 
     for (var i=0, l=steps.length; i<l; i++) {
         var step = steps[i];
-        //console.log(step);
         var row = $('<tr></tr>');
         row.append($('<td></td>').append( $('<span></span>').prop('id','stepnumber').html(step.stepnumber) ));
         row.append($('<td></td>').append( $('<span></span>').prop('id','text').html(step.text) ));

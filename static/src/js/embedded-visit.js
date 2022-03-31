@@ -48,14 +48,14 @@ $(document).on("mapInitialized", function () {
             // MAP.easeTo({center: lngLat});
         } else {
             showInfoPopup('Sorry, your current location is too far away.', 'warning');
-            console.log('Geolocation out of bounds: ', USER_LOCATION);
+            console.error('Geolocation out of bounds: ', USER_LOCATION);
             disableGeolocation();
         }
     });
     // Geolocation error handler
     MAP.on('locationerror', function(error) {
         showInfoPopup('We couldn\'t acquire your current location.', 'error');
-        console.log('Geolocation error: ' + error.message + '(' + error.code + ')');
+        console.error('Geolocation error: ' + error.message + '(' + error.code + ')');
         disableGeolocation();
     });
 
@@ -134,7 +134,7 @@ function processQueryParams() {
                 })
                 .fail(function(jqXHR, textStatus, errorThrown) {
                     showInfoPopup("Could not find any nearby attractions.", 'error');
-                    console.log(textStatus + ': ' + errorThrown);
+                    console.error(textStatus + ': ' + errorThrown);
                 });
             }
         }
@@ -155,12 +155,12 @@ function processQueryParams() {
                 })
                 .fail(function(jqXHR, textStatus, errorThrown) {
                     showInfoPopup("Failed searching for attractions nearby the given address.", 'error');
-                    console.log(textStatus + ': ' + errorThrown);
+                    console.error(textStatus + ': ' + errorThrown);
                 });
             })
             .fail(function(jqXHR, textStatus, errorThrown) {
                 showInfoPopup("Failed finding the address you provided.", 'error');
-                console.log(textStatus + ': ' + errorThrown);
+                console.error(textStatus + ': ' + errorThrown);
             });
         }
         else {
@@ -208,7 +208,7 @@ function callGeocodeAddress(addressSearchText) {
         // @TODO: GLJS: Add a marker for their location (fake the geolocation marker?)
     })
     .fail(function(jqXHR, textStatus, errorThrown) {
-        console.log(textStatus + ': ' + errorThrown);
+        console.error(textStatus + ': ' + errorThrown);
         showInfoPopup("We couldn't find that address or city.\nPlease try again.", 'warning');
     });
 }

@@ -44,15 +44,6 @@ function initContributorMap() {
         'Route debugging' : OVERLAYS[OVERLAYS.length-1]
     }));
 
-    // debugging: when the viewport changes, log the current bbox and zoom
-    function debugOutput () {
-        console.log([ 'zoom', MAP.getZoom() ]);
-        console.log([ 'center', MAP.getCenter() ]);
-        console.log([ 'bounds', MAP.getBounds() ]);
-    }
-    //MAP.on('moveend', debugOutput);
-    //MAP.on('zoomend', debugOutput);
-
     ///// THE REST OF THESE ELEMENTS
     ///// set up event handlers which are very common to maps in the Contributors system: the geocoder, the park features search, GPS zoom, etc.
 

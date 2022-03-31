@@ -160,22 +160,15 @@ function setDirectionsInputLngLat($input, lngLat, trailLngLat, drivingLngLat) {
  * this is just a switcher.
  */
 function setAppropriateDestination($input) {
-    var sourceOrTarget = getSourceTargetInputId($input); // For debug console.log
     if (useDrivingDestination()) {
         if ($input.data('driving-lat') && $input.data('driving-lat')) {
             $input.data('lat', $input.data('driving-lat'));
             $input.data('lng', $input.data('driving-lng'));
-            console.log('Successfully set ' + sourceOrTarget + ' to driving destination.');
-        } else {
-            console.log('No driving destination exists for ' + sourceOrTarget + '.');
         }
     } else {
         if ($input.data('trail-lat') && $input.data('trail-lat')) {
             $input.data('lat', $input.data('trail-lat'));
             $input.data('lng', $input.data('trail-lng'));
-            console.log('Successfully set ' + sourceOrTarget + ' to trail destination.');
-        } else {
-            console.log('No trail destination exists for ' + sourceOrTarget + '.');
         }
     }
 }
@@ -231,22 +224,17 @@ function geolocateUserForDirectionsInput($input) {
  *
  */
 function zoomToDirectionsBounds() {
-    // console.log('zoomToDirectionsBounds');
     var bounds = new mapboxgl.LngLatBounds();
 
     var sourceCoords = getDirectionsInputLngLat($('#source-input'));
     if (sourceCoords) {
-        // console.log('sourceCoords: ', sourceCoords);
         bounds.extend(sourceCoords);
     }
-    // console.log('source only bounds: ', bounds);
 
     var targetCoords = getDirectionsInputLngLat($('#target-input'));
     if (targetCoords) {
-        // console.log('targetCoords: ', targetCoords);
         bounds.extend(targetCoords);
     }
-    // console.log('new bounds: ', bounds);
 
     if (sourceCoords || targetCoords) {
         MAP.fitBounds(bounds, {padding: 100});
@@ -260,7 +248,6 @@ function zoomToDirectionsBounds() {
  */
 function geocodeDirectionsInput($input) {
     var inputText = ($input).val();
-    console.log('geocodeDirectionsInput(): ' + inputText);
 
     var geocodeResponse = $.ajax({
         url: API_NEW_BASE_URL + 'geocode/' + inputText,
@@ -268,7 +255,6 @@ function geocodeDirectionsInput($input) {
         success: function (reply) {
             if (reply && reply.data.lng && reply.data.lat) {
                 var lngLat = new mapboxgl.LngLat(reply.data.lng, reply.data.lat);
-                console.log('geocodeDirectionsInput(): success: ', lngLat);
                 setDirectionsInputLngLat($input, lngLat)
             } else {
                 // Geocode failed
@@ -305,16 +291,12 @@ function setRoutingNotes(notes) {
 function checkDirectionsInput($input) {
     var inputText = $input.val();
 
-    console.log("checkDirectionsInput (" + getSourceTargetInputId($input) + "): \"" + inputText + "\"");
-
     if (inputText.length == 0) {
-        console.log("CHECK: empty");
         return false;
     }
 
     // If lat & lng are set - stored in input.
     if ($input.data('lat') && $input.data('lng')) {
-        console.log("lat/lng is set");
         return true;
     }
 
@@ -323,7 +305,6 @@ function checkDirectionsInput($input) {
     var latLngStr = /(^[-+]?(?:[1-8]?\d(?:\.\d+)?|90(?:\.0+)?))\s*,\s*([-+]?(?:180(?:\.0+)?|(?:(?:1[0-7]\d)|(?:[1-9]?\d))(?:\.\d+)?))$/.exec(inputText);
     if (latLngStr) {
         var lngLat = new mapboxgl.LngLat(latLngStr[2], latLngStr[1]);
-        // console.log('lat/lng text: ' + latLngStr[1] + ', ' + latLngStr[2]);
         setDirectionsInputLngLat($input, lngLat);
         return true;
     }
@@ -336,7 +317,6 @@ function checkDirectionsInput($input) {
         var firstResult = fuseResults[0].item;
         var firstResultTitle = firstResult.title;
         if (simplifyTextForMatch(firstResultTitle) == simplifyTextForMatch(inputText)) {
-            console.log('Exact match');
             setInputToKnownFeature(
                 $input,
                 firstResult.title,
@@ -352,17 +332,9 @@ function checkDirectionsInput($input) {
     // Otherwise, make a geocode API call with the text data
     // and return the promise
     var geocodeResponse = geocodeDirectionsInput($input)
-        .done(function() {
-            console.log('geocode success (done)');
-        })
         .fail(function() {
-            console.error('geocode failure (fail)');
-        })
-        .always(function() {
-            console.log('geocode after (always)');
+            console.error('geocode failure');
         });
-
-    console.log('geocodeDirectionsInput() response:', geocodeResponse);
 
     return geocodeResponse;
 }
@@ -373,18 +345,13 @@ function checkDirectionsInput($input) {
  * checkDirectionsInput() returns a promise
  */
 async function processGetDirectionsForm() {
-    console.log('processGetDirectionsForm()');
     clearDirectionsLine();
     clearDirectionsSteps();
 
     var sourceIsRoutable = checkDirectionsInput($('#source-input'));
-    console.log('sourceIsRoutable: ', sourceIsRoutable);
-
     var targetIsRoutable = checkDirectionsInput($('#target-input'));
-    console.log('targetIsRoutable: ', targetIsRoutable);
 
     $.when(sourceIsRoutable, targetIsRoutable).done(function() {
-        console.log('Source and target both routable!');
         processDirectionsInputsWithLatLngs();
     });
 }
@@ -397,12 +364,10 @@ function processDirectionsInputsWithLatLngs() {
     var sourceLat = parseFloat($('#source-input').data('lat'));
     var sourceLng = parseFloat($('#source-input').data('lng'));
     var sourceLngLat = new mapboxgl.LngLat(sourceLng, sourceLat);
-    console.log("source: " + sourceLngLat);
 
     var targetLat = parseFloat($('#target-input').data('lat'));
     var targetLng = parseFloat($('#target-input').data('lng'));
     var targetLngLat = new mapboxgl.LngLat(targetLng, targetLat);
-    console.log("target: " + targetLngLat);
 
     var isFromGeolocation = $('#target-input').data('isFromGeolocation') ? true : false;
 

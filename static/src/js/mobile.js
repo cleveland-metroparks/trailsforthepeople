@@ -183,11 +183,6 @@ function loadMapAndStartingState() {
 
     // URL params: Get Directions
     if (urlParams.get('action') == 'directions') {
-        // @DEBUG:
-        // urlParams.forEach(function(value, key) {
-        //   console.log(key + ': ' + value);
-        // });
-
         var via = urlParams.get('via');
 
         var sourceText = urlParams.get('sourceText');
@@ -319,7 +314,7 @@ function make_activity_icons_list(activity_ids) {
                 alt: CM.activities[activity_id].pagetitle
             });
         } else {
-            console.log('ERROR in make_activity_icons_list(): Activity ' + activity_id + ' does not exist.');
+            console.error('Error in make_activity_icons_list(): Activity ' + activity_id + ' does not exist.');
         }
     });
     return imgs_list;
@@ -407,7 +402,7 @@ function showFeatureInfoContent(attractionType, id) {
                 };
                 $('#info-content').html(template(template_vars));
             } else {
-                console.log("ERROR: loop id: " + id + " does not exist in CM.trails (app_view_trails).");
+                console.error("Error: loop id: " + id + " does not exist in CM.trails (app_view_trails).");
             }
 
             break;
