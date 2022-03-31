@@ -36,7 +36,7 @@ function update_user_latlon_display(latlng) {
         latlng = LAST_KNOWN_LOCATION;
     }
     if (latlng) {
-        latlng_str = latlng_formatted(latlng)
+        latlng_str = formatCoords(latlng)
     } else {
         latlng_str = 'unknown';
     }

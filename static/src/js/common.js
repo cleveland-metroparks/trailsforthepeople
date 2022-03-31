@@ -158,7 +158,7 @@ function getBasemap() {
 /**
  * Return lat/lng as string in prescribed coordinate format.
  */
-function latlng_formatted(latlng, coordinate_format) {
+function formatCoords(lngLat, coordinate_format) {
     if (coordinate_format != null) {
         format = coordinate_format;
     } else {
@@ -166,27 +166,27 @@ function latlng_formatted(latlng, coordinate_format) {
     }
     switch (format) {
         case 'ddm':
-            return latlng_as_ddm(latlng);
+            return formatCoordsDdm(lngLat);
         case 'dd':
-            return latlng_as_dd(latlng);
+            return formatCoordsDd(lngLat);
         case 'dms':
         default:
-            return latlng_as_dms(latlng);
+            return formatCoordsDms(lngLat);
     }
 }
 
 /**
  * Return lat/lng as Degrees Minutes Seconds (DMS) string.
  */
-function latlng_as_dms(latlng, precision) {
+function formatCoordsDms(lngLat, precision) {
     // Default precision
     precision = (typeof precision !== 'undefined') ?  precision : 0;
 
-    var ns = latlng.lat < 0 ? 'S' : 'N';
-    var ew = latlng.lng < 0 ? 'W' : 'E';
+    var ns = lngLat.lat < 0 ? 'S' : 'N';
+    var ew = lngLat.lng < 0 ? 'W' : 'E';
 
-    lat_dd = Math.abs(latlng.lat);
-    lng_dd = Math.abs(latlng.lng);
+    lat_dd = Math.abs(lngLat.lat);
+    lng_dd = Math.abs(lngLat.lng);
 
     var lat_d = parseInt(lat_dd);
     var lat_m = parseInt(60 * (lat_dd - lat_d));
@@ -196,23 +196,23 @@ function latlng_as_dms(latlng, precision) {
     var lng_m = parseInt(60 * (lng_dd - lng_d));
     var lng_s = ((lng_dd - lng_d - (lng_m / 60)) * 3600).toFixed(precision);;
 
-    latlng_str = lat_d + '° ' + lat_m + '\' ' + lat_s + '" ' + ns + ', ' + lng_d + '° ' + lng_m + '\' ' + lng_s + '" ' + ew;
+    coordsStr = lat_d + '° ' + lat_m + '\' ' + lat_s + '" ' + ns + ', ' + lng_d + '° ' + lng_m + '\' ' + lng_s + '" ' + ew;
 
-    return latlng_str;
+    return coordsStr;
 }
 
 /**
  * Return lat/lng as Degrees Decimal Minutes (DDM) string.
  */
-function latlng_as_ddm(latlng, precision) {
+function formatCoordsDdm(lngLat, precision) {
     // Default precision
     precision = (typeof precision !== 'undefined') ?  precision : 2;
 
-    var ns = latlng.lat < 0 ? 'S' : 'N';
-    var ew = latlng.lng < 0 ? 'W' : 'E';
+    var ns = lngLat.lat < 0 ? 'S' : 'N';
+    var ew = lngLat.lng < 0 ? 'W' : 'E';
 
-    var lat_dd = Math.abs(latlng.lat);
-    var lng_dd = Math.abs(latlng.lng);
+    var lat_dd = Math.abs(lngLat.lat);
+    var lng_dd = Math.abs(lngLat.lng);
 
     var lat_d = parseInt(lat_dd);
     var lat_m = (60 * (lat_dd - lat_d)).toFixed(precision);
@@ -220,20 +220,20 @@ function latlng_as_ddm(latlng, precision) {
     var lng_d = parseInt(lng_dd);
     var lng_m = (60 * (lng_dd - lng_d)).toFixed(precision);
 
-    latlng_str = lat_d + '° ' + lat_m + '\' ' + ns + ', ' + lng_d + '° ' + lng_m + '\' ' + ew;
+    coordsStr = lat_d + '° ' + lat_m + '\' ' + ns + ', ' + lng_d + '° ' + lng_m + '\' ' + ew;
 
-    return latlng_str;
+    return coordsStr;
 }
 
 /**
  * Return lat/lng as Decimal Degrees (DD) string.
  */
-function latlng_as_dd(latlng, precision) {
+function formatCoordsDd(lngLat, precision) {
     // Default precision
     precision = (typeof precision !== 'undefined') ?  precision : 4;
 
-    latlng_str = latlng.lat.toFixed(precision) + ', ' + latlng.lng.toFixed(precision);
-    return latlng_str;
+    coordsStr = lngLat.lat.toFixed(precision) + ', ' + lngLat.lng.toFixed(precision);
+    return coordsStr;
 }
 
 /**

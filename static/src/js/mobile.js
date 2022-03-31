@@ -347,7 +347,8 @@ function showFeatureInfoContent(attractionType, id) {
             }
 
             if (attraction.latitude && attraction.longitude) {
-               attraction.latlng_userformatted = attraction.latitude + ', ' + attraction.longitude;
+                var lngLat = new mapboxgl.LngLat(attraction.longitude, attraction.latitude);
+                attraction.coords_formatted = formatCoords(lngLat)
             }
 
             if (attraction.cmp_url) {
