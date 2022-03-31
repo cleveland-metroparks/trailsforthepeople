@@ -76,7 +76,7 @@ function makeAndShowShortURL() {
     var data = {
         querystring : queryString
     }
-    $.post(API_NEW_BASE_URL + 'shorturls/', data, function(reply) {
+    $.post(API_NEW_BASE_URL + 'shorturls', data, function(reply) {
         // In native mobile, the URL structure is different than in web
         var url = new URL(location.href);
         var protocol =
