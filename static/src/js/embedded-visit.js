@@ -29,7 +29,7 @@ $(document).ready(function() {
      */
     $('#nearme').click(function() {
         if ($('#nearme').prop('checked')) {
-            basicGeolocate();
+            basicGeolocate_visit();
         } else {
             disableGeolocation();
         }
@@ -40,8 +40,7 @@ $(document).on("mapInitialized", function () {
     // Geolocation found handler
     ctrlGeolocate.on("geolocate", function(event) {
         var lngLat = new mapboxgl.LngLat(event.coords.longitude, event.coords.latitude);
-
-        geolocateSuccess(lngLat);
+        geolocateSuccess_visit(event);
 
         // Auto-center
         if (MAX_BOUNDS.contains(lngLat)) {
@@ -85,7 +84,7 @@ function processQueryParams() {
     // but on form submit page reload, need to re-initiate in order
     // to show the user's marker on the map.
     if (geolocate_enabled) {
-        basicGeolocate();
+        basicGeolocate_visit();
     }
 
     // Lat/Long
@@ -117,8 +116,8 @@ function processQueryParams() {
         if (geolocate_enabled) {
             // Search attractions nearby user geolocation, (with activities)
             if (USER_LOCATION !== null && USER_LOCATION !== undefined) {
-                data.nearby_lat = USER_LOCATION.coords.latitude;
-                data.nearby_lng = USER_LOCATION.coords.longitude;
+                data.nearby_lat = USER_LOCATION.lat;
+                data.nearby_lng = USER_LOCATION.lng;
             } else if (lat && lng) {
                 data.nearby_lat = lat;
                 data.nearby_lng = lng;
@@ -174,15 +173,16 @@ function processQueryParams() {
 /**
  * Attempt to locate the user using the browser's native geolocation.
  */
-function basicGeolocate() {
-    navigator.geolocation.getCurrentPosition(geolocateSuccess, null, { enableHighAccuracy: true });
+function basicGeolocate_visit() {
+    navigator.geolocation.getCurrentPosition(geolocateSuccess_visit, null, { enableHighAccuracy: true });
 }
 
 /**
- * Callback for geolocation success, whether via basicGeolocate() or ctrlGeolocate.
+ * Callback for geolocation success, whether via basicGeolocate_visit() or ctrlGeolocate.
  */
-function geolocateSuccess(lngLat) {
-    USER_LOCATION = lngLat;
+function geolocateSuccess_visit(event) {
+    // Update the user's last known location
+    USER_LOCATION = new mapboxgl.LngLat(event.coords.longitude, event.coords.latitude);
 }
 
 /**
