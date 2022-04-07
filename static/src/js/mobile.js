@@ -909,7 +909,7 @@ $(document).ready(function () {
     $('input[type="radio"][name="coordinate_format"]').change(function () {
         var which = $(this).val();
         changeCoordinateFormat(which);
-        update_user_latlon_display();
+        updateUserCoordsDisplay();
     });
 });
 
@@ -948,7 +948,7 @@ function getSessionCoordinateFormat() {
             .prop('checked', true)
             .checkboxradio('refresh');
 
-        update_user_latlon_display();
+        updateUserCoordsDisplay();
     }
 }
 

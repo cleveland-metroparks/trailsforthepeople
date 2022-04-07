@@ -1708,7 +1708,7 @@ $(document).ready(function () {
     $('input[type="radio"][name="coordinate_format"]').change(function () {
         var which = $(this).val();
         changeCoordinateFormat(which);
-        update_user_latlon_display();
+        updateUserCoordsDisplay();
     });
 });
 
@@ -1747,7 +1747,7 @@ function getSessionCoordinateFormat() {
             .prop('checked', true)
             .checkboxradio('refresh');
 
-        update_user_latlon_display();
+        updateUserCoordsDisplay();
     }
 }
 
@@ -2153,25 +2153,18 @@ function basicGeolocate() {
 /**
  * Callback for geolocation success, whether via basicGeolocate() or ctrlGeolocate.
  */
-function geolocateSuccess(position) {
+function geolocateSuccess(event) {
     // Update the user's last known location
-    LAST_KNOWN_LOCATION.lng = position.coords.longitude;
-    LAST_KNOWN_LOCATION.lat = position.coords.latitude;
+    LAST_KNOWN_LOCATION.lng = event.coords.longitude;
+    LAST_KNOWN_LOCATION.lat = event.coords.latitude;
 }
 
 /**
  * Update display of user's lat/lng in Settings pane.
  */
-function update_user_latlon_display(latlng) {
-    if (!latlng && LAST_KNOWN_LOCATION) {
-        latlng = LAST_KNOWN_LOCATION;
-    }
-    if (latlng) {
-        latlng_str = formatCoords(latlng)
-    } else {
-        latlng_str = 'unknown';
-    }
-    $('#gps_location').val(latlng_str);
+function updateUserCoordsDisplay() {
+    var coordsStr = LAST_KNOWN_LOCATION ? formatCoords(LAST_KNOWN_LOCATION) : 'unknown';
+    $('#gps_location').val(coordsStr);
 }
 
 /**
@@ -2208,7 +2201,7 @@ $(document).on("mapInitialized", function () {
         }
 
         // Update display of user lat/lng
-        update_user_latlon_display(event.latlng);
+        updateUserCoordsDisplay();
     });
 
     // @TODO: Catch disabling of geolocation control
