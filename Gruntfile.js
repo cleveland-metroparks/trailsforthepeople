@@ -9,6 +9,35 @@ module.exports = function(grunt) {
 
     /**
      *
+     * Environment variables
+     *
+     */
+    env : {
+      local : {
+        NODE_ENV : 'local',
+        DEST     : 'temp'
+      },
+      dev : {
+        NODE_ENV : 'dev',
+        DEST     : 'temp'
+      },
+      prod : {
+        NODE_ENV : 'prod',
+        DEST     : 'dist'
+      },
+      embedded : {
+        NODE_ENV : 'development',
+        DEST     : 'temp'
+      },
+      native : {
+        NODE_ENV : 'development',
+        DEST     : 'temp'
+      }
+    },
+
+
+    /**
+     *
      * Concatenate
      *
      */
