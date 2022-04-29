@@ -2594,6 +2594,7 @@ var SKIP_TO_DIRECTIONS = false;
 var ctrlGeolocate;
 
 var SETTINGS = [];
+// We'll get this from localStorage on document ready
 SETTINGS.coordinate_format = 'dms';
 
 /**
