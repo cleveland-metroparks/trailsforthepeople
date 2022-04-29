@@ -45,6 +45,7 @@
 
     <!-- App CSS -->
     <link type="text/css" rel="stylesheet" href="/static/dist/css/mobile.css?v=1648762706" />
+    <link href="https://unpkg.com/mapillary-js@2.20.0/dist/mapillary.min.css" rel="stylesheet" />
 
     <!-- Typekit -->
     <script>
@@ -382,6 +383,11 @@
             <fieldset id="map_type" data-role="controlgroup">
                 <label><input type="radio" name="basemap" value="map" checked="true" />Default</label>
                 <label><input type="radio" name="basemap" value="photo" />Satellite</label>
+            </fieldset>
+
+            <label for="mapillary_toggle">Mapillary layer</label>
+            <fieldset id="mapillary_toggle" data-role="controlgroup">
+                <label><input type="checkbox" id="mapillary_enabled" checked="true" />On</label>
             </fieldset>
 
             <label for="coordinate_format">Coordinate format</label>

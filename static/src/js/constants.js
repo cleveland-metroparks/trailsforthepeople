@@ -78,3 +78,6 @@ var STYLE_NAMES = {
     'CM Light' : 'map',
     'CM-Aerial' : 'photo'
 };
+
+// Mapillary viewer object
+var MLY = null;

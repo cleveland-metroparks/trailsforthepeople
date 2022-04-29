@@ -32,6 +32,7 @@ module.exports = function(grunt) {
           'static/src/js/trails.js',
           'static/dist/js/handlebars-templates.js',
           // 'static/src/js/print.js'
+          'static/src/js/mapillary.js',
         ],
         dest: 'static/dist/js/app.js'
       },
@@ -223,6 +224,7 @@ module.exports = function(grunt) {
           'static/src/js/trails.js',
           'static/dist/js/handlebars-templates.js',
           // 'static/src/js/print.js'
+          'static/src/js/mapillary.js',
         ],
         tasks: ['concat:dist']
       },
@@ -259,6 +261,7 @@ module.exports = function(grunt) {
           'static/src/js/trails.js',
           'static/dist/js/handlebars-templates.js',
           // 'static/src/js/print.js'
+          'static/src/js/mapillary.js',
         ],
         tasks: ['terser:dist']
       },

@@ -149,7 +149,7 @@ function changeBasemap(layer_key) {
 }
 
 /**
- *
+ * Get the active basemap layer ( 'map' / 'photo' )
  */
 function getBasemap() {
     style = MAP.getStyle();

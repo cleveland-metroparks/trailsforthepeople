@@ -1,6 +1,7 @@
 @use '../../../node_modules/mapbox-gl/dist/mapbox-gl.css';
 @use '../../lib/sidebar-v2/css/leaflet-sidebar.css';
 @use '../../lib/jquery.mobile-1.4.5/jquery.mobile-1.4.5.css';
+// @use '../../../node_modules/mapillary-js/dist/mapillary.min.css';
 
 @use "variables";
 
@@ -9,6 +10,7 @@
 @use "fonts";
 @use "map";
 @use "sidebar";
+@use "mapillary-viewer";
 
 html,
 body {

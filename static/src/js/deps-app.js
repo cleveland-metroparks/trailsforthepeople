@@ -31,3 +31,5 @@ $(document).bind( "mobileinit", function() {
     $.mobile.pushStateEnabled = false;
     $.mobile.changePage.defaults.changeHash = false;
 });
+
+window.Mapillary = require('mapillary-js');

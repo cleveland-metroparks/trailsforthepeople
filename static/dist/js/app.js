@@ -79,6 +79,8 @@ var STYLE_NAMES = {
     'CM-Aerial' : 'photo'
 };
 
+// Mapillary viewer object
+var MLY = null;
 ;
 /**
  * common.js
@@ -231,7 +233,7 @@ function changeBasemap(layer_key) {
 }
 
 /**
- *
+ * Get the active basemap layer ( 'map' / 'photo' )
  */
 function getBasemap() {
     style = MAP.getStyle();
@@ -4205,3 +4207,189 @@ this["CM"]["Templates"]["pane_trails_reservation_filter_option"] = Handlebars.te
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"reservation") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
     + "</option>\n";
 },"useData":true});
+;
+/**
+ * mapillary.js
+ *
+ * Cleveland Metroparks
+ *
+ * JS for main app map.
+ */
+
+
+$(document).on("mapInitialized", function () {
+
+    MLY = new Mapillary.Viewer(
+        'mly', // DOM ID
+        'STU0THdEbEt0QlY2enFZN0dKTGhyQTo3ODg5MTVhZTRkZDdmN2Qw',    // Client ID
+        null     // Image key for initializing the viewer
+    );
+    
+    //
+    MLY.on(Mapillary.Viewer.nodechanged, function (node) {
+        var lngLat = [node.latLon.lon, node.latLon.lat];
+    
+        var data = {
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: lngLat,
+            },
+            properties: {
+                'marker-symbol': 'marker',
+            }
+        };
+        MAP.getSource('mly-cur').setData(data);
+        MAP.flyTo({ center: lngLat });
+    });
+
+    //
+    MAP.on("load", function (event) {
+
+        var beforeLayer = null;
+        var layerColor = '#ff7200'
+
+        // Add Mapillary sequence layer.
+        // https://www.mapillary.com/developer/tiles-documentation/#sequence-layer
+        MAP.addLayer({
+            "id": "mapillary",
+            "type": "line",
+            "source": {
+                "type": "vector",
+                "tiles": ["https://d25uarhxywzl1j.cloudfront.net/v0.1/{z}/{x}/{y}.mvt"],
+                "minzoom": 6,
+                "maxzoom": 14
+            },
+            "source-layer": "mapillary-sequences",
+            "layout": {
+                "line-cap": "round",
+                "line-join": "round"
+            },
+            "paint": {
+                "line-opacity": 0.6,
+                "line-color": layerColor,
+                "line-width": 2
+            }
+        }, beforeLayer);
+
+        // Add Mapillary image layer.
+        // https://www.mapillary.com/developer/tiles-documentation/#image-layer
+        MAP.addLayer({
+          "id": "mapillary-images",
+          "type": "circle",
+          "source": {
+              "type": "vector",
+              "tiles": ["https://d25uarhxywzl1j.cloudfront.net/v0.1/{z}/{x}/{y}.mvt"],
+              "minzoom": 6,
+              "maxzoom": 14
+          },
+          "source-layer": "mapillary-images",
+          "paint": {
+              "circle-color": layerColor,
+              "circle-radius": 6
+          }
+        }, beforeLayer);
+
+        // And marker layer for 
+        var mlyCurMarker = {
+            type: "geojson",
+            data: {
+                type: "Feature",
+                geometry: {
+                    type: "Point",
+                    coordinates: [12.695600612967427, 56.04351888068181],
+                },
+                properties: { },
+            },
+        };
+        MAP.addSource("mly-cur", mlyCurMarker);
+        MAP.addLayer({
+            id: "mly-cur",
+            type: "symbol",
+            source: "mly-cur",
+            layout: {
+                "icon-image": "{marker-symbol}-15",
+            },
+        });
+
+        // Filter by users
+        //
+        // @dakotabenjamin's userkey: 0H-w-WeGPajZ_G_I1RTE-w
+        // @smathermather's userkey: U1iL4X_Qksh-UZfa96DWXw
+        //
+        // Mapbox filter documentation: https://docs.mapbox.com/mapbox-gl-js/style-spec/#other-filter
+        MAP.setFilter('mapillary',
+            ['any', // or:
+                ['==', 'userkey', '0H-w-WeGPajZ_G_I1RTE-w'],
+                ['==', 'userkey', 'U1iL4X_Qksh-UZfa96DWXw']
+            ]
+        );
+        MAP.setFilter('mapillary-images',
+            ['any', // or:
+                ['==', 'userkey', '0H-w-WeGPajZ_G_I1RTE-w'],
+                ['==', 'userkey', 'U1iL4X_Qksh-UZfa96DWXw']
+           ]
+        );
+
+        // Create a popup for images, but don't add it to the map yet.
+        var popup = new mapboxgl.Popup({
+          closeButton: false,
+          closeOnClick: false
+        });
+ 
+        MAP.on('mouseenter', 'mapillary-images', function(e) {
+            // Change the cursor style as a UI indicator.
+            MAP.getCanvas().style.cursor = 'pointer';
+
+            var coordinates = e.features[0].geometry.coordinates.slice();
+            var key = e.features[0].properties.key;
+            var url = "https://images.mapillary.com/" + key + "/thumb-320.jpg";
+
+            MLY.moveToKey(key).then(
+                function(node) { console.log('MLY loaded key:', node.key); },
+                function(error) { console.error('MLY error:', error); });
+
+            // [Debug] log the image's properties (including userkey)
+            // console.log(e.features[0].properties);
+
+            // // Ensure that if the map is zoomed out such that multiple
+            // // copies of the feature are visible, the popup appears
+            // // over the copy being pointed to.
+            // while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+            //   coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            // }
+            //
+            // // Populate the popup and set its coordinates
+            // // based on the feature found.
+            // popup.setLngLat(coordinates)
+            // .setHTML("<img src='" + url + "' width='160'/>")
+            // .addTo(MAP);
+        });
+
+        MAP.on("click", 'mapillary-images', function() {
+            MAP.getCanvas().style.cursor = '';
+            popup.remove();
+        });
+
+    }); // MAP.on("load")
+
+    /**
+     * Basemap picker (on Settings pane) change handler
+     */
+    $('input#mapillary_enabled').change(function () {
+        toggleMapillary($(this).prop('checked'));
+    });
+
+}); // $(document).on("mapInitialized")
+
+/**
+ * Enable/disable the Mapillary map layer.
+ *
+ * @param {bool} enabled
+ */
+function toggleMapillary(enabled) {
+    var visibility = enabled ? 'visible' : 'none';
+    MAP.setLayoutProperty('mapillary', 'visibility', visibility);
+    MAP.setLayoutProperty('mapillary-images', 'visibility', visibility);
+}
+
