@@ -27,16 +27,8 @@ function App() {
 
       navbar={
         <Navbar p="md" hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 200, lg: 300 }}>
-          <Text>Application navigation</Text>
+          <NavLinks></NavLinks>
         </Navbar>
-      }
-
-      aside={
-        <MediaQuery smallerThan="sm" styles={{ display: 'none' }}>
-          <Aside p="md" hiddenBreakpoint="sm" width={{ sm: 200, lg: 300 }}>
-            <Text>Application right sidebar</Text>
-          </Aside>
-        </MediaQuery>
       }
 
       header={
@@ -52,7 +44,7 @@ function App() {
               />
             </MediaQuery>
 
-            <Text>Maps Admin Back-end</Text>
+            <Text>Maps Content Admin</Text>
           </div>
         </Header>
       }
@@ -60,12 +52,6 @@ function App() {
       styles={(theme) => ({
         main: { backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0] },
       })}
-
-      footer={
-        <Footer height={60} p="md">
-          This is the footer
-        </Footer>
-      }
 
     >
       <Text>Main content goes here.</Text>
