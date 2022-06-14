@@ -3,15 +3,20 @@ import React from 'react';
 import { Route, MapPin, Map, FileText } from 'tabler-icons-react';
 import { ThemeIcon, UnstyledButton, Group, Text } from '@mantine/core';
 
+import { Link } from "react-router-dom";
+
 interface NavLinkProps {
   icon: React.ReactNode;
   color: string;
   label: string;
+  urlPath: string;
 }
 
-function NavLink({ icon, color, label }: NavLinkProps) {
+function NavLink({ icon, color, label, urlPath }: NavLinkProps) {
   return (
     <UnstyledButton
+      component={Link}
+      to={urlPath}
       sx={(theme) => ({
         display: 'block',
         width: '100%',
@@ -37,10 +42,10 @@ function NavLink({ icon, color, label }: NavLinkProps) {
 }
 
 const data = [
-  { icon: <Route size={16} />, color: 'blue', label: 'Loops' },
-  { icon: <MapPin size={16} />, color: 'teal', label: 'Markers' },
-  { icon: <Map size={16} />, color: 'violet', label: 'Hint Maps' },
-  { icon: <FileText size={16} />, color: 'grape', label: 'Logs' },
+  { icon: <Route size={16} />, color: 'blue', label: 'Loops', urlPath: 'loops' },
+  { icon: <MapPin size={16} />, color: 'teal', label: 'Markers', urlPath: 'markers' },
+  { icon: <Map size={16} />, color: 'violet', label: 'Hint Maps', urlPath: 'hintmaps' },
+  { icon: <FileText size={16} />, color: 'grape', label: 'Logs', urlPath: 'logs' },
 ];
 
 export function NavLinks() {

@@ -1,6 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
+
+import Loops from "./routes/loops";
+import Markers from "./routes/markers";
+import HintMaps from "./routes/hintmaps";
+import Logs from "./routes/logs";
+
 import './index.css';
+
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
@@ -9,7 +22,16 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />}>
+          <Route path="loops" element={<Loops />} />
+          <Route path="markers" element={<Markers />} />
+          <Route path="hintmaps" element={<HintMaps />} />
+          <Route path="logs" element={<Logs />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   </React.StrictMode>
 );
 

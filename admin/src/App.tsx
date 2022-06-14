@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+import { Link, Outlet } from "react-router-dom";
+
 import {
+  Anchor,
   AppShell,
   Navbar,
   Header,
@@ -44,7 +47,9 @@ function App() {
               />
             </MediaQuery>
 
-            <Text>Maps Content Admin</Text>
+            <Anchor component={Link} to="/">
+              Maps Content Admin
+            </Anchor>
           </div>
         </Header>
       }
@@ -52,9 +57,10 @@ function App() {
       styles={(theme) => ({
         main: { backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0] },
       })}
-
     >
-      <Text>Main content goes here.</Text>
+
+      <Outlet />
+
     </AppShell>
 
   );
