@@ -17,21 +17,33 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import { QueryClient, QueryClientProvider } from "react-query";
+
+const queryClient = new QueryClient({
+   defaultOptions: {
+     queries: {
+       refetchOnWindowFocus: false,
+     },
+   },
+ });
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />}>
-          <Route path="loops" element={<Loops />} />
-          <Route path="markers" element={<Markers />} />
-          <Route path="hintmaps" element={<HintMaps />} />
-          <Route path="logs" element={<Logs />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<App />}>
+            <Route path="loops" element={<Loops />} />
+            <Route path="markers" element={<Markers />} />
+            <Route path="hintmaps" element={<HintMaps />} />
+            <Route path="logs" element={<Logs />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   </React.StrictMode>
 );
 
