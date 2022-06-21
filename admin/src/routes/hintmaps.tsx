@@ -42,10 +42,8 @@ export default function HintMaps() {
         <thead>
           <tr>
             <th>Title</th>
-            {/*<th>ID</th>*/}
             <th>On maps</th>
             <th>On Mapbox</th>
-            {/*<th>image_filename_local</th>*/}
             <th>Edited</th>
             <th>Refreshed</th>
           </tr>
@@ -55,10 +53,8 @@ export default function HintMaps() {
           data.map(hint_map => (
             <tr key={hint_map.id}>
               <td>{hint_map.title}</td>
-              {/*<td>{hint_map.id}</td>*/}
               <td><img src={formatMapsHintMapLink(hint_map.id)} width="100" height="100" /></td>
               <td><img src={hint_map.url_external} width="100" height="100" /></td>
-              {/*<td>{hint_map.image_filename_local}</td>*/}
               <td>{hint_map.last_edited}</td>
               <td>{hint_map.last_refreshed}</td>
             </tr>
