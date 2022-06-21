@@ -25,6 +25,7 @@ const apiClient = axios.create({
     "Content-type": "application/json",
   },
 });
+
 const getAllMarkers = async () => {
   const response = await apiClient.get<any>("/markers");
   return response.data.data;
@@ -32,7 +33,6 @@ const getAllMarkers = async () => {
 
 export default function Markers() {
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Marker[], Error>('markers', getAllMarkers);
-
   return (
     <div>
       <h2>Markers</h2>

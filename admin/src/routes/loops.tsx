@@ -33,6 +33,7 @@ const apiClient = axios.create({
     "Content-type": "application/json",
   },
 });
+
 const getAllLoops = async () => {
   const response = await apiClient.get<any>("/trails");
   return response.data.data;
@@ -40,7 +41,6 @@ const getAllLoops = async () => {
 
 export default function Loops() {
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Loop[], Error>('loops', getAllLoops);
-
   return (
     <div>
       <h2>Loops</h2>
@@ -50,7 +50,8 @@ export default function Loops() {
       )}
       <Table striped highlightOnHover>
         <thead>
-          <tr>            <th>id</th>
+          <tr>
+            <th>id</th>
             <th>name</th>
             <th>res</th>
             <th>distance_feet</th>
