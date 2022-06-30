@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useQuery } from "react-query";
-import { Table } from '@mantine/core';
+import { Link, Outlet, useParams } from "react-router-dom";
+import { Table, Anchor } from '@mantine/core';
 
 type HintMap = {
   id: number,
@@ -27,10 +28,19 @@ function formatMapsHintMapLink(id: number) {
   return 'https://maps.clevelandmetroparks.com/static/images/hint_maps/hint-' + id + '.png';
 }
 
-export default function HintMaps() {
+//
+export function HintMap() {
+  let params = useParams();
+  return (
+    <div>
+      <h2>Hint Map {params.hintmapId}</h2>
+    </div>
+  );
+}
+
+//
+export function HintMapsList() {
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<HintMap[], Error>('hint_maps', getAllHintMaps);
-
-
   return (
     <div>
       <h2>Hint Maps</h2>
@@ -42,17 +52,25 @@ export default function HintMaps() {
         <thead>
           <tr>
             <th>Title</th>
-            <th>On maps</th>
+            <th>On maps server</th>
             <th>On Mapbox</th>
-            <th>Edited</th>
-            <th>Refreshed</th>
+            <th>Date edited</th>
+            <th>Date refreshed</th>
           </tr>
         </thead>
         <tbody>
         {data &&
           data.map(hint_map => (
             <tr key={hint_map.id}>
-              <td>{hint_map.title}</td>
+              <td>
+                <Anchor
+                  component={Link}
+                  to={`/hintmaps/${hint_map.id}`}
+                  key={hint_map.id}
+                >
+                  {hint_map.title}
+                </Anchor>
+              </td>
               <td><img src={formatMapsHintMapLink(hint_map.id)} width="100" height="100" /></td>
               <td><img src={hint_map.url_external} width="100" height="100" /></td>
               <td>{hint_map.last_edited}</td>

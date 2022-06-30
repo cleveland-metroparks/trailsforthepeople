@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useQuery } from "react-query";
-import { Table } from '@mantine/core';
+import { Link, Outlet, useParams } from "react-router-dom";
+import { Table, Anchor } from '@mantine/core';
 
 type Marker = {
   id: number,
@@ -31,7 +32,18 @@ const getAllMarkers = async () => {
   return response.data.data;
 }
 
-export default function Markers() {
+//
+export function Marker() {
+  let params = useParams();
+  return (
+    <div>
+      <h2>Marker {params.markerId}</h2>
+    </div>
+  );
+}
+
+//
+export function MarkersList() {
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Marker[], Error>('markers', getAllMarkers);
   return (
     <div>
@@ -43,19 +55,28 @@ export default function Markers() {
       <Table striped highlightOnHover>
         <thead>
           <tr>
-            <th>title</th>
-            <th>creator</th>
-            <th>created</th>
-            <th>expires</th>
-            <th>category</th>
-            <th>enabled</th>
-            <th>annual</th>
+            <th>Title</th>
+            <th>Creator</th>
+            <th>Date created</th>
+            <th>Expires</th>
+            <th>Category</th>
+            <th>Enabled</th>
+            <th>Annual</th>
           </tr>
         </thead>
         <tbody>
         {data &&
           data.map(marker => (
             <tr key={marker.id}>
+              <td>
+                <Anchor
+                  component={Link}
+                  to={`/markers/${marker.id}`}
+                  key={marker.id}
+                >
+                  {marker.title}
+                </Anchor>
+              </td>
               <td>{marker.title}</td>
               <td>{marker.creator}</td>
               <td>{marker.created}</td>

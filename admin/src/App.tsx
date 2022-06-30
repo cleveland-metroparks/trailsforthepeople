@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
-
 import { Link, Outlet } from "react-router-dom";
-
 import {
   Anchor,
   AppShell,
@@ -16,7 +14,6 @@ import {
   Burger,
   useMantineTheme,
 } from '@mantine/core';
-
 import { NavLinks } from './_navLinks';
 
 function App() {

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useQuery } from "react-query";
-import { Table } from '@mantine/core';
+import { Link, Outlet, useParams } from "react-router-dom";
+import { Table, Anchor } from '@mantine/core';
 
 type AuditLog = {
   id: number,
@@ -22,10 +23,18 @@ const getAllAuditLogs = async () => {
   return response.data.data;
 }
 
-export default function AuditLogs() {
+//
+export function AuditLog() {
+  let params = useParams();
+  return (
+    <div>
+      <h2>Log {params.logId}</h2>
+    </div>
+  );
+}
+
+export function AuditLogsList() {
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<AuditLog[], Error>('audit_logs', getAllAuditLogs);
-
-
   return (
     <div>
       <h2>Logs</h2>
@@ -36,20 +45,23 @@ export default function AuditLogs() {
       <Table striped highlightOnHover>
         <thead>
           <tr>
-            <th>ID</th>
             <th>Timestamp</th>
-            <th>IP Address</th>
+            <th>IP address</th>
             <th>User</th>
             <th>Message</th>
-
           </tr>
         </thead>
         <tbody>
         {data &&
           data.map(audit_log => (
             <tr key={audit_log.id}>
-              <td>{audit_log.id}</td>
-              <td>{audit_log.timestamp}</td>
+                <Anchor
+                  component={Link}
+                  to={`/logs/${audit_log.id}`}
+                  key={audit_log.id}
+                >
+                  {audit_log.timestamp}
+                </Anchor>
               <td>{audit_log.ipaddress}</td>
               <td>{audit_log.username}</td>
               <td>{audit_log.message}</td>

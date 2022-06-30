@@ -7,10 +7,10 @@ import {
   Route,
 } from "react-router-dom";
 
-import Loops from "./routes/loops";
-import Markers from "./routes/markers";
-import HintMaps from "./routes/hintmaps";
-import Logs from "./routes/logs";
+import { LoopsList, Loop } from "./routes/loops";
+import { MarkersList, Marker } from "./routes/markers";
+import { HintMapsList, HintMap } from "./routes/hintmaps";
+import { AuditLogsList, AuditLog } from "./routes/logs";
 
 import './index.css';
 
@@ -36,10 +36,30 @@ root.render(
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />}>
-            <Route path="loops" element={<Loops />} />
-            <Route path="markers" element={<Markers />} />
-            <Route path="hintmaps" element={<HintMaps />} />
-            <Route path="logs" element={<Logs />} />
+            <Route path="loops">
+              <Route index element={<LoopsList />} />
+              <Route path=":loopId" element={<Loop />} />
+            </Route>
+            <Route path="markers">
+              <Route index element={<MarkersList />} />
+              <Route path=":markerId" element={<Marker />} />
+            </Route>
+            <Route path="hintmaps">
+              <Route index element={<HintMapsList />} />
+              <Route path=":hintmapId" element={<HintMap />} />
+            </Route>
+            <Route path="logs">
+              <Route index element={<AuditLogsList />} />
+              <Route path=":logId" element={<AuditLog />} />
+            </Route>
+            <Route
+              path="*"
+              element={
+                <main style={{ padding: "1rem" }}>
+                  <p>Not found</p>
+                </main>
+              }
+            />
           </Route>
         </Routes>
       </BrowserRouter>
