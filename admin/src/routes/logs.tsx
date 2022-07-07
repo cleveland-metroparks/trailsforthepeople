@@ -2,6 +2,7 @@ import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, Outlet, useParams } from "react-router-dom";
 import { Table, Anchor } from '@mantine/core';
+import { default as dayjs } from 'dayjs';
 
 type AuditLog = {
   id: number,
@@ -43,14 +44,11 @@ export function AuditLog() {
       )}
         {data &&
           <div>
-            <h2>{data.timestamp}</h2>
-            <dl>
-              <dt><strong>id:</strong></dt><dd>{data.id}</dd>
-              <dt><strong>timestamp:</strong></dt><dd>{data.timestamp}</dd>
-              <dt><strong>ipaddress:</strong></dt><dd>{data.ipaddress}</dd>
-              <dt><strong>username:</strong></dt><dd>{data.username}</dd>
-              <dt><strong>message:</strong></dt><dd>{data.message}</dd>
-            </dl>
+            <h2>{dayjs(data.timestamp).format('YYYY-MM-DD HH:mm:ss Z')}</h2>
+            <span><strong>ID:</strong></span> <span>{data.id}</span><br />
+            <span><strong>IP Address:</strong></span> <span>{data.ipaddress}</span><br />
+            <span><strong>Username:</strong></span> <span>{data.username}</span><br />
+            <span><strong>Message:</strong></span> <span>{data.message}</span><br />
           </div>
         }
     </div>
@@ -69,6 +67,7 @@ export function AuditLogsList() {
       <Table striped highlightOnHover>
         <thead>
           <tr>
+            <th>ID</th>
             <th>Timestamp</th>
             <th>IP address</th>
             <th>User</th>
@@ -79,6 +78,8 @@ export function AuditLogsList() {
         {data &&
           data.map(audit_log => (
             <tr key={audit_log.id}>
+              <td>{audit_log.id}</td>
+              <td>
                 <Anchor
                   component={Link}
                   to={`/logs/${audit_log.id}`}
@@ -86,6 +87,7 @@ export function AuditLogsList() {
                 >
                   {audit_log.timestamp}
                 </Anchor>
+              </td>
               <td>{audit_log.ipaddress}</td>
               <td>{audit_log.username}</td>
               <td>{audit_log.message}</td>
