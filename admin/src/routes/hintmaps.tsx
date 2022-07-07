@@ -2,6 +2,7 @@ import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, Outlet, useParams } from "react-router-dom";
 import { Table, Anchor } from '@mantine/core';
+import { default as dayjs } from 'dayjs';
 
 type HintMap = {
   id: number,
@@ -73,8 +74,8 @@ export function HintMapsList() {
               </td>
               <td><img src={formatMapsHintMapLink(hint_map.id)} width="100" height="100" /></td>
               <td><img src={hint_map.url_external} width="100" height="100" /></td>
-              <td>{hint_map.last_edited}</td>
-              <td>{hint_map.last_refreshed}</td>
+              <td>{dayjs(hint_map.last_edited).format('YYYY-MM-DD HH:mm:ss Z')}</td>
+              <td>{dayjs(hint_map.last_refreshed).format('YYYY-MM-DD HH:mm:ss Z')}</td>
             </tr>
           ))}
         </tbody>

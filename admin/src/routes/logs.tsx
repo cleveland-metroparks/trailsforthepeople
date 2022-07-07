@@ -85,7 +85,7 @@ export function AuditLogsList() {
                   to={`/logs/${audit_log.id}`}
                   key={audit_log.id}
                 >
-                  {audit_log.timestamp}
+                  {dayjs(audit_log.timestamp).format('YYYY-MM-DD HH:mm:ss Z')}
                 </Anchor>
               </td>
               <td>{audit_log.ipaddress}</td>

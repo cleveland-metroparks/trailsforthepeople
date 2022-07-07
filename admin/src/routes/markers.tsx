@@ -2,6 +2,7 @@ import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, Outlet, useParams } from "react-router-dom";
 import { Table, Anchor } from '@mantine/core';
+import { default as dayjs } from 'dayjs';
 
 type Marker = {
   id: number,
@@ -77,10 +78,9 @@ export function MarkersList() {
                   {marker.title}
                 </Anchor>
               </td>
-              <td>{marker.title}</td>
               <td>{marker.creator}</td>
-              <td>{marker.created}</td>
-              <td>{marker.expires}</td>
+              <td>{dayjs(marker.created).format('YYYY-MM-DD HH:mm:ss Z')}</td>
+              <td>{marker.expires ? dayjs(marker.expires).format('YYYY-MM-DD HH:mm:ss Z') : ''}</td>
               <td>{marker.category}</td>
               <td>{marker.enabled}</td>
               <td>{marker.annual}</td>
