@@ -49,11 +49,14 @@ export function MarkersList() {
   return (
     <div>
       <h2>Markers</h2>
+
       {isLoading && <div>Loading...</div>}
+
       {isError && (
         <div>{`There is a problem fetching the post data - ${error.message}`}</div>
       )}
       <Table striped highlightOnHover>
+
         <thead>
           <tr>
             <th>Title</th>
@@ -65,6 +68,7 @@ export function MarkersList() {
             <th>Annual</th>
           </tr>
         </thead>
+
         <tbody>
         {data &&
           data.map(marker => (
@@ -87,6 +91,7 @@ export function MarkersList() {
             </tr>
           ))}
         </tbody>
+
       </Table>
     </div>
   );

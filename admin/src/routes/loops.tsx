@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, Outlet, useParams } from "react-router-dom";
-import { Table, Anchor, TextInput, Checkbox, Button, Group, Box } from '@mantine/core';
+import { Tabs, Table, Anchor, TextInput, Textarea, Checkbox, Button, Group, Box } from '@mantine/core';
 import { useForm } from '@mantine/form';
 
 type Loop = {
@@ -66,98 +67,119 @@ export function Loop() {
     },
   });
 
+  const [activeTab, setActiveTab] = useState(0);
+
   return (
     <div>
-      <Anchor component={Link} to={`/loops`}>Loops</Anchor>
+      <Anchor component={Link} to={`/loops`}>« Loops</Anchor>
 
       {isLoading && <div>Loading...</div>}
+
       {isError && (
         <div>{`There is a problem fetching the loop - ${error.message}`}</div>
       )}
-        {data &&
-          <div>
-            <h2>{data.name}</h2>
-            <Box sx={{ maxWidth: 800 }} mx="auto">
 
-              <form onSubmit={form.onSubmit((values) => console.log(values))}>
+      {data &&
+        <div>
+          <h2>{data.name}</h2>
 
-                <p>#{data.id}</p>
-                <p>{data.res}</p>
+          <form onSubmit={form.onSubmit((values) => console.log(values))}>
 
-                <TextInput
-                  mt="md"
-                  required
-                  label="Name"
-                  placeholder="Loop name"
-                  value={data.name}
-                />
+            <Tabs active={activeTab} onTabChange={setActiveTab} tabPadding="xl">
 
-                <TextInput
-                  mt="md"
-                  required
-                  label="Test"
-                  placeholder="Test text"
-                  {...form.getInputProps('test')}
-                />
+              <Tabs.Tab label="General">
 
-                <Checkbox
-                  mt="md"
-                  label="Hiking"
-                  checked={data.hike == "Yes" ? true : false}
-                />
+                <Box sx={{ maxWidth: 800 }}>
 
-                <Checkbox
-                  mt="md"
-                  label="Biking"
-                  checked={data.bike == "Yes" ? true : false}
-                />
+                  <TextInput
+                    mt="md"
+                    required
+                    label="Name"
+                    placeholder="Loop name"
+                    value={data.name}
+                  />
 
-                <Checkbox
-                  mt="md"
-                  label="Mountain biking"
-                  checked={data.mountainbike == "Yes" ? true : false}
-                />
+                  <TextInput
+                    mt="md"
+                    required
+                    label="Test"
+                    placeholder="Test text"
+                    {...form.getInputProps('test')}
+                  />
 
-                <Checkbox
-                  mt="md"
-                  label="Horseback"
-                  checked={data.bridle == "Yes" ? true : false}
-                />
+                  <p>{data.res}</p>
 
-                <Group position="right" mt="md">
-                  <Button type="submit">Submit</Button>
-                </Group>
+                  <Textarea
+                    mt="md"
+                    required
+                    label="Description"
+                    placeholder=""
+                    value={data.description}
+                  />
 
-              </form>
+                  <Checkbox
+                    mt="md"
+                    label="Hiking"
+                    checked={data.hike == "Yes" ? true : false}
+                  />
 
-              <div>
+                  <Checkbox
+                    mt="md"
+                    label="Biking"
+                    checked={data.bike == "Yes" ? true : false}
+                  />
+
+                  <Checkbox
+                    mt="md"
+                    label="Mountain biking"
+                    checked={data.mountainbike == "Yes" ? true : false}
+                  />
+
+                  <Checkbox
+                    mt="md"
+                    label="Horseback"
+                    checked={data.bridle == "Yes" ? true : false}
+                  />
+
+                  <Group position="right" mt="md">
+                    <Button type="submit">Submit</Button>
+                  </Group>
+
+                </Box>
+
+              </Tabs.Tab>
+
+              <Tabs.Tab label="Route">
+
+              </Tabs.Tab>
+
+              <Tabs.Tab label="Directions">
+
+                <h3>Directions</h3>
+                <em>... Directions ...</em>
+
                 <h3>Stats</h3>
                 <span><strong>Distance:</strong></span> <span>{data.distancetext} ({data.distance_feet} ft)</span><br />
                 <span><strong>Hiking:</strong></span> <span>{data.durationtext_hike}</span><br />
                 <span><strong>Bicycling:</strong></span> <span>{data.durationtext_bike}</span><br />
                 <span><strong>Horseback:</strong></span> <span>{data.durationtext_bridle}</span><br />
-              </div>
 
+                <h3>Elevation Profile</h3>
+                <em>... Elevation profile ...</em>
 
-            </Box>
-          </div>
-        }
+              </Tabs.Tab>
+
+            </Tabs>
+
+          </form>
+
+        </div>
+      }
+
     </div>
   );
 }
 
-// <dl>
-//   <dt><strong>Description:</strong></dt><dd>{data.description}</dd>
-//   <dt><strong>lat:</strong></dt><dd>{data.lat}</dd>
-//   <dt><strong>lng:</strong></dt><dd>{data.lng}</dd>
-//   <dt><strong>boxw:</strong></dt><dd>{data.boxw}</dd>
-//   <dt><strong>boxs:</strong></dt><dd>{data.boxs}</dd>
-//   <dt><strong>boxe:</strong></dt><dd>{data.boxe}</dd>
-//   <dt><strong>boxn:</strong></dt><dd>{data.boxn}</dd>
-//   <dt><strong>dest_id:</strong></dt><dd>{data.dest_id}</dd>
-//   <dt><strong>dd_lat:</strong></dt><dd>{data.dd_lat}</dd>
-//   <dt><strong>dd_lng:</strong></dt><dd>{data.dd_lng}</dd>
-// </dl>
 
 //
 export function LoopsList() {

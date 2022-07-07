@@ -45,10 +45,13 @@ export function HintMapsList() {
   return (
     <div>
       <h2>Hint Maps</h2>
+
       {isLoading && <div>Loading...</div>}
+
       {isError && (
         <div>{`There is a problem fetching the post data - ${error.message}`}</div>
       )}
+
       <Table striped highlightOnHover>
         <thead>
           <tr>
@@ -59,6 +62,7 @@ export function HintMapsList() {
             <th>Date refreshed</th>
           </tr>
         </thead>
+
         <tbody>
         {data &&
           data.map(hint_map => (
@@ -80,6 +84,7 @@ export function HintMapsList() {
           ))}
         </tbody>
       </Table>
+
     </div>
   );
 }

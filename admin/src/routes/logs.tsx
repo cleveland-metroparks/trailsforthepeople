@@ -37,33 +37,40 @@ export function AuditLog() {
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<AuditLog, Error>(['audit_log', params.logId], () => getAuditLog(logId));
   return (
     <div>
-      <Anchor component={Link} to={`/logs`}>Logs</Anchor>
+      <Anchor component={Link} to={`/logs`}>« Logs</Anchor>
+
       {isLoading && <div>Loading...</div>}
+
       {isError && (
         <div>{`There is a problem fetching the post data - ${error.message}`}</div>
       )}
-        {data &&
-          <div>
-            <h2>{dayjs(data.timestamp).format('YYYY-MM-DD HH:mm:ss Z')}</h2>
-            <span><strong>ID:</strong></span> <span>{data.id}</span><br />
-            <span><strong>IP Address:</strong></span> <span>{data.ipaddress}</span><br />
-            <span><strong>Username:</strong></span> <span>{data.username}</span><br />
-            <span><strong>Message:</strong></span> <span>{data.message}</span><br />
-          </div>
-        }
+
+      {data &&
+        <div>
+          <h2>{dayjs(data.timestamp).format('YYYY-MM-DD HH:mm:ss Z')}</h2>
+          <span><strong>ID:</strong></span> <span>{data.id}</span><br />
+          <span><strong>IP Address:</strong></span> <span>{data.ipaddress}</span><br />
+          <span><strong>Username:</strong></span> <span>{data.username}</span><br />
+          <span><strong>Message:</strong></span> <span>{data.message}</span><br />
+        </div>
+      }
     </div>
   );
 }
 
+//
 export function AuditLogsList() {
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<AuditLog[], Error>('audit_logs', getAllAuditLogs);
   return (
     <div>
       <h2>Logs</h2>
+
       {isLoading && <div>Loading...</div>}
+
       {isError && (
         <div>{`There is a problem fetching the post data - ${error.message}`}</div>
       )}
+
       <Table striped highlightOnHover>
         <thead>
           <tr>
@@ -74,6 +81,7 @@ export function AuditLogsList() {
             <th>Message</th>
           </tr>
         </thead>
+
         <tbody>
         {data &&
           data.map(audit_log => (
@@ -94,7 +102,9 @@ export function AuditLogsList() {
             </tr>
           ))}
         </tbody>
+
       </Table>
+
     </div>
   );
 }
