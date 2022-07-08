@@ -34,11 +34,44 @@ const getAllMarkers = async () => {
 }
 
 //
+const getMarker = async (id: string) => {
+  const response = await apiClient.get<any>("/markers/" + id);
+  return response.data.data;
+}
+
+
+//
 export function Marker() {
   let params = useParams();
+  let markerId = params.markerId ? params.markerId.toString() : '';
+
+  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Marker, Error>(['marker', params.markerId], () => getMarker(markerId));
+
   return (
     <div>
-      <h2>Marker {params.markerId}</h2>
+      <Anchor component={Link} to={`/markers`}>« Markers</Anchor>
+
+      {isLoading && <div>Loading...</div>}
+
+      {isError && (
+        <div>{`There is a problem fetching the marker - ${error.message}`}</div>
+      )}
+
+      {data &&
+        <div>
+          <h2>{data.title}</h2>
+          <span><strong>Enabled:</strong> {data.enabled}</span><br />
+          <span><strong>Category:</strong> {data.category}</span><br />
+          <span><strong>Creator:</strong> {data.creator}</span><br />
+          <span><strong>Created:</strong> {dayjs(data.created).format('YYYY-MM-DD HH:mm:ss Z')}</span><br />
+          <span><strong>lat/lng:</strong> {data.lat}, {data.lng}</span><br />
+          <span><strong>Content:</strong> {data.content}</span><br />
+          <span><strong>Expires:</strong> {data.expires ? dayjs(data.expires).format('YYYY-MM-DD HH:mm:ss Z') : ''}</span><br />
+          <span><strong>Annual:</strong> {data.annual}</span><br />
+          <span><strong>Start date:</strong> {data.startdate ? dayjs(data.startdate).format('YYYY-MM-DD HH:mm:ss Z') : ''}</span><br />
+        </div>
+      }
+
     </div>
   );
 }
