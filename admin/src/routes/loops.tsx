@@ -5,6 +5,17 @@ import { Link, Outlet, useParams } from "react-router-dom";
 import { Tabs, Table, Anchor, TextInput, Textarea, Checkbox, Button, Group, Box } from '@mantine/core';
 import { useForm } from '@mantine/form';
 
+import {Map, Marker} from 'react-map-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+
+const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiY2w1Y2h5NWN4MGhxejNjbDFzOWczNXJmdyJ9.TrbioVMC_vB2cl34g6Ja8A';
+const MAPBOX_STYLE = 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
+const MAP_DEFAULT_STATE = {
+  latitude: 41.3953,
+  longitude: -81.6730,
+  zoom: 9
+};
+
 type Loop = {
   id: number,
   name: string,
@@ -141,15 +152,26 @@ export function Loop() {
                     checked={data.bridle == "Yes" ? true : false}
                   />
 
-                  <Group position="right" mt="md">
-                    <Button type="submit">Submit</Button>
-                  </Group>
-
                 </Box>
 
               </Tabs.Tab>
 
               <Tabs.Tab label="Route">
+
+                <div>
+                  <Map
+                    initialViewState={{
+                      latitude: data.lat,
+                      longitude: data.lng,
+                      zoom: MAP_DEFAULT_STATE.zoom
+                    }}
+                    style={{width: 600, height: 400}}
+                    mapStyle={MAPBOX_STYLE}
+                    mapboxAccessToken={MAPBOX_TOKEN}
+                  >
+                    <Marker longitude={data.lng} latitude={data.lat} anchor="bottom" ></Marker>
+                  </Map>
+                </div>
 
               </Tabs.Tab>
 
@@ -170,6 +192,10 @@ export function Loop() {
               </Tabs.Tab>
 
             </Tabs>
+
+            <Group position="left" mt="md">
+              <Button type="submit">Submit</Button>
+            </Group>
 
           </form>
 
