@@ -128,29 +128,28 @@ export function Loop() {
                     value={data.description}
                   />
 
-                  <Checkbox
-                    mt="md"
-                    label="Hiking"
-                    checked={data.hike == "Yes" ? true : false}
-                  />
-
-                  <Checkbox
-                    mt="md"
-                    label="Biking"
-                    checked={data.bike == "Yes" ? true : false}
-                  />
-
-                  <Checkbox
-                    mt="md"
-                    label="Mountain biking"
-                    checked={data.mountainbike == "Yes" ? true : false}
-                  />
-
-                  <Checkbox
-                    mt="md"
-                    label="Horseback"
-                    checked={data.bridle == "Yes" ? true : false}
-                  />
+                  <Group>
+                    <Checkbox
+                      mt="md"
+                      label="Hiking"
+                      checked={data.hike == "Yes" ? true : false}
+                    />
+                    <Checkbox
+                      mt="md"
+                      label="Biking"
+                      checked={data.bike == "Yes" ? true : false}
+                    />
+                    <Checkbox
+                      mt="md"
+                      label="Mountain biking"
+                      checked={data.mountainbike == "Yes" ? true : false}
+                    />
+                    <Checkbox
+                      mt="md"
+                      label="Horseback"
+                      checked={data.bridle == "Yes" ? true : false}
+                    />
+                  </Group>
 
                 </Box>
 
@@ -194,7 +193,7 @@ export function Loop() {
             </Tabs>
 
             <Group position="left" mt="md">
-              <Button type="submit">Submit</Button>
+              <Button type="submit" sx={{ margin: '1em 0' }}>Submit</Button>
             </Group>
 
           </form>
