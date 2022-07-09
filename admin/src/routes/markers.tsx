@@ -2,7 +2,7 @@ import {useState, useCallback} from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, Outlet, useParams } from "react-router-dom";
-import { Table, Anchor, Box, Button, Group } from '@mantine/core';
+import { Table, Anchor, Box, TextInput, Textarea, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { default as dayjs } from 'dayjs';
 
@@ -43,19 +43,19 @@ const apiClient = axios.create({
 });
 
 //
-const getAllMarkers = async () => {
-  const response = await apiClient.get<any>("/markers");
-  return response.data.data;
-}
-
-//
-const getMarker = async (id: string) => {
-  const response = await apiClient.get<any>("/markers/" + id);
-  return response.data.data;
-}
-
-//
 export function Marker() {
+
+  // Get marker
+  // Moved this into Marker component so we can use setMarker()
+  const getMarker = async (id: string) => {
+    const response = await apiClient.get<any>("/markers/" + id);
+    setMarker({
+      longitude: response.data.data.lng,
+      latitude: response.data.data.lat
+    });
+    return response.data.data;
+  }
+
   let params = useParams();
   let markerId = params.markerId ? params.markerId.toString() : '';
 
@@ -79,13 +79,7 @@ export function Marker() {
   });
   const [events, logEvents] = useState<Record<string, LngLat>>({});
 
-  const onMarkerDragStart = useCallback((event: MarkerDragEvent) => {
-    logEvents(_events => ({..._events, onDragStart: event.lngLat}));
-  }, []);
-
   const onMarkerDrag = useCallback((event: MarkerDragEvent) => {
-    logEvents(_events => ({..._events, onDrag: event.lngLat}));
-
     setMarker({
       longitude: event.lngLat.lng,
       latitude: event.lngLat.lat
@@ -93,7 +87,7 @@ export function Marker() {
   }, []);
 
   const onMarkerDragEnd = useCallback((event: MarkerDragEvent) => {
-    logEvents(_events => ({..._events, onDragEnd: event.lngLat}));
+    // @TODO: Recenter map
   }, []);
 
   //--------
@@ -113,44 +107,88 @@ export function Marker() {
           <h2>{data.title}</h2>
 
           <form onSubmit={form.onSubmit((values) => console.log(values))}>
-            <span><strong>Enabled:</strong> {data.enabled}</span><br />
-            <span><strong>Category:</strong> {data.category}</span><br />
-            <span><strong>Creator:</strong> {data.creator}</span><br />
-            <span><strong>Created:</strong> {dayjs(data.created).format('YYYY-MM-DD HH:mm:ss Z')}</span><br />
 
-            <div>
-              <MapGl.Map
-                initialViewState={{
-                  latitude: data.lat,
-                  longitude: data.lng,
-                  zoom: MAP_DEFAULT_STATE.zoom
-                }}
-                style={{width: 600, height: 400}}
-                mapStyle={MAPBOX_STYLE}
-                mapboxAccessToken={MAPBOX_TOKEN}
-              >
-                <MapGl.Marker
-                  longitude={data.lng}
-                  latitude={data.lat}
-                  anchor="bottom"
-                  draggable
-                  onDragStart={onMarkerDragStart}
-                  onDrag={onMarkerDrag}
-                  onDragEnd={onMarkerDragEnd}
-                ></MapGl.Marker>
-              </MapGl.Map>
+            <Box sx={{ maxWidth: 800 }}>
 
-            </div>
+              <TextInput
+                mt="md"
+                required
+                label="Title"
+                placeholder="Marker title"
+                value={data.title}
+              />
 
-            <span><strong>Lat/Lng:</strong> {data.lat}, {data.lng}</span><br />
-            <span><strong>Content:</strong> {data.content}</span><br />
-            <span><strong>Expires:</strong> {data.expires ? dayjs(data.expires).format('YYYY-MM-DD HH:mm:ss Z') : <em>none</em>}</span><br />
-            <span><strong>Annual:</strong> {data.annual}</span><br />
-            <span><strong>Start date:</strong> {data.startdate ? dayjs(data.startdate).format('YYYY-MM-DD HH:mm:ss Z') : ''}</span><br />
+              <Textarea
+                mt="md"
+                required
+                label="Content"
+                placeholder=""
+                value={data.content}
+              />
 
-            <Group position="left" mt="md">
-              <Button type="submit">Submit</Button>
-            </Group>
+              <Box sx={{marginTop: '1em'}}>
+                <Select
+                  label="Category"
+                  data={[
+                    { value: 'Events', label: 'Events' },
+                    { value: 'Trail Closures and Construction', label: 'Trail Closures and Construction' },
+                  ]}
+                  value={data.category}
+                />
+              </Box>
+
+              <Box sx={{marginTop: '1em'}}>
+                <MapGl.Map
+                  initialViewState={{
+                    latitude: data.lat,
+                    longitude: data.lng,
+                    zoom: MAP_DEFAULT_STATE.zoom
+                  }}
+                  style={{width: 800, height: 400}}
+                  mapStyle={MAPBOX_STYLE}
+                  mapboxAccessToken={MAPBOX_TOKEN}
+                >
+                  <MapGl.Marker
+                    longitude={data.lng}
+                    latitude={data.lat}
+                    anchor="bottom"
+                    draggable
+                    // onDragStart={onMarkerDragStart}
+                    onDrag={onMarkerDrag}
+                    onDragEnd={onMarkerDragEnd}
+                  ></MapGl.Marker>
+                </MapGl.Map>
+              </Box>
+
+              <Box sx={{margin: '1em 0'}}>
+                <span><strong>Lat:</strong> {marker.latitude}</span><br />
+                <span><strong>Lat:</strong> {marker.longitude}</span><br />
+              </Box>
+
+              <Accordion>
+                <Accordion.Item label="Publishing status">
+                  <span><strong>Start date:</strong> {data.startdate ? dayjs(data.startdate).format('YYYY-MM-DD HH:mm:ss Z') : ''}</span><br />
+                  <span><strong>Expires:</strong> {data.expires ? dayjs(data.expires).format('YYYY-MM-DD HH:mm:ss Z') : <em>none</em>}</span><br />
+                  <span><strong>Annual:</strong> {data.annual}</span><br />
+                  <Checkbox
+                    mt="md"
+                    label="Enabled"
+                    checked={data.enabled == 1 ? true : false}
+                  />
+                </Accordion.Item>
+
+                <Accordion.Item label="Authorship">
+                  <span><strong>Creator:</strong> {data.creator}</span><br />
+                  <span><strong>Created:</strong> {dayjs(data.created).format('YYYY-MM-DD HH:mm:ss Z')}</span><br />
+                </Accordion.Item>
+
+              </Accordion>
+
+              <Group position="left" mt="md">
+                <Button type="submit" sx={{ margin: '1em 0' }}>Submit</Button>
+              </Group>
+
+            </Box>
 
           </form>
         </div>
@@ -162,6 +200,13 @@ export function Marker() {
 
 //
 export function MarkersList() {
+
+  // Get all markers
+  const getAllMarkers = async () => {
+    const response = await apiClient.get<any>("/markers");
+    return response.data.data;
+  }
+
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Marker[], Error>('markers', getAllMarkers);
   return (
     <div>
