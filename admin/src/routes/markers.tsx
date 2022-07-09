@@ -1,7 +1,7 @@
 import {useState, useCallback} from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
-import { Link, Outlet, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Table, Anchor, Box, TextInput, Textarea, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { default as dayjs } from 'dayjs';
@@ -63,9 +63,6 @@ export function Marker() {
 
   const form = useForm({
     initialValues: {
-      test: 'This is a test',
-      // Setting these directly in the TSX below to get the API-loaded data.
-      // @TODO: Should be better to use this, so we can use form.getInputProps() below to also get other data
     },
     validate: {
     },
@@ -74,8 +71,8 @@ export function Marker() {
   //--------
 
   const [marker, setMarker] = useState({
-    latitude: 40,
-    longitude: -100
+    latitude: MAP_DEFAULT_STATE.latitude,
+    longitude: MAP_DEFAULT_STATE.longitude
   });
   const [events, logEvents] = useState<Record<string, LngLat>>({});
 
@@ -88,6 +85,9 @@ export function Marker() {
 
   const onMarkerDragEnd = useCallback((event: MarkerDragEvent) => {
     // @TODO: Recenter map
+    // const {current: map} = MapGl.useMap();
+    // map.flyTo({center: [event.lngLat.lng, event.lngLat.lat]});
+    // console.log(event.target);
   }, []);
 
   //--------
@@ -153,7 +153,6 @@ export function Marker() {
                     latitude={data.lat}
                     anchor="bottom"
                     draggable
-                    // onDragStart={onMarkerDragStart}
                     onDrag={onMarkerDrag}
                     onDragEnd={onMarkerDragEnd}
                   ></MapGl.Marker>

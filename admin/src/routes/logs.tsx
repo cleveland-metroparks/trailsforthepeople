@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useQuery } from "react-query";
-import { Link, Outlet, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Table, Anchor } from '@mantine/core';
 import { default as dayjs } from 'dayjs';
 

@@ -1,20 +1,11 @@
 import { useState } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
-import { Link, Outlet, useParams } from "react-router-dom";
-import { Tabs, Table, Anchor, TextInput, Textarea, Checkbox, Button, Group, Box } from '@mantine/core';
+import { Link, useParams } from "react-router-dom";
+import { Tabs, Table, Anchor, TextInput, Textarea, Checkbox, Button, Group, Box, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 
-import {Map, Marker} from 'react-map-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-
-const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiY2w1Y2h5NWN4MGhxejNjbDFzOWczNXJmdyJ9.TrbioVMC_vB2cl34g6Ja8A';
-const MAPBOX_STYLE = 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
-const MAP_DEFAULT_STATE = {
-  latitude: 41.3953,
-  longitude: -81.6730,
-  zoom: 9
-};
+import { LoopMap } from "../components/loopmap";
 
 type Loop = {
   id: number,
@@ -56,27 +47,32 @@ const getAllLoops = async () => {
 }
 
 //
-const getLoop = async (id: string) => {
-  const response = await apiClient.get<any>("/trails/" + id);
-  return response.data.data;
-}
-
-//
 export function Loop() {
   let params = useParams();
   let loopId = params.loopId ? params.loopId.toString() : '';
 
-  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Loop, Error>(['loop', params.loopId], () => getLoop(loopId));
-
   const form = useForm({
     initialValues: {
-      test: 'This is a test',
-      // Setting these directly in the TSX below to get the API-loaded data.
-      // @TODO: Should be better to use this, so we can use form.getInputProps() below to also get other data
+      name: '',
+      description: '',
     },
     validate: {
     },
   });
+
+  //
+  const getLoop = async (id: string) => {
+    const response = await apiClient.get<any>("/trails/" + id);
+
+    form.setValues({
+      name: response.data.data.name,
+      description: response.data.data.description
+    });
+
+    return response.data.data;
+  }
+
+  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Loop, Error>(['loop', params.loopId], () => getLoop(loopId));
 
   const [activeTab, setActiveTab] = useState(0);
 
@@ -107,25 +103,42 @@ export function Loop() {
                     required
                     label="Name"
                     placeholder="Loop name"
-                    value={data.name}
+                    {...form.getInputProps('name')}
                   />
 
-                  <TextInput
-                    mt="md"
-                    required
-                    label="Test"
-                    placeholder="Test text"
-                    {...form.getInputProps('test')}
-                  />
-
-                  <p>{data.res}</p>
+                  <Box sx={{marginTop: '1em'}}>
+                    <Select
+                      label="Reservation"
+                      data={[
+                        { value: 'Acacia Reservation', label: 'Acacia Reservation' },
+                        { value: 'Bedford Reservation', label: 'Bedford Reservation' },
+                        { value: 'Big Creek Reservation', label: 'Big Creek Reservation' },
+                        { value: 'Bradley Woods Reservation', label: 'Bradley Woods Reservation' },
+                        { value: 'Brecksville Reservation', label: 'Brecksville Reservation' },
+                        { value: 'Brookside Reservation', label: 'Brookside Reservation' },
+                        { value: 'Euclid Creek Reservation', label: 'Euclid Creek Reservation' },
+                        { value: 'Garfield Park Reservation', label: 'Garfield Park Reservation' },
+                        { value: 'Hinckley Reservation', label: 'Hinckley Reservation' },
+                        { value: 'Huntington Reservation', label: 'Huntington Reservation' },
+                        { value: 'Lakefront Reservation', label: 'Lakefront Reservation' },
+                        { value: 'Mill Stream Run Reservation', label: 'Mill Stream Run Reservation' },
+                        { value: 'North Chagrin Reservation', label: 'North Chagrin Reservation' },
+                        { value: 'Ohio & Erie Canal Reservation', label: 'Ohio & Erie Canal Reservation' },
+                        { value: 'Rocky River Reservation', label: 'Rocky River Reservation' },
+                        { value: 'South Chagrin Reservation', label: 'South Chagrin Reservation' },
+                        { value: 'Washington Reservation', label: 'Washington Reservation' },
+                        { value: 'West Creek Reservation', label: 'West Creek Reservation' },
+                      ]}
+                      value={data.res}
+                    />
+                  </Box>
 
                   <Textarea
                     mt="md"
                     required
                     label="Description"
                     placeholder=""
-                    value={data.description}
+                    {...form.getInputProps('description')}
                   />
 
                   <Group>
@@ -157,20 +170,7 @@ export function Loop() {
 
               <Tabs.Tab label="Route">
 
-                <div>
-                  <Map
-                    initialViewState={{
-                      latitude: data.lat,
-                      longitude: data.lng,
-                      zoom: MAP_DEFAULT_STATE.zoom
-                    }}
-                    style={{width: 600, height: 400}}
-                    mapStyle={MAPBOX_STYLE}
-                    mapboxAccessToken={MAPBOX_TOKEN}
-                  >
-                    <Marker longitude={data.lng} latitude={data.lat} anchor="bottom" ></Marker>
-                  </Map>
-                </div>
+                <LoopMap loopId={data.id} />
 
               </Tabs.Tab>
 
