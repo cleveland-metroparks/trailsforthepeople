@@ -18,6 +18,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 import { QueryClient, QueryClientProvider } from "react-query";
+import { ReactQueryDevtools } from 'react-query/devtools'
 
 const queryClient = new QueryClient({
    defaultOptions: {
@@ -63,6 +64,7 @@ root.render(
           </Route>
         </Routes>
       </BrowserRouter>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   </React.StrictMode>
 );
