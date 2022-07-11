@@ -49,10 +49,16 @@ export function Marker() {
   // Moved this into Marker component so we can use setMarker()
   const getMarker = async (id: string) => {
     const response = await apiClient.get<any>("/markers/" + id);
+
     setMarker({
       longitude: response.data.data.lng,
       latitude: response.data.data.lat
     });
+
+    form.setValues({
+      enabled: response.data.data.enabled == 1
+    });
+
     return response.data.data;
   }
 
@@ -63,6 +69,7 @@ export function Marker() {
 
   const form = useForm({
     initialValues: {
+      enabled: false
     },
     validate: {
     },
@@ -172,7 +179,7 @@ export function Marker() {
                   <Checkbox
                     mt="md"
                     label="Enabled"
-                    checked={data.enabled == 1 ? true : false}
+                    {...form.getInputProps('enabled', { type: 'checkbox' })}
                   />
                 </Accordion.Item>
 

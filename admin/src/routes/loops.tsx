@@ -55,6 +55,10 @@ export function Loop() {
     initialValues: {
       name: '',
       description: '',
+      hike: false,
+      bike: false,
+      mountainbike: false,
+      bridle: false
     },
     validate: {
     },
@@ -66,7 +70,11 @@ export function Loop() {
 
     form.setValues({
       name: response.data.data.name,
-      description: response.data.data.description
+      description: response.data.data.description,
+      hike: response.data.data.hike == "Yes",
+      bike: response.data.data.bike == "Yes",
+      mountainbike: response.data.data.mountainbike == "Yes",
+      bridle: response.data.data.bridle == "Yes"
     });
 
     return response.data.data;
@@ -145,22 +153,22 @@ export function Loop() {
                     <Checkbox
                       mt="md"
                       label="Hiking"
-                      checked={data.hike == "Yes" ? true : false}
+                      {...form.getInputProps('hike', { type: 'checkbox' })}
                     />
                     <Checkbox
                       mt="md"
                       label="Biking"
-                      checked={data.bike == "Yes" ? true : false}
+                      {...form.getInputProps('bike', { type: 'checkbox' })}
                     />
                     <Checkbox
                       mt="md"
                       label="Mountain biking"
-                      checked={data.mountainbike == "Yes" ? true : false}
+                      {...form.getInputProps('mountainbike', { type: 'checkbox' })}
                     />
                     <Checkbox
                       mt="md"
                       label="Horseback"
-                      checked={data.bridle == "Yes" ? true : false}
+                      {...form.getInputProps('bridle', { type: 'checkbox' })}
                     />
                   </Group>
 
