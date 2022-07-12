@@ -1,4 +1,4 @@
-import {useState, useCallback} from 'react';
+import { useState, useCallback, useRef } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
@@ -7,7 +7,8 @@ import { useForm } from '@mantine/form';
 import { default as dayjs } from 'dayjs';
 
 import * as MapGl from 'react-map-gl'; // Namespace as MapGl since we already have "Marker"
-import type {MarkerDragEvent, LngLat} from 'react-map-gl';
+import type { MapRef } from 'react-map-gl';
+import type { MarkerDragEvent, LngLat } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiY2w1Y2h5NWN4MGhxejNjbDFzOWczNXJmdyJ9.TrbioVMC_vB2cl34g6Ja8A';
@@ -44,6 +45,7 @@ const apiClient = axios.create({
 
 //
 export function Marker() {
+  const mapRef = useRef<MapRef>(null);
 
   // Get marker
   // Moved this into Marker component so we can use setMarker()
@@ -56,6 +58,9 @@ export function Marker() {
     });
 
     form.setValues({
+      title: response.data.data.title,
+      content: response.data.data.content,
+      category: response.data.data.category,
       enabled: response.data.data.enabled == 1
     });
 
@@ -69,6 +74,9 @@ export function Marker() {
 
   const form = useForm({
     initialValues: {
+      title: '',
+      content: '',
+      category: '',
       enabled: false
     },
     validate: {
@@ -81,8 +89,8 @@ export function Marker() {
     latitude: MAP_DEFAULT_STATE.latitude,
     longitude: MAP_DEFAULT_STATE.longitude
   });
-  const [events, logEvents] = useState<Record<string, LngLat>>({});
 
+  // Marker event: on drag
   const onMarkerDrag = useCallback((event: MarkerDragEvent) => {
     setMarker({
       longitude: event.lngLat.lng,
@@ -90,11 +98,10 @@ export function Marker() {
     });
   }, []);
 
+  // Marker event: on drag end
   const onMarkerDragEnd = useCallback((event: MarkerDragEvent) => {
-    // @TODO: Recenter map
-    // const {current: map} = MapGl.useMap();
-    // map.flyTo({center: [event.lngLat.lng, event.lngLat.lat]});
-    // console.log(event.target);
+    // Center map on marker location
+    mapRef.current?.easeTo({center: [event.lngLat.lng, event.lngLat.lat]});
   }, []);
 
   //--------
@@ -122,7 +129,7 @@ export function Marker() {
                 required
                 label="Title"
                 placeholder="Marker title"
-                value={data.title}
+                {...form.getInputProps('title')}
               />
 
               <Textarea
@@ -130,7 +137,7 @@ export function Marker() {
                 required
                 label="Content"
                 placeholder=""
-                value={data.content}
+                {...form.getInputProps('content')}
               />
 
               <Box sx={{marginTop: '1em'}}>
@@ -140,12 +147,14 @@ export function Marker() {
                     { value: 'Events', label: 'Events' },
                     { value: 'Trail Closures and Construction', label: 'Trail Closures and Construction' },
                   ]}
-                  value={data.category}
+                  {...form.getInputProps('category')}
                 />
               </Box>
 
               <Box sx={{marginTop: '1em'}}>
                 <MapGl.Map
+                  reuseMaps
+                  ref={mapRef}
                   initialViewState={{
                     latitude: data.lat,
                     longitude: data.lng,
