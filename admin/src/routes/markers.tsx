@@ -191,7 +191,7 @@ export function Marker() {
               </Accordion>
 
               <Group position="left" mt="md">
-                <Button type="submit" sx={{ margin: '1em 0' }}>Submit</Button>
+                <Button type="submit" sx={{ margin: '1em 0' }}>Save Marker</Button>
               </Group>
 
             </Box>

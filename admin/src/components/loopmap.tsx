@@ -1,7 +1,12 @@
+import { useState, useRef } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, Outlet, useParams } from "react-router-dom";
-import {Map, Source, Layer, LineLayer} from 'react-map-gl';
+import { Map, Source, Layer, LineLayer } from 'react-map-gl';
+import type { MapRef } from 'react-map-gl';
+import { LngLatBounds } from 'mapbox-gl';
+import type { MapboxEvent } from 'mapbox-gl';
+import { coordEach } from '@turf/meta';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiY2w1Y2h5NWN4MGhxejNjbDFzOWczNXJmdyJ9.TrbioVMC_vB2cl34g6Ja8A';
@@ -31,13 +36,38 @@ interface LoopMapProps {
 
 //
 export function LoopMap(props: LoopMapProps) {
+  const mapRef = useRef<MapRef>(null);
+
+  const [bounds, setBounds] = useState(new LngLatBounds());
+
   let loopId = props.loopId ? props.loopId.toString() : '';
 
-  //
+  // Get loop geometry from API
   const getLoopGeometry = async (id: string) => {
+    console.log('getLoopGeometry');
     const response = await apiClient.get<any>("/trail_geometries/" + id);
+
+    const geojson = JSON.parse(response.data.data.geom_geojson);
+
+    const tmpBounds = new LngLatBounds();
+
+    if (geojson.coordinates) {
+      coordEach(geojson, function (coord) {
+        tmpBounds.extend([coord[0], coord[1]]);
+      });
+      setBounds(bounds => tmpBounds);
+    }
+
     return response.data.data;
   }
+
+  // Map onLoad
+  const onMapLoad = (event: MapboxEvent) => {
+    console.log('onMapLoad');
+    if (mapRef.current) {
+      mapRef.current.fitBounds(bounds, { padding: 40 });
+    }
+  };
 
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<LoopGeometry, Error>(['loop_geometry', loopId], () => getLoopGeometry(loopId));
 
@@ -68,6 +98,7 @@ export function LoopMap(props: LoopMapProps) {
 
       {data &&
         <Map
+          ref={mapRef}
           initialViewState={{
             latitude: MAP_DEFAULT_STATE.latitude,
             longitude: MAP_DEFAULT_STATE.longitude,
@@ -76,6 +107,7 @@ export function LoopMap(props: LoopMapProps) {
           style={{width: 600, height: 400}}
           mapStyle={MAPBOX_STYLE}
           mapboxAccessToken={MAPBOX_TOKEN}
+          onLoad={onMapLoad}
         >
           <Source type="geojson" data={JSON.parse(data.geom_geojson)}>
             <Layer {...loopLayer} />

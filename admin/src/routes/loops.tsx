@@ -201,7 +201,7 @@ export function Loop() {
             </Tabs>
 
             <Group position="left" mt="md">
-              <Button type="submit" sx={{ margin: '1em 0' }}>Submit</Button>
+              <Button type="submit" sx={{ margin: '1em 0' }}>Save Loop</Button>
             </Group>
 
           </form>
