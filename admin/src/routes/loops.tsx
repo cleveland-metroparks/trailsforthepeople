@@ -40,16 +40,14 @@ const apiClient = axios.create({
   },
 });
 
-//
-const getAllLoops = async () => {
-  const response = await apiClient.get<any>("/trails");
-  return response.data.data;
-}
-
-//
+/**
+ *
+ */
 export function Loop() {
   let params = useParams();
   let loopId = params.loopId ? params.loopId.toString() : '';
+
+  const [activeTab, setActiveTab] = useState(0);
 
   const form = useForm({
     initialValues: {
@@ -64,7 +62,7 @@ export function Loop() {
     },
   });
 
-  //
+  // Get a Loop from the API
   const getLoop = async (id: string) => {
     const response = await apiClient.get<any>("/trails/" + id);
 
@@ -81,8 +79,6 @@ export function Loop() {
   }
 
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Loop, Error>(['loop', params.loopId], () => getLoop(loopId));
-
-  const [activeTab, setActiveTab] = useState(0);
 
   return (
     <div>
@@ -213,10 +209,19 @@ export function Loop() {
   );
 }
 
-
-//
+/**
+ *
+ */
 export function LoopsList() {
+
+  // Get all loops from the API
+  const getAllLoops = async () => {
+    const response = await apiClient.get<any>("/trails");
+    return response.data.data;
+  }
+
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Loop[], Error>('loops', getAllLoops);
+
   return (
     <div>
       <h2>Loops</h2>

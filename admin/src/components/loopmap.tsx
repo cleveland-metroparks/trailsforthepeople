@@ -3,9 +3,9 @@ import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, Outlet, useParams } from "react-router-dom";
 import { Map, Source, Layer, LineLayer } from 'react-map-gl';
-import type { MapRef } from 'react-map-gl';
+import type { MapRef, MapboxEvent, ViewStateChangeEvent } from 'react-map-gl';
 import { LngLatBounds } from 'mapbox-gl';
-import type { MapboxEvent } from 'mapbox-gl';
+// import type { MapboxEvent } from 'mapbox-gl';
 import { coordEach } from '@turf/meta';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -40,11 +40,17 @@ export function LoopMap(props: LoopMapProps) {
 
   const [bounds, setBounds] = useState(new LngLatBounds());
 
+  const [mapViewState, setMapViewState] = useState({
+    longitude: MAP_DEFAULT_STATE.longitude,
+    latitude: MAP_DEFAULT_STATE.latitude,
+    zoom: MAP_DEFAULT_STATE.zoom
+  });
+
   let loopId = props.loopId ? props.loopId.toString() : '';
 
   // Get loop geometry from API
   const getLoopGeometry = async (id: string) => {
-    console.log('getLoopGeometry');
+    // console.log('getLoopGeometry');
     const response = await apiClient.get<any>("/trail_geometries/" + id);
 
     const geojson = JSON.parse(response.data.data.geom_geojson);
@@ -56,14 +62,23 @@ export function LoopMap(props: LoopMapProps) {
         tmpBounds.extend([coord[0], coord[1]]);
       });
       setBounds(bounds => tmpBounds);
+      // console.log('tmpBounds: ', tmpBounds);
+      // console.log('bounds: ', bounds);
     }
 
     return response.data.data;
   }
 
-  // Map onLoad
+  // Map onMove event
+  const onMapMove = (event: ViewStateChangeEvent) => {
+    setMapViewState(event.viewState);
+  };
+
+  // Map onLoad event
   const onMapLoad = (event: MapboxEvent) => {
-    console.log('onMapLoad');
+    console.log('onMapLoad() bounds: ', bounds);
+    console.log('onMapLoad() mapViewState: ', mapViewState);
+    // Fit map bounds to loop bounds
     if (mapRef.current) {
       mapRef.current.fitBounds(bounds, { padding: 40 });
     }
@@ -98,16 +113,19 @@ export function LoopMap(props: LoopMapProps) {
 
       {data &&
         <Map
+          reuseMaps
           ref={mapRef}
-          initialViewState={{
-            latitude: MAP_DEFAULT_STATE.latitude,
-            longitude: MAP_DEFAULT_STATE.longitude,
-            zoom: MAP_DEFAULT_STATE.zoom
-          }}
+          {...mapViewState}
+          // initialViewState={{
+          //   latitude: MAP_DEFAULT_STATE.latitude,
+          //   longitude: MAP_DEFAULT_STATE.longitude,
+          //   zoom: MAP_DEFAULT_STATE.zoom
+          // }}
           style={{width: 600, height: 400}}
           mapStyle={MAPBOX_STYLE}
           mapboxAccessToken={MAPBOX_TOKEN}
           onLoad={onMapLoad}
+          onMove={onMapMove}
         >
           <Source type="geojson" data={JSON.parse(data.geom_geojson)}>
             <Layer {...loopLayer} />
