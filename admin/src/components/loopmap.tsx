@@ -50,20 +50,15 @@ export function LoopMap(props: LoopMapProps) {
 
   // Get loop geometry from API
   const getLoopGeometry = async (id: string) => {
-    // console.log('getLoopGeometry');
     const response = await apiClient.get<any>("/trail_geometries/" + id);
-
     const geojson = JSON.parse(response.data.data.geom_geojson);
 
     const tmpBounds = new LngLatBounds();
-
     if (geojson.coordinates) {
       coordEach(geojson, function (coord) {
         tmpBounds.extend([coord[0], coord[1]]);
       });
       setBounds(bounds => tmpBounds);
-      // console.log('tmpBounds: ', tmpBounds);
-      // console.log('bounds: ', bounds);
     }
 
     return response.data.data;
@@ -76,8 +71,6 @@ export function LoopMap(props: LoopMapProps) {
 
   // Map onLoad event
   const onMapLoad = (event: MapboxEvent) => {
-    console.log('onMapLoad() bounds: ', bounds);
-    console.log('onMapLoad() mapViewState: ', mapViewState);
     // Fit map bounds to loop bounds
     if (mapRef.current) {
       mapRef.current.fitBounds(bounds, { padding: 40 });

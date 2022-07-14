@@ -5,7 +5,8 @@ import { Link, useParams } from "react-router-dom";
 import { Tabs, Table, Anchor, TextInput, Textarea, Checkbox, Button, Group, Box, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 
-import { LoopMap } from "../components/loopmap";
+import { LoopMap } from "../components/loopMap";
+import { LoopProfileChart } from "../components/loopProfileChart";
 
 type Loop = {
   id: number,
@@ -180,9 +181,6 @@ export function Loop() {
 
               <Tabs.Tab label="Directions">
 
-                <h3>Directions</h3>
-                <em>... Directions ...</em>
-
                 <h3>Stats</h3>
                 <span><strong>Distance:</strong></span> <span>{data.distancetext} ({data.distance_feet} ft)</span><br />
                 <span><strong>Hiking:</strong></span> <span>{data.durationtext_hike}</span><br />
@@ -190,7 +188,8 @@ export function Loop() {
                 <span><strong>Horseback:</strong></span> <span>{data.durationtext_bridle}</span><br />
 
                 <h3>Elevation Profile</h3>
-                <em>... Elevation profile ...</em>
+
+                <LoopProfileChart loopId={data.id} />
 
               </Tabs.Tab>
 
