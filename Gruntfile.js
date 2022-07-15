@@ -5,7 +5,7 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    local: grunt.file.readJSON('grunt-local-config.json'),
+    // local: grunt.file.readJSON('grunt-local-config.json'),
 
     /**
      *
