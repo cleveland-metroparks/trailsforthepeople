@@ -193,8 +193,14 @@ export function Marker() {
                 </Accordion.Item>
 
                 <Accordion.Item label="Authorship">
-                  <span><strong>Creator:</strong> {data.creator}</span><br />
-                  <span><strong>Created:</strong> {dayjs(data.created).format('YYYY-MM-DD HH:mm:ss Z')}</span><br />
+                  <div>
+                    <span><strong>Created:</strong> {dayjs(data.created).format('YYYY-MM-DD HH:mm:ss Z')}</span><br />
+                    <span><strong>Created by:</strong> {data.creator}</span>
+                  </div>
+                  <div>
+                    <span><strong>Last edited:</strong></span><br />
+                    <span><strong>Last edited by:</strong></span>
+                  </div>
                 </Accordion.Item>
 
               </Accordion>
