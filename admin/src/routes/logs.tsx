@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
-import { Table, Anchor } from '@mantine/core';
+import { Table, Anchor, Box, Pagination } from '@mantine/core';
 import { default as dayjs } from 'dayjs';
 
 type AuditLog = {
@@ -19,22 +20,19 @@ const apiClient = axios.create({
   },
 });
 
-const getAllAuditLogs = async () => {
-  const response = await apiClient.get<any>("/audit_logs");
-  return response.data.data;
-}
-
-//
-const getAuditLog = async (id: string) => {
-  const response = await apiClient.get<any>("/audit_logs/" + id);
-  return response.data.data;
-}
-
 //
 export function AuditLog() {
+  //
+  const getAuditLog = async (id: string) => {
+    const response = await apiClient.get<any>("/audit_logs/" + id);
+    return response.data.data;
+  }
+
   let params = useParams();
   let logId = params.logId ? params.logId.toString() : '';
+
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<AuditLog, Error>(['audit_log', params.logId], () => getAuditLog(logId));
+
   return (
     <div>
       <Anchor component={Link} to={`/logs`}>« Logs</Anchor>
@@ -60,7 +58,22 @@ export function AuditLog() {
 
 //
 export function AuditLogsList() {
-  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<AuditLog[], Error>('audit_logs', getAllAuditLogs);
+  //
+  const getAuditLogs = async (page: number) => {
+    const limit = 20;
+    const skip = (page - 1) * limit;
+    let requestPath = "/audit_logs?limit=" + limit;
+    if (skip > 0) {
+      requestPath += "&skip=" + skip;
+    }
+    const response = await apiClient.get<any>(requestPath);
+    return response.data.data;
+  }
+
+  const [page, setPage] = useState(1);
+
+  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<AuditLog[], Error>(['audit_logs', page], () => getAuditLogs(page), { keepPreviousData : true });
+
   return (
     <div>
       <h2>Logs</h2>
@@ -74,7 +87,6 @@ export function AuditLogsList() {
       <Table striped highlightOnHover>
         <thead>
           <tr>
-            <th>ID</th>
             <th>Timestamp</th>
             <th>IP address</th>
             <th>User</th>
@@ -86,7 +98,6 @@ export function AuditLogsList() {
         {data &&
           data.map(audit_log => (
             <tr key={audit_log.id}>
-              <td>{audit_log.id}</td>
               <td>
                 <Anchor
                   component={Link}
@@ -104,6 +115,10 @@ export function AuditLogsList() {
         </tbody>
 
       </Table>
+
+      <Box sx={{marginTop: '1em' }}>
+        <Pagination page={page} onChange={setPage} total={200} />
+      </Box>
 
     </div>
   );
