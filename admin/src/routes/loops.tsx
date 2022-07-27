@@ -44,7 +44,7 @@ const apiClient = axios.create({
 /**
  *
  */
-export function Loop() {
+export function LoopEdit() {
   let params = useParams();
   let loopId = params.loopId ? params.loopId.toString() : '';
 

@@ -21,7 +21,7 @@ const apiClient = axios.create({
 });
 
 //
-export function AuditLog() {
+export function AuditLogView() {
   //
   const getAuditLog = async (id: string) => {
     const response = await apiClient.get<any>("/audit_logs/" + id);

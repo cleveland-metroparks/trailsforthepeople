@@ -44,7 +44,7 @@ const apiClient = axios.create({
 });
 
 //
-export function Marker() {
+export function MarkerEdit() {
   const mapRef = useRef<MapRef>(null);
 
   // Get marker

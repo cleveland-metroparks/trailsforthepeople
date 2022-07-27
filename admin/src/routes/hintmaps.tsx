@@ -30,7 +30,7 @@ function formatMapsHintMapLink(id: number) {
 }
 
 //
-export function HintMap() {
+export function HintMapEdit() {
   let params = useParams();
   return (
     <div>

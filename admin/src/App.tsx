@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import { Link, Outlet } from "react-router-dom";
 import {
@@ -7,9 +6,6 @@ import {
   AppShell,
   Navbar,
   Header,
-  Footer,
-  Aside,
-  Text,
   MediaQuery,
   Burger,
   useMantineTheme,

@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
-import { Link, Outlet, useParams } from "react-router-dom";
 import { Map, Source, Layer, LineLayer } from 'react-map-gl';
 import type { MapRef, MapboxEvent, ViewStateChangeEvent } from 'react-map-gl';
 import { LngLatBounds } from 'mapbox-gl';

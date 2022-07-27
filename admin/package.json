@@ -2,6 +2,7 @@
   "name": "admin",
   "version": "0.1.0",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "@mantine/core": "^4.2.9",
     "@mantine/form": "^4.2.9",

@@ -7,10 +7,10 @@ import {
   Route,
 } from "react-router-dom";
 
-import { LoopsList, Loop } from "./routes/loops";
-import { MarkersList, Marker } from "./routes/markers";
-import { HintMapsList, HintMap } from "./routes/hintmaps";
-import { AuditLogsList, AuditLog } from "./routes/logs";
+import { LoopsList, LoopEdit } from "./routes/loops";
+import { MarkersList, MarkerEdit } from "./routes/markers";
+import { HintMapsList, HintMapEdit } from "./routes/hintmaps";
+import { AuditLogsList, AuditLogView } from "./routes/logs";
 
 import './index.css';
 
@@ -34,24 +34,24 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <BrowserRouter basename="/admin">
         <Routes>
           <Route path="/" element={<App />}>
             <Route path="loops">
               <Route index element={<LoopsList />} />
-              <Route path=":loopId" element={<Loop />} />
+              <Route path=":loopId" element={<LoopEdit />} />
             </Route>
             <Route path="markers">
               <Route index element={<MarkersList />} />
-              <Route path=":markerId" element={<Marker />} />
+              <Route path=":markerId" element={<MarkerEdit />} />
             </Route>
             <Route path="hintmaps">
               <Route index element={<HintMapsList />} />
-              <Route path=":hintmapId" element={<HintMap />} />
+              <Route path=":hintmapId" element={<HintMapEdit />} />
             </Route>
             <Route path="logs">
               <Route index element={<AuditLogsList />} />
-              <Route path=":logId" element={<AuditLog />} />
+              <Route path=":logId" element={<AuditLogView />} />
             </Route>
             <Route
               path="*"
