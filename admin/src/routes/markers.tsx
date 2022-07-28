@@ -8,7 +8,7 @@ import { default as dayjs } from 'dayjs';
 
 import * as MapGl from 'react-map-gl'; // Namespace as MapGl since we already have "Marker"
 import type { MapRef } from 'react-map-gl';
-import type { MarkerDragEvent, LngLat } from 'react-map-gl';
+import type { MarkerDragEvent } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN; // Specify in .env
@@ -61,7 +61,7 @@ export function MarkerEdit() {
       title: response.data.data.title,
       content: response.data.data.content,
       category: response.data.data.category,
-      enabled: response.data.data.enabled == 1
+      enabled: response.data.data.enabled === 1
     });
 
     return response.data.data;

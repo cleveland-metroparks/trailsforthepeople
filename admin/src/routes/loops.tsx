@@ -70,10 +70,10 @@ export function LoopEdit() {
     form.setValues({
       name: response.data.data.name,
       description: response.data.data.description,
-      hike: response.data.data.hike == "Yes",
-      bike: response.data.data.bike == "Yes",
-      mountainbike: response.data.data.mountainbike == "Yes",
-      bridle: response.data.data.bridle == "Yes"
+      hike: response.data.data.hike === "Yes",
+      bike: response.data.data.bike === "Yes",
+      mountainbike: response.data.data.mountainbike === "Yes",
+      bridle: response.data.data.bridle === "Yes"
     });
 
     return response.data.data;
