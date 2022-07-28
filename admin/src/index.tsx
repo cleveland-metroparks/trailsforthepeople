@@ -20,6 +20,8 @@ import reportWebVitals from './reportWebVitals';
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from 'react-query/devtools'
 
+let PATH = process.env.REACT_APP_ROOT_PATH;
+
 const queryClient = new QueryClient({
    defaultOptions: {
      queries: {
@@ -31,10 +33,11 @@ const queryClient = new QueryClient({
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter basename="/admin">
+      <BrowserRouter basename={PATH}>
         <Routes>
           <Route path="/" element={<App />}>
             <Route path="loops">
