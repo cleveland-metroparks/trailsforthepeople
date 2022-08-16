@@ -35,7 +35,7 @@ type Loop = {
 
 //
 const apiClient = axios.create({
-  baseURL: "https://maps-api-dev2.clevelandmetroparks.com/api/v1",
+  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
   headers: {
     "Content-type": "application/json",
   },

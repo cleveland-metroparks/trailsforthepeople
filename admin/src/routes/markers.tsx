@@ -11,7 +11,7 @@ import type { MapRef } from 'react-map-gl';
 import type { MarkerDragEvent } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN; // Specify in .env
+const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
 const MAPBOX_STYLE = 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
 const MAP_DEFAULT_STATE = {
   latitude: 41.3953,
@@ -37,7 +37,7 @@ type Marker = {
 };
 
 const apiClient = axios.create({
-  baseURL: "https://maps-api-dev2.clevelandmetroparks.com/api/v1",
+  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
   headers: {
     "Content-type": "application/json",
   },
