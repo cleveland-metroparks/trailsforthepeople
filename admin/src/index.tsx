@@ -38,6 +38,7 @@ root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter basename={PATH}>
+
         <Routes>
           <Route path="/" element={<App />}>
             <Route path="loops">
@@ -66,6 +67,7 @@ root.render(
             />
           </Route>
         </Routes>
+
       </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

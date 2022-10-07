@@ -229,6 +229,7 @@ export function MarkersList() {
   }
 
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Marker[], Error>('markers', getAllMarkers);
+
   return (
     <div>
       <h2>Markers</h2>
