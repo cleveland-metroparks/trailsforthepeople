@@ -1,12 +1,20 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
+
+import { Grid } from '@mantine/core';
+
+import { LngLatBounds } from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+
 import { Map, Source, Layer, LineLayer } from 'react-map-gl';
 import type { MapRef, MapboxEvent, ViewStateChangeEvent } from 'react-map-gl';
-import { LngLatBounds } from 'mapbox-gl';
-// import type { MapboxEvent } from 'mapbox-gl';
+
+import LoopWaypoints from "./loopWaypoints";
+import DrawControl from './draw-control';
+
 import { coordEach } from '@turf/meta';
-import 'mapbox-gl/dist/mapbox-gl.css';
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
 const MAPBOX_STYLE = 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
@@ -30,7 +38,12 @@ const apiClient = axios.create({
 });
 
 interface LoopMapProps {
-  loopId:  number;
+  loopId: number;
+}
+
+//
+function onWaypointUpdate(evt) {
+  console.log('Coordinates: ', evt.features[0].geometry.coordinates);
 }
 
 //
@@ -44,6 +57,34 @@ export function LoopMap(props: LoopMapProps) {
     latitude: MAP_DEFAULT_STATE.latitude,
     zoom: MAP_DEFAULT_STATE.zoom
   });
+
+  //-----------------
+  // For waypoints drawing
+  //
+  const [features, setFeatures] = useState({});
+
+  const onUpdate = useCallback(e => {
+    console.log('onUpdate()');
+    setFeatures(curFeatures => {
+      const newFeatures = {...curFeatures};
+      for (const f of e.features) {
+        newFeatures[f.id] = f;
+      }
+      return newFeatures;
+    });
+  }, []);
+
+  const onDelete = useCallback(e => {
+    console.log('onDelete()');
+    setFeatures(curFeatures => {
+      const newFeatures = {...curFeatures};
+      for (const f of e.features) {
+        delete newFeatures[f.id];
+      }
+      return newFeatures;
+    });
+  }, []);
+  //-----------------
 
   let loopId = props.loopId ? props.loopId.toString() : '';
 
@@ -104,25 +145,42 @@ export function LoopMap(props: LoopMapProps) {
       )}
 
       {data &&
-        <Map
-          reuseMaps
-          ref={mapRef}
-          {...mapViewState}
-          // initialViewState={{
-          //   latitude: MAP_DEFAULT_STATE.latitude,
-          //   longitude: MAP_DEFAULT_STATE.longitude,
-          //   zoom: MAP_DEFAULT_STATE.zoom
-          // }}
-          style={{width: 600, height: 400}}
-          mapStyle={MAPBOX_STYLE}
-          mapboxAccessToken={MAPBOX_TOKEN}
-          onLoad={onMapLoad}
-          onMove={onMapMove}
-        >
-          <Source type="geojson" data={JSON.parse(data.geom_geojson)}>
-            <Layer {...loopLayer} />
-          </Source>
-        </Map>
+        <>
+          <Grid>
+            <Grid.Col span={9}>
+              <Map
+                reuseMaps
+                ref={mapRef}
+                {...mapViewState}
+                style={{width: "100%", height: 400}}
+                mapStyle={MAPBOX_STYLE}
+                mapboxAccessToken={MAPBOX_TOKEN}
+                onLoad={onMapLoad}
+                onMove={onMapMove}
+              >
+                <Source type="geojson" data={JSON.parse(data.geom_geojson)}>
+                  <Layer {...loopLayer} />
+                </Source>
+                <DrawControl
+                  position="top-left"
+                  displayControlsDefault={false}
+                  controls={{
+                    line_string: true,
+                    trash: true
+                  }}
+                  defaultMode="draw_line_string"
+                  onCreate={onUpdate}
+                  onUpdate={onUpdate}
+                  onDelete={onDelete}
+                />
+              </Map>
+            </Grid.Col>
+
+            <Grid.Col span={3}>
+              <LoopWaypoints waypoints={features} />
+            </Grid.Col>
+          </Grid>
+        </>
       }
     </div>
   );
