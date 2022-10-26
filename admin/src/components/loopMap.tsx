@@ -78,33 +78,20 @@ export function LoopMap(props: LoopMapProps) {
   //----------------------------------
   // Waypoints Draw update callbcks
   //
-  const onInitial = useCallback(e => {
-    // console.log('onInitial()');
-    // console.log('e.features', e.features);
-    setFeatures(curFeatures => {
-      // console.log('curFeatures', curFeatures);
-      const newFeatures = {...curFeatures};
-      delete newFeatures.dummyKey;
-      // Add new
-      for (const f of e.features) {
-        newFeatures[f.id] = f;
-      }
-      // console.log('newFeatures', newFeatures);
-      return newFeatures;
-    });
-  }, []);
-
   const onCreate = useCallback(e => {
     // console.log('onCreate()');
     // console.log('e.features', e.features);
     setFeatures(curFeatures => {
       // console.log('curFeatures', curFeatures);
-      // @TODO: Probably do something similar to onInitial;
-      // clear out the previously existing one
-      // and use the new one... That might fix our "how to keep only one"
-      // issue. In that case we might be able to just remove onInitial()
-      // and do this at initialization too.
       const newFeatures = {...curFeatures};
+      // Delete existing features
+      for (const key of Object.keys(newFeatures)) {
+        delete newFeatures[key];
+      }
+      // Add new
+      for (const f of e.features) {
+        newFeatures[f.id] = f;
+      }
       // console.log('newFeatures', newFeatures);
       return newFeatures;
     });
@@ -230,7 +217,6 @@ export function LoopMap(props: LoopMapProps) {
                     // https://docs.mapbox.com/mapbox-gl-js/style-spec/
                   // ]}
                   defaultMode="draw_line_string"
-                  onInitial={onInitial}
                   onCreate={onCreate}
                   onUpdate={onUpdate}
                   onDelete={onDelete}

@@ -8,8 +8,6 @@ type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
 
   initialData?: any; // The geojson linestring feature to display initially
 
-  onInitial?: (evt: {features: object[]}) => void;
-
   onCreate?: (evt: {features: object[]}) => void;
   onUpdate?: (evt: {features: object[]; action: string}) => void;
   onDelete?: (evt: {features: object[]}) => void;
@@ -50,7 +48,7 @@ export default function DrawControl(props: DrawControlProps) {
               // console.log('drawFeatures', drawFeatures.features);
 
               // Initialize the Draw control with these features
-              props.onInitial(drawFeatures);
+              props.onCreate(drawFeatures);
             }
           }
         }
@@ -66,7 +64,6 @@ export default function DrawControl(props: DrawControlProps) {
 }
 
 DrawControl.defaultProps = {
-  onInitial: () => {},
   onCreate: () => {},
   onUpdate: () => {},
   onDelete: () => {}
