@@ -2,36 +2,12 @@ import { useState } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
-import { Tabs, Table, Anchor, TextInput, Textarea, Checkbox, Button, Group, Box, Select } from '@mantine/core';
+import { Title, Tabs, Table, Anchor, TextInput, Textarea, Checkbox, Button, Group, Box, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 
+import type { Loop } from "../types/loop";
 import { LoopMap } from "../components/loopMap";
 import { LoopProfileChart } from "../components/loopProfileChart";
-
-type Loop = {
-  id: number,
-  name: string,
-  res: string,
-  bike: string,
-  hike: string,
-  bridle: string,
-  mountainbike: string,
-  description: string,
-  distance_feet: number,
-  distancetext: string,
-  durationtext_hike: string,
-  durationtext_bike: string,
-  durationtext_bridle: string,
-  lat: number,
-  lng: number,
-  boxw: number,
-  boxs: number,
-  boxe: number,
-  boxn: number,
-  dest_id: number,
-  dd_lat: number,
-  dd_lng: number
-};
 
 //
 const apiClient = axios.create({
@@ -48,7 +24,7 @@ export function LoopEdit() {
   let params = useParams();
   let loopId = params.loopId ? params.loopId.toString() : '';
 
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(1);
 
   const form = useForm({
     initialValues: {
@@ -93,7 +69,7 @@ export function LoopEdit() {
 
       {data &&
         <div>
-          <h2>{data.name}</h2>
+          <Title order={2}>{data.name}</Title>
 
           <form onSubmit={form.onSubmit((values) => console.log(values))}>
 
@@ -175,7 +151,7 @@ export function LoopEdit() {
 
               <Tabs.Tab label="Route">
 
-                <LoopMap loopId={data.id} />
+                <LoopMap loop={data} />
 
               </Tabs.Tab>
 

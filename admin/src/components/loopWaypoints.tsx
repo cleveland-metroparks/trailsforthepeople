@@ -1,39 +1,53 @@
 import * as React from 'react';
 
-import { Table } from '@mantine/core';
+import { Table, Text, Title } from '@mantine/core';
+
+import { LngLat } from 'mapbox-gl';
+
+import { lineString } from '@turf/helpers';
 
 //
 //
 function LoopWaypoints(props) {
-  // console.log("LoopWaypoints() props:", props);
-  const key_id = Object.keys(props.waypoints)[0];
   let coordinates = [];
+  let coordsString = '';
 
+  // Mapbox GL Draw returns an object with a randomly-named member inside
+  // that stores the feature. Get that member name.
+  const key_id = Object.keys(props.waypoints)[0];
   if (key_id) {
     if (props.waypoints[key_id].geometry.coordinates) {
       coordinates = props.waypoints[key_id].geometry.coordinates;
+
+      // Turn into GeoJSON string for DB storage
+      const coordsLinestring = lineString(coordinates); // turf
+      coordsString = JSON.stringify(coordsLinestring);
     }
   }
 
   return (
-    <Table striped highlightOnHover>
-      <thead>
-        <tr>
-          <th>lat</th>
-          <th>lng</th>
-        </tr>
-      </thead>
-      <tbody>
-        {coordinates &&
-          coordinates.map((lat_lng, i) => (
-            <tr key={i}>
-              <td>{lat_lng[0].toFixed(5)}</td>
-              <td>{lat_lng[1].toFixed(5)}</td>
-            </tr>
-          ))
-        }
-      </tbody>
-    </Table>
+    <>
+      <Title order={4}>Waypoints</Title>
+      <Table striped highlightOnHover>
+        <thead>
+          <tr>
+            <th>lat</th>
+            <th>lng</th>
+          </tr>
+        </thead>
+        <tbody>
+          {coordinates &&
+            coordinates.map((lat_lng, i) => (
+              <tr key={i}>
+                <td>{lat_lng[0].toFixed(5)}</td>
+                <td>{lat_lng[1].toFixed(5)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </Table>
+      {/* <Text size="sm" sx={{marginTop: '1em'}}>{coordsString}</Text> */}
+    </>
   );
 }
 

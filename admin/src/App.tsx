@@ -17,9 +17,10 @@ function App() {
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
   const [token, setToken] = useState(null);
-  console.log("Bearer access token:", token);
+  // console.log("Bearer access token:", token);
 
-  if (!token) {
+  // if (!token) {
+  if (false) {
     return (
       <AppShell
           padding="md"
@@ -35,7 +36,9 @@ function App() {
           }
 
           styles={(theme) => ({
-            main: { backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : '' },
+            main: {
+              backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : ''
+            },
           })}
         >
 
@@ -76,7 +79,9 @@ function App() {
         }
 
         styles={(theme) => ({
-          main: { backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : '' },
+          main: {
+            backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : '',
+          },
         })}
       >
 

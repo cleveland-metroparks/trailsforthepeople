@@ -16,6 +16,8 @@ import DrawControl from './draw-control';
 
 import { coordEach } from '@turf/meta';
 
+import type { Loop } from "../types/loop";
+
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
 const MAPBOX_STYLE = 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
 const MAP_DEFAULT_STATE = {
@@ -38,16 +40,31 @@ const apiClient = axios.create({
 });
 
 interface LoopMapProps {
-  loopId: number;
-}
-
-//
-function onWaypointUpdate(evt) {
-  console.log('Coordinates: ', evt.features[0].geometry.coordinates);
+  loop: Loop;
 }
 
 //
 export function LoopMap(props: LoopMapProps) {
+  // Existing waypoint coordinates as GeoJSON string, from database
+  const initialWaypointsStr = props.loop.waypoints_geojson;
+  let initialWaypointsFeature = JSON.parse(initialWaypointsStr);
+  // Filter out the zero entries; a vestige of the way we used to store waypoints in the DB
+  let filteredCoords = Array;
+  if (initialWaypointsFeature.geometry.coordinates) {
+    const initialCoords = initialWaypointsFeature.geometry.coordinates
+    filteredCoords = initialCoords.filter(function(coordinate, index, arr) {
+      return ((coordinate[0] != 0) && (coordinate[1] != 0));
+    });
+    initialWaypointsFeature.geometry.coordinates = filteredCoords;
+  }
+  // Mapbox GL JS Draw returns a feature object keyed by a randomly generated ID
+  // for each linestring inside the object. We re-parent our feature with our own
+  // dummy ID to resemble the structure:
+  const reparentedInitialWaypointsFeature = { dummyKey: initialWaypointsFeature };
+  // console.log('reparentedInitialWaypointsFeature', reparentedInitialWaypointsFeature); // @TODO This gets called over and over...
+
+  const [features, setFeatures] = useState(reparentedInitialWaypointsFeature);
+
   const mapRef = useRef<MapRef>(null);
 
   const [bounds, setBounds] = useState(new LngLatBounds());
@@ -58,35 +75,71 @@ export function LoopMap(props: LoopMapProps) {
     zoom: MAP_DEFAULT_STATE.zoom
   });
 
-  //-----------------
-  // For waypoints drawing
+  //----------------------------------
+  // Waypoints Draw update callbcks
   //
-  const [features, setFeatures] = useState({});
+  const onInitial = useCallback(e => {
+    // console.log('onInitial()');
+    // console.log('e.features', e.features);
+    setFeatures(curFeatures => {
+      // console.log('curFeatures', curFeatures);
+      const newFeatures = {...curFeatures};
+      delete newFeatures.dummyKey;
+      // Add new
+      for (const f of e.features) {
+        newFeatures[f.id] = f;
+      }
+      // console.log('newFeatures', newFeatures);
+      return newFeatures;
+    });
+  }, []);
+
+  const onCreate = useCallback(e => {
+    // console.log('onCreate()');
+    // console.log('e.features', e.features);
+    setFeatures(curFeatures => {
+      // console.log('curFeatures', curFeatures);
+      // @TODO: Probably do something similar to onInitial;
+      // clear out the previously existing one
+      // and use the new one... That might fix our "how to keep only one"
+      // issue. In that case we might be able to just remove onInitial()
+      // and do this at initialization too.
+      const newFeatures = {...curFeatures};
+      // console.log('newFeatures', newFeatures);
+      return newFeatures;
+    });
+  }, []);
 
   const onUpdate = useCallback(e => {
-    console.log('onUpdate()');
+    // console.log('onUpdate()');
+    // console.log('e.features', e.features);
     setFeatures(curFeatures => {
+      // console.log('curFeatures', curFeatures);
       const newFeatures = {...curFeatures};
       for (const f of e.features) {
         newFeatures[f.id] = f;
       }
+      // console.log('newFeatures', newFeatures);
       return newFeatures;
     });
   }, []);
 
   const onDelete = useCallback(e => {
-    console.log('onDelete()');
+    // console.log('onDelete()');
+    // console.log('e.features', e.features);
     setFeatures(curFeatures => {
+      // console.log('curFeatures', curFeatures);
       const newFeatures = {...curFeatures};
       for (const f of e.features) {
         delete newFeatures[f.id];
       }
+      // console.log('newFeatures', newFeatures);
       return newFeatures;
     });
   }, []);
-  //-----------------
+  //----------------------------------
 
-  let loopId = props.loopId ? props.loopId.toString() : '';
+  let loopId = props.loop.id ? props.loop.id.toString() : '';
 
   // Get loop geometry from API
   const getLoopGeometry = async (id: string) => {
@@ -152,7 +205,7 @@ export function LoopMap(props: LoopMapProps) {
                 reuseMaps
                 ref={mapRef}
                 {...mapViewState}
-                style={{width: "100%", height: 400}}
+                style={{width: "100%", height: 600}}
                 mapStyle={MAPBOX_STYLE}
                 mapboxAccessToken={MAPBOX_TOKEN}
                 onLoad={onMapLoad}
@@ -168,8 +221,17 @@ export function LoopMap(props: LoopMapProps) {
                     line_string: true,
                     trash: true
                   }}
+                  initialData={{
+                    waypoints: features
+                  }}
+                  // styles={[
+                    // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/EXAMPLES.md
+                    // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md#styling-draw
+                    // https://docs.mapbox.com/mapbox-gl-js/style-spec/
+                  // ]}
                   defaultMode="draw_line_string"
-                  onCreate={onUpdate}
+                  onInitial={onInitial}
+                  onCreate={onCreate}
                   onUpdate={onUpdate}
                   onDelete={onDelete}
                 />
