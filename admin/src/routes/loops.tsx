@@ -2,8 +2,10 @@ import { useState } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
-import { Title, Tabs, Table, Anchor, TextInput, Textarea, Checkbox, Button, Group, Box, Select } from '@mantine/core';
+
+import { Title, Tabs, Table, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { RichTextEditor } from '@mantine/rte';
 
 import type { Loop } from "../types/loop";
 import { LoopMap } from "../components/loopMap";
@@ -120,13 +122,23 @@ export function LoopEdit() {
                     />
                   </Box>
 
-                  <Textarea
-                    mt="md"
-                    required
+                  <Input.Wrapper
                     label="Description"
-                    placeholder=""
-                    {...form.getInputProps('description')}
-                  />
+                    withAsterisk
+                    sx={{marginTop: '1em'}}
+                  >
+                    <RichTextEditor
+                      id="rte"
+                      required
+                      {...form.getInputProps('description')}
+                      controls={[
+                        ['bold', 'italic', 'underline'],
+                        ['link'],
+                        ['sup', 'sub'],
+                        ['unorderedList', 'orderedList'],
+                      ]}
+                    />
+                  </Input.Wrapper>
 
                   <Group>
                     <Checkbox

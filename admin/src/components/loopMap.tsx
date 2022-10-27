@@ -79,7 +79,7 @@ export function LoopMap(props: LoopMapProps) {
   // Waypoints Draw update callbcks
   //
   const onCreate = useCallback(e => {
-    // console.log('onCreate()');
+    console.log('onCreate()');
     // console.log('e.features', e.features);
     setFeatures(curFeatures => {
       // console.log('curFeatures', curFeatures);
@@ -98,7 +98,7 @@ export function LoopMap(props: LoopMapProps) {
   }, []);
 
   const onUpdate = useCallback(e => {
-    // console.log('onUpdate()');
+    console.log('onUpdate()');
     // console.log('e.features', e.features);
     setFeatures(curFeatures => {
       // console.log('curFeatures', curFeatures);
@@ -106,13 +106,13 @@ export function LoopMap(props: LoopMapProps) {
       for (const f of e.features) {
         newFeatures[f.id] = f;
       }
-      // console.log('newFeatures', newFeatures);
+      console.log('newFeatures', newFeatures);
       return newFeatures;
     });
   }, []);
 
   const onDelete = useCallback(e => {
-    // console.log('onDelete()');
+    console.log('onDelete()');
     // console.log('e.features', e.features);
     setFeatures(curFeatures => {
       // console.log('curFeatures', curFeatures);

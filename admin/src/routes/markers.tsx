@@ -2,8 +2,11 @@ import { useState, useCallback, useRef } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
-import { Table, Anchor, Box, TextInput, Textarea, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
+
+import { Table, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
+import { RichTextEditor } from '@mantine/rte';
+
 import { default as dayjs } from 'dayjs';
 
 import * as MapGl from 'react-map-gl'; // Namespace as MapGl since we already have "Marker"
@@ -132,13 +135,26 @@ export function MarkerEdit() {
                 {...form.getInputProps('title')}
               />
 
-              <Textarea
-                mt="md"
-                required
+              <Input.Wrapper
                 label="Content"
-                placeholder=""
-                {...form.getInputProps('content')}
-              />
+                withAsterisk
+                sx={{marginTop: '1em'}}
+              >
+                <RichTextEditor
+                  id="rte"
+                  required
+                  {...form.getInputProps('content')}
+                  controls={[
+                    ['bold', 'strike', 'italic', 'underline'],
+                    ['clean'],
+                    ['link'],
+                    ['blockquote'],
+                    ['sup', 'sub'],
+                    ['video'],
+                    ['unorderedList', 'orderedList'],
+                  ]}
+                />
+              </Input.Wrapper>
 
               <Box sx={{marginTop: '1em'}}>
                 <Select
