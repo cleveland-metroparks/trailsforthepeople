@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Table, Text, Title } from '@mantine/core';
+import { Table, Text, Title, Code } from '@mantine/core';
 
 import { LngLat } from 'mapbox-gl';
 
@@ -27,8 +27,8 @@ function LoopWaypoints(props) {
 
   return (
     <>
-      <Title order={4}>Waypoints</Title>
-      <Table striped highlightOnHover>
+      <Title order={4} sx={{marginTop: '1em'}}>Waypoints</Title>
+      <Table striped highlightOnHover sx={{marginTop: '1em'}}>
         <thead>
           <tr>
             <th>lat</th>
@@ -46,7 +46,9 @@ function LoopWaypoints(props) {
           }
         </tbody>
       </Table>
-      {/* <Text size="sm" sx={{marginTop: '1em'}}>{coordsString}</Text> */}
+      <Text size="sm" sx={{marginTop: '1em'}}>
+        <Code color="blue">{coordsString}</Code>
+      </Text>
     </>
   );
 }
