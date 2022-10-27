@@ -24,7 +24,7 @@ export function LoopEdit() {
   let params = useParams();
   let loopId = params.loopId ? params.loopId.toString() : '';
 
-  const [activeTab, setActiveTab] = useState(1);
+  const [activeTab, setActiveTab] = useState("route");
 
   const form = useForm({
     initialValues: {
@@ -73,9 +73,15 @@ export function LoopEdit() {
 
           <form onSubmit={form.onSubmit((values) => console.log(values))}>
 
-            <Tabs active={activeTab} onTabChange={setActiveTab} tabPadding="xl">
+            <Tabs defaultValue={activeTab} onTabChange={setActiveTab}>
 
-              <Tabs.Tab label="General">
+              <Tabs.List>
+                <Tabs.Tab value="general">General</Tabs.Tab>
+                <Tabs.Tab value="route">Route</Tabs.Tab>
+                <Tabs.Tab value="directions">Directions</Tabs.Tab>
+              </Tabs.List>
+
+              <Tabs.Panel value="general">
 
                 <Box sx={{ maxWidth: 800 }}>
 
@@ -147,15 +153,15 @@ export function LoopEdit() {
 
                 </Box>
 
-              </Tabs.Tab>
+              </Tabs.Panel>
 
-              <Tabs.Tab label="Route">
+              <Tabs.Panel value="route">
 
                 <LoopMap loop={data} />
 
-              </Tabs.Tab>
+              </Tabs.Panel>
 
-              <Tabs.Tab label="Directions">
+              <Tabs.Panel value="directions">
 
                 <h3>Stats</h3>
                 <span><strong>Distance:</strong></span> <span>{data.distancetext} ({data.distance_feet} ft)</span><br />
@@ -167,7 +173,7 @@ export function LoopEdit() {
 
                 <LoopProfileChart loopId={data.id} />
 
-              </Tabs.Tab>
+              </Tabs.Panel>
 
             </Tabs>
 

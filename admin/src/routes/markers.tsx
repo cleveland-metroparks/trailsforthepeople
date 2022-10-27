@@ -181,26 +181,32 @@ export function MarkerEdit() {
               </Box>
 
               <Accordion>
-                <Accordion.Item label="Publishing status">
-                  <span><strong>Start date:</strong> {data.startdate ? dayjs(data.startdate).format('YYYY-MM-DD HH:mm:ss Z') : ''}</span><br />
-                  <span><strong>Expires:</strong> {data.expires ? dayjs(data.expires).format('YYYY-MM-DD HH:mm:ss Z') : <em>none</em>}</span><br />
-                  <span><strong>Annual:</strong> {data.annual}</span><br />
-                  <Checkbox
-                    mt="md"
-                    label="Enabled"
-                    {...form.getInputProps('enabled', { type: 'checkbox' })}
-                  />
+                <Accordion.Item value="publishing">
+                  <Accordion.Control>Publishing status</Accordion.Control>
+                  <Accordion.Panel>
+                    <span><strong>Start date:</strong> {data.startdate ? dayjs(data.startdate).format('YYYY-MM-DD HH:mm:ss Z') : ''}</span><br />
+                    <span><strong>Expires:</strong> {data.expires ? dayjs(data.expires).format('YYYY-MM-DD HH:mm:ss Z') : <em>none</em>}</span><br />
+                    <span><strong>Annual:</strong> {data.annual}</span><br />
+                    <Checkbox
+                      mt="md"
+                      label="Enabled"
+                      {...form.getInputProps('enabled', { type: 'checkbox' })}
+                    />
+                  </Accordion.Panel>
                 </Accordion.Item>
 
-                <Accordion.Item label="Authorship">
-                  <div>
-                    <span><strong>Created:</strong> {dayjs(data.created).format('YYYY-MM-DD HH:mm:ss Z')}</span><br />
-                    <span><strong>Created by:</strong> {data.creator}</span>
-                  </div>
-                  <div>
-                    <span><strong>Last edited:</strong></span><br />
-                    <span><strong>Last edited by:</strong></span>
-                  </div>
+                <Accordion.Item value="authorship">
+                  <Accordion.Control>Publishing status</Accordion.Control>
+                  <Accordion.Panel>
+                    <div>
+                      <span><strong>Created:</strong> {dayjs(data.created).format('YYYY-MM-DD HH:mm:ss Z')}</span><br />
+                      <span><strong>Created by:</strong> {data.creator}</span>
+                    </div>
+                    <div>
+                      <span><strong>Last edited:</strong></span><br />
+                      <span><strong>Last edited by:</strong></span>
+                    </div>
+                  </Accordion.Panel>
                 </Accordion.Item>
 
               </Accordion>
