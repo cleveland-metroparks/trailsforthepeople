@@ -71,11 +71,11 @@ export function LoopEdit() {
 
       {data &&
         <div>
-          <Title order={2}>{data.name}</Title>
+          <Title order={2} sx={{marginTop: '1em'}}>{data.name}</Title>
 
           <form onSubmit={form.onSubmit((values) => console.log(values))}>
 
-            <Tabs defaultValue={activeTab} onTabChange={setActiveTab}>
+            <Tabs defaultValue={activeTab} onTabChange={setActiveTab} sx={{marginTop: '1em'}}>
 
               <Tabs.List>
                 <Tabs.Tab value="general">General</Tabs.Tab>
