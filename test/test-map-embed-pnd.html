@@ -38,24 +38,6 @@
     <script type="text/javascript">
         const projectDataGeoJsonUrl = '/test/pnd-markers.geojson';
 
-        // function setMarker(item, index, arr) {
-        //     const coords = item.geometry.coordinates;
-        //     const popupHtml =
-        //         '<h4>' + item.properties['Project'] + '</h4>' +
-        //         '<p>' + item.properties['Project Type'] + '<br>' +
-        //         '<a href="' + item.properties['Project Page Link'] + '">More info</a>' + '</p>';
-        //     const popup = new mapboxgl.Popup({
-        //             // className: 'my-class'
-        //         })
-        //         .setHTML(popupHtml)
-        //     const marker = new mapboxgl.Marker({
-        //             color: marker_color[item.properties['Map Class']]
-        //         })
-        //         .setPopup(popup)
-        //         .setLngLat(coords)
-        //         .addTo(MAP);
-        // }
-
         const markerClasses = [
             {
                 id: 'reservation',
@@ -95,15 +77,22 @@
         $(document).on("mapInitialized", function () {
             MAP.on('load', () => {
 
-                // $.getJSON(projectDataGeoJsonUrl, function(data) {
-                //     data.features.forEach(setMarker);
-                // });
-
                 markerClasses.forEach((item, index, arr) => {
                     const sourceId = 'source-' + item.id;
-                    const layerId = 'layer-' + item.id;
+                    const markerLayerId = 'layer-' + item.id;
+                    const clusterLayerId = 'layer-cluster-' + item.id;
+                    const clusterCountLayerId = 'layer-cluster-count-' + item.id;
 
-                    // Map data source for this class of markers
+                    /**
+                     * Map data source for this class of markers, with point clustering.
+                     *
+                     * We make a separate data source for each layer
+                     * in order to cluster per layer.
+                     *
+                     * Mapbox GL JS clustering examples:
+                     * - https://docs.mapbox.com/mapbox-gl-js/example/cluster/
+                     * - https://docs.mapbox.com/mapbox-gl-js/example/cluster-html/
+                     */
                     MAP.addSource(sourceId, {
                         type: 'geojson',
                         data: projectDataGeoJsonUrl,
@@ -111,14 +100,11 @@
                         cluster: true,
                         clusterMinPoints: 2,
                         clusterMaxZoom: 9,
-                        // clusterRadius: 10
                     });
-
-                    // console.log('source:', MAP.getSource(sourceId));
 
                     // Map layer for this class of markers
                     MAP.addLayer({
-                        id: layerId,
+                        id: markerLayerId,
                         type: 'circle',
                         source: sourceId,
                         // filter: ['==', ['get', 'Map Class'], item.text],
@@ -131,7 +117,7 @@
                     });
 
                     MAP.addLayer({
-                        id: 'layer-cluster-' + item.id,
+                        id: clusterLayerId,
                         type: 'circle',
                         source: sourceId,
                         filter: ['has', 'point_count'],
@@ -140,34 +126,41 @@
                             'circle-color': item.color,
                             'circle-radius': [
                                 'step', // Step expression
-                                        // https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step
+                                        // - https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step
                                 ['get', 'point_count'],
-                                15, //   * 15px circles when point count is < 2
+                                12, //   * 12px circles when point count is < 2
                                 2,
-                                20, //   * 20px circles when point count is between 2 and 4
+                                16, //   * 16px circles when point count is between 2 and 4
                                 4,
-                                25  //   * 25px circles when point count is >= 4
+                                20  //   * 20px circles when point count is >= 4
                             ]
                         }
                     });
 
                     MAP.addLayer({
-                        id: 'cluster-count-' + item.id,
+                        id: clusterCountLayerId,
                         type: 'symbol',
                         source: sourceId,
                         filter: ['has', 'point_count'],
                         layout: {
-                            // 'text-field': '{point_count_abbreviated}',
                             'text-field': '{point_count}',
                             'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-                            'text-size': 18
+                            'text-size': 16
                         },
                         paint: {
                             'text-color': 'white'
                         }
                     });
 
-                    MAP.on('click', layerId, (e) => {
+                    // Change the cursor to a pointer when hovering over individual markers
+                    MAP.on('mousemove', markerLayerId, (event) => {
+                        MAP.getCanvas().style.cursor = 'pointer';
+                    });
+                    MAP.on('mouseleave', markerLayerId, () => {
+                        MAP.getCanvas().style.cursor = ''; // Reset
+                    });
+
+                    MAP.on('click', markerLayerId, (e) => {
                         const coordinates = e.features[0].geometry.coordinates.slice();
                         const project = {
                             name: e.features[0].properties['Project'],
@@ -176,9 +169,9 @@
                         }
 
                         const popupHtml =
-                            '<h4 class="project-name">' + project.name + '</h4>' +
-                            '<div class="project-type">' + project.type + '</div>' +
-                            '<div class="project-link"><a href="' + project.link + '">More info</a></div>';
+                            '<h2 class="project-name">' + project.name + '</h2>' +
+                            '<p class="project-type">' + project.type + '</p>' +
+                            '<p class="project-link"><a class="project-link"><a href="' + project.link + '">More info</a></p>';
 
                         // Ensure that if the map is zoomed out such that
                         // multiple copies of the feature are visible, the
