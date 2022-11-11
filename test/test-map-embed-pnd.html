@@ -151,6 +151,22 @@
                         }
                     });
 
+                    MAP.addLayer({
+                        id: 'cluster-count-' + item.id,
+                        type: 'symbol',
+                        source: sourceId,
+                        filter: ['has', 'point_count'],
+                        layout: {
+                            // 'text-field': '{point_count_abbreviated}',
+                            'text-field': '{point_count}',
+                            'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+                            'text-size': 18
+                        },
+                        paint: {
+                            'text-color': 'white'
+                        }
+                    });
+
                     MAP.on('click', layerId, (e) => {
                         const coordinates = e.features[0].geometry.coordinates.slice();
                         const project = {
