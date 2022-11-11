@@ -107,19 +107,22 @@
                     MAP.addSource(sourceId, {
                         type: 'geojson',
                         data: projectDataGeoJsonUrl,
-                        // cluster: true,
-                        // clusterMinPoints: 2,
-                        // clusterMaxZoom: 9,
+                        filter: ['==', ['get', 'Map Class'], item.text],
+                        cluster: true,
+                        clusterMinPoints: 2,
+                        clusterMaxZoom: 9,
                         // clusterRadius: 10
                     });
 
+                    // console.log('source:', MAP.getSource(sourceId));
+
                     // Map layer for this class of markers
                     MAP.addLayer({
-                        'id': layerId,
-                        'type': 'circle',
-                        'source': sourceId,
-                        'filter': ['==', 'Map Class', item.text],
-                        'paint': {
+                        id: layerId,
+                        type: 'circle',
+                        source: sourceId,
+                        // filter: ['==', ['get', 'Map Class'], item.text],
+                        paint: {
                             'circle-radius': 8,
                             'circle-stroke-width': 1,
                             'circle-color': item.color,
@@ -127,25 +130,26 @@
                         }
                     });
 
-                    // MAP.addLayer({
-                    //     id: 'layer-cluster-' + item.id,
-                    //     type: 'circle',
-                    //     source: sourceId,
-                    //     filter: ['all', ['has', 'point_count'], ['==', 'Map Class', item.text]],
-                    //     paint: {
-                    //         'circle-color': item.color,
-                    //         'circle-radius': [
-                    //             'step', // Step expression
-                    //                     // https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step
-                    //             ['get', 'point_count'],
-                    //             15, //   * 15px circles when point count is < 2
-                    //             2,
-                    //             20, //   * 20px circles when point count is between 2 and 4
-                    //             4,
-                    //             25  //   * 25px circles when point count is >= 4
-                    //         ]
-                    //     }
-                    // });
+                    MAP.addLayer({
+                        id: 'layer-cluster-' + item.id,
+                        type: 'circle',
+                        source: sourceId,
+                        filter: ['has', 'point_count'],
+                        // filter: ['all', ['has', 'point_count'], ['==', ['get', 'Map Class'], item.text]],
+                        paint: {
+                            'circle-color': item.color,
+                            'circle-radius': [
+                                'step', // Step expression
+                                        // https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step
+                                ['get', 'point_count'],
+                                15, //   * 15px circles when point count is < 2
+                                2,
+                                20, //   * 20px circles when point count is between 2 and 4
+                                4,
+                                25  //   * 25px circles when point count is >= 4
+                            ]
+                        }
+                    });
 
                     MAP.on('click', layerId, (e) => {
                         const coordinates = e.features[0].geometry.coordinates.slice();
