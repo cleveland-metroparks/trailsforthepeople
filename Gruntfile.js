@@ -139,6 +139,12 @@ module.exports = function(grunt) {
           'static/dist/js/map-embedded-visit.min.js': ['static/src/js/embedded-visit.js']
         }
       },
+      // For map embed on Planning & Design (Capital Projects) page:
+      embedded_pnd: {
+        files: {
+          'static/dist/js/map-embedded-pnd.min.js': ['static/src/js/embedded-pnd.js']
+        }
+      },
       // For map embed of beach closures:
       embedded_beach_closures: {
         files: {
@@ -292,6 +298,12 @@ module.exports = function(grunt) {
       //  ],
       //  tasks: ['terser:embedded_visit']
       //},
+      //terser_embedded_pnd: {
+      //  files: [
+      //    'static/src/js/embedded-pnd.js'
+      //  ],
+      //  tasks: ['terser:embedded_pnd']
+      //},
       //terser_embedded_beach_closures: {
       //  files: [
       //    'static/src/js/embedded-beach_closures.js'
@@ -322,6 +334,7 @@ module.exports = function(grunt) {
     'terser:embedded_base',
     'terser:embedded_base_nojq',
     'terser:embedded_visit',
+    'terser:embedded_pnd',
     'terser:embedded_beach_closures',
 
     'sass:embedded'

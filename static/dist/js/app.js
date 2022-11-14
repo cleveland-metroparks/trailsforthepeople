@@ -11,7 +11,7 @@
 ///// for Admin and Contributors maps, see admin.js and contributors.js
 
 // How we get to our app's base files and to the API.
-// These change to remote URLs web-embedded scenarios.
+// These change to remote URLs in main-site embedded maps.
 // @TODO: Put these into a local config so we can handle non-root basedirs.
 var WEBAPP_BASEPATH = '/';
 var API_BASEPATH = '/';
