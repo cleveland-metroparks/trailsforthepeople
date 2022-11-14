@@ -90,7 +90,7 @@ $(document).on("mapInitialized", function () {
                 id: markerLayerId,
                 type: 'circle',
                 source: sourceId,
-                // filter: ['==', ['get', 'Map Class'], item.text],
+                filter: ['!has', 'point_count'],
                 paint: {
                     'circle-radius': 8,
                     'circle-stroke-width': 1,
