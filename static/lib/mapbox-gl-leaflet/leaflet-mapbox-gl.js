@@ -18,7 +18,9 @@
             padding: 0.1,
             // whether or not to register the mouse and keyboard
             // events on the mapbox overlay
-            interactive: false
+            interactive: false,
+            // set the tilepane as the default pane to draw gl tiles
+            pane: 'tilePane'
         },
 
         initialize: function (options) {
@@ -26,8 +28,6 @@
 
             if (options.accessToken) {
                 mapboxgl.accessToken = options.accessToken;
-            } else {
-                throw new Error('You should provide a Mapbox GL access token as a token option.');
             }
 
             // setup throttling the update event when panning
@@ -39,8 +39,9 @@
                 this._initContainer();
             }
 
-            this.getPane().appendChild(this._container);
-
+            var paneName = this.getPaneName();
+            map.getPane(paneName).appendChild(this._container);
+            
             this._initGL();
 
             this._offset = this._map.containerPointToLayerPoint([0, 0]);
@@ -55,10 +56,8 @@
             if (this._map._proxy && this._map.options.zoomAnimation) {
                 L.DomEvent.off(this._map._proxy, L.DomUtil.TRANSITION_END, this._transitionEnd, this);
             }
-
-            this.getPane().removeChild(this._container);
-            this._glMap.remove();
-            this._glMap = null;
+            var paneName = this.getPaneName();
+            map.getPane(paneName).removeChild(this._container);
         },
 
         getEvents: function () {
@@ -67,7 +66,8 @@
                 zoomanim: this._animateZoom, // applys the zoom animation to the <canvas>
                 zoom: this._pinchZoom, // animate every zoom event for smoother pinch-zooming
                 zoomstart: this._zoomStart, // flag starting a zoom to disable panning
-                zoomend: this._zoomEnd
+                zoomend: this._zoomEnd,
+                resize: this._resize
             };
         },
 
@@ -95,7 +95,12 @@
         getContainer: function () {
             return this._container;
         },
-
+        
+        // returns the pane name set in options if it is a valid pane, defaults to tilePane
+        getPaneName: function () {
+            return this._map.getPane(this.options.pane) ? this.options.pane : 'tilePane'; 
+        },
+        
         _initContainer: function () {
             var container = this._container = L.DomUtil.create('div', 'leaflet-gl-layer');
 
@@ -119,10 +124,15 @@
                 attributionControl: false
             });
 
-            this._glMap = new mapboxgl.Map(options);
+            if (!this._glMap) this._glMap = new mapboxgl.Map(options);
+            else {
+                this._glMap.setCenter(options.center);
+                this._glMap.setZoom(options.zoom);
+            }
 
             // allow GL base map to pan beyond min/max latitudes
             this._glMap.transform.latRange = null;
+            this._transformGL(this._glMap);
 
             if (this._glMap._canvas.canvas) {
                 // older versions of mapbox-gl surfaced the canvas differently
@@ -159,14 +169,7 @@
 
             L.DomUtil.setPosition(container, topLeft);
 
-            var center = this._map.getCenter();
-
-            // gl.setView([center.lat, center.lng], this._map.getZoom() - 1, 0);
-            // calling setView directly causes sync issues because it uses requestAnimFrame
-
-            var tr = gl.transform;
-            tr.center = mapboxgl.LngLat.convert([center.lng, center.lat]);
-            tr.zoom = this._map.getZoom() - 1;
+            this._transformGL(gl);
 
             if (gl.transform.width !== size.x || gl.transform.height !== size.y) {
                 container.style.width  = size.x + 'px';
@@ -184,6 +187,17 @@
                     gl.update();
                 }
             }
+        },
+
+        _transformGL: function (gl) {
+            var center = this._map.getCenter();
+
+            // gl.setView([center.lat, center.lng], this._map.getZoom() - 1, 0);
+            // calling setView directly causes sync issues because it uses requestAnimFrame
+
+            var tr = gl.transform;
+            tr.center = mapboxgl.LngLat.convert([center.lng, center.lat]);
+            tr.zoom = this._map.getZoom() - 1;
         },
 
         // update the map constantly during a pinch zoom
@@ -221,16 +235,12 @@
         },
 
         _zoomEnd: function () {
-            var scale = this._map.getZoomScale(this._map.getZoom()),
-                offset = this._map._latLngToNewLayerPoint(
-                    this._map.getBounds().getNorthWest(),
-                    this._map.getZoom(),
-                    this._map.getCenter()
-                );
+            var scale = this._map.getZoomScale(this._map.getZoom());
 
             L.DomUtil.setTransform(
                 this._glMap._actualCanvas,
-                offset.subtract(this._offset),
+                // https://github.com/mapbox/mapbox-gl-leaflet/pull/130
+                null,
                 scale
             );
 
@@ -261,6 +271,10 @@
                     zoom: zoom - 1
                 });
             }, this);
+        },
+
+        _resize: function (e) {
+            this._transitionEnd(e);
         }
     });
 
