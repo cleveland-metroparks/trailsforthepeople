@@ -6,10 +6,49 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.0.15] - 2021-05-29
+
+- remember GL map when removed and readded to avoid creating a new SKU token - #138 :pray: @vcoppe :pray:
+
+### Fixed
+
+- fix gl offset issue in low zoom level
+
+## [0.0.14] - 2020-11-24
+
+### Fixed
+
+- fix gl offset issue in low zoom level
+
+## [0.0.13] - 2020-08-31
+
+### Added
+-  `.getPaneName()` method
+
+### Fixed
+- Allow gl tiles to be added to a custom pane defined in options
+
+## [0.0.12] - 2020-03-27
+
+### Fixed
+
+- `accessToken` is now optional
+
+## [0.0.11] - 2019-11-04
+
+### Fixed
+
+- ensure gl map is added to leaflet TilePane
+
 ## [0.0.10] - 2019-09-16
 
- - added `.getContainer()`, `.getSize()`, `getBounds()` and `getCanvas()` methods.
- - internal code changes to bring it closer to other overlay layers.
+## Added
+
+- `.getContainer()`, `.getSize()`, `getBounds()` and `getCanvas()` methods.
+
+## Fixed
+
+- internal code changes to bring it closer to other overlay layers.
 
 ## [0.0.9] - 2019-09-02
 
@@ -70,7 +109,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Compatibility release for Leaflet `v0.7.x`
 
-[Unreleased]: https://github.com/mapbox/mapbox-gl-leaflet/compare/v0.0.7...HEAD
+[Unreleased]: https://github.com/mapbox/mapbox-gl-leaflet/compare/v0.0.15...HEAD
+[0.0.15]: https://github.com/mapbox/mapbox-gl-leaflet/compare/v0.0.14...v0.0.15
+[0.0.14]: https://github.com/mapbox/mapbox-gl-leaflet/compare/v0.0.13...v0.0.14
+[0.0.13]: https://github.com/mapbox/mapbox-gl-leaflet/compare/v0.0.12...v0.0.13
+[0.0.12]: https://github.com/mapbox/mapbox-gl-leaflet/compare/v0.0.11...v0.0.12
+[0.0.11]: https://github.com/mapbox/mapbox-gl-leaflet/compare/v0.0.10...v0.0.11
+[0.0.10]: https://github.com/mapbox/mapbox-gl-leaflet/compare/v0.0.9...v0.0.10
+[0.0.9]: https://github.com/mapbox/mapbox-gl-leaflet/compare/v0.0.8...v0.0.9
+[0.0.8]: https://github.com/mapbox/mapbox-gl-leaflet/compare/v0.0.7...v0.0.8
 [0.0.7]: https://github.com/mapbox/mapbox-gl-leaflet/compare/v0.0.6...v0.0.7
 [0.0.6]: https://github.com/mapbox/mapbox-gl-leaflet/compare/v0.0.5...v0.0.6
 [0.0.5]: https://github.com/mapbox/mapbox-gl-leaflet/compare/v0.0.4...v0.0.5

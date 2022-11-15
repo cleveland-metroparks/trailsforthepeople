@@ -24,10 +24,10 @@ var gl = L.mapboxGL({
 Note that you can use any vector tile source useable by mapbox-gl. For instance, you can use [OSM2VectorTiles](http://osm2vectortiles.org/) with:
 ```javascript
 var gl = L.mapboxGL({
-	style: 'https://raw.githubusercontent.com/osm2vectortiles/mapbox-gl-styles/master/styles/bright-v9-cdn.json',
-	accessToken: 'no-token'
+	style: 'https://api.maptiler.com/maps/topo/style.json?key=<YOUR_MAPTILER_API_KEY>'
 }).addTo(map);
 ```
+
 Once you have created the leaflet layer, the mapbox-gl map object can be accessed using
 ```javascript
 gl.getMapboxMap()....
@@ -48,15 +48,17 @@ Create a mapbox account, then head to [https://www.mapbox.com/studio/](https://w
 Code for these examples is hosted in the [examples folder](https://github.com/mapbox/mapbox-gl-leaflet/tree/master/examples)
 
 ## Installation
-Add a script tag referencing mapbox-gl-leaflet after adding leaflet in your website:
+Add a script tag referencing mapbox-gl-leaflet after adding leaflet and mapbox-gl-js in your website:
 ```html
+<!-- Leaflet -->
 <link rel="stylesheet" href="leaflet.css" />
 <script src="leaflet.js"></script>
-<script src="leaflet-mapbox-gl.js"></script>
 
 <!-- Mapbox GL -->
-<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.3/mapbox-gl.css' rel='stylesheet' />
-<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.14.3/mapbox-gl.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.css' rel='stylesheet' />
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.js'></script>
+
+<script src="leaflet-mapbox-gl.js"></script>
 ```
 You can also use Unpkg as a CDN using:
 ```html
