@@ -97,8 +97,8 @@ $(document).on("mapInitialized", function () {
                 filter: ['!has', 'point_count'],
                 paint: {
                     'circle-radius': 8,
-                    'circle-stroke-width': 1,
                     'circle-color': item.color,
+                    'circle-stroke-width': 1,
                     'circle-stroke-color': 'white'
                 }
             });
@@ -120,7 +120,9 @@ $(document).on("mapInitialized", function () {
                         16, //   * 16px circles when point count is between 2 and 4
                         4,
                         20  //   * 20px circles when point count is >= 4
-                    ]
+                    ],
+                    'circle-stroke-width': 1,
+                    'circle-stroke-color': 'white'
                 }
             });
 
