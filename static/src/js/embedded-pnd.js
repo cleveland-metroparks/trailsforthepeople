@@ -60,6 +60,10 @@ $(document).ready(function() {
  */
 $(document).on("mapInitialized", function () {
     MAP.on('load', () => {
+        // Create map legend
+        const legend = document.getElementById('map_legend');
+
+        //
         markerClasses.forEach((item, index, arr) => {
             const sourceId = 'source-' + item.id;
             const markerLayerId = 'layer-' + item.id;
@@ -168,6 +172,19 @@ $(document).on("mapInitialized", function () {
                     .setHTML(popupHtml)
                     .addTo(MAP);
             });
+
+            // Create legend element
+            const color = item.color;
+            const el = document.createElement('div');
+            const key = document.createElement('span');
+            key.className = 'legend_key';
+            key.style.backgroundColor = color;
+
+            const value = document.createElement('span');
+            value.innerHTML = `${item.text}`;
+            el.appendChild(key);
+            el.appendChild(value);
+            legend.appendChild(el);
         });
     });
 });

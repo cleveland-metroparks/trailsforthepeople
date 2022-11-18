@@ -1,3 +1,33 @@
 @use "variables";
 @use '../../../node_modules/mapbox-gl/dist/mapbox-gl.css';
 @use "map.scss";
+
+.map_container {
+    position: relative;
+}
+
+.map_overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #fff;
+  margin-right: 20px;
+//   font-family: Arial, sans-serif;
+  overflow: auto;
+  border-radius: 3px;
+}
+
+#map_legend {
+    padding: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    margin: 10px 0 0 10px;
+    font: 12px/20px Helvetica Neue,Arial,Helvetica,sans-serif;
+}
+
+.legend_key {
+    display: inline-block;
+    border-radius: 20%;
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+}
