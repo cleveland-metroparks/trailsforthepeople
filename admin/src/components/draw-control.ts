@@ -1,13 +1,20 @@
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { useControl } from 'react-map-gl';
-
 import type { MapRef, ControlPosition } from 'react-map-gl';
+
+/**
+ * See:
+ * https://github.com/visgl/react-map-gl/blob/7.0-release/examples/draw-polygon/src/draw-control.ts
+ * ( https://visgl.github.io/react-map-gl/examples/draw-polygon )
+ */
 
 type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
   position?: ControlPosition;
 
   initialData?: any; // The geojson linestring feature to display initially
 
+  // See mapbox-gl-draw API for create/update/delete events
+  //   https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md
   onCreate?: (evt: {features: object[]}) => void;
   onUpdate?: (evt: {features: object[]; action: string}) => void;
   onDelete?: (evt: {features: object[]}) => void;
@@ -18,7 +25,6 @@ export default function DrawControl(props: DrawControlProps) {
     () => new MapboxDraw(props),
 
     ({ map }: { map: MapRef }) => {
-
       map.on('draw.create', props.onCreate);
       map.on('draw.update', props.onUpdate);
       map.on('draw.delete', props.onDelete);
@@ -40,12 +46,10 @@ export default function DrawControl(props: DrawControlProps) {
 
               // Add our waypoints linestring as a new Draw feature
 
-              // Get our new Draw feature ID
-              var featureId = draw.add(feature);
-              // console.log('featureId', featureId);
+              // Add the geometry to the Drawing
+              draw.add(feature);
 
               var drawFeatures = draw.getAll();
-              // console.log('drawFeatures', drawFeatures.features);
 
               // Initialize the Draw control with these features
               props.onCreate(drawFeatures);

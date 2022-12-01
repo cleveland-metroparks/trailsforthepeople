@@ -1,21 +1,17 @@
 import { useState, useRef, useCallback } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
-
 import { Grid } from '@mantine/core';
-
-import { LngLatBounds } from 'mapbox-gl';
+import { LngLat, LngLatBounds, LngLatLike } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
-
 import { Map, Source, Layer, LineLayer } from 'react-map-gl';
-import type { MapRef, MapboxEvent, ViewStateChangeEvent } from 'react-map-gl';
+import type { MapRef, MapboxEvent, ViewStateChangeEvent, GeoJSONSource } from 'react-map-gl';
+import { coordEach } from '@turf/meta';
+import { lineString } from '@turf/helpers';
 
 import LoopWaypoints from "./loopWaypoints";
 import DrawControl from './draw-control';
-
-import { coordEach } from '@turf/meta';
-
 import type { Loop } from "../types/loop";
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
@@ -31,6 +27,21 @@ type LoopGeometry = {
   geom_geojson: string
 };
 
+// Make GeoJSON linestring from waypoints (inside Draw features object), for DB storage
+function makeWaypointGeojsonString(features) {
+  // Mapbox GL Draw returns an object with a randomly-named member inside
+  // that stores the feature. Get that member name.
+  const feature_id = Object.keys(features)[0];
+  if (feature_id) {
+    if (features[feature_id].geometry.coordinates) {
+      // Turn into GeoJSON string for DB storage
+      const coordsLinestring = lineString(features[feature_id].geometry.coordinates); // Using turf
+      const output = JSON.stringify(coordsLinestring);
+      return output;
+    }
+  }
+}
+
 //
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
@@ -45,18 +56,21 @@ interface LoopMapProps {
 
 //
 export function LoopMap(props: LoopMapProps) {
-  // Existing waypoint coordinates as GeoJSON string, from database
-  const initialWaypointsStr = props.loop.waypoints_geojson;
-  let initialWaypointsFeature = JSON.parse(initialWaypointsStr);
-  // Filter out the zero entries; a vestige of the way we used to store waypoints in the DB
+  // Existing waypoint coordinates as GeoJSON string
+  // (fetched from API and passed in props)
+  const initialWaypointsFeature = JSON.parse(props.loop.waypoints_geojson);
+
+  // Filter out the zero entries from the waypoints;
+  // a vestige of the way waypoints used to be stored in the DB
   let filteredCoords = Array;
-  if (initialWaypointsFeature.geometry.coordinates) {
-    const initialCoords = initialWaypointsFeature.geometry.coordinates
+  const initialCoords = initialWaypointsFeature.geometry.coordinates;
+  if (initialCoords) {
     filteredCoords = initialCoords.filter(function(coordinate, index, arr) {
       return ((coordinate[0] != 0) && (coordinate[1] != 0));
     });
     initialWaypointsFeature.geometry.coordinates = filteredCoords;
   }
+
   // Mapbox GL JS Draw returns a feature object keyed by a randomly generated ID
   // for each linestring inside the object. We re-parent our feature with our own
   // dummy ID to resemble the structure:
@@ -64,6 +78,7 @@ export function LoopMap(props: LoopMapProps) {
   // console.log('reparentedInitialWaypointsFeature', reparentedInitialWaypointsFeature); // @TODO This gets called over and over...
 
   const [features, setFeatures] = useState(reparentedInitialWaypointsFeature);
+  const [waypointsGeoJSON, setWaypointsGeoJSON] = useState('');
 
   const mapRef = useRef<MapRef>(null);
 
@@ -76,13 +91,10 @@ export function LoopMap(props: LoopMapProps) {
   });
 
   //----------------------------------
-  // Waypoints Draw update callbcks
+  // Waypoints Draw update callbacks
   //
-  const onCreate = useCallback(e => {
-    console.log('onCreate()');
-    // console.log('e.features', e.features);
+  const onCreate = e => {
     setFeatures(curFeatures => {
-      // console.log('curFeatures', curFeatures);
       const newFeatures = {...curFeatures};
       // Delete existing features
       for (const key of Object.keys(newFeatures)) {
@@ -92,38 +104,38 @@ export function LoopMap(props: LoopMapProps) {
       for (const f of e.features) {
         newFeatures[f.id] = f;
       }
-      // console.log('newFeatures', newFeatures);
       return newFeatures;
     });
-  }, []);
+    const geoJSON = makeWaypointGeojsonString(e.features);
+    setWaypointsGeoJSON(geoJSON);
+    getRouteFromWaypoints(geoJSON, 'hike');
+  };
 
-  const onUpdate = useCallback(e => {
-    console.log('onUpdate()');
-    // console.log('e.features', e.features);
+  const onUpdate = e => {
     setFeatures(curFeatures => {
-      // console.log('curFeatures', curFeatures);
       const newFeatures = {...curFeatures};
       for (const f of e.features) {
         newFeatures[f.id] = f;
       }
-      console.log('newFeatures', newFeatures);
       return newFeatures;
     });
-  }, []);
+    const geoJSON = makeWaypointGeojsonString(e.features);
+    setWaypointsGeoJSON(geoJSON);
+    getRouteFromWaypoints(geoJSON, 'hike');
+  };
 
-  const onDelete = useCallback(e => {
-    console.log('onDelete()');
-    // console.log('e.features', e.features);
+  const onDelete = e => {
     setFeatures(curFeatures => {
-      // console.log('curFeatures', curFeatures);
       const newFeatures = {...curFeatures};
       for (const f of e.features) {
         delete newFeatures[f.id];
       }
-      // console.log('newFeatures', newFeatures);
       return newFeatures;
     });
-  }, []);
+    const geoJSON = makeWaypointGeojsonString(e.features);
+    setWaypointsGeoJSON(geoJSON);
+    getRouteFromWaypoints(geoJSON, 'hike');
+  };
   //----------------------------------
 
   let loopId = props.loop.id ? props.loop.id.toString() : '';
@@ -133,15 +145,48 @@ export function LoopMap(props: LoopMapProps) {
     const response = await apiClient.get<any>("/trail_geometries/" + id);
     const geojson = JSON.parse(response.data.data.geom_geojson);
 
-    const tmpBounds = new LngLatBounds();
     if (geojson.coordinates) {
+      let loopBounds = new LngLatBounds();
       coordEach(geojson, function (coord) {
-        tmpBounds.extend([coord[0], coord[1]]);
+        loopBounds.extend([coord[0], coord[1]]);
       });
-      setBounds(bounds => tmpBounds);
+      setBounds((bounds) => {
+        if (mapRef.current) {
+          mapRef.current.fitBounds(loopBounds, { padding: 40 });
+        }
+        return loopBounds;
+      });
     }
 
     return response.data.data;
+  }
+
+  // Get route from waypoints from API
+  const getRouteFromWaypoints = async (waypointsGeojson: string, travelMode: string) => {
+    const params = new URLSearchParams({
+      waypoints: waypointsGeojson,
+      via: travelMode
+    });
+    const response = await apiClient.get<any>("/route_waypoints", { params });
+
+    // const sw = new LngLat(response.data.data.bounds.west, response.data.data.bounds.south);
+    // const ne = new LngLat(response.data.data.bounds.east, response.data.data.bounds.north);
+    // let waypointsBounds = new LngLatBounds(sw, ne);
+    // setBounds((bounds) => {
+    //   if (mapRef.current) {
+    //     mapRef.current.fitBounds(waypointsBounds, { padding: 40 });
+    //   }
+    //   return waypointsBounds;
+    // });
+
+    const newLoopData = response.data.data;
+
+    if (mapRef.current) {
+      const loopSource = mapRef.current.getSource('loop-data') as GeoJSONSource;
+      loopSource.setData(newLoopData.geojson);
+    }
+
+    return newLoopData;
   }
 
   // Map onMove event
@@ -160,7 +205,7 @@ export function LoopMap(props: LoopMapProps) {
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<LoopGeometry, Error>(['loop_geometry', loopId], () => getLoopGeometry(loopId));
 
   const loopLayer: LineLayer = {
-    id: "highlightLine",
+    id: "loop-line",
     type: "line",
     source: {
       type: "geojson"
@@ -198,7 +243,11 @@ export function LoopMap(props: LoopMapProps) {
                 onLoad={onMapLoad}
                 onMove={onMapMove}
               >
-                <Source type="geojson" data={JSON.parse(data.geom_geojson)}>
+                <Source
+                  id="loop-data"
+                  type="geojson"
+                  data={JSON.parse(data.geom_geojson)}
+                >
                   <Layer {...loopLayer} />
                 </Source>
                 <DrawControl
@@ -209,7 +258,7 @@ export function LoopMap(props: LoopMapProps) {
                     trash: true
                   }}
                   initialData={{
-                    waypoints: features
+                    waypoints: reparentedInitialWaypointsFeature
                   }}
                   // styles={[
                     // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/EXAMPLES.md
@@ -217,9 +266,9 @@ export function LoopMap(props: LoopMapProps) {
                     // https://docs.mapbox.com/mapbox-gl-js/style-spec/
                   // ]}
                   defaultMode="draw_line_string"
-                  onCreate={onCreate}
-                  onUpdate={onUpdate}
-                  onDelete={onDelete}
+                  onCreate={onCreate} // draw.create
+                  onUpdate={onUpdate} // draw.update
+                  onDelete={onDelete} // draw.delete
                 />
               </Map>
             </Grid.Col>

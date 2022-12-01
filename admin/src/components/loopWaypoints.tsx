@@ -1,9 +1,5 @@
 import * as React from 'react';
-
 import { Table, Text, Title, Code } from '@mantine/core';
-
-import { LngLat } from 'mapbox-gl';
-
 import { lineString } from '@turf/helpers';
 
 //
