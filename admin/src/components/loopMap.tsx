@@ -52,6 +52,8 @@ const apiClient = axios.create({
 
 interface LoopMapProps {
   loop: Loop;
+  // Callback for LoopMap to update the Stats data & pane here
+  updateStats: Function;
 }
 
 //
@@ -92,6 +94,8 @@ export function LoopMap(props: LoopMapProps) {
 
   //----------------------------------
   // Waypoints Draw update callbacks
+  //
+  // @TODO: Can we get rid of the "features" state var, and remove a lot of this logic?
   //
   const onCreate = e => {
     setFeatures(curFeatures => {
@@ -162,6 +166,8 @@ export function LoopMap(props: LoopMapProps) {
   }
 
   // Get route from waypoints from API
+  // @TODO: Don't call this the very first time the loop is loaded,
+  // because we're overwriting saved stats/data
   const getRouteFromWaypoints = async (waypointsGeojson: string, travelMode: string) => {
     const params = new URLSearchParams({
       waypoints: waypointsGeojson,
@@ -169,24 +175,34 @@ export function LoopMap(props: LoopMapProps) {
     });
     const response = await apiClient.get<any>("/route_waypoints", { params });
 
+    // @TODO: We should re-fit bounds *only* if they're [for some reason] greater than current.
+    //   (Right now this is re-fitting no matter what)
     // const sw = new LngLat(response.data.data.bounds.west, response.data.data.bounds.south);
     // const ne = new LngLat(response.data.data.bounds.east, response.data.data.bounds.north);
-    // let waypointsBounds = new LngLatBounds(sw, ne);
+    // let loopBounds = new LngLatBounds(sw, ne);
     // setBounds((bounds) => {
     //   if (mapRef.current) {
-    //     mapRef.current.fitBounds(waypointsBounds, { padding: 40 });
+    //     mapRef.current.fitBounds(loopBounds, { padding: 40 });
     //   }
-    //   return waypointsBounds;
+    //   return loopBounds;
     // });
 
-    const newLoopData = response.data.data;
+    // Call our callback to update stats in the parent Loops component
+    props.updateStats({
+      distance_text : response.data.data.totals.distance_text,
+      distance_feet : response.data.data.totals.distance_feet,
+      durationtext_hike : response.data.data.totals.durationtext_hike,
+      durationtext_bike : response.data.data.totals.durationtext_bike,
+      durationtext_bridle : response.data.data.totals.durationtext_bridle
+    });
 
+    // Replace loop line Source GeoJSON data with that returned from the API
     if (mapRef.current) {
       const loopSource = mapRef.current.getSource('loop-data') as GeoJSONSource;
-      loopSource.setData(newLoopData.geojson);
+      loopSource.setData(response.data.data.geojson);
     }
 
-    return newLoopData;
+
   }
 
   // Map onMove event
@@ -274,7 +290,7 @@ export function LoopMap(props: LoopMapProps) {
             </Grid.Col>
 
             <Grid.Col span={3}>
-              <LoopWaypoints waypoints={features} />
+              <LoopWaypoints features={features} geojson={waypointsGeoJSON} />
             </Grid.Col>
           </Grid>
         </>

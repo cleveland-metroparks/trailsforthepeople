@@ -6,18 +6,13 @@ import { lineString } from '@turf/helpers';
 //
 function LoopWaypoints(props) {
   let coordinates = [];
-  let coordsString = '';
 
   // Mapbox GL Draw returns an object with a randomly-named member inside
   // that stores the feature. Get that member name.
-  const key_id = Object.keys(props.waypoints)[0];
+  const key_id = Object.keys(props.features)[0];
   if (key_id) {
-    if (props.waypoints[key_id].geometry.coordinates) {
-      coordinates = props.waypoints[key_id].geometry.coordinates;
-
-      // Turn into GeoJSON string for DB storage
-      const coordsLinestring = lineString(coordinates); // turf
-      coordsString = JSON.stringify(coordsLinestring);
+    if (props.features[key_id].geometry.coordinates) {
+      coordinates = props.features[key_id].geometry.coordinates;
     }
   }
 
@@ -42,8 +37,9 @@ function LoopWaypoints(props) {
           }
         </tbody>
       </Table>
+      <Title order={5} sx={{marginTop: '1em'}}>GeoJSON</Title>
       <Text size="sm" sx={{marginTop: '1em'}}>
-        <Code color="blue">{coordsString}</Code>
+        <Code color="blue">{props.geojson}</Code>
       </Text>
     </>
   );

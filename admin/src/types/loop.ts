@@ -8,7 +8,7 @@ export type Loop = {
   mountainbike: string,
   description: string,
   distance_feet: number,
-  distancetext: string,
+  distance_text: string,
   durationtext_hike: string,
   durationtext_bike: string,
   durationtext_bridle: string,

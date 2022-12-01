@@ -18,6 +18,14 @@ const apiClient = axios.create({
   },
 });
 
+type LoopStats = {
+  distance_text : string,
+  distance_feet : string,
+  durationtext_hike : string,
+  durationtext_bike : string,
+  durationtext_bridle : string
+};
+
 /**
  *
  */
@@ -26,6 +34,13 @@ export function LoopEdit() {
   let loopId = params.loopId ? params.loopId.toString() : '';
 
   const [activeTab, setActiveTab] = useState("route");
+  const [loopStats, setLoopStats] = useState({
+    distance_text : '',
+    distance_feet : '',
+    durationtext_hike : '',
+    durationtext_bike : '',
+    durationtext_bridle : ''
+  });
 
   const form = useForm({
     initialValues: {
@@ -43,6 +58,14 @@ export function LoopEdit() {
   // Get a Loop from the API
   const getLoop = async (id: string) => {
     const response = await apiClient.get<any>("/trails/" + id);
+
+    setLoopStats({
+      distance_text : response.data.data.distance_text,
+      distance_feet : response.data.data.distance_feet,
+      durationtext_hike : response.data.data.durationtext_hike,
+      durationtext_bike : response.data.data.durationtext_bike,
+      durationtext_bridle : response.data.data.durationtext_bridle
+    });
 
     form.setValues({
       name: response.data.data.name,
@@ -168,17 +191,17 @@ export function LoopEdit() {
 
               <Tabs.Panel value="route">
 
-                <LoopMap loop={data} />
+                <LoopMap loop={data} updateStats={setLoopStats} />
 
               </Tabs.Panel>
 
               <Tabs.Panel value="directions">
 
                 <h3>Stats</h3>
-                <span><strong>Distance:</strong></span> <span>{data.distancetext} ({data.distance_feet} ft)</span><br />
-                <span><strong>Hiking:</strong></span> <span>{data.durationtext_hike}</span><br />
-                <span><strong>Bicycling:</strong></span> <span>{data.durationtext_bike}</span><br />
-                <span><strong>Horseback:</strong></span> <span>{data.durationtext_bridle}</span><br />
+                <span><strong>Distance:</strong></span> <span>{loopStats.distance_text} ({loopStats.distance_feet} ft)</span><br />
+                <span><strong>Hiking:</strong></span> <span>{loopStats.durationtext_hike}</span><br />
+                <span><strong>Bicycling:</strong></span> <span>{loopStats.durationtext_bike}</span><br />
+                <span><strong>Horseback:</strong></span> <span>{loopStats.durationtext_bridle}</span><br />
 
                 <h3>Elevation Profile</h3>
 
@@ -243,7 +266,7 @@ export function LoopsList() {
                 </Anchor>
               </td>
               <td>{loop.res}</td>
-              <td>{loop.distancetext}</td>
+              <td>{loop.distance_text}</td>
             </tr>
           ))}
         </tbody>
