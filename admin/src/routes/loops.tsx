@@ -2,7 +2,7 @@ import { useState } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
-import { Title, Tabs, Grid, Table, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
+import { Title, Tabs, Grid, Accordion, Table, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
 
@@ -189,8 +189,20 @@ export function LoopEdit() {
                   </Grid.Col>
                   <Grid.Col span={3}>
                     {/* <LoopWaypoints features={features} geojson={waypointsGeoJSON} /> */}
-                    <LoopStats stats={loopStats} />
-                    <LoopDirections directions={loopDirections} />
+                    <Accordion defaultValue="stats">
+                      <Accordion.Item value="stats">
+                        <Accordion.Control>Stats</Accordion.Control>
+                        <Accordion.Panel>
+                          <LoopStats stats={loopStats} />
+                        </Accordion.Panel>
+                      </Accordion.Item>
+                      <Accordion.Item value="directions">
+                        <Accordion.Control>Directions</Accordion.Control>
+                        <Accordion.Panel>
+                          <LoopDirections directions={loopDirections} />
+                        </Accordion.Panel>
+                      </Accordion.Item>
+                    </Accordion>
                   </Grid.Col>
                 </Grid>
               </Tabs.Panel>

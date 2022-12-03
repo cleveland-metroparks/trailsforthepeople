@@ -1,23 +1,24 @@
 import { Table, Text } from '@mantine/core';
+import { BoxPadding } from 'tabler-icons-react';
 
 export function LoopDirections(props) {
   return (
     <>
       {props.directions && Array.isArray(props.directions) &&
         <>
-          <h3>Directions</h3>
           <Table sx={{
-            "tbody tr th, tbody tr td": {
-              fontSize: '.8em'
+            'thead tr th, tbody tr td': {
+              fontSize: '.8em',
+              padding: 0
             }
           }}>
             <thead>
               <tr>
-                <th><Text>Step</Text></th>
-                <th><Text>Dist</Text></th>
-                <th><Text>Hike</Text></th>
-                <th><Text>Bike</Text></th>
-                <th><Text>Bridle</Text></th>
+                <th>Step</th>
+                <th>Dist</th>
+                <th>Hike</th>
+                <th>Bike</th>
+                <th>Bridle</th>
               </tr>
             </thead>
             <tbody>

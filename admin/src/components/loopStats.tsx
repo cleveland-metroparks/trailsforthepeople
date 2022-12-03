@@ -12,8 +12,7 @@ import { Box } from '@mantine/core';
 export function LoopStats(props) {
   return (
     <>
-      {/* <h3>Stats</h3> */}
-      <Box sx={{marginTop: '1em'}}>
+      <Box>
         <span><strong>Distance:</strong></span> <span>{props.stats.distance_text} ({props.stats.distance_feet} ft)</span><br />
         <span><strong>Hiking:</strong></span> <span>{props.stats.durationtext_hike}</span><br />
         <span><strong>Bicycling:</strong></span> <span>{props.stats.durationtext_bike}</span><br />
