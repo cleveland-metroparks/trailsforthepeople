@@ -117,9 +117,16 @@ export function LoopProfileChart(props: LoopProfileProps) {
       )}
 
       {data &&
-        <Box sx={{ maxWidth: 800 }}>
-          <Line options={chartOptions} data={chartData} />
-        </Box>
+        <>
+          {/* <h3>Elevation Profile</h3> */}
+          <Box>
+            <Line
+              options={chartOptions}
+              data={chartData}
+              height={50}
+            />
+          </Box>
+        </>
       }
     </div>
   );

@@ -4,7 +4,7 @@ import { lineString } from '@turf/helpers';
 
 //
 //
-function LoopWaypoints(props) {
+export function LoopWaypoints(props) {
   let coordinates = [];
 
   // Mapbox GL Draw returns an object with a randomly-named member inside

@@ -1,17 +1,15 @@
 import { useState, useRef, useCallback } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
-import { Grid } from '@mantine/core';
-import { LngLat, LngLatBounds, LngLatLike } from 'mapbox-gl';
+import { LngLatBounds } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { Map, Source, Layer, LineLayer } from 'react-map-gl';
 import type { MapRef, MapboxEvent, ViewStateChangeEvent, GeoJSONSource } from 'react-map-gl';
 import { coordEach } from '@turf/meta';
 import { lineString } from '@turf/helpers';
-
-import LoopWaypoints from "./loopWaypoints";
 import DrawControl from './draw-control';
+
 import type { Loop } from "../types/loop";
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
@@ -54,6 +52,7 @@ interface LoopMapProps {
   loop: Loop;
   // Callback for LoopMap to update the Stats data & pane here
   updateStats: Function;
+  updateDirections: Function;
 }
 
 //
@@ -175,26 +174,16 @@ export function LoopMap(props: LoopMapProps) {
     });
     const response = await apiClient.get<any>("/route_waypoints", { params });
 
-    // @TODO: We should re-fit bounds *only* if they're [for some reason] greater than current.
-    //   (Right now this is re-fitting no matter what)
-    // const sw = new LngLat(response.data.data.bounds.west, response.data.data.bounds.south);
-    // const ne = new LngLat(response.data.data.bounds.east, response.data.data.bounds.north);
-    // let loopBounds = new LngLatBounds(sw, ne);
-    // setBounds((bounds) => {
-    //   if (mapRef.current) {
-    //     mapRef.current.fitBounds(loopBounds, { padding: 40 });
-    //   }
-    //   return loopBounds;
-    // });
-
     // Call our callback to update stats in the parent Loops component
     props.updateStats({
-      distance_text : response.data.data.totals.distance_text,
-      distance_feet : response.data.data.totals.distance_feet,
-      durationtext_hike : response.data.data.totals.durationtext_hike,
-      durationtext_bike : response.data.data.totals.durationtext_bike,
-      durationtext_bridle : response.data.data.totals.durationtext_bridle
+      distance_text: response.data.data.totals.distance_text,
+      distance_feet: response.data.data.totals.distance_feet,
+      durationtext_hike: response.data.data.totals.durationtext_hike,
+      durationtext_bike: response.data.data.totals.durationtext_bike,
+      durationtext_bridle: response.data.data.totals.durationtext_bridle
     });
+
+    props.updateDirections(response.data.data.steps);
 
     // Replace loop line Source GeoJSON data with that returned from the API
     if (mapRef.current) {
@@ -238,7 +227,7 @@ export function LoopMap(props: LoopMapProps) {
   };
 
   return (
-    <div>
+    <>
       {isLoading && <div>Loading...</div>}
 
       {isError && (
@@ -247,54 +236,46 @@ export function LoopMap(props: LoopMapProps) {
 
       {data &&
         <>
-          <Grid>
-            <Grid.Col span={9}>
-              <Map
-                reuseMaps
-                ref={mapRef}
-                {...mapViewState}
-                style={{width: "100%", height: 600}}
-                mapStyle={MAPBOX_STYLE}
-                mapboxAccessToken={MAPBOX_TOKEN}
-                onLoad={onMapLoad}
-                onMove={onMapMove}
-              >
-                <Source
-                  id="loop-data"
-                  type="geojson"
-                  data={JSON.parse(data.geom_geojson)}
-                >
-                  <Layer {...loopLayer} />
-                </Source>
-                <DrawControl
-                  position="top-left"
-                  displayControlsDefault={false}
-                  controls={{
-                    line_string: true,
-                    trash: true
-                  }}
-                  initialData={{
-                    waypoints: reparentedInitialWaypointsFeature
-                  }}
-                  // styles={[
-                    // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/EXAMPLES.md
-                    // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md#styling-draw
-                    // https://docs.mapbox.com/mapbox-gl-js/style-spec/
-                  // ]}
-                  defaultMode="draw_line_string"
-                  onCreate={onCreate} // draw.create
-                  onUpdate={onUpdate} // draw.update
-                  onDelete={onDelete} // draw.delete
-                />
-              </Map>
-            </Grid.Col>
-
-            <Grid.Col span={3}>
-              <LoopWaypoints features={features} geojson={waypointsGeoJSON} />
-            </Grid.Col>
-          </Grid>
+          <Map
+            reuseMaps
+            ref={mapRef}
+            {...mapViewState}
+            style={{width: "100%", height: 600}}
+            mapStyle={MAPBOX_STYLE}
+            mapboxAccessToken={MAPBOX_TOKEN}
+            onLoad={onMapLoad}
+            onMove={onMapMove}
+          >
+            <Source
+              id="loop-data"
+              type="geojson"
+              data={JSON.parse(data.geom_geojson)}
+            >
+              <Layer {...loopLayer} />
+            </Source>
+            <DrawControl
+              position="top-left"
+              displayControlsDefault={false}
+              controls={{
+                line_string: true,
+                trash: true
+              }}
+              initialData={{
+                waypoints: reparentedInitialWaypointsFeature
+              }}
+              // styles={[
+                // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/EXAMPLES.md
+                // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md#styling-draw
+                // https://docs.mapbox.com/mapbox-gl-js/style-spec/
+              // ]}
+              defaultMode="draw_line_string"
+              onCreate={onCreate} // draw.create
+              onUpdate={onUpdate} // draw.update
+              onDelete={onDelete} // draw.delete
+            />
+          </Map>
         </>
       }
-    </div>
+    </>
   );
 }

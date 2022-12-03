@@ -2,12 +2,15 @@ import { useState } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
-import { Title, Tabs, Table, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
+import { Title, Tabs, Grid, Table, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
 
 import type { Loop } from "../types/loop";
 import { LoopMap } from "../components/loopMap";
+// import { LoopWaypoints } from "../components/loopWaypoints";
+import { LoopStats } from "../components/loopStats";
+import { LoopDirections } from "../components/loopDirections";
 import { LoopProfileChart } from "../components/loopProfileChart";
 
 //
@@ -18,14 +21,6 @@ const apiClient = axios.create({
   },
 });
 
-type LoopStats = {
-  distance_text : string,
-  distance_feet : string,
-  durationtext_hike : string,
-  durationtext_bike : string,
-  durationtext_bridle : string
-};
-
 /**
  *
  */
@@ -34,6 +29,7 @@ export function LoopEdit() {
   let loopId = params.loopId ? params.loopId.toString() : '';
 
   const [activeTab, setActiveTab] = useState("route");
+  const [loopDirections, setLoopDirections] = useState({});
   const [loopStats, setLoopStats] = useState({
     distance_text : '',
     distance_feet : '',
@@ -60,7 +56,7 @@ export function LoopEdit() {
     const response = await apiClient.get<any>("/trails/" + id);
 
     setLoopStats({
-      distance_text : response.data.data.distance_text,
+      distance_text : response.data.data.distancetext,
       distance_feet : response.data.data.distance_feet,
       durationtext_hike : response.data.data.durationtext_hike,
       durationtext_bike : response.data.data.durationtext_bike,
@@ -82,7 +78,7 @@ export function LoopEdit() {
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Loop, Error>(['loop', params.loopId], () => getLoop(loopId));
 
   return (
-    <div>
+    <>
       <Anchor component={Link} to={`/loops`}>« Loops</Anchor>
 
       {isLoading && <div>Loading...</div>}
@@ -94,7 +90,6 @@ export function LoopEdit() {
       {data &&
         <div>
           <Title order={2} sx={{marginTop: '1em'}}>{data.name}</Title>
-
           <form onSubmit={form.onSubmit((values) => console.log(values))}>
 
             <Tabs defaultValue={activeTab} onTabChange={setActiveTab} sx={{marginTop: '1em'}}>
@@ -102,11 +97,9 @@ export function LoopEdit() {
               <Tabs.List>
                 <Tabs.Tab value="general">General</Tabs.Tab>
                 <Tabs.Tab value="route">Route</Tabs.Tab>
-                <Tabs.Tab value="directions">Directions</Tabs.Tab>
               </Tabs.List>
 
               <Tabs.Panel value="general">
-
                 <Box sx={{ maxWidth: 800 }}>
 
                   <TextInput
@@ -186,27 +179,20 @@ export function LoopEdit() {
                   </Group>
 
                 </Box>
-
               </Tabs.Panel>
 
               <Tabs.Panel value="route">
-
-                <LoopMap loop={data} updateStats={setLoopStats} />
-
-              </Tabs.Panel>
-
-              <Tabs.Panel value="directions">
-
-                <h3>Stats</h3>
-                <span><strong>Distance:</strong></span> <span>{loopStats.distance_text} ({loopStats.distance_feet} ft)</span><br />
-                <span><strong>Hiking:</strong></span> <span>{loopStats.durationtext_hike}</span><br />
-                <span><strong>Bicycling:</strong></span> <span>{loopStats.durationtext_bike}</span><br />
-                <span><strong>Horseback:</strong></span> <span>{loopStats.durationtext_bridle}</span><br />
-
-                <h3>Elevation Profile</h3>
-
-                <LoopProfileChart loopId={data.id} />
-
+                <Grid>
+                  <Grid.Col span={9}>
+                    <LoopMap loop={data} updateStats={setLoopStats} updateDirections={setLoopDirections} />
+                    <LoopProfileChart loopId={data.id} />
+                  </Grid.Col>
+                  <Grid.Col span={3}>
+                    {/* <LoopWaypoints features={features} geojson={waypointsGeoJSON} /> */}
+                    <LoopStats stats={loopStats} />
+                    <LoopDirections directions={loopDirections} />
+                  </Grid.Col>
+                </Grid>
               </Tabs.Panel>
 
             </Tabs>
@@ -216,11 +202,10 @@ export function LoopEdit() {
             </Group>
 
           </form>
-
         </div>
       }
 
-    </div>
+    </>
   );
 }
 
