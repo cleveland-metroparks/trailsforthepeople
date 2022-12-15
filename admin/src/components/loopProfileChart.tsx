@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
-import { Box } from '@mantine/core';
+import * as mantineCore from '@mantine/core';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,6 +13,10 @@ import {
   Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+
+import type { LoopProfile } from "../types/loop";
+
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -23,14 +27,6 @@ ChartJS.register(
   Legend
 );
 
-type ElevationProfilePoint = {x: number, y: number};
-type ElevationProfileArray = Array<ElevationProfilePoint>;
-
-type LoopProfile = {
-  id: number,
-  elevation_profile: ElevationProfileArray
-};
-
 //
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
@@ -39,15 +35,8 @@ const apiClient = axios.create({
   },
 });
 
-interface LoopProfileProps {
-  loopId:  number;
-}
-
 //
-export function LoopProfileChart(props: LoopProfileProps) {
-  let loopId = props.loopId ? props.loopId.toString() : '';
-  const [profileData, setProfileData] = useState(Array<ElevationProfilePoint>);
-
+export function LoopProfileChart(props: { loopProfile: LoopProfile }) {
   const chartOptions = {
     responsive: true,
     plugins: {
@@ -77,7 +66,7 @@ export function LoopProfileChart(props: LoopProfileProps) {
         },
       },
       title: {
-        display: true,
+        display: false,
         text: 'Elevation Profile',
       },
     },
@@ -87,7 +76,7 @@ export function LoopProfileChart(props: LoopProfileProps) {
     datasets: [
       {
         label: 'Elevation Prfofile',
-        data: profileData,
+        data: props.loopProfile,
         pointRadius: 0,
         backgroundColor: 'rgba(0, 0, 0, 0.2)',
         borderColor: 'rgba(0, 0, 0, 1)',
@@ -97,37 +86,18 @@ export function LoopProfileChart(props: LoopProfileProps) {
     ],
   };
 
-  // Get loop geometry from API
-  const getLoopProfile = async (id: string) => {
-    const response = await apiClient.get<any>("/trail_profiles/" + id);
-
-    setProfileData(response.data.data.elevation_profile);
-
-    return response.data.data;
-  }
-
-  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<LoopProfile, Error>(['loop_profile', loopId], () => getLoopProfile(loopId));
-
   return (
-    <div>
-      {isLoading && <div>Loading...</div>}
-
-      {isError && (
-        <div>{`There is a problem fetching the loop - ${error.message}`}</div>
-      )}
-
-      {data &&
+    <>
+      {props.loopProfile &&
         <>
-          {/* <h3>Elevation Profile</h3> */}
-          <Box>
-            <Line
-              options={chartOptions}
-              data={chartData}
-              height={50}
-            />
-          </Box>
+          <mantineCore.Title order={6}>Elevation Profile</mantineCore.Title>
+          <Line
+            options={chartOptions}
+            data={chartData}
+            height={50}
+          />
         </>
       }
-    </div>
+    </>
   );
 }

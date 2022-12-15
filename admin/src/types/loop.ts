@@ -23,3 +23,11 @@ export type Loop = {
   dd_lat: number,
   dd_lng: number
 };
+
+export type ElevationProfilePoint = {x: number, y: number};
+export type ElevationProfileArray = Array<ElevationProfilePoint>;
+
+export interface LoopProfile {
+  id: number;
+  elevation_profile: ElevationProfileArray;
+};

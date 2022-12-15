@@ -4,13 +4,14 @@ import { useQuery } from "react-query";
 import { LngLatBounds } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
-import { Map, Source, Layer, LineLayer } from 'react-map-gl';
+import { Map, Source, NavigationControl, Layer, LineLayer } from 'react-map-gl';
 import type { MapRef, MapboxEvent, ViewStateChangeEvent, GeoJSONSource } from 'react-map-gl';
 import { coordEach } from '@turf/meta';
 import { lineString } from '@turf/helpers';
 import DrawControl from './draw-control';
 
-import type { Loop } from "../types/loop";
+import type { Loop, LoopProfile } from "../types/loop";
+import { X } from 'tabler-icons-react';
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
 const MAPBOX_STYLE = 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
@@ -53,6 +54,7 @@ interface LoopMapProps {
   // Callback for LoopMap to update the Stats data & pane here
   updateStats: Function;
   updateDirections: Function;
+  updateElevation: Function;
 }
 
 //
@@ -164,6 +166,15 @@ export function LoopMap(props: LoopMapProps) {
     return response.data.data;
   }
 
+  // Get loop geometry from API
+  const getLoopProfile = async (id: string) => {
+    const response = await apiClient.get<any>("/trail_profiles/" + id);
+
+    props.updateElevation(response.data.data.elevation_profile);
+
+    return response.data.data;
+  }
+
   // Get route from waypoints from API
   // @TODO: Don't call this the very first time the loop is loaded,
   // because we're overwriting saved stats/data
@@ -174,7 +185,7 @@ export function LoopMap(props: LoopMapProps) {
     });
     const response = await apiClient.get<any>("/route_waypoints", { params });
 
-    // Call our callback to update stats in the parent Loops component
+    // Callback to update stats
     props.updateStats({
       distance_text: response.data.data.totals.distance_text,
       distance_feet: response.data.data.totals.distance_feet,
@@ -183,15 +194,19 @@ export function LoopMap(props: LoopMapProps) {
       durationtext_bridle: response.data.data.totals.durationtext_bridle
     });
 
+    // Callback to update turn-by-turn directions
     props.updateDirections(response.data.data.steps);
+
+    // "route_waypoints" API endpoint returns the profile data in a different format than "trail_profiles" (@TODO).
+    // The chart component apparently needs the coordinates as strings.
+    const transformedProfile = response.data.data.elevationprofile.map(({y, x}) => { return {x: x.toString(), y: y.toString()}})
+    props.updateElevation(transformedProfile);
 
     // Replace loop line Source GeoJSON data with that returned from the API
     if (mapRef.current) {
       const loopSource = mapRef.current.getSource('loop-data') as GeoJSONSource;
       loopSource.setData(response.data.data.geojson);
     }
-
-
   }
 
   // Map onMove event
@@ -207,7 +222,23 @@ export function LoopMap(props: LoopMapProps) {
     }
   };
 
-  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<LoopGeometry, Error>(['loop_geometry', loopId], () => getLoopGeometry(loopId));
+  const {
+    isLoading: loopIsLoading,
+    isSuccess: loopIsSuccess,
+    isError: loopIsError,
+    data: loopData,
+    error: loopError
+  } = useQuery<LoopGeometry, Error>(['loop_geometry', loopId], () => getLoopGeometry(loopId));
+
+  const {
+    isLoading: elevationIsLoading,
+    isSuccess: elevationIsSuccess,
+    isError: elevationIsError,
+    data: elevationData,
+    error: elevationError
+  } = useQuery<LoopProfile, Error>(['loop_profile', loopId], () => getLoopProfile(loopId));
+
+
 
   const loopLayer: LineLayer = {
     id: "loop-line",
@@ -228,13 +259,13 @@ export function LoopMap(props: LoopMapProps) {
 
   return (
     <>
-      {isLoading && <div>Loading...</div>}
+      {loopIsLoading && <div>Loading...</div>}
 
-      {isError && (
-        <div>{`There is a problem fetching the loop - ${error.message}`}</div>
+      {loopIsError && (
+        <div>{`There is a problem fetching the loop - ${loopError.message}`}</div>
       )}
 
-      {data &&
+      {loopData &&
         <>
           <Map
             reuseMaps
@@ -249,10 +280,14 @@ export function LoopMap(props: LoopMapProps) {
             <Source
               id="loop-data"
               type="geojson"
-              data={JSON.parse(data.geom_geojson)}
+              data={JSON.parse(loopData.geom_geojson)}
             >
               <Layer {...loopLayer} />
             </Source>
+            <NavigationControl
+              showCompass={true}
+              visualizePitch={true}
+            />
             <DrawControl
               position="top-left"
               displayControlsDefault={false}

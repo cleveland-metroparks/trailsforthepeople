@@ -2,11 +2,11 @@ import { useState } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
-import { Title, Tabs, Grid, Accordion, Table, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
+import { Title, Text, Tabs, Grid, Accordion, Table, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
 
-import type { Loop } from "../types/loop";
+import type { Loop, LoopProfile } from "../types/loop";
 import { LoopMap } from "../components/loopMap";
 // import { LoopWaypoints } from "../components/loopWaypoints";
 import { LoopStats } from "../components/loopStats";
@@ -21,6 +21,11 @@ const apiClient = axios.create({
   },
 });
 
+const defaultLoopProfile: LoopProfile = {
+  id: null,
+  elevation_profile: []
+};
+
 /**
  *
  */
@@ -30,6 +35,8 @@ export function LoopEdit() {
 
   const [activeTab, setActiveTab] = useState("route");
   const [loopDirections, setLoopDirections] = useState({});
+  const [loopElevation, setLoopElevation] = useState(defaultLoopProfile);
+
   const [loopStats, setLoopStats] = useState({
     distance_text : '',
     distance_feet : '',
@@ -184,8 +191,25 @@ export function LoopEdit() {
               <Tabs.Panel value="route">
                 <Grid>
                   <Grid.Col span={9}>
-                    <LoopMap loop={data} updateStats={setLoopStats} updateDirections={setLoopDirections} />
-                    <LoopProfileChart loopId={data.id} />
+                    <LoopMap
+                      loop={data}
+                      updateStats={setLoopStats}
+                      updateDirections={setLoopDirections}
+                      updateElevation={setLoopElevation}
+                    />
+                    <Group position="apart">
+                      <Box my={15}>
+                        <Text size="sm" weight={500}>Zoom to location</Text>
+                        <TextInput
+                          placeholder="Park location"
+                        />
+                      </Box>
+                      <Box>
+                        <Text size="sm" weight={500}>Complete loop</Text>
+                        <Button>Back to origin</Button>
+                      </Box>
+                    </Group>
+                    <LoopProfileChart loopProfile={loopElevation} />
                   </Grid.Col>
                   <Grid.Col span={3}>
                     {/* <LoopWaypoints features={features} geojson={waypointsGeoJSON} /> */}
@@ -236,7 +260,7 @@ export function LoopsList() {
 
   return (
     <div>
-      <h2>Loops</h2>
+      <Title order={2}>Loops</Title>
       {isLoading && <div>Loading...</div>}
       {isError && (
         <div>{`There is a problem fetching the post data - ${error.message}`}</div>
