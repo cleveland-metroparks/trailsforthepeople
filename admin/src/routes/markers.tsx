@@ -123,7 +123,7 @@ export function MarkerEdit() {
         <div>
           <h2>{data.title}</h2>
 
-          <form onSubmit={form.onSubmit((values) => console.log(values))}>
+          <form onSubmit={form.onSubmit((values) => console.log('onSubmit():', values))}>
 
             <Box sx={{ maxWidth: 800 }}>
 

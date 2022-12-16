@@ -31,3 +31,8 @@ export interface LoopProfile {
   id: number;
   elevation_profile: ElevationProfileArray;
 };
+
+export type LoopGeometry = {
+  id: number,
+  geom_geojson: string
+};

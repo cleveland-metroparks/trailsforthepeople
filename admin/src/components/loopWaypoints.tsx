@@ -1,25 +1,17 @@
 import * as React from 'react';
-import { Table, Text, Title, Code } from '@mantine/core';
-import { lineString } from '@turf/helpers';
+import { Table, Text, Title, Code, Group } from '@mantine/core';
 
-//
-//
+/**
+ * Loop Waypoints
+ * @param props 
+ * @returns 
+ */
 export function LoopWaypoints(props) {
-  let coordinates = [];
-
-  // Mapbox GL Draw returns an object with a randomly-named member inside
-  // that stores the feature. Get that member name.
-  const key_id = Object.keys(props.features)[0];
-  if (key_id) {
-    if (props.features[key_id].geometry.coordinates) {
-      coordinates = props.features[key_id].geometry.coordinates;
-    }
-  }
+  let coordinates = props.feature.geometry.coordinates;
 
   return (
     <>
-      <Title order={4} sx={{marginTop: '1em'}}>Waypoints</Title>
-      <Table striped highlightOnHover sx={{marginTop: '1em'}}>
+      <Table striped highlightOnHover>
         <thead>
           <tr>
             <th>lat</th>
@@ -37,10 +29,12 @@ export function LoopWaypoints(props) {
           }
         </tbody>
       </Table>
-      <Title order={5} sx={{marginTop: '1em'}}>GeoJSON</Title>
-      <Text size="sm" sx={{marginTop: '1em'}}>
-        <Code color="blue">{props.geojson}</Code>
-      </Text>
+      {/* <Group mt="md">
+        <Title order={6}>Waypoints GeoJSON</Title>
+        <Text size="sm">
+          <Code color="blue">{props.geojson}</Code>
+        </Text>
+      </Group> */}
     </>
   );
 }

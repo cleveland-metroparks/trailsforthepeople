@@ -1,6 +1,11 @@
-import { Table, Text } from '@mantine/core';
-import { BoxPadding } from 'tabler-icons-react';
+import { Table } from '@mantine/core';
 
+/**
+ * Loop Directions
+ *
+ * @param props 
+ * @returns 
+ */
 export function LoopDirections(props) {
   return (
     <>

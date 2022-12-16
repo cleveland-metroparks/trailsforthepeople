@@ -1,6 +1,3 @@
-import { useState } from 'react';
-import axios from "axios";
-import { useQuery } from "react-query";
 import * as mantineCore from '@mantine/core';
 import {
   Chart as ChartJS,
@@ -16,7 +13,7 @@ import { Line } from 'react-chartjs-2';
 
 import type { LoopProfile } from "../types/loop";
 
-
+//
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -27,15 +24,12 @@ ChartJS.register(
   Legend
 );
 
-//
-const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
-  headers: {
-    "Content-type": "application/json",
-  },
-});
-
-//
+/**
+ * Loop Profile Chart
+ *
+ * @param props 
+ * @returns 
+ */
 export function LoopProfileChart(props: { loopProfile: LoopProfile }) {
   const chartOptions = {
     responsive: true,
