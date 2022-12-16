@@ -14,31 +14,44 @@ const markerClasses = [
         id: 'reservation',
         text: 'Reservation Capital Project',
         color: 'blue'
+
+        // color: '#1BB3A0' // Scheme: Teal
     },
     {
         id: 'trail',
         text: 'Trail Project',
-        color: 'brown'
+        color: '#397a11' // Shade of CMP green
+
+        // color: '#B04B20' // Scheme: Brick
     },
     {
         id: 'restoration',
         text: 'Ecological Restoration and Site Improvements',
-        color: 'green'
+        // color: 'green'
+        color: '#ec8200' // An orange
+
+        // color: '#68ad3d' // Scheme: CMP site light green
     },
     {
         id: 'golf',
         text: 'Golf Capital Project',
         color: 'black'
+
+        // color: '#000000' // Scheme: Black
     },
     {
         id: 'expansion',
         text: 'New Reservations/Major Park Expansions',
-        color: 'red'
+        color: 'Red'
+
+        // color: '#AD9034' // Scheme: Light brown
     },
     {
         id: 'zoo',
         text: 'Zoo Capital Project',
-        color: 'purple'
+        color: 'DarkViolet'
+
+        // color: '#3548B0' // Scheme: Indigo
     }
 ];
 
@@ -96,7 +109,7 @@ $(document).on("mapInitialized", function () {
                 source: sourceId,
                 filter: ['!has', 'point_count'],
                 paint: {
-                    'circle-radius': 8,
+                    'circle-radius': 10,
                     'circle-color': item.color,
                     'circle-stroke-width': 1,
                     'circle-stroke-color': 'white'
