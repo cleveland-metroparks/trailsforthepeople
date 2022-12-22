@@ -8,8 +8,9 @@ import { RichTextEditor } from '@mantine/rte';
 import { LngLatBounds } from 'mapbox-gl';
 import { coordEach } from '@turf/meta';
 import { lineString } from '@turf/helpers';
+import { LineString, GeoJsonProperties } from 'geojson';
 
-import type { Loop, LoopProfile, LoopGeometry } from "../types/loop";
+import type { Loop, LoopProfile, LoopGeometry, LineStringFeature } from "../types/loop";
 
 import { LoopMap } from "../components/loopMap";
 import { LoopWaypoints } from "../components/loopWaypoints";
@@ -52,11 +53,27 @@ export function LoopEdit() {
     durationtext_bridle : ''
   });
 
-  const [waypointsFeature, setWaypointsFeature] = useState({});
-  // Mapbox GL JS Draw returns a feature object keyed by a randomly generated ID
-  // for each linestring inside the object. We re-parent our feature with our own
-  // dummy ID to resemble the structure:
-  // const [waypointsFeatures, setWaypointsFeatures] = useState({ dummyKey: {} });
+  const emptyLineStringFeature: LineStringFeature<LineString, GeoJsonProperties> = {
+    type: "Feature",
+    geometry: {
+      type: 'LineString',
+      coordinates: [],
+    },
+    id: '',
+    properties: {},
+  };
+  // @TODO: We should be able to simplify this by just storing coordinates at this level
+  // and turning them into a feature only where necessary in child components.
+  // Could then get rid of LineStringFeature type.
+  const [waypointsFeature, setWaypointsFeature] = useState(emptyLineStringFeature);
+  // Keeping a separate waypoints feature that we use for the "Back to start"
+  // functionality. Triggering that functionality causes us to update the Draw
+  // Control; we catch this waypointsForDraw data in the DrawControl with useEffect().
+  // We don't want to use the same waypointsFeature as above because we don't want to
+  // trigger an extra redraw of the draw control (via our create/update callbacks) every
+  // time the user edits it via the Draw UI.
+  const [waypointsForDraw, setWaypointsForDraw] = useState(emptyLineStringFeature);
+
   const [waypointsGeoJSON, setWaypointsGeoJSON] = useState('');
   const [bounds, setBounds] = useState(new LngLatBounds());
 
@@ -175,8 +192,6 @@ export function LoopEdit() {
   //---------------------------------------------------------------------------
 
   // Get route from waypoints from API
-  // @TODO: Don't call this the very first time the loop is loaded,
-  // because we're overwriting saved stats/data
   const getRouteFromWaypoints = async (waypointsGeojson: string, travelMode: string) => {
     const params = new URLSearchParams({
       waypoints: waypointsGeojson,
@@ -208,78 +223,78 @@ export function LoopEdit() {
   // Waypoints Draw update callbacks
   //
 
-  // Make GeoJSON linestring from waypoints (inside [Draw] features object), for DB storage
-  function makeWaypointGeojsonString(features) {
-    // Mapbox GL Draw returns an object with a randomly-named member inside
-    // that stores the feature. Get that member name.
-    const feature_id = Object.keys(features)[0];
-    if (feature_id) {
-      if (features[feature_id].geometry.coordinates) {
-        // Turn into GeoJSON string for DB storage
-        const coordsLinestring = lineString(features[feature_id].geometry.coordinates); // Using turf
-        const output = JSON.stringify(coordsLinestring);
-        return output;
-      }
+  // Make GeoJSON linestring from waypoints (inside Draw/GeoJSON feature)
+  function makeWaypointGeojsonString(feature) {
+    if (feature.geometry.coordinates) {
+      // Turn into GeoJSON string for DB storage
+      const coordsLinestring = lineString(feature.geometry.coordinates); // Using turf
+      const output = JSON.stringify(coordsLinestring);
+      return output;
     }
   }
 
-  //
+  // Complete the loop; back to start
+  const completeLoop = () => {
+    // Create the new feature and append the coordinate
+    let newFeature = {...waypointsFeature};
+    let coords = newFeature.geometry.coordinates;
+    if (coords.length > 1) {
+      if (coords[0] != coords[coords.length - 1]) {
+        // Add the first coordinate to the end of the coords array
+        coords.push(coords[0]);
+      } else {
+        // @TODO: Warning to user: already added
+      }
+    } else {
+      // @TODO: Warning to user: not enought waypoints
+    }
+
+    setWaypointsFeature(curFeature => {
+      return newFeature;
+    });
+    setWaypointsForDraw(curFeature => {
+      return newFeature;
+    });
+
+    // We have to call these, because Draw.create & Draw.update events
+    // are only called via user interaction
+    const wpGeoJSON = makeWaypointGeojsonString(newFeature);
+    setWaypointsGeoJSON(wpGeoJSON);
+    getRouteFromWaypoints(wpGeoJSON, 'hike');
+  }
+
+  // on Draw Create
+  // @TODO: all these callbacks have all become the same...
   const onDrawCreate = e => {
-    // setWaypointsFeatures(curFeatures => {
-    //   const newFeatures = {...curFeatures};
-    //   // Delete existing features
-    //   for (const key of Object.keys(newFeatures)) {
-    //     delete newFeatures[key];
-    //   }
-    //   // Add new
-    //   for (const f of e.features) {
-    //     newFeatures[f.id] = f;
-    //   }
-    //   return newFeatures;
-    // });
+    const feature_id = Object.keys(e.features)[0];
     setWaypointsFeature(curFeature => {
-      const feature_id = Object.keys(e.features)[0];
       return e.features[feature_id];
     });
-    const geoJSON = makeWaypointGeojsonString(e.features);
-    setWaypointsGeoJSON(geoJSON);
-    getRouteFromWaypoints(geoJSON, 'hike');
+    const wpGeoJSON = makeWaypointGeojsonString(e.features[feature_id]);
+    setWaypointsGeoJSON(wpGeoJSON);
+    getRouteFromWaypoints(wpGeoJSON, 'hike');
   };
 
-  //
+  // on Draw Update
   const onDrawUpdate = e => {
-    // setWaypointsFeatures(curFeatures => {
-    //   const newFeatures = {...curFeatures};
-    //   for (const f of e.features) {
-    //     newFeatures[f.id] = f;
-    //   }
-    //   return newFeatures;
-    // });
+    const feature_id = Object.keys(e.features)[0];
     setWaypointsFeature(curFeature => {
-      const feature_id = Object.keys(e.features)[0];
       return e.features[feature_id];
     });
-    const geoJSON = makeWaypointGeojsonString(e.features);
-    setWaypointsGeoJSON(geoJSON);
-    getRouteFromWaypoints(geoJSON, 'hike');
+    const wpGeoJSON = makeWaypointGeojsonString(e.features[feature_id]);
+    setWaypointsGeoJSON(wpGeoJSON);
+    getRouteFromWaypoints(wpGeoJSON, 'hike');
   };
 
-  //
+  // on Draw Delete
   const onDrawDelete = e => {
-    // setWaypointsFeatures(curFeatures => {
-    //   const newFeatures = {...curFeatures};
-    //   for (const f of e.features) {
-    //     delete newFeatures[f.id];
-    //   }
-    //   return newFeatures;
-    // });
+    const feature_id = Object.keys(e.features)[0];
     setWaypointsFeature(curFeature => {
-      const feature_id = Object.keys(e.features)[0];
       return e.features[feature_id];
     });
-    const geoJSON = makeWaypointGeojsonString(e.features);
-    setWaypointsGeoJSON(geoJSON);
-    getRouteFromWaypoints(geoJSON, 'hike');
+    const wpGeoJSON = makeWaypointGeojsonString(e.features[feature_id]);
+    setWaypointsGeoJSON(wpGeoJSON);
+    getRouteFromWaypoints(wpGeoJSON, 'hike');
   };
   //----------------------------------
 
@@ -397,10 +412,12 @@ export function LoopEdit() {
                         loop={loopData}
                         loopGeom={loopGeometry}
                         waypointsFeature={waypointsFeature}
+                        waypointsForDraw={waypointsForDraw}
                         mapBounds={bounds}
                         onDrawCreate={onDrawCreate}
                         onDrawUpdate={onDrawUpdate}
                         onDrawDelete={onDrawDelete}
+                        doCompleteLoop={completeLoop}
                       />
                     }
                     <LoopProfileChart loopProfile={loopElevation} />
@@ -422,7 +439,10 @@ export function LoopEdit() {
                       <Accordion.Item value="waypoints">
                         <Accordion.Control>Waypoints</Accordion.Control>
                         <Accordion.Panel>
-                          <LoopWaypoints feature={waypointsFeature} geojson={waypointsGeoJSON} />
+                          <LoopWaypoints
+                            feature={waypointsFeature}
+                            // geojson={waypointsGeoJSON}
+                          />
                         </Accordion.Panel>
                       </Accordion.Item>
                     </Accordion>

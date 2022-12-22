@@ -1,3 +1,5 @@
+import { LineString, GeoJsonProperties, GeoJsonObject} from 'geojson';
+
 export type Loop = {
   id: number,
   name: string,
@@ -36,3 +38,10 @@ export type LoopGeometry = {
   id: number,
   geom_geojson: string
 };
+
+export interface LineStringFeature<LineString, GeoJsonProperties> extends GeoJsonObject {
+  type: "Feature";
+  geometry: LineString;
+  id?: string | number | undefined;
+  properties: GeoJsonProperties;
+}

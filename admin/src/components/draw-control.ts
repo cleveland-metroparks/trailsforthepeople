@@ -1,6 +1,7 @@
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { useControl } from 'react-map-gl';
 import type { MapRef, ControlPosition } from 'react-map-gl';
+import { useEffect } from 'react';
 
 /**
  * See:
@@ -12,14 +13,13 @@ type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
   position?: ControlPosition;
 
   initialData?: any; // The GeoJSON linestring feature to display initially
+  waypointsGeom?: any; // Updated waypoints data
 
   // See mapbox-gl-draw API for create/update/delete events
   //   https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md
-  onCreate?: (evt: {features: object[]}) => void;
-  onUpdate?: (evt: {features: object[]; action: string}) => void;
-  onDelete?: (evt: {features: object[]}) => void;
-
-  completeLoop?: () => void;
+  onCreate?: (e: {features: object[]}) => void;
+  onUpdate?: (e: {features: object[]; action: string}) => void;
+  onDelete?: (e: {features: object[]}) => void;
 };
 
 export default function DrawControl(props: DrawControlProps) {
@@ -33,36 +33,34 @@ export default function DrawControl(props: DrawControlProps) {
 
       map.on('load', function () {
         // Draw initial waypoints
-        // console.log("props.initialData", props.initialData);
-        // console.log("props.initialData.waypoints", props.initialData.waypoints);
-        // console.log("props.initialData.waypoints.geometry", props.initialData.waypoints.geometry);
-        if (props.initialData.waypoints.geometry) {
-          var feature = props.initialData.waypoints.geometry;
-          // console.log("initial feature", feature);
-
-          // Delete the initial empty feature that Draw initiates with
-          // console.log('draw.getAll() pre-delete', draw.getAll());
-          draw.deleteAll();
-          // console.log('draw.getAll() post-delete', draw.getAll());
-
-          // Add our waypoints linestring as a new Draw feature
-
-          // Add the geometry to the Drawing
-          draw.add(feature);
-
-          var drawFeatures = draw.getAll();
-          // console.log('draw.getAll() post-add', draw.getAll());
-
-          // Initialize the Draw control with these features
-          props.onCreate(drawFeatures);
+        if (props.initialData.geometry) {
+          setDrawFeature(props.initialData);
         }
       })
     },
-
     {
       position: props.position
     }
   );
+
+  // Replace the draw component's feature(s) with a given one
+  const setDrawFeature = (feature) => {
+    // @TODO: It might be more efficient to pass a FeatureCollection
+    // and call Draw.set(). See:
+    // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md
+
+    // Delete the initial empty feature that Draw initiates with
+    draw.deleteAll();
+    // Add our waypoints linestring as a new Draw feature
+    draw.add(feature);
+  }
+
+  //
+  useEffect(() => {
+    if (props.waypointsGeom.geometry.coordinates.length) {
+      setDrawFeature(props.waypointsGeom);
+    }
+  }, [props.waypointsGeom]);
 
   return null;
 }

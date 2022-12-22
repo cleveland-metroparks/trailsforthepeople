@@ -1,14 +1,17 @@
 import * as React from 'react';
 import { Table, Text, Title, Code, Group } from '@mantine/core';
 
+interface LoopWaypointsProps {
+  feature;
+  // geojson: string;
+}
+
 /**
  * Loop Waypoints
  * @param props 
  * @returns 
  */
-export function LoopWaypoints(props) {
-  let coordinates = props.feature.geometry.coordinates;
-
+export function LoopWaypoints(props: LoopWaypointsProps) {
   return (
     <>
       <Table striped highlightOnHover>
@@ -19,8 +22,8 @@ export function LoopWaypoints(props) {
           </tr>
         </thead>
         <tbody>
-          {coordinates &&
-            coordinates.map((lat_lng, i) => (
+          {props.feature.geometry.coordinates &&
+            props.feature.geometry.coordinates.map((lat_lng, i) => (
               <tr key={i}>
                 <td>{lat_lng[0].toFixed(5)}</td>
                 <td>{lat_lng[1].toFixed(5)}</td>

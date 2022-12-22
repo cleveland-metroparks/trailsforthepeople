@@ -18,26 +18,16 @@ const MAP_DEFAULT_STATE = {
   zoom: 9
 };
 
-//
-const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
-  headers: {
-    "Content-type": "application/json",
-  },
-});
-
 interface LoopMapProps {
   loop: Loop;
   loopGeom: string;
   mapBounds: LngLatBounds;
   waypointsFeature: Object;
-  // Callbacks for LoopMap to update the Stats data & pane here
-  // updateStats: Function;
-  // updateDirections: Function;
-  // updateElevation: Function;
-  onDrawCreate: (evt: {features: object[]}) => void;
-  onDrawUpdate: (evt: {features: object[]; action: string}) => void;
-  onDrawDelete: (evt: {features: object[]}) => void;
+  waypointsForDraw: Object;
+  onDrawCreate: (e: {features: object[]}) => void;
+  onDrawUpdate: (e: {features: object[]; action: string}) => void;
+  onDrawDelete: (e: {features: object[]}) => void;
+  doCompleteLoop: () => void;
 }
 
 /**
@@ -47,11 +37,6 @@ interface LoopMapProps {
  * @returns 
  */
 export function LoopMap(props: LoopMapProps) {
-  // Existing waypoint coordinates as GeoJSON string
-  // (fetched from API and passed in props)
-  const initialWaypointsFeature = JSON.parse(props.loop.waypoints_geojson);
-
-
   const mapRef = useRef<MapRef>(null);
 
   const [mapViewState, setMapViewState] = useState({
@@ -60,11 +45,6 @@ export function LoopMap(props: LoopMapProps) {
     zoom: MAP_DEFAULT_STATE.zoom
   });
 
-  //
-  const doCompleteLoop = () => {
-    console.log('HERE HERE');
-  }
-
   // Map onMove event
   const onMapMove = (event: ViewStateChangeEvent) => {
     setMapViewState(event.viewState);
@@ -72,10 +52,6 @@ export function LoopMap(props: LoopMapProps) {
 
   // Map onLoad event
   const onMapLoad = (event: MapboxEvent) => {
-    // @DEBUG: Does this happen whenever new data is passed down from parent Loop component
-    // Basically we need to figure out how to replace the Source data when Waypoints are changed
-    // and the parent component gets new GeoJSON
-    console.log('onMapLoad');
     const loopSource = mapRef.current.getSource('loop-data') as GeoJSONSource;
     loopSource.setData(props.loopGeom);
 
@@ -134,9 +110,12 @@ export function LoopMap(props: LoopMapProps) {
                 line_string: true,
                 trash: true
               }}
-              initialData={{
-                waypoints: props.waypointsFeature
-              }}
+              initialData={
+                props.waypointsFeature
+              }
+              waypointsGeom={
+                props.waypointsForDraw
+              }
               // styles={[
                 // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/EXAMPLES.md
                 // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md#styling-draw
@@ -146,8 +125,6 @@ export function LoopMap(props: LoopMapProps) {
               onCreate={props.onDrawCreate} // draw.create
               onUpdate={props.onDrawUpdate} // draw.update
               onDelete={props.onDrawDelete} // draw.delete
-
-              completeLoop={doCompleteLoop}
             />
           </Map>
 
@@ -162,7 +139,7 @@ export function LoopMap(props: LoopMapProps) {
               <Text size="sm" weight={500}>Complete loop</Text>
               <Button
                 variant="light"
-                onClick={doCompleteLoop}
+                onClick={props.doCompleteLoop}
               >Back to start</Button>
             </Box>
           </Group>
