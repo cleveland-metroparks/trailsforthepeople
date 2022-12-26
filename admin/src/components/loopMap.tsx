@@ -1,11 +1,13 @@
 import { useState, useRef } from 'react';
 import axios from "axios";
-import { LngLatBounds } from 'mapbox-gl';
+import { useQuery } from "react-query";
+import { LngLat, LngLatBounds } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
-import { Map, Source, NavigationControl, Layer, LineLayer } from 'react-map-gl';
+import { Source, NavigationControl, Layer, LineLayer } from 'react-map-gl';
+import * as ReactMapGl from 'react-map-gl'; // For "Map", to avoid collision
 import type { MapRef, MapboxEvent, ViewStateChangeEvent, GeoJSONSource } from 'react-map-gl';
-import { Text, TextInput, Button, Group, Box } from '@mantine/core';
+import { Text, Button, Group, Box, Autocomplete } from '@mantine/core';
 import DrawControl from './draw-control';
 
 import type { Loop } from "../types/loop";
@@ -30,6 +32,13 @@ interface LoopMapProps {
   doCompleteLoop: () => void;
 }
 
+const apiClient = axios.create({
+  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
+  headers: {
+    "Content-type": "application/json",
+  },
+});
+
 /**
  * Loop Map
  *
@@ -44,6 +53,88 @@ export function LoopMap(props: LoopMapProps) {
     latitude: MAP_DEFAULT_STATE.latitude,
     zoom: MAP_DEFAULT_STATE.zoom
   });
+
+  // Park features for the ZoomTo autocomplete field
+  const [autocompleteData, setAutocompleteData] = useState([]);
+  // Keyed array (Map) of park feature to coordinates
+  const [parkFeatureLocations, setParkFeatureLocations] = useState(new Map());
+  // Current value of the zoomTo field
+  const [zoomToValue, setZoomToValue] = useState('');
+
+  /**
+   * Populate the zoomTo autocomplete component with CMP features
+   */
+
+  // Get Reservations data from the API
+  const getReservations = async () => {
+    const response = await apiClient.get<any>("/reservations");
+
+    // Get the name, group (type), coordinates, and bounds (if set) of each reservation
+    // for the Autocomplete component
+    let autocompleteReservations = response.data.data.map(data => {
+
+      // Construct LngLat from coords data, if it exists
+      let coords = {};
+      if ((data.longitude && data.latitude) &&
+       (data.longitude != 0 && data.latitude != 0)) {
+        coords = new LngLat(data.longitude, data.latitude);
+      }
+
+      // Construct LngLatBounds from bounds data, if it exists
+      let bounds = {};
+      if ((data.boxw && data.boxs && data.boxe && data.boxn) &&
+        (data.boxw != 0 && data.boxs != 0 && data.boxe != 0 && data.boxn != 0)  ) {
+        const sw = new LngLat(data.boxw, data.boxs);
+        const ne = new LngLat(data.boxe, data.boxn);
+        bounds = new LngLatBounds(sw, ne);
+      }
+
+      return {
+        value: data.pagetitle,
+        group: 'Reservation',
+        coords: coords,
+        bounds: bounds,
+      }
+    });
+
+    // Keep only unique entries by name (value):
+    autocompleteReservations = [...new Map(autocompleteReservations.map((item) => [item.value, item])).values()];
+    setAutocompleteData(autocompleteReservations);
+
+    // Make Map array object of locations, keyed by name and storing coords & bounds
+    // -- for lookup by autocomplete text
+    const locs = new Map(autocompleteReservations.map((item) =>[item.value, {
+      coords: item.coords,
+      bounds: item.bounds
+    }]));
+    setParkFeatureLocations(locs);
+
+    return response.data.data;
+  }
+
+  const {
+    isLoading: getReservationsCallIsLoading,
+    isError: getReservationsCallIsError,
+    data: getReservationsCallData,
+    error: getReservationsCallError
+  } = useQuery<Loop[], Error>('loops', getReservations);
+  //------------------
+
+  // Zoom map to (a park location)
+  const zoomMapTo = (coords: LngLat, bounds: LngLatBounds) => {
+    if (Object.keys(bounds).length !== 0) {
+      mapRef.current.fitBounds(bounds, { padding: 10 });
+    } else {
+      if (coords.lng && coords.lat) {
+        // Or, flyto coords with default zoom
+        const DEFAULT_POI_ZOOM = 15;
+        mapRef.current.flyTo({
+          center: coords,
+          zoom: DEFAULT_POI_ZOOM,
+        });
+      }
+    }
+  }
 
   // Map onMove event
   const onMapMove = (event: ViewStateChangeEvent) => {
@@ -82,7 +173,7 @@ export function LoopMap(props: LoopMapProps) {
     <>
       {props.loopGeom &&
         <>
-          <Map
+          <ReactMapGl.Map
             reuseMaps
             ref={mapRef}
             {...mapViewState}
@@ -120,20 +211,31 @@ export function LoopMap(props: LoopMapProps) {
                 // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/EXAMPLES.md
                 // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md#styling-draw
                 // https://docs.mapbox.com/mapbox-gl-js/style-spec/
-              // ]}
-              defaultMode="draw_line_string"
-              onCreate={props.onDrawCreate} // draw.create
-              onUpdate={props.onDrawUpdate} // draw.update
-              onDelete={props.onDrawDelete} // draw.delete
+                // ]}
+                defaultMode="draw_line_string"
+                onUpdate={props.onDrawUpdate} // draw.update
+                onCreate={props.onDrawCreate} // draw.create
+                onDelete={props.onDrawDelete} // draw.delete
             />
-          </Map>
+          </ReactMapGl.Map>
 
           <Group position="apart">
             <Box my={15}>
-              <Text size="sm" weight={500}>Zoom to location</Text>
-              <TextInput
-                placeholder="Park location"
+              <Autocomplete
+                label="Zoom to location"
+                placeholder="CMP feature..."
+                data={autocompleteData}
+                onChange={setZoomToValue}
               />
+              <Button
+                variant="light"
+                onClick={() => {
+                  // Get the coordinates of the current value in the autocomplete field
+                  // const coords = {lng: -81.804, lat: 41.301};
+                  const parkFeatureLocation = parkFeatureLocations.get(zoomToValue);
+                  zoomMapTo(parkFeatureLocation.coords, parkFeatureLocation.bounds);
+                }}
+              >Zoom</Button>
             </Box>
             <Box>
               <Text size="sm" weight={500}>Complete loop</Text>
