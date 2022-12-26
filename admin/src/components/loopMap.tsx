@@ -7,7 +7,7 @@ import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { Source, NavigationControl, Layer, LineLayer } from 'react-map-gl';
 import * as ReactMapGl from 'react-map-gl'; // For "Map", to avoid collision
 import type { MapRef, MapboxEvent, ViewStateChangeEvent, GeoJSONSource } from 'react-map-gl';
-import { Text, Button, Group, Box, Autocomplete } from '@mantine/core';
+import { Text, Button, Group, Box, Flex, Autocomplete } from '@mantine/core';
 import DrawControl from './draw-control';
 
 import type { Loop } from "../types/loop";
@@ -219,8 +219,16 @@ export function LoopMap(props: LoopMapProps) {
             />
           </ReactMapGl.Map>
 
-          <Group position="apart">
-            <Box my={15}>
+          <Group
+            position="apart"
+            mt={10}
+            mb={30}
+            >
+            <Flex
+              gap="sm"
+              justify="flex-start"
+              align="flex-end"
+            >
               <Autocomplete
                 label="Zoom to location"
                 placeholder="CMP feature..."
@@ -236,9 +244,9 @@ export function LoopMap(props: LoopMapProps) {
                   zoomMapTo(parkFeatureLocation.coords, parkFeatureLocation.bounds);
                 }}
               >Zoom</Button>
-            </Box>
+            </Flex>
             <Box>
-              <Text size="sm" weight={500}>Complete loop</Text>
+              <Text size="sm">Complete loop</Text>
               <Button
                 variant="light"
                 onClick={props.doCompleteLoop}
