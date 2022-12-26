@@ -143,8 +143,10 @@ export function LoopMap(props: LoopMapProps) {
 
   // Map onLoad event
   const onMapLoad = (event: MapboxEvent) => {
-    const loopSource = mapRef.current.getSource('loop-data') as GeoJSONSource;
-    loopSource.setData(props.loopGeom);
+    // @TODO: Not sure why we were doing this. React is automatically putting
+    // props.loopGeom data into the <Source> data.
+    // const loopSource = mapRef.current.getSource('loop-data') as GeoJSONSource;
+    // loopSource.setData(props.loopGeom);
 
     // Fit map bounds to loop bounds
     if (mapRef.current) {
@@ -211,11 +213,11 @@ export function LoopMap(props: LoopMapProps) {
                 // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/EXAMPLES.md
                 // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md#styling-draw
                 // https://docs.mapbox.com/mapbox-gl-js/style-spec/
-                // ]}
-                defaultMode="draw_line_string"
-                onUpdate={props.onDrawUpdate} // draw.update
-                onCreate={props.onDrawCreate} // draw.create
-                onDelete={props.onDrawDelete} // draw.delete
+              // ]}
+              defaultMode="draw_line_string"
+              onUpdate={props.onDrawUpdate} // draw.update
+              onCreate={props.onDrawCreate} // draw.create
+              onDelete={props.onDrawDelete} // draw.delete
             />
           </ReactMapGl.Map>
 
