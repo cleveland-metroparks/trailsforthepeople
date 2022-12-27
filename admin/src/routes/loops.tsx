@@ -477,10 +477,10 @@ export function LoopsList() {
     return response.data.data;
   }
 
-  const { isLoading, isError, data, error } = useQuery<Loop[], Error>('loops', getAllLoops);
+  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Loop[], Error>('loops', getAllLoops);
 
   return (
-    <div>
+    <>
       <Title order={2}>Loops</Title>
       {isLoading && <div>Loading...</div>}
       {isError && (
@@ -496,13 +496,14 @@ export function LoopsList() {
         </thead>
         <tbody>
         {data &&
-          data.map(loop => (
-            <tr key={loop.id}>
+          data.map((loop, index) => (
+            // @TODO: Keying by loop.id is for some reason causing a duplicate key error:
+            <tr key={index}>
               <td>
                 <Anchor
                   component={Link}
                   to={`/loops/${loop.id}`}
-                  key={loop.id}
+                  // key={index}
                 >
                   {loop.name}
                 </Anchor>
@@ -513,6 +514,6 @@ export function LoopsList() {
           ))}
         </tbody>
       </Table>
-    </div>
+    </>
   );
 }

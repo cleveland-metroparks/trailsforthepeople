@@ -3,7 +3,7 @@ import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
 
-import { Table, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
+import { Table, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
 
@@ -254,15 +254,12 @@ export function MarkersList() {
 
   return (
     <div>
-      <h2>Markers</h2>
-
+      <Title order={2}>Markers</Title>
       {isLoading && <div>Loading...</div>}
-
       {isError && (
         <div>{`There is a problem fetching the post data - ${error.message}`}</div>
       )}
       <Table striped highlightOnHover>
-
         <thead>
           <tr>
             <th>Title</th>
@@ -274,30 +271,28 @@ export function MarkersList() {
             <th>Annual</th>
           </tr>
         </thead>
-
         <tbody>
-        {data &&
-          data.map(marker => (
-            <tr key={marker.id}>
-              <td>
-                <Anchor
-                  component={Link}
-                  to={`/markers/${marker.id}`}
-                  key={marker.id}
-                >
-                  {marker.title}
-                </Anchor>
-              </td>
-              <td>{marker.creator}</td>
-              <td>{dayjs(marker.created).format('YYYY-MM-DD HH:mm:ss Z')}</td>
-              <td>{marker.expires ? dayjs(marker.expires).format('YYYY-MM-DD HH:mm:ss Z') : ''}</td>
-              <td>{marker.category}</td>
-              <td>{marker.enabled}</td>
-              <td>{marker.annual}</td>
-            </tr>
-          ))}
+          {data &&
+            data.map(marker => (
+              <tr key={marker.id}>
+                <td>
+                  <Anchor
+                    component={Link}
+                    to={`/markers/${marker.id}`}
+                    // key={marker.id}
+                  >
+                    {marker.title}
+                  </Anchor>
+                </td>
+                <td>{marker.creator}</td>
+                <td>{dayjs(marker.created).format('YYYY-MM-DD HH:mm:ss Z')}</td>
+                <td>{marker.expires ? dayjs(marker.expires).format('YYYY-MM-DD HH:mm:ss Z') : ''}</td>
+                <td>{marker.category}</td>
+                <td>{marker.enabled}</td>
+                <td>{marker.annual}</td>
+              </tr>
+            ))}
         </tbody>
-
       </Table>
     </div>
   );
