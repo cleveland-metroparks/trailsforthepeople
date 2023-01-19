@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import axios from "axios";
 import { useQuery, useMutation } from "react-query";
 import { Link, useParams } from "react-router-dom";
@@ -69,6 +69,8 @@ const apiClient = axios.create({
 
 //
 export function MarkerEdit() {
+  const [savingState, setSavingState] = useState(false);
+
   const mutation = useMutation((formData: MarkerFormData) => saveMarker(formData));
 
   const { classes, cx } = useStyles();
@@ -118,6 +120,7 @@ export function MarkerEdit() {
 
   // Save Marker
   const saveMarker = async (formData) => {
+    setSavingState(true);
     showNotification({
       id: 'save-marker',
       loading: true,
@@ -145,21 +148,24 @@ export function MarkerEdit() {
       updateNotification({
         id: 'save-marker',
         loading: false,
-        title: 'Marker saved successfully.',
+        title: 'Marker saved successfully',
         message: '',
         autoClose: 2000,
       });
+      setSavingState(false);
       console.log("Marker saved:", response);
     })
     .catch(function (error) {
+      const errMsg = error.name + ': ' + error.message + ' (' + error.code + ')';
       updateNotification({
         id: 'save-marker',
         loading: false,
         color: 'red',
-        title: 'Error saving marker.',
-        message: error,
+        title: 'Error saving marker',
+        message: errMsg,
         autoClose: false,
       });
+      setSavingState(false);
       console.error("Error saving marker:", error);
     });
 
@@ -344,7 +350,10 @@ export function MarkerEdit() {
               </Accordion>
 
               <Group position="left" mt="md">
-                <Button type="submit" sx={{ margin: '1em 0' }}>Save Marker</Button>
+                <Button
+                  type="submit"
+                  loading={savingState}
+                  sx={{ margin: '1em 0' }}>Save Marker</Button>
               </Group>
 
             </Box>
