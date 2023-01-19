@@ -75,6 +75,7 @@ export function MarkerEdit() {
       content: response.data.data.content,
       category: response.data.data.category,
       enabled: response.data.data.enabled === 1,
+      annual: response.data.data.annual === 1,
       startDate: dayjs(response.data.data.startdate).toDate(),
       expireDate: dayjs(response.data.data.expires).toDate(),
       latitude: response.data.data.lat,
@@ -95,6 +96,7 @@ export function MarkerEdit() {
       content: '',
       category: '',
       enabled: false,
+      annual: false,
       startDate: null,
       expireDate: null,
       latitude: null,
@@ -255,7 +257,13 @@ export function MarkerEdit() {
                         })
                       }
                     />
-                    <span><strong>Annual:</strong> {data.annual}</span><br />
+
+                    <Checkbox
+                      mt="md"
+                      label="Annual"
+                      {...form.getInputProps('annual', { type: 'checkbox' })}
+                    />
+
                     <Checkbox
                       mt="md"
                       label="Enabled"
