@@ -3,16 +3,25 @@ import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
 
-import { Table, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
+import { createStyles, Table, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
+import { DatePicker } from '@mantine/dates';
 
 import { default as dayjs } from 'dayjs';
+
 
 import * as MapGl from 'react-map-gl'; // Namespace as MapGl since we already have "Marker"
 import type { MapRef } from 'react-map-gl';
 import type { MarkerDragEvent } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+
+// Styling for datepicker weekend days
+const useStyles = createStyles((theme) => ({
+  weekend: {
+    color: `${theme.colors.blue[5]} !important`,
+  },
+}));
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
 const MAPBOX_STYLE = 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
@@ -48,6 +57,8 @@ const apiClient = axios.create({
 
 //
 export function MarkerEdit() {
+  const { classes, cx } = useStyles();
+
   const mapRef = useRef<MapRef>(null);
 
   // Get marker
@@ -64,7 +75,9 @@ export function MarkerEdit() {
       title: response.data.data.title,
       content: response.data.data.content,
       category: response.data.data.category,
-      enabled: response.data.data.enabled === 1
+      enabled: response.data.data.enabled === 1,
+      startDate: dayjs(response.data.data.startdate).toDate(),
+      expireDate: dayjs(response.data.data.expires).toDate()
     });
 
     return response.data.data;
@@ -80,7 +93,9 @@ export function MarkerEdit() {
       title: '',
       content: '',
       category: '',
-      enabled: false
+      enabled: false,
+      startDate: null,
+      expireDate: null
     },
     validate: {
     },
@@ -199,8 +214,28 @@ export function MarkerEdit() {
                 <Accordion.Item value="publishing">
                   <Accordion.Control>Publishing status</Accordion.Control>
                   <Accordion.Panel>
-                    <span><strong>Start date:</strong> {data.startdate ? dayjs(data.startdate).format('YYYY-MM-DD HH:mm:ss Z') : ''}</span><br />
-                    <span><strong>Expires:</strong> {data.expires ? dayjs(data.expires).format('YYYY-MM-DD HH:mm:ss Z') : <em>none</em>}</span><br />
+                    <DatePicker
+                      label="Start date"
+                      placeholder="Pick start date"
+                      firstDayOfWeek="sunday"
+                      {...form.getInputProps('startDate')}
+                      dayClassName={(date, modifiers) =>
+                        cx({
+                          [classes.weekend]: modifiers.weekend,
+                        })
+                      }
+                    />
+                    <DatePicker
+                      label="Expires"
+                      placeholder="Pick expiration date"
+                      firstDayOfWeek="sunday"
+                      {...form.getInputProps('expireDate')}
+                      dayClassName={(date, modifiers) =>
+                        cx({
+                          [classes.weekend]: modifiers.weekend,
+                        })
+                      }
+                    />
                     <span><strong>Annual:</strong> {data.annual}</span><br />
                     <Checkbox
                       mt="md"
