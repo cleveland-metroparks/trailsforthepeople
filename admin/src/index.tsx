@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { MantineProvider } from '@mantine/core';
+import { NotificationsProvider } from '@mantine/notifications';
 
 import {
   BrowserRouter,
@@ -39,34 +41,40 @@ root.render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter basename={PATH}>
 
-        <Routes>
-          <Route path="/" element={<App />}>
-            <Route path="loops">
-              <Route index element={<LoopsList />} />
-              <Route path=":loopId" element={<LoopEdit />} />
-            </Route>
-            <Route path="markers">
-              <Route index element={<MarkersList />} />
-              <Route path=":markerId" element={<MarkerEdit />} />
-            </Route>
-            <Route path="hintmaps">
-              <Route index element={<HintMapsList />} />
-              <Route path=":hintmapId" element={<HintMapEdit />} />
-            </Route>
-            <Route path="logs">
-              <Route index element={<AuditLogsList />} />
-              <Route path=":logId" element={<AuditLogView />} />
-            </Route>
-            <Route
-              path="*"
-              element={
-                <main style={{ padding: "1rem" }}>
-                  <p>Not found</p>
-                </main>
-              }
-            />
-          </Route>
-        </Routes>
+        <MantineProvider withNormalizeCSS withGlobalStyles>
+          <NotificationsProvider>
+
+            <Routes>
+              <Route path="/" element={<App />}>
+                <Route path="loops">
+                  <Route index element={<LoopsList />} />
+                  <Route path=":loopId" element={<LoopEdit />} />
+                </Route>
+                <Route path="markers">
+                  <Route index element={<MarkersList />} />
+                  <Route path=":markerId" element={<MarkerEdit />} />
+                </Route>
+                <Route path="hintmaps">
+                  <Route index element={<HintMapsList />} />
+                  <Route path=":hintmapId" element={<HintMapEdit />} />
+                </Route>
+                <Route path="logs">
+                  <Route index element={<AuditLogsList />} />
+                  <Route path=":logId" element={<AuditLogView />} />
+                </Route>
+                <Route
+                  path="*"
+                  element={
+                    <main style={{ padding: "1rem" }}>
+                      <p>Not found</p>
+                    </main>
+                  }
+                />
+              </Route>
+            </Routes>
+
+            </NotificationsProvider>
+        </MantineProvider>
 
       </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />
