@@ -367,7 +367,6 @@ export function LoopEdit() {
                   >
                     <RichTextEditor
                       id="rte"
-                      required
                       {...form.getInputProps('description')}
                       controls={[
                         ['bold', 'italic', 'underline'],

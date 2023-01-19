@@ -142,7 +142,6 @@ export function MarkerEdit() {
               >
                 <RichTextEditor
                   id="rte"
-                  required
                   {...form.getInputProps('content')}
                   controls={[
                     ['bold', 'strike', 'italic', 'underline'],
@@ -212,7 +211,7 @@ export function MarkerEdit() {
                 </Accordion.Item>
 
                 <Accordion.Item value="authorship">
-                  <Accordion.Control>Publishing status</Accordion.Control>
+                  <Accordion.Control>Authorship</Accordion.Control>
                   <Accordion.Panel>
                     <div>
                       <span><strong>Created:</strong> {dayjs(data.created).format('YYYY-MM-DD HH:mm:ss Z')}</span><br />
