@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useQuery, useMutation } from "react-query";
 import { Link, useParams } from "react-router-dom";
 
 import { createStyles, Flex, Text, Table, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
@@ -47,6 +47,17 @@ type Marker = {
   annual: number,
   startdate: string
 };
+type MarkerFormData = {
+  title: string,
+  content: string,
+  category: string,
+  enabled: boolean,
+  annual: boolean,
+  startDate,
+  expireDate,
+  latitude: number,
+  longitude: number
+};
 
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
@@ -57,6 +68,8 @@ const apiClient = axios.create({
 
 //
 export function MarkerEdit() {
+  const mutation = useMutation((formData: MarkerFormData) => saveMarker(formData));
+
   const { classes, cx } = useStyles();
 
   const mapRef = useRef<MapRef>(null);
@@ -102,6 +115,33 @@ export function MarkerEdit() {
     },
   });
 
+  // Save Marker
+  const saveMarker = async (formData) => {
+    const response = apiClient.put<any>('/markers/' + markerId, {
+      creator: 'Steven Mather', // @TODO
+      created: dayjs(),
+      lat: formData.latitude,
+      lng: formData.longitude,
+      content: formData.content,
+      title: formData.title,
+      expires: dayjs(formData.expireDate).format('YYYY-MM-DD'),
+      creatorid: 1, // @TODO
+      geom_geojson: '', // @TODO
+      category: formData.category,
+      enabled: formData.enabled ? 1 : 0,
+      annual: formData.annual ? 1 : 0,
+      startdate: dayjs(formData.startDate).format('YYYY-MM-DD'),
+    })
+    .then(function (response) {
+      console.log("Marker saved:", response);
+    })
+    .catch(function (error) {
+      console.error("Error saving marker:", error);
+    });
+
+    return response;
+  }
+
   //--------
 
   // Marker event: on drag
@@ -131,7 +171,9 @@ export function MarkerEdit() {
         <div>
           <h2>{data.title}</h2>
 
-          <form onSubmit={form.onSubmit((values) => console.log('submitted form values', values))}>
+          <form onSubmit={form.onSubmit((formValues) => {
+            mutation.mutate(formValues);
+          })}>
 
             <Box sx={{ maxWidth: 800 }}>
 
@@ -209,7 +251,7 @@ export function MarkerEdit() {
                     {...form.getInputProps('latitude')}
                   />
                 </Input.Wrapper>
-                <Input.Wrapper label="Lng">
+                <Input.Wrapper label="Longitude">
                   <Input
                     variant="unstyled"
                     placeholder="Longitude"
@@ -266,7 +308,7 @@ export function MarkerEdit() {
                   <Accordion.Panel>
                     <div>
                       <span><strong>Created:</strong> {dayjs(data.created).format('YYYY-MM-DD HH:mm:ss Z')}</span><br />
-                      <span><strong>Created by:</strong> {data.creator}</span>
+                      <span><strong>Created by:</strong> {data.creator} (ID: {data.creatorid})</span>
                     </div>
                     <div>
                       <span><strong>Last edited:</strong></span><br />
@@ -334,7 +376,7 @@ export function MarkersList() {
                     {marker.title}
                   </Anchor>
                 </td>
-                <td>{marker.creator}</td>
+                <td>{marker.creator} ({marker.creatorid})</td>
                 <td>{dayjs(marker.created).format('YYYY-MM-DD HH:mm:ss Z')}</td>
                 <td>{marker.expires ? dayjs(marker.expires).format('YYYY-MM-DD HH:mm:ss Z') : ''}</td>
                 <td>{marker.category}</td>
