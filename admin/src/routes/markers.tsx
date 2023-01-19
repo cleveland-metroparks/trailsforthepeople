@@ -3,7 +3,7 @@ import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
 
-import { createStyles, Table, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
+import { createStyles, Flex, Table, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
 import { DatePicker } from '@mantine/dates';
@@ -70,14 +70,15 @@ export function MarkerEdit() {
       longitude: response.data.data.lng,
       latitude: response.data.data.lat
     });
-
     form.setValues({
       title: response.data.data.title,
       content: response.data.data.content,
       category: response.data.data.category,
       enabled: response.data.data.enabled === 1,
       startDate: dayjs(response.data.data.startdate).toDate(),
-      expireDate: dayjs(response.data.data.expires).toDate()
+      expireDate: dayjs(response.data.data.expires).toDate(),
+      latitude: response.data.data.lat,
+      longitude: response.data.data.lng
     });
 
     return response.data.data;
@@ -95,7 +96,9 @@ export function MarkerEdit() {
       category: '',
       enabled: false,
       startDate: null,
-      expireDate: null
+      expireDate: null,
+      latitude: null,
+      longitude: null
     },
     validate: {
     },
@@ -114,6 +117,7 @@ export function MarkerEdit() {
       longitude: event.lngLat.lng,
       latitude: event.lngLat.lat
     });
+    form.setValues({ latitude: event.lngLat.lat, longitude: event.lngLat.lng });
   }, []);
 
   // Marker event: on drag end
@@ -205,10 +209,25 @@ export function MarkerEdit() {
                 </MapGl.Map>
               </Box>
 
-              <Box sx={{margin: '1em 0'}}>
-                <span><strong>Lat:</strong> {marker.latitude}</span><br />
-                <span><strong>Lat:</strong> {marker.longitude}</span><br />
-              </Box>
+              <Flex
+                justify="flex-start"
+                sx={{margin: '1em 0'}}
+              >
+                <Input.Wrapper label="Latitude">
+                  <Input
+                    variant="unstyled"
+                    placeholder="Latitude"
+                    {...form.getInputProps('latitude')}
+                  />
+                </Input.Wrapper>
+                <Input.Wrapper label="Lng">
+                  <Input
+                    variant="unstyled"
+                    placeholder="Longitude"
+                    {...form.getInputProps('longitude')}
+                  />
+                </Input.Wrapper>
+              </Flex>
 
               <Accordion>
                 <Accordion.Item value="publishing">
