@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
@@ -62,14 +62,10 @@ export function MarkerEdit() {
   const mapRef = useRef<MapRef>(null);
 
   // Get marker
-  // Moved this into Marker component so we can use setMarker()
+  // Moved this into Marker component so we can use [now defunct] setMarker()
   const getMarker = async (id: string) => {
     const response = await apiClient.get<any>("/markers/" + id);
 
-    setMarker({
-      longitude: response.data.data.lng,
-      latitude: response.data.data.lat
-    });
     form.setValues({
       title: response.data.data.title,
       content: response.data.data.content,
@@ -108,17 +104,8 @@ export function MarkerEdit() {
 
   //--------
 
-  const [marker, setMarker] = useState({
-    latitude: MAP_DEFAULT_STATE.latitude,
-    longitude: MAP_DEFAULT_STATE.longitude
-  });
-
   // Marker event: on drag
   const onMarkerDrag = useCallback((event: MarkerDragEvent) => {
-    setMarker({
-      longitude: event.lngLat.lng,
-      latitude: event.lngLat.lat
-    });
     form.setValues({ latitude: event.lngLat.lat, longitude: event.lngLat.lng });
   }, []);
 
@@ -144,7 +131,7 @@ export function MarkerEdit() {
         <div>
           <h2>{data.title}</h2>
 
-          <form onSubmit={form.onSubmit((values) => console.log('onSubmit():', values))}>
+          <form onSubmit={form.onSubmit((values) => console.log('submitted form values', values))}>
 
             <Box sx={{ maxWidth: 800 }}>
 
