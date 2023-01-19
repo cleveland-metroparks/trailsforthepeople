@@ -3,7 +3,7 @@ import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
 
-import { createStyles, Flex, Table, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
+import { createStyles, Flex, Text, Table, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
 import { DatePicker } from '@mantine/dates';
@@ -233,7 +233,7 @@ export function MarkerEdit() {
 
               <Accordion>
                 <Accordion.Item value="publishing">
-                  <Accordion.Control>Publishing status</Accordion.Control>
+                  <Accordion.Control><Text fw={500}>Publishing status</Text></Accordion.Control>
                   <Accordion.Panel>
                     <DatePicker
                       label="Start date"
@@ -256,6 +256,7 @@ export function MarkerEdit() {
                           [classes.weekend]: modifiers.weekend,
                         })
                       }
+                      sx={{ margin: '1em 0 2em' }}
                     />
 
                     <Checkbox
@@ -268,12 +269,13 @@ export function MarkerEdit() {
                       mt="md"
                       label="Enabled"
                       {...form.getInputProps('enabled', { type: 'checkbox' })}
+                      sx={{ margin: '1em 0' }}
                     />
                   </Accordion.Panel>
                 </Accordion.Item>
 
                 <Accordion.Item value="authorship">
-                  <Accordion.Control>Authorship</Accordion.Control>
+                  <Accordion.Control><Text fw={500}>Authorship</Text></Accordion.Control>
                   <Accordion.Panel>
                     <div>
                       <span><strong>Created:</strong> {dayjs(data.created).format('YYYY-MM-DD HH:mm:ss Z')}</span><br />
