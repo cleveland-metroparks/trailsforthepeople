@@ -4,6 +4,7 @@ import { useQuery, useMutation } from "react-query";
 import { Link, useParams } from "react-router-dom";
 
 import { createStyles, Flex, Text, Table, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
+import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
 import { DatePicker } from '@mantine/dates';
@@ -117,6 +118,14 @@ export function MarkerEdit() {
 
   // Save Marker
   const saveMarker = async (formData) => {
+    showNotification({
+      id: 'save-marker',
+      loading: true,
+      title: 'Saving marker',
+      message: 'One moment',
+      autoClose: false,
+      disallowClose: true,
+    });
     const response = apiClient.put<any>('/markers/' + markerId, {
       creator: 'Steven Mather', // @TODO
       created: dayjs(),
@@ -133,9 +142,24 @@ export function MarkerEdit() {
       startdate: dayjs(formData.startDate).format('YYYY-MM-DD'),
     })
     .then(function (response) {
+      updateNotification({
+        id: 'save-marker',
+        loading: false,
+        title: 'Marker saved successfully.',
+        message: '',
+        autoClose: 2000,
+      });
       console.log("Marker saved:", response);
     })
     .catch(function (error) {
+      updateNotification({
+        id: 'save-marker',
+        loading: false,
+        color: 'red',
+        title: 'Error saving marker.',
+        message: error,
+        autoClose: false,
+      });
       console.error("Error saving marker:", error);
     });
 
