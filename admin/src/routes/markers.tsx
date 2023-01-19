@@ -82,14 +82,18 @@ export function MarkerEdit() {
   const getMarker = async (id: string) => {
     const response = await apiClient.get<any>("/markers/" + id);
 
+    // Null date value handling
+    const initExpireDate = response.data.data.expires ? dayjs(response.data.data.expires).toDate() : null;
+    const initStartDate = response.data.data.startdate ? dayjs(response.data.data.startdate).toDate() : null;
+
     form.setValues({
       title: response.data.data.title,
       content: response.data.data.content,
       category: response.data.data.category,
       enabled: response.data.data.enabled === 1,
       annual: response.data.data.annual === 1,
-      startDate: dayjs(response.data.data.startdate).toDate(),
-      expireDate: dayjs(response.data.data.expires).toDate(),
+      startDate: initStartDate,
+      expireDate: initExpireDate,
       latitude: response.data.data.lat,
       longitude: response.data.data.lng
     });
@@ -136,13 +140,13 @@ export function MarkerEdit() {
       lng: formData.longitude,
       content: formData.content,
       title: formData.title,
-      expires: dayjs(formData.expireDate).format('YYYY-MM-DD'),
+      expires: formData.expireDate ? dayjs(formData.expireDate).format('YYYY-MM-DD') : null,
       creatorid: 1, // @TODO
       geom_geojson: '', // @TODO
       category: formData.category,
       enabled: formData.enabled ? 1 : 0,
       annual: formData.annual ? 1 : 0,
-      startdate: dayjs(formData.startDate).format('YYYY-MM-DD'),
+      startdate: formData.expireDate ? dayjs(formData.startDate).format('YYYY-MM-DD') : null,
     })
     .then(function (response) {
       updateNotification({
