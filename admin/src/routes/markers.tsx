@@ -11,7 +11,6 @@ import { DatePicker } from '@mantine/dates';
 
 import { default as dayjs } from 'dayjs';
 
-
 import * as MapGl from 'react-map-gl'; // Namespace as MapGl since we already have "Marker"
 import type { MapRef } from 'react-map-gl';
 import type { MarkerDragEvent } from 'react-map-gl';
@@ -46,7 +45,8 @@ type Marker = {
   category: string,
   enabled: number,
   annual: number,
-  startdate: string
+  startdate: string,
+  modified: string
 };
 type MarkerFormData = {
   title: string,
@@ -82,9 +82,13 @@ export function MarkerEdit() {
   const getMarker = async (id: string) => {
     const response = await apiClient.get<any>("/markers/" + id);
 
-    // Null date value handling
+    let markerData = response.data.data;
+
+    // Date value handling; capture nulls & reformat
     const initExpireDate = response.data.data.expires ? dayjs(response.data.data.expires).toDate() : null;
     const initStartDate = response.data.data.startdate ? dayjs(response.data.data.startdate).toDate() : null;
+    markerData.modified = response.data.data.modified ? dayjs(response.data.data.modified).format('dddd, MMMM D, YYYY [at] h:mma') : null;
+    markerData.created = response.data.data.created ? dayjs(response.data.data.created).format('dddd, MMMM D, YYYY [at] h:mma') : null;
 
     form.setValues({
       title: response.data.data.title,
@@ -98,7 +102,7 @@ export function MarkerEdit() {
       longitude: response.data.data.lng
     });
 
-    return response.data.data;
+    return markerData;
   }
 
   let params = useParams();
@@ -135,7 +139,7 @@ export function MarkerEdit() {
     });
     const response = apiClient.put<any>('/markers/' + markerId, {
       creator: 'Steven Mather', // @TODO
-      created: dayjs(),
+      // created: dayjs(),
       lat: formData.latitude,
       lng: formData.longitude,
       content: formData.content,
@@ -147,6 +151,7 @@ export function MarkerEdit() {
       enabled: formData.enabled ? 1 : 0,
       annual: formData.annual ? 1 : 0,
       startdate: formData.expireDate ? dayjs(formData.startDate).format('YYYY-MM-DD') : null,
+      modified: dayjs(),
     })
     .then(function (response) {
       updateNotification({
@@ -340,14 +345,14 @@ export function MarkerEdit() {
                 <Accordion.Item value="authorship">
                   <Accordion.Control><Text fw={500}>Authorship</Text></Accordion.Control>
                   <Accordion.Panel>
-                    <div>
-                      <span><strong>Created:</strong> {dayjs(data.created).format('YYYY-MM-DD HH:mm:ss Z')}</span><br />
-                      <span><strong>Created by:</strong> {data.creator} (ID: {data.creatorid})</span>
-                    </div>
-                    <div>
-                      <span><strong>Last edited:</strong></span><br />
-                      <span><strong>Last edited by:</strong></span>
-                    </div>
+                    <Text>
+                      <span><strong>Created:</strong> {data.created}</span><br />
+                      <span><strong>By:</strong> {data.creator} (ID: {data.creatorid})</span>
+                    </Text>
+                    <Text sx={{marginTop: '1em'}}>
+                      <span><strong>Last modified:</strong> {data.modified}</span><br />
+                      <span><strong>By:</strong></span>
+                    </Text>
                   </Accordion.Panel>
                 </Accordion.Item>
 
@@ -393,8 +398,8 @@ export function MarkersList() {
           <tr>
             <th>Title</th>
             <th>Creator</th>
-            <th>Date created</th>
-            <th>Expires</th>
+            <th>Created</th>
+            <th>Modified</th>
             <th>Category</th>
             <th>Enabled</th>
             <th>Annual</th>
@@ -414,11 +419,11 @@ export function MarkersList() {
                   </Anchor>
                 </td>
                 <td>{marker.creator} ({marker.creatorid})</td>
-                <td>{dayjs(marker.created).format('YYYY-MM-DD HH:mm:ss Z')}</td>
-                <td>{marker.expires ? dayjs(marker.expires).format('YYYY-MM-DD HH:mm:ss Z') : ''}</td>
+                <td>{dayjs(marker.created).format('MMM D, YYYY, h:mma')}</td>
+                <td>{dayjs(marker.modified).format('MMM D, YYYY, h:mma')}</td>
                 <td>{marker.category}</td>
-                <td>{marker.enabled}</td>
-                <td>{marker.annual}</td>
+                <td>{marker.enabled ? 'Enabled' : ''}</td>
+                <td>{marker.annual ? 'Annual' : ''}</td>
               </tr>
             ))}
         </tbody>
