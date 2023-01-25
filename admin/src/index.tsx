@@ -25,12 +25,12 @@ import { ReactQueryDevtools } from 'react-query/devtools'
 let PATH = process.env.REACT_APP_ROOT_PATH;
 
 const queryClient = new QueryClient({
-   defaultOptions: {
-     queries: {
-       refetchOnWindowFocus: false,
-     },
-   },
- });
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import axios from "axios";
-import { useQuery, useMutation } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import { Link, useParams } from "react-router-dom";
 
 import { createStyles, Flex, Text, Table, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
@@ -72,6 +72,7 @@ export function MarkerEdit() {
   const [savingState, setSavingState] = useState(false);
 
   const mutation = useMutation((formData: MarkerFormData) => saveMarker(formData));
+  const queryClient = useQueryClient();
 
   const { classes, cx } = useStyles();
 
@@ -162,6 +163,7 @@ export function MarkerEdit() {
         autoClose: 2000,
       });
       setSavingState(false);
+      queryClient.invalidateQueries({ queryKey: ['marker'] })
       console.log("Marker saved:", response);
     })
     .catch(function (error) {
