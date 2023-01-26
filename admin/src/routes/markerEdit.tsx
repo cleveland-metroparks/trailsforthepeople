@@ -3,7 +3,7 @@ import axios from "axios";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { Link, useParams } from "react-router-dom";
 
-import { createStyles, Flex, Text, Table, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
+import { createStyles, Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
@@ -31,23 +31,6 @@ const MAP_DEFAULT_STATE = {
   zoom: 9
 };
 
-type Marker = {
-  id: number,
-  creator: string,
-  created: string,
-  lat: number,
-  lng: number,
-  content: string,
-  title: string,
-  expires: string,
-  creatorid: number,
-  geom_geojson: string,
-  category: string,
-  enabled: number,
-  annual: number,
-  startdate: string,
-  modified: string
-};
 type MarkerFormData = {
   title: string,
   content: string,
@@ -109,9 +92,13 @@ export function MarkerEdit() {
   let params = useParams();
 
   let markerId = '';
+  let isNew = false;
+
   if (params.markerId) {
     if (!isNaN(parseFloat(params.markerId))) { // Ensure marker ID is an int
-      markerId = params.markerId.toString();
+      markerId = params.markerId;
+    } else if (params.markerId === 'new') {
+      isNew = true;
     } else {
       throw new Error("Invalid Marker ID");
     }
@@ -146,6 +133,7 @@ export function MarkerEdit() {
       autoClose: false,
       disallowClose: true,
     });
+
     const response = apiClient.put<any>('/markers/' + markerId, {
       creator: 'Steven Mather', // @TODO
       // created: dayjs(),
@@ -162,6 +150,7 @@ export function MarkerEdit() {
       startdate: formData.expireDate ? dayjs(formData.startDate).format('YYYY-MM-DD') : null,
       modified: dayjs(),
     })
+
     .then(function (response) {
       updateNotification({
         id: 'save-marker',
@@ -174,6 +163,7 @@ export function MarkerEdit() {
       queryClient.invalidateQueries({ queryKey: ['marker'] })
       console.log("Marker saved:", response);
     })
+
     .catch(function (error) {
       const errMsg = error.name + ': ' + error.message + ' (' + error.code + ')';
       updateNotification({
@@ -207,7 +197,7 @@ export function MarkerEdit() {
   //--------
 
   return (
-    <div>
+    <>
       <Anchor component={Link} to={`/markers`}>« Markers</Anchor>
 
       {isLoading && <div>Loading...</div>}
@@ -217,8 +207,8 @@ export function MarkerEdit() {
       )}
 
       {data &&
-        <div>
-          <h2>{data.title}</h2>
+        <>
+          <Title order={2}>{data.title}</Title>
 
           <form onSubmit={form.onSubmit((formValues) => {
             mutation.mutate(formValues);
@@ -378,66 +368,9 @@ export function MarkerEdit() {
             </Box>
 
           </form>
-        </div>
+        </>
       }
 
-    </div>
-  );
-}
-
-//
-export function MarkersList() {
-
-  // Get all markers
-  const getAllMarkers = async () => {
-    const response = await apiClient.get<any>("/markers");
-    return response.data.data;
-  }
-
-  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Marker[], Error>('markers', getAllMarkers);
-
-  return (
-    <div>
-      <Title order={2}>Markers</Title>
-      {isLoading && <div>Loading...</div>}
-      {isError && (
-        <div>{`There is a problem fetching the post data - ${error.message}`}</div>
-      )}
-      <Table striped highlightOnHover>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Creator</th>
-            <th>Created</th>
-            <th>Modified</th>
-            <th>Category</th>
-            <th>Enabled</th>
-            <th>Annual</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data &&
-            data.map(marker => (
-              <tr key={marker.id}>
-                <td>
-                  <Anchor
-                    component={Link}
-                    to={`/markers/${marker.id}`}
-                    // key={marker.id}
-                  >
-                    {marker.title}
-                  </Anchor>
-                </td>
-                <td>{marker.creator} ({marker.creatorid})</td>
-                <td>{dayjs(marker.created).format('MMM D, YYYY, h:mma')}</td>
-                <td>{dayjs(marker.modified).format('MMM D, YYYY, h:mma')}</td>
-                <td>{marker.category}</td>
-                <td>{marker.enabled ? 'Enabled' : ''}</td>
-                <td>{marker.annual ? 'Annual' : ''}</td>
-              </tr>
-            ))}
-        </tbody>
-      </Table>
-    </div>
+    </>
   );
 }

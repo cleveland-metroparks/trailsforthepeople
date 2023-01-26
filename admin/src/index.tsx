@@ -10,8 +10,10 @@ import {
   createBrowserRouter,
 } from "react-router-dom";
 
+import { Home } from "./routes/home";
 import { LoopsList, LoopEdit } from "./routes/loops";
-import { MarkersList, MarkerEdit } from "./routes/markers";
+import { MarkerList } from "./routes/markerList";
+import { MarkerEdit } from "./routes/markerEdit";
 import { HintMapsList, HintMapEdit } from "./routes/hintmaps";
 import { AuditLogsList, AuditLogView } from "./routes/logs";
 import { ErrorScreen } from "./routes/errorScreen";
@@ -48,12 +50,13 @@ const routes = createRoutesFromElements(
     errorElement={<ErrorScreen />}
   >
     <Route errorElement={<ErrorScreen />}>
+      <Route index element={<Home />} />
       <Route path="loops">
         <Route index element={<LoopsList />} />
         <Route path=":loopId" element={<LoopEdit />} />
       </Route>
       <Route path="markers">
-        <Route index element={<MarkersList />} />
+        <Route index element={<MarkerList />} />
         <Route path=":markerId" element={<MarkerEdit />} />
       </Route>
       <Route path="hintmaps">

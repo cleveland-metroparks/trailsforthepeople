@@ -9,7 +9,7 @@ export function ErrorScreen() {
 
   let messageText = '';
   if (isRouteErrorResponse(error)) {
-    messageText = error.status + error.statusText;
+    messageText = error.status + ' ' + error.statusText;
   } else if (error instanceof Error) {
     messageText = error.message;
   } else {
