@@ -160,7 +160,7 @@ export function MarkerEdit() {
         loading: false,
         title: 'Marker saved successfully',
         message: '',
-        autoClose: 2000,
+        autoClose: 5000,
       });
       setSavingState(false);
       queryClient.invalidateQueries({ queryKey: ['marker'] })
