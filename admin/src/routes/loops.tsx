@@ -38,7 +38,16 @@ const defaultLoopProfile: LoopProfile = {
  */
 export function LoopEdit() {
   let params = useParams();
-  let loopId = params.loopId ? params.loopId.toString() : '';
+  // let loopId = params.loopId ? params.loopId.toString() : '';
+
+  let loopId = '';
+  if (params.loopId) {
+    if (!isNaN(parseFloat(params.loopId))) { // Ensure marker ID is an int
+      loopId = params.loopId.toString();
+    } else {
+      throw new Error("Invalid Loop ID");
+    }
+  }
 
   const [activeTab, setActiveTab] = useState("route");
 

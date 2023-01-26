@@ -29,7 +29,16 @@ export function AuditLogView() {
   }
 
   let params = useParams();
-  let logId = params.logId ? params.logId.toString() : '';
+
+  let logId = '';
+  if (params.logId) {
+    if (!isNaN(parseFloat(params.logId))) { // Ensure marker ID is an int
+      logId = params.logId.toString();
+    } else {
+      throw new Error("Invalid Log ID");
+    }
+  }
+  // let logId = params.logId ? params.logId.toString() : '';
 
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<AuditLog, Error>(['audit_log', params.logId], () => getAuditLog(logId));
 

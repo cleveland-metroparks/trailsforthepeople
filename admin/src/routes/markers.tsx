@@ -107,7 +107,15 @@ export function MarkerEdit() {
   }
 
   let params = useParams();
-  let markerId = params.markerId ? params.markerId.toString() : '';
+
+  let markerId = '';
+  if (params.markerId) {
+    if (!isNaN(parseFloat(params.markerId))) { // Ensure marker ID is an int
+      markerId = params.markerId.toString();
+    } else {
+      throw new Error("Invalid Marker ID");
+    }
+  }
 
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Marker, Error>(['marker', params.markerId], () => getMarker(markerId));
 
