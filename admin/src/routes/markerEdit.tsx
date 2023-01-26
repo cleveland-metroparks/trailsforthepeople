@@ -2,19 +2,18 @@ import { useCallback, useRef, useState } from 'react';
 import axios from "axios";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { Link, useParams } from "react-router-dom";
-
 import { createStyles, Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
 import { DatePicker } from '@mantine/dates';
-
 import { default as dayjs } from 'dayjs';
-
 import * as MapGl from 'react-map-gl'; // Namespace as MapGl since we already have "Marker"
 import type { MapRef } from 'react-map-gl';
 import type { MarkerDragEvent } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+
+import type { Marker } from "../types/marker";
 
 // Styling for datepicker weekend days
 const useStyles = createStyles((theme) => ({
