@@ -63,27 +63,51 @@ export function MarkerEdit() {
   // Get marker
   // Moved this into Marker component so we can use [now defunct] setMarker()
   const getMarker = async (id: string) => {
-    const response = await apiClient.get<any>("/markers/" + id);
+    const defaultLat = 41.32653793921162;
+    const defaultLng = -81.6629620125847;
 
-    let markerData = response.data.data;
+    let markerData: Marker = {
+      id: null,
+      creator: '',
+      created: '',
+      lat: defaultLat,
+      lng: defaultLng,
+      content: '',
+      title: '',
+      expires: '',
+      creatorid: null,
+      geom_geojson: '',
+      category: '',
+      enabled: null,
+      annual: null,
+      startdate: '',
+      modified: '',
+    };
 
-    // Date value handling; capture nulls & reformat
-    const initExpireDate = response.data.data.expires ? dayjs(response.data.data.expires).toDate() : null;
-    const initStartDate = response.data.data.startdate ? dayjs(response.data.data.startdate).toDate() : null;
-    markerData.modified = response.data.data.modified ? dayjs(response.data.data.modified).format('dddd, MMMM D, YYYY [at] h:mma') : null;
-    markerData.created = response.data.data.created ? dayjs(response.data.data.created).format('dddd, MMMM D, YYYY [at] h:mma') : null;
+    console.log('id', id);
+    if (id !== 'new') {
+      const response = await apiClient.get<any>("/markers/" + id);
 
-    form.setValues({
-      title: response.data.data.title,
-      content: response.data.data.content,
-      category: response.data.data.category,
-      enabled: response.data.data.enabled === 1,
-      annual: response.data.data.annual === 1,
-      startDate: initStartDate,
-      expireDate: initExpireDate,
-      latitude: response.data.data.lat,
-      longitude: response.data.data.lng
-    });
+      markerData = response.data.data;
+
+      // Date value handling; capture nulls & reformat
+      const initExpireDate = response.data.data.expires ? dayjs(response.data.data.expires).toDate() : null;
+      const initStartDate = response.data.data.startdate ? dayjs(response.data.data.startdate).toDate() : null;
+      markerData.modified = response.data.data.modified ? dayjs(response.data.data.modified).format('dddd, MMMM D, YYYY [at] h:mma') : null;
+      markerData.created = response.data.data.created ? dayjs(response.data.data.created).format('dddd, MMMM D, YYYY [at] h:mma') : null;
+
+      form.setValues({
+        title: response.data.data.title,
+        content: response.data.data.content,
+        category: response.data.data.category,
+        enabled: response.data.data.enabled === 1,
+        annual: response.data.data.annual === 1,
+        startDate: initStartDate,
+        expireDate: initExpireDate,
+        latitude: response.data.data.lat,
+        longitude: response.data.data.lng
+      });
+    }
 
     return markerData;
   }
@@ -97,6 +121,7 @@ export function MarkerEdit() {
     if (!isNaN(parseFloat(params.markerId))) { // Ensure marker ID is an int
       markerId = params.markerId;
     } else if (params.markerId === 'new') {
+      markerId = params.markerId;
       isNew = true;
     } else {
       throw new Error("Invalid Marker ID");
