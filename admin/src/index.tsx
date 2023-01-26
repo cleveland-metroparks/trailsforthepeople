@@ -4,9 +4,10 @@ import { MantineProvider } from '@mantine/core';
 import { NotificationsProvider } from '@mantine/notifications';
 
 import {
-  BrowserRouter,
-  Routes,
+  RouterProvider,
   Route,
+  createRoutesFromElements,
+  createBrowserRouter,
 } from "react-router-dom";
 
 import { LoopsList, LoopEdit } from "./routes/loops";
@@ -24,6 +25,7 @@ import { ReactQueryDevtools } from 'react-query/devtools'
 
 let PATH = process.env.REACT_APP_ROOT_PATH;
 
+//
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -32,51 +34,53 @@ const queryClient = new QueryClient({
   },
 });
 
+//
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
+//
+const routes = createRoutesFromElements(
+  <Route path="/" element={<App />}>
+    <Route path="loops">
+      <Route index element={<LoopsList />} />
+      <Route path=":loopId" element={<LoopEdit />} />
+    </Route>
+    <Route path="markers">
+      <Route index element={<MarkersList />} />
+      <Route path=":markerId" element={<MarkerEdit />} />
+    </Route>
+    <Route path="hintmaps">
+      <Route index element={<HintMapsList />} />
+      <Route path=":hintmapId" element={<HintMapEdit />} />
+    </Route>
+    <Route path="logs">
+      <Route index element={<AuditLogsList />} />
+      <Route path=":logId" element={<AuditLogView />} />
+    </Route>
+    <Route
+      path="*"
+      element={
+        <main style={{ padding: "1rem" }}>
+          <p>Not found</p>
+        </main>
+      }
+    />
+  </Route>
+);
+
+//
+const router = createBrowserRouter(routes, { basename: PATH });
+
+//
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter basename={PATH}>
-
         <MantineProvider withNormalizeCSS withGlobalStyles>
           <NotificationsProvider>
-
-            <Routes>
-              <Route path="/" element={<App />}>
-                <Route path="loops">
-                  <Route index element={<LoopsList />} />
-                  <Route path=":loopId" element={<LoopEdit />} />
-                </Route>
-                <Route path="markers">
-                  <Route index element={<MarkersList />} />
-                  <Route path=":markerId" element={<MarkerEdit />} />
-                </Route>
-                <Route path="hintmaps">
-                  <Route index element={<HintMapsList />} />
-                  <Route path=":hintmapId" element={<HintMapEdit />} />
-                </Route>
-                <Route path="logs">
-                  <Route index element={<AuditLogsList />} />
-                  <Route path=":logId" element={<AuditLogView />} />
-                </Route>
-                <Route
-                  path="*"
-                  element={
-                    <main style={{ padding: "1rem" }}>
-                      <p>Not found</p>
-                    </main>
-                  }
-                />
-              </Route>
-            </Routes>
-
-            </NotificationsProvider>
+            <RouterProvider router={router} />;
+          </NotificationsProvider>
         </MantineProvider>
-
-      </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   </React.StrictMode>
