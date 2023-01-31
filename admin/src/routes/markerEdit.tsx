@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
-import axios from "axios";
+import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from "react-query";
+// import { Link, useParams, useNavigate } from "react-router-dom";
 import { Link, useParams } from "react-router-dom";
 import { createStyles, Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
@@ -9,11 +10,11 @@ import { RichTextEditor } from '@mantine/rte';
 import { DatePicker } from '@mantine/dates';
 import { default as dayjs } from 'dayjs';
 import * as MapGl from 'react-map-gl'; // Namespace as MapGl since we already have "Marker"
-import type { MapRef } from 'react-map-gl';
-import type { MarkerDragEvent } from 'react-map-gl';
+import type { MapRef, MarkerDragEvent } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-import type { Marker } from "../types/marker";
+import type { Marker, MarkerFormData } from "../types/marker";
+import { markerCategorySelectOptions, defaultMarkerCategory } from "../types/marker";
 
 // Styling for datepicker weekend days
 const useStyles = createStyles((theme) => ({
@@ -30,18 +31,6 @@ const MAP_DEFAULT_STATE = {
   zoom: 9
 };
 
-type MarkerFormData = {
-  title: string,
-  content: string,
-  category: string,
-  enabled: boolean,
-  annual: boolean,
-  startDate,
-  expireDate,
-  latitude: number,
-  longitude: number
-};
-
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
   headers: {
@@ -54,17 +43,21 @@ export function MarkerEdit() {
   const [savingState, setSavingState] = useState(false);
 
   const mutation = useMutation((formData: MarkerFormData) => saveMarker(formData));
+
+  // const routerNavigate = useNavigate();
+
   const queryClient = useQueryClient();
 
   const { classes, cx } = useStyles();
 
   const mapRef = useRef<MapRef>(null);
 
+  const defaultLat = 41.32653793921162;
+  const defaultLng = -81.6629620125847;
+
   // Get marker
   // Moved this into Marker component so we can use [now defunct] setMarker()
   const getMarker = async (id: string) => {
-    const defaultLat = 41.32653793921162;
-    const defaultLng = -81.6629620125847;
 
     let markerData: Marker = {
       id: null,
@@ -77,14 +70,13 @@ export function MarkerEdit() {
       expires: '',
       creatorid: null,
       geom_geojson: '',
-      category: '',
+      category: defaultMarkerCategory,
       enabled: null,
       annual: null,
       startdate: '',
       modified: '',
     };
 
-    console.log('id', id);
     if (id !== 'new') {
       const response = await apiClient.get<any>("/markers/" + id);
 
@@ -111,18 +103,20 @@ export function MarkerEdit() {
 
     return markerData;
   }
+  // END getMarker()
 
   let params = useParams();
 
-  let markerId = '';
-  let isNew = false;
+  let markerId = '',
+      submitBtnText = 'Save Marker';
 
   if (params.markerId) {
     if (!isNaN(parseFloat(params.markerId))) { // Ensure marker ID is an int
       markerId = params.markerId;
     } else if (params.markerId === 'new') {
+      // markerId = null;
       markerId = params.markerId;
-      isNew = true;
+      submitBtnText = 'Create Marker';
     } else {
       throw new Error("Invalid Marker ID");
     }
@@ -134,13 +128,13 @@ export function MarkerEdit() {
     initialValues: {
       title: '',
       content: '',
-      category: '',
+      category: defaultMarkerCategory,
       enabled: false,
       annual: false,
       startDate: null,
       expireDate: null,
-      latitude: null,
-      longitude: null
+      latitude: defaultLat,
+      longitude: defaultLng
     },
     validate: {
     },
@@ -158,7 +152,7 @@ export function MarkerEdit() {
       disallowClose: true,
     });
 
-    const response = apiClient.put<any>('/markers/' + markerId, {
+    const markerSaveData = {
       creator: 'Steven Mather', // @TODO
       // created: dayjs(),
       lat: formData.latitude,
@@ -173,34 +167,54 @@ export function MarkerEdit() {
       annual: formData.annual ? 1 : 0,
       startdate: formData.expireDate ? dayjs(formData.startDate).format('YYYY-MM-DD') : null,
       modified: dayjs(),
-    })
+    };
 
-    .then(function (response) {
-      updateNotification({
-        id: 'save-marker',
-        loading: false,
-        title: 'Marker saved successfully',
-        message: '',
-        autoClose: 5000,
-      });
-      setSavingState(false);
-      queryClient.invalidateQueries({ queryKey: ['marker'] })
-      console.log("Marker saved:", response);
-    })
+    const isNew = (markerId === 'new');
 
-    .catch(function (error) {
-      const errMsg = error.name + ': ' + error.message + ' (' + error.code + ')';
-      updateNotification({
-        id: 'save-marker',
-        loading: false,
-        color: 'red',
-        title: 'Error saving marker',
-        message: errMsg,
-        autoClose: false,
-      });
-      setSavingState(false);
-      console.error("Error saving marker:", error);
-    });
+    const response = isNew ?
+      apiClient.post<any>('/markers', markerSaveData)
+      : apiClient.put<any>('/markers/' + markerId, markerSaveData);
+
+    response
+      .then(function (response) {
+        // Get new marker ID:
+        if (response.hasOwnProperty('data') && response['data'].data.id) {
+          markerId = response['data'].data.id;
+        }
+        const savedMsg = `Marker (ID: ${markerId}) saved`;
+        updateNotification({
+          id: 'save-marker',
+          loading: false,
+          title: savedMsg,
+          message: '',
+          autoClose: 5000,
+        });
+        setSavingState(false);
+        queryClient.invalidateQueries({ queryKey: ['marker'] });
+        console.log(savedMsg + ':', response);
+      })
+      .catch(function (error) {
+        const errMsg = error.name + ': ' + error.message + ' (' + error.code + ')';
+        updateNotification({
+          id: 'save-marker',
+          loading: false,
+          color: 'red',
+          title: 'Error saving marker',
+          message: errMsg,
+          autoClose: false,
+        });
+        setSavingState(false);
+        console.error("Error saving marker:", error);
+      }
+    );
+
+    // if (isNew) {
+    //   if (response.hasOwnProperty('data') && response['data'].data.id) {
+    //     const newMarkerPath = process.env.REACT_APP_ROOT_PATH + '/markers/' + response['data'].data.id;
+    //     console.log('redirecting...?');
+    //     return routerNavigate(newMarkerPath);
+    //   }
+    // }
 
     return response;
   }
@@ -271,10 +285,8 @@ export function MarkerEdit() {
               <Box sx={{marginTop: '1em'}}>
                 <Select
                   label="Category"
-                  data={[
-                    { value: 'Events', label: 'Events' },
-                    { value: 'Trail Closures and Construction', label: 'Trail Closures and Construction' },
-                  ]}
+                  data={markerCategorySelectOptions}
+                  defaultValue={defaultMarkerCategory}
                   {...form.getInputProps('category')}
                 />
               </Box>
@@ -323,7 +335,7 @@ export function MarkerEdit() {
                 </Input.Wrapper>
               </Flex>
 
-              <Accordion>
+              <Accordion defaultValue="publishing">
                 <Accordion.Item value="publishing">
                   <Accordion.Control><Text fw={500}>Publishing status</Text></Accordion.Control>
                   <Accordion.Panel>
@@ -338,6 +350,7 @@ export function MarkerEdit() {
                         })
                       }
                     />
+
                     <DatePicker
                       label="Expires"
                       placeholder="Pick expiration date"
@@ -353,15 +366,15 @@ export function MarkerEdit() {
 
                     <Checkbox
                       mt="md"
-                      label="Annual"
-                      {...form.getInputProps('annual', { type: 'checkbox' })}
+                      label="Enabled"
+                      {...form.getInputProps('enabled', { type: 'checkbox' })}
+                      sx={{ margin: '1em 0' }}
                     />
 
                     <Checkbox
                       mt="md"
-                      label="Enabled"
-                      {...form.getInputProps('enabled', { type: 'checkbox' })}
-                      sx={{ margin: '1em 0' }}
+                      label="Annual"
+                      {...form.getInputProps('annual', { type: 'checkbox' })}
                     />
                   </Accordion.Panel>
                 </Accordion.Item>
@@ -386,7 +399,9 @@ export function MarkerEdit() {
                 <Button
                   type="submit"
                   loading={savingState}
-                  sx={{ margin: '1em 0' }}>Save Marker</Button>
+                  sx={{ margin: '1em 0' }}
+                  >{submitBtnText}
+                </Button>
               </Group>
 
             </Box>
