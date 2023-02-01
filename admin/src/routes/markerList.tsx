@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
-import { Table, Title, Anchor } from '@mantine/core';
+import { Table, Title, Anchor, Button } from '@mantine/core';
 import { default as dayjs } from 'dayjs';
 
 import type { Marker } from "../types/marker";
@@ -30,6 +30,11 @@ export function MarkerList() {
       {isError && (
         <div>{`There is a problem fetching the post data - ${error.message}`}</div>
       )}
+
+      <Button component={Link} to="/markers/new"  variant="outline" sx={{ margin: '1em 0' }}>
+        + Add Marker
+      </Button>
+
       <Table striped highlightOnHover>
         <thead>
           <tr>

@@ -1,8 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from "react-query";
-// import { Link, useParams, useNavigate } from "react-router-dom";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, Navigate } from "react-router-dom";
 import { createStyles, Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
@@ -42,9 +41,9 @@ const apiClient = axios.create({
 export function MarkerEdit() {
   const [savingState, setSavingState] = useState(false);
 
-  const mutation = useMutation((formData: MarkerFormData) => saveMarker(formData));
-
-  // const routerNavigate = useNavigate();
+  const mutation = useMutation(
+    (formData: MarkerFormData) => saveMarker(formData)
+  );
 
   const queryClient = useQueryClient();
 
@@ -56,9 +55,7 @@ export function MarkerEdit() {
   const defaultLng = -81.6629620125847;
 
   // Get marker
-  // Moved this into Marker component so we can use [now defunct] setMarker()
   const getMarker = async (id: string) => {
-
     let markerData: Marker = {
       id: null,
       creator: '',
@@ -104,6 +101,7 @@ export function MarkerEdit() {
     return markerData;
   }
   // END getMarker()
+  //--------
 
   let params = useParams();
 
@@ -208,19 +206,12 @@ export function MarkerEdit() {
       }
     );
 
-    // if (isNew) {
-    //   if (response.hasOwnProperty('data') && response['data'].data.id) {
-    //     const newMarkerPath = process.env.REACT_APP_ROOT_PATH + '/markers/' + response['data'].data.id;
-    //     console.log('redirecting...?');
-    //     return routerNavigate(newMarkerPath);
-    //   }
-    // }
-
     return response;
   }
-
+  // END saveMarker()
   //--------
 
+  //--------
   // Marker event: on drag
   const onMarkerDrag = useCallback((event: MarkerDragEvent) => {
     form.setValues({ latitude: event.lngLat.lat, longitude: event.lngLat.lng });
@@ -231,8 +222,15 @@ export function MarkerEdit() {
     // Center map on marker location
     mapRef.current?.easeTo({center: [event.lngLat.lng, event.lngLat.lat]});
   }, []);
-
   //--------
+
+  if (mutation.isSuccess) {
+    // if (response.hasOwnProperty('data') && response['data'].data.id) {
+    //   const newMarkerPath = process.env.REACT_APP_ROOT_PATH + '/markers/' + response['data'].data.id;
+    // }
+    const markersRootPath = '/markers';
+    return <Navigate to={markersRootPath} replace={true} />
+  }
 
   return (
     <>
