@@ -43,6 +43,7 @@ export function MarkerList() {
             <th>Created</th>
             <th>Modified</th>
             <th>Category</th>
+            <th>Reservation</th>
             <th>Enabled</th>
             <th>Annual</th>
           </tr>
@@ -64,6 +65,7 @@ export function MarkerList() {
                 <td>{dayjs(marker.created).format('MMM D, YYYY, h:mma')}</td>
                 <td>{dayjs(marker.modified).format('MMM D, YYYY, h:mma')}</td>
                 <td>{marker.category}</td>
+                <td>{marker.reservation}</td>
                 <td>{marker.enabled ? 'Enabled' : ''}</td>
                 <td>{marker.annual ? 'Annual' : ''}</td>
               </tr>

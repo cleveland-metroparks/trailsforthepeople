@@ -10,28 +10,32 @@ export type Marker = {
     creatorid: number,
     geom_geojson: string,
     category: string,
+    reservation: string,
     enabled: number,
     annual: number,
     startdate: string,
     modified: string
 };
 
+// @TODO: Pull this list from the DB
 const markerCategories = [
-    'Trails',
+    '',
+    'Events',
     'Trail Closures and Construction',
 ];
 
-export const defaultMarkerCategory = 'Trails';
+export const defaultMarkerCategory = 'Events';
 
 export const markerCategorySelectOptions = markerCategories.map(cat => ({
     value: cat,
-    label: cat,
+    label: (cat !== '' && cat != null) ? cat : '(none)',
 }));
 
 export type MarkerFormData = {
     title: string,
     content: string,
     category: string,
+    reservation: string,
     enabled: boolean,
     annual: boolean,
     startDate,

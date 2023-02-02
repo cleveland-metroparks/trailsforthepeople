@@ -11,6 +11,7 @@ import { lineString } from '@turf/helpers';
 import { LineString, GeoJsonProperties } from 'geojson';
 
 import type { Loop, LoopProfile, LoopGeometry, LineStringFeature } from "../types/loop";
+import { reservationListSelectOptions } from "../types/reservation";
 
 import { LoopMap } from "../components/loopMap";
 import { LoopWaypoints } from "../components/loopWaypoints";
@@ -90,6 +91,7 @@ export function LoopEdit() {
     initialValues: {
       name: '',
       description: '',
+      res: '',
       hike: false,
       bike: false,
       mountainbike: false,
@@ -132,6 +134,7 @@ export function LoopEdit() {
     form.setValues({
       name: loop.name,
       description: loop.description,
+      res: loop.res,
       hike: loop.hike === "Yes",
       bike: loop.bike === "Yes",
       mountainbike: loop.mountainbike === "Yes",
@@ -345,27 +348,11 @@ export function LoopEdit() {
                   <Box sx={{marginTop: '1em'}}>
                     <Select
                       label="Reservation"
-                      data={[
-                        { value: 'Acacia Reservation', label: 'Acacia Reservation' },
-                        { value: 'Bedford Reservation', label: 'Bedford Reservation' },
-                        { value: 'Big Creek Reservation', label: 'Big Creek Reservation' },
-                        { value: 'Bradley Woods Reservation', label: 'Bradley Woods Reservation' },
-                        { value: 'Brecksville Reservation', label: 'Brecksville Reservation' },
-                        { value: 'Brookside Reservation', label: 'Brookside Reservation' },
-                        { value: 'Euclid Creek Reservation', label: 'Euclid Creek Reservation' },
-                        { value: 'Garfield Park Reservation', label: 'Garfield Park Reservation' },
-                        { value: 'Hinckley Reservation', label: 'Hinckley Reservation' },
-                        { value: 'Huntington Reservation', label: 'Huntington Reservation' },
-                        { value: 'Lakefront Reservation', label: 'Lakefront Reservation' },
-                        { value: 'Mill Stream Run Reservation', label: 'Mill Stream Run Reservation' },
-                        { value: 'North Chagrin Reservation', label: 'North Chagrin Reservation' },
-                        { value: 'Ohio & Erie Canal Reservation', label: 'Ohio & Erie Canal Reservation' },
-                        { value: 'Rocky River Reservation', label: 'Rocky River Reservation' },
-                        { value: 'South Chagrin Reservation', label: 'South Chagrin Reservation' },
-                        { value: 'Washington Reservation', label: 'Washington Reservation' },
-                        { value: 'West Creek Reservation', label: 'West Creek Reservation' },
-                      ]}
-                      value={loopData.res}
+                      // placeholder="Choose a reservation"
+                      data={reservationListSelectOptions}
+                      // defaultValue=''
+                      // value={loopData.res}
+                      {...form.getInputProps('res')}
                     />
                   </Box>
 

@@ -14,6 +14,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 
 import type { Marker, MarkerFormData } from "../types/marker";
 import { markerCategorySelectOptions, defaultMarkerCategory } from "../types/marker";
+import { reservationListSelectOptions } from "../types/reservation";
 
 // Styling for datepicker weekend days
 const useStyles = createStyles((theme) => ({
@@ -68,6 +69,7 @@ export function MarkerEdit() {
       creatorid: null,
       geom_geojson: '',
       category: defaultMarkerCategory,
+      reservation: '',
       enabled: null,
       annual: null,
       startdate: '',
@@ -88,7 +90,7 @@ export function MarkerEdit() {
       form.setValues({
         title: response.data.data.title,
         content: response.data.data.content,
-        category: response.data.data.category,
+        category: response.data.data.category != null ? response.data.data.category : '',
         enabled: response.data.data.enabled === 1,
         annual: response.data.data.annual === 1,
         startDate: initStartDate,
@@ -127,6 +129,7 @@ export function MarkerEdit() {
       title: '',
       content: '',
       category: defaultMarkerCategory,
+      reservation: '',
       enabled: false,
       annual: false,
       startDate: null,
@@ -161,6 +164,7 @@ export function MarkerEdit() {
       creatorid: 1, // @TODO
       geom_geojson: '', // @TODO
       category: formData.category,
+      reservation: formData.reservation,
       enabled: formData.enabled ? 1 : 0,
       annual: formData.annual ? 1 : 0,
       startdate: formData.expireDate ? dayjs(formData.startDate).format('YYYY-MM-DD') : null,
@@ -286,6 +290,16 @@ export function MarkerEdit() {
                   data={markerCategorySelectOptions}
                   defaultValue={defaultMarkerCategory}
                   {...form.getInputProps('category')}
+                />
+              </Box>
+
+              <Box sx={{marginTop: '1em'}}>
+                <Select
+                  label="Reservation"
+                  placeholder="Choose a reservation"
+                  data={reservationListSelectOptions}
+                  defaultValue=''
+                  {...form.getInputProps('reservation')}
                 />
               </Box>
 
