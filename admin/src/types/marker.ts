@@ -17,6 +17,8 @@ export type Marker = {
     modified: string
 };
 
+export type MarkersList = Array<Marker>;
+
 // @TODO: Pull this list from the DB
 const markerCategories = [
     '',

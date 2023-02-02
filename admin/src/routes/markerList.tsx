@@ -1,35 +1,41 @@
 import axios from "axios";
 import { useQuery } from "react-query";
-import { Link } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import { Table, Title, Anchor, Button } from '@mantine/core';
 import { default as dayjs } from 'dayjs';
 
-import type { Marker } from "../types/marker";
+// import type { Marker, MarkersList } from "../types/marker";
 
 const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
-  headers: {
-    "Content-type": "application/json",
-  },
+  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL
 });
+
+// Get all markers
+const getAllMarkers = async () => {
+  const response = await apiClient.get<any>("/markers");
+  return response.data.data;
+}
+
+const queryKey = 'markerList';
+
+export const loader = (queryClient) => {
+  return queryClient.fetchQuery(queryKey, getAllMarkers, { staleTime: 10000 });
+};
 
 //
 export function MarkerList() {
-  // Get all markers
-  const getAllMarkers = async () => {
-    const response = await apiClient.get<any>("/markers");
-    return response.data.data;
-  }
-
-  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Marker[], Error>('markers', getAllMarkers);
+  // const data = useLoaderData();
+  const { data } = useQuery(queryKey);
+  console.log(data);
 
   return (
     <>
       <Title order={2}>Markers</Title>
-      {isLoading && <div>Loading...</div>}
+
+      {/* {isLoading && <div>Loading...</div>}
       {isError && (
         <div>{`There is a problem fetching the post data - ${error.message}`}</div>
-      )}
+      )} */}
 
       <Button component={Link} to="/markers/new"  variant="outline" sx={{ margin: '1em 0' }}>
         + Add Marker
@@ -49,7 +55,7 @@ export function MarkerList() {
           </tr>
         </thead>
         <tbody>
-          {data &&
+          {(data instanceof Array) &&
             data.map(marker => (
               <tr key={marker.id}>
                 <td>
