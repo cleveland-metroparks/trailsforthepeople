@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import { Table, Anchor, Box, Pagination } from '@mantine/core';
 import { default as dayjs } from 'dayjs';

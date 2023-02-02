@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import { Title, Text, Tabs, Grid, Accordion, Table, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -472,43 +472,41 @@ export function LoopsList() {
     return response.data.data;
   }
 
-  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Loop[], Error>('loops', getAllLoops);
+  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Loop[], Error>(['loops'], getAllLoops);
 
-  return (
-    <>
-      <Title order={2}>Loops</Title>
-      {isLoading && <div>Loading...</div>}
-      {isError && (
-        <div>{`There is a problem fetching the post data - ${error.message}`}</div>
-      )}
-      <Table striped highlightOnHover>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Reservation</th>
-            <th>Distance</th>
-          </tr>
-        </thead>
-        <tbody>
-        {data &&
-          data.map((loop, index) => (
-            // @TODO: Keying by loop.id is for some reason causing a duplicate key error:
-            <tr key={index}>
-              <td>
-                <Anchor
-                  component={Link}
-                  to={`/loops/${loop.id}`}
-                  // key={index}
-                >
-                  {loop.name}
-                </Anchor>
-              </td>
-              <td>{loop.res}</td>
-              <td>{loop.distance_text}</td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-    </>
-  );
+  return (<>
+    <Title order={2}>Loops</Title>
+    {isLoading && <div>Loading...</div>}
+    {isError && (
+      <div>{`There is a problem fetching the post data - ${error.message}`}</div>
+    )}
+    <Table striped highlightOnHover>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Reservation</th>
+          <th>Distance</th>
+        </tr>
+      </thead>
+      <tbody>
+      {data &&
+        data.map((loop, index) => (
+          // @TODO: Keying by loop.id is for some reason causing a duplicate key error:
+          (<tr key={index}>
+            <td>
+              <Anchor
+                component={Link}
+                to={`/loops/${loop.id}`}
+                // key={index}
+              >
+                {loop.name}
+              </Anchor>
+            </td>
+            <td>{loop.res}</td>
+            <td>{loop.distance_text}</td>
+          </tr>)
+        ))}
+      </tbody>
+    </Table>
+  </>);
 }

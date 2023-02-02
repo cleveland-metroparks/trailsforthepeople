@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link, useLoaderData } from "react-router-dom";
 import { Table, Title, Anchor, Button } from '@mantine/core';
 import { default as dayjs } from 'dayjs';
@@ -18,6 +18,7 @@ const getAllMarkers = async () => {
 
 const queryKey = 'markerList';
 
+//
 export const loader = (queryClient) => {
   return queryClient.fetchQuery(queryKey, getAllMarkers, { staleTime: 10000 });
 };
@@ -25,7 +26,7 @@ export const loader = (queryClient) => {
 //
 export function MarkerList() {
   // const data = useLoaderData();
-  const { data } = useQuery(queryKey);
+  const { data } = useQuery([queryKey]);
   console.log(data);
 
   return (

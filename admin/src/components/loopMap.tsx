@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { LngLat, LngLatBounds } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
@@ -117,7 +117,7 @@ export function LoopMap(props: LoopMapProps) {
     isError: getReservationsCallIsError,
     data: getReservationsCallData,
     error: getReservationsCallError
-  } = useQuery<Loop[], Error>('loops', getReservations);
+  } = useQuery<Loop[], Error>(['loops'], getReservations);
   //------------------
 
   // Zoom map to (a park location)

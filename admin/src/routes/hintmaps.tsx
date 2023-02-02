@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import { Table, Anchor } from '@mantine/core';
 import { default as dayjs } from 'dayjs';
@@ -41,7 +41,7 @@ export function HintMapEdit() {
 
 //
 export function HintMapsList() {
-  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<HintMap[], Error>('hint_maps', getAllHintMaps);
+  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<HintMap[], Error>(['hint_maps'], getAllHintMaps);
   return (
     <div>
       <h2>Hint Maps</h2>
