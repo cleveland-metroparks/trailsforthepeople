@@ -1,5 +1,3 @@
-import { useRouteError, isRouteErrorResponse } from "react-router-dom";
-
 import { Title, Text } from '@mantine/core';
 
 export function Home() {

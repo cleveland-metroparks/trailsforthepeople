@@ -16,6 +16,8 @@ import type { Marker, MarkerFormData } from "../types/marker";
 import { markerCategorySelectOptions, defaultMarkerCategory } from "../types/marker";
 import { reservationListSelectOptions } from "../types/reservation";
 
+const markersRootPath = '/markers';
+
 // Styling for datepicker weekend days
 const useStyles = createStyles((theme) => ({
   weekend: {
@@ -32,10 +34,7 @@ const MAP_DEFAULT_STATE = {
 };
 
 const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
-  headers: {
-    "Content-type": "application/json",
-  },
+  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL
 });
 
 //
@@ -108,13 +107,14 @@ export function MarkerEdit() {
   let params = useParams();
 
   let markerId = '',
-      submitBtnText = 'Save Marker';
+      submitBtnText = 'Save Marker',
+      deleteMarkerPath = '';
 
   if (params.markerId) {
     if (!isNaN(parseFloat(params.markerId))) { // Ensure marker ID is an int
       markerId = params.markerId;
+      deleteMarkerPath = markersRootPath + '/' + markerId + '/delete';
     } else if (params.markerId === 'new') {
-      // markerId = null;
       markerId = params.markerId;
       submitBtnText = 'Create Marker';
     } else {
@@ -232,7 +232,7 @@ export function MarkerEdit() {
     // if (response.hasOwnProperty('data') && response['data'].data.id) {
     //   const newMarkerPath = process.env.REACT_APP_ROOT_PATH + '/markers/' + response['data'].data.id;
     // }
-    const markersRootPath = '/markers';
+
     return <Navigate to={markersRootPath} replace={true} />
   }
 
@@ -412,8 +412,20 @@ export function MarkerEdit() {
                   type="submit"
                   loading={savingState}
                   sx={{ margin: '1em 0' }}
-                  >{submitBtnText}
+                >
+                  {submitBtnText}
                 </Button>
+
+                {deleteMarkerPath &&
+                  <Button
+                    component={Link}
+                    to={deleteMarkerPath}
+                    variant="outline"
+                    color="red"
+                  >
+                    Delete Marker
+                  </Button>
+                }
               </Group>
 
             </Box>

@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { MantineProvider } from '@mantine/core';
 import { NotificationsProvider } from '@mantine/notifications';
+import axios from 'axios';
 
 import {
   RouterProvider,
@@ -14,6 +15,7 @@ import { Home } from "./routes/home";
 import { LoopsList, LoopEdit } from "./routes/loops";
 import { MarkerList } from "./routes/markerList";
 import { MarkerEdit } from "./routes/markerEdit";
+import { MarkerDelete } from "./routes/markerDelete";
 import { HintMapsList, HintMapEdit } from "./routes/hintmaps";
 import { AuditLogsList, AuditLogView } from "./routes/logs";
 import { ErrorScreen } from "./routes/errorScreen";
@@ -27,6 +29,8 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from 'react-query/devtools'
 
 let PATH = process.env.REACT_APP_ROOT_PATH;
+
+// axios.defaults.baseURL = process.env.REACT_APP_MAPS_API_BASE_URL;
 
 //
 const queryClient = new QueryClient({
@@ -58,6 +62,7 @@ const routes = createRoutesFromElements(
       <Route path="markers">
         <Route index element={<MarkerList />} />
         <Route path=":markerId" element={<MarkerEdit />} />
+        <Route path=":markerId/delete" element={<MarkerDelete onDelete />} />
       </Route>
       <Route path="hintmaps">
         <Route index element={<HintMapsList />} />
