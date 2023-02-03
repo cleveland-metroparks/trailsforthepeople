@@ -1,10 +1,10 @@
 import axios from "axios";
-import { useQuery, QueryClient } from "@tanstack/react-query";
-import { Link, useLoaderData } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { Table, Title, Anchor, Button } from '@mantine/core';
 import { default as dayjs } from 'dayjs';
 
-// import type { Marker, MarkersList } from "../types/marker";
+import type { Marker } from "../types/marker";
 
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_MAPS_API_BASE_URL
@@ -16,27 +16,42 @@ const getAllMarkers = async () => {
   return response.data.data;
 }
 
-const queryKey = ['markerList'];
+// See https://tkdodo.eu/blog/react-query-meets-react-router
+// for React Router (>=6.4) + React Query
 
-//
-export const loader = (queryClient) => async () => {
-  // See https://tkdodo.eu/blog/react-query-meets-react-router
-  return queryClient.fetchQuery(queryKey, getAllMarkers, { staleTime: 10000 });
+// Define the "Get all markers" query
+const getAllMarkersQuery = () => ({
+  queryKey: ['markerList'],
+  queryFn: async () => getAllMarkers(),
+})
+
+// Data loader (React Router)
+export const loader =
+  (queryClient) =>
+  async () => {
+    const query = getAllMarkersQuery();
+    // Return cached data or fetch anew
+    return (
+      queryClient.getQueryData(query.queryKey) ??
+      (await queryClient.fetchQuery(query))
+    )
 };
 
-//
+/**
+ * Marker List component
+ */
 export function MarkerList() {
-  // const data = useLoaderData();
-  const { data } = useQuery(queryKey); // Instead of useLoaderData() see tkdodo.eu article above
+  // Instead of useLoaderData(); see tkdodo.eu article above
+  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Marker[], Error>(getAllMarkersQuery());
 
   return (
     <>
       <Title order={2}>Markers</Title>
 
-      {/* {isLoading && <div>Loading...</div>}
+      {isLoading && <div>Loading...</div>}
       {isError && (
         <div>{`There is a problem fetching the post data - ${error.message}`}</div>
-      )} */}
+      )}
 
       <Button component={Link} to="/markers/new"  variant="outline" sx={{ margin: '1em 0' }}>
         + Add Marker
