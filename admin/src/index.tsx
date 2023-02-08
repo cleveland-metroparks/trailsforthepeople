@@ -16,7 +16,8 @@ import { Home } from "./routes/home";
 import { LoopsList, LoopEdit } from "./routes/loops";
 import { MarkerList, loader as markerListLoader } from "./routes/markerList";
 import { MarkerEdit } from "./routes/markerEdit";
-import { MarkerDelete, action as deleteMarkerAction } from "./routes/markerDelete";
+// import { MarkerDelete, action as deleteMarkerAction } from "./routes/markerDelete";
+import { action as deleteMarkerAction } from "./routes/markerDelete";
 import { HintMapsList, HintMapEdit } from "./routes/hintmaps";
 import { AuditLogsList, AuditLogView } from "./routes/logs";
 import { ErrorScreen } from "./routes/errorScreen";
@@ -62,7 +63,8 @@ const routes = createRoutesFromElements(
           loader={markerListLoader(queryClient)}
         />
         <Route path=":markerId" element={<MarkerEdit />} />
-        <Route path=":markerId/delete" action={deleteMarkerAction} element={<MarkerDelete onDelete />} />
+        {/* <Route path=":markerId/delete" action={deleteMarkerAction} element={<MarkerDelete onDelete />} /> */}
+        <Route path=":markerId/delete" action={deleteMarkerAction} />
       </Route>
       <Route path="hintmaps">
         <Route index element={<HintMapsList />} />
