@@ -1,10 +1,15 @@
-import { Title, Text } from '@mantine/core';
+import { Title, Box, Text } from '@mantine/core';
+
+import { NavButtons } from '../_navLinks';
 
 export function Home() {
   return (
     <>
       <Title order={2}>Home</Title>
-      <Text sx={{marginTop: '1em'}}>Maps content backend administration for Cleveland Metroparks.</Text>
+      <Text sx={{margin: '1em 0'}}>Maps content backend administration for Cleveland Metroparks.</Text>
+      <Box sx={{margin: '1em 0'}}>
+        <NavButtons />
+      </Box>
     </>
   );
 }

@@ -10,6 +10,7 @@ import {
   Burger,
   useMantineTheme,
 } from '@mantine/core';
+
 import { NavLinks } from './_navLinks';
 import { Login } from "./routes/login";
 
@@ -54,7 +55,7 @@ function App() {
 
         navbar={
           <Navbar p="md" hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 200, lg: 300 }}>
-            <NavLinks></NavLinks>
+            <NavLinks />
           </Navbar>
         }
 
