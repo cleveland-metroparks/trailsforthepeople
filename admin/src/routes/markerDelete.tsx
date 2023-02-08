@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams, Navigate, redirect } from 'react-router-dom';
 import { showNotification, updateNotification } from '@mantine/notifications';
 
 const markersRootPath = '/markers';
@@ -11,6 +11,13 @@ const apiClient = axios.create({
 
 interface props {
   onDelete: () => void;
+}
+
+export async function action({ params }) {
+  const response = await apiClient.delete<any>("/markers/" + params.markerId);
+  console.log('markerDestroy response', response);
+  return redirect(markersRootPath);
+  // return <Navigate to={markersRootPath} replace={true} />
 }
 
 export function MarkerDelete({ onDelete }) {

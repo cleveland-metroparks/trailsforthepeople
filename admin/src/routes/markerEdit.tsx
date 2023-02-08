@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, useParams, Navigate } from "react-router-dom";
+import { Link, useParams, Navigate, Form } from "react-router-dom";
 import { createStyles, Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
@@ -415,22 +415,31 @@ export function MarkerEdit() {
                 >
                   {submitBtnText}
                 </Button>
-
-                {deleteMarkerPath &&
-                  <Button
-                    component={Link}
-                    to={deleteMarkerPath}
-                    variant="outline"
-                    color="red"
-                  >
-                    Delete Marker
-                  </Button>
-                }
               </Group>
 
             </Box>
 
           </form>
+
+          {deleteMarkerPath &&
+            <Form
+              method="post"
+              action="delete"
+              // onSubmit={(event) => {
+                // if (!confirm("Please confirm you want to delete this record.")) {
+                //   event.preventDefault();
+                // }
+              // }}
+            >
+              <Button
+                type="submit"
+                variant="outline"
+                color="red"
+              >
+                Delete Marker
+              </Button>
+            </Form>
+          }
         </>
       }
 
