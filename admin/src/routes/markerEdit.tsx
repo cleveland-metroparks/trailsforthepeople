@@ -1,12 +1,13 @@
 import { useCallback, useRef, useState } from 'react';
 import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, useParams, Navigate, Form } from "react-router-dom";
+import { Link, useParams, Navigate, Form, useSubmit } from "react-router-dom";
 import { createStyles, Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
 import { DatePicker } from '@mantine/dates';
+import { openConfirmModal } from '@mantine/modals';
 import { default as dayjs } from 'dayjs';
 import * as MapGl from 'react-map-gl'; // Namespace as MapGl since we already have "Marker"
 import type { MapRef, MarkerDragEvent } from 'react-map-gl';
@@ -39,6 +40,8 @@ const apiClient = axios.create({
 
 //
 export function MarkerEdit() {
+  const submitDelete = useSubmit();
+
   const [savingState, setSavingState] = useState(false);
 
   const mutation = useMutation(
@@ -108,12 +111,15 @@ export function MarkerEdit() {
 
   let markerId = '',
       submitBtnText = 'Save Marker',
-      deleteMarkerPath = '';
+      deleteMarkerPath = '',
+      absoluteDeleteMarkerPath = ''
+      ;
 
   if (params.markerId) {
     if (!isNaN(parseFloat(params.markerId))) { // Ensure marker ID is an int
       markerId = params.markerId;
       deleteMarkerPath = markersRootPath + '/' + markerId + '/delete';
+      absoluteDeleteMarkerPath = 'admin' + deleteMarkerPath;
     } else if (params.markerId === 'new') {
       markerId = params.markerId;
       submitBtnText = 'Create Marker';
@@ -235,6 +241,34 @@ export function MarkerEdit() {
 
     return <Navigate to={markersRootPath} replace={true} />
   }
+
+  //
+  const openDeleteModal = (deleteFormAction) =>
+    openConfirmModal({
+      title: 'Delete marker',
+      centered: true,
+      children: (
+        <Text size="sm">
+          Are you sure you want to delete this marker? This cannot be undone.
+        </Text>
+      ),
+      labels: { confirm: 'Delete marker', cancel: "Cancel" },
+      confirmProps: { color: 'red' },
+      onCancel: () => {
+        console.log('Marker delete cancelled')
+      },
+      onConfirm: () => {
+        // We pass in deleteFormAction
+        // (which should be: "/admin/markers/:markerId/delete")
+        // because when using useSubmit() (which is what submitDelete is)
+        // we apparently lose path context. If we just used <Form> inside our component
+        // it would inherit the base path.
+        // Ultimately want to use React Router's <Prompt> when they re-add it –
+        // it was removed in 6.4 or thereabouts.
+        submitDelete(null, { method: "post", action: deleteFormAction });
+      },
+    }
+  );
 
   return (
     <>
@@ -415,31 +449,21 @@ export function MarkerEdit() {
                 >
                   {submitBtnText}
                 </Button>
+
+                {deleteMarkerPath &&
+                  <Button
+                    onClick={() => openDeleteModal(absoluteDeleteMarkerPath)}
+                    variant="outline"
+                    color="red"
+                  >
+                    Delete Marker
+                  </Button>
+                }
               </Group>
 
             </Box>
 
           </form>
-
-          {deleteMarkerPath &&
-            <Form
-              method="post"
-              action="delete"
-              // onSubmit={(event) => {
-                // if (!confirm("Please confirm you want to delete this record.")) {
-                //   event.preventDefault();
-                // }
-              // }}
-            >
-              <Button
-                type="submit"
-                variant="outline"
-                color="red"
-              >
-                Delete Marker
-              </Button>
-            </Form>
-          }
         </>
       }
 

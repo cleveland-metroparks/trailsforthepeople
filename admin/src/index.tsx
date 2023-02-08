@@ -1,14 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { MantineProvider } from '@mantine/core';
+import { ModalsProvider } from '@mantine/modals';
 import { NotificationsProvider } from '@mantine/notifications';
-
 import {
   RouterProvider,
   Route,
   createRoutesFromElements,
   createBrowserRouter,
 } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 import { Home } from "./routes/home";
 import { LoopsList, LoopEdit } from "./routes/loops";
@@ -23,9 +25,6 @@ import './index.css';
 
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 let PATH = process.env.REACT_APP_ROOT_PATH;
 
@@ -93,11 +92,13 @@ root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
         <MantineProvider withNormalizeCSS withGlobalStyles>
-          <NotificationsProvider>
-            <RouterProvider router={router} />;
-          </NotificationsProvider>
+          <ModalsProvider>
+            <NotificationsProvider>
+              <RouterProvider router={router} />;
+            </NotificationsProvider>
+          </ModalsProvider>
         </MantineProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   </React.StrictMode>
 );
