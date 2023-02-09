@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, useParams, Navigate, Form, useSubmit } from "react-router-dom";
+import { Link, useParams, Navigate, useSubmit } from "react-router-dom";
 import { createStyles, Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
@@ -245,14 +245,14 @@ export function MarkerEdit() {
   //
   const openDeleteModal = (deleteFormAction) =>
     openConfirmModal({
-      title: 'Delete marker',
+      title: 'Delete Marker',
       centered: true,
       children: (
         <Text size="sm">
           Are you sure you want to delete this marker? This cannot be undone.
         </Text>
       ),
-      labels: { confirm: 'Delete marker', cancel: "Cancel" },
+      labels: { confirm: 'Delete Marker', cancel: "Cancel" },
       confirmProps: { color: 'red' },
       onCancel: () => {
         console.log('Marker delete cancelled')

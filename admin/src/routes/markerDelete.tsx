@@ -16,7 +16,7 @@ const apiClient = axios.create({
 
 export async function action({ params }) {
   const response = await apiClient.delete<any>("/markers/" + params.markerId);
-  console.log('Delete marker response:', response);
+  console.log('Delete Marker response:', response);
   return redirect(markersRootPath);
   // return <Navigate to={markersRootPath} replace={true} />
 }

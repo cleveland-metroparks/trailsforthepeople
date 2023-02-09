@@ -14,6 +14,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { Home } from "./routes/home";
 import { LoopsList, LoopEdit } from "./routes/loops";
+import { action as deleteLoopAction } from "./routes/loopDelete";
 import { MarkerList, loader as markerListLoader } from "./routes/markerList";
 import { MarkerEdit } from "./routes/markerEdit";
 // import { MarkerDelete, action as deleteMarkerAction } from "./routes/markerDelete";
@@ -56,6 +57,7 @@ const routes = createRoutesFromElements(
         <Route path="loops">
           <Route index element={<LoopsList />} />
           <Route path=":loopId" element={<LoopEdit />} />
+          <Route path=":loopId/delete" action={deleteLoopAction} />
         </Route>
         <Route path="markers">
           <Route

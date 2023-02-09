@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, Navigate, useSubmit } from "react-router-dom";
 import { Title, Text, Tabs, Grid, Accordion, Table, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
+import { openConfirmModal } from '@mantine/modals';
 import { LngLatBounds } from 'mapbox-gl';
 import { coordEach } from '@turf/meta';
 import { lineString } from '@turf/helpers';
@@ -18,6 +19,8 @@ import { LoopWaypoints } from "../components/loopWaypoints";
 import { LoopStats } from "../components/loopStats";
 import { LoopDirections } from "../components/loopDirections";
 import { LoopProfileChart } from "../components/loopProfileChart";
+
+const loopsRootPath = '/loops';
 
 //
 const apiClient = axios.create({
@@ -38,12 +41,33 @@ const defaultLoopProfile: LoopProfile = {
  * @returns 
  */
 export function LoopEdit() {
-  let params = useParams();
-  // let loopId = params.loopId ? params.loopId.toString() : '';
+  const submitDelete = useSubmit();
 
-  let loopId = '';
+  let params = useParams();
+
+  let loopId = '',
+      submitBtnText = 'Save Loop',
+      deleteLoopPath = '',
+      absoluteDeleteLoopPath = ''
+      ;
+
+
+
   if (params.loopId) {
-    if (!isNaN(parseFloat(params.loopId))) { // Ensure marker ID is an int
+    if (!isNaN(parseFloat(params.loopId))) { // Ensure loop ID is an int
+      loopId = params.loopId;
+      deleteLoopPath = loopsRootPath + '/' + loopId + '/delete';
+      absoluteDeleteLoopPath = 'admin' + deleteLoopPath;
+    } else if (params.loopId === 'new') {
+      loopId = params.loopId;
+      submitBtnText = 'Create Loop';
+    } else {
+      throw new Error("Invalid Loop ID");
+    }
+  }
+
+  if (params.loopId) {
+    if (!isNaN(parseFloat(params.loopId))) { // Ensure loop ID is an int
       loopId = params.loopId.toString();
     } else {
       throw new Error("Invalid Loop ID");
@@ -310,6 +334,34 @@ export function LoopEdit() {
   };
   //----------------------------------
 
+  //
+  const openDeleteModal = (deleteFormAction) =>
+    openConfirmModal({
+      title: 'Delete Loop',
+      centered: true,
+      children: (
+        <Text size="sm">
+          Are you sure you want to delete this loop? This cannot be undone.
+        </Text>
+      ),
+      labels: { confirm: 'Delete Loop', cancel: "Cancel" },
+      confirmProps: { color: 'red' },
+      onCancel: () => {
+        console.log('Loop delete cancelled')
+      },
+      onConfirm: () => {
+        // We pass in deleteFormAction
+        // (which should be: "/admin/loops/:loopId/delete")
+        // because when using useSubmit() (which is what submitDelete is)
+        // we apparently lose path context. If we just used <Form> inside our component
+        // it would inherit the base path.
+        // Ultimately want to use React Router's <Prompt> when they re-add it –
+        // it was removed in 6.4 or thereabouts.
+        submitDelete(null, { method: "post", action: deleteFormAction });
+      },
+    }
+  );
+
   return (
     <>
       <Anchor component={Link} to={`/loops`}>« Loops</Anchor>
@@ -448,7 +500,22 @@ export function LoopEdit() {
             </Tabs>
 
             <Group position="left" mt="md">
-              <Button type="submit" sx={{ margin: '1em 0' }}>Save Loop</Button>
+              <Button
+                type="submit"
+                sx={{ margin: '1em 0' }}
+              >
+                {submitBtnText}
+              </Button>
+
+              {deleteLoopPath &&
+                <Button
+                  onClick={() => openDeleteModal(absoluteDeleteLoopPath)}
+                  variant="outline"
+                  color="red"
+                >
+                  Delete Loop
+                </Button>
+              }
             </Group>
 
           </form>
