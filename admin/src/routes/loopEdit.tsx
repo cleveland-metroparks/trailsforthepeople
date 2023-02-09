@@ -2,7 +2,7 @@ import { useState } from 'react';
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams, Navigate, useSubmit } from "react-router-dom";
-import { Title, Text, Tabs, Grid, Accordion, Table, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
+import { Title, Text, Tabs, Grid, Accordion, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
 import { openConfirmModal } from '@mantine/modals';
@@ -25,9 +25,6 @@ const loopsRootPath = '/loops';
 //
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
-  headers: {
-    "Content-type": "application/json",
-  },
 });
 
 const defaultLoopProfile: LoopProfile = {
@@ -37,8 +34,6 @@ const defaultLoopProfile: LoopProfile = {
 
 /**
  * Loop Edit
- *
- * @returns 
  */
 export function LoopEdit() {
   const submitDelete = useSubmit();
@@ -524,56 +519,4 @@ export function LoopEdit() {
 
     </>
   );
-}
-
-/**
- * Loops List
- *
- * @returns 
- */
-export function LoopsList() {
-
-  // Get all loops from the API
-  const getAllLoops = async () => {
-    const response = await apiClient.get<any>("/trails");
-    return response.data.data;
-  }
-
-  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Loop[], Error>(['loops'], getAllLoops);
-
-  return (<>
-    <Title order={2}>Loops</Title>
-    {isLoading && <div>Loading...</div>}
-    {isError && (
-      <div>{`There is a problem fetching the post data - ${error.message}`}</div>
-    )}
-    <Table striped highlightOnHover>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Reservation</th>
-          <th>Distance</th>
-        </tr>
-      </thead>
-      <tbody>
-      {data &&
-        data.map((loop, index) => (
-          // @TODO: Keying by loop.id is for some reason causing a duplicate key error:
-          (<tr key={index}>
-            <td>
-              <Anchor
-                component={Link}
-                to={`/loops/${loop.id}`}
-                // key={index}
-              >
-                {loop.name}
-              </Anchor>
-            </td>
-            <td>{loop.res}</td>
-            <td>{loop.distance_text}</td>
-          </tr>)
-        ))}
-      </tbody>
-    </Table>
-  </>);
 }
