@@ -55,9 +55,6 @@ function NavButton({ icon, color, label, urlPath }: NavLinkProps) {
       size="xl"
       component={Link}
       to={urlPath}
-      sx={{
-        marginRight: '1em'
-      }}
     >
       <Group>
         <ThemeIcon color={color} variant="light">{icon}</ThemeIcon>
