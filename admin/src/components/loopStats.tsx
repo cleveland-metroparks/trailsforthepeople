@@ -1,14 +1,8 @@
 import { Box } from '@mantine/core';
 
-// type LoopStatsStruct = {
-//   distance_text : string,
-//   distance_feet : string,
-//   durationtext_hike : string,
-//   durationtext_bike : string,
-//   durationtext_bridle : string
-// };
-
-//
+/**
+ * Loop Stats
+ */
 export function LoopStats(props) {
   return (
     <>

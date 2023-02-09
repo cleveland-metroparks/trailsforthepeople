@@ -22,7 +22,9 @@ export function LoopWaypoints(props: LoopWaypointsProps) {
           </tr>
         </thead>
         <tbody>
-          {props.feature.geometry.coordinates &&
+          {props.feature &&
+            props.feature.geometry &&
+            props.feature.geometry.coordinates &&
             props.feature.geometry.coordinates.map((lat_lng, i) => (
               <tr key={i}>
                 <td>{lat_lng[0].toFixed(5)}</td>

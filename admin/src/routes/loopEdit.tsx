@@ -1,17 +1,20 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams, Navigate, useSubmit } from "react-router-dom";
 import { Title, Text, Tabs, Grid, Accordion, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
+import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
 import { openConfirmModal } from '@mantine/modals';
+// import type { MapRef } from 'react-map-gl';
 import { LngLatBounds } from 'mapbox-gl';
 import { coordEach } from '@turf/meta';
 import { lineString } from '@turf/helpers';
 import { LineString, GeoJsonProperties } from 'geojson';
 
-import type { Loop, LoopProfile, LoopGeometry, LineStringFeature } from "../types/loop";
+import type { Loop, LoopProfile, LoopGeometry, LineStringFeature, LoopFormData } from "../types/loop";
+import { emptyLoop, defaultLoopFormData } from "../types/loop";
 import { reservationListSelectOptions } from "../types/reservation";
 
 import { LoopMap } from "../components/loopMap";
@@ -32,21 +35,29 @@ const defaultLoopProfile: LoopProfile = {
   elevation_profile: []
 };
 
+
 /**
  * Loop Edit
  */
 export function LoopEdit() {
   const submitDelete = useSubmit();
 
-  let params = useParams();
+  // const mapRef = useRef<MapRef>(null);
+
+  const [savingState, setSavingState] = useState(false);
+
+  const mutation = useMutation(
+    (formData: LoopFormData) => saveLoop(formData)
+  );
+
+  const queryClient = useQueryClient();
 
   let loopId = '',
       submitBtnText = 'Save Loop',
       deleteLoopPath = '',
-      absoluteDeleteLoopPath = ''
-      ;
+      absoluteDeleteLoopPath = '';
 
-
+  let params = useParams();
 
   if (params.loopId) {
     if (!isNaN(parseFloat(params.loopId))) { // Ensure loop ID is an int
@@ -56,14 +67,6 @@ export function LoopEdit() {
     } else if (params.loopId === 'new') {
       loopId = params.loopId;
       submitBtnText = 'Create Loop';
-    } else {
-      throw new Error("Invalid Loop ID");
-    }
-  }
-
-  if (params.loopId) {
-    if (!isNaN(parseFloat(params.loopId))) { // Ensure loop ID is an int
-      loopId = params.loopId.toString();
     } else {
       throw new Error("Invalid Loop ID");
     }
@@ -107,61 +110,59 @@ export function LoopEdit() {
   const [bounds, setBounds] = useState(new LngLatBounds());
 
   const form = useForm({
-    initialValues: {
-      name: '',
-      description: '',
-      res: '',
-      hike: false,
-      bike: false,
-      mountainbike: false,
-      bridle: false
-    },
-    validate: {
-    },
+    initialValues: defaultLoopFormData,
+    validate: {},
   });
 
-  //
   // Get a Loop from the API
-  //
   const getLoop = async (id: string) => {
-    const response = await apiClient.get<any>("/trails/" + id);
-    const loop = response.data.data;
+    let loopData: Loop = emptyLoop;
 
-    setLoopStats({
-      distance_text : loop.distancetext,
-      distance_feet : loop.distance_feet,
-      durationtext_hike : loop.durationtext_hike,
-      durationtext_bike : loop.durationtext_bike,
-      durationtext_bridle : loop.durationtext_bridle
-    });
+    if (id !== 'new') {
+      const response = await apiClient.get<any>("/trails/" + id);
 
-    setWaypointsGeoJSON(loop.waypoints_geojson);
+      loopData = response.data.data; // @TODO: Why, if setting manually below?
 
-    const loopWaypoints = JSON.parse(loop.waypoints_geojson);
-    // Filter out the zero entries from the waypoints;
-    // a vestige of the way waypoints used to be stored in the DB
-    let filteredCoords = Array;
-    const initialCoords = loopWaypoints.geometry.coordinates;
-    if (initialCoords) {
-      filteredCoords = initialCoords.filter(function(coordinate, index, arr) {
-        return ((coordinate[0] != 0) && (coordinate[1] != 0));
+      setLoopStats({
+        distance_text : response.data.data.distancetext,
+        distance_feet : response.data.data.distance_feet ? response.data.data.distance_feet.toString() : '',
+        durationtext_hike : response.data.data.durationtext_hike,
+        durationtext_bike : response.data.data.durationtext_bike,
+        durationtext_bridle : response.data.data.durationtext_bridle,
       });
-      loopWaypoints.geometry.coordinates = filteredCoords;
+
+      setWaypointsGeoJSON(response.data.data.waypoints_geojson);
+
+      const loopWaypoints = JSON.parse(response.data.data.waypoints_geojson);
+      // Filter out the zero entries from the waypoints;
+      // a vestige of the way waypoints used to be stored in the DB
+      let filteredCoords = Array;
+      if (loopWaypoints != null && loopWaypoints.geometry != null) {
+        const initialCoords = loopWaypoints.geometry.coordinates;
+        if (initialCoords) {
+          filteredCoords = initialCoords.filter(function(coordinate, index, arr) {
+            return ((coordinate[0] != 0) && (coordinate[1] != 0));
+          });
+          loopWaypoints.geometry.coordinates = filteredCoords;
+        }
+      }
+      setWaypointsFeature(loopWaypoints);
+
+      form.setValues({
+        name: response.data.data.name,
+        description: response.data.data.description,
+        res: response.data.data.res,
+        hike: response.data.data.hike === "Yes",
+        bike: response.data.data.bike === "Yes",
+        mountainbike: response.data.data.mountainbike === "Yes",
+        bridle: response.data.data.bridle === "Yes"
+      });
     }
-    setWaypointsFeature(loopWaypoints);
 
-    form.setValues({
-      name: loop.name,
-      description: loop.description,
-      res: loop.res,
-      hike: loop.hike === "Yes",
-      bike: loop.bike === "Yes",
-      mountainbike: loop.mountainbike === "Yes",
-      bridle: loop.bridle === "Yes"
-    });
-
-    return loop;
+    return loopData;
   }
+  // END getLoop()
+  //--------
   
   const {
     isLoading: loopIsLoading,
@@ -171,16 +172,102 @@ export function LoopEdit() {
   } = useQuery<Loop, Error>(['loop', params.loopId], () => getLoop(loopId));
   //---------------------------------------------------------------------------
 
+  // Save Loop to the API
+  const saveLoop = async (formData) => {
+    setSavingState(true);
+    showNotification({
+      id: 'save-loop',
+      loading: true,
+      title: 'Saving Loop',
+      message: 'One moment',
+      autoClose: false,
+      disallowClose: true,
+    });
+
+    const loopSaveData = {
+      name: formData.name,
+      res: formData.res,
+      bike: formData.bike,
+      hike: formData.hike,
+      bridle: formData.bridle,
+      mountainbike: formData.mountainbike,
+      description: formData.description,
+      // distance_feet: number,
+      // distance_text: string,
+      // durationtext_hike: string,
+      // durationtext_bike: string,
+      // durationtext_bridle: string,
+      // lat: number,
+      // lng: number,
+      // boxw: number,
+      // boxs: number,
+      // boxe: number,
+      // boxn: number,
+      // waypoints_geojson: string,
+      // dest_id: number,
+      // dd_lat: number,
+      // dd_lng: number,
+    };
+
+    const isNew = (loopId === 'new');
+
+    const response = isNew ?
+      apiClient.post<any>('/loops', loopSaveData)
+      : apiClient.put<any>('/loops/' + loopId, loopSaveData);
+
+    response
+      .then(function (response) {
+        // Get new loop ID:
+        if (response.hasOwnProperty('data') && response['data'].data.id) {
+          loopId = response['data'].data.id;
+        }
+        const savedMsg = `Loop (ID: ${loopId}) saved`;
+        updateNotification({
+          id: 'save-loop',
+          loading: false,
+          title: savedMsg,
+          message: '',
+          autoClose: 5000,
+        });
+        setSavingState(false);
+        queryClient.invalidateQueries({ queryKey: ['loop'] });
+        console.log(savedMsg + ':', response);
+      })
+      .catch(function (error) {
+        const errMsg = error.name + ': ' + error.message + ' (' + error.code + ')';
+        updateNotification({
+          id: 'save-loop',
+          loading: false,
+          color: 'red',
+          title: 'Error saving Loop',
+          message: errMsg,
+          autoClose: false,
+        });
+        setSavingState(false);
+        console.error("Error saving Loop:", error);
+      }
+    );
+
+    return response;
+  }
+  // END saveLoop()
+  //--------
+
   //
   // Get loop Elevation Profile from API
   //
   const getLoopProfile = async (id: string) => {
-    const response = await apiClient.get<any>("/trail_profiles/" + id);
+    if (id !== 'new') {
+      const response = await apiClient.get<any>("/trail_profiles/" + id);
 
-    setLoopElevation(response.data.data.elevation_profile);
+      setLoopElevation(response.data.data.elevation_profile);
 
-    return response.data.data;
+      return response.data.data;
+    }
+
+    return {data: {}};
   }
+
   const {
     isLoading: loopProfileIsLoading,
     isError: loopProfileIsError,
@@ -193,25 +280,26 @@ export function LoopEdit() {
   // Get loop geometry from API 
   //
   const getLoopGeometry = async (id: string) => {
-    const response = await apiClient.get<any>("/trail_geometries/" + id);
-    const geojson = JSON.parse(response.data.data.geom_geojson);
+    if (id !== 'new') {
+      const response = await apiClient.get<any>("/trail_geometries/" + id);
+      const geojson = JSON.parse(response.data.data.geom_geojson);
 
-    setLoopGeometry(response.data.data.geom_geojson);
+      setLoopGeometry(response.data.data.geom_geojson);
 
-    if (geojson.coordinates) {
-      let loopBounds = new LngLatBounds();
-      coordEach(geojson, function (coord) {
-        loopBounds.extend([coord[0], coord[1]]);
-      });
-      setBounds((bounds) => {
-        // if (mapRef.current) {
-        //   mapRef.current.fitBounds(loopBounds, { padding: 40 });
-        // }
-        return loopBounds;
-      });
+      if (geojson.coordinates) {
+        let loopBounds = new LngLatBounds();
+        coordEach(geojson, function (coord) {
+          loopBounds.extend([coord[0], coord[1]]);
+        });
+        setBounds((bounds) => {
+          return loopBounds;
+        });
+      }
+
+      return response.data.data;
     }
 
-    return response.data.data;
+    return {data: {}};
   }
 
   const {
@@ -256,7 +344,7 @@ export function LoopEdit() {
 
   // Make GeoJSON linestring from waypoints (inside Draw/GeoJSON feature)
   function makeWaypointGeojsonString(feature) {
-    if (feature.geometry.coordinates) {
+    if (feature.geometry && feature.geometry.coordinates) { 
       // Turn into GeoJSON string for DB storage
       const coordsLinestring = lineString(feature.geometry.coordinates); // Using turf
       const output = JSON.stringify(coordsLinestring);
@@ -368,13 +456,19 @@ export function LoopEdit() {
       )}
 
       {loopData &&
-        <div>
-          {loopData &&
-          <Title order={2} sx={{marginTop: '1em'}}>{loopData.name}</Title>
-          }
-          <form onSubmit={form.onSubmit((values) => console.log('onSubmit():', values))}>
+        <>
+          <Title order={2} sx={{marginTop: '1em'}}>{loopData.name ? loopData.name : 'Add Loop'}</Title>
 
-            <Tabs defaultValue={activeTab} onTabChange={setActiveTab} sx={{marginTop: '1em'}}>
+          <form
+            onSubmit={
+              form.onSubmit((formValues) => {
+                mutation.mutate(formValues);
+              })
+            }
+          >
+
+            <Tabs value={activeTab} onTabChange={setActiveTab} sx={{marginTop: '1em'}}>
+            {/* <Tabs defaultValue="general" onTabChange={handleTabChange} sx={{marginTop: '1em'}}> */}
 
               <Tabs.List>
                 <Tabs.Tab value="general">General</Tabs.Tab>
@@ -460,6 +554,7 @@ export function LoopEdit() {
                         onDrawUpdate={onDrawUpdate}
                         onDrawDelete={onDrawDelete}
                         doCompleteLoop={completeLoop}
+                        activeTab={activeTab}
                       />
                     }
                     <LoopProfileChart loopProfile={loopElevation} />
@@ -497,6 +592,7 @@ export function LoopEdit() {
             <Group position="left" mt="md">
               <Button
                 type="submit"
+                loading={savingState}
                 sx={{ margin: '1em 0' }}
               >
                 {submitBtnText}
@@ -514,7 +610,7 @@ export function LoopEdit() {
             </Group>
 
           </form>
-        </div>
+        </>
       }
 
     </>

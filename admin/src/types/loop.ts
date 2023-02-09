@@ -26,6 +26,32 @@ export type Loop = {
   dd_lng: number
 };
 
+export const emptyLoop: Loop = {
+  id: null,
+  name: '',
+  res: '',
+  bike: '',
+  hike: '',
+  bridle: '',
+  mountainbike: '',
+  description: '',
+  distance_feet: null,
+  distance_text: '',
+  durationtext_hike: '',
+  durationtext_bike: '',
+  durationtext_bridle: '',
+  lat: null,
+  lng: null,
+  boxw: null,
+  boxs: null,
+  boxe: null,
+  boxn: null,
+  waypoints_geojson: '',
+  dest_id: null,
+  dd_lat: null,
+  dd_lng: null,
+};
+
 export type ElevationProfilePoint = {x: number, y: number};
 export type ElevationProfileArray = Array<ElevationProfilePoint>;
 
@@ -45,3 +71,23 @@ export interface LineStringFeature<LineString, GeoJsonProperties> extends GeoJso
   id?: string | number | undefined;
   properties: GeoJsonProperties;
 }
+
+export type LoopFormData = {
+  name: string,
+  description: string,
+  res: string,
+  hike: boolean,
+  bike: boolean,
+  mountainbike: boolean,
+  bridle: boolean
+};
+
+export const defaultLoopFormData: LoopFormData = {
+  name: '',
+  description: '',
+  res: '',
+  hike: false,
+  bike: false,
+  mountainbike: false,
+  bridle: false,
+};

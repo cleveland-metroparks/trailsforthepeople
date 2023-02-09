@@ -30,6 +30,7 @@ interface LoopMapProps {
   onDrawUpdate: (e: {features: object[]; action: string}) => void;
   onDrawDelete: (e: {features: object[]}) => void;
   doCompleteLoop: () => void;
+  activeTab: string;
 }
 
 const apiClient = axios.create({
@@ -45,6 +46,8 @@ const apiClient = axios.create({
 export function LoopMap(props: LoopMapProps) {
   const mapRef = useRef<MapRef>(null);
 
+  const [currentTab, setCurrentTab] = useState(props.activeTab);
+
   const [mapViewState, setMapViewState] = useState({
     longitude: MAP_DEFAULT_STATE.longitude,
     latitude: MAP_DEFAULT_STATE.latitude,
@@ -57,6 +60,21 @@ export function LoopMap(props: LoopMapProps) {
   const [parkFeatureLocations, setParkFeatureLocations] = useState(new Map());
   // Current value of the zoomTo field
   const [zoomToValue, setZoomToValue] = useState('');
+
+  // Map is not sized correctly when we switch tabs.
+  // Trying (unsuccessfully) here to mitigate.
+  // Calling mapRef.current.resize() doesn't show an onMapResize() event, for one thing.
+  if (currentTab === 'general' && props.activeTab === 'route') {
+    // Changed to Route tab in parent; trigger map resize
+    console.log('Route tab: trigger resize');
+    if (mapRef.current) {
+      mapRef.current.resize();
+    }
+    setCurrentTab('route');
+  } else if (currentTab === 'route' && props.activeTab === 'general') {
+    console.log('Back to general tab');
+    setCurrentTab('general');
+  }
 
   /**
    * Populate the zoomTo autocomplete component with CMP features
@@ -107,7 +125,7 @@ export function LoopMap(props: LoopMapProps) {
     setParkFeatureLocations(locs);
 
     return response.data.data;
-  }
+  } // End getReservations()
 
   const {
     isLoading: getReservationsCallIsLoading,
@@ -140,7 +158,9 @@ export function LoopMap(props: LoopMapProps) {
 
   // Map onLoad event
   const onMapLoad = (event: MapboxEvent) => {
-    // @TODO: Not sure why we were doing this. React is automatically putting
+    console.log('onMapLoad');
+    // @TODO: Not sure why we were doing the following.
+    // React is automatically putting
     // props.loopGeom data into the <Source> data.
     // const loopSource = mapRef.current.getSource('loop-data') as GeoJSONSource;
     // loopSource.setData(props.loopGeom);
@@ -150,6 +170,16 @@ export function LoopMap(props: LoopMapProps) {
       mapRef.current.fitBounds(props.mapBounds, { padding: 40 });
     }
   };
+
+  // Map onRender event
+  const onMapRender = (event: MapboxEvent) => {
+    console.log('onMapRender');
+  }
+
+  // Map onRender event
+  const onMapResize = (event: MapboxEvent) => {
+    console.log('onMapResize');
+  }
 
   const loopLayer: LineLayer = {
     id: "loop-line",
@@ -181,6 +211,8 @@ export function LoopMap(props: LoopMapProps) {
             mapboxAccessToken={MAPBOX_TOKEN}
             onLoad={onMapLoad}
             onMove={onMapMove}
+            onRender={onMapRender}
+            onResize={onMapResize}
           >
             <Source
               id="loop-data"

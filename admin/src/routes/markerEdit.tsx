@@ -14,7 +14,7 @@ import type { MapRef, MarkerDragEvent } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 import type { Marker, MarkerFormData } from "../types/marker";
-import { markerCategorySelectOptions, defaultMarkerCategory } from "../types/marker";
+import { markerCategorySelectOptions, emptyMarker, defaultMarkerFormData } from "../types/marker";
 import { reservationListSelectOptions } from "../types/reservation";
 
 const markersRootPath = '/markers';
@@ -57,34 +57,40 @@ export function MarkerEdit() {
 
   const mapRef = useRef<MapRef>(null);
 
-  const defaultLat = 41.32653793921162;
-  const defaultLng = -81.6629620125847;
+  const form = useForm({
+    initialValues: defaultMarkerFormData,
+    validate: {},
+  });
 
-  // Get marker
+  let markerId = '',
+      submitBtnText = 'Save Marker',
+      deleteMarkerPath = '',
+      absoluteDeleteMarkerPath = ''
+      ;
+
+  let params = useParams();
+
+  if (params.markerId) {
+    if (!isNaN(parseFloat(params.markerId))) { // Ensure marker ID is an int
+      markerId = params.markerId;
+      deleteMarkerPath = markersRootPath + '/' + markerId + '/delete';
+      absoluteDeleteMarkerPath = 'admin' + deleteMarkerPath;
+    } else if (params.markerId === 'new') {
+      markerId = params.markerId;
+      submitBtnText = 'Create Marker';
+    } else {
+      throw new Error("Invalid Marker ID");
+    }
+  }
+
+  // Get a marker from the API
   const getMarker = async (id: string) => {
-    let markerData: Marker = {
-      id: null,
-      creator: '',
-      created: '',
-      lat: defaultLat,
-      lng: defaultLng,
-      content: '',
-      title: '',
-      expires: '',
-      creatorid: null,
-      geom_geojson: '',
-      category: defaultMarkerCategory,
-      reservation: '',
-      enabled: null,
-      annual: null,
-      startdate: '',
-      modified: '',
-    };
+    let markerData: Marker = emptyMarker;
 
     if (id !== 'new') {
       const response = await apiClient.get<any>("/markers/" + id);
 
-      markerData = response.data.data;
+      markerData = response.data.data; // @TODO: Why, if setting manually below?
 
       // Date value handling; capture nulls & reformat
       const initExpireDate = response.data.data.expires ? dayjs(response.data.data.expires).toDate() : null;
@@ -101,7 +107,7 @@ export function MarkerEdit() {
         startDate: initStartDate,
         expireDate: initExpireDate,
         latitude: response.data.data.lat,
-        longitude: response.data.data.lng
+        longitude: response.data.data.lng,
       });
     }
 
@@ -110,60 +116,27 @@ export function MarkerEdit() {
   // END getMarker()
   //--------
 
-  let params = useParams();
+  const {
+    isLoading: markerIsLoading,
+    isError: markerIsError,
+    data: markerData,
+    error: markerError,
+  } = useQuery<Marker, Error>(['marker', params.markerId], () => getMarker(markerId));
 
-  let markerId = '',
-      submitBtnText = 'Save Marker',
-      deleteMarkerPath = '',
-      absoluteDeleteMarkerPath = ''
-      ;
-
-  if (params.markerId) {
-    if (!isNaN(parseFloat(params.markerId))) { // Ensure marker ID is an int
-      markerId = params.markerId;
-      deleteMarkerPath = markersRootPath + '/' + markerId + '/delete';
-      absoluteDeleteMarkerPath = 'admin' + deleteMarkerPath;
-    } else if (params.markerId === 'new') {
-      markerId = params.markerId;
-      submitBtnText = 'Create Marker';
-    } else {
-      throw new Error("Invalid Marker ID");
-    }
-  }
-
-  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<Marker, Error>(['marker', params.markerId], () => getMarker(markerId));
-
-  const form = useForm({
-    initialValues: {
-      title: '',
-      content: '',
-      category: defaultMarkerCategory,
-      reservation: '',
-      enabled: false,
-      annual: false,
-      startDate: null,
-      expireDate: null,
-      latitude: defaultLat,
-      longitude: defaultLng
-    },
-    validate: {
-    },
-  });
-
-  // Save Marker
+  // Save Marker to the API
   const saveMarker = async (formData) => {
     setSavingState(true);
     showNotification({
       id: 'save-marker',
       loading: true,
-      title: 'Saving marker',
+      title: 'Saving Marker',
       message: 'One moment',
       autoClose: false,
       disallowClose: true,
     });
 
     const markerSaveData = {
-      creator: 'Steven Mather', // @TODO
+      creator: 'Jeff Schuler', // @TODO
       // created: dayjs(),
       lat: formData.latitude,
       lng: formData.longitude,
@@ -180,9 +153,7 @@ export function MarkerEdit() {
       modified: dayjs(),
     };
 
-    const isNew = (markerId === 'new');
-
-    const response = isNew ?
+    const response = (markerId === 'new') ?
       apiClient.post<any>('/markers', markerSaveData)
       : apiClient.put<any>('/markers/' + markerId, markerSaveData);
 
@@ -210,12 +181,12 @@ export function MarkerEdit() {
           id: 'save-marker',
           loading: false,
           color: 'red',
-          title: 'Error saving marker',
+          title: 'Error saving Marker',
           message: errMsg,
           autoClose: false,
         });
         setSavingState(false);
-        console.error("Error saving marker:", error);
+        console.error("Error saving Marker:", error);
       }
     );
 
@@ -277,20 +248,23 @@ export function MarkerEdit() {
     <>
       <Anchor component={Link} to={`/markers`}>« Markers</Anchor>
 
-      {isLoading && <div>Loading...</div>}
+      {markerIsLoading && <Text>Loading...</Text>}
 
-      {isError && (
-        <div>{`There is a problem fetching the marker - ${error.message}`}</div>
+      {markerIsError && (
+        <Text>{`There is a problem fetching the marker - ${markerError.message}`}</Text>
       )}
 
-      {data &&
+      {markerData &&
         <>
-          <Title order={2}>{data.title}</Title>
+          <Title order={2} sx={{marginTop: '1em'}}>{markerData.title ? markerData.title : 'Add Marker'}</Title>
 
-          <form onSubmit={form.onSubmit((formValues) => {
-            mutation.mutate(formValues);
-          })}>
-
+          <form
+            onSubmit={
+              form.onSubmit((formValues) => {
+                mutation.mutate(formValues);
+              })
+            }
+          >
             <Box sx={{ maxWidth: 800 }}>
 
               <TextInput
@@ -325,7 +299,6 @@ export function MarkerEdit() {
                 <Select
                   label="Category"
                   data={markerCategorySelectOptions}
-                  defaultValue={defaultMarkerCategory}
                   {...form.getInputProps('category')}
                 />
               </Box>
@@ -345,8 +318,8 @@ export function MarkerEdit() {
                   reuseMaps
                   ref={mapRef}
                   initialViewState={{
-                    latitude: data.lat,
-                    longitude: data.lng,
+                    latitude: markerData.lat,
+                    longitude: markerData.lng,
                     zoom: MAP_DEFAULT_STATE.zoom
                   }}
                   style={{width: 800, height: 400}}
@@ -354,8 +327,8 @@ export function MarkerEdit() {
                   mapboxAccessToken={MAPBOX_TOKEN}
                 >
                   <MapGl.Marker
-                    longitude={data.lng}
-                    latitude={data.lat}
+                    longitude={markerData.lng}
+                    latitude={markerData.lat}
                     anchor="bottom"
                     draggable
                     onDrag={onMarkerDrag}
@@ -432,11 +405,11 @@ export function MarkerEdit() {
                   <Accordion.Control><Text fw={500}>Authorship</Text></Accordion.Control>
                   <Accordion.Panel>
                     <Text>
-                      <span><strong>Created:</strong> {data.created}</span><br />
-                      <span><strong>By:</strong> {data.creator} (ID: {data.creatorid})</span>
+                      <span><strong>Created:</strong> {markerData.created}</span><br />
+                      <span><strong>By:</strong> {markerData.creator} (ID: {markerData.creatorid})</span>
                     </Text>
                     <Text sx={{marginTop: '1em'}}>
-                      <span><strong>Last modified:</strong> {data.modified}</span><br />
+                      <span><strong>Last modified:</strong> {markerData.modified}</span><br />
                       <span><strong>By:</strong></span>
                     </Text>
                   </Accordion.Panel>
