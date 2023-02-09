@@ -13,7 +13,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 import { Home } from "./routes/home";
-import { LoopList } from "./routes/loopList";
+import { LoopList, loader as loopListLoader } from "./routes/loopList";
 import { LoopEdit } from "./routes/loopEdit";
 import { action as deleteLoopAction } from "./routes/loopDelete";
 import { MarkerList, loader as markerListLoader } from "./routes/markerList";
@@ -56,7 +56,11 @@ const routes = createRoutesFromElements(
     >
       <Route errorElement={<ErrorScreen />}>
         <Route path="loops">
-          <Route index element={<LoopList />} />
+          <Route
+            index
+            element={<LoopList />}
+            loader={loopListLoader(queryClient)}
+          />
           <Route path=":loopId" element={<LoopEdit />} />
           <Route path=":loopId/delete" action={deleteLoopAction} />
         </Route>

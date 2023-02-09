@@ -6,11 +6,12 @@ import { default as dayjs } from 'dayjs';
 
 import type { Marker } from "../types/marker";
 
+//
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_MAPS_API_BASE_URL
 });
 
-// Get all markers
+// Get all markers from the API
 const getAllMarkers = async () => {
   const response = await apiClient.get<any>("/markers");
   return response.data.data;

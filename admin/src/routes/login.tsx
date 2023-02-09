@@ -5,9 +5,6 @@ import PropTypes, { InferProps } from "prop-types";
 
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
-  headers: {
-    "Content-type": "application/json",
-  },
 });
 
 //
