@@ -212,8 +212,8 @@ export function LoopEdit() {
     const isNew = (loopId === 'new');
 
     const response = isNew ?
-      apiClient.post<any>('/loops', loopSaveData)
-      : apiClient.put<any>('/loops/' + loopId, loopSaveData);
+      apiClient.post<any>('/trails', loopSaveData)
+      : apiClient.put<any>('/trails/' + loopId, loopSaveData);
 
     response
       .then(function (response) {

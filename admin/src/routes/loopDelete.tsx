@@ -8,7 +8,7 @@ const apiClient = axios.create({
 });
 
 export async function action({ params }) {
-  const response = await apiClient.delete<any>("/loops/" + params.loopId);
+  const response = await apiClient.delete<any>("/trails/" + params.loopId);
   console.log('Delete Loop response:', response);
   return redirect(loopsRootPath);
 }
