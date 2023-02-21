@@ -1,4 +1,0 @@
-AuthType Basic
-AuthName "Testing"
-AuthUserFile /etc/apache2/htpasswd/.htpasswd
-Require valid-user
