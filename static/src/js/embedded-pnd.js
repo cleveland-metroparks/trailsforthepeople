@@ -9,7 +9,8 @@
 
 const projectDataGeoJsonUrl = WEBAPP_BASEPATH + 'test/pnd-markers.geojson';
 
-const markerClasses = [
+// The classes/categories of markers, for layers, styling, and legend
+let markerClasses = [
     {
         id: 'reservation',
         text: 'Reservation Capital Project',
@@ -54,6 +55,24 @@ const markerClasses = [
         // color: '#3548B0' // Scheme: Indigo
     }
 ];
+
+/**
+ * Filter our marker classes list by only the ones that used in the GeoJSON data
+ */
+let categoriesUsed = [];
+$.getJSON(projectDataGeoJsonUrl, function(data) {
+    // Make an array of all the "Map Classes" that are used
+    data.features.forEach(element => {
+        const category = element.properties['Map Class'];
+        if (!categoriesUsed.includes(category)) {
+            categoriesUsed.unshift(category);
+        }
+    });
+ })
+ .done(function() {
+    // Filter the classes array
+    markerClasses = markerClasses.filter(item => categoriesUsed.includes(item.text));
+ });
 
 
 $(document).ready(function() {
@@ -200,6 +219,6 @@ $(document).on("mapInitialized", function () {
             el.appendChild(key);
             el.appendChild(value);
             legend.appendChild(el);
-        });
+        }); // END markerClasses.forEach
     });
 });
