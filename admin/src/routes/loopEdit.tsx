@@ -192,18 +192,23 @@ export function LoopEdit() {
       bridle: formData.bridle ? "Yes" : "No",
       mountainbike: formData.mountainbike ? "Yes" : "No",
       description: formData.description,
-      // distance_feet: number,
-      // distance_text: string,
-      // durationtext_hike: string,
-      // durationtext_bike: string,
-      // durationtext_bridle: string,
+
+      distance_text : loopStats.distance_text, // number
+      distance_feet : loopStats.distance_feet, // string
+      durationtext_hike : loopStats.durationtext_hike, // string
+      durationtext_bike : loopStats.durationtext_bike, // string
+      durationtext_bridle : loopStats.durationtext_bridle, // string
+
+      waypoints_geojson: waypointsGeoJSON,
+
+      geom_geojson: loopGeometry,
+
       // lat: number,
       // lng: number,
       // boxw: number,
       // boxs: number,
       // boxe: number,
       // boxn: number,
-      // waypoints_geojson: string,
       // dest_id: number,
       // dd_lat: number,
       // dd_lng: number,

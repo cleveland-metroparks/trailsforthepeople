@@ -23,7 +23,7 @@ export type Loop = {
   waypoints_geojson: string,
   dest_id: number,
   dd_lat: number,
-  dd_lng: number
+  dd_lng: number,
 };
 
 export const emptyLoop: Loop = {
@@ -62,7 +62,7 @@ export interface LoopProfile {
 
 export type LoopGeometry = {
   id: number,
-  geom_geojson: string
+  geom_geojson: string,
 };
 
 export interface LineStringFeature<LineString, GeoJsonProperties> extends GeoJsonObject {
@@ -79,7 +79,7 @@ export type LoopFormData = {
   hike: boolean,
   bike: boolean,
   mountainbike: boolean,
-  bridle: boolean
+  bridle: boolean,
 };
 
 export const defaultLoopFormData: LoopFormData = {
