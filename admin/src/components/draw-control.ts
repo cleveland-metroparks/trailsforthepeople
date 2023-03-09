@@ -23,10 +23,18 @@ type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
 };
 
 export default function DrawControl(props: DrawControlProps) {
+  // console.log('DrawControl');
   let draw = useControl<MapboxDraw>(
-    () => new MapboxDraw(props),
 
+    // useControl onCreate:
     ({ map }: { map: MapRef }) => {
+      // console.log('useControl onCreate');
+      return new MapboxDraw(props);
+    },
+
+    // useControl onAdd:
+    ({ map }: { map: MapRef }) => {
+      // console.log('useControl onAdd');
       map.on('draw.create', props.onCreate);
       map.on('draw.update', props.onUpdate);
       map.on('draw.delete', props.onDelete);
@@ -34,10 +42,21 @@ export default function DrawControl(props: DrawControlProps) {
       map.on('load', function () {
         // Draw initial waypoints
         if (props.initialData.geometry) {
+          // console.log('draw() call to setDrawFeature');
           setDrawFeature(props.initialData);
         }
       })
     },
+
+    // useControl onRemove:
+    ({ map }: { map: MapRef }) => {
+      // console.log('useControl onRemove');
+      map.off('draw.create', props.onCreate);
+      map.off('draw.update', props.onUpdate);
+      map.off('draw.delete', props.onDelete);
+    },
+
+    // useControl opts:
     {
       position: props.position
     }
@@ -58,6 +77,7 @@ export default function DrawControl(props: DrawControlProps) {
   //
   useEffect(() => {
     if (props.waypointsGeom.geometry.coordinates.length) {
+      // console.log('useEffect() call to setDrawFeature');
       setDrawFeature(props.waypointsGeom);
     }
   }, [props.waypointsGeom]);

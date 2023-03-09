@@ -173,7 +173,7 @@ export function LoopMap(props: LoopMapProps) {
 
   // Map onRender event
   const onMapRender = (event: MapboxEvent) => {
-    console.log('onMapRender');
+    // console.log('onMapRender');
   }
 
   // Map onRender event
@@ -203,7 +203,18 @@ export function LoopMap(props: LoopMapProps) {
       {props.loopGeom &&
         <>
           <ReactMapGl.Map
-            reuseMaps
+            // "reuseMaps" bypasses initialization when a map is removed and re-added
+            // (switching screens, tabs, etc.) in order to avoid MapBox
+            // generating a billable event with every map initialization
+            // https://visgl.github.io/react-map-gl/docs/get-started/tips-and-tricks#minimize-cost-from-frequent-re-mounting
+            //
+            // @TODO:
+            // However, it also seems to break the re-loading of the DrawControl
+            // when the map is removed and re-rendered.
+            // Maybe this is relevant:? https://github.com/visgl/react-map-gl/issues/699
+            //
+            // reuseMaps={true}
+
             ref={mapRef}
             {...mapViewState}
             style={{width: "100%", height: 600}}
