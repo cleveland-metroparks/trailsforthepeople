@@ -61,18 +61,17 @@ export function LoopMap(props: LoopMapProps) {
   // Current value of the zoomTo field
   const [zoomToValue, setZoomToValue] = useState('');
 
-  // Map is not sized correctly when we switch tabs.
-  // Trying (unsuccessfully) here to mitigate.
-  // Calling mapRef.current.resize() doesn't show an onMapResize() event, for one thing.
+  // Map needs repaint to size correctly when user switches tabs,
+  // else the map shows up as 400 x 300
   if (currentTab === 'general' && props.activeTab === 'route') {
-    // Changed to Route tab in parent; trigger map resize
-    console.log('Route tab: trigger resize');
+    // Changed to Route tab in parent; trigger map repaint
     if (mapRef.current) {
-      mapRef.current.resize();
+      // @TODO: This still doesn't work if we start with the "General" tab
+      mapRef.current.triggerRepaint();
+      // mapRef.current.resize(); // <-- This actually breaks it
     }
     setCurrentTab('route');
   } else if (currentTab === 'route' && props.activeTab === 'general') {
-    console.log('Back to general tab');
     setCurrentTab('general');
   }
 
@@ -217,7 +216,7 @@ export function LoopMap(props: LoopMapProps) {
 
             ref={mapRef}
             {...mapViewState}
-            style={{width: "100%", height: 600}}
+            style={{width: "100%", height: "100%"}}
             mapStyle={MAPBOX_STYLE}
             mapboxAccessToken={MAPBOX_TOKEN}
             onLoad={onMapLoad}

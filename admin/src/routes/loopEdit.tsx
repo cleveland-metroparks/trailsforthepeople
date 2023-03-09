@@ -72,6 +72,7 @@ export function LoopEdit() {
     }
   }
 
+  // @TODO: starting on "general" tab breaks map sizing
   const [activeTab, setActiveTab] = useState("route");
 
   const [loopGeometry, setLoopGeometry] = useState('');
@@ -549,7 +550,7 @@ export function LoopEdit() {
 
               <Tabs.Panel value="route">
                 <Grid>
-                  <Grid.Col span={9}>
+                  <Grid.Col span={9} style={{ minHeight: 600 }}>
                     {loopData && loopGeometry &&
                       <LoopMap
                         loop={loopData}
