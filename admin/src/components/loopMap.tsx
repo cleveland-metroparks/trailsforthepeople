@@ -217,7 +217,7 @@ export function LoopMap(props: LoopMapProps) {
 
         ref={mapRef}
         {...mapViewState}
-        style={{width: "100%", height: "100%"}}
+        style={{width: "100%", height: 600}}
         mapStyle={MAPBOX_STYLE}
         mapboxAccessToken={MAPBOX_TOKEN}
         onLoad={onMapLoad}
