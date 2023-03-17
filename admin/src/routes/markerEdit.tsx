@@ -63,7 +63,6 @@ export function MarkerEdit() {
   });
 
   let markerId = '',
-      submitBtnText = 'Save Marker',
       deleteMarkerPath = '',
       absoluteDeleteMarkerPath = ''
       ;
@@ -77,7 +76,6 @@ export function MarkerEdit() {
       absoluteDeleteMarkerPath = 'admin' + deleteMarkerPath;
     } else if (params.markerId === 'new') {
       markerId = params.markerId;
-      submitBtnText = 'Create Marker';
     } else {
       throw new Error("Invalid Marker ID");
     }
@@ -423,7 +421,7 @@ export function MarkerEdit() {
                   loading={savingState}
                   sx={{ margin: '1em 0' }}
                 >
-                  {submitBtnText}
+                Save Marker
                 </Button>
 
                 {deleteMarkerPath &&

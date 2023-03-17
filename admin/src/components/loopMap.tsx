@@ -44,6 +44,10 @@ const apiClient = axios.create({
  * @returns 
  */
 export function LoopMap(props: LoopMapProps) {
+  // if (props.loopGeom == null) {
+  //   props.loopGeom = '{"type":"MultiLineString","coordinates":[]}';
+  // }
+  // console.log('loopGeom', props.loopGeom);
   const mapRef = useRef<MapRef>(null);
 
   const [currentTab, setCurrentTab] = useState(props.activeTab);
@@ -158,9 +162,8 @@ export function LoopMap(props: LoopMapProps) {
   // Map onLoad event
   const onMapLoad = (event: MapboxEvent) => {
     console.log('onMapLoad');
-    // @TODO: Not sure why we were doing the following.
-    // React is automatically putting
-    // props.loopGeom data into the <Source> data.
+    // @TODO: Not sure why we were doing the following...
+    // React is automatically putting props.loopGeom data into the <Source> data.
     // const loopSource = mapRef.current.getSource('loop-data') as GeoJSONSource;
     // loopSource.setData(props.loopGeom);
 
@@ -199,104 +202,99 @@ export function LoopMap(props: LoopMapProps) {
 
   return (
     <>
-      {props.loopGeom &&
-        <>
-          <ReactMapGl.Map
-            // "reuseMaps" bypasses initialization when a map is removed and re-added
-            // (switching screens, tabs, etc.) in order to avoid MapBox
-            // generating a billable event with every map initialization
-            // https://visgl.github.io/react-map-gl/docs/get-started/tips-and-tricks#minimize-cost-from-frequent-re-mounting
-            //
-            // @TODO:
-            // However, it also seems to break the re-loading of the DrawControl
-            // when the map is removed and re-rendered.
-            // Maybe this is relevant:? https://github.com/visgl/react-map-gl/issues/699
-            //
-            // reuseMaps={true}
+      <ReactMapGl.Map
+        // "reuseMaps" bypasses initialization when a map is removed and re-added
+        // (switching screens, tabs, etc.) in order to avoid MapBox
+        // generating a billable event with every map initialization
+        // https://visgl.github.io/react-map-gl/docs/get-started/tips-and-tricks#minimize-cost-from-frequent-re-mounting
+        //
+        // @TODO:
+        // However, it also seems to break the re-loading of the DrawControl
+        // when the map is removed and re-rendered.
+        // Maybe this is relevant:? https://github.com/visgl/react-map-gl/issues/699
+        //
+        // reuseMaps={true}
 
-            ref={mapRef}
-            {...mapViewState}
-            style={{width: "100%", height: "100%"}}
-            mapStyle={MAPBOX_STYLE}
-            mapboxAccessToken={MAPBOX_TOKEN}
-            onLoad={onMapLoad}
-            onMove={onMapMove}
-            onRender={onMapRender}
-            onResize={onMapResize}
-          >
-            <Source
-              id="loop-data"
-              type="geojson"
-              data={JSON.parse(props.loopGeom)}
-            >
-              <Layer {...loopLayer} />
-            </Source>
-            <NavigationControl
-              showCompass={true}
-              visualizePitch={true}
-            />
-            <DrawControl
-              position="top-left"
-              displayControlsDefault={false}
-              controls={{
-                line_string: true,
-                trash: true
-              }}
-              initialData={
-                props.waypointsFeature
-              }
-              waypointsGeom={
-                props.waypointsForDraw
-              }
-              // styles={[
-                // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/EXAMPLES.md
-                // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md#styling-draw
-                // https://docs.mapbox.com/mapbox-gl-js/style-spec/
-              // ]}
-              defaultMode="draw_line_string"
-              onUpdate={props.onDrawUpdate} // draw.update
-              onCreate={props.onDrawCreate} // draw.create
-              onDelete={props.onDrawDelete} // draw.delete
-            />
-          </ReactMapGl.Map>
+        ref={mapRef}
+        {...mapViewState}
+        style={{width: "100%", height: "100%"}}
+        mapStyle={MAPBOX_STYLE}
+        mapboxAccessToken={MAPBOX_TOKEN}
+        onLoad={onMapLoad}
+        onMove={onMapMove}
+        onRender={onMapRender}
+        onResize={onMapResize}
+      >
+        <Source
+          id="loop-data"
+          type="geojson"
+          data={props.loopGeom ? JSON.parse(props.loopGeom) : {"type":"MultiLineString","coordinates":[]}}
+        >
+          <Layer {...loopLayer} />
+        </Source>
+        <NavigationControl
+          showCompass={true}
+          visualizePitch={true}
+        />
+        <DrawControl
+          position="top-left"
+          displayControlsDefault={false}
+          controls={{
+            line_string: true,
+            trash: true
+          }}
+          initialData={
+            props.waypointsFeature
+          }
+          waypointsGeom={
+            props.waypointsForDraw
+          }
+          // styles={[
+            // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/EXAMPLES.md
+            // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md#styling-draw
+            // https://docs.mapbox.com/mapbox-gl-js/style-spec/
+          // ]}
+          defaultMode="draw_line_string"
+          onUpdate={props.onDrawUpdate} // draw.update
+          onCreate={props.onDrawCreate} // draw.create
+          onDelete={props.onDrawDelete} // draw.delete
+        />
+      </ReactMapGl.Map>
 
-          <Group
-            position="apart"
-            mt={10}
-            mb={30}
-            >
-            <Flex
-              gap="sm"
-              justify="flex-start"
-              align="flex-end"
-            >
-              <Autocomplete
-                label="Zoom to location"
-                placeholder="CMP feature..."
-                data={autocompleteData}
-                onChange={setZoomToValue}
-              />
-              <Button
-                variant="light"
-                onClick={() => {
-                  // Get the coordinates of the current value in the autocomplete field
-                  // const coords = {lng: -81.804, lat: 41.301};
-                  const parkFeatureLocation = parkFeatureLocations.get(zoomToValue);
-                  zoomMapTo(parkFeatureLocation.coords, parkFeatureLocation.bounds);
-                }}
-              >Zoom</Button>
-            </Flex>
-            <Box>
-              <Text size="sm">Complete loop</Text>
-              <Button
-                variant="light"
-                onClick={props.doCompleteLoop}
-              >Back to start</Button>
-            </Box>
-          </Group>
-
-        </>
-      }
+      <Group
+        position="apart"
+        mt={10}
+        mb={30}
+        >
+        <Flex
+          gap="sm"
+          justify="flex-start"
+          align="flex-end"
+        >
+          <Autocomplete
+            label="Zoom to location"
+            placeholder="CMP feature..."
+            data={autocompleteData}
+            onChange={setZoomToValue}
+          />
+          <Button
+            variant="light"
+            onClick={() => {
+              // Get the coordinates of the current value in the autocomplete field
+              // const coords = {lng: -81.804, lat: 41.301};
+              const parkFeatureLocation = parkFeatureLocations.get(zoomToValue);
+              zoomMapTo(parkFeatureLocation.coords, parkFeatureLocation.bounds);
+            }}
+          >Zoom</Button>
+        </Flex>
+        <Box>
+          <Text size="sm">Complete loop</Text>
+          <Button
+            variant="light"
+            onClick={props.doCompleteLoop}
+          >Back to start</Button>
+        </Box>
+      </Group>
     </>
   );
 }

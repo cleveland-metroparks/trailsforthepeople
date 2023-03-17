@@ -8,7 +8,7 @@ import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
 import { openConfirmModal } from '@mantine/modals';
 // import type { MapRef } from 'react-map-gl';
-import { LngLatBounds } from 'mapbox-gl';
+import { LngLat, LngLatBounds } from 'mapbox-gl';
 import { coordEach } from '@turf/meta';
 import { lineString } from '@turf/helpers';
 import { LineString, GeoJsonProperties } from 'geojson';
@@ -53,7 +53,6 @@ export function LoopEdit() {
   const queryClient = useQueryClient();
 
   let loopId = '',
-      submitBtnText = 'Save Loop',
       deleteLoopPath = '',
       absoluteDeleteLoopPath = '';
 
@@ -66,7 +65,6 @@ export function LoopEdit() {
       absoluteDeleteLoopPath = 'admin' + deleteLoopPath;
     } else if (params.loopId === 'new') {
       loopId = params.loopId;
-      submitBtnText = 'Create Loop';
     } else {
       throw new Error("Invalid Loop ID");
     }
@@ -108,7 +106,10 @@ export function LoopEdit() {
   const [waypointsForDraw, setWaypointsForDraw] = useState(emptyLineStringFeature);
 
   const [waypointsGeoJSON, setWaypointsGeoJSON] = useState('');
-  const [bounds, setBounds] = useState(new LngLatBounds());
+
+  const sw = new LngLat(-82.08504, 41.11816);
+  const ne = new LngLat(-81.28029, 41.70009);
+  const [bounds, setBounds] = useState(new LngLatBounds(sw, ne));
 
   const form = useForm({
     initialValues: defaultLoopFormData,
@@ -551,20 +552,18 @@ export function LoopEdit() {
               <Tabs.Panel value="route">
                 <Grid>
                   <Grid.Col span={9} style={{ minHeight: 600 }}>
-                    {loopData && loopGeometry &&
-                      <LoopMap
-                        loop={loopData}
-                        loopGeom={loopGeometry}
-                        waypointsFeature={waypointsFeature}
-                        waypointsForDraw={waypointsForDraw}
-                        mapBounds={bounds}
-                        onDrawCreate={onDrawCreate}
-                        onDrawUpdate={onDrawUpdate}
-                        onDrawDelete={onDrawDelete}
-                        doCompleteLoop={completeLoop}
-                        activeTab={activeTab}
-                      />
-                    }
+                    <LoopMap
+                      loop={loopData}
+                      loopGeom={loopGeometry}
+                      waypointsFeature={waypointsFeature}
+                      waypointsForDraw={waypointsForDraw}
+                      mapBounds={bounds}
+                      onDrawCreate={onDrawCreate}
+                      onDrawUpdate={onDrawUpdate}
+                      onDrawDelete={onDrawDelete}
+                      doCompleteLoop={completeLoop}
+                      activeTab={activeTab}
+                    />
                     <LoopProfileChart loopProfile={loopElevation} />
                   </Grid.Col>
                   <Grid.Col span={3}>
@@ -603,7 +602,7 @@ export function LoopEdit() {
                 loading={savingState}
                 sx={{ margin: '1em 0' }}
               >
-                {submitBtnText}
+              Save Loop
               </Button>
 
               {deleteLoopPath &&
