@@ -249,11 +249,76 @@ export function LoopMap(props: LoopMapProps) {
           waypointsGeom={
             props.waypointsForDraw
           }
-          // styles={[
-            // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/EXAMPLES.md
-            // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md#styling-draw
-            // https://docs.mapbox.com/mapbox-gl-js/style-spec/
-          // ]}
+          styles={[
+            // Mapbox GL Draw styling
+            // @see https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/EXAMPLES.md
+
+            // Line, active
+            {
+              "id": "gl-draw-line",
+              "type": "line",
+              "filter": ["all",
+                ["==", "$type", "LineString"],
+                ["!=", "mode", "static"]
+              ],
+              "layout": {
+                "line-cap": "round",
+                "line-join": "round"
+              },
+              "paint": {
+                "line-color": "#d20000",
+                "line-dasharray": [1, 2],
+                "line-width": 2
+              }
+            },
+            // Line, inactive
+            {
+              'id': 'gl-draw-line-inactive',
+              'type': 'line',
+              'filter': ['all',
+                ['==', 'active', 'false'],
+                ['==', '$type', 'LineString'],
+                ['!=', 'mode', 'static']
+              ],
+              'layout': {
+                'line-cap': 'round',
+                'line-join': 'round'
+              },
+              'paint': {
+                "line-color": "#8f0000",
+                "line-dasharray": [1, 2],
+                'line-width': 2
+              }
+            },
+            // Vertex point halos
+            {
+              "id": "gl-draw-polygon-and-line-vertex-halo-active",
+              "type": "circle",
+              "filter": ["all",
+                ["==", "meta", "vertex"],
+                ["==", "$type", "Point"],
+                ["!=", "mode", "static"]
+              ],
+              "paint": {
+                "circle-radius": 8,
+                "circle-color": "#FFF"
+              }
+            },
+            // Vertex points
+            {
+              "id": "gl-draw-polygon-and-line-vertex-active",
+              "type": "circle",
+              "filter": ["all",
+                ["==", "meta", "vertex"],
+                ["==", "$type", "Point"],
+                ["!=", "mode", "static"]
+              ],
+              "paint": {
+                "circle-radius": 6,
+                "circle-color": "#d20000",
+              }
+            },
+          ]}
           defaultMode="draw_line_string"
           onUpdate={props.onDrawUpdate} // draw.update
           onCreate={props.onDrawCreate} // draw.create
