@@ -285,7 +285,7 @@ export function LoopMap(props: LoopMapProps) {
                 'line-join': 'round'
               },
               'paint': {
-                "line-color": "#8f0000",
+                "line-color": "#d20000",
                 "line-dasharray": [1, 2],
                 'line-width': 2
               }
@@ -301,7 +301,7 @@ export function LoopMap(props: LoopMapProps) {
               ],
               "paint": {
                 "circle-radius": 8,
-                "circle-color": "#FFF"
+                "circle-color": "#ffffff"
               }
             },
             // Vertex points
@@ -318,8 +318,31 @@ export function LoopMap(props: LoopMapProps) {
                 "circle-color": "#d20000",
               }
             },
+            // Midpoint halos
+            {
+              'id': 'gl-draw-polygon-midpoint-halo',
+              'type': 'circle',
+              'filter': ['all',
+                ['==', '$type', 'Point'],
+                ['==', 'meta', 'midpoint']],
+              'paint': {
+                'circle-radius': 5,
+                'circle-color': '#ffffff'
+              }
+            },
+            // Midpoints
+            {
+              'id': 'gl-draw-polygon-midpoint',
+              'type': 'circle',
+              'filter': ['all',
+                ['==', '$type', 'Point'],
+                ['==', 'meta', 'midpoint']],
+              'paint': {
+                'circle-radius': 4,
+                'circle-color': '#d20000'
+              }
+            },
           ]}
-          defaultMode="draw_line_string"
           onUpdate={props.onDrawUpdate} // draw.update
           onCreate={props.onDrawCreate} // draw.create
           onDelete={props.onDrawDelete} // draw.delete
