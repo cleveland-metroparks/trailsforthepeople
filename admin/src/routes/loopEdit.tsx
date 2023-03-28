@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import axios from "axios";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams, Navigate, useSubmit } from "react-router-dom";
@@ -7,7 +7,6 @@ import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
 import { openConfirmModal } from '@mantine/modals';
-// import type { MapRef } from 'react-map-gl';
 import { LngLat, LngLatBounds } from 'mapbox-gl';
 import { coordEach } from '@turf/meta';
 import { lineString } from '@turf/helpers';
@@ -41,8 +40,6 @@ const defaultLoopProfile: LoopProfile = {
  */
 export function LoopEdit() {
   const submitDelete = useSubmit();
-
-  // const mapRef = useRef<MapRef>(null);
 
   const [savingState, setSavingState] = useState(false);
 
@@ -159,6 +156,12 @@ export function LoopEdit() {
         mountainbike: response.data.data.mountainbike === "Yes",
         bridle: response.data.data.bridle === "Yes"
       });
+
+      if (response.data.data.directions) {
+        // "directions" is serialized as JSON in the DB
+        let directionsJSON = JSON.parse(response.data.data.directions);
+        setLoopDirections(directionsJSON);
+      }
     }
 
     return loopData;
@@ -194,6 +197,7 @@ export function LoopEdit() {
       bridle: formData.bridle ? "Yes" : "No",
       mountainbike: formData.mountainbike ? "Yes" : "No",
       description: formData.description,
+      directions: JSON.stringify(loopDirections),
 
       distance_text: loopStats.distance_text, // number
       distance_feet: loopStats.distance_feet, // string
@@ -207,6 +211,8 @@ export function LoopEdit() {
 
       geom_geojson: loopGeometry,
 
+      // @TODO
+      //
       // lat: number,
       // lng: number,
       // boxw: number,
