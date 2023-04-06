@@ -47,6 +47,7 @@ export function Login({ setToken }: InferProps<typeof Login.propTypes>) {
           <TextInput
             label="Username"
             placeholder="Username"
+            autoComplete="username"
             required
             {...form.getInputProps('username')}
           />
@@ -54,6 +55,7 @@ export function Login({ setToken }: InferProps<typeof Login.propTypes>) {
           <PasswordInput sx={{marginTop: '1em'}}
             placeholder="Password"
             label="Password"
+            autoComplete="current-password"
             required
             {...form.getInputProps('password')}
           />
