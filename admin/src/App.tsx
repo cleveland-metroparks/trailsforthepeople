@@ -18,10 +18,10 @@ function App() {
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
   const [token, setToken] = useState(null);
-  // console.log("Bearer access token:", token);
 
-  // if (!token) {
-  if (false) {
+  console.log("Bearer access token:", token);
+
+  if (!token) {
     return (
       <AppShell
           padding="md"
