@@ -12,7 +12,10 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
+import { ProtectedRoute } from "./components/protectedRoute";
+import { AuthLayout } from "./components/authLayout";
 import { Home } from "./routes/home";
+import { Login } from "./routes/login";
 import { LoopList, loader as loopListLoader } from "./routes/loopList";
 import { LoopEdit } from "./routes/loopEdit";
 import { action as deleteLoopAction } from "./routes/loopDelete";
@@ -48,48 +51,58 @@ const root = ReactDOM.createRoot(
 //
 const routes = createRoutesFromElements(
   <>
-    <Route index element={<Home />} />
     <Route
-      path="/"
-      element={<App />}
-      errorElement={<ErrorScreen />}
+      element={<AuthLayout />}
     >
-      <Route errorElement={<ErrorScreen />}>
-        <Route path="loops">
-          <Route
-            index
-            element={<LoopList />}
-            loader={loopListLoader(queryClient)}
-          />
-          <Route path=":loopId" element={<LoopEdit />} />
-          <Route path=":loopId/delete" action={deleteLoopAction} />
+      <Route index element={<Home />} />
+      <Route path="home" element={
+        <ProtectedRoute>
+          <Home />
+        </ProtectedRoute>
+      } />
+      <Route path="login" element={<Login />} />
+      <Route
+        path="/"
+        element={<App />}
+        errorElement={<ErrorScreen />}
+      >
+        <Route errorElement={<ErrorScreen />}>
+          <Route path="loops">
+            <Route
+              index
+              element={<LoopList />}
+              loader={loopListLoader(queryClient)}
+            />
+            <Route path=":loopId" element={<LoopEdit />} />
+            <Route path=":loopId/delete" action={deleteLoopAction} />
+          </Route>
+          <Route path="markers">
+            <Route
+              index
+              element={<MarkerList />}
+              loader={markerListLoader(queryClient)}
+            />
+            <Route path=":markerId" element={<MarkerEdit />} />
+            {/* <Route path=":markerId/delete" action={deleteMarkerAction} element={<MarkerDelete onDelete />} /> */}
+            <Route path=":markerId/delete" action={deleteMarkerAction} />
+          </Route>
+          <Route path="hintmaps">
+            <Route index element={<HintMapsList />} />
+            <Route path=":hintmapId" element={<HintMapEdit />} />
+          </Route>
+          <Route path="logs">
+            <Route index element={<AuditLogsList />} />
+            <Route path=":logId" element={<AuditLogView />} />
+          </Route>
+          {/* <Route
+            path="*"
+            element={
+              <main style={{ padding: "1rem" }}>
+                <p>Not found</p>
+              </main>
+            }
+          /> */}
         </Route>
-        <Route path="markers">
-          <Route
-            index
-            element={<MarkerList />}
-            loader={markerListLoader(queryClient)}
-          />
-          <Route path=":markerId" element={<MarkerEdit />} />
-          {/* <Route path=":markerId/delete" action={deleteMarkerAction} element={<MarkerDelete onDelete />} /> */}
-          <Route path=":markerId/delete" action={deleteMarkerAction} />
-        </Route>
-        <Route path="hintmaps">
-          <Route index element={<HintMapsList />} />
-          <Route path=":hintmapId" element={<HintMapEdit />} />
-        </Route>
-        <Route path="logs">
-          <Route index element={<AuditLogsList />} />
-          <Route path=":logId" element={<AuditLogView />} />
-        </Route>
-        {/* <Route
-          path="*"
-          element={
-            <main style={{ padding: "1rem" }}>
-              <p>Not found</p>
-            </main>
-          }
-        /> */}
       </Route>
     </Route>
   </>

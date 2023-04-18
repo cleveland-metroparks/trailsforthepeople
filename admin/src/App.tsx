@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './App.css';
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, Navigate } from "react-router-dom";
 import {
   Anchor,
   AppShell,
@@ -11,42 +11,16 @@ import {
   useMantineTheme,
 } from '@mantine/core';
 
+import { useAuth } from "./hooks/useAuth";
 import { NavLinks } from './_navLinks';
-import { Login } from "./routes/login";
 
 function App() {
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
-  const [token, setToken] = useState(null);
+  const { user } = useAuth();
 
-  console.log("Bearer access token:", token);
-
-  if (!token) {
-    return (
-      <AppShell
-          padding="md"
-
-          header={
-            <Header height={70} p="md">
-              <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                <Anchor component={Link} to="/">
-                  Maps Content Admin
-                </Anchor>
-              </div>
-            </Header>
-          }
-
-          styles={(theme) => ({
-            main: {
-              backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : ''
-            },
-          })}
-        >
-
-        <Login setToken={setToken} />
-
-      </AppShell>
-    );
+  if (!user) {
+    return <Navigate to="/login" />;
   }
 
   return (

@@ -1,15 +1,26 @@
 import axios from "axios";
-import { Container, TextInput, PasswordInput, Button, Group } from '@mantine/core';
+import {
+  Container,
+  TextInput,
+  PasswordInput,
+  Button,
+  Group,
+  Title,
+  Text,
+  Anchor,
+} from '@mantine/core';
+import { Navigate } from "react-router-dom";
 import { useForm } from '@mantine/form';
 import PropTypes, { InferProps } from "prop-types";
+
+import { useAuth } from "../hooks/useAuth";
 
 const apiClient = axios.create({
   baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
 });
 
 //
-export function Login({ setToken }: InferProps<typeof Login.propTypes>) {
-
+export function Login() {
   const form = useForm({
     initialValues: {
       username: '',
@@ -19,6 +30,12 @@ export function Login({ setToken }: InferProps<typeof Login.propTypes>) {
     },
   });
 
+  const { user, onLogin } = useAuth();
+
+  if (user) {
+    return <Navigate to="/" />;
+  }
+
   // Submit login to API
   const authLogin = async (username: string, password: string) => {
     const response = await apiClient.post<any>("/ldap_login", {
@@ -27,7 +44,7 @@ export function Login({ setToken }: InferProps<typeof Login.propTypes>) {
     })
     .then(function (response: any) {
       console.log('API auth login response:', response);
-      setToken(response.data.data);
+      onLogin(response.data.data);
     })
     .catch(function (error) {
       console.log('API auth login error:', error);
@@ -35,10 +52,22 @@ export function Login({ setToken }: InferProps<typeof Login.propTypes>) {
   }
 
   return (
-    <div>
-      <h2>User Login</h2>
+    <>
+      <Title order={1} sx={{margin: '4em 0 0'}} align="center">
+        Maps Content Admin
+      </Title>
+
+      <Text
+        ta="center"
+        fz={{base: 'lg', sm: 'xl'}}
+        sx={{margin: '2em 0 3em'}}
+      >
+        For the Cleveland Metroparks <strong>maps</strong> and <strong>trails</strong> <Anchor href="http://maps.clevelandmetroparks.com/">web app</Anchor> & <Anchor href="https://maps-api.clevelandmetroparks.com/api/docs#/">API</Anchor>.
+      </Text>
 
       <Container size={250} sx={{marginTop: '2em'}}>
+
+        <Title order={2} sx={{margin: '0 0 .5em'}} align="left">Sign in</Title>
 
         <form onSubmit={form.onSubmit((values) => {
           authLogin(values.username, values.password);
@@ -67,10 +96,6 @@ export function Login({ setToken }: InferProps<typeof Login.propTypes>) {
         </form>
       </Container>
 
-    </div>
+    </>
   );
-}
-
-Login.propTypes = {
-  setToken: PropTypes.func.isRequired
 }
