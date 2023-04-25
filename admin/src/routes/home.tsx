@@ -3,11 +3,12 @@ import {
   Flex,
   Title,
   Text,
-  Anchor
+  Anchor,
+  Divider
 } from '@mantine/core';
 
 import { useAuth } from "../hooks/useAuth";
-import { NavButtons } from '../_navLinks';
+import { NavButtons, UserLinks } from '../_navLinks';
 
 export function Home() {
   // const { user } = useAuth();
@@ -31,13 +32,17 @@ export function Home() {
       </Text>
 
       <Flex
-        direction={{ base: 'column', md: 'row' }}
-        gap={{ base: 'sm', sm: 'lg' }}
-        justify={{ sm: 'center' }}
-        sx={{margin: '3em'}}
+        direction={{base: 'column', md: 'row'}}
+        gap={{base: 'sm', sm: 'lg'}}
+        justify={{sm: 'center'}}
+        sx={{margin: '3em 0 18em'}}
         >
         <NavButtons />
       </Flex>
+
+      <Divider my="sm" variant="dotted" />
+
+      <UserLinks />
     </>
 );
 }

@@ -11,7 +11,6 @@ import {
 } from '@mantine/core';
 import { Navigate } from "react-router-dom";
 import { useForm } from '@mantine/form';
-import PropTypes, { InferProps } from "prop-types";
 
 import { useAuth } from "../hooks/useAuth";
 

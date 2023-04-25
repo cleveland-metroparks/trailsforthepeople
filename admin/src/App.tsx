@@ -8,11 +8,12 @@ import {
   Header,
   MediaQuery,
   Burger,
+  Divider,
   useMantineTheme,
 } from '@mantine/core';
 
 import { useAuth } from "./hooks/useAuth";
-import { NavLinks } from './_navLinks';
+import { NavLinks, UserLinks } from './_navLinks';
 
 function App() {
   const theme = useMantineTheme();
@@ -30,6 +31,8 @@ function App() {
         navbar={
           <Navbar p="md" hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 200, lg: 300 }}>
             <NavLinks />
+            <Divider my="sm" variant="dotted" />
+            <UserLinks />
           </Navbar>
         }
 

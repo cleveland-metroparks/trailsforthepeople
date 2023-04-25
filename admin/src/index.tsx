@@ -16,6 +16,7 @@ import { ProtectedRoute } from "./components/protectedRoute";
 import { AuthLayout } from "./components/authLayout";
 import { Home } from "./routes/home";
 import { Login } from "./routes/login";
+import { Logout } from "./routes/logout";
 import { LoopList, loader as loopListLoader } from "./routes/loopList";
 import { LoopEdit } from "./routes/loopEdit";
 import { action as deleteLoopAction } from "./routes/loopDelete";
@@ -61,6 +62,7 @@ const routes = createRoutesFromElements(
         </ProtectedRoute>
       } />
       <Route path="login" element={<Login />} />
+      <Route path="logout" element={<Logout />} />
       <Route
         path="/"
         element={<App />}
@@ -118,7 +120,7 @@ root.render(
         <MantineProvider withNormalizeCSS withGlobalStyles>
           <ModalsProvider>
             <NotificationsProvider>
-              <RouterProvider router={router} />;
+              <RouterProvider router={router} />
             </NotificationsProvider>
           </ModalsProvider>
         </MantineProvider>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Route, MapPin, Map, FileText } from 'tabler-icons-react';
+import { Route, MapPin, Map, FileText, Logout } from 'tabler-icons-react';
 import { ThemeIcon, UnstyledButton, Button, Group, Text } from '@mantine/core';
 
 import { Link } from "react-router-dom";
@@ -17,6 +17,10 @@ const navLinksData = [
   { icon: <MapPin />, color: 'teal', label: 'Markers', urlPath: 'markers' },
   { icon: <Map />, color: 'violet', label: 'Hint Maps', urlPath: 'hintmaps' },
   { icon: <FileText />, color: 'grape', label: 'Logs', urlPath: 'logs' },
+];
+
+const userLinksData = [
+  { icon: <Logout />, color: 'gray', label: 'Logout', urlPath: 'logout' },
 ];
 
 // For the sidebar menu link buttons
@@ -67,6 +71,12 @@ function NavButton({ icon, color, label, urlPath }: NavLinkProps) {
 // Sidebar menu link buttons
 export function NavLinks() {
   const links = navLinksData.map((link) => <NavLink {...link} key={link.label} />);
+  return <>{links}</>;
+}
+
+// Sidebar menu link buttons
+export function UserLinks() {
+  const links = userLinksData.map((link) => <NavLink {...link} key={link.label} />);
   return <>{links}</>;
 }
 
