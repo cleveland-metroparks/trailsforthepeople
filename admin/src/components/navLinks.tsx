@@ -1,9 +1,10 @@
 import React from 'react';
 
 import { Route, MapPin, Map, FileText, Logout } from 'tabler-icons-react';
-import { ThemeIcon, UnstyledButton, Button, Group, Text } from '@mantine/core';
-
+import { ThemeIcon, UnstyledButton, Button, Group, Text, Box } from '@mantine/core';
 import { Link } from "react-router-dom";
+
+import { useAuth } from "../hooks/useAuth";
 
 interface NavLinkProps {
   icon: React.ReactNode;
@@ -76,8 +77,26 @@ export function NavLinks() {
 
 // Sidebar menu link buttons
 export function UserLinks() {
+  const { user } = useAuth();
+
   const links = userLinksData.map((link) => <NavLink {...link} key={link.label} />);
-  return <>{links}</>;
+
+  return (
+    <>
+      <Box
+        sx={(theme) => ({
+          'padding-left': 10,
+        })}
+      >
+      <Text size="xs">
+        <Text span color="gray.7">User: </Text>
+        <Text span fw={700}>{user?.samaccountname}</Text>
+        <Text span> ({user?.displayname})</Text>
+      </Text>
+      </Box>
+    {links}
+    </>
+  );
 }
 
 // Home page buttons
