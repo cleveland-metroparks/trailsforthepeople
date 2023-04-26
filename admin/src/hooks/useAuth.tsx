@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // call this function to sign out logged in user
-  const onLogout = () => {
+  const onLogout = async () => {
     setUser(null);
     navigate("/login", { replace: true });
   };

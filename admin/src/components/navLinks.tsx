@@ -85,7 +85,7 @@ export function UserLinks() {
     <>
       <Box
         sx={(theme) => ({
-          'padding-left': 10,
+          'paddingLeft': 10,
         })}
       >
       <Text size="xs">

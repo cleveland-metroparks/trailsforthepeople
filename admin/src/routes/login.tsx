@@ -18,8 +18,10 @@ const apiClient = axios.create({
   baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
 });
 
-//
-export function Login() {
+/**
+ * Login screen
+ */
+export function Login(): JSX.Element {
   const form = useForm({
     initialValues: {
       username: '',
@@ -32,6 +34,7 @@ export function Login() {
   const { user, onLogin } = useAuth();
 
   if (user) {
+    console.log(user);
     return <Navigate to="/" />;
   }
 

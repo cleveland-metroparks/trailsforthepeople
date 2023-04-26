@@ -1,4 +1,3 @@
-import { Navigate } from "react-router-dom";
 import {
   Flex,
   Title,
@@ -11,14 +10,6 @@ import { useAuth } from "../hooks/useAuth";
 import { NavButtons, UserLinks } from '../components/navLinks';
 
 export function Home() {
-  const { user } = useAuth();
-
-  console.log(user);
-
-  // if (!user) {
-  //   return <Navigate to="/login" />;
-  // }
-
   return (
     <>
       <Title order={1} sx={{margin: '4em 0 0'}} align="center">
