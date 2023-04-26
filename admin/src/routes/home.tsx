@@ -8,10 +8,12 @@ import {
 } from '@mantine/core';
 
 import { useAuth } from "../hooks/useAuth";
-import { NavButtons, UserLinks } from '../_navLinks';
+import { NavButtons, UserLinks } from '../components/navLinks';
 
 export function Home() {
-  // const { user } = useAuth();
+  const { user } = useAuth();
+
+  console.log(user);
 
   // if (!user) {
   //   return <Navigate to="/login" />;

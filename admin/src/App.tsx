@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 
 import { useAuth } from "./hooks/useAuth";
-import { NavLinks, UserLinks } from './_navLinks';
+import { NavLinks, UserLinks } from './components/navLinks';
 
 function App() {
   const theme = useMantineTheme();
