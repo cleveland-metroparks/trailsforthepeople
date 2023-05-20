@@ -1,19 +1,14 @@
-import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Table, Title, Anchor, Button } from '@mantine/core';
 import { default as dayjs } from 'dayjs';
 
+import { mapsApiClient } from "../components/mapsApi";
 import type { Marker } from "../types/marker";
-
-//
-const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL
-});
 
 // Get all markers from the API
 const getAllMarkers = async () => {
-  const response = await apiClient.get<any>("/markers");
+  const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/markers");
   return response.data.data;
 }
 

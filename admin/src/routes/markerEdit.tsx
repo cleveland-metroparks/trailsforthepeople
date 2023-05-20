@@ -1,5 +1,4 @@
 import { useCallback, useRef, useState } from 'react';
-import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams, Navigate, useSubmit } from "react-router-dom";
 import { createStyles, Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
@@ -13,6 +12,7 @@ import * as MapGl from 'react-map-gl'; // Namespace as MapGl since we already ha
 import type { MapRef, MarkerDragEvent } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
+import { mapsApiClient } from "../components/mapsApi";
 import type { Marker, MarkerFormData } from "../types/marker";
 import { markerCategorySelectOptions, emptyMarker, defaultMarkerFormData } from "../types/marker";
 import { reservationListSelectOptions } from "../types/reservation";
@@ -33,10 +33,6 @@ const MAP_DEFAULT_STATE = {
   longitude: -81.6730,
   zoom: 9
 };
-
-const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL
-});
 
 
 /**
@@ -86,7 +82,7 @@ export function MarkerEdit() {
     let markerData: Marker = emptyMarker;
 
     if (id !== 'new') {
-      const response = await apiClient.get<any>("/markers/" + id);
+      const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/markers/" + id);
 
       markerData = response.data.data; // @TODO: Why, if setting manually below?
 
@@ -152,8 +148,8 @@ export function MarkerEdit() {
     };
 
     const response = (markerId === 'new') ?
-      apiClient.post<any>('/markers', markerSaveData)
-      : apiClient.put<any>('/markers/' + markerId, markerSaveData);
+      mapsApiClient.post<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/markers', markerSaveData)
+      : mapsApiClient.put<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/markers/' + markerId, markerSaveData);
 
     response
       .then(function (response) {

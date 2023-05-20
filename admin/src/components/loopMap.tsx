@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react';
-import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { LngLat, LngLatBounds } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -10,6 +9,7 @@ import type { MapRef, MapboxEvent, ViewStateChangeEvent, GeoJSONSource } from 'r
 import { Text, Button, Group, Box, Flex, Autocomplete } from '@mantine/core';
 import DrawControl from './draw-control';
 
+import { mapsApiClient } from "../components/mapsApi";
 import type { Loop } from "../types/loop";
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
@@ -32,10 +32,6 @@ interface LoopMapProps {
   doCompleteLoop: () => void;
   activeTab: string;
 }
-
-const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
-});
 
 /**
  * Loop Map
@@ -85,7 +81,7 @@ export function LoopMap(props: LoopMapProps) {
 
   // Get Reservations data from the API
   const getReservations = async () => {
-    const response = await apiClient.get<any>("/reservations");
+    const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/reservations");
 
     // Get the name, group (type), coordinates, and bounds (if set) of each reservation
     // for the Autocomplete component

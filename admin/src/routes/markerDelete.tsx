@@ -1,21 +1,18 @@
 // import React, { useState } from 'react';
-import axios from 'axios';
 // import { useParams, Navigate, redirect } from 'react-router-dom';
 import { redirect } from 'react-router-dom';
 // import { showNotification, updateNotification } from '@mantine/notifications';
 
-const markersRootPath = '/markers';
+import { mapsApiClient } from "../components/mapsApi";
 
-const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL
-});
+const markersRootPath = '/markers';
 
 // interface props {
 //   onDelete: () => void;
 // }
 
 export async function action({ params }) {
-  const response = await apiClient.delete<any>("/markers/" + params.markerId);
+  const response = await mapsApiClient.delete<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/markers/" + params.markerId);
   console.log('Delete Marker response:', response);
   return redirect(markersRootPath);
   // return <Navigate to={markersRootPath} replace={true} />
@@ -38,7 +35,7 @@ export async function action({ params }) {
 //     });
 
 //     try {
-//       const response = await apiClient.delete<any>("/markers/" + markerId);
+//       const response = await mapsApiClient.delete<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/markers/" + markerId);
 //       onDelete();
 //       const deletedMsg = `Marker (ID: ${markerId}) deleted`;
 //       updateNotification({

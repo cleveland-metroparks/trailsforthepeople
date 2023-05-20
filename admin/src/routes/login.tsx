@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   Container,
   TextInput,
@@ -12,11 +11,8 @@ import {
 import { Navigate } from "react-router-dom";
 import { useForm } from '@mantine/form';
 
+import { mapsApiClient } from "../components/mapsApi";
 import { useAuth } from "../hooks/useAuth";
-
-const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
-});
 
 /**
  * Login screen
@@ -40,17 +36,24 @@ export function Login(): JSX.Element {
 
   // Submit login to API
   const authLogin = async (username: string, password: string) => {
-    const response = await apiClient.post<any>("/ldap_login", {
-      username: username,
-      password: password,
-    })
-    .then(function (response: any) {
-      console.log('API auth login response:', response);
-      onLogin(response.data.data);
-    })
-    .catch(function (error) {
-      console.log('API auth login error:', error);
+    // For Laravel Sanctum we need to get a CSRF cookie first
+    const csrfResponse = await mapsApiClient.get<any>('/sanctum/csrf-cookie')
+    .then(function (csrfResponse: any) {
+      console.log('CSRF cookie response:', csrfResponse);
+      // Then we can login
+      const loginResponse = mapsApiClient.post<any>("/login", {
+        username: username,
+        password: password,
+      })
+      .then(function (loginResponse: any) {
+        console.log('API auth login response:', loginResponse);
+        onLogin(loginResponse.data.data);
+      })
+      .catch(function (error) {
+        console.log('API auth login error:', error);
+      });
     });
+
   }
 
   return (
@@ -64,7 +67,7 @@ export function Login(): JSX.Element {
         fz={{base: 'lg', sm: 'xl'}}
         sx={{margin: '2em 0 3em'}}
       >
-        For the Cleveland Metroparks <strong>maps</strong> and <strong>trails</strong> <Anchor href="http://maps.clevelandmetroparks.com/">web app</Anchor> & <Anchor href="https://maps-api.clevelandmetroparks.com/api/docs#/">API</Anchor>.
+        For the Cleveland Metroparks <strong>maps</strong> and <strong>trails</strong> <Anchor href="https://maps.clevelandmetroparks.com/">web app</Anchor> & <Anchor href="https://maps-api.clevelandmetroparks.com/api/docs#/">API</Anchor>.
       </Text>
 
       <Container size={250} sx={{marginTop: '2em'}}>

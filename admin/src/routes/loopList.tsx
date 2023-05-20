@@ -1,18 +1,13 @@
-import axios from "axios";
+import { mapsApiClient } from "../components/mapsApi";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Title, Table, Anchor, Button } from '@mantine/core';
 
 import type { Loop } from "../types/loop";
 
-//
-const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
-});
-
 // Get all loops from the API
 const getAllLoops = async () => {
-  const response = await apiClient.get<any>("/trails");
+  const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/trails");
   return response.data.data;
 }
 

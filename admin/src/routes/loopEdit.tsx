@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import axios from "axios";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams, Navigate, useSubmit } from "react-router-dom";
 import { Title, Text, Tabs, Grid, Accordion, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
@@ -16,6 +15,7 @@ import type { Loop, LoopProfile, LoopGeometry, LineStringFeature, LoopFormData }
 import { emptyLoop, defaultLoopFormData } from "../types/loop";
 import { reservationListSelectOptions } from "../types/reservation";
 
+import { mapsApiClient } from "../components/mapsApi";
 import { LoopMap } from "../components/loopMap";
 import { LoopWaypoints } from "../components/loopWaypoints";
 import { LoopStats } from "../components/loopStats";
@@ -23,11 +23,6 @@ import { LoopDirections } from "../components/loopDirections";
 import { LoopProfileChart } from "../components/loopProfileChart";
 
 const loopsRootPath = '/loops';
-
-//
-const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
-});
 
 const defaultLoopProfile: LoopProfile = {
   id: null,
@@ -118,7 +113,7 @@ export function LoopEdit() {
     let loopData: Loop = emptyLoop;
 
     if (id !== 'new') {
-      const response = await apiClient.get<any>("/trails/" + id);
+      const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/trails/" + id);
 
       loopData = response.data.data; // @TODO: Why, if setting manually below?
 
@@ -227,8 +222,8 @@ export function LoopEdit() {
     const isNew = (loopId === 'new');
 
     const response = isNew ?
-      apiClient.post<any>('/trails', loopSaveData)
-      : apiClient.put<any>('/trails/' + loopId, loopSaveData);
+      mapsApiClient.post<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/trails', loopSaveData)
+      : mapsApiClient.put<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/trails/' + loopId, loopSaveData);
 
     response
       .then(function (response) {
@@ -273,7 +268,7 @@ export function LoopEdit() {
   //
   const getLoopProfile = async (id: string) => {
     if (id !== 'new') {
-      const response = await apiClient.get<any>("/trail_profiles/" + id);
+      const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/trail_profiles/" + id);
 
       setLoopElevation(response.data.data.elevation_profile);
 
@@ -296,7 +291,7 @@ export function LoopEdit() {
   //
   const getLoopGeometry = async (id: string) => {
     if (id !== 'new') {
-      const response = await apiClient.get<any>("/trail_geometries/" + id);
+      const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/trail_geometries/" + id);
       const geojson = JSON.parse(response.data.data.geom_geojson);
 
       setLoopGeometry(response.data.data.geom_geojson);
@@ -331,7 +326,7 @@ export function LoopEdit() {
       waypoints: waypointsGeojson,
       via: travelMode
     });
-    const response = await apiClient.get<any>("/route_waypoints", { params });
+    const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/route_waypoints", { params });
 
     setLoopGeometry(JSON.stringify(response.data.data.geojson));
 

@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import { Table, Anchor, Box, Pagination } from '@mantine/core';
 import { default as dayjs } from 'dayjs';
+
+import { mapsApiClient } from "../components/mapsApi";
 
 type AuditLog = {
   id: number,
@@ -13,15 +14,11 @@ type AuditLog = {
   message: string
 };
 
-const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
-});
-
 //
 export function AuditLogView() {
   //
   const getAuditLog = async (id: string) => {
-    const response = await apiClient.get<any>("/audit_logs/" + id);
+    const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/audit_logs/" + id);
     return response.data.data;
   }
 
@@ -72,7 +69,7 @@ export function AuditLogsList() {
     if (skip > 0) {
       requestPath += "&skip=" + skip;
     }
-    const response = await apiClient.get<any>(requestPath);
+    const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + requestPath);
     return response.data.data;
   }
 

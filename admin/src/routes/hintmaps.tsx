@@ -1,8 +1,9 @@
-import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import { Table, Anchor } from '@mantine/core';
 import { default as dayjs } from 'dayjs';
+
+import { mapsApiClient } from "../components/mapsApi";
 
 type HintMap = {
   id: number,
@@ -13,12 +14,8 @@ type HintMap = {
   url_external: string
 };
 
-const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
-});
-
 const getAllHintMaps = async () => {
-  const response = await apiClient.get<any>("/hint_maps");
+  const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/hint_maps");
   return response.data.data;
 }
 
