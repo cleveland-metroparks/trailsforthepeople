@@ -1,10 +1,8 @@
 import React from 'react';
 
-import { Route, MapPin, Map, FileText, Logout } from 'tabler-icons-react';
+import { Route, MapPin, Map, FileText, User, Logout } from 'tabler-icons-react';
 import { ThemeIcon, UnstyledButton, Button, Group, Text, Box } from '@mantine/core';
 import { Link } from "react-router-dom";
-
-import { useAuth } from "../hooks/useAuth";
 
 interface NavLinkProps {
   icon: React.ReactNode;
@@ -21,6 +19,7 @@ const navLinksData = [
 ];
 
 const userLinksData = [
+  { icon: <User />, color: 'gray', label: 'User', urlPath: 'user' },
   { icon: <Logout />, color: 'gray', label: 'Logout', urlPath: 'logout' },
 ];
 
@@ -77,25 +76,8 @@ export function NavLinks() {
 
 // Sidebar menu link buttons
 export function UserLinks() {
-  const { user } = useAuth();
-
   const links = userLinksData.map((link) => <NavLink {...link} key={link.label} />);
-
-  return (
-    <>
-      <Box
-        sx={(theme) => ({
-          'paddingLeft': 10,
-        })}
-      >
-      <Text size="xs">
-        <Text span color="gray.7">User: </Text>
-        <Text span fw={700}>{user}</Text>
-      </Text>
-      </Box>
-    {links}
-    </>
-  );
+  return <>{links}</>;
 }
 
 // Home page buttons

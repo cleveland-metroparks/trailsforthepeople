@@ -26,6 +26,7 @@ import { MarkerEdit } from "./routes/markerEdit";
 import { action as deleteMarkerAction } from "./routes/markerDelete";
 import { HintMapsList, HintMapEdit } from "./routes/hintmaps";
 import { AuditLogsList, AuditLogView } from "./routes/logs";
+import { UserAccount } from "./routes/user";
 import { ErrorScreen } from "./routes/errorScreen";
 
 import './index.css';
@@ -95,6 +96,9 @@ const routes = createRoutesFromElements(
           <Route path="logs">
             <Route index element={<AuditLogsList />} />
             <Route path=":logId" element={<AuditLogView />} />
+          </Route>
+          <Route path="user">
+            <Route index element={<UserAccount />} />
           </Route>
           {/* <Route
             path="*"
