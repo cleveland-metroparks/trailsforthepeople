@@ -10,6 +10,7 @@ import {
 } from '@mantine/core';
 import { Navigate } from "react-router-dom";
 import { useForm } from '@mantine/form';
+import { showNotification } from '@mantine/notifications';
 
 import { mapsApiClient } from "../components/mapsApi";
 import { useAuth } from "../hooks/useAuth";
@@ -54,6 +55,19 @@ export function Login() {
       })
       .catch(function (error) {
         console.log('API auth login error:', error);
+
+        let msg = error.code + ': ' + error.message;
+        if (error.response && error.response.data && error.response.data.message) {
+          msg += ": " + error.response.data.message;
+        }
+
+        showNotification({
+          id: 'login-error',
+          title: 'Login Error',
+          message: msg,
+          autoClose: false,
+          color: 'red',
+        });
       });
     });
   }
