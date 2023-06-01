@@ -17,7 +17,7 @@ import { useAuth } from "../hooks/useAuth";
 /**
  * Login screen
  */
-export function Login(): JSX.Element {
+export function Login() {
   const form = useForm({
     initialValues: {
       username: '',
@@ -37,23 +37,25 @@ export function Login(): JSX.Element {
   // Submit login to API
   const authLogin = async (username: string, password: string) => {
     // For Laravel Sanctum we need to get a CSRF cookie first
-    const csrfResponse = await mapsApiClient.get<any>('/sanctum/csrf-cookie')
+    mapsApiClient.get<any>('/sanctum/csrf-cookie')
     .then(function (csrfResponse: any) {
       console.log('CSRF cookie response:', csrfResponse);
       // Then we can login
-      const loginResponse = mapsApiClient.post<any>("/login", {
+      mapsApiClient.post<any>("/login", {
         username: username,
         password: password,
       })
       .then(function (loginResponse: any) {
         console.log('API auth login response:', loginResponse);
-        onLogin(loginResponse.data.data);
+        // Since Laravel Sanctum's SPA authentication is tokenless,
+        // there's no response data to store in the browser
+        // onLogin(loginResponse.data.data);
+        onLogin(username);
       })
       .catch(function (error) {
         console.log('API auth login error:', error);
       });
     });
-
   }
 
   return (
@@ -100,7 +102,6 @@ export function Login(): JSX.Element {
 
         </form>
       </Container>
-
     </>
   );
 }

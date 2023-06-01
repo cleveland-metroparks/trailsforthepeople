@@ -90,8 +90,7 @@ export function UserLinks() {
       >
       <Text size="xs">
         <Text span color="gray.7">User: </Text>
-        <Text span fw={700}>{user?.samaccountname}</Text>
-        <Text span> ({user?.displayname})</Text>
+        <Text span fw={700}>{user}</Text>
       </Text>
       </Box>
     {links}

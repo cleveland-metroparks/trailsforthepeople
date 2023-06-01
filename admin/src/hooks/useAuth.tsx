@@ -13,13 +13,14 @@ export const AuthProvider = ({ children }) => {
 
   // call this function when you want to authenticate the user
   const onLogin = async (data) => {
-    console.log('onLogin data:', data);
+    console.log('onLogin() data:', data);
     setUser(data);
     navigate("/");
   };
 
   // call this function to sign out logged in user
   const onLogout = async () => {
+    console.log('onLogout()');
     setUser(null);
     navigate("/login", { replace: true });
   };
