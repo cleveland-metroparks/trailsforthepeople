@@ -122,12 +122,25 @@ function toggleTrailViewFocus() {
         document.querySelector('#map_canvas').addEventListener('transitionend', () => {
             MAP.resize();
         }, { once: true })
+        const mapExpandButton = document.createElement('button');
+        mapExpandButton.type = 'button';
+        mapExpandButton.id = 'trailviewMapExpandButton';
+        mapExpandButton.classList.add('trailview-button');
+        mapExpandButton.setAttribute('data-role', 'none');
+        const span = document.createElement('span');
+        span.classList.add('cm-icon-expand');
+        mapExpandButton.appendChild(span);
+        document.querySelector('#map_canvas').appendChild(mapExpandButton);
+        mapExpandButton.addEventListener('click', () => {
+            toggleTrailViewFocus();
+        })
     } else if (trailviewFocusedElement === 'viewer') {
         trailviewFocusedElement = 'map';
         document.querySelector("#map_canvas").classList.remove('trailview-map-small');
         document.querySelector('#trailviewViewer').classList.remove('trailviewer-focus');
         document.querySelector('#trailviewViewer').classList.add('trailviewer-small');
         document.querySelector('#trailviewExpandIcon span').classList = ['cm-icon-expand'];
+        document.querySelector('#trailviewMapExpandButton').remove();
         MAP.resize();
     }
 

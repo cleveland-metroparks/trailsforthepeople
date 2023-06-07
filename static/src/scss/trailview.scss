@@ -60,6 +60,10 @@
     transition: opacity 0.6s;
     opacity: 0 !important;
   }
+  #trailviewMapExpandButton {
+    transition: opacity 0.6s;
+    opacity: 0 !important;
+  }
   top: auto !important;
   right: auto !important;
   bottom: 30px !important;
@@ -83,6 +87,9 @@
   #trailviewIcon {
     opacity: 1 !important;
   }
+  #trailviewMapExpandButton {
+    opacity: 1 !important;
+  }
   width: 450px !important;
   height: 350px !important;
 }
@@ -96,6 +103,14 @@
     right: 8px;
 }
 
+#trailviewMapExpandButton {
+    position: absolute;
+    width: 29px;
+    height: 29px;
+    z-index: 10;
+    top: 8px;
+    right: 8px;
+}
 
 #trailviewExpandIcon {
   position: absolute;
