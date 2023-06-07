@@ -24,7 +24,7 @@ module.exports = function (grunt) {
       trailviewcss: {
         expand: true,
         flatten: true,
-        src: 'node_modules/@cmparks/trailviewer/dist/trailviewer-base.css',
+        src: 'node_modules/@cmparks/trailviewer/dist/trailviewer.css',
         dest: 'static/dist/css/'
       }
     },

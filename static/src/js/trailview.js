@@ -1,5 +1,6 @@
 let trailviewToggled = false;
 let trailviewViewer = null;
+let trailviewMapMarker = null;
 
 function initTrailView() {
     const trailviewIcon = document.querySelector("#trailviewIcon");
@@ -13,20 +14,29 @@ function initTrailView() {
 
 function toggleTrailView() {
     if (trailviewToggled === false) {
+        trailviewToggled = true;
         addTrailViewMapLayer();
         $('#trailviewViewer').fadeIn();
         if (trailviewViewer === null) {
             const options = trailviewer.defaultBaseOptions;
             options.target = 'trailviewViewer';
             trailviewViewer = new trailviewer.TrailViewerBase(options);
+            trailviewViewer.on('image-change', (image) => {
+                if (MAP !== null && trailviewMapMarker !== null) {
+                    trailviewMapMarker.setLngLat([image.longitude, image.latitude]);
+                    MAP.easeTo({
+                        center: trailviewMapMarker.getLngLat(),
+                        duration: 500,
+                    });
+                }
+            });
         }
-        trailviewToggled = true;
     } else {
+        trailviewToggled = false;
         removeTrailViewMapLayer();
         $('#trailviewViewer').fadeOut();
         trailviewViewer.destroy();
         trailviewViewer = null;
-        trailviewToggled = false;
     }
 }
 
@@ -99,4 +109,43 @@ function addTrailViewMapLayer() {
         20,
         1,
     ]);
+
+    createTrailviewMapMarker();
+}
+
+function createTrailviewMapMarker() {
+    const currentMarkerWrapper = document.createElement('div');
+    currentMarkerWrapper.classList.add('trailview-current-marker-wrapper');
+    const currentMarkerDiv = document.createElement('div');
+    currentMarkerDiv.classList.add('trailview-current-marker');
+    const currentMarkerViewDiv = document.createElement('div');
+    currentMarkerViewDiv.classList.add('trailview-marker-viewer');
+    currentMarkerWrapper.appendChild(currentMarkerDiv);
+    currentMarkerWrapper.appendChild(currentMarkerViewDiv);
+    trailviewMapMarker = new mapboxgl.Marker(currentMarkerWrapper)
+        .setLngLat([-81.682665, 41.4097766])
+        .addTo(MAP)
+        .setRotationAlignment('map');
+
+    updateTrailViewMarkerRotation();
+
+    MAP.jumpTo({
+        center: trailviewMapMarker.getLngLat(),
+        zoom: 16,
+        bearing: 0,
+    });
+}
+
+function updateTrailViewMarkerRotation() {
+    if (trailviewViewer !== null && trailviewMapMarker !== null) {
+        const angle = trailviewViewer.getBearing();
+        if (angle !== undefined) {
+            trailviewMapMarker.setRotation((angle + 225) % 360);
+        }
+    }
+    if (trailviewToggled !== false) {
+        requestAnimationFrame(updateTrailViewMarkerRotation);
+    } else {
+        trailviewMapMarker.remove();
+    }
 }
