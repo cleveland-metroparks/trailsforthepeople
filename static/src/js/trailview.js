@@ -24,7 +24,7 @@ function initTrailView() {
 
     const mapCanvas = document.querySelector('#map_canvas')
     new ResizeObserver(() => {
-        if (new Date().valueOf() - lastMapResize.valueOf() > 80) {
+        if (new Date().valueOf() - lastMapResize.valueOf() > 100) {
             MAP.resize();
             lastMapResize = new Date();
         }

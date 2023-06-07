@@ -47,7 +47,8 @@
   outline-color: rgb(0, 0, 0, 0.3);
   z-index: 11;
   background-color: black;
-  transition: width 0.2s ease-out, height 0.2s ease-out;
+  transition: width 0.5s cubic-bezier(0.65, 0, 0.35, 1),
+    height 0.5s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .trailview-map-small {
@@ -63,7 +64,8 @@
   outline-color: rgb(0, 0, 0, 0.3) !important;
   z-index: 11 !important;
   background-color: rgb(233, 234, 210);
-  transition: width 0.2s ease-out, height 0.2s ease-out;
+  transition: width 0.5s cubic-bezier(0.65, 0, 0.35, 1),
+    height 0.5s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .trailview-map-small:hover {
