@@ -1,15 +1,47 @@
+let trailviewToggled = false;
+let trailviewViewer = null;
+
 function initTrailView() {
-    
+    const trailviewIcon = document.querySelector("#trailviewIcon");
+    if (trailviewIcon === null) {
+        throw new Error("trailviewIcon id not found");
+    }
+    trailviewIcon.addEventListener('click', () => {
+        toggleTrailView();
+    })
+}
+
+function toggleTrailView() {
+    if (trailviewToggled === false) {
+        addTrailViewMapLayer();
+        $('#trailviewViewer').fadeIn();
+        if (trailviewViewer === null) {
+            const options = trailviewer.defaultBaseOptions;
+            options.target = 'trailviewViewer';
+            trailviewViewer = new trailviewer.TrailViewerBase(options);
+        }
+        trailviewToggled = true;
+    } else {
+        removeTrailViewMapLayer();
+        $('#trailviewViewer').fadeOut();
+        trailviewViewer.destroy();
+        trailviewViewer = null;
+        trailviewToggled = false;
+    }
+}
+
+function removeTrailViewMapLayer() {
+    if (MAP.getSource('dots')) {
+        MAP.removeLayer('dots');
+        MAP.removeSource('dots');
+    }
 }
 
 function addTrailViewMapLayer() {
     if (MAP === null) {
         return;
     }
-    if (MAP.getSource('dots')) {
-        MAP.removeLayer('dots');
-        MAP.removeSource('dots');
-    }
+    removeTrailViewMapLayer();
     const layerData = {
         type: 'vector',
         format: 'pbf',

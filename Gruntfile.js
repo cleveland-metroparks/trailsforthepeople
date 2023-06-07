@@ -14,11 +14,18 @@ module.exports = function (grunt) {
      * 
      */
     copy: {
-      trailview: {
+      trailviewjs:
+      {
         expand: true,
         flatten: true,
-        src: 'node_modules/@cmparks/trailviewer/dist/trailviewer-base.umd.js',
+        src: 'node_modules/@cmparks/trailviewer/dist/trailviewer-base.umd*',
         dest: 'static/dist/js/'
+      },
+      trailviewcss: {
+        expand: true,
+        flatten: true,
+        src: 'node_modules/@cmparks/trailviewer/dist/trailviewer-base.css',
+        dest: 'static/dist/css/'
       }
     },
 
@@ -45,8 +52,8 @@ module.exports = function (grunt) {
           'static/src/js/search.js',
           'static/src/js/nearby.js',
           'static/src/js/trails.js',
-          'static/src/js/trailview.js',
           'static/dist/js/handlebars-templates.js',
+          'static/src/js/trailview.js',
           // 'static/src/js/print.js'
         ],
         dest: 'static/dist/js/app.js'
@@ -101,7 +108,7 @@ module.exports = function (grunt) {
       all: {
         options: {
           namespace: 'CM.Templates',
-          processName: function(filePath) {
+          processName: function (filePath) {
             // Strip the path to leave the filename
             var pieces = filePath.split('/');
             var filename = pieces[pieces.length - 1];
@@ -135,7 +142,7 @@ module.exports = function (grunt) {
       },
       deps: {
         files: {
-          'static/dist/js/deps-app.min.js': ['static/dist/js/deps-app.js', 'node_modules/@cmparks/trailviewer/dist/trailviewer.umd.js']
+          'static/dist/js/deps-app.min.js': ['static/dist/js/deps-app.js']
         }
       },
       // Base for map embeds on external sites:
@@ -185,7 +192,8 @@ module.exports = function (grunt) {
           outputStyle: 'compressed'
         },
         files: {
-          'static/dist/css/mobile.css': 'static/src/scss/mobile.scss'
+          'static/dist/css/mobile.css': 'static/src/scss/mobile.scss',
+          'static/dist/css/trailview.css': 'static/src/scss/trailview.scss'
         }
       },
       // For map embeds on external sites:
@@ -221,7 +229,8 @@ module.exports = function (grunt) {
           'static/src/scss/fonts.scss',
           'static/src/scss/jqm-themes/cm-jqm-theme.css',
           'static/src/scss/tooltips.scss',
-          'static/src/scss/mobile.scss'
+          'static/src/scss/mobile.scss',
+          'static/src/scss/trailview.scss'
         ],
         tasks: ['sass:dist']
       },
@@ -244,8 +253,8 @@ module.exports = function (grunt) {
           'static/src/js/search.js',
           'static/src/js/nearby.js',
           'static/src/js/trails.js',
-          'static/stc/js/trailview.js',
           'static/dist/js/handlebars-templates.js',
+          'static/src/js/trailview.js',
           // 'static/src/js/print.js'
         ],
         tasks: ['concat:dist']
@@ -281,8 +290,8 @@ module.exports = function (grunt) {
           'static/src/js/search.js',
           'static/src/js/nearby.js',
           'static/src/js/trails.js',
-          'static/src/js/trailview.js',
           'static/dist/js/handlebars-templates.js',
+          'static/src/js/trailview.js',
           // 'static/src/js/print.js'
         ],
         tasks: ['terser:dist']
@@ -341,11 +350,11 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-browserify');
 
   // TrailView tasks
-  grunt.registerTask('trailview', ['copy:trailview']);
+  grunt.registerTask('trailview', ['copy:trailviewjs', 'copy:trailviewcss']);
   // All tasks
-  grunt.registerTask('all', ['handlebars', 'concat', 'browserify', 'terser', 'sass']);
+  grunt.registerTask('all', ['trailview', 'handlebars', 'concat', 'browserify', 'terser', 'sass']);
   // Default: dist (non-embedded)
-  grunt.registerTask('default', ['handlebars:all', 'concat:dist', 'browserify:deps', 'terser:dist', 'sass:dist']);
+  grunt.registerTask('default', ['trailview', 'handlebars:all', 'concat:dist', 'browserify:deps', 'terser:dist', 'sass:dist']);
   // Embedded tasks only
   grunt.registerTask('embedded', [
     'browserify:deps_embedded',

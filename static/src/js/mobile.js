@@ -82,6 +82,7 @@ function switchToMap() {
 $(document).ready(function () {
     loadMapAndStartingState();
     populateSidebarPanes();
+    initTrailView();
 });
 
 /**
