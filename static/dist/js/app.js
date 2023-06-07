@@ -4211,9 +4211,19 @@ this["CM"]["Templates"]["pane_trails_reservation_filter_option"] = Handlebars.te
 },"useData":true});
 ;
 let trailviewToggled = false;
+
+/** @type {import('@cmparks/trailviewer/dist/trailviewer-base'.TrailViewerBase) | null} */
 let trailviewViewer = null;
+
+/** @type {mapboxgl.Marker | null} */
 let trailviewMapMarker = null;
+
 let trailviewMouseOnDot = false;
+
+/** @type {'map' | 'viewer'} */
+let trailviewFocusedElement = 'map';
+
+let lastMapResize = new Date();
 
 function initTrailView() {
     const trailviewIcon = document.querySelector("#trailviewIcon");
@@ -4223,6 +4233,23 @@ function initTrailView() {
     trailviewIcon.addEventListener('click', () => {
         toggleTrailView();
     })
+
+    const mapCanvas = document.querySelector('#map_canvas')
+    new ResizeObserver(() => {
+        if (new Date().valueOf() - lastMapResize.valueOf() > 80) {
+            MAP.resize();
+            lastMapResize = new Date();
+        }
+    }).observe(mapCanvas);
+    mapCanvas.addEventListener('transitionend', () => {
+        MAP.resize();
+        if (trailviewMapMarker !== null) {
+            MAP.easeTo({
+                center: trailviewMapMarker.getLngLat(),
+                duration: 500,
+            });
+        }
+    });
 }
 
 function toggleTrailView() {
@@ -4271,6 +4298,28 @@ function addTrailViewExpandButton() {
     span.classList.add('cm-icon-expand');
     button.appendChild(span);
     document.querySelector('#trailviewViewer').appendChild(button);
+    button.addEventListener('click', () => {
+        toggleTrailViewFocus();
+    });
+}
+
+function toggleTrailViewFocus() {
+    if (trailviewFocusedElement === 'map') {
+        trailviewFocusedElement = 'viewer';
+        document.querySelector('#map_canvas').classList.add('trailview-map-small');
+        document.querySelector('#trailviewViewer').classList.remove('trailviewer-small');
+        document.querySelector('#trailviewViewer').classList.add('trailviewer-focus');
+        document.querySelector('#map_canvas').addEventListener('transitionend', () => {
+            MAP.resize();
+        }, { once: true })
+    } else if (trailviewFocusedElement === 'viewer') {
+        trailviewFocusedElement = 'map';
+        document.querySelector("#map_canvas").classList.remove('trailview-map-small');
+        document.querySelector('#trailviewViewer').classList.remove('trailviewer-focus');
+        document.querySelector('#trailviewViewer').classList.add('trailviewer-small');
+        MAP.resize();
+    }
+
 }
 
 function addTrailViewMapLayer() {
