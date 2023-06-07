@@ -61,6 +61,9 @@ function toggleTrailView() {
         }
         addTrailViewExpandButton();
     } else {
+        if (trailviewFocusedElement === 'viewer') {
+            toggleTrailViewFocus();
+        }
         trailviewToggled = false;
         removeTrailViewMapLayer();
         $('#trailviewViewer').fadeOut();
