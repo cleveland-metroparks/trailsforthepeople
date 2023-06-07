@@ -1,14 +1,8 @@
-#trailviewIcon {
-  position: absolute;
-  bottom: 200px;
-  right: 10px;
+.trailview-button {
   width: 29px;
   height: 29px;
   color: rgb(51, 51, 51);
   background-color: rgb(255, 255, 255);
-  z-index: 3;
-  box-shadow: none;
-  -webkit-box-shadow: none;
   border-width: 0;
   outline-width: 2.5px;
   outline-color: rgb(0, 0, 0, 0.1);
@@ -18,8 +12,16 @@
   font-size: 20px;
 }
 
-#trailviewIcon:hover {
+.trailview-button:hover {
   background-color: rgb(242, 242, 242);
+  cursor: pointer;
+}
+
+#trailviewIcon {
+  position: absolute;
+  bottom: 200px;
+  right: 10px;
+  z-index: 3;
 }
 
 #trailviewViewer {
@@ -31,7 +33,16 @@
   border-radius: 10px;
   outline-style: solid;
   outline-width: 2.5px;
-  outline-color: rgb(0, 0, 0, 0.1);
-  z-index: 1;
+  outline-color: rgb(0, 0, 0, 0.3);
+  z-index: 11;
   background-color: black;
+}
+
+#trailviewExpandIcon {
+  position: absolute;
+  width: 29px;
+  height: 29px;
+  z-index: 10;
+  top: 8px;
+  right: 8px;
 }

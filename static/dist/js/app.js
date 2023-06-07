@@ -4213,6 +4213,7 @@ this["CM"]["Templates"]["pane_trails_reservation_filter_option"] = Handlebars.te
 let trailviewToggled = false;
 let trailviewViewer = null;
 let trailviewMapMarker = null;
+let trailviewMouseOnDot = false;
 
 function initTrailView() {
     const trailviewIcon = document.querySelector("#trailviewIcon");
@@ -4243,6 +4244,7 @@ function toggleTrailView() {
                 }
             });
         }
+        addTrailViewExpandButton();
     } else {
         trailviewToggled = false;
         removeTrailViewMapLayer();
@@ -4257,6 +4259,18 @@ function removeTrailViewMapLayer() {
         MAP.removeLayer('dots');
         MAP.removeSource('dots');
     }
+}
+
+function addTrailViewExpandButton() {
+    const button = document.createElement('button');
+    button.type = "button";
+    button.id = 'trailviewExpandIcon';
+    button.classList.add('trailview-button');
+    button.setAttribute('data-role', 'none');
+    const span = document.createElement('span');
+    span.classList.add('cm-icon-expand');
+    button.appendChild(span);
+    document.querySelector('#trailviewViewer').appendChild(button);
 }
 
 function addTrailViewMapLayer() {
@@ -4322,7 +4336,46 @@ function addTrailViewMapLayer() {
         1,
     ]);
 
+    MAP.on('mouseenter', 'dots', () => {
+        trailviewMouseOnDot = true;
+        if (MAP !== null) {
+            MAP.getCanvas().style.cursor = 'pointer';
+        }
+    });
+
+    MAP.on('mouseleave', 'dots', () => {
+        trailviewMouseOnDot = false;
+        if (MAP !== null) {
+            MAP.getCanvas().style.cursor = 'grab';
+        }
+    });
+
+    MAP.on('mousedown', () => {
+        if (MAP !== null && !trailviewMouseOnDot) {
+            MAP.getCanvas().style.cursor = 'grabbing';
+        }
+    });
+
+    MAP.on('mouseup', () => {
+        if (MAP !== null && trailviewMouseOnDot) {
+            MAP.getCanvas().style.cursor = 'pointer';
+        } else if (MAP !== null) {
+            MAP.getCanvas().style.cursor = 'grab';
+        }
+    });
+
     createTrailviewMapMarker();
+
+    MAP.on('click', 'dots', (event) => {
+        if (
+            event.features === undefined ||
+            event.features[0].properties === null
+        ) {
+            console.warn('Features is undefiend or properties are null');
+            return;
+        }
+        trailviewViewer.goToImageID(event.features[0].properties.imageID);
+    });
 }
 
 function createTrailviewMapMarker() {
@@ -4340,12 +4393,6 @@ function createTrailviewMapMarker() {
         .setRotationAlignment('map');
 
     updateTrailViewMarkerRotation();
-
-    MAP.jumpTo({
-        center: trailviewMapMarker.getLngLat(),
-        zoom: 16,
-        bearing: 0,
-    });
 }
 
 function updateTrailViewMarkerRotation() {
