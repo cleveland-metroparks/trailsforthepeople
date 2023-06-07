@@ -133,12 +133,12 @@ function initMap(mapOptions) {
 
     // Map
     MAP = new mapboxgl.Map({
-         container: 'map_canvas',
-         style: basemap_style,
-         center: START_CENTER,
-         zoom: START_ZOOM,
-         preserveDrawingBuffer: true // for printing in certain browsers
-     });
+        container: 'map_canvas',
+        style: basemap_style,
+        center: START_CENTER,
+        zoom: START_ZOOM,
+        preserveDrawingBuffer: true // for printing in certain browsers
+    });
 
     // Nav (zoom/tilt) Control
     var ctrlNav = new mapboxgl.NavigationControl();
@@ -147,7 +147,7 @@ function initMap(mapOptions) {
     // Geolocate control
     ctrlGeolocate = new mapboxgl.GeolocateControl({
         positionOptions: {
-           enableHighAccuracy: true
+            enableHighAccuracy: true
         },
         trackUserLocation: (mapOptions.trackUserLocation == false) ? false : true,
     });
@@ -186,7 +186,7 @@ function initMap(mapOptions) {
  */
 function placeMarker(marker, lat, lng) {
     marker.setLngLat([lng, lat])
-          .addTo(MAP);
+        .addTo(MAP);
 }
 
 /**
@@ -236,7 +236,7 @@ function changeBasemap(layer_key) {
 function getBasemap() {
     style = MAP.getStyle();
     return STYLE_NAMES[style.name];
- }
+}
 
 /**
  * Return lat/lng as string in prescribed coordinate format.
@@ -263,7 +263,7 @@ function formatCoords(lngLat, coordinate_format) {
  */
 function formatCoordsDms(lngLat, precision) {
     // Default precision
-    precision = (typeof precision !== 'undefined') ?  precision : 0;
+    precision = (typeof precision !== 'undefined') ? precision : 0;
 
     var ns = lngLat.lat < 0 ? 'S' : 'N';
     var ew = lngLat.lng < 0 ? 'W' : 'E';
@@ -289,7 +289,7 @@ function formatCoordsDms(lngLat, precision) {
  */
 function formatCoordsDdm(lngLat, precision) {
     // Default precision
-    precision = (typeof precision !== 'undefined') ?  precision : 2;
+    precision = (typeof precision !== 'undefined') ? precision : 2;
 
     var ns = lngLat.lat < 0 ? 'S' : 'N';
     var ew = lngLat.lng < 0 ? 'W' : 'E';
@@ -313,7 +313,7 @@ function formatCoordsDdm(lngLat, precision) {
  */
 function formatCoordsDd(lngLat, precision) {
     // Default precision
-    precision = (typeof precision !== 'undefined') ?  precision : 4;
+    precision = (typeof precision !== 'undefined') ? precision : 4;
 
     coordsStr = lngLat.lat.toFixed(precision) + ', ' + lngLat.lng.toFixed(precision);
     return coordsStr;
@@ -328,7 +328,7 @@ function formatCoordsDd(lngLat, precision) {
  */
 function shortenStr(str, maxLen, addEllipsis) {
     if (str.length <= maxLen) {
-      return str;
+        return str;
     }
     var shortenedStr = str.substr(0, str.lastIndexOf(' ', maxLen));
     if (addEllipsis) {
@@ -374,7 +374,7 @@ function setWindowURLQueryStringParameters(params, reset, pushState) {
         urlParams = new URLSearchParams(location.search);
     }
 
-    $.each(params, function(index, value) {
+    $.each(params, function (index, value) {
         urlParams.set(index, value);
     });
 
@@ -825,6 +825,9 @@ var AUTO_CENTER_ON_LOCATION = false;
 // sorting by distance, isn't always by distance
 // what type of sorting do they prefer?
 var DEFAULT_SORT = 'distance';
+
+// If TrailView is enabled
+var TRAILVIEW_ENABLED = true;
 
 // Load sidebar when map has been initialized
 $(document).on("mapInitialized", function () {
@@ -3954,6 +3957,77 @@ function doTrailSearch() {
     sortLists(target);
 }
 
+;
+function initTrailView() {
+    
+}
+
+function addTrailViewMapLayer() {
+    if (MAP === null) {
+        return;
+    }
+    if (MAP.getSource('dots')) {
+        MAP.removeLayer('dots');
+        MAP.removeSource('dots');
+    }
+    const layerData = {
+        type: 'vector',
+        format: 'pbf',
+        tiles: ['https://trailview.cmparks.net/api/tiles/{z}/{x}/{y}/standard'],
+    };
+
+    MAP.addSource('dots', layerData);
+
+    MAP.addLayer({
+        id: 'dots',
+        'source-layer': 'geojsonLayer',
+        source: 'dots',
+        type: 'circle',
+        paint: {
+            'circle-radius': 10,
+            'circle-color': [
+                'case',
+                ['==', ['get', 'visible'], true],
+                '#00a108',
+                '#db8904',
+            ],
+        },
+    });
+    MAP.setPaintProperty('dots', 'circle-radius', [
+        'interpolate',
+
+        ['exponential', 0.5],
+        ['zoom'],
+        13,
+        3,
+
+        16,
+        5,
+
+        17,
+        7,
+
+        20,
+        8,
+    ]);
+    MAP.setPaintProperty('dots', 'circle-opacity', [
+        'interpolate',
+
+        ['exponential', 0.5],
+        ['zoom'],
+        13,
+        0.05,
+
+        15,
+        0.1,
+
+        17,
+        0.25,
+
+        20,
+        1,
+    ]);
+}
 ;
 this["CM"] = this["CM"] || {};
 this["CM"]["Templates"] = this["CM"]["Templates"] || {};

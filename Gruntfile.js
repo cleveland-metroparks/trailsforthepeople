@@ -1,11 +1,26 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
   const sass = require('dart-sass');
+  const copy = require('grunt-contrib-copy');
 
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    local: grunt.file.readJSON('grunt-local-config.json'),
+    // local: grunt.file.readJSON('grunt-local-config.json'),
+
+    /**
+     * 
+     * Copy
+     * 
+     */
+    copy: {
+      trailview: {
+        expand: true,
+        flatten: true,
+        src: 'node_modules/@cmparks/trailviewer/dist/trailviewer-base.umd.js',
+        dest: 'static/dist/js/'
+      }
+    },
 
     /**
      *
@@ -30,6 +45,7 @@ module.exports = function(grunt) {
           'static/src/js/search.js',
           'static/src/js/nearby.js',
           'static/src/js/trails.js',
+          'static/src/js/trailview.js',
           'static/dist/js/handlebars-templates.js',
           // 'static/src/js/print.js'
         ],
@@ -110,15 +126,16 @@ module.exports = function(grunt) {
       // Web app package:
       dist: {
         files: {
-          'static/dist/js/mobile.min.js':    ['static/src/js/mobile.js'],
+          'static/dist/js/mobile.min.js': ['static/src/js/mobile.js'],
           'static/dist/js/constants.min.js': ['static/src/js/constants.js'],
-          'static/dist/js/common.min.js':    ['static/src/js/common.js'],
-          'static/dist/js/app.min.js':       ['static/dist/js/app.js']
+          'static/dist/js/common.min.js': ['static/src/js/common.js'],
+          'static/dist/js/app.min.js': ['static/dist/js/app.js'],
+          'static/dist/js/trailview.min.js': ['static/src/js/trailview.js']
         }
       },
       deps: {
         files: {
-          'static/dist/js/deps-app.min.js':  ['static/dist/js/deps-app.js']
+          'static/dist/js/deps-app.min.js': ['static/dist/js/deps-app.js', 'node_modules/@cmparks/trailviewer/dist/trailviewer.umd.js']
         }
       },
       // Base for map embeds on external sites:
@@ -227,6 +244,7 @@ module.exports = function(grunt) {
           'static/src/js/search.js',
           'static/src/js/nearby.js',
           'static/src/js/trails.js',
+          'static/stc/js/trailview.js',
           'static/dist/js/handlebars-templates.js',
           // 'static/src/js/print.js'
         ],
@@ -263,6 +281,7 @@ module.exports = function(grunt) {
           'static/src/js/search.js',
           'static/src/js/nearby.js',
           'static/src/js/trails.js',
+          'static/src/js/trailview.js',
           'static/dist/js/handlebars-templates.js',
           // 'static/src/js/print.js'
         ],
@@ -313,6 +332,7 @@ module.exports = function(grunt) {
     }
   });
 
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-terser');
   grunt.loadNpmTasks('grunt-sass');
@@ -320,6 +340,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-browserify');
 
+  // TrailView tasks
+  grunt.registerTask('trailview', ['copy:trailview']);
   // All tasks
   grunt.registerTask('all', ['handlebars', 'concat', 'browserify', 'terser', 'sass']);
   // Default: dist (non-embedded)
