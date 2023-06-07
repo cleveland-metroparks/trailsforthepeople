@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'cm-maps-icons';
-  src:  url('fonts/cm-maps-icons.eot?kfsdlw');
-  src:  url('fonts/cm-maps-icons.eot?kfsdlw#iefix') format('embedded-opentype'),
-    url('fonts/cm-maps-icons.ttf?kfsdlw') format('truetype'),
-    url('fonts/cm-maps-icons.woff?kfsdlw') format('woff'),
-    url('fonts/cm-maps-icons.svg?kfsdlw#cm-maps-icons') format('svg');
+  src:  url('fonts/cm-maps-icons.eot?kv19ab');
+  src:  url('fonts/cm-maps-icons.eot?kv19ab#iefix') format('embedded-opentype'),
+    url('fonts/cm-maps-icons.ttf?kv19ab') format('truetype'),
+    url('fonts/cm-maps-icons.woff?kv19ab') format('woff'),
+    url('fonts/cm-maps-icons.svg?kv19ab#cm-maps-icons') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -25,8 +25,23 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.cm-icon-compress:before {
+  content: "\f066";
+}
+.cm-icon-close:before {
+  content: "\f00d";
+}
+.cm-icon-remove:before {
+  content: "\f00d";
+}
+.cm-icon-times:before {
+  content: "\f00d";
+}
 .cm-icon-expand:before {
   content: "\f065";
+}
+.cm-icon-compress:before {
+  content: "\f066";
 }
 .cm-icon-basketball:before {
   content: "\e934";

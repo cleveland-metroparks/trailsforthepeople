@@ -100,6 +100,7 @@ function toggleTrailViewFocus() {
         document.querySelector('#map_canvas').classList.add('trailview-map-small');
         document.querySelector('#trailviewViewer').classList.remove('trailviewer-small');
         document.querySelector('#trailviewViewer').classList.add('trailviewer-focus');
+        document.querySelector('#trailviewExpandIcon span').classList = ['cm-icon-compress'];
         document.querySelector('#map_canvas').addEventListener('transitionend', () => {
             MAP.resize();
         }, { once: true })
@@ -108,6 +109,7 @@ function toggleTrailViewFocus() {
         document.querySelector("#map_canvas").classList.remove('trailview-map-small');
         document.querySelector('#trailviewViewer').classList.remove('trailviewer-focus');
         document.querySelector('#trailviewViewer').classList.add('trailviewer-small');
+        document.querySelector('#trailviewExpandIcon span').classList = ['cm-icon-expand'];
         MAP.resize();
     }
 
