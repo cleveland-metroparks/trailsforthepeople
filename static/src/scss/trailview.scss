@@ -87,11 +87,21 @@
   height: 350px !important;
 }
 
+#trailviewCloseButton {
+    position: absolute;
+    width: 29px;
+    height: 29px;
+    z-index: 10;
+    top: 8px;
+    right: 8px;
+}
+
+
 #trailviewExpandIcon {
   position: absolute;
   width: 29px;
   height: 29px;
   z-index: 10;
-  top: 8px;
+  top: 42px;
   right: 8px;
 }

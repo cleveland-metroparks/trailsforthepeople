@@ -59,7 +59,7 @@ function toggleTrailView() {
                 }
             });
         }
-        addTrailViewExpandButton();
+        addTrailviewUI();
     } else {
         if (trailviewFocusedElement === 'viewer') {
             toggleTrailViewFocus();
@@ -79,19 +79,37 @@ function removeTrailViewMapLayer() {
     }
 }
 
-function addTrailViewExpandButton() {
-    const button = document.createElement('button');
-    button.type = "button";
-    button.id = 'trailviewExpandIcon';
-    button.classList.add('trailview-button');
-    button.setAttribute('data-role', 'none');
-    const span = document.createElement('span');
-    span.classList.add('cm-icon-expand');
-    button.appendChild(span);
-    document.querySelector('#trailviewViewer').appendChild(button);
-    button.addEventListener('click', () => {
-        toggleTrailViewFocus();
-    });
+function addTrailviewUI() {
+    {
+        const button = document.createElement('button');
+        button.type = "button";
+        button.id = 'trailviewExpandIcon';
+        button.classList.add('trailview-button');
+        button.setAttribute('data-role', 'none');
+        const span = document.createElement('span');
+        span.classList.add('cm-icon-expand');
+        button.appendChild(span);
+        document.querySelector('#trailviewViewer').appendChild(button);
+        button.addEventListener('click', () => {
+            toggleTrailViewFocus();
+        });
+    }
+
+    {
+        const closeButton = document.createElement('button');
+        closeButton.type = 'button';
+        closeButton.id = 'trailviewCloseButton';
+        closeButton.classList.add('trailview-button');
+        closeButton.setAttribute('data-role', 'none');
+        const closeSpan = document.createElement('span');
+        closeSpan.classList.add('cm-icon-close');
+        closeButton.appendChild(closeSpan);
+        document.querySelector('#trailviewViewer').appendChild(closeButton);
+        closeButton.addEventListener('click', () => {
+            toggleTrailView();
+        })
+    }
+
 }
 
 function toggleTrailViewFocus() {
