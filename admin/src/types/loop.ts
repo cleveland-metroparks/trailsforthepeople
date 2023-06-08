@@ -95,3 +95,32 @@ export const defaultLoopFormData: LoopFormData = {
   bridle: false,
   directions: '',
 };
+
+export const travelModeSelectOptions = [
+  {
+    value: '',
+    label: '(none)',
+  },
+  {
+    value: 'hike',
+    label: 'Hiking',
+  },
+  {
+    value: 'bike',
+    label: 'Biking',
+  },
+  {
+    value: 'mountainbike',
+    label: 'Mountain Biking',
+    disabled: true,
+  },
+  {
+    value: 'bridle',
+    label: 'Horseback/Equestrian',
+  },
+  {
+    value: 'buckeye',
+    label: 'Buckeye Trail only',
+    disabled: true,
+  },
+];

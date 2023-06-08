@@ -6,11 +6,12 @@ import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { Source, NavigationControl, Layer, LineLayer } from 'react-map-gl';
 import * as ReactMapGl from 'react-map-gl'; // For "Map", to avoid collision
 import type { MapRef, MapboxEvent, ViewStateChangeEvent, GeoJSONSource } from 'react-map-gl';
-import { Text, Button, Group, Box, Flex, Autocomplete } from '@mantine/core';
+import { Text, Button, Group, Box, Flex, Autocomplete, Select } from '@mantine/core';
 import DrawControl from './draw-control';
 
 import { mapsApiClient } from "../components/mapsApi";
 import type { Loop } from "../types/loop";
+import { travelModeSelectOptions } from "../types/loop";
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
 const MAPBOX_STYLE = 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
@@ -31,6 +32,7 @@ interface LoopMapProps {
   onDrawDelete: (e: {features: object[]}) => void;
   doCompleteLoop: () => void;
   activeTab: string;
+  onTravelModeChange: (string) => void;
 }
 
 /**
@@ -350,6 +352,8 @@ export function LoopMap(props: LoopMapProps) {
         mt={10}
         mb={30}
         >
+
+        {/* Zoom to location */}
         <Flex
           gap="sm"
           justify="flex-start"
@@ -371,6 +375,18 @@ export function LoopMap(props: LoopMapProps) {
             }}
           >Zoom</Button>
         </Flex>
+
+        {/* Travel mode ("via") filter */}
+        <Box>
+          <Select
+            label="Travel mode"
+            data={travelModeSelectOptions}
+            defaultValue=''
+            onChange={props.onTravelModeChange}
+          />
+        </Box>
+
+        {/* Back to start */}
         <Box>
           <Text size="sm">Complete loop</Text>
           <Button

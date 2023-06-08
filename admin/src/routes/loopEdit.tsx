@@ -76,6 +76,9 @@ export function LoopEdit() {
     durationtext_bridle : ''
   });
 
+  // Travel mode ("via"), for routing
+  const [travelMode, setTravelMode] = useState('');
+
   const emptyLineStringFeature: LineStringFeature<LineString, GeoJsonProperties> = {
     type: "Feature",
     geometry: {
@@ -389,7 +392,7 @@ export function LoopEdit() {
     // are only called via user interaction
     const wpGeoJSON = makeWaypointGeojsonString(newFeature);
     setWaypointsGeoJSON(wpGeoJSON);
-    getRouteFromWaypoints(wpGeoJSON, 'hike');
+    getRouteFromWaypoints(wpGeoJSON, travelMode);
   }
 
   // on Draw Create
@@ -401,7 +404,7 @@ export function LoopEdit() {
     });
     const wpGeoJSON = makeWaypointGeojsonString(e.features[feature_id]);
     setWaypointsGeoJSON(wpGeoJSON);
-    getRouteFromWaypoints(wpGeoJSON, 'hike');
+    getRouteFromWaypoints(wpGeoJSON, travelMode);
   };
 
   // on Draw Update
@@ -412,7 +415,7 @@ export function LoopEdit() {
     });
     const wpGeoJSON = makeWaypointGeojsonString(e.features[feature_id]);
     setWaypointsGeoJSON(wpGeoJSON);
-    getRouteFromWaypoints(wpGeoJSON, 'hike');
+    getRouteFromWaypoints(wpGeoJSON, travelMode);
   };
 
   // on Draw Delete
@@ -423,9 +426,17 @@ export function LoopEdit() {
     });
     const wpGeoJSON = makeWaypointGeojsonString(e.features[feature_id]);
     setWaypointsGeoJSON(wpGeoJSON);
-    getRouteFromWaypoints(wpGeoJSON, 'hike');
+    getRouteFromWaypoints(wpGeoJSON, travelMode);
   };
   //----------------------------------
+
+  // When travel mode is changed (from within Loop Map component)
+  const handleTravelModeChange = (mode) => {
+    console.log('handleTravelModeChange():', mode);
+    setTravelMode(mode);
+    // Re-calculate route
+    getRouteFromWaypoints(waypointsGeoJSON, mode);
+  }
 
   //
   const openDeleteModal = (deleteFormAction) =>
@@ -564,6 +575,7 @@ export function LoopEdit() {
                       onDrawDelete={onDrawDelete}
                       doCompleteLoop={completeLoop}
                       activeTab={activeTab}
+                      onTravelModeChange={handleTravelModeChange}
                     />
                     <LoopProfileChart loopProfile={loopElevation} />
                   </Grid.Col>
