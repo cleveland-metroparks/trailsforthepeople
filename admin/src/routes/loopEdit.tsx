@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, useParams, Navigate, useSubmit } from "react-router-dom";
+import { Link, useParams, useSubmit } from "react-router-dom";
 import { Title, Text, Tabs, Grid, Accordion, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
@@ -329,26 +329,42 @@ export function LoopEdit() {
       waypoints: waypointsGeojson,
       via: travelMode
     });
-    const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/route_waypoints", { params });
 
-    setLoopGeometry(JSON.stringify(response.data.data.geojson));
+    const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/route_waypoints", { params })
+      .then(function (response) {
+        setLoopGeometry(JSON.stringify(response.data.data.geojson));
 
-    // Callback to update stats
-    setLoopStats({
-      distance_text: response.data.data.totals.distance_text,
-      distance_feet: response.data.data.totals.distance_feet,
-      durationtext_hike: response.data.data.totals.durationtext_hike,
-      durationtext_bike: response.data.data.totals.durationtext_bike,
-      durationtext_bridle: response.data.data.totals.durationtext_bridle
-    });
+        // Callback to update stats
+        setLoopStats({
+          distance_text: response.data.data.totals.distance_text,
+          distance_feet: response.data.data.totals.distance_feet,
+          durationtext_hike: response.data.data.totals.durationtext_hike,
+          durationtext_bike: response.data.data.totals.durationtext_bike,
+          durationtext_bridle: response.data.data.totals.durationtext_bridle
+        });
 
-    // Callback to update turn-by-turn directions
-    setLoopDirections(response.data.data.steps);
+        // Callback to update turn-by-turn directions
+        setLoopDirections(response.data.data.steps);
 
-    // "route_waypoints" API endpoint returns the profile data in a different format than "trail_profiles" (@TODO).
-    // The chart component apparently needs the coordinates as strings.
-    const transformedProfile = response.data.data.elevationprofile.map(({y, x}) => { return {x: x.toString(), y: y.toString()}})
-    setLoopElevation(transformedProfile);
+        // "route_waypoints" API endpoint returns the profile data in a different format than "trail_profiles" (@TODO).
+        // The chart component apparently needs the coordinates as strings.
+        const transformedProfile = response.data.data.elevationprofile.map(({y, x}) => { return {x: x.toString(), y: y.toString()}})
+        setLoopElevation(transformedProfile);
+      })
+      .catch(function (error) {
+        console.error('Error getting route from waypoints', error);
+        let msg = error.code + ': ' + error.message;
+        if (error.response && error.response.data && error.response.data.message) {
+          msg += ": " + error.response.data.message;
+        }
+        showNotification({
+          id: 'routing-error',
+          title: 'Error getting route from waypoints',
+          message: msg,
+          autoClose: false,
+          color: 'red',
+        });
+      });
   }
   //---------------------------------------------------------------------------
   //
