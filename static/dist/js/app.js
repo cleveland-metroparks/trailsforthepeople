@@ -228,6 +228,11 @@ function showInfoPopup(message, type) {
 function changeBasemap(layer_key) {
     active_layer = STYLE_LAYERS[layer_key];
     MAP.setStyle(active_layer);
+    if (TRAILVIEW_ENABLED === true) {
+        MAP.on('style.load', () => {
+            addTrailViewMapLayer();
+        })
+    }
 }
 
 /**
@@ -4272,6 +4277,7 @@ function toggleTrailView() {
     if (trailviewToggled === false) {
         trailviewToggled = true;
         addTrailViewMapLayer();
+        createTrailviewMapMarker();
         $('#trailview_viewer').fadeIn();
         if (trailviewViewer === null) {
             const options = trailviewer.defaultBaseOptions;
@@ -4438,7 +4444,7 @@ function addTrailviewMapExpandButton() {
 }
 
 function addTrailViewMapLayer() {
-    if (MAP === null) {
+    if (MAP === null || trailviewToggled === false) {
         return;
     }
     removeTrailViewMapLayer();
@@ -4527,8 +4533,6 @@ function addTrailViewMapLayer() {
             MAP.getCanvas().style.cursor = 'grab';
         }
     });
-
-    createTrailviewMapMarker();
 
     MAP.on('click', 'dots', (event) => {
         if (
