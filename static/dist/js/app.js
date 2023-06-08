@@ -4259,6 +4259,7 @@ function toggleTrailView() {
         $('#trailview_viewer').fadeIn();
         if (trailviewViewer === null) {
             const options = trailviewer.defaultBaseOptions;
+            options.initial = { latitude: MAP.getCenter().lat, longitude: MAP.getCenter().lng };
             options.target = 'trailview_viewer';
             trailviewViewer = new trailviewer.TrailViewerBase(options);
             trailviewViewer.on('image-change', (image) => {
