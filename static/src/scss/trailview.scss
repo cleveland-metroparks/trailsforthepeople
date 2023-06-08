@@ -103,3 +103,31 @@
 #trailview_expand_button {
   top: 42px;
 }
+
+.trailview-map-split {
+  top: auto !important;
+  right: auto !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  height: 40% !important;
+}
+
+.trailviewer-split {
+  height: 60%;
+}
+
+.trailviewer-mobile-viewer {
+  height: 100%;
+}
+
+.trailview-map-mobile-map {
+  top: auto !important;
+  right: auto !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  height: 80% !important;
+}
+
+.trailviewer-mobile-map {
+  height: 20%;
+}

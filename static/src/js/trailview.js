@@ -8,8 +8,10 @@ let trailviewMapMarker = null;
 
 let trailviewMouseOnDot = false;
 
-/** @type {'map' | 'viewer'} */
-let trailviewFocusedElement = 'map';
+/** @typedef {'desktopMap' | 'desktopViewer' | 'mobileSplit' | 'mobileMap' | 'mobileViewer'} TrailviewLayoutType */
+
+/**@type {TrailviewLayoutType} */
+let trailviewLayout = 'desktopMap';
 
 let lastMapResize = new Date();
 
@@ -38,6 +40,20 @@ function initTrailView() {
             });
         }
     });
+    window.addEventListener('resize', () => {
+        if (trailviewToggled === true) {
+            checkTrailviewResponsive();
+        }
+    })
+}
+
+function checkTrailviewResponsive() {
+    if ((trailviewLayout === 'desktopMap' || trailviewLayout === 'desktopViewer') && window.innerWidth < 768) {
+        changeTrailviewLayout('mobileSplit');
+    } else if (window.innerWidth >= 768 &&
+        (trailviewLayout === 'mobileMap' || trailviewLayout === 'mobileSplit' || trailviewLayout === 'mobileViewer')) {
+        changeTrailviewLayout('desktopMap');
+    }
 }
 
 function toggleTrailView() {
@@ -61,11 +77,10 @@ function toggleTrailView() {
             });
         }
         addTrailviewUI();
+        checkTrailviewResponsive();
     } else {
-        if (trailviewFocusedElement === 'viewer') {
-            toggleTrailViewFocus();
-        }
         trailviewToggled = false;
+        changeTrailviewLayout('desktopMap');
         removeTrailViewMapLayer();
         $('#trailview_viewer').fadeOut();
         trailviewViewer.destroy();
@@ -92,7 +107,17 @@ function addTrailviewUI() {
         button.appendChild(span);
         document.querySelector('#trailview_viewer').appendChild(button);
         button.addEventListener('click', () => {
-            toggleTrailViewFocus();
+            if (trailviewLayout === 'desktopViewer') {
+                changeTrailviewLayout('desktopMap');
+            } else if (trailviewLayout === 'desktopMap') {
+                changeTrailviewLayout('desktopViewer');
+            } else if (trailviewLayout === 'mobileSplit') {
+                changeTrailviewLayout('mobileViewer');
+            } else if (trailviewLayout === 'mobileViewer') {
+                changeTrailviewLayout('mobileSplit');
+            } else if (trailviewLayout === 'mobileMap') {
+                changeTrailviewLayout('mobileSplit');
+            }
         });
     }
 
@@ -113,38 +138,91 @@ function addTrailviewUI() {
 
 }
 
-function toggleTrailViewFocus() {
-    if (trailviewFocusedElement === 'map') {
-        trailviewFocusedElement = 'viewer';
+function resetTrailViewClasses() {
+    if (trailviewViewer.getPanViewer() !== undefined) {
+        trailviewViewer.getPanViewer().setHfov(120, false);
+    }
+    const mapExpandButton = document.querySelector('#trailview_map_expand_button span');
+    if (mapExpandButton !== null) {
+        mapExpandButton.classList = ['cm-icon-expand'];
+    }
+    document.querySelector('#map_container').hidden = false;
+    document.querySelector("#map_container").classList.remove('trailview-map-small');
+    document.querySelector('#trailview_viewer').classList.remove('trailviewer-focus');
+    document.querySelector('#trailview_viewer').classList.remove('trailviewer-small');
+    document.querySelector('#map_container').classList.remove('trailview-map-split');
+    document.querySelector('#trailview_viewer').classList.remove('trailviewer-split');
+    document.querySelector('#trailview_viewer').classList.remove('trailviewer-mobile-viewer');
+    document.querySelector('#map_container').classList.remove('trailview-map-mobile-map');
+    document.querySelector('#trailview_viewer').classList.remove('trailviewer-mobile-map');
+}
+
+/**
+ * @param {TrailviewLayoutType} layout 
+ */
+function changeTrailviewLayout(layout) {
+    if (layout === trailviewLayout) {
+        return;
+    }
+    // console.log(`Current: ${trailviewLayout}`);
+    // console.log(`Changing to ${layout}`)
+    trailviewLayout = layout;
+    resetTrailViewClasses();
+    if (layout === 'desktopViewer') {
         document.querySelector('#map_container').classList.add('trailview-map-small');
-        document.querySelector('#trailview_viewer').classList.remove('trailviewer-small');
         document.querySelector('#trailview_viewer').classList.add('trailviewer-focus');
         document.querySelector('#trailview_expand_button span').classList = ['cm-icon-compress'];
         document.querySelector('#map_container').addEventListener('transitionend', () => {
             MAP.resize();
         }, { once: true })
-        const mapExpandButton = document.createElement('button');
-        mapExpandButton.type = 'button';
-        mapExpandButton.id = 'trailview_map_expand_button';
-        mapExpandButton.classList.add('trailview-button');
-        mapExpandButton.setAttribute('data-role', 'none');
-        const span = document.createElement('span');
-        span.classList.add('cm-icon-expand');
-        mapExpandButton.appendChild(span);
-        document.querySelector('#map_container').appendChild(mapExpandButton);
-        mapExpandButton.addEventListener('click', () => {
-            toggleTrailViewFocus();
-        })
-    } else if (trailviewFocusedElement === 'viewer') {
-        trailviewFocusedElement = 'map';
-        document.querySelector("#map_container").classList.remove('trailview-map-small');
-        document.querySelector('#trailview_viewer').classList.remove('trailviewer-focus');
+        addTrailviewMapExpandButton();
+    } else if (layout === 'desktopMap') {
         document.querySelector('#trailview_viewer').classList.add('trailviewer-small');
         document.querySelector('#trailview_expand_button span').classList = ['cm-icon-expand'];
-        document.querySelector('#trailview_map_expand_button').remove();
+        const mapExpandButton = document.querySelector('#trailview_map_expand_button');
+        if (mapExpandButton !== null) {
+            mapExpandButton.remove();
+        }
         MAP.resize();
+    } else if (layout === 'mobileSplit') {
+        document.querySelector('#map_container').classList.add('trailview-map-split');
+        document.querySelector('#trailview_viewer').classList.add('trailviewer-split');
+        document.querySelector('#trailview_expand_button span').classList = ['cm-icon-expand'];
+        if (document.querySelector('#trailview_map_expand_button') === null) {
+            addTrailviewMapExpandButton();
+        }
+        MAP.resize();
+    } else if (layout === 'mobileViewer') {
+        trailviewViewer.getPanViewer().setHfov(70);
+        document.querySelector('#map_container').hidden = true;
+        document.querySelector('#trailview_viewer').classList.add('trailviewer-mobile-viewer');
+        document.querySelector('#trailview_expand_button span').classList = ['cm-icon-compress'];
+    } else if (layout === 'mobileMap') {
+        document.querySelector('#trailview_map_expand_button span').classList = ['cm-icon-compress'];
+        document.querySelector('#map_container').classList.add('trailview-map-mobile-map');
+        document.querySelector('#trailview_viewer').classList.add('trailviewer-mobile-map');
     }
+}
 
+function addTrailviewMapExpandButton() {
+    const mapExpandButton = document.createElement('button');
+    mapExpandButton.type = 'button';
+    mapExpandButton.id = 'trailview_map_expand_button';
+    mapExpandButton.classList.add('trailview-button');
+    mapExpandButton.setAttribute('data-role', 'none');
+    const span = document.createElement('span');
+    span.classList.add('cm-icon-expand');
+    mapExpandButton.appendChild(span);
+    document.querySelector('#map_container').appendChild(mapExpandButton);
+    mapExpandButton.addEventListener('click', () => {
+        if (trailviewLayout === 'desktopViewer') {
+            changeTrailviewLayout('desktopMap');
+        } else if (trailviewLayout === 'mobileSplit') {
+            changeTrailviewLayout('mobileMap');
+        } else if (trailviewLayout === 'mobileMap') {
+            changeTrailviewLayout('mobileSplit');
+        }
+    })
 }
 
 function addTrailViewMapLayer() {
