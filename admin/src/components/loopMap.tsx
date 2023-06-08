@@ -381,7 +381,7 @@ export function LoopMap(props: LoopMapProps) {
           <Select
             label="Travel mode"
             data={travelModeSelectOptions}
-            defaultValue=''
+            defaultValue='hike'
             onChange={props.onTravelModeChange}
           />
         </Box>

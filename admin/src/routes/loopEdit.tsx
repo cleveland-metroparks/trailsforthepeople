@@ -432,7 +432,6 @@ export function LoopEdit() {
 
   // When travel mode is changed (from within Loop Map component)
   const handleTravelModeChange = (mode) => {
-    console.log('handleTravelModeChange():', mode);
     setTravelMode(mode);
     // Re-calculate route
     getRouteFromWaypoints(waypointsGeoJSON, mode);
