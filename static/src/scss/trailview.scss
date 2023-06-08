@@ -3,28 +3,26 @@
   height: 29px;
   color: rgb(51, 51, 51);
   background-color: rgb(255, 255, 255);
-  border-width: 0;
-  outline-width: 2.5px;
-  outline-color: rgb(0, 0, 0, 0.1);
-  outline-style: solid;
+  border: 0;
+  outline: 2.5px solid rgb(0, 0, 0, 0.1);
   border-radius: 3px;
   padding: 0;
   font-size: 20px;
+
+  &:hover {
+    background-color: rgb(242, 242, 242);
+    cursor: pointer;
+  }
 }
 
-.trailview-button:hover {
-  background-color: rgb(242, 242, 242);
-  cursor: pointer;
-}
-
-#trailviewIcon {
+#trailview_enable_button {
   position: absolute;
   bottom: 200px;
   right: 10px;
   z-index: 3;
 }
 
-#trailviewViewer {
+#trailview_viewer {
   position: absolute;
   background-color: black;
 }
@@ -52,18 +50,6 @@
 }
 
 .trailview-map-small {
-  .mapboxgl-control-container {
-    transition: opacity 0.6s;
-    opacity: 0 !important;
-  }
-  #trailviewIcon {
-    transition: opacity 0.6s;
-    opacity: 0 !important;
-  }
-  #trailviewMapExpandButton {
-    transition: opacity 0.6s;
-    opacity: 0 !important;
-  }
   top: auto !important;
   right: auto !important;
   bottom: 30px !important;
@@ -71,52 +57,42 @@
   width: 250px !important;
   height: 175px !important;
   border-radius: 10px !important;
-  outline-style: solid !important;
-  outline-width: 2.5px !important;
-  outline-color: rgb(0, 0, 0, 0.3) !important;
+  outline: 2.5px solid rgb(0, 0, 0, 0.3) !important;
   z-index: 11 !important;
   background-color: rgb(233, 234, 210);
   transition: width 0.5s cubic-bezier(0.65, 0, 0.35, 1),
     height 0.5s cubic-bezier(0.65, 0, 0.35, 1);
-}
 
-.trailview-map-small:hover {
-  .mapboxgl-control-container {
-    opacity: 1 !important;
+  .mapboxgl-control-container,
+  #trailview_enable_button,
+  #trailview_map_expand_button {
+    transition: opacity 0.6s;
+    opacity: 0 !important;
   }
-  #trailviewIcon {
-    opacity: 1 !important;
+
+  &:hover {
+    width: 450px !important;
+    height: 350px !important;
+
+    .mapboxgl-control-container,
+    #trailview_enable_button,
+    #trailview_map_expand_button {
+      opacity: 1 !important;
+    }
   }
-  #trailviewMapExpandButton {
-    opacity: 1 !important;
-  }
-  width: 450px !important;
-  height: 350px !important;
 }
 
-#trailviewCloseButton {
-    position: absolute;
-    width: 29px;
-    height: 29px;
-    z-index: 10;
-    top: 8px;
-    right: 8px;
-}
-
-#trailviewMapExpandButton {
-    position: absolute;
-    width: 29px;
-    height: 29px;
-    z-index: 10;
-    top: 8px;
-    right: 8px;
-}
-
-#trailviewExpandIcon {
+#trailview_close_button,
+#trailview_map_expand_button,
+#trailview_expand_button {
   position: absolute;
   width: 29px;
   height: 29px;
   z-index: 10;
-  top: 42px;
+  top: 8px;
   right: 8px;
+}
+
+#trailview_expand_button {
+  top: 42px;
 }
