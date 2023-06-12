@@ -15,11 +15,17 @@ let trailviewLayout = 'desktopMap';
 
 let lastMapResize = new Date();
 
-function initTrailView() {
+async function initTrailView() {
     const trailviewEnableButton = document.querySelector("#trailview_enable_button");
     if (trailviewEnableButton === null) {
         throw new Error("trailview_enable_button id not found");
     }
+    const healthRes = await fetch('https://trailview.cmparks.net/api/health', { method: 'GET' });
+    if (healthRes.status !== 200 || (await healthRes.json()).success !== true) {
+        console.warn("TrailView unable to be contacted");
+        return;
+    }
+    $('#trailview_enable_button').fadeIn();
     trailviewEnableButton.addEventListener('click', () => {
         toggleTrailView();
     })
