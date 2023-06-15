@@ -26,14 +26,6 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
-const MAPBOX_STYLE = 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
-const MAP_DEFAULT_STATE = {
-  latitude: 41.3953,
-  longitude: -81.6730,
-  zoom: 9
-};
-
 
 /**
  * Marker Edit
@@ -314,11 +306,11 @@ export function MarkerEdit() {
                   initialViewState={{
                     latitude: markerData.lat,
                     longitude: markerData.lng,
-                    zoom: MAP_DEFAULT_STATE.zoom
+                    zoom: parseInt(process.env.REACT_APP_MAP_DEFAULT_ZOOM),
                   }}
                   style={{width: 800, height: 400}}
-                  mapStyle={MAPBOX_STYLE}
-                  mapboxAccessToken={MAPBOX_TOKEN}
+                  mapStyle={process.env.REACT_APP_MAPBOX_STYLE}
+                  mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
                 >
                   <MapGl.Marker
                     longitude={markerData.lng}

@@ -13,14 +13,6 @@ import { mapsApiClient } from "../components/mapsApi";
 import type { Loop } from "../types/loop";
 import { travelModeSelectOptions } from "../types/loop";
 
-const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
-const MAPBOX_STYLE = 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn';
-const MAP_DEFAULT_STATE = {
-  latitude: 41.3953,
-  longitude: -81.6730,
-  zoom: 9
-};
-
 interface LoopMapProps {
   loop: Loop;
   loopGeom: string;
@@ -51,9 +43,9 @@ export function LoopMap(props: LoopMapProps) {
   const [currentTab, setCurrentTab] = useState(props.activeTab);
 
   const [mapViewState, setMapViewState] = useState({
-    longitude: MAP_DEFAULT_STATE.longitude,
-    latitude: MAP_DEFAULT_STATE.latitude,
-    zoom: MAP_DEFAULT_STATE.zoom
+    longitude: parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LNG),
+    latitude: parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LAT),
+    zoom: parseInt(process.env.REACT_APP_MAP_DEFAULT_ZOOM),
   });
 
   // Park features for the ZoomTo autocomplete field
@@ -216,8 +208,8 @@ export function LoopMap(props: LoopMapProps) {
         ref={mapRef}
         {...mapViewState}
         style={{width: "100%", height: 600}}
-        mapStyle={MAPBOX_STYLE}
-        mapboxAccessToken={MAPBOX_TOKEN}
+        mapStyle={process.env.REACT_APP_MAPBOX_STYLE}
+        mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
         onLoad={onMapLoad}
         onMove={onMapMove}
         onRender={onMapRender}
