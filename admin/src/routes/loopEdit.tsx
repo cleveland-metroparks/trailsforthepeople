@@ -118,7 +118,7 @@ export function LoopEdit() {
     if (id !== 'new') {
       const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/trails/" + id);
 
-      loopData = response.data.data; // @TODO: Why, if setting manually below?
+      loopData = response.data.data;
 
       setLoopStats({
         distance_text : response.data.data.distancetext,

@@ -45,7 +45,7 @@ export function LoopMap(props: LoopMapProps) {
   const [mapViewState, setMapViewState] = useState({
     longitude: parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LNG),
     latitude: parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LAT),
-    zoom: parseInt(process.env.REACT_APP_MAP_DEFAULT_ZOOM),
+    zoom: parseFloat(process.env.REACT_APP_MAP_DEFAULT_ZOOM),
   });
 
   // Park features for the ZoomTo autocomplete field
@@ -170,7 +170,7 @@ export function LoopMap(props: LoopMapProps) {
 
   // Map onRender event
   const onMapResize = (event: MapboxEvent) => {
-    console.log('onMapResize');
+    // console.log('onMapResize');
   }
 
   const loopLayer: LineLayer = {
@@ -208,7 +208,7 @@ export function LoopMap(props: LoopMapProps) {
         ref={mapRef}
         {...mapViewState}
         style={{width: "100%", height: 600}}
-        mapStyle={process.env.REACT_APP_MAPBOX_STYLE}
+        mapStyle={process.env.REACT_APP_MAPBOX_STYLE_URL}
         mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
         onLoad={onMapLoad}
         onMove={onMapMove}

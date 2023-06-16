@@ -1,50 +1,59 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "react-router-dom";
-import { Table, Anchor } from '@mantine/core';
+import { Link } from "react-router-dom";
+import { Table, Title, Anchor, Button } from '@mantine/core';
 import { default as dayjs } from 'dayjs';
 
-import { mapsApiClient } from "../components/mapsApi";
+import type { HintMap } from "../types/hintmap";
 
-type HintMap = {
-  id: number,
-  title: string,
-  image_filename_local: string,
-  last_edited: string,
-  last_refreshed: string,
-  url_external: string
-};
+import { mapsApiClient } from "../components/mapsApi";
 
 const getAllHintMaps = async () => {
   const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/hint_maps");
   return response.data.data;
 }
 
+// See https://tkdodo.eu/blog/react-query-meets-react-router
+// for React Router (>=6.4) + React Query
+
+// Define the "Get all hint maps" query
+const getAllHintMapsQuery = () => ({
+  queryKey: ['hintMapList'],
+  queryFn: async () => getAllHintMaps(),
+})
+
 function formatMapsHintMapLink(id: number) {
   return 'https://maps.clevelandmetroparks.com/static/images/hint_maps/hint-' + id + '.png';
 }
 
-//
-export function HintMapEdit() {
-  let params = useParams();
-  return (
-    <div>
-      <h2>Hint Map {params.hintmapId}</h2>
-    </div>
-  );
-}
+// Data loader (React Router)
+export const loader = (queryClient) =>
+  async () => {
+    const query = getAllHintMapsQuery();
+    // Return cached data or fetch anew
+    return (
+      queryClient.getQueryData(query.queryKey) ??
+      (await queryClient.fetchQuery(query))
+    )
+  };
 
-//
-export function HintMapsList() {
+/**
+ * Hint Map List component
+ */
+export function HintMapList() {
   const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<HintMap[], Error>(['hint_maps'], getAllHintMaps);
   return (
-    <div>
-      <h2>Hint Maps</h2>
+    <>
+      <Title order={2}>Hint Maps</Title>
 
       {isLoading && <div>Loading...</div>}
 
       {isError && (
         <div>{`There is a problem fetching the post data - ${error.message}`}</div>
       )}
+
+      <Button component={Link} to="/hint_maps/new"  variant="outline" sx={{ margin: '1em 0' }}>
+        + Add Hint Map
+      </Button>
 
       <Table striped highlightOnHover>
         <thead>
@@ -64,7 +73,7 @@ export function HintMapsList() {
               <td>
                 <Anchor
                   component={Link}
-                  to={`/hintmaps/${hint_map.id}`}
+                  to={`/hint_maps/${hint_map.id}`}
                   key={hint_map.id}
                 >
                   {hint_map.title}
@@ -79,6 +88,6 @@ export function HintMapsList() {
         </tbody>
       </Table>
 
-    </div>
+    </>
   );
 }

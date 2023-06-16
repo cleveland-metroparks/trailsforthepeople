@@ -76,7 +76,7 @@ export function MarkerEdit() {
     if (id !== 'new') {
       const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/markers/" + id);
 
-      markerData = response.data.data; // @TODO: Why, if setting manually below?
+      markerData = response.data.data;
 
       // Date value handling; capture nulls & reformat
       const initExpireDate = response.data.data.expires ? dayjs(response.data.data.expires).toDate() : null;
@@ -306,10 +306,10 @@ export function MarkerEdit() {
                   initialViewState={{
                     latitude: markerData.lat,
                     longitude: markerData.lng,
-                    zoom: parseInt(process.env.REACT_APP_MAP_DEFAULT_ZOOM),
+                    zoom: parseFloat(process.env.REACT_APP_MAP_DEFAULT_ZOOM),
                   }}
                   style={{width: 800, height: 400}}
-                  mapStyle={process.env.REACT_APP_MAPBOX_STYLE}
+                  mapStyle={process.env.REACT_APP_MAPBOX_STYLE_URL}
                   mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
                 >
                   <MapGl.Marker

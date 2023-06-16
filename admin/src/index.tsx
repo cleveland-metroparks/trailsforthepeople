@@ -17,17 +17,22 @@ import { AuthLayout } from "./components/authLayout";
 import { Home } from "./routes/home";
 import { Login } from "./routes/login";
 import { Logout } from "./routes/logout";
+import { UserAccount } from "./routes/user";
+import { ErrorScreen } from "./routes/errorScreen";
+
 import { LoopList, loader as loopListLoader } from "./routes/loopList";
 import { LoopEdit } from "./routes/loopEdit";
 import { action as deleteLoopAction } from "./routes/loopDelete";
+
 import { MarkerList, loader as markerListLoader } from "./routes/markerList";
 import { MarkerEdit } from "./routes/markerEdit";
-// import { MarkerDelete, action as deleteMarkerAction } from "./routes/markerDelete";
 import { action as deleteMarkerAction } from "./routes/markerDelete";
-import { HintMapsList, HintMapEdit } from "./routes/hintmaps";
+
+import { HintMapList, loader as hintMapListLoader } from "./routes/hintMapList";
+import { HintMapEdit } from "./routes/hintMapEdit";
+import { action as deleteHintMapAction } from "./routes/hintMapDelete";
+
 import { AuditLogsList, AuditLogView } from "./routes/logs";
-import { UserAccount } from "./routes/user";
-import { ErrorScreen } from "./routes/errorScreen";
 
 import './index.css';
 
@@ -89,9 +94,14 @@ const routes = createRoutesFromElements(
             {/* <Route path=":markerId/delete" action={deleteMarkerAction} element={<MarkerDelete onDelete />} /> */}
             <Route path=":markerId/delete" action={deleteMarkerAction} />
           </Route>
-          <Route path="hintmaps">
-            <Route index element={<HintMapsList />} />
-            <Route path=":hintmapId" element={<HintMapEdit />} />
+          <Route path="hint_maps">
+            <Route
+              index
+              element={<HintMapList />}
+              loader={hintMapListLoader(queryClient)}
+            />
+            <Route path=":hintMapId" element={<HintMapEdit />} />
+            <Route path=":hintMapId/delete" action={deleteHintMapAction} />
           </Route>
           <Route path="logs">
             <Route index element={<AuditLogsList />} />

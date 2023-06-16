@@ -22,8 +22,7 @@ const getAllMarkersQuery = () => ({
 })
 
 // Data loader (React Router)
-export const loader =
-  (queryClient) =>
+export const loader = (queryClient) =>
   async () => {
     const query = getAllMarkersQuery();
     // Return cached data or fetch anew
@@ -31,7 +30,7 @@ export const loader =
       queryClient.getQueryData(query.queryKey) ??
       (await queryClient.fetchQuery(query))
     )
-};
+  };
 
 /**
  * Marker List component
@@ -45,6 +44,7 @@ export function MarkerList() {
       <Title order={2}>Markers</Title>
 
       {isLoading && <div>Loading...</div>}
+
       {isError && (
         <div>{`There is a problem fetching the post data - ${error.message}`}</div>
       )}

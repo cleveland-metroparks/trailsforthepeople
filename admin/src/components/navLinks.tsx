@@ -14,7 +14,7 @@ interface NavLinkProps {
 const navLinksData = [
   { icon: <Route />, color: 'blue', label: 'Loops', urlPath: 'loops' },
   { icon: <MapPin />, color: 'teal', label: 'Markers', urlPath: 'markers' },
-  { icon: <Map />, color: 'violet', label: 'Hint Maps', urlPath: 'hintmaps' },
+  { icon: <Map />, color: 'violet', label: 'Hint Maps', urlPath: 'hint_maps' },
   { icon: <FileText />, color: 'grape', label: 'Logs', urlPath: 'logs' },
 ];
 

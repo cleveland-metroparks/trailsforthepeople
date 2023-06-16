@@ -17,8 +17,8 @@ export type Marker = {
   modified: string
 };
 
-const defaultLat = 41.32653793921162,
-      defaultLng = -81.6629620125847,
+const defaultLat = parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LAT),
+      defaultLng = parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LNG),
       defaultMarkerCategory = 'Events';
 
 export const emptyMarker: Marker = {
@@ -39,8 +39,6 @@ export const emptyMarker: Marker = {
   startdate: '',
   modified: '',
 };
-
-export type MarkersList = Array<Marker>;
 
 // @TODO: Pull this list from the DB
 const markerCategories = [
