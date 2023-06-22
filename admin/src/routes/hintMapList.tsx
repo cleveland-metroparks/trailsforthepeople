@@ -4,6 +4,7 @@ import { Table, Title, Anchor, Button } from '@mantine/core';
 import { default as dayjs } from 'dayjs';
 
 import type { HintMap } from "../types/hintmap";
+import { formatMapsHintMapLink } from "../types/hintmap";
 
 import { mapsApiClient } from "../components/mapsApi";
 
@@ -20,10 +21,6 @@ const getAllHintMapsQuery = () => ({
   queryKey: ['hintMapList'],
   queryFn: async () => getAllHintMaps(),
 })
-
-function formatMapsHintMapLink(id: number) {
-  return 'https://maps.clevelandmetroparks.com/static/images/hint_maps/hint-' + id + '.png';
-}
 
 // Data loader (React Router)
 export const loader = (queryClient) =>
@@ -79,7 +76,7 @@ export function HintMapList() {
                   {hint_map.title}
                 </Anchor>
               </td>
-              <td><img src={formatMapsHintMapLink(hint_map.id)} width="100" height="100" /></td>
+              <td><img src={formatMapsHintMapLink(hint_map.image_filename_local)} width="100" height="100" /></td>
               <td><img src={hint_map.url_external} width="100" height="100" /></td>
               <td>{dayjs(hint_map.last_edited).format('YYYY-MM-DD HH:mm:ss Z')}</td>
               <td>{dayjs(hint_map.last_refreshed).format('YYYY-MM-DD HH:mm:ss Z')}</td>

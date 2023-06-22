@@ -1,18 +1,18 @@
-import { useCallback, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams, Navigate, useSubmit } from "react-router-dom";
-import { createStyles, Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
+import { Flex, Text, Title, Anchor, Box, Input, TextInput, Button, Group } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
 import { openConfirmModal } from '@mantine/modals';
 import { default as dayjs } from 'dayjs';
-import type { MapRef, MapboxEvent, ViewState, ViewStateChangeEvent } from 'react-map-gl';
-import { Source, NavigationControl, Layer, LineLayer } from 'react-map-gl';
+import type { MapRef, ViewState, ViewStateChangeEvent } from 'react-map-gl';
+import { NavigationControl } from 'react-map-gl';
 import * as ReactMapGl from 'react-map-gl'; // For "Map", to avoid collision
 
 import { mapsApiClient } from "../components/mapsApi";
 import type { HintMap, HintMapFormData } from "../types/hintmap";
-import { emptyHintMap, defaultHintMapFormData } from "../types/hintmap";
+import { emptyHintMap, defaultHintMapFormData, formatMapsHintMapLink } from "../types/hintmap";
 
 const hintMapsRootPath = '/hint_maps';
 
@@ -28,6 +28,8 @@ export function HintMapEdit() {
     latitude: parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LAT),
     zoom: parseFloat(process.env.REACT_APP_MAP_DEFAULT_ZOOM),
   });
+
+  const [mapboxStaticImg, setMapboxStaticImg] = useState('');
 
   const mutation = useMutation(
     (formData: HintMapFormData) => saveHintMap(formData)
@@ -69,6 +71,8 @@ export function HintMapEdit() {
 
       hintMapData = response.data.data;
 
+      setMapboxStaticImg(hintMapData.url_external)
+
       if (!hintMapData.latitude
         || !hintMapData.longitude
         || !hintMapData.zoom
@@ -104,6 +108,9 @@ export function HintMapEdit() {
         longitude: hintMapData.longitude,
         zoom: hintMapData.zoom,
       });
+
+      // Image URL on maps server
+      // hintMapData.localImageUrl = formatMapsHintMapLink(hintMapData.image_filename_local);
     }
 
     return hintMapData;
@@ -190,14 +197,8 @@ export function HintMapEdit() {
     return <Navigate to={hintMapsRootPath} replace={true} />
   }
 
-  // Map onLoad event
-  // const onMapLoad = (event: MapboxEvent) => {
-  //   console.log('onMapLoad');
-  // };
-
   // Map onMove event
   const onMapMove = (event: ViewStateChangeEvent) => {
-    console.log('onMapMove event:', event);
     setMapViewState(event.viewState);
     form.setValues({
       latitude: event.viewState.latitude,
@@ -230,7 +231,13 @@ export function HintMapEdit() {
     return urlStr;
   };
 
-  //
+  // Regenerate Mapbox static image
+  const regenerateMapboxStaticImg = () => {
+    // Get url from form urlExternal field
+    setMapboxStaticImg(form.values.urlExternal);
+  }
+
+  // Open Delete modal
   const openDeleteModal = (deleteFormAction) =>
     openConfirmModal({
       title: 'Delete Hint Map',
@@ -278,16 +285,18 @@ export function HintMapEdit() {
               })
             }
             >
-            <Box sx={{ maxWidth: 800 }}>
-              <TextInput
-                mt="md"
-                required
-                label="Title"
-                placeholder="Hint Map title"
-                {...form.getInputProps('title')}
-              />
+            <TextInput
+              mt="md"
+              required
+              label="Title"
+              placeholder="Hint Map title"
+              {...form.getInputProps('title')}
+            />
 
-              <Box sx={{ maxWidth: 400, margin: '1em 0' }}>
+            <Group align="flex-start" sx={{ margin: '1em 0' }}>
+              {/* Left side */}
+              <Box>
+                <Title order={4} mb="sm">Choose map view</Title>
                 <ReactMapGl.Map
                   // "reuseMaps" bypasses initialization when a map is removed and re-added
                   // (switching screens, tabs, etc.) in order to avoid MapBox
@@ -310,7 +319,6 @@ export function HintMapEdit() {
                   style={{width: 400, height: 400}}
                   mapStyle={process.env.REACT_APP_MAPBOX_STYLE_URL}
                   mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
-                  // onLoad={onMapLoad}
                   onMove={onMapMove}
                 >
                   <NavigationControl
@@ -318,75 +326,98 @@ export function HintMapEdit() {
                   />
                 </ReactMapGl.Map>
 
-              <Flex
-                justify="flex-start"
-                sx={{margin: '1em 0'}}
-              >
-                <Input.Wrapper label="Zoom">
-                  <Input
-                    variant="unstyled"
-                    disabled
-                    placeholder="Zoom"
-                    {...form.getInputProps('zoom')}
-                  />
-                </Input.Wrapper>
-                <Input.Wrapper label="Latitude">
-                  <Input
-                    variant="unstyled"
-                    disabled
-                    placeholder="Latitude"
-                    {...form.getInputProps('latitude')}
-                  />
-                </Input.Wrapper>
-                <Input.Wrapper label="Longitude">
-                  <Input
-                    variant="unstyled"
-                    disabled
-                    placeholder="Longitude"
-                    {...form.getInputProps('longitude')}
-                  />
-                </Input.Wrapper>
-              </Flex>
-
-              <Input.Wrapper label="Mapbox Static URL">
-                <Input
-                  variant="unstyled"
-                  disabled
-                  placeholder="URL"
-                  {...form.getInputProps('urlExternal')}
-                />
-              </Input.Wrapper>
-
-              <Input.Wrapper label="Filename on maps server">
-                <Input
-                  variant="unstyled"
-                  disabled
-                  placeholder="Filename"
-                  {...form.getInputProps('filenameLocal')}
-                />
-              </Input.Wrapper>
+                <Flex justify="flex-start" mt="sm">
+                  <Input.Wrapper label="Zoom:">
+                    <Input
+                      variant="unstyled"
+                      disabled
+                      placeholder="Zoom"
+                      size="xs"
+                      {...form.getInputProps('zoom')}
+                    />
+                  </Input.Wrapper>
+                  <Input.Wrapper label="Latitude:">
+                    <Input
+                      variant="unstyled"
+                      disabled
+                      placeholder="Latitude"
+                      size="xs"
+                      {...form.getInputProps('latitude')}
+                    />
+                  </Input.Wrapper>
+                  <Input.Wrapper label="Longitude:">
+                    <Input
+                      variant="unstyled"
+                      disabled
+                      placeholder="Longitude"
+                      size="xs"
+                      {...form.getInputProps('longitude')}
+                    />
+                  </Input.Wrapper>
+                </Flex>
               </Box>
+              {/* End Left side */}
 
-              <Group position="left" mt="md">
-                <Button
-                  type="submit"
-                  loading={savingState}
-                  sx={{ margin: '1em 0' }}
-                >
-                Save Hint Map
-                </Button>
-
-                {deleteHintMapPath &&
+              {/* Center */}
+              <Box>
+                <Title order={4} mb="sm">Mapbox static image</Title>
+                <img src={mapboxStaticImg} alt="Mapbox static map" width="240" height="240" />
+                <Input.Wrapper label="Mapbox Static URL:" mt="sm">
+                  <Input
+                    variant="unstyled"
+                    disabled
+                    placeholder="URL"
+                    size="xs"
+                    {...form.getInputProps('urlExternal')}
+                  />
+                </Input.Wrapper>
+                <Group position="center" mt="md">
                   <Button
-                    onClick={() => openDeleteModal(absoluteDeleteHintMapPath)}
-                    variant="outline"
-                    color="red"
+                    onClick={() => regenerateMapboxStaticImg()}
+                    variant="light"
                   >
-                    Delete Hint Map
+                    Regenerate
                   </Button>
-                }
-              </Group>
-            </Box>
+                </Group>
+
+              </Box>
+              {/* End Center */}
+
+              {/* Right side */}
+              <Box>
+                <Title order={4} mb="sm">Saved image</Title>
+                <img src={formatMapsHintMapLink(hintMapData.image_filename_local)} alt="Saved static map" width="240" height="240" />
+                <Input.Wrapper label="Filename on maps server:" mt="sm">
+                  <Input
+                    variant="unstyled"
+                    disabled
+                    placeholder="Filename"
+                    size="xs"
+                    {...form.getInputProps('filenameLocal')}
+                  />
+                </Input.Wrapper>
+              </Box>
+              {/* End Right side */}
+            </Group>
+
+            <Group position="left">
+              <Button
+                type="submit"
+                loading={savingState}
+              >
+                Save Hint Map
+              </Button>
+
+              {deleteHintMapPath &&
+                <Button
+                  onClick={() => openDeleteModal(absoluteDeleteHintMapPath)}
+                  variant="outline"
+                  color="red"
+                >
+                  Delete Hint Map
+                </Button>
+              }
+            </Group>
           </form>
         </>
       }

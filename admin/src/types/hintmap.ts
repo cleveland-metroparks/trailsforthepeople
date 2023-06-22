@@ -39,3 +39,14 @@ export const defaultHintMapFormData: HintMapFormData = {
   longitude: parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LNG),
   zoom: parseFloat(process.env.REACT_APP_MAP_DEFAULT_ZOOM),
 };
+
+/**
+ * Build the link to the hint map image on the maps server
+ *
+ * @param filename
+ *   The filename of the hint map image
+ * @returns
+ *   URL to the hint map image
+ */
+export const formatMapsHintMapLink = (filename: string) =>
+  process.env.REACT_APP_HINTMAPS_BASEURL + process.env.REACT_APP_HINTMAPS_BASEPATH + filename;
