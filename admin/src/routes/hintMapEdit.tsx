@@ -297,34 +297,47 @@ export function HintMapEdit() {
               {/* Left side */}
               <Box>
                 <Title order={4} mb="sm">Choose map view</Title>
-                <ReactMapGl.Map
-                  // "reuseMaps" bypasses initialization when a map is removed and re-added
-                  // (switching screens, tabs, etc.) in order to avoid MapBox
-                  // generating a billable event with every map initialization
-                  // https://visgl.github.io/react-map-gl/docs/get-started/tips-and-tricks#minimize-cost-from-frequent-re-mounting
-                  //
-                  // @TODO:
-                  // However, it also seems to break the re-loading of the DrawControl
-                  // when the map is removed and re-rendered.
-                  // Maybe this is relevant:? https://github.com/visgl/react-map-gl/issues/699
-                  //
-                  // reuseMaps={true}
+                <div style={{position:"relative"}}>
+                  <ReactMapGl.Map
+                    // "reuseMaps" bypasses initialization when a map is removed and re-added
+                    // (switching screens, tabs, etc.) in order to avoid MapBox
+                    // generating a billable event with every map initialization
+                    // https://visgl.github.io/react-map-gl/docs/get-started/tips-and-tricks#minimize-cost-from-frequent-re-mounting
+                    //
+                    // @TODO:
+                    // However, it also seems to break the re-loading of the DrawControl
+                    // when the map is removed and re-rendered.
+                    // Maybe this is relevant:? https://github.com/visgl/react-map-gl/issues/699
+                    //
+                    // reuseMaps={true}
 
-                  ref={mapRef}
-                  initialViewState={{
-                    longitude: hintMapData.longitude ?? parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LNG),
-                    latitude: hintMapData.latitude ?? parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LAT),
-                    zoom: hintMapData.zoom ?? parseFloat(process.env.REACT_APP_MAP_DEFAULT_ZOOM),
-                  }}
-                  style={{width: 400, height: 400}}
-                  mapStyle={process.env.REACT_APP_MAPBOX_STYLE_URL}
-                  mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
-                  onMove={onMapMove}
-                >
-                  <NavigationControl
-                    showCompass={false}
-                  />
-                </ReactMapGl.Map>
+                    ref={mapRef}
+                    initialViewState={{
+                      longitude: hintMapData.longitude ?? parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LNG),
+                      latitude: hintMapData.latitude ?? parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LAT),
+                      zoom: hintMapData.zoom ?? parseFloat(process.env.REACT_APP_MAP_DEFAULT_ZOOM),
+                    }}
+                    style={{width: 400, height: 400}}
+                    mapStyle={process.env.REACT_APP_MAPBOX_STYLE_URL}
+                    mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+                    onMove={onMapMove}
+                  >
+                    <NavigationControl
+                      showCompass={false}
+                    />
+                  </ReactMapGl.Map>
+
+                  {/* Box overlaying map to show where the generated map area will be: */}
+                  <div style={{
+                    position:"absolute",
+                    width: 240, height: 240,
+                    top: 80, left: 80,
+                    outline: "1px solid #9a9a9a",
+                    pointerEvents: "none",
+                    boxShadow: "0 6px 30px 0 rgba(14,33,39,.75)",
+                    }}>
+                  </div>
+                </div>
 
                 <Flex justify="flex-start" mt="sm">
                   <Input.Wrapper label="Zoom:">
