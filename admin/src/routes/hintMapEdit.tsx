@@ -82,7 +82,7 @@ export function HintMapEdit() {
         if (url.host === 'api.mapbox.com') {
           // Path format is like:
           //   /styles/v1/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn/static/-81.833476,41.468252,13.68,0.00,0.00/240x240
-          const re = new RegExp('/styles/v1/cleveland-metroparks/.*/static/(.*),(.*),(.*),.*,.*/(.*)x(.*)');
+          const re = new RegExp('/styles/v1/cleveland-metroparks/.*/static/(.*),(.*),(.*),.*,.*/(.*)x(.*)(@2x)?');
           // const re = new RegExp('/styles/v1/cleveland-metroparks/.*/static/(-?[\d.]*),(-?[\d.]*),([\d.]*),[\d.]*,[\d.]*/(\d*)x(\d*)');
           const matches = url.pathname.match(re);
           if (matches) {

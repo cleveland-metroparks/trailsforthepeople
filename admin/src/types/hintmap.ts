@@ -41,7 +41,10 @@ export const defaultHintMapFormData: HintMapFormData = {
 };
 
 /**
- * Build the link to the hint map image on the maps server
+ * Build the link to the hint map image on the maps API server.
+ *
+ * ex:
+ *   https://maps-api.clevelandmetroparks.com/images/hint-maps/hint-22.png
  *
  * @param filename
  *   The filename of the hint map image
@@ -49,4 +52,20 @@ export const defaultHintMapFormData: HintMapFormData = {
  *   URL to the hint map image
  */
 export const formatMapsHintMapLink = (filename: string) =>
-  process.env.REACT_APP_HINTMAPS_BASEURL + process.env.REACT_APP_HINTMAPS_BASEPATH + filename;
+  process.env.REACT_APP_MAPS_API_BASE_URL + process.env.REACT_APP_HINTMAPS_BASEPATH + filename;
+
+/**
+ * Build the link to the hint map image
+ * WHERE IT WAS PREVIOUSLY STORED
+ * stored on the maps server.
+ *
+ * ex:
+ *   https://maps.clevelandmetroparks.com/static/images/hint_maps/hint-22.png
+ *
+ * @param filename
+ *   The filename of the hint map image
+ * @returns
+ *   URL to the hint map image
+ */
+export const formatMapsHintMapLinkOld = (filename: string) =>
+  process.env.REACT_APP_HINTMAPS_BASEURL_OLD + process.env.REACT_APP_HINTMAPS_BASEPATH_OLD + filename;
