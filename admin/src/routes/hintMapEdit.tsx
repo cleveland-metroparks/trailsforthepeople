@@ -108,9 +108,6 @@ export function HintMapEdit() {
         longitude: hintMapData.longitude,
         zoom: hintMapData.zoom,
       });
-
-      // Image URL on maps server
-      // hintMapData.localImageUrl = formatMapsHintMapLink(hintMapData.image_filename_local);
     }
 
     return hintMapData;
@@ -125,7 +122,7 @@ export function HintMapEdit() {
     error: hintMapError,
   } = useQuery<HintMap, Error>(['hint_map', params.hintMapId], () => getHintMap(hintMapId));
 
-  // Save Hint Map to the API
+  // Save Hint Map via the API
   const saveHintMap = async (formData) => {
     setSavingState(true);
     showNotification({
@@ -139,12 +136,13 @@ export function HintMapEdit() {
 
     const hintMapSaveData = {
       title: formData.title,
-      latitude: formData.latitude,
-      longitude: formData.longitude,
-      zoom: formData.zoom,
-      // expires: formData.expireDate ? dayjs(formData.expireDate).format('YYYY-MM-DD') : null,
-      // startdate: formData.expireDate ? dayjs(formData.startDate).format('YYYY-MM-DD') : null,
-      // modified: dayjs(),
+      // latitude: formData.latitude,
+      // longitude: formData.longitude,
+      // zoom: formData.zoom,
+      url_external: formData.urlExternal,
+      // image_filename_local: formData.filenameLocal, // API responsible for this
+      last_edited: dayjs(),
+      last_refreshed: dayjs(),
     };
 
     const response = (hintMapId === 'new') ?
@@ -225,8 +223,6 @@ export function HintMapEdit() {
         access_token = process.env.REACT_APP_MAPBOX_TOKEN;
 
     let urlStr = `https://api.mapbox.com/styles/v1/${username}/${style_id}/static/${lon},${lat},${zoom},${bearing},${pitch}/${width}x${height}${retina}?attribution=${attribution}&logo=${logo}&access_token=${access_token}`;
-
-    console.log('mapboxStaticImageUrl:', urlStr);
 
     return urlStr;
   };

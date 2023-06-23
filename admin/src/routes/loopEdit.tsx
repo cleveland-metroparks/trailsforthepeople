@@ -175,7 +175,7 @@ export function LoopEdit() {
   } = useQuery<Loop, Error>(['loop', params.loopId], () => getLoop(loopId));
   //---------------------------------------------------------------------------
 
-  // Save Loop to the API
+  // Save Loop via the API
   const saveLoop = async (formData) => {
     setSavingState(true);
     showNotification({
@@ -222,9 +222,7 @@ export function LoopEdit() {
       // dd_lng: number,
     };
 
-    const isNew = (loopId === 'new');
-
-    const response = isNew ?
+    const response = (loopId === 'new') ?
       mapsApiClient.post<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/trails', loopSaveData)
       : mapsApiClient.put<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/trails/' + loopId, loopSaveData);
 
