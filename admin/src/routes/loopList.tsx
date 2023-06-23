@@ -74,7 +74,7 @@ export function LoopList() {
               </Anchor>
             </td>
             <td>{loop.res}</td>
-            <td>{loop.distance_text}</td>
+            <td>{loop.distancetext}</td>
           </tr>)
         ))}
       </tbody>

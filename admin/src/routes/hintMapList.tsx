@@ -56,10 +56,10 @@ export function HintMapList() {
         <thead>
           <tr>
             <th>Title</th>
-            <th>On maps server</th>
             <th>On Mapbox</th>
+            <th>On maps server</th>
             <th>Date edited</th>
-            <th>Date refreshed</th>
+            {/* <th>Date refreshed</th> */}
           </tr>
         </thead>
 
@@ -76,10 +76,10 @@ export function HintMapList() {
                   {hint_map.title}
                 </Anchor>
               </td>
-              <td><img src={formatMapsHintMapLink(hint_map.image_filename_local)} width="100" height="100" /></td>
               <td><img src={hint_map.url_external} width="100" height="100" /></td>
+              <td><img src={formatMapsHintMapLink(hint_map.image_filename_local)} width="100" height="100" /></td>
               <td>{dayjs(hint_map.last_edited).format('YYYY-MM-DD HH:mm:ss Z')}</td>
-              <td>{dayjs(hint_map.last_refreshed).format('YYYY-MM-DD HH:mm:ss Z')}</td>
+              {/* <td>{dayjs(hint_map.last_refreshed).format('YYYY-MM-DD HH:mm:ss Z')}</td> */}
             </tr>
           ))}
         </tbody>

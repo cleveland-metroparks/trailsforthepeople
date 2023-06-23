@@ -81,15 +81,17 @@ export function HintMapEdit() {
         const url = new URL(hintMapData.url_external);
         if (url.host === 'api.mapbox.com') {
           // Path format is like:
-          //   /styles/v1/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn/static/-81.833476,41.468252,13.68,0.00,0.00/240x240
+          //   /styles/v1/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn/static/-81.833476,41.468252,13.68,0.00,0.00/240x240{@2x}
+          // New URLs have @2x, old ones don't.
           const re = new RegExp('/styles/v1/cleveland-metroparks/.*/static/(.*),(.*),(.*),.*,.*/(.*)x(.*)(@2x)?');
-          // const re = new RegExp('/styles/v1/cleveland-metroparks/.*/static/(-?[\d.]*),(-?[\d.]*),([\d.]*),[\d.]*,[\d.]*/(\d*)x(\d*)');
           const matches = url.pathname.match(re);
           if (matches) {
-            console.log('Old URL match', matches[0]);
+            console.log('External URL regex match.', matches[0]);
             hintMapData.longitude = parseFloat(matches[1]);
             hintMapData.latitude = parseFloat(matches[2]);
             hintMapData.zoom = parseFloat(matches[3]);
+          } else {
+            console.error('Error getting lng,lat,zoom from external URL.', matches[0]);
           }
         }
       }
@@ -231,6 +233,14 @@ export function HintMapEdit() {
   const regenerateMapboxStaticImg = () => {
     // Get url from form urlExternal field
     setMapboxStaticImg(form.values.urlExternal);
+    showNotification({
+      id: 'regenerate-hintmap',
+      loading: false,
+      title: 'Regenerating Mapbox static image',
+      message: '',
+      autoClose: 5000,
+    });
+
   }
 
   // Open Delete modal
