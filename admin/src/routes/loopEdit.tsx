@@ -69,7 +69,7 @@ export function LoopEdit() {
   const [loopDirections, setLoopDirections] = useState({});
   const [loopElevation, setLoopElevation] = useState(defaultLoopProfile);
   const [loopStats, setLoopStats] = useState({
-    distance_text : '',
+    distancetext : '',
     distance_feet : '',
     durationtext_hike : '',
     durationtext_bike : '',
@@ -121,7 +121,7 @@ export function LoopEdit() {
       loopData = response.data.data;
 
       setLoopStats({
-        distance_text : response.data.data.distancetext,
+        distancetext : response.data.data.distancetext,
         distance_feet : response.data.data.distance_feet ? response.data.data.distance_feet.toString() : '',
         durationtext_hike : response.data.data.durationtext_hike,
         durationtext_bike : response.data.data.durationtext_bike,
@@ -197,7 +197,7 @@ export function LoopEdit() {
       description: formData.description,
       directions: JSON.stringify(loopDirections),
 
-      distance_text: loopStats.distance_text, // number
+      distancetext: loopStats.distancetext, // number
       distance_feet: loopStats.distance_feet, // string
       durationtext_hike: loopStats.durationtext_hike, // string
       durationtext_bike: loopStats.durationtext_bike, // string
@@ -334,7 +334,7 @@ export function LoopEdit() {
 
         // Callback to update stats
         setLoopStats({
-          distance_text: response.data.data.totals.distance_text,
+          distancetext: response.data.data.totals.distancetext,
           distance_feet: response.data.data.totals.distance_feet,
           durationtext_hike: response.data.data.totals.durationtext_hike,
           durationtext_bike: response.data.data.totals.durationtext_bike,
