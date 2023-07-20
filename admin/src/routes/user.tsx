@@ -1,18 +1,6 @@
 import { useState } from 'react';
-import {
-  ActionIcon,
-  Box,
-  Button,
-  Code,
-  CopyButton,
-  Group,
-  Modal,
-  Table,
-  Title,
-  Text,
-  TextInput,
-  Tooltip
-} from '@mantine/core';
+import { useAuth } from "../hooks/useAuth";
+import { ActionIcon, Box, Button, Code, CopyButton, Group, Modal, Table, Title, Text, TextInput, Tooltip } from '@mantine/core';
 import { Copy, Check } from 'tabler-icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
@@ -21,23 +9,34 @@ import { showNotification } from '@mantine/notifications';
 import { default as dayjs } from 'dayjs';
 
 import { mapsApiClient } from "../components/mapsApi";
-import { useAuth } from "../hooks/useAuth";
-
-export type ApiAccessToken = {
-  id: number,
-  tokenable_type: string,
-  tokenable_id: string,
-  name: string,
-  abilities: string,
-  last_used_at: string, // timestamp
-  created_at: string, // timestamp
-  updated_at: string, // timestamp
-};
+import type { ApiAccessToken } from "../types/user";
 
 // Get all tokens
-const getAllTokens = async () => {
+const getUserTokens = async () => {
   const response = await mapsApiClient.get<any>("/tokens");
-  return response.data.tokens;
+
+  var tokensData = response.data.tokens;
+
+  // Format token props
+  tokensData.forEach((token) => {
+    // Dates
+    if (token.last_used_at !== null) {
+      token.last_user_at = dayjs(token.last_used_at).format('YYYY-MM-DD, h:mm:ss a')
+    } else {
+      token.last_used_at = "Never";
+    }
+    token.created_at = dayjs(token.created_at).format('YYYY-MM-DD, h:mm:ss a')
+    token.updated_at = dayjs(token.updated_at).format('YYYY-MM-DD, h:mm:ss a')
+
+    // Abilities array
+    if (token.abilities.includes('*')) {
+      token.abilities = 'All';
+    } else {
+      token.abilities = token.abilities.join(', ');
+    }
+  });
+
+  return tokensData;
 }
 
 /**
@@ -57,7 +56,7 @@ export function UserAccount() {
     data: tokensData,
     error: tokensError,
     refetch: tokensRefetch,
-  } = useQuery<ApiAccessToken[], Error>(['tokens'], getAllTokens);
+  } = useQuery<ApiAccessToken[], Error>(['tokens'], getUserTokens);
 
   const form = useForm({
     initialValues: {
@@ -71,18 +70,7 @@ export function UserAccount() {
   const requestToken = async (formValues) => {
     mapsApiClient.post<any>('/tokens/create', formValues)
     .then(function (createTokenResponse: any) {
-      console.log('API token created successfully. Response:', createTokenResponse);
-      showNotification({
-        id: 'create-token-success',
-        title: 'API token created',
-        message: 'API token successfully created.',
-        autoClose: false,
-      });
-
-      // Refresh the list of tokens @TODO
-      tokensRefetch();
-
-      // Show the new token to the user
+      // Build modal content with the token info
       let newTokenModalContent = (
         <>
           <Text sx={{ marginBottom: '1em' }}>
@@ -105,6 +93,9 @@ export function UserAccount() {
       );
       setTokenCreatedContent(newTokenModalContent);
       openModal();
+
+      // Refresh the list of tokens
+      tokensRefetch();
     })
     .catch(function (error) {
       console.log('Create API token error:', error);
@@ -126,7 +117,7 @@ export function UserAccount() {
 
   return (
     <>
-      <Title order={2} sx={{marginBottom: '1em' }}>User account</Title>
+      <Title order={2} sx={{marginBottom: '1em' }}>User: {user}</Title>
 
       {tokensIsLoading && <div>Loading...</div>}
 
@@ -134,15 +125,11 @@ export function UserAccount() {
         <div>{`There is a problem fetching the post data - ${tokensError.message}`}</div>
       )}
 
-      <Text>Logged-in as: <Text span fw={700}>{user}</Text>.</Text>
-
-      <Title order={3} sx={{margin: '1em 0'}}>API access tokens</Title>
+      <Title order={3} sx={{margin: '1em 0 .5em'}}>API access tokens</Title>
       <Table striped highlightOnHover>
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Tokenable ID</th>
+            <th>Token name</th>
             <th>Abilities</th>
             <th>Last used</th>
             <th>Created</th>
@@ -151,26 +138,19 @@ export function UserAccount() {
         </thead>
 
         <tbody>
-        {tokensData &&
-          tokensData.map(token => (
+          {tokensData && tokensData.map(token => (
             <tr key={token.id}>
-              <td>{token.tokenable_type}</td>
-              <td>{token.tokenable_id}</td>
               <td>{token.name}</td>
               <td>{token.abilities}</td>
-              <td>{
-                (token.last_used_at === null)
-                ? 'Never'
-                : dayjs(token.last_used_at).format('YYYY-MM-DD HH:mm:ss Z')
-                }</td>
-              <td>{dayjs(token.created_at).format('YYYY-MM-DD HH:mm:ss Z')}</td>
-              <td>{dayjs(token.updated_at).format('YYYY-MM-DD HH:mm:ss Z')}</td>
+              <td>{token.last_used_at}</td>
+              <td>{token.created_at}</td>
+              <td>{token.updated_at}</td>
             </tr>
           ))}
         </tbody>
       </Table>
 
-      <Title order={3} sx={{marginTop: '1em'}}>Create a new token</Title>
+      <Title order={3} sx={{margin: '1em 0 .5em'}}>Create a new token</Title>
       <form
         onSubmit={
           form.onSubmit((formValues) => {
@@ -185,7 +165,6 @@ export function UserAccount() {
             autoComplete="token_name"
             required
             {...form.getInputProps('token_name')}
-            sx={{marginTop: '1em'}}
           />
           <Button type="submit" sx={{ margin: '1em 0' }}>Create API token</Button>
         </Box>
@@ -194,7 +173,7 @@ export function UserAccount() {
       <Modal
         opened={openedModal}
         onClose={closeModal}
-        title="New token created"
+        title={<Title order={3}>New token created</Title>}
         size="auto"
       >
         {tokenCreatedContent}
