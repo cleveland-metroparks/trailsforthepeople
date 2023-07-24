@@ -5,7 +5,7 @@ import { Copy, Check } from 'tabler-icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
 import { useQuery } from "@tanstack/react-query";
-import { showNotification } from '@mantine/notifications';
+import { showNotification, updateNotification, hideNotification } from '@mantine/notifications';
 import { default as dayjs } from 'dayjs';
 
 import { mapsApiClient } from "../components/mapsApi";
@@ -47,6 +47,8 @@ export function UserAccount() {
 
   const [openedModal, { open: openModal, close: closeModal }] = useDisclosure(false);
 
+  const [creatingState, setCreatingState] = useState(false);
+
   const [tokenCreatedContent, setTokenCreatedContent] = useState(null);
 
   const {
@@ -66,15 +68,29 @@ export function UserAccount() {
     },
   });
 
-  // Request API token
-  const requestToken = async (formValues) => {
+  // Create (request) API token
+  const createToken = async (formValues) => {
+    setCreatingState(true);
+    showNotification({
+      id: 'create-token',
+      loading: true,
+      title: 'Requesting API token',
+      message: 'One moment',
+      autoClose: false,
+      disallowClose: true,
+    });
+
     mapsApiClient.post<any>('/tokens/create', formValues)
+
     .then(function (createTokenResponse: any) {
+      hideNotification('create-token');
+      setCreatingState(false);
       // Build modal content with the token info
       let newTokenModalContent = (
         <>
           <Text sx={{ marginBottom: '1em' }}>
-            Make sure to record this now, as <Text span fw={700}>you won't be able to see it again!</Text>
+            Your new token, "{createTokenResponse.data.name}" has been created.<br />
+            Make sure to record this now, as <Text span fw={700}>you won't be able to see it again:</Text>
           </Text>
           <Group>
             <Text>Token:</Text>
@@ -105,9 +121,55 @@ export function UserAccount() {
         msg += ": " + error.response.data.message;
       }
 
-      showNotification({
-        id: 'create-token-error',
+      updateNotification({
+        id: 'create-token',
+        loading: false,
         title: 'Create Token Error',
+        message: msg,
+        autoClose: false,
+        color: 'red',
+      });
+    });
+  }
+
+  // Revoke (revoke) API token
+  const revokeToken = async (tokenId) => {
+    showNotification({
+      id: 'revoke-token',
+      loading: true,
+      title: 'Revoking API token',
+      message: 'One moment',
+      autoClose: false,
+      disallowClose: true,
+    });
+
+    mapsApiClient.post<any>('/tokens/revoke', {token_id: tokenId})
+
+    .then(function (revokeTokenResponse: any) {
+      const revokedMsg = `Token (ID: ${tokenId}) revoked`;
+      updateNotification({
+        id: 'revoke-token',
+        loading: false,
+        title: revokedMsg,
+        message: '',
+        autoClose: 5000,
+      });
+
+      // Refresh the list of tokens
+      tokensRefetch();
+    })
+    .catch(function (error) {
+      console.log('Revoke API token error:', error);
+
+      let msg = error.code + ': ' + error.message;
+      if (error.response && error.response.data && error.response.data.message) {
+        msg += ": " + error.response.data.message;
+      }
+
+      updateNotification({
+        id: 'revoke-token',
+        loading: false,
+        title: 'Revoke Token Error',
         message: msg,
         autoClose: false,
         color: 'red',
@@ -134,6 +196,7 @@ export function UserAccount() {
             <th>Last used</th>
             <th>Created</th>
             <th>Updated</th>
+            <th>Revoke token</th>
           </tr>
         </thead>
 
@@ -145,6 +208,14 @@ export function UserAccount() {
               <td>{token.last_used_at}</td>
               <td>{token.created_at}</td>
               <td>{token.updated_at}</td>
+              <td>
+                <Button
+                  variant="outline"
+                  onClick={() => revokeToken(token.id)}
+                >
+                  Revoke
+                </Button>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -154,7 +225,7 @@ export function UserAccount() {
       <form
         onSubmit={
           form.onSubmit((formValues) => {
-            requestToken(formValues);
+            createToken(formValues);
           })
         }
       >
@@ -166,7 +237,11 @@ export function UserAccount() {
             required
             {...form.getInputProps('token_name')}
           />
-          <Button type="submit" sx={{ margin: '1em 0' }}>Create API token</Button>
+          <Button
+            type="submit"
+            sx={{ margin: '1em 0' }}
+            loading={creatingState}
+            >Create API token</Button>
         </Box>
       </form>
 
