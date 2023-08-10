@@ -46,6 +46,13 @@
     <!-- App CSS -->
     <link type="text/css" rel="stylesheet" href="/static/dist/css/mobile.css?v=1648762706" />
 
+    <!-- TrailView CSS -->
+    <link type="text/css" rel="stylesheet" href="/static/dist/css/trailviewer.css" />
+    <link type="text/css" rel="stylesheet" href="/static/dist/css/trailview.css" />
+
+    <!-- TrailView JS -->
+    <script type="text/javascript" src="/static/dist/js/trailviewer-base.umd.js"></script>
+
     <!-- Typekit -->
     <script>
         (function(d) {
@@ -614,8 +621,15 @@
 </div>
 <!-- /Sidebar -->
 
+<!-- TrailView -->
+<div id="trailview_viewer" class="trailviewer-small" hidden></div>
+
 <!-- Map -->
-<div id="map_canvas" class="sidebar-map"></div>
+<div id="map_container">
+    <div id="map_canvas" class="sidebar-map"></div>
+    <button id="trailview_enable_button" class="trailview-button" data-role="none" hidden><span class="cm-icon-street-view"></span></button>
+</div>
+
 
 <!-- Audio -->
 <audio autoboffer id="alert_beep">

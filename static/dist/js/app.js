@@ -66,8 +66,8 @@ var START_ZOOM = 14;
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiWHRKaDhuRSJ9.FGqNSOHwiCr2dmTH2JTMAA';
 
 // Mapbox styles (baselayers)
-var STYLE_LAYER_CM_MAP = 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn'; // Vector
-var STYLE_LAYER_CM_SAT = 'mapbox://styles/cleveland-metroparks/cjcutetjg07892ro6wunp2da9'; // Satellite
+var STYLE_LAYER_CM_MAP = 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn?optimize=true'; // Vector
+var STYLE_LAYER_CM_SAT = 'mapbox://styles/cleveland-metroparks/cjcutetjg07892ro6wunp2da9?optimize=true'; // Satellite
 
 var STYLE_LAYERS = {
     'map' : STYLE_LAYER_CM_MAP,
@@ -133,12 +133,12 @@ function initMap(mapOptions) {
 
     // Map
     MAP = new mapboxgl.Map({
-         container: 'map_canvas',
-         style: basemap_style,
-         center: START_CENTER,
-         zoom: START_ZOOM,
-         preserveDrawingBuffer: true // for printing in certain browsers
-     });
+        container: 'map_canvas',
+        style: basemap_style,
+        center: START_CENTER,
+        zoom: START_ZOOM,
+        preserveDrawingBuffer: true // for printing in certain browsers
+    });
 
     // Nav (zoom/tilt) Control
     var ctrlNav = new mapboxgl.NavigationControl();
@@ -147,7 +147,7 @@ function initMap(mapOptions) {
     // Geolocate control
     ctrlGeolocate = new mapboxgl.GeolocateControl({
         positionOptions: {
-           enableHighAccuracy: true
+            enableHighAccuracy: true
         },
         trackUserLocation: (mapOptions.trackUserLocation == false) ? false : true,
     });
@@ -186,7 +186,7 @@ function initMap(mapOptions) {
  */
 function placeMarker(marker, lat, lng) {
     marker.setLngLat([lng, lat])
-          .addTo(MAP);
+        .addTo(MAP);
 }
 
 /**
@@ -228,6 +228,11 @@ function showInfoPopup(message, type) {
 function changeBasemap(layer_key) {
     active_layer = STYLE_LAYERS[layer_key];
     MAP.setStyle(active_layer);
+    if (TRAILVIEW_ENABLED === true) {
+        MAP.on('style.load', () => {
+            addTrailViewMapLayer();
+        })
+    }
 }
 
 /**
@@ -236,7 +241,7 @@ function changeBasemap(layer_key) {
 function getBasemap() {
     style = MAP.getStyle();
     return STYLE_NAMES[style.name];
- }
+}
 
 /**
  * Return lat/lng as string in prescribed coordinate format.
@@ -263,7 +268,7 @@ function formatCoords(lngLat, coordinate_format) {
  */
 function formatCoordsDms(lngLat, precision) {
     // Default precision
-    precision = (typeof precision !== 'undefined') ?  precision : 0;
+    precision = (typeof precision !== 'undefined') ? precision : 0;
 
     var ns = lngLat.lat < 0 ? 'S' : 'N';
     var ew = lngLat.lng < 0 ? 'W' : 'E';
@@ -289,7 +294,7 @@ function formatCoordsDms(lngLat, precision) {
  */
 function formatCoordsDdm(lngLat, precision) {
     // Default precision
-    precision = (typeof precision !== 'undefined') ?  precision : 2;
+    precision = (typeof precision !== 'undefined') ? precision : 2;
 
     var ns = lngLat.lat < 0 ? 'S' : 'N';
     var ew = lngLat.lng < 0 ? 'W' : 'E';
@@ -313,7 +318,7 @@ function formatCoordsDdm(lngLat, precision) {
  */
 function formatCoordsDd(lngLat, precision) {
     // Default precision
-    precision = (typeof precision !== 'undefined') ?  precision : 4;
+    precision = (typeof precision !== 'undefined') ? precision : 4;
 
     coordsStr = lngLat.lat.toFixed(precision) + ', ' + lngLat.lng.toFixed(precision);
     return coordsStr;
@@ -328,7 +333,7 @@ function formatCoordsDd(lngLat, precision) {
  */
 function shortenStr(str, maxLen, addEllipsis) {
     if (str.length <= maxLen) {
-      return str;
+        return str;
     }
     var shortenedStr = str.substr(0, str.lastIndexOf(' ', maxLen));
     if (addEllipsis) {
@@ -374,7 +379,7 @@ function setWindowURLQueryStringParameters(params, reset, pushState) {
         urlParams = new URLSearchParams(location.search);
     }
 
-    $.each(params, function(index, value) {
+    $.each(params, function (index, value) {
         urlParams.set(index, value);
     });
 
@@ -826,6 +831,9 @@ var AUTO_CENTER_ON_LOCATION = false;
 // what type of sorting do they prefer?
 var DEFAULT_SORT = 'distance';
 
+// If TrailView is enabled
+var TRAILVIEW_ENABLED = true;
+
 // Load sidebar when map has been initialized
 $(document).on("mapInitialized", function () {
     if (!sidebar) {
@@ -879,6 +887,7 @@ function switchToMap() {
 $(document).ready(function () {
     loadMapAndStartingState();
     populateSidebarPanes();
+    initTrailView();
 });
 
 /**
@@ -3966,9 +3975,9 @@ this["CM"]["Templates"]["info_attraction"] = Handlebars.template({"1":function(c
         return undefined
     };
 
-  return "    <h4>Activities:</h4>\n    <ul class=\"activities-icon-list\">\n"
+  return "    <h4>Activities:</h4>\r\n    <ul class=\"activities-icon-list\">\r\n"
     + ((stack1 = lookupProperty(helpers,"each").call(depth0 != null ? depth0 : (container.nullContext || {}),(depth0 != null ? lookupProperty(depth0,"activity_icons") : depth0),{"name":"each","hash":{},"fn":container.program(2, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":8},"end":{"line":8,"column":17}}})) != null ? stack1 : "")
-    + "    </ul>\n";
+    + "    </ul>\r\n";
 },"2":function(container,depth0,helpers,partials,data) {
     var alias1=container.lambda, alias2=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -3983,7 +3992,7 @@ this["CM"]["Templates"]["info_attraction"] = Handlebars.template({"1":function(c
     + alias2(alias1((depth0 != null ? lookupProperty(depth0,"title") : depth0), depth0))
     + "\" alt=\""
     + alias2(alias1((depth0 != null ? lookupProperty(depth0,"title") : depth0), depth0))
-    + "\"></li>\n";
+    + "\"></li>\r\n";
 },"4":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=container.lambda, alias2=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -4000,7 +4009,7 @@ this["CM"]["Templates"]["info_attraction"] = Handlebars.template({"1":function(c
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"img") : depth0)) != null ? lookupProperty(stack1,"height") : stack1), depth0))
     + "\" alt=\""
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
-    + "\">\n";
+    + "\">\r\n";
 },"6":function(container,depth0,helpers,partials,data) {
     var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -4011,7 +4020,7 @@ this["CM"]["Templates"]["info_attraction"] = Handlebars.template({"1":function(c
 
   return "    <div class=\"feature-description\">"
     + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"descr") : stack1), depth0))
-    + "</div>\n";
+    + "</div>\r\n";
 },"8":function(container,depth0,helpers,partials,data) {
     var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -4020,9 +4029,9 @@ this["CM"]["Templates"]["info_attraction"] = Handlebars.template({"1":function(c
         return undefined
     };
 
-  return "    <ul class=\"nobull\">\n        <li><a href=\""
+  return "    <ul class=\"nobull\">\r\n        <li><a href=\""
     + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"main_site_url") : stack1), depth0))
-    + "\" target=\"_blank\">More info</a></li>\n    </ul>\n";
+    + "\" target=\"_blank\">More info</a></li>\r\n    </ul>\r\n";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=container.lambda, alias2=container.escapeExpression, alias3=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -4033,17 +4042,17 @@ this["CM"]["Templates"]["info_attraction"] = Handlebars.template({"1":function(c
 
   return "<h2>"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
-    + "</h2>\n\n"
+    + "</h2>\r\n\r\n"
     + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"activities") : stack1),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":3,"column":0},"end":{"line":10,"column":7}}})) != null ? stack1 : "")
-    + "\n"
+    + "\r\n"
     + ((stack1 = lookupProperty(helpers,"if").call(alias3,(depth0 != null ? lookupProperty(depth0,"img") : depth0),{"name":"if","hash":{},"fn":container.program(4, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":12,"column":0},"end":{"line":14,"column":7}}})) != null ? stack1 : "")
-    + "\n"
+    + "\r\n"
     + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"descr") : stack1),{"name":"if","hash":{},"fn":container.program(6, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":16,"column":0},"end":{"line":18,"column":7}}})) != null ? stack1 : "")
-    + "\n"
+    + "\r\n"
     + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"cmp_url") : stack1),{"name":"if","hash":{},"fn":container.program(8, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":20,"column":0},"end":{"line":24,"column":7}}})) != null ? stack1 : "")
-    + "\n<h4>GPS coordinates:</h4>\n<div class=\"small-light\">\n    "
+    + "\r\n<h4>GPS coordinates:</h4>\r\n<div class=\"small-light\">\r\n    "
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"coords_formatted") : stack1), depth0))
-    + "\n</div>";
+    + "\r\n</div>";
 },"useData":true});
 
 this["CM"]["Templates"]["info_reservation"] = Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
@@ -4062,7 +4071,7 @@ this["CM"]["Templates"]["info_reservation"] = Handlebars.template({"1":function(
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"img") : depth0)) != null ? lookupProperty(stack1,"height") : stack1), depth0))
     + "\" alt=\""
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
-    + "\">\n";
+    + "\">\r\n";
 },"3":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=container.lambda, alias2=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -4071,13 +4080,13 @@ this["CM"]["Templates"]["info_reservation"] = Handlebars.template({"1":function(
         return undefined
     };
 
-  return "	<h4>Phone</h4>\n	<a title=\"Call "
+  return "	<h4>Phone</h4>\r\n	<a title=\"Call "
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
     + "\" href=\"tel:"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"phone") : stack1), depth0))
     + "\">"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"phone") : stack1), depth0))
-    + "</a>\n";
+    + "</a>\r\n";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=container.lambda, alias2=container.escapeExpression, alias3=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -4088,17 +4097,17 @@ this["CM"]["Templates"]["info_reservation"] = Handlebars.template({"1":function(
 
   return "<h2>"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
-    + "</h2>\n\n"
+    + "</h2>\r\n\r\n"
     + ((stack1 = lookupProperty(helpers,"if").call(alias3,(depth0 != null ? lookupProperty(depth0,"img") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":3,"column":0},"end":{"line":5,"column":7}}})) != null ? stack1 : "")
-    + "\n<p>"
+    + "\r\n<p>"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"descr") : stack1), depth0))
-    + "</p>\n\n<h4>Hours of Operation</h4>\n"
+    + "</p>\r\n\r\n<h4>Hours of Operation</h4>\r\n"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"hoursofoperation") : stack1), depth0))
-    + "\n\n"
+    + "\r\n\r\n"
     + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"phone") : stack1),{"name":"if","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":12,"column":0},"end":{"line":15,"column":7}}})) != null ? stack1 : "")
-    + "\n<div class=\"lat_driving\">"
+    + "\r\n<div class=\"lat_driving\">"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"drivingdestinationlatitude") : stack1), depth0))
-    + "</div>\n<div class=\"lng_driving\">"
+    + "</div>\r\n<div class=\"lng_driving\">"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"drivingdestinationlongitude") : stack1), depth0))
     + "</div>";
 },"useData":true});
@@ -4113,7 +4122,7 @@ this["CM"]["Templates"]["info_trail"] = Handlebars.template({"1":function(contai
 
   return "	Est time, walking: "
     + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"durationtext_hike") : stack1), depth0))
-    + "<br/>\n";
+    + "<br/>\r\n";
 },"3":function(container,depth0,helpers,partials,data) {
     var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -4124,7 +4133,7 @@ this["CM"]["Templates"]["info_trail"] = Handlebars.template({"1":function(contai
 
   return "	Est time, bicycle: "
     + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"durationtext_bike") : stack1), depth0))
-    + "<br/>\n";
+    + "<br/>\r\n";
 },"5":function(container,depth0,helpers,partials,data) {
     var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -4135,7 +4144,7 @@ this["CM"]["Templates"]["info_trail"] = Handlebars.template({"1":function(contai
 
   return "	Est time, horseback: "
     + container.escapeExpression(container.lambda(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"durationtext_bridle") : stack1), depth0))
-    + "<br/>\n";
+    + "<br/>\r\n";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=container.lambda, alias2=container.escapeExpression, alias3=depth0 != null ? depth0 : (container.nullContext || {}), lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -4146,15 +4155,15 @@ this["CM"]["Templates"]["info_trail"] = Handlebars.template({"1":function(contai
 
   return "<h2>"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"name") : stack1), depth0))
-    + "</h2>\n\n<p>\nLength: "
+    + "</h2>\r\n\r\n<p>\r\nLength: "
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"distancetext") : stack1), depth0))
-    + "<br/>\n"
+    + "<br/>\r\n"
     + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"hike") : stack1),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":5,"column":0},"end":{"line":7,"column":7}}})) != null ? stack1 : "")
     + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"bike") : stack1),{"name":"if","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":8,"column":0},"end":{"line":10,"column":7}}})) != null ? stack1 : "")
     + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"bridle") : stack1),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":11,"column":0},"end":{"line":13,"column":7}}})) != null ? stack1 : "")
-    + "</p>\n\n"
+    + "</p>\r\n\r\n"
     + ((stack1 = alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"feature") : depth0)) != null ? lookupProperty(stack1,"description") : stack1), depth0)) != null ? stack1 : "")
-    + "\n\n<div class=\"elevationprofileimage\" style=\"text-align:center;\">\n    <canvas id=\"elevation-profile-trail\" alt=\"Elevation profile\"></canvas>\n</div>\n";
+    + "\r\n\r\n<div class=\"elevationprofileimage\" style=\"text-align:center;\">\r\n    <canvas id=\"elevation-profile-trail\" alt=\"Elevation profile\"></canvas>\r\n</div>\r\n";
 },"useData":true});
 
 this["CM"]["Templates"]["pane_activities_item"] = Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
@@ -4165,13 +4174,13 @@ this["CM"]["Templates"]["pane_activities_item"] = Handlebars.template({"compiler
         return undefined
     };
 
-  return "<li>\n    <a href=\""
+  return "<li>\r\n    <a href=\""
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"activity") : depth0)) != null ? lookupProperty(stack1,"link_url") : stack1), depth0))
-    + "\">\n        <img class=\"ui-li-icon\" src=\""
+    + "\">\r\n        <img class=\"ui-li-icon\" src=\""
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"activity") : depth0)) != null ? lookupProperty(stack1,"icon") : stack1), depth0))
     + "\" /> <span class=\"title\">"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"activity") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
-    + "</span>\n    </a>\n</li>\n";
+    + "</span>\r\n    </a>\r\n</li>\r\n";
 },"useData":true});
 
 this["CM"]["Templates"]["pane_amenities_item"] = Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
@@ -4182,13 +4191,13 @@ this["CM"]["Templates"]["pane_amenities_item"] = Handlebars.template({"compiler"
         return undefined
     };
 
-  return "<li>\n    <a href=\""
+  return "<li>\r\n    <a href=\""
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"link_url") : stack1), depth0))
-    + "\">\n        <i class=\"cm-icon cm-icon-"
+    + "\">\r\n        <i class=\"cm-icon cm-icon-"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"icon") : stack1), depth0))
-    + "\"></i>\n        "
+    + "\"></i>\r\n        "
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"amenity") : depth0)) != null ? lookupProperty(stack1,"name") : stack1), depth0))
-    + "\n    </a>\n</li>\n";
+    + "\r\n    </a>\r\n</li>\r\n";
 },"useData":true});
 
 this["CM"]["Templates"]["pane_trails_reservation_filter_option"] = Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
@@ -4203,5 +4212,475 @@ this["CM"]["Templates"]["pane_trails_reservation_filter_option"] = Handlebars.te
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"reservation") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
     + "\">"
     + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"reservation") : depth0)) != null ? lookupProperty(stack1,"pagetitle") : stack1), depth0))
-    + "</option>\n";
+    + "</option>\r\n";
 },"useData":true});
+;
+let trailviewToggled = false;
+
+/** @type {import('@cmparks/trailviewer/dist/trailviewer-base'.TrailViewerBase) | null} */
+let trailviewViewer = null;
+
+/** @type {mapboxgl.Marker | null} */
+let trailviewMapMarker = null;
+
+let trailviewMouseOnDot = false;
+
+/** @typedef {'desktopMap' | 'desktopViewer' | 'mobileSplit' | 'mobileMap' | 'mobileViewer'} TrailviewLayoutType */
+
+/**@type {TrailviewLayoutType} */
+let trailviewLayout = 'desktopMap';
+
+let lastMapResize = new Date();
+
+let trailviewDragging = false;
+
+/** @type {mapboxgl.Marker | undefined} */
+let trailviewDraggingMarker = undefined;
+
+let trailviewMouseOverButton = false;
+
+async function initTrailView() {
+    const trailviewEnableButton = document.querySelector("#trailview_enable_button");
+    if (trailviewEnableButton === null) {
+        throw new Error("trailview_enable_button id not found");
+    }
+    const healthRes = await fetch('https://trailview.cmparks.net/api/health', { method: 'GET' });
+    if (healthRes.status !== 200 || (await healthRes.json()).success !== true) {
+        console.warn("TrailView unable to be contacted");
+        return;
+    }
+    $('#trailview_enable_button').fadeIn();
+    trailviewEnableButton.addEventListener('click', () => {
+        toggleTrailView();
+    })
+
+    const draggingMarker = document.createElement('div');
+    draggingMarker.innerHTML = '<span class="cm-icon-street-view"></span>';
+    draggingMarker.classList.add('trailview-dragging-marker');
+    draggingMarker.classList.add('trailview-dragging-marker');
+
+    const dragStart = () => {
+        if (trailviewDragging === false) {
+            trailviewDragging = true;
+            trailviewDraggingMarker = new mapboxgl.Marker(draggingMarker)
+                .setLngLat([-81.682665, 41.4097766])
+                .addTo(MAP)
+                .setRotationAlignment('map');
+            if (trailviewToggled === false) {
+                addTrailViewMapLayer();
+            }
+        }
+    }
+
+    const clickStart = () => {
+        trailviewEnableButton.addEventListener('mouseleave', dragStart);
+        window.addEventListener('mouseup', () => {
+            trailviewEnableButton.removeEventListener('mouseleave', dragStart);
+        })
+    }
+
+    const dragEnd = async () => {
+        if (trailviewDragging === true) {
+            trailviewDragging = false;
+
+            if (trailviewDraggingMarker !== undefined) {
+                const pos = trailviewDraggingMarker.getLngLat();
+                if (trailviewToggled === false) {
+                    toggleTrailView({ latitude: pos.lat, longitude: pos.lng });
+                } else {
+                    const res = await fetch(`https://trailview.cmparks.net/api/near/${encodeURI(pos.lat.toString())}/${encodeURI(pos.lng.toString())}/standard`,
+                        { method: 'GET' });
+                    const data = await res.json();
+                    if (data.success === true && trailviewViewer !== null && data.data.distance < 300) {
+                        trailviewViewer.goToImageID(data.data.id);
+                    }
+                }
+            }
+
+            if (trailviewToggled === false) {
+                removeTrailViewMapLayer();
+            }
+            if (trailviewDraggingMarker !== undefined) {
+                trailviewDraggingMarker.remove();
+            }
+        }
+    }
+
+    trailviewEnableButton.addEventListener('mousedown', clickStart);
+    window.addEventListener('mouseup', async () => { await dragEnd() });
+    // trailviewEnableButton.addEventListener('touchstart', dragStart)
+    // window.addEventListener('touchend', dragEnd);
+
+    const dragMove = (event) => {
+        if (trailviewDragging === true) {
+            if (trailviewDraggingMarker !== undefined) {
+                trailviewDraggingMarker.setLngLat(event.lngLat);
+                MAP.getCanvas().style.cursor = "grabbing";
+            }
+        }
+    }
+
+    MAP.on('mousemove', dragMove);
+    // MAP.on('touchmove', dragMove);
+
+    const mapContainer = document.querySelector('#map_container')
+    new ResizeObserver(() => {
+        if (new Date().valueOf() - lastMapResize.valueOf() > 100) {
+            MAP.resize();
+            lastMapResize = new Date();
+        }
+    }).observe(mapContainer);
+    mapContainer.addEventListener('transitionend', () => {
+        MAP.resize();
+        if (trailviewMapMarker !== null) {
+            MAP.easeTo({
+                center: trailviewMapMarker.getLngLat(),
+                duration: 500,
+            });
+        }
+    });
+    window.addEventListener('resize', () => {
+        if (trailviewToggled === true) {
+            checkTrailviewResponsive();
+        }
+    })
+
+    const params = new URLSearchParams(document.location.search);
+    if (params.get('trailview') !== null) {
+        toggleTrailView();
+    }
+}
+
+function checkTrailviewResponsive() {
+    if ((trailviewLayout === 'desktopMap' || trailviewLayout === 'desktopViewer') && window.innerWidth < 768) {
+        changeTrailviewLayout('mobileSplit');
+    } else if (window.innerWidth >= 768 &&
+        (trailviewLayout === 'mobileMap' || trailviewLayout === 'mobileSplit' || trailviewLayout === 'mobileViewer')) {
+        changeTrailviewLayout('desktopMap');
+    }
+}
+
+/**
+ * @param {{latitude: number; longitude: number} | undefined} pos 
+ */
+function toggleTrailView(pos) {
+    if (trailviewToggled === false) {
+        trailviewToggled = true;
+        document.querySelector('#trailview_enable_button').classList.add('trailview-button-active');
+        addTrailViewMapLayer();
+        createTrailviewMapMarker();
+        $('#trailview_viewer').fadeIn();
+        if (trailviewViewer === null) {
+            const options = trailviewer.defaultBaseOptions;
+            const params = new URLSearchParams(document.location.search);
+            if (pos !== undefined) {
+                options.initial = pos;
+            } else {
+                if (params.get('trailview') !== null) {
+                    options.initial = params.get('trailview');
+                } else {
+                    options.initial = { latitude: MAP.getCenter().lat, longitude: MAP.getCenter().lng };
+                }
+            }
+            options.target = 'trailview_viewer';
+            trailviewViewer = new trailviewer.TrailViewerBase(options);
+            trailviewViewer.on('image-change', (image) => {
+                if (MAP !== null && trailviewMapMarker !== null) {
+                    trailviewMapMarker.setLngLat([image.longitude, image.latitude]);
+                    MAP.easeTo({
+                        center: trailviewMapMarker.getLngLat(),
+                        duration: 500,
+                    });
+                    setWindowURLQueryStringParameters({ trailview: image.id }, false, false);
+                }
+            });
+        }
+        addTrailviewUI();
+        checkTrailviewResponsive();
+        if (sidebar !== null) {
+            sidebar.close();
+        }
+    } else {
+        trailviewToggled = false;
+        document.querySelector('#trailview_enable_button').classList.remove('trailview-button-active');
+        changeTrailviewLayout('desktopMap');
+        removeTrailViewMapLayer();
+        $('#trailview_viewer').fadeOut();
+        trailviewViewer.destroy();
+        trailviewViewer = null;
+        const params = new URLSearchParams(document.location.search);
+        params.delete('trailview');
+        saveWindowURL(params, false);
+    }
+}
+
+function removeTrailViewMapLayer() {
+    if (MAP.getSource('dots')) {
+        MAP.removeLayer('dots');
+        MAP.removeSource('dots');
+    }
+}
+
+function addTrailviewUI() {
+    {
+        const button = document.createElement('button');
+        button.type = "button";
+        button.id = 'trailview_expand_button';
+        button.classList.add('trailview-button');
+        button.setAttribute('data-role', 'none');
+        const span = document.createElement('span');
+        span.classList.add('cm-icon-expand');
+        button.appendChild(span);
+        document.querySelector('#trailview_viewer').appendChild(button);
+        button.addEventListener('click', () => {
+            if (trailviewLayout === 'desktopViewer') {
+                changeTrailviewLayout('desktopMap');
+            } else if (trailviewLayout === 'desktopMap') {
+                changeTrailviewLayout('desktopViewer');
+            } else if (trailviewLayout === 'mobileSplit') {
+                changeTrailviewLayout('mobileViewer');
+            } else if (trailviewLayout === 'mobileViewer') {
+                changeTrailviewLayout('mobileSplit');
+            } else if (trailviewLayout === 'mobileMap') {
+                changeTrailviewLayout('mobileSplit');
+            }
+        });
+    }
+
+    {
+        const closeButton = document.createElement('button');
+        closeButton.type = 'button';
+        closeButton.id = 'trailview_close_button';
+        closeButton.classList.add('trailview-button');
+        closeButton.setAttribute('data-role', 'none');
+        const closeSpan = document.createElement('span');
+        closeSpan.classList.add('cm-icon-close');
+        closeButton.appendChild(closeSpan);
+        document.querySelector('#trailview_viewer').appendChild(closeButton);
+        closeButton.addEventListener('click', () => {
+            toggleTrailView();
+        })
+    }
+
+}
+
+function resetTrailViewClasses() {
+    if (trailviewViewer.getPanViewer() !== undefined) {
+        trailviewViewer.getPanViewer().setHfov(120, false);
+    }
+    const mapExpandButton = document.querySelector('#trailview_map_expand_button span');
+    if (mapExpandButton !== null) {
+        mapExpandButton.classList = ['cm-icon-expand'];
+    }
+    document.querySelector('#map_container').hidden = false;
+    document.querySelector("#map_container").classList.remove('trailview-map-small');
+    document.querySelector('#trailview_viewer').classList.remove('trailviewer-focus');
+    document.querySelector('#trailview_viewer').classList.remove('trailviewer-small');
+    document.querySelector('#map_container').classList.remove('trailview-map-split');
+    document.querySelector('#trailview_viewer').classList.remove('trailviewer-split');
+    document.querySelector('#trailview_viewer').classList.remove('trailviewer-mobile-viewer');
+    document.querySelector('#map_container').classList.remove('trailview-map-mobile-map');
+    document.querySelector('#trailview_viewer').classList.remove('trailviewer-mobile-map');
+}
+
+/**
+ * @param {TrailviewLayoutType} layout 
+ */
+function changeTrailviewLayout(layout) {
+    if (layout === trailviewLayout) {
+        return;
+    }
+    // console.log(`Current: ${trailviewLayout}`);
+    // console.log(`Changing to ${layout}`)
+    trailviewLayout = layout;
+    resetTrailViewClasses();
+    if (layout === 'desktopViewer') {
+        document.querySelector('#map_container').classList.add('trailview-map-small');
+        document.querySelector('#trailview_viewer').classList.add('trailviewer-focus');
+        document.querySelector('#trailview_expand_button span').classList = ['cm-icon-compress'];
+        document.querySelector('#map_container').addEventListener('transitionend', () => {
+            MAP.resize();
+        }, { once: true })
+        addTrailviewMapExpandButton();
+    } else if (layout === 'desktopMap') {
+        document.querySelector('#trailview_viewer').classList.add('trailviewer-small');
+        document.querySelector('#trailview_expand_button span').classList = ['cm-icon-expand'];
+        const mapExpandButton = document.querySelector('#trailview_map_expand_button');
+        if (mapExpandButton !== null) {
+            mapExpandButton.remove();
+        }
+        MAP.resize();
+    } else if (layout === 'mobileSplit') {
+        document.querySelector('#map_container').classList.add('trailview-map-split');
+        document.querySelector('#trailview_viewer').classList.add('trailviewer-split');
+        document.querySelector('#trailview_expand_button span').classList = ['cm-icon-expand'];
+        if (document.querySelector('#trailview_map_expand_button') === null) {
+            addTrailviewMapExpandButton();
+        }
+        MAP.resize();
+    } else if (layout === 'mobileViewer') {
+        trailviewViewer.getPanViewer().setHfov(70);
+        document.querySelector('#map_container').hidden = true;
+        document.querySelector('#trailview_viewer').classList.add('trailviewer-mobile-viewer');
+        document.querySelector('#trailview_expand_button span').classList = ['cm-icon-compress'];
+    } else if (layout === 'mobileMap') {
+        document.querySelector('#trailview_map_expand_button span').classList = ['cm-icon-compress'];
+        document.querySelector('#map_container').classList.add('trailview-map-mobile-map');
+        document.querySelector('#trailview_viewer').classList.add('trailviewer-mobile-map');
+    }
+}
+
+function addTrailviewMapExpandButton() {
+    const mapExpandButton = document.createElement('button');
+    mapExpandButton.type = 'button';
+    mapExpandButton.id = 'trailview_map_expand_button';
+    mapExpandButton.classList.add('trailview-button');
+    mapExpandButton.setAttribute('data-role', 'none');
+    const span = document.createElement('span');
+    span.classList.add('cm-icon-expand');
+    mapExpandButton.appendChild(span);
+    document.querySelector('#map_container').appendChild(mapExpandButton);
+    mapExpandButton.addEventListener('click', () => {
+        if (trailviewLayout === 'desktopViewer') {
+            changeTrailviewLayout('desktopMap');
+        } else if (trailviewLayout === 'mobileSplit') {
+            changeTrailviewLayout('mobileMap');
+        } else if (trailviewLayout === 'mobileMap') {
+            changeTrailviewLayout('mobileSplit');
+        }
+    })
+}
+
+function addTrailViewMapLayer() {
+    if (MAP === null) {
+        return;
+    }
+    removeTrailViewMapLayer();
+    const layerData = {
+        type: 'vector',
+        format: 'pbf',
+        tiles: ['https://trailview.cmparks.net/api/tiles/{z}/{x}/{y}/standard'],
+    };
+
+    MAP.addSource('dots', layerData);
+
+    MAP.addLayer({
+        id: 'dots',
+        'source-layer': 'geojsonLayer',
+        source: 'dots',
+        type: 'circle',
+        paint: {
+            'circle-radius': 10,
+            'circle-color': [
+                'case',
+                ['==', ['get', 'visible'], true],
+                '#00a108',
+                '#db8904',
+            ],
+        },
+    });
+    MAP.setPaintProperty('dots', 'circle-radius', [
+        'interpolate',
+
+        ['exponential', 0.5],
+        ['zoom'],
+        13,
+        3,
+
+        16,
+        5,
+
+        17,
+        7,
+
+        20,
+        8,
+    ]);
+    MAP.setPaintProperty('dots', 'circle-opacity', [
+        'interpolate',
+
+        ['exponential', 0.5],
+        ['zoom'],
+        13,
+        0.05,
+
+        15,
+        0.1,
+
+        17,
+        0.25,
+
+        20,
+        1,
+    ]);
+
+    MAP.on('mouseenter', 'dots', () => {
+        trailviewMouseOnDot = true;
+        if (MAP !== null) {
+            MAP.getCanvas().style.cursor = 'pointer';
+        }
+    });
+
+    MAP.on('mouseleave', 'dots', () => {
+        trailviewMouseOnDot = false;
+        if (MAP !== null) {
+            MAP.getCanvas().style.cursor = 'grab';
+        }
+    });
+
+    MAP.on('mousedown', () => {
+        if (MAP !== null && !trailviewMouseOnDot) {
+            MAP.getCanvas().style.cursor = 'grabbing';
+        }
+    });
+
+    MAP.on('mouseup', () => {
+        if (MAP !== null && trailviewMouseOnDot) {
+            MAP.getCanvas().style.cursor = 'pointer';
+        } else if (MAP !== null) {
+            MAP.getCanvas().style.cursor = 'grab';
+        }
+    });
+
+    MAP.on('click', 'dots', (event) => {
+        if (
+            event.features === undefined ||
+            event.features[0].properties === null
+        ) {
+            console.warn('Features is undefined or properties are null');
+            return;
+        }
+        trailviewViewer.goToImageID(event.features[0].properties.imageID);
+    });
+}
+
+function createTrailviewMapMarker() {
+    const currentMarkerWrapper = document.createElement('div');
+    currentMarkerWrapper.classList.add('trailview-current-marker-wrapper');
+    const currentMarkerDiv = document.createElement('div');
+    currentMarkerDiv.classList.add('trailview-current-marker');
+    const currentMarkerViewDiv = document.createElement('div');
+    currentMarkerViewDiv.classList.add('trailview-marker-viewer');
+    currentMarkerWrapper.appendChild(currentMarkerDiv);
+    currentMarkerWrapper.appendChild(currentMarkerViewDiv);
+    trailviewMapMarker = new mapboxgl.Marker(currentMarkerWrapper)
+        .setLngLat([-81.682665, 41.4097766])
+        .addTo(MAP)
+        .setRotationAlignment('map');
+
+    updateTrailViewMarkerRotation();
+}
+
+function updateTrailViewMarkerRotation() {
+    if (trailviewViewer !== null && trailviewMapMarker !== null) {
+        const angle = trailviewViewer.getBearing();
+        if (angle !== undefined) {
+            trailviewMapMarker.setRotation((angle + 225) % 360);
+        }
+    }
+    if (trailviewToggled !== false) {
+        requestAnimationFrame(updateTrailViewMarkerRotation);
+    } else {
+        trailviewMapMarker.remove();
+    }
+}

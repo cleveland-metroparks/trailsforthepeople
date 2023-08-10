@@ -51,12 +51,12 @@ function initMap(mapOptions) {
 
     // Map
     MAP = new mapboxgl.Map({
-         container: 'map_canvas',
-         style: basemap_style,
-         center: START_CENTER,
-         zoom: START_ZOOM,
-         preserveDrawingBuffer: true // for printing in certain browsers
-     });
+        container: 'map_canvas',
+        style: basemap_style,
+        center: START_CENTER,
+        zoom: START_ZOOM,
+        preserveDrawingBuffer: true // for printing in certain browsers
+    });
 
     // Nav (zoom/tilt) Control
     var ctrlNav = new mapboxgl.NavigationControl();
@@ -65,7 +65,7 @@ function initMap(mapOptions) {
     // Geolocate control
     ctrlGeolocate = new mapboxgl.GeolocateControl({
         positionOptions: {
-           enableHighAccuracy: true
+            enableHighAccuracy: true
         },
         trackUserLocation: (mapOptions.trackUserLocation == false) ? false : true,
     });
@@ -104,7 +104,7 @@ function initMap(mapOptions) {
  */
 function placeMarker(marker, lat, lng) {
     marker.setLngLat([lng, lat])
-          .addTo(MAP);
+        .addTo(MAP);
 }
 
 /**
@@ -146,6 +146,11 @@ function showInfoPopup(message, type) {
 function changeBasemap(layer_key) {
     active_layer = STYLE_LAYERS[layer_key];
     MAP.setStyle(active_layer);
+    if (TRAILVIEW_ENABLED === true) {
+        MAP.on('style.load', () => {
+            addTrailViewMapLayer();
+        })
+    }
 }
 
 /**
@@ -154,7 +159,7 @@ function changeBasemap(layer_key) {
 function getBasemap() {
     style = MAP.getStyle();
     return STYLE_NAMES[style.name];
- }
+}
 
 /**
  * Return lat/lng as string in prescribed coordinate format.
@@ -181,7 +186,7 @@ function formatCoords(lngLat, coordinate_format) {
  */
 function formatCoordsDms(lngLat, precision) {
     // Default precision
-    precision = (typeof precision !== 'undefined') ?  precision : 0;
+    precision = (typeof precision !== 'undefined') ? precision : 0;
 
     var ns = lngLat.lat < 0 ? 'S' : 'N';
     var ew = lngLat.lng < 0 ? 'W' : 'E';
@@ -207,7 +212,7 @@ function formatCoordsDms(lngLat, precision) {
  */
 function formatCoordsDdm(lngLat, precision) {
     // Default precision
-    precision = (typeof precision !== 'undefined') ?  precision : 2;
+    precision = (typeof precision !== 'undefined') ? precision : 2;
 
     var ns = lngLat.lat < 0 ? 'S' : 'N';
     var ew = lngLat.lng < 0 ? 'W' : 'E';
@@ -231,7 +236,7 @@ function formatCoordsDdm(lngLat, precision) {
  */
 function formatCoordsDd(lngLat, precision) {
     // Default precision
-    precision = (typeof precision !== 'undefined') ?  precision : 4;
+    precision = (typeof precision !== 'undefined') ? precision : 4;
 
     coordsStr = lngLat.lat.toFixed(precision) + ', ' + lngLat.lng.toFixed(precision);
     return coordsStr;
@@ -246,7 +251,7 @@ function formatCoordsDd(lngLat, precision) {
  */
 function shortenStr(str, maxLen, addEllipsis) {
     if (str.length <= maxLen) {
-      return str;
+        return str;
     }
     var shortenedStr = str.substr(0, str.lastIndexOf(' ', maxLen));
     if (addEllipsis) {
@@ -292,7 +297,7 @@ function setWindowURLQueryStringParameters(params, reset, pushState) {
         urlParams = new URLSearchParams(location.search);
     }
 
-    $.each(params, function(index, value) {
+    $.each(params, function (index, value) {
         urlParams.set(index, value);
     });
 

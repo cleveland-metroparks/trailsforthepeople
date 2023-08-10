@@ -1,0 +1,160 @@
+#map_container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.trailview-button {
+  width: 29px;
+  height: 29px;
+  color: rgb(51, 51, 51);
+  background-color: rgb(255, 255, 255);
+  border: 0;
+  box-shadow: 0 0 0 2.5px rgb(0, 0, 0, 0.1);
+  border-radius: 3px;
+  padding: 0;
+  font-size: 20px;
+
+  &:hover {
+    background-color: rgb(242, 242, 242);
+    cursor: pointer;
+  }
+}
+
+.trailview-button-active {
+  background-color: rgb(204, 215, 178);
+
+  &:hover {
+    background-color: rgb(185, 197, 156);
+  }
+}
+
+.trailview-dragging-marker {
+  cursor: grabbing !important;
+  font-size: 38px;
+
+  .cm-icon-street-view {
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    transform: translateX(-50%);
+    filter: drop-shadow(0 0 4px white);
+  }
+}
+
+#trailview_enable_button {
+  position: absolute;
+  bottom: 200px;
+  right: 10px;
+  z-index: 3;
+
+  &:hover {
+    cursor: grab;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+#trailview_viewer {
+  position: absolute;
+  background-color: black;
+}
+
+.trailviewer-focus {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.trailviewer-small {
+  bottom: 30px;
+  left: 80px;
+  width: 400px;
+  height: 300px;
+  border-radius: 10px;
+  box-shadow: 0 0 0 2.5px rgb(0, 0, 0, 0.3);
+  z-index: 11;
+  background-color: black;
+  transition: width 0.5s cubic-bezier(0.65, 0, 0.35, 1),
+    height 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.trailview-map-small {
+  top: auto !important;
+  right: auto !important;
+  bottom: 30px !important;
+  left: 80px !important;
+  width: 250px !important;
+  height: 175px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 0 0 2.5px rgb(0, 0, 0, 0.3) !important;
+  z-index: 11 !important;
+  background-color: rgb(233, 234, 210);
+  transition: width 0.5s cubic-bezier(0.65, 0, 0.35, 1),
+    height 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+
+  .mapboxgl-control-container,
+  #trailview_enable_button,
+  #trailview_map_expand_button {
+    transition: opacity 0.6s;
+    opacity: 0 !important;
+  }
+
+  &:hover {
+    width: 450px !important;
+    height: 350px !important;
+
+    .mapboxgl-control-container,
+    #trailview_enable_button,
+    #trailview_map_expand_button {
+      opacity: 1 !important;
+    }
+  }
+}
+
+#trailview_close_button,
+#trailview_map_expand_button,
+#trailview_expand_button {
+  position: absolute;
+  width: 29px;
+  height: 29px;
+  z-index: 10;
+  top: 8px;
+  right: 8px;
+}
+
+#trailview_expand_button {
+  top: 42px;
+}
+
+.trailview-map-split {
+  top: auto !important;
+  right: auto !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  height: 40% !important;
+}
+
+.trailviewer-split {
+  height: 60%;
+}
+
+.trailviewer-mobile-viewer {
+  height: 100%;
+}
+
+.trailview-map-mobile-map {
+  top: auto !important;
+  right: auto !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  height: 80% !important;
+}
+
+.trailviewer-mobile-map {
+  height: 20%;
+}

@@ -26,6 +26,9 @@ var AUTO_CENTER_ON_LOCATION = false;
 // what type of sorting do they prefer?
 var DEFAULT_SORT = 'distance';
 
+// If TrailView is enabled
+var TRAILVIEW_ENABLED = true;
+
 // Load sidebar when map has been initialized
 $(document).on("mapInitialized", function () {
     if (!sidebar) {
@@ -79,6 +82,7 @@ function switchToMap() {
 $(document).ready(function () {
     loadMapAndStartingState();
     populateSidebarPanes();
+    initTrailView();
 });
 
 /**

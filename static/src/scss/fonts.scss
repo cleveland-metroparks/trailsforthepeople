@@ -28,6 +28,15 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.cm-icon-compress:before {
+  content: "\f066";
+}
+.cm-icon-close:before {
+  content: "\f00d";
+}
+.cm-icon-expand:before {
+  content: "\f065";
+}
 .cm-icon-basketball:before {
   content: "\e934";
 }

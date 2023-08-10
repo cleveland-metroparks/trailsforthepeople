@@ -25,3 +25,5 @@ grunt-local-config.json
 /static/tmp/
 
 /application/logs/
+
+.vscode
