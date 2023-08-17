@@ -45,8 +45,7 @@ export function LoopEdit() {
   const queryClient = useQueryClient();
 
   let loopId = '',
-      deleteLoopPath = '',
-      absoluteDeleteLoopPath = '';
+      deleteLoopPath = '';
 
   let params = useParams();
 
@@ -54,7 +53,6 @@ export function LoopEdit() {
     if (!isNaN(parseFloat(params.loopId))) { // Ensure loop ID is an int
       loopId = params.loopId;
       deleteLoopPath = loopsRootPath + '/' + loopId + '/delete';
-      absoluteDeleteLoopPath = 'admin' + deleteLoopPath;
     } else if (params.loopId === 'new') {
       loopId = params.loopId;
     } else {
@@ -468,7 +466,7 @@ export function LoopEdit() {
       },
       onConfirm: () => {
         // We pass in deleteFormAction
-        // (which should be: "/admin/loops/:loopId/delete")
+        // (which should be: "/loops/:loopId/delete")
         // because when using useSubmit() (which is what submitDelete is)
         // we apparently lose path context. If we just used <Form> inside our component
         // it would inherit the base path.
@@ -633,7 +631,7 @@ export function LoopEdit() {
 
               {deleteLoopPath &&
                 <Button
-                  onClick={() => openDeleteModal(absoluteDeleteLoopPath)}
+                  onClick={() => openDeleteModal(deleteLoopPath)}
                   variant="outline"
                   color="red"
                 >

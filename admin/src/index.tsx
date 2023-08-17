@@ -39,7 +39,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-let PATH = process.env.REACT_APP_ROOT_PATH;
+let REACT_APP_ROOT_PATH = process.env.REACT_APP_ROOT_PATH;
 
 //
 const queryClient = new QueryClient({
@@ -125,7 +125,7 @@ const routes = createRoutesFromElements(
 );
 
 //
-const router = createBrowserRouter(routes, { basename: PATH });
+const router = createBrowserRouter(routes, { basename: REACT_APP_ROOT_PATH });
 
 //
 root.render(

@@ -45,9 +45,7 @@ export function HintMapEdit() {
   });
 
   let hintMapId = '',
-      deleteHintMapPath = '',
-      absoluteDeleteHintMapPath = ''
-      ;
+      deleteHintMapPath = '';
 
   let params = useParams();
 
@@ -55,7 +53,6 @@ export function HintMapEdit() {
     if (!isNaN(parseFloat(params.hintMapId))) { // Ensure hint map ID is an int
       hintMapId = params.hintMapId;
       deleteHintMapPath = hintMapsRootPath + '/' + hintMapId + '/delete';
-      absoluteDeleteHintMapPath = 'admin' + deleteHintMapPath;
     } else if (params.hintMapId === 'new') {
       hintMapId = params.hintMapId;
     } else {
@@ -191,7 +188,7 @@ export function HintMapEdit() {
 
   if (mutation.isSuccess) {
     // if (response.hasOwnProperty('data') && response['data'].data.id) {
-    //   const newHintMapPath = process.env.REACT_APP_ROOT_PATH + '/hint_maps/' + response['data'].data.id;
+    //   const newHintMapPath = '/hint_maps/' + response['data'].data.id;
     // }
 
     return <Navigate to={hintMapsRootPath} replace={true} />
@@ -429,7 +426,7 @@ export function HintMapEdit() {
 
               {deleteHintMapPath &&
                 <Button
-                  onClick={() => openDeleteModal(absoluteDeleteHintMapPath)}
+                  onClick={() => openDeleteModal(deleteHintMapPath)}
                   variant="outline"
                   color="red"
                 >

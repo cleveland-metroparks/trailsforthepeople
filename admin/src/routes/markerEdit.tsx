@@ -51,9 +51,7 @@ export function MarkerEdit() {
   });
 
   let markerId = '',
-      deleteMarkerPath = '',
-      absoluteDeleteMarkerPath = ''
-      ;
+      deleteMarkerPath = '';
 
   let params = useParams();
 
@@ -61,7 +59,6 @@ export function MarkerEdit() {
     if (!isNaN(parseFloat(params.markerId))) { // Ensure marker ID is an int
       markerId = params.markerId;
       deleteMarkerPath = markersRootPath + '/' + markerId + '/delete';
-      absoluteDeleteMarkerPath = 'admin' + deleteMarkerPath;
     } else if (params.markerId === 'new') {
       markerId = params.markerId;
     } else {
@@ -196,7 +193,7 @@ export function MarkerEdit() {
 
   if (mutation.isSuccess) {
     // if (response.hasOwnProperty('data') && response['data'].data.id) {
-    //   const newMarkerPath = process.env.REACT_APP_ROOT_PATH + '/markers/' + response['data'].data.id;
+    //   const newMarkerPath = '/markers/' + response['data'].data.id;
     // }
 
     return <Navigate to={markersRootPath} replace={true} />
@@ -219,7 +216,7 @@ export function MarkerEdit() {
       },
       onConfirm: () => {
         // We pass in deleteFormAction
-        // (which should be: "/admin/markers/:markerId/delete")
+        // (which should be: "/markers/:markerId/delete")
         // because when using useSubmit() (which is what submitDelete is)
         // we apparently lose path context. If we just used <Form> inside our component
         // it would inherit the base path.
@@ -414,7 +411,7 @@ export function MarkerEdit() {
 
                 {deleteMarkerPath &&
                   <Button
-                    onClick={() => openDeleteModal(absoluteDeleteMarkerPath)}
+                    onClick={() => openDeleteModal(deleteMarkerPath)}
                     variant="outline"
                     color="red"
                   >

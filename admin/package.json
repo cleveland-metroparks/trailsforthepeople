@@ -1,7 +1,8 @@
 {
-  "name": "admin",
+  "name": "Cleveland Metroparks Maps Content Admin",
   "version": "0.1.0",
   "private": true,
+  "homepage": "/admin",
   "dependencies": {
     "@mantine/core": "^5.10.1",
     "@mantine/dates": "^5.10.1",
