@@ -14,7 +14,7 @@ export type Marker = {
   enabled: number,
   annual: number,
   startdate: string,
-  modified: string
+  modified: string,
 };
 
 const defaultLat = parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LAT),

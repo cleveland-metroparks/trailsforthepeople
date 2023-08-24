@@ -6,6 +6,7 @@ import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
 import { RichTextEditor } from '@mantine/rte';
 import { openConfirmModal } from '@mantine/modals';
+import { default as dayjs } from 'dayjs';
 import { LngLat, LngLatBounds } from 'mapbox-gl';
 import { coordEach } from '@turf/meta';
 import { lineString } from '@turf/helpers';
@@ -127,6 +128,9 @@ export function LoopEdit() {
 
       loopData = response.data.data;
 
+      // Date value handling; capture nulls & reformat
+      loopData.modified = response.data.data.modified ? dayjs(response.data.data.modified).format('dddd, MMMM D, YYYY [at] h:mma') : null;
+
       setLoopStats({
         // Starting point
         lat: response.data.data.lat,
@@ -236,6 +240,8 @@ export function LoopEdit() {
       // dest_id: number,
       // dd_lat: number,
       // dd_lng: number,
+
+      modified: dayjs(),
     };
 
     const response = (loopId === 'new') ?
@@ -666,6 +672,10 @@ export function LoopEdit() {
                 </Button>
               }
             </Group>
+
+            <Box sx={{marginTop: '1em'}}>
+              <Text fz="sm" c="dimmed">Last modified: {loopData.modified}</Text>
+            </Box>
 
           </form>
         </>

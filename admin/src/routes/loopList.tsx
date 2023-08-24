@@ -2,6 +2,7 @@ import { mapsApiClient } from "../components/mapsApi";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Title, Table, Anchor, Button } from '@mantine/core';
+import { default as dayjs } from 'dayjs';
 
 import type { Loop } from "../types/loop";
 
@@ -57,6 +58,7 @@ export function LoopList() {
           <th>Name</th>
           <th>Reservation</th>
           <th>Distance</th>
+          <th>Last modified</th>
         </tr>
       </thead>
       <tbody>
@@ -75,6 +77,7 @@ export function LoopList() {
             </td>
             <td>{loop.res}</td>
             <td>{loop.distancetext}</td>
+            <td>{loop.modified ? dayjs(loop.modified).format('MMM D, YYYY, h:mma') : ''}</td>
           </tr>)
         ))}
       </tbody>

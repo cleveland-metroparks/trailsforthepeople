@@ -59,7 +59,7 @@ export function MarkerList() {
             <th>Title</th>
             <th>Creator</th>
             <th>Created</th>
-            <th>Modified</th>
+            <th>Last modified</th>
             <th>Category</th>
             <th>Reservation</th>
             <th>Enabled</th>

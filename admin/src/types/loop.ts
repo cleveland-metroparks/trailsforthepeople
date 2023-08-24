@@ -25,6 +25,7 @@ export type Loop = {
   dd_lat: number,
   dd_lng: number,
   directions: string,
+  modified: string,
 };
 
 export const emptyLoop: Loop = {
@@ -52,6 +53,7 @@ export const emptyLoop: Loop = {
   dd_lat: null,
   dd_lng: null,
   directions: '',
+  modified: '',
 };
 
 export type ElevationProfilePoint = {x: number, y: number};
