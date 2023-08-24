@@ -67,11 +67,20 @@ export function LoopEdit() {
   const [loopDirections, setLoopDirections] = useState({});
   const [loopElevation, setLoopElevation] = useState(defaultLoopProfile);
   const [loopStats, setLoopStats] = useState({
+    // Starting point
+    lat: 0,
+    lng: 0,
+    // Bounds
+    boxw: -180,
+    boxs: -90,
+    boxe: 180,
+    boxn: 90,
+    // Distance/duration
     distancetext : '',
     distance_feet : '',
     durationtext_hike : '',
     durationtext_bike : '',
-    durationtext_bridle : ''
+    durationtext_bridle : '',
   });
 
   // Travel mode ("via"), for routing
@@ -119,6 +128,15 @@ export function LoopEdit() {
       loopData = response.data.data;
 
       setLoopStats({
+        // Starting point
+        lat: response.data.data.lat,
+        lng: response.data.data.lng,
+        // Bounds
+        boxw: response.data.data.boxw,
+        boxs: response.data.data.boxs,
+        boxe: response.data.data.boxe,
+        boxn: response.data.data.boxn,
+        // Distance/duration
         distancetext : response.data.data.distancetext,
         distance_feet : response.data.data.distance_feet ? response.data.data.distance_feet.toString() : '',
         durationtext_hike : response.data.data.durationtext_hike,
@@ -207,14 +225,14 @@ export function LoopEdit() {
 
       geom_geojson: loopGeometry,
 
-      // @TODO
-      //
-      // lat: number,
-      // lng: number,
-      // boxw: number,
-      // boxs: number,
-      // boxe: number,
-      // boxn: number,
+      lat: loopStats.lat,
+      lng: loopStats.lng,
+
+      boxw: loopStats.boxw,
+      boxs: loopStats.boxs,
+      boxe: loopStats.boxe,
+      boxn: loopStats.boxn,
+
       // dest_id: number,
       // dd_lat: number,
       // dd_lng: number,
@@ -332,11 +350,20 @@ export function LoopEdit() {
 
         // Callback to update stats
         setLoopStats({
+          // Totals
           distancetext: response.data.data.totals.distancetext,
           distance_feet: response.data.data.totals.distance_feet,
           durationtext_hike: response.data.data.totals.durationtext_hike,
           durationtext_bike: response.data.data.totals.durationtext_bike,
-          durationtext_bridle: response.data.data.totals.durationtext_bridle
+          durationtext_bridle: response.data.data.totals.durationtext_bridle,
+          // Starting point
+          lat: response.data.data.start.lat,
+          lng: response.data.data.start.lng,
+          // Bounds
+          boxw: response.data.data.bounds.west,
+          boxs: response.data.data.bounds.south,
+          boxe: response.data.data.bounds.east,
+          boxn: response.data.data.bounds.north,
         });
 
         // Callback to update turn-by-turn directions

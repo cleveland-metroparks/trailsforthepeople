@@ -151,7 +151,8 @@ export function LoopMap(props: LoopMapProps) {
 
   // Map onLoad event
   const onMapLoad = (event: MapboxEvent) => {
-    console.log('onMapLoad');
+    // console.log('onMapLoad');
+
     // @TODO: Not sure why we were doing the following...
     // React is automatically putting props.loopGeom data into the <Source> data.
     // const loopSource = mapRef.current.getSource('loop-data') as GeoJSONSource;
