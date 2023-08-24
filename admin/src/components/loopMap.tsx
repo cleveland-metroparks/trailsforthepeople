@@ -99,7 +99,7 @@ export function LoopMap(props: LoopMapProps) {
 
       return {
         value: data.pagetitle,
-        group: 'Reservation',
+        // group: "Reservations",
         coords: coords,
         bounds: bounds,
       }
@@ -346,15 +346,15 @@ export function LoopMap(props: LoopMapProps) {
         mb={30}
         >
 
-        {/* Zoom to location */}
+        {/* Zoom to reservation */}
         <Flex
           gap="sm"
           justify="flex-start"
           align="flex-end"
         >
           <Autocomplete
-            label="Zoom to location"
-            placeholder="CMP feature..."
+            label="Zoom to reservation"
+            placeholder="Type to filter..."
             data={autocompleteData}
             onChange={setZoomToValue}
           />

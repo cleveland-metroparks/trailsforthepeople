@@ -7,6 +7,7 @@ export const reservationList = [
     'Bradley Woods Reservation',
     'Brecksville Reservation',
     'Brookside Reservation',
+    'Cleveland Metroparks Zoo',
     'Euclid Creek Reservation',
     'Garfield Park Reservation',
     'Hinckley Reservation',
