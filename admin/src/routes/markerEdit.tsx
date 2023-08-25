@@ -1,11 +1,17 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams, Navigate, useSubmit } from "react-router-dom";
 import { createStyles, Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
-import { RichTextEditor } from '@mantine/rte';
-import { DatePicker } from '@mantine/dates';
+
+import { RichTextEditor } from '@mantine/tiptap';
+import { useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import { Link as TipTapLink } from '@tiptap/extension-link';
+
+import { DatesProvider, DatePickerInput } from '@mantine/dates';
 import { openConfirmModal } from '@mantine/modals';
 import { default as dayjs } from 'dayjs';
 import * as MapGl from 'react-map-gl'; // Namespace as MapGl since we already have "Marker"
@@ -45,6 +51,25 @@ export function MarkerEdit() {
 
   const mapRef = useRef<MapRef>(null);
 
+  const [markerContent, setMarkerContent] = useState('');
+
+  // Rich text editor
+  const richTextEditor = useEditor({
+    extensions: [ StarterKit, Underline, TipTapLink ],
+    content: markerContent,
+    // Update form value on editor update
+    onUpdate: ({ editor }) => {
+      form.setFieldValue('content', editor.getHTML());
+    }
+  });
+
+  // Set initial editor content when we get marker [content] from API
+  useEffect(() => {
+    if (richTextEditor) {
+      richTextEditor.commands.setContent(markerContent);
+    }
+  }, [richTextEditor, markerContent]);
+
   const form = useForm({
     initialValues: defaultMarkerFormData,
     validate: {},
@@ -81,6 +106,8 @@ export function MarkerEdit() {
       markerData.modified = response.data.data.modified ? dayjs(response.data.data.modified).format('dddd, MMMM D, YYYY [at] h:mma') : null;
       markerData.created = response.data.data.created ? dayjs(response.data.data.created).format('dddd, MMMM D, YYYY [at] h:mma') : null;
 
+      setMarkerContent(response.data.data.content);
+
       form.setValues({
         title: response.data.data.title,
         content: response.data.data.content,
@@ -115,7 +142,7 @@ export function MarkerEdit() {
       title: 'Saving Marker',
       message: 'One moment',
       autoClose: false,
-      disallowClose: true,
+      withCloseButton: false,
     });
 
     const markerSaveData = {
@@ -263,19 +290,32 @@ export function MarkerEdit() {
                 withAsterisk
                 sx={{marginTop: '1em'}}
               >
-                <RichTextEditor
-                  id="rte"
-                  {...form.getInputProps('content')}
-                  controls={[
-                    ['bold', 'strike', 'italic', 'underline'],
-                    ['clean'],
-                    ['link'],
-                    ['blockquote'],
-                    ['sup', 'sub'],
-                    ['video'],
-                    ['unorderedList', 'orderedList'],
-                  ]}
-                />
+                <RichTextEditor editor={richTextEditor}>
+                  <RichTextEditor.Toolbar sticky stickyOffset={60}>
+                    <RichTextEditor.ControlsGroup>
+                      <RichTextEditor.Bold />
+                      <RichTextEditor.Italic />
+                      <RichTextEditor.Underline />
+                    </RichTextEditor.ControlsGroup>
+
+                    <RichTextEditor.ControlsGroup>
+                      <RichTextEditor.Link />
+                      <RichTextEditor.Unlink />
+                    </RichTextEditor.ControlsGroup>
+
+                    <RichTextEditor.ControlsGroup>
+                      <RichTextEditor.BulletList />
+                      <RichTextEditor.OrderedList />
+                    </RichTextEditor.ControlsGroup>
+
+                    <RichTextEditor.ControlsGroup>
+                      <RichTextEditor.ClearFormatting />
+                      <RichTextEditor.Code />
+                    </RichTextEditor.ControlsGroup>
+                  </RichTextEditor.Toolbar>
+
+                  <RichTextEditor.Content />
+                </RichTextEditor>
               </Input.Wrapper>
 
               <Box sx={{marginTop: '1em'}}>
@@ -344,30 +384,20 @@ export function MarkerEdit() {
                 <Accordion.Item value="publishing">
                   <Accordion.Control><Text fw={500}>Publishing status</Text></Accordion.Control>
                   <Accordion.Panel>
-                    <DatePicker
+                    <DatesProvider settings={{ firstDayOfWeek: 0 }}>
+                    <DatePickerInput
                       label="Start date"
                       placeholder="Pick start date"
-                      firstDayOfWeek="sunday"
                       {...form.getInputProps('startDate')}
-                      dayClassName={(date, modifiers) =>
-                        cx({
-                          [classes.weekend]: modifiers.weekend,
-                        })
-                      }
                     />
 
-                    <DatePicker
+                    <DatePickerInput
                       label="Expires"
                       placeholder="Pick expiration date"
-                      firstDayOfWeek="sunday"
                       {...form.getInputProps('expireDate')}
-                      dayClassName={(date, modifiers) =>
-                        cx({
-                          [classes.weekend]: modifiers.weekend,
-                        })
-                      }
                       sx={{ margin: '1em 0 2em' }}
                     />
+                    </DatesProvider>
 
                     <Checkbox
                       mt="md"

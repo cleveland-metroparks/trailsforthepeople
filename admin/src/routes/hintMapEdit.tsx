@@ -130,7 +130,7 @@ export function HintMapEdit() {
       title: 'Saving Hint Map',
       message: 'One moment',
       autoClose: false,
-      disallowClose: true,
+      withCloseButton: false,
     });
 
     const hintMapSaveData = {

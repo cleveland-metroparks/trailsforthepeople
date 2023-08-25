@@ -1,10 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams, useSubmit } from "react-router-dom";
 import { Title, Text, Tabs, Grid, Accordion, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
-import { RichTextEditor } from '@mantine/rte';
+
+import { RichTextEditor } from '@mantine/tiptap';
+import { useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import { Link as TipTapLink } from '@tiptap/extension-link';
+
 import { openConfirmModal } from '@mantine/modals';
 import { default as dayjs } from 'dayjs';
 import { LngLat, LngLatBounds } from 'mapbox-gl';
@@ -114,6 +120,25 @@ export function LoopEdit() {
   const ne = new LngLat(-81.28029, 41.70009);
   const [bounds, setBounds] = useState(new LngLatBounds(sw, ne));
 
+  const [loopDescription, setLoopDescription] = useState('');
+
+  // Rich text editor
+  const richTextEditor = useEditor({
+    extensions: [ StarterKit, Underline, TipTapLink ],
+    content: loopDescription,
+    // Update form value on editor update
+    onUpdate: ({ editor }) => {
+      form.setFieldValue('description', editor.getHTML());
+    }
+  });
+
+  // Set initial editor content when we get loop [description] from API
+  useEffect(() => {
+    if (richTextEditor) {
+      richTextEditor.commands.setContent(loopDescription);
+    }
+  }, [richTextEditor, loopDescription]);
+
   const form = useForm({
     initialValues: defaultLoopFormData,
     validate: {},
@@ -165,6 +190,8 @@ export function LoopEdit() {
       }
       setWaypointsFeature(loopWaypoints);
 
+      setLoopDescription(response.data.data.description);
+
       form.setValues({
         name: response.data.data.name,
         description: response.data.data.description,
@@ -204,7 +231,7 @@ export function LoopEdit() {
       title: 'Saving Loop',
       message: 'One moment',
       autoClose: false,
-      disallowClose: true,
+      withCloseButton: false,
     });
 
     const loopSaveData = {
@@ -533,7 +560,6 @@ export function LoopEdit() {
           >
 
             <Tabs value={activeTab} onTabChange={setActiveTab} sx={{marginTop: '1em'}}>
-            {/* <Tabs defaultValue="general" onTabChange={handleTabChange} sx={{marginTop: '1em'}}> */}
 
               <Tabs.List>
                 <Tabs.Tab value="general">General</Tabs.Tab>
@@ -554,10 +580,7 @@ export function LoopEdit() {
                   <Box sx={{marginTop: '1em'}}>
                     <Select
                       label="Reservation"
-                      // placeholder="Choose a reservation"
                       data={reservationListSelectOptions}
-                      // defaultValue=''
-                      // value={loopData.res}
                       {...form.getInputProps('res')}
                     />
                   </Box>
@@ -567,16 +590,32 @@ export function LoopEdit() {
                     withAsterisk
                     sx={{marginTop: '1em'}}
                   >
-                    <RichTextEditor
-                      id="rte"
-                      {...form.getInputProps('description')}
-                      controls={[
-                        ['bold', 'italic', 'underline'],
-                        ['link'],
-                        ['sup', 'sub'],
-                        ['unorderedList', 'orderedList'],
-                      ]}
-                    />
+                    <RichTextEditor editor={richTextEditor}>
+                      <RichTextEditor.Toolbar sticky stickyOffset={60}>
+                        <RichTextEditor.ControlsGroup>
+                          <RichTextEditor.Bold />
+                          <RichTextEditor.Italic />
+                          <RichTextEditor.Underline />
+                        </RichTextEditor.ControlsGroup>
+
+                        <RichTextEditor.ControlsGroup>
+                          <RichTextEditor.Link />
+                          <RichTextEditor.Unlink />
+                        </RichTextEditor.ControlsGroup>
+
+                        <RichTextEditor.ControlsGroup>
+                          <RichTextEditor.BulletList />
+                          <RichTextEditor.OrderedList />
+                        </RichTextEditor.ControlsGroup>
+
+                        <RichTextEditor.ControlsGroup>
+                          <RichTextEditor.ClearFormatting />
+                          <RichTextEditor.Code />
+                        </RichTextEditor.ControlsGroup>
+                      </RichTextEditor.Toolbar>
+
+                      <RichTextEditor.Content />
+                    </RichTextEditor>
                   </Input.Wrapper>
 
                   <Group>

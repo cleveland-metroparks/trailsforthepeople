@@ -77,7 +77,7 @@ export function UserAccount() {
       title: 'Requesting API token',
       message: 'One moment',
       autoClose: false,
-      disallowClose: true,
+      withCloseButton: false,
     });
 
     mapsApiClient.post<any>('/tokens/create', formValues)
@@ -140,7 +140,7 @@ export function UserAccount() {
       title: 'Revoking API token',
       message: 'One moment',
       autoClose: false,
-      disallowClose: true,
+      withCloseButton: false,
     });
 
     mapsApiClient.post<any>('/tokens/revoke', {token_id: tokenId})

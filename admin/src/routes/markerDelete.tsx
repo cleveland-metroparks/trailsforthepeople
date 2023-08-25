@@ -31,7 +31,7 @@ export async function action({ params }) {
 //       title: 'Deleting marker',
 //       message: 'One moment',
 //       autoClose: false,
-//       disallowClose: true,
+//       withCloseButton: false,
 //     });
 
 //     try {
