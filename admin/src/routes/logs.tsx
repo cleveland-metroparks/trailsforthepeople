@@ -120,7 +120,7 @@ export function AuditLogsList() {
       </Table>
 
       <Box sx={{marginTop: '1em' }}>
-        <Pagination page={page} onChange={setPage} total={200} />
+        <Pagination value={page} onChange={setPage} total={200} />
       </Box>
 
     </div>
