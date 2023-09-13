@@ -1,25 +1,14 @@
 import { useState, useEffect } from 'react';
-import { mapsApiClient } from "../components/mapsApi";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import {
-  Anchor,
-  Button,
-  Center,
-  createStyles,
-  Group,
-  Table,
-  Text,
-  TextInput,
-  Title,
-  UnstyledButton,
-  rem,
-} from '@mantine/core';
+import { Anchor, Button, Table, Text, TextInput, Title } from '@mantine/core';
 import { keys } from '@mantine/utils';
-import { IconSelector, IconChevronDown, IconChevronUp, IconSearch } from '@tabler/icons-react';
+import { IconSearch } from '@tabler/icons-react';
 import { default as dayjs } from 'dayjs';
 
+import { mapsApiClient } from "../components/mapsApi";
 import type { Loop } from "../types/loop";
+import { sortTableData, Th } from "../components/tablesort";
 
 // Get all loops from the API
 const getAllLoops = async () => {
@@ -48,63 +37,11 @@ export const loader =
     )
 };
 
-//
-// For table sort & filter
-// Derived from https://ui.mantine.dev/component/table-sort
-//
-const useStyles = createStyles((theme) => ({
-  th: {
-    padding: '0 !important',
-  },
-
-  control: {
-    width: '100%',
-    padding: `${theme.spacing.xs} ${theme.spacing.md}`,
-
-    '&:hover': {
-      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
-    },
-  },
-
-  icon: {
-    width: rem(21),
-    height: rem(21),
-    borderRadius: rem(21),
-  },
-}));
-
-interface RowData extends Loop {}
 // The loop columns we'll display, sort, & filter
-const rowKeys: (keyof RowData)[] = ['name', 'res', 'distancetext', 'modified'];
-
-interface ThProps {
-  children: React.ReactNode;
-  reversed: boolean;
-  sorted: boolean;
-  onSort(): void;
-}
-
-function Th({ children, reversed, sorted, onSort }: ThProps) {
-  const { classes } = useStyles();
-  const Icon = sorted ? (reversed ? IconChevronUp : IconChevronDown) : IconSelector;
-  return (
-    <th className={classes.th}>
-      <UnstyledButton onClick={onSort} className={classes.control}>
-        <Group position="apart">
-          <Text fw={500} fz="sm">
-            {children}
-          </Text>
-          <Center className={classes.icon}>
-            <Icon size="0.9rem" stroke={1.5} />
-          </Center>
-        </Group>
-      </UnstyledButton>
-    </th>
-  );
-}
+const rowKeys: (keyof Loop)[] = ['name', 'res', 'distancetext', 'modified'];
 
 // Filter row data by search query
-function filterData(data: RowData[], search: string) {
+function filterTableData(data: Loop[], search: string) {
   const query = search.toLowerCase().trim();
   return data.filter((item) =>
     keys(data[0]).some(function (key) {
@@ -120,35 +57,6 @@ function filterData(data: RowData[], search: string) {
   );
 }
 
-// Sort compare, for strings & numbers
-function compareItems(a: string | number, b: string | number, reversed: boolean) {
-  if (a === b) {
-    return 0;
-  } else if (a > b) {
-    return reversed ? -1 : 1;
-  } else {
-    return reversed ? 1 : -1;
-  }
-}
-
-function sortData(
-  data: RowData[],
-  payload: { sortBy: keyof RowData | null; reversed: boolean; search: string }
-) {
-  const { sortBy } = payload;
-
-  if (!sortBy) {
-    return filterData(data, payload.search);
-  }
-
-  return filterData(
-    [...data].sort((a, b) => {
-      return compareItems(a[sortBy], b[sortBy], payload.reversed);
-    }),
-    payload.search
-  );
-}
-
 /**
  * Loop List
  */
@@ -161,24 +69,28 @@ export function LoopList() {
     error: loopsError,
   } = useQuery<Loop[], Error>(['loops'], getAllLoops);
 
+  // For table sorting
   const [search, setSearch] = useState('');
   const [sortedData, setSortedData] = useState(loopsData);
-  const [sortBy, setSortBy] = useState<keyof RowData | null>(null);
+  const [sortBy, setSortBy] = useState<keyof Loop | null>(null);
   const [reverseSortDirection, setReverseSortDirection] = useState(false);
 
-  const setSorting = (field: keyof RowData) => {
+  // Handle column sort
+  const setSorting = (field: keyof Loop) => {
     const reversed = field === sortBy ? !reverseSortDirection : false;
     setReverseSortDirection(reversed);
     setSortBy(field);
-    setSortedData(sortData(loopsData, { sortBy: field, reversed, search }));
+    setSortedData(sortTableData(loopsData, { sortBy: field, reversed, search }, filterTableData));
   };
 
+  // Handle table search
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget;
     setSearch(value);
-    setSortedData(sortData(loopsData, { sortBy, reversed: reverseSortDirection, search: value }));
+    setSortedData(sortTableData(loopsData, { sortBy, reversed: reverseSortDirection, search: value }, filterTableData));
   };
 
+  // Table rows
   const rows = sortedData?.map((row, index) => (
     <tr key={index}>
       <td>
@@ -227,30 +139,22 @@ export function LoopList() {
             sorted={sortBy === 'name'}
             reversed={reverseSortDirection}
             onSort={() => setSorting('name')}
-          >
-            Name
-          </Th>
+          >Name</Th>
           <Th
             sorted={sortBy === 'res'}
             reversed={reverseSortDirection}
             onSort={() => setSorting('res')}
-          >
-            Reservation
-          </Th>
+          >Reservation</Th>
           <Th
             sorted={sortBy === 'distancetext'}
             reversed={reverseSortDirection}
             onSort={() => setSorting('distancetext')}
-          >
-            Distance
-          </Th>
+          >Distance</Th>
           <Th
             sorted={sortBy === 'modified'}
             reversed={reverseSortDirection}
             onSort={() => setSorting('modified')}
-          >
-            Last modified
-          </Th>
+          >Last modified</Th>
         </tr>
       </thead>
       <tbody>
