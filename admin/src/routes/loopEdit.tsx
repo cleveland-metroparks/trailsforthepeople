@@ -199,7 +199,8 @@ export function LoopEdit() {
         hike: response.data.data.hike === "Yes",
         bike: response.data.data.bike === "Yes",
         mountainbike: response.data.data.mountainbike === "Yes",
-        bridle: response.data.data.bridle === "Yes"
+        bridle: response.data.data.bridle === "Yes",
+        status: response.data.data.status === 1,
       });
 
       if (response.data.data.directions) {
@@ -269,7 +270,11 @@ export function LoopEdit() {
       // dd_lng: number,
 
       modified: dayjs(),
+
+      status: formData.status ? 1 : 0,
     };
+
+    console.log(loopSaveData);
 
     const response = (loopId === 'new') ?
       mapsApiClient.post<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/trails', loopSaveData)
@@ -617,6 +622,14 @@ export function LoopEdit() {
                       <RichTextEditor.Content />
                     </RichTextEditor>
                   </Input.Wrapper>
+
+                  <Group>
+                    <Checkbox
+                      mt="md"
+                      label="Published"
+                      {...form.getInputProps('status', { type: 'checkbox' })}
+                    />
+                  </Group>
 
                   <Group>
                     <Checkbox

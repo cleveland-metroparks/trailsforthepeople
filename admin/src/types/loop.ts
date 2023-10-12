@@ -26,6 +26,7 @@ export type Loop = {
   dd_lng: number,
   directions: string,
   modified: string,
+  status: number,
 };
 
 export const emptyLoop: Loop = {
@@ -54,6 +55,7 @@ export const emptyLoop: Loop = {
   dd_lng: null,
   directions: '',
   modified: '',
+  status: 1,
 };
 
 export type ElevationProfilePoint = {x: number, y: number};
@@ -85,6 +87,7 @@ export type LoopFormData = {
   mountainbike: boolean,
   bridle: boolean,
   directions: string,
+  status: boolean,
 };
 
 export const defaultLoopFormData: LoopFormData = {
@@ -96,6 +99,7 @@ export const defaultLoopFormData: LoopFormData = {
   mountainbike: false,
   bridle: false,
   directions: '',
+  status: true,
 };
 
 export const travelModeSelectOptions = [
