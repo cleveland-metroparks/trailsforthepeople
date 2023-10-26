@@ -38,7 +38,7 @@ export const loader =
 };
 
 // The loop columns we'll display, sort, & filter
-const rowKeys: (keyof Loop)[] = ['name', 'res', 'distancetext', 'modified', 'status'];
+const rowKeys: (keyof Loop)[] = ['name', 'res', 'distancetext', 'date_modified', 'modifier_username', 'status'];
 
 // Filter row data by search query
 function filterTableData(data: Loop[], search: string) {
@@ -47,7 +47,7 @@ function filterTableData(data: Loop[], search: string) {
     keys(data[0]).some(function (key) {
       if (rowKeys.includes(key) && item[key]) {
         switch (key) {
-          case 'modified':
+          case 'date_modified':
             return dayjs(item[key]).format('MMM D, YYYY, h:mma').toLowerCase().includes(query);
           default:
             return item[key].toString().toLowerCase().includes(query);
@@ -104,7 +104,8 @@ export function LoopList() {
       </td>
       <td>{row.res}</td>
       <td>{row.distancetext}</td>
-      <td>{row.modified ? dayjs(row.modified).format('MMM D, YYYY, h:mma') : ''}</td>
+      <td>{row.date_modified ? dayjs(row.date_modified).format('MMM D, YYYY, h:mma') : ''}</td>
+      <td>{row.modifier_username}</td>
       <td>{row.status ? 'Yes' : 'No'}</td>
     </tr>
   ));
@@ -153,10 +154,15 @@ export function LoopList() {
             onSort={() => setSorting('distancetext')}
           >Distance</Th>
           <Th
-            sorted={sortBy === 'modified'}
+            sorted={sortBy === 'date_modified'}
             reversed={reverseSortDirection}
-            onSort={() => setSorting('modified')}
+            onSort={() => setSorting('date_modified')}
           >Last modified</Th>
+          <Th
+            sorted={sortBy === 'modifier_username'}
+            reversed={reverseSortDirection}
+            onSort={() => setSorting('modifier_username')}
+          >Modified by</Th>
           <Th
             sorted={sortBy === 'status'}
             reversed={reverseSortDirection}

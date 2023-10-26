@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams, useSubmit } from "react-router-dom";
-import { Title, Text, Tabs, Grid, Accordion, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
+import { Title, Text, Tabs, Grid, Accordion, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select, Space } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
 
@@ -13,10 +13,16 @@ import { Link as TipTapLink } from '@tiptap/extension-link';
 
 import { openConfirmModal } from '@mantine/modals';
 import { default as dayjs } from 'dayjs';
+// Import timezone and utc plugins from dayjs
+import { default as utc } from 'dayjs/plugin/utc';
+import { default as timezone } from 'dayjs/plugin/timezone';
+
 import { LngLat, LngLatBounds } from 'mapbox-gl';
 import { coordEach } from '@turf/meta';
 import { lineString } from '@turf/helpers';
 import { LineString, GeoJsonProperties } from 'geojson';
+
+import { useAuth } from "../hooks/useAuth";
 
 import type { Loop, LoopProfile, LoopGeometry, LineStringFeature, LoopFormData } from "../types/loop";
 import { emptyLoop, defaultLoopFormData } from "../types/loop";
@@ -36,11 +42,17 @@ const defaultLoopProfile: LoopProfile = {
   elevation_profile: []
 };
 
+// Set up dayjs TZ
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault();
 
 /**
  * Loop Edit
  */
 export function LoopEdit() {
+  const { user } = useAuth();
+
   const submitDelete = useSubmit();
 
   const [savingState, setSavingState] = useState(false);
@@ -153,9 +165,6 @@ export function LoopEdit() {
 
       loopData = response.data.data;
 
-      // Date value handling; capture nulls & reformat
-      loopData.modified = response.data.data.modified ? dayjs(response.data.data.modified).format('dddd, MMMM D, YYYY [at] h:mma') : null;
-
       setLoopStats({
         // Starting point
         lat: response.data.data.lat,
@@ -201,6 +210,8 @@ export function LoopEdit() {
         mountainbike: response.data.data.mountainbike === "Yes",
         bridle: response.data.data.bridle === "Yes",
         status: response.data.data.status === 1,
+        creator_username: response.data.data.creator_username,
+        modifier_username: response.data.data.modifier_username,
       });
 
       if (response.data.data.directions) {
@@ -234,6 +245,8 @@ export function LoopEdit() {
       autoClose: false,
       withCloseButton: false,
     });
+
+    const now_datetime = dayjs().tz('America/New_York').format('YYYY-MM-DD HH:mm:ss');
 
     const loopSaveData = {
       name: formData.name,
@@ -269,9 +282,13 @@ export function LoopEdit() {
       // dd_lat: number,
       // dd_lng: number,
 
-      modified: dayjs(),
+      date_created: (loopId === 'new') ? now_datetime : loopData.date_created ? dayjs(loopData.date_created).tz('America/New_York').format('YYYY-MM-DD HH:mm:ss') : null,
+      date_modified: now_datetime,
 
       status: formData.status ? 1 : 0,
+
+      creator_username: loopData.creator_username ? loopData.creator_username : (loopId === 'new') ? user : null,
+      modifier_username: user,
     };
 
     console.log(loopSaveData);
@@ -726,7 +743,23 @@ export function LoopEdit() {
             </Group>
 
             <Box sx={{marginTop: '1em'}}>
-              <Text fz="sm" c="dimmed">Last modified: {loopData.modified}</Text>
+              {loopData.date_created &&
+                <Text fz="sm">Created: <Text span c="dimmed">{dayjs(loopData.date_created).format('dddd, MMMM D, YYYY [at] h:mma')}</Text></Text>
+              }
+              {loopData.creator_username &&
+                <Text fz="sm">by: <Text span c="dimmed">{loopData.creator_username}</Text></Text>
+              }
+
+              {((loopData.date_created || loopData.creator_username) && (loopData.date_modified || loopData.modifier_username)) &&
+                <Space h="xs" />
+              }
+
+              {loopData.date_modified &&
+              <Text fz="sm">Modified: <Text span c="dimmed">{dayjs(loopData.date_modified).format('dddd, MMMM D, YYYY [at] h:mma')}</Text></Text>
+              }
+              {loopData.modifier_username &&
+                <Text fz="sm">by: <Text span c="dimmed">{loopData.modifier_username}</Text></Text>
+              }
             </Box>
 
           </form>

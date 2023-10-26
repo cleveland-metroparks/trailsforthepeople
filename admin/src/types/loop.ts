@@ -25,8 +25,11 @@ export type Loop = {
   dd_lat: number,
   dd_lng: number,
   directions: string,
-  modified: string,
   status: number,
+  date_created: string,
+  date_modified: string,
+  creator_username: string,
+  modifier_username: string,
 };
 
 export const emptyLoop: Loop = {
@@ -54,8 +57,11 @@ export const emptyLoop: Loop = {
   dd_lat: null,
   dd_lng: null,
   directions: '',
-  modified: '',
   status: 1,
+  date_created: '',
+  date_modified: '',
+  creator_username: '',
+  modifier_username: '',
 };
 
 export type ElevationProfilePoint = {x: number, y: number};
@@ -88,6 +94,9 @@ export type LoopFormData = {
   bridle: boolean,
   directions: string,
   status: boolean,
+  date_created: string,
+  creator_username?: string,
+  modifier_username?: string,
 };
 
 export const defaultLoopFormData: LoopFormData = {
@@ -100,6 +109,9 @@ export const defaultLoopFormData: LoopFormData = {
   bridle: false,
   directions: '',
   status: true,
+  date_created: '',
+  creator_username: '',
+  modifier_username: '',
 };
 
 export const travelModeSelectOptions = [
