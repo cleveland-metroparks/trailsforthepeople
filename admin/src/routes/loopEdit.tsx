@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, useParams, useSubmit } from "react-router-dom";
+import { Link, Navigate, useParams, useSubmit } from "react-router-dom";
 import { Title, Text, Tabs, Grid, Accordion, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select, Space } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
@@ -56,6 +56,7 @@ export function LoopEdit() {
   const submitDelete = useSubmit();
 
   const [savingState, setSavingState] = useState(false);
+  const [redirectPath, setRedirectPath] = useState('');
 
   const mutation = useMutation(
     (formData: LoopFormData) => saveLoop(formData)
@@ -291,7 +292,7 @@ export function LoopEdit() {
       modifier_username: user,
     };
 
-    console.log(loopSaveData);
+    console.log('Saving loop:', loopSaveData);
 
     const response = (loopId === 'new') ?
       mapsApiClient.post<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/trails', loopSaveData)
@@ -303,7 +304,7 @@ export function LoopEdit() {
         if (response.hasOwnProperty('data') && response['data'].data.id) {
           loopId = response['data'].data.id;
         }
-        const savedMsg = `Loop (ID: ${loopId}) saved`;
+        const savedMsg = `Loop "${response['data'].data.name}" (ID: ${loopId}) saved`;
         updateNotification({
           id: 'save-loop',
           loading: false,
@@ -313,6 +314,10 @@ export function LoopEdit() {
         });
         setSavingState(false);
         queryClient.invalidateQueries({ queryKey: ['loop'] });
+
+        // Redirect to the loop edit page for this new loop
+        setRedirectPath(loopsRootPath + '/' + loopId);
+
         console.log(savedMsg + ':', response);
       })
       .catch(function (error) {
@@ -561,6 +566,8 @@ export function LoopEdit() {
 
   return (
     <>
+      {redirectPath && <Navigate to={redirectPath} />}
+
       <Anchor component={Link} to={`/loops`}>« Loops</Anchor>
 
       {loopIsLoading && <div>Loading...</div>}

@@ -173,7 +173,7 @@ export function MarkerEdit() {
         if (response.hasOwnProperty('data') && response['data'].data.id) {
           markerId = response['data'].data.id;
         }
-        const savedMsg = `Marker (ID: ${markerId}) saved`;
+        const savedMsg = `Marker "${response['data'].data.title}" (ID: ${markerId}) saved`;
         updateNotification({
           id: 'save-marker',
           loading: false,
