@@ -35,7 +35,7 @@ type RowData = Loop | Marker | HintMap | any;
 export function compareTableItems(a: string | number, b: string | number, reversed: boolean) {
   if (a === b) {
     return 0;
-  } else if (a > b) {
+  } else if ((a > b) || (b === null) || (b === undefined) || (b === '')) {
     return reversed ? -1 : 1;
   } else {
     return reversed ? 1 : -1;
