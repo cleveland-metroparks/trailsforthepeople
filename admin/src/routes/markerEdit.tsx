@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, useParams, Navigate, useSubmit } from "react-router-dom";
+import { Link, Navigate, useParams, useSubmit } from "react-router-dom";
 import { createStyles, Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
@@ -40,6 +40,7 @@ export function MarkerEdit() {
   const submitDelete = useSubmit();
 
   const [savingState, setSavingState] = useState(false);
+  const [redirectPath, setRedirectPath] = useState('');
 
   const mutation = useMutation(
     (formData: MarkerFormData) => saveMarker(formData)
@@ -163,27 +164,35 @@ export function MarkerEdit() {
       modified: dayjs(),
     };
 
+    console.log('Saving marker:', markerSaveData);
+
+    // Saving a new marker
     const response = (markerId === 'new') ?
       mapsApiClient.post<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/markers', markerSaveData)
       : mapsApiClient.put<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/markers/' + markerId, markerSaveData);
-
     response
       .then(function (response) {
         // Get new marker ID:
         if (response.hasOwnProperty('data') && response['data'].data.id) {
           markerId = response['data'].data.id;
+
+          const savedMsg = `Marker "${response['data'].data.title}" (ID: ${markerId}) saved`;
+          updateNotification({
+            id: 'save-marker',
+            loading: false,
+            title: savedMsg,
+            message: '',
+            autoClose: 5000,
+          });
+          setSavingState(false);
+          queryClient.invalidateQueries({ queryKey: ['marker'] });
+
+          // Redirect to the marker edit page for this new marker
+          setRedirectPath(markersRootPath + '/' + markerId);
+          console.log('Redirecting to: ', markersRootPath + '/' + markerId);
+
+          console.log(savedMsg + ':', response);
         }
-        const savedMsg = `Marker "${response['data'].data.title}" (ID: ${markerId}) saved`;
-        updateNotification({
-          id: 'save-marker',
-          loading: false,
-          title: savedMsg,
-          message: '',
-          autoClose: 5000,
-        });
-        setSavingState(false);
-        queryClient.invalidateQueries({ queryKey: ['marker'] });
-        console.log(savedMsg + ':', response);
       })
       .catch(function (error) {
         const errMsg = error.name + ': ' + error.message + ' (' + error.code + ')';
@@ -218,14 +227,6 @@ export function MarkerEdit() {
   }, []);
   //--------
 
-  if (mutation.isSuccess) {
-    // if (response.hasOwnProperty('data') && response['data'].data.id) {
-    //   const newMarkerPath = '/markers/' + response['data'].data.id;
-    // }
-
-    return <Navigate to={markersRootPath} replace={true} />
-  }
-
   //
   const openDeleteModal = (deleteFormAction) =>
     openConfirmModal({
@@ -256,6 +257,8 @@ export function MarkerEdit() {
 
   return (
     <>
+      {redirectPath && <Navigate to={redirectPath} />}
+
       <Anchor component={Link} to={`/markers`}>« Markers</Anchor>
 
       {markerIsLoading && <Text>Loading...</Text>}

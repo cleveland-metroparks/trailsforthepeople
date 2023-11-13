@@ -294,31 +294,33 @@ export function TrailEdit() {
 
     console.log('Saving trail:', trailSaveData);
 
+    // Saving a new trail
     const response = (trailId === 'new') ?
       mapsApiClient.post<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/trails', trailSaveData)
       : mapsApiClient.put<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/trails/' + trailId, trailSaveData);
-
     response
       .then(function (response) {
         // Get new trail ID:
         if (response.hasOwnProperty('data') && response['data'].data.id) {
           trailId = response['data'].data.id;
+
+          const savedMsg = `Trail "${response['data'].data.name}" (ID: ${trailId}) saved`;
+          updateNotification({
+            id: 'save-trail',
+            loading: false,
+            title: savedMsg,
+            message: '',
+            autoClose: 5000,
+          });
+          setSavingState(false);
+          queryClient.invalidateQueries({ queryKey: ['trail'] });
+
+          // Redirect to the trail edit page for this new trail
+          setRedirectPath(trailsRootPath + '/' + trailId);
+          console.log('Redirecting to: ', trailsRootPath + '/' + trailId);
+
+          console.log(savedMsg + ':', response);
         }
-        const savedMsg = `Trail "${response['data'].data.name}" (ID: ${trailId}) saved`;
-        updateNotification({
-          id: 'save-trail',
-          loading: false,
-          title: savedMsg,
-          message: '',
-          autoClose: 5000,
-        });
-        setSavingState(false);
-        queryClient.invalidateQueries({ queryKey: ['trail'] });
-
-        // Redirect to the trail edit page for this new trail
-        setRedirectPath(trailsRootPath + '/' + trailId);
-
-        console.log(savedMsg + ':', response);
       })
       .catch(function (error) {
         const errMsg = error.name + ': ' + error.message + ' (' + error.code + ')';
@@ -404,7 +406,7 @@ export function TrailEdit() {
       via: travelMode
     });
 
-    const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/route_waypoints", { params })
+    await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/route_waypoints", { params })
       .then(function (response) {
         setTrailGeometry(JSON.stringify(response.data.data.geojson));
 
