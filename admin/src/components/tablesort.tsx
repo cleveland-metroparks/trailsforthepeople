@@ -1,7 +1,7 @@
 import { Center, createStyles, Group, rem, Text, UnstyledButton } from '@mantine/core';
 import { IconSelector, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 
-import type { Loop } from "../types/loop";
+import type { Trail } from "../types/trail";
 import type { Marker } from "../types/marker";
 import type { HintMap } from "../types/hintmap";
 
@@ -29,7 +29,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 // Table row data; can be our major types
-type RowData = Loop | Marker | HintMap | any;
+type RowData = Trail | Marker | HintMap | any;
 
 // Comparison for sorting, for strings & numbers
 export function compareTableItems(a: string | number, b: string | number, reversed: boolean) {

@@ -11,7 +11,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
-import type { LoopProfile } from "../types/loop";
+import type { TrailProfile } from "../types/trail";
 
 //
 ChartJS.register(
@@ -25,12 +25,12 @@ ChartJS.register(
 );
 
 /**
- * Loop Profile Chart
+ * Trail Profile Chart
  *
  * @param props 
  * @returns 
  */
-export function LoopProfileChart(props: { loopProfile: LoopProfile }) {
+export function TrailProfileChart(props: { trailProfile: TrailProfile }) {
   const chartOptions = {
     responsive: true,
     plugins: {
@@ -70,7 +70,7 @@ export function LoopProfileChart(props: { loopProfile: LoopProfile }) {
     datasets: [
       {
         label: 'Elevation Prfofile',
-        data: props.loopProfile,
+        data: props.trailProfile,
         pointRadius: 0,
         backgroundColor: 'rgba(0, 0, 0, 0.2)',
         borderColor: 'rgba(0, 0, 0, 1)',
@@ -82,7 +82,7 @@ export function LoopProfileChart(props: { loopProfile: LoopProfile }) {
 
   return (
     <>
-      {props.loopProfile &&
+      {props.trailProfile &&
         <>
           <mantineCore.Title order={6}>Elevation Profile</mantineCore.Title>
           <Line

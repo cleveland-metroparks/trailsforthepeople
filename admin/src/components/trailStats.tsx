@@ -1,9 +1,9 @@
 import { Box } from '@mantine/core';
 
 /**
- * Loop Stats
+ * Trail Stats
  */
-export function LoopStats(props) {
+export function TrailStats(props) {
   return (
     <>
       <Box>

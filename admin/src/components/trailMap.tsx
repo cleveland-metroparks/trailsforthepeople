@@ -10,34 +10,34 @@ import { Text, Button, Group, Box, Flex, Autocomplete, Select } from '@mantine/c
 import DrawControl from './draw-control';
 
 import { mapsApiClient } from "../components/mapsApi";
-import type { Loop } from "../types/loop";
-import { travelModeSelectOptions } from "../types/loop";
+import type { Trail } from "../types/trail";
+import { travelModeSelectOptions } from "../types/trail";
 
-interface LoopMapProps {
-  loop: Loop;
-  loopGeom: string;
+interface TrailMapProps {
+  trail: Trail;
+  trailGeom: string;
   mapBounds: LngLatBounds;
   waypointsFeature: Object;
   waypointsForDraw: Object;
   onDrawCreate: (e: {features: object[]}) => void;
   onDrawUpdate: (e: {features: object[]; action: string}) => void;
   onDrawDelete: (e: {features: object[]}) => void;
-  doCompleteLoop: () => void;
+  doCompleteTrail: () => void;
   activeTab: string;
   onTravelModeChange: (string) => void;
 }
 
 /**
- * Loop Map
+ * Trail Map
  *
  * @param props 
  * @returns 
  */
-export function LoopMap(props: LoopMapProps) {
-  // if (props.loopGeom == null) {
-  //   props.loopGeom = '{"type":"MultiLineString","coordinates":[]}';
+export function TrailMap(props: TrailMapProps) {
+  // if (props.trailGeom == null) {
+  //   props.trailGeom = '{"type":"MultiLineString","coordinates":[]}';
   // }
-  // console.log('loopGeom', props.loopGeom);
+  // console.log('trailGeom', props.trailGeom);
   const mapRef = useRef<MapRef>(null);
 
   const [currentTab, setCurrentTab] = useState(props.activeTab);
@@ -125,7 +125,7 @@ export function LoopMap(props: LoopMapProps) {
     isError: getReservationsCallIsError,
     data: getReservationsCallData,
     error: getReservationsCallError
-  } = useQuery<Loop[], Error>(['loops'], getReservations);
+  } = useQuery<Trail[], Error>(['trails'], getReservations);
   //------------------
 
   // Zoom map to (a park location)
@@ -154,11 +154,11 @@ export function LoopMap(props: LoopMapProps) {
     // console.log('onMapLoad');
 
     // @TODO: Not sure why we were doing the following...
-    // React is automatically putting props.loopGeom data into the <Source> data.
-    // const loopSource = mapRef.current.getSource('loop-data') as GeoJSONSource;
-    // loopSource.setData(props.loopGeom);
+    // React is automatically putting props.trailGeom data into the <Source> data.
+    // const trailSource = mapRef.current.getSource('trail-data') as GeoJSONSource;
+    // trailSource.setData(props.trailGeom);
 
-    // Fit map bounds to loop bounds
+    // Fit map bounds to trail bounds
     if (mapRef.current) {
       mapRef.current.fitBounds(props.mapBounds, { padding: 40 });
     }
@@ -174,8 +174,8 @@ export function LoopMap(props: LoopMapProps) {
     // console.log('onMapResize');
   }
 
-  const loopLayer: LineLayer = {
-    id: "loop-line",
+  const trailLayer: LineLayer = {
+    id: "trail-line",
     type: "line",
     source: {
       type: "geojson"
@@ -217,11 +217,11 @@ export function LoopMap(props: LoopMapProps) {
         onResize={onMapResize}
       >
         <Source
-          id="loop-data"
+          id="trail-data"
           type="geojson"
-          data={props.loopGeom ? JSON.parse(props.loopGeom) : {"type":"MultiLineString","coordinates":[]}}
+          data={props.trailGeom ? JSON.parse(props.trailGeom) : {"type":"MultiLineString","coordinates":[]}}
         >
-          <Layer {...loopLayer} />
+          <Layer {...trailLayer} />
         </Source>
         <NavigationControl
           showCompass={true}
@@ -381,10 +381,10 @@ export function LoopMap(props: LoopMapProps) {
 
         {/* Back to start */}
         <Box>
-          <Text size="sm">Complete loop</Text>
+          <Text size="sm">Complete trail</Text>
           <Button
             variant="light"
-            onClick={props.doCompleteLoop}
+            onClick={props.doCompleteTrail}
           >Back to start</Button>
         </Box>
       </Group>

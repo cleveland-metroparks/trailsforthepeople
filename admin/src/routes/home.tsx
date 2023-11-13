@@ -6,7 +6,6 @@ import {
   Divider
 } from '@mantine/core';
 
-import { useAuth } from "../hooks/useAuth";
 import { NavButtons, UserLinks } from '../components/navLinks';
 
 export function Home() {

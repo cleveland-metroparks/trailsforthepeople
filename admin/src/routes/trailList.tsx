@@ -7,11 +7,11 @@ import { IconSearch } from '@tabler/icons-react';
 import { default as dayjs } from 'dayjs';
 
 import { mapsApiClient } from "../components/mapsApi";
-import type { Loop } from "../types/loop";
+import type { Trail } from "../types/trail";
 import { sortTableData, Th } from "../components/tablesort";
 
-// Get all loops from the API
-const getAllLoops = async () => {
+// Get all trails from the API
+const getAllTrails = async () => {
   const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/trails");
   return response.data.data;
 }
@@ -19,17 +19,17 @@ const getAllLoops = async () => {
 // See https://tkdodo.eu/blog/react-query-meets-react-router
 // for React Router (>=6.4) + React Query
 
-// Define the "Get all loops" query
-const getAllLoopsQuery = () => ({
-  queryKey: ['loopList'],
-  queryFn: async () => getAllLoops(),
+// Define the "Get all trails" query
+const getAllTrailsQuery = () => ({
+  queryKey: ['trailList'],
+  queryFn: async () => getAllTrails(),
 })
 
 // Data loader (React Router)
 export const loader =
   (queryClient) =>
   async () => {
-    const query = getAllLoopsQuery();
+    const query = getAllTrailsQuery();
     // Return cached data or fetch anew
     return (
       queryClient.getQueryData(query.queryKey) ??
@@ -37,11 +37,11 @@ export const loader =
     )
 };
 
-// The loop columns we'll display, sort, & filter
-const rowKeys: (keyof Loop)[] = ['name', 'res', 'distancetext', 'date_modified', 'modifier_username', 'status'];
+// The trail columns we'll display, sort, & filter
+const rowKeys: (keyof Trail)[] = ['name', 'res', 'distancetext', 'date_modified', 'modifier_username', 'status'];
 
 // Filter row data by search query
-function filterTableData(data: Loop[], search: string) {
+function filterTableData(data: Trail[], search: string) {
   const query = search.toLowerCase().trim();
   return data.filter((item) =>
     keys(data[0]).some(function (key) {
@@ -59,36 +59,36 @@ function filterTableData(data: Loop[], search: string) {
 }
 
 /**
- * Loop List
+ * Trail List
  */
-export function LoopList() {
+export function TrailList() {
   // Instead of useLoaderData(); see tkdodo.eu article above
   const {
-    isLoading: loopsIsLoading,
-    isError: loopsIsError,
-    data: loopsData,
-    error: loopsError,
-  } = useQuery<Loop[], Error>(['loops'], getAllLoops);
+    isLoading: trailsIsLoading,
+    isError: trailsIsError,
+    data: trailsData,
+    error: trailsError,
+  } = useQuery<Trail[], Error>(['trails'], getAllTrails);
 
   // For table sorting
   const [search, setSearch] = useState('');
-  const [sortedData, setSortedData] = useState(loopsData);
-  const [sortBy, setSortBy] = useState<keyof Loop | null>(null);
+  const [sortedData, setSortedData] = useState(trailsData);
+  const [sortBy, setSortBy] = useState<keyof Trail | null>(null);
   const [reverseSortDirection, setReverseSortDirection] = useState(false);
 
   // Handle column sort
-  const setSorting = (field: keyof Loop) => {
+  const setSorting = (field: keyof Trail) => {
     const reversed = field === sortBy ? !reverseSortDirection : false;
     setReverseSortDirection(reversed);
     setSortBy(field);
-    setSortedData(sortTableData(loopsData, { sortBy: field, reversed, search }, filterTableData));
+    setSortedData(sortTableData(trailsData, { sortBy: field, reversed, search }, filterTableData));
   };
 
   // Handle table search
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget;
     setSearch(value);
-    setSortedData(sortTableData(loopsData, { sortBy, reversed: reverseSortDirection, search: value }, filterTableData));
+    setSortedData(sortTableData(trailsData, { sortBy, reversed: reverseSortDirection, search: value }, filterTableData));
   };
 
   // Table rows
@@ -97,7 +97,7 @@ export function LoopList() {
       <td>
         <Anchor
           component={Link}
-          to={`/loops/${row.id}`}
+          to={`/trails/${row.id}`}
         >
           {row.name}
         </Anchor>
@@ -110,21 +110,21 @@ export function LoopList() {
     </tr>
   ));
 
-  // Set table data when we get Loops
+  // Set table data when we get Trails
   useEffect(() => {
-    setSortedData(loopsData);
-  }, [loopsData]);
+    setSortedData(trailsData);
+  }, [trailsData]);
 
   return (<>
-    <Title order={2}>Loops</Title>
+    <Title order={2}>Trails</Title>
 
-    {loopsIsLoading && <div>Loading...</div>}
-    {loopsIsError && (
-      <div>{`There is a problem fetching the post data - ${loopsError.message}`}</div>
+    {trailsIsLoading && <div>Loading...</div>}
+    {trailsIsError && (
+      <div>{`There is a problem fetching the post data - ${trailsError.message}`}</div>
     )}
 
-    <Button component={Link} to="/loops/new"  variant="outline" sx={{ margin: '1em 0' }}>
-      + Add Loop
+    <Button component={Link} to="/trails/new"  variant="outline" sx={{ margin: '1em 0' }}>
+      + Add Trail
     </Button>
 
     <TextInput
@@ -172,11 +172,11 @@ export function LoopList() {
       </thead>
       <tbody>
       {
-        loopsData && rows && rows.length > 0 ? (rows) :
+        trailsData && rows && rows.length > 0 ? (rows) :
           <tr>
             <td colSpan={4}>
               <Text weight={500} align="center">
-                No loops found
+                No trails found
               </Text>
             </td>
           </tr>

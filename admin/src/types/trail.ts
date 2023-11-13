@@ -1,6 +1,6 @@
 import { LineString, GeoJsonProperties, GeoJsonObject} from 'geojson';
 
-export type Loop = {
+export type Trail = {
   id: number,
   name: string,
   res: string,
@@ -32,7 +32,7 @@ export type Loop = {
   modifier_username: string,
 };
 
-export const emptyLoop: Loop = {
+export const emptyTrail: Trail = {
   id: null,
   name: '',
   res: '',
@@ -67,12 +67,12 @@ export const emptyLoop: Loop = {
 export type ElevationProfilePoint = {x: number, y: number};
 export type ElevationProfileArray = Array<ElevationProfilePoint>;
 
-export interface LoopProfile {
+export interface TrailProfile {
   id: number;
   elevation_profile: ElevationProfileArray;
 };
 
-export type LoopGeometry = {
+export type TrailGeometry = {
   id: number,
   geom_geojson: string,
 };
@@ -84,7 +84,7 @@ export interface LineStringFeature<LineString, GeoJsonProperties> extends GeoJso
   properties: GeoJsonProperties;
 }
 
-export type LoopFormData = {
+export type TrailFormData = {
   name: string,
   description: string,
   res: string,
@@ -99,7 +99,7 @@ export type LoopFormData = {
   modifier_username?: string,
 };
 
-export const defaultLoopFormData: LoopFormData = {
+export const defaultTrailFormData: TrailFormData = {
   name: '',
   description: '',
   res: '',

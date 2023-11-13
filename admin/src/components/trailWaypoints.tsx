@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { Table, Text, Title, Code, Group } from '@mantine/core';
 
-interface LoopWaypointsProps {
+interface TrailWaypointsProps {
   feature;
   // geojson: string;
 }
 
 /**
- * Loop Waypoints
+ * Trail Waypoints
  * @param props 
  * @returns 
  */
-export function LoopWaypoints(props: LoopWaypointsProps) {
+export function TrailWaypoints(props: TrailWaypointsProps) {
   return (
     <>
       <Table striped highlightOnHover>
@@ -44,4 +44,4 @@ export function LoopWaypoints(props: LoopWaypointsProps) {
   );
 }
 
-export default React.memo(LoopWaypoints);
+export default React.memo(TrailWaypoints);

@@ -6,8 +6,9 @@ import { Notifications } from '@mantine/notifications';
 import {
   RouterProvider,
   Route,
+  Navigate,
   createRoutesFromElements,
-  createBrowserRouter,
+  createBrowserRouter
 } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
@@ -20,9 +21,9 @@ import { Logout } from "./routes/logout";
 import { UserAccount } from "./routes/user";
 import { ErrorScreen } from "./routes/errorScreen";
 
-import { LoopList, loader as loopListLoader } from "./routes/loopList";
-import { LoopEdit } from "./routes/loopEdit";
-import { action as deleteLoopAction } from "./routes/loopDelete";
+import { TrailList, loader as trailListLoader } from "./routes/trailList";
+import { TrailEdit } from "./routes/trailEdit";
+import { action as deleteTrailAction } from "./routes/trailDelete";
 
 import { MarkerList, loader as markerListLoader } from "./routes/markerList";
 import { MarkerEdit } from "./routes/markerEdit";
@@ -75,15 +76,17 @@ const routes = createRoutesFromElements(
         errorElement={<ErrorScreen />}
       >
         <Route errorElement={<ErrorScreen />}>
-          <Route path="loops">
+          <Route path="trails">
             <Route
               index
-              element={<LoopList />}
-              loader={loopListLoader(queryClient)}
+              element={<TrailList />}
+              loader={trailListLoader(queryClient)}
             />
-            <Route path=":loopId" element={<LoopEdit />} />
-            <Route path=":loopId/delete" action={deleteLoopAction} />
+            <Route path=":trailId" element={<TrailEdit />} />
+            <Route path=":trailId/delete" action={deleteTrailAction} />
           </Route>
+          {/* Redirect from "loops/..." to "trails" */}
+          <Route path="loops/*" element={<Navigate to="/trails" replace />} />
           <Route path="markers">
             <Route
               index

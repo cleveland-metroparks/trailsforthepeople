@@ -1,12 +1,12 @@
 import { Table } from '@mantine/core';
 
 /**
- * Loop Directions
+ * Trail Directions
  *
  * @param props 
  * @returns 
  */
-export function LoopDirections(props) {
+export function TrailDirections(props) {
   return (
     <>
       {props.directions && Array.isArray(props.directions) &&
