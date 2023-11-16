@@ -25,3 +25,12 @@ grunt-local-config.json
 /static/tmp/
 
 /application/logs/
+
+# Hint maps
+static/images/hint_maps/
+
+# SentinelOne honeypot
+.aaa.html
+.aaa.ini
+.aaa.log
+.aaa.pdf
