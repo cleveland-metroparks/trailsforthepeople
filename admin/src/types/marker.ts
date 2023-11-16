@@ -1,20 +1,20 @@
 export type Marker = {
   id: number,
-  creator: string,
-  created: string,
   lat: number,
   lng: number,
   content: string,
   title: string,
   expires: string,
-  creatorid: number,
   geom_geojson: string,
   category: string,
   reservation: string,
   enabled: number,
   annual: number,
   startdate: string,
-  modified: string,
+  date_created: string,
+  date_modified: string,
+  creator_username: string,
+  modifier_username: string,
 };
 
 const defaultLat = parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LAT),
@@ -23,21 +23,21 @@ const defaultLat = parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LAT),
 
 export const emptyMarker: Marker = {
   id: null,
-  creator: '',
-  created: '',
   lat: defaultLat,
   lng: defaultLng,
   content: '',
   title: '',
   expires: '',
-  creatorid: null,
   geom_geojson: '',
   category: defaultMarkerCategory,
   reservation: '',
   enabled: null,
   annual: null,
   startdate: '',
-  modified: '',
+  date_created: '',
+  date_modified: '',
+  creator_username: '',
+  modifier_username: '',
 };
 
 // @TODO: Pull this list from the DB
@@ -62,7 +62,10 @@ export type MarkerFormData = {
   startDate,
   expireDate,
   latitude: number,
-  longitude: number
+  longitude: number,
+  date_created: string,
+  creator_username?: string,
+  modifier_username?: string,
 };
 
 export const defaultMarkerFormData: MarkerFormData = {
@@ -75,5 +78,8 @@ export const defaultMarkerFormData: MarkerFormData = {
   startDate: null,
   expireDate: null,
   latitude: defaultLat,
-  longitude: defaultLng
+  longitude: defaultLng,
+  date_created: '',
+  creator_username: '',
+  modifier_username: '',
 };

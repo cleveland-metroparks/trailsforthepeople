@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, Navigate, useParams, useSubmit } from "react-router-dom";
-import { createStyles, Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
+import { createStyles, Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select, Space } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
 
@@ -17,6 +17,8 @@ import { default as dayjs } from 'dayjs';
 import * as MapGl from 'react-map-gl'; // Namespace as MapGl since we already have "Marker"
 import type { MapRef, MarkerDragEvent } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+
+import { useAuth } from "../hooks/useAuth";
 
 import { mapsApiClient } from "../components/mapsApi";
 import type { Marker, MarkerFormData } from "../types/marker";
@@ -37,6 +39,8 @@ const useStyles = createStyles((theme) => ({
  * Marker Edit
  */
 export function MarkerEdit() {
+  const { user } = useAuth();
+
   const submitDelete = useSubmit();
 
   const [savingState, setSavingState] = useState(false);
@@ -104,8 +108,6 @@ export function MarkerEdit() {
       // Date value handling; capture nulls & reformat
       const initExpireDate = response.data.data.expires ? dayjs(response.data.data.expires).toDate() : null;
       const initStartDate = response.data.data.startdate ? dayjs(response.data.data.startdate).toDate() : null;
-      markerData.modified = response.data.data.modified ? dayjs(response.data.data.modified).format('dddd, MMMM D, YYYY [at] h:mma') : null;
-      markerData.created = response.data.data.created ? dayjs(response.data.data.created).format('dddd, MMMM D, YYYY [at] h:mma') : null;
 
       setMarkerContent(response.data.data.content);
 
@@ -119,6 +121,8 @@ export function MarkerEdit() {
         expireDate: initExpireDate,
         latitude: response.data.data.lat,
         longitude: response.data.data.lng,
+        creator_username: response.data.data.creator_username,
+        modifier_username: response.data.data.modifier_username,
       });
     }
 
@@ -146,22 +150,26 @@ export function MarkerEdit() {
       withCloseButton: false,
     });
 
+    const now_datetime = dayjs().tz('America/New_York').format('YYYY-MM-DD HH:mm:ss');
+
     const markerSaveData = {
-      creator: 'Jeff Schuler', // @TODO
-      // created: dayjs(),
       lat: formData.latitude,
       lng: formData.longitude,
       content: formData.content,
       title: formData.title,
       expires: formData.expireDate ? dayjs(formData.expireDate).format('YYYY-MM-DD') : null,
-      creatorid: 1, // @TODO
       geom_geojson: '', // @TODO
       category: formData.category,
       reservation: formData.reservation,
       enabled: formData.enabled ? 1 : 0,
       annual: formData.annual ? 1 : 0,
       startdate: formData.expireDate ? dayjs(formData.startDate).format('YYYY-MM-DD') : null,
-      modified: dayjs(),
+
+      date_created: (markerId === 'new') ? now_datetime : markerData.date_created ? dayjs(markerData.date_created).tz('America/New_York').format('YYYY-MM-DD HH:mm:ss') : null,
+      date_modified: now_datetime,
+
+      creator_username: markerData.creator_username ? markerData.creator_username : (markerId === 'new') ? user : null,
+      modifier_username: user,
     };
 
     console.log('Saving marker:', markerSaveData);
@@ -420,14 +428,23 @@ export function MarkerEdit() {
                 <Accordion.Item value="authorship">
                   <Accordion.Control><Text fw={500}>Authorship</Text></Accordion.Control>
                   <Accordion.Panel>
-                    <Text>
-                      <span><strong>Created:</strong> {markerData.created}</span><br />
-                      <span><strong>By:</strong> {markerData.creator} (ID: {markerData.creatorid})</span>
-                    </Text>
-                    <Text sx={{marginTop: '1em'}}>
-                      <span><strong>Last modified:</strong> {markerData.modified}</span><br />
-                      <span><strong>By:</strong></span>
-                    </Text>
+                    {markerData.date_created &&
+                      <Text fz="sm">Created: <Text span c="dimmed">{dayjs(markerData.date_created).format('dddd, MMMM D, YYYY [at] h:mma')}</Text></Text>
+                    }
+                    {markerData.creator_username &&
+                      <Text fz="sm">by: <Text span c="dimmed">{markerData.creator_username}</Text></Text>
+                    }
+
+                    {((markerData.date_created || markerData.creator_username) && (markerData.date_modified || markerData.modifier_username)) &&
+                      <Space h="xs" />
+                    }
+
+                    {markerData.date_modified &&
+                    <Text fz="sm">Modified: <Text span c="dimmed">{dayjs(markerData.date_modified).format('dddd, MMMM D, YYYY [at] h:mma')}</Text></Text>
+                    }
+                    {markerData.modifier_username &&
+                      <Text fz="sm">by: <Text span c="dimmed">{markerData.modifier_username}</Text></Text>
+                    }
                   </Accordion.Panel>
                 </Accordion.Item>
 

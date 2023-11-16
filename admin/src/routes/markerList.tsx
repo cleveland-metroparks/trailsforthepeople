@@ -37,7 +37,7 @@ export const loader = (queryClient) =>
 };
 
 // The marker columns we'll display, sort, & filter
-const rowKeys: (keyof Marker)[] = ['title', 'creator', 'created', 'modified', 'category', 'reservation', 'enabled', 'annual'];
+const rowKeys: (keyof Marker)[] = ['title', 'category', 'reservation', 'enabled', 'annual', 'date_modified', 'modifier_username'];
 
 // Filter row data by search query
 function filterTableData(data: Marker[], search: string) {
@@ -45,10 +45,12 @@ function filterTableData(data: Marker[], search: string) {
   return data.filter((item) =>
     keys(data[0]).some(function (key) {
       if (rowKeys.includes(key) && item[key]) {
-        if (key === 'modified' || key === 'created') {
-          return dayjs(item[key]).format('MMM D, YYYY, h:mma').toLowerCase().includes(query);
-        } else {
-          return item[key].toString().toLowerCase().includes(query);
+        switch (key) {
+          case 'date_modified':
+          case 'date_created':
+            return dayjs(item[key]).format('MMM D, YYYY, h:mma').toLowerCase().includes(query);
+          default:
+            return item[key].toString().toLowerCase().includes(query);
         }
       }
       return false;
@@ -103,13 +105,12 @@ export function MarkerList() {
           {row.title}
         </Anchor>
       </td>
-      <td>{row.creator} ({row.creatorid})</td>
-      <td>{row.created ? dayjs(row.created).format('MMM D, YYYY, h:mma'): ''}</td>
-      <td>{row.modified ? dayjs(row.modified).format('MMM D, YYYY, h:mma'): ''}</td>
       <td>{row.category}</td>
       <td>{row.reservation}</td>
-      <td>{row.enabled ? 'Enabled' : ''}</td>
+      <td>{row.date_modified ? dayjs(row.date_modified).format('MMM D, YYYY, h:mma') : ''}</td>
+      <td>{row.modifier_username}</td>
       <td>{row.annual ? 'Annual' : ''}</td>
+      <td>{row.enabled ? 'Enabled' : ''}</td>
     </tr>
   ));
 
@@ -149,21 +150,6 @@ export function MarkerList() {
               onSort={() => setSorting('title')}
             >Title</Th>
             <Th
-              sorted={sortBy === 'creator'}
-              reversed={reverseSortDirection}
-              onSort={() => setSorting('creator')}
-            >Creator</Th>
-            <Th
-              sorted={sortBy === 'created'}
-              reversed={reverseSortDirection}
-              onSort={() => setSorting('created')}
-            >Created</Th>
-            <Th
-              sorted={sortBy === 'modified'}
-              reversed={reverseSortDirection}
-              onSort={() => setSorting('modified')}
-            >Last modified</Th>
-            <Th
               sorted={sortBy === 'category'}
               reversed={reverseSortDirection}
               onSort={() => setSorting('category')}
@@ -174,15 +160,25 @@ export function MarkerList() {
               onSort={() => setSorting('reservation')}
             >Reservation</Th>
             <Th
-              sorted={sortBy === 'enabled'}
+              sorted={sortBy === 'date_modified'}
               reversed={reverseSortDirection}
-              onSort={() => setSorting('enabled')}
-            >Enabled</Th>
+              onSort={() => setSorting('date_modified')}
+            >Last modified</Th>
+            <Th
+              sorted={sortBy === 'modifier_username'}
+              reversed={reverseSortDirection}
+              onSort={() => setSorting('modifier_username')}
+            >Modified by</Th>
             <Th
               sorted={sortBy === 'annual'}
               reversed={reverseSortDirection}
               onSort={() => setSorting('annual')}
             >Annual</Th>
+            <Th
+              sorted={sortBy === 'enabled'}
+              reversed={reverseSortDirection}
+              onSort={() => setSorting('enabled')}
+            >Enabled</Th>
           </tr>
         </thead>
         <tbody>
