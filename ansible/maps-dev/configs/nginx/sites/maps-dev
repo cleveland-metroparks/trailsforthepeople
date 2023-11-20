@@ -9,8 +9,8 @@ server {
 
 	root /var/www;
 
-	ssl_certificate /etc/ssl/certs/WC22.clevelandmetroparks.com.pem;
-	ssl_certificate_key /etc/ssl/private/WC22.clevelandmetroparks.com.KEY;
+	ssl_certificate /etc/ssl/certs/wc23-maps.cm.com.pem;
+	ssl_certificate_key /etc/ssl/private/wc23-maps.cm.com.key;
 	ssl_trusted_certificate /etc/ssl/certs/ov_chain.txt;
 
 	ssl_protocols TLSv1.2 TLSv1.3;
