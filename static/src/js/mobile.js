@@ -886,7 +886,7 @@ function updateWindowURLZoom() {
  */
 function updateWindowURLLayer() {
     // Default is vector/map layer
-    var layer = 'map';
+    var layer = DEFAULT_LAYER;
     // Else, satellite ("photo")
     if (getBasemap() == 'photo') {
         layer = 'photo';
