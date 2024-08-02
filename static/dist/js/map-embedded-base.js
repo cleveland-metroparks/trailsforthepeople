@@ -2561,10 +2561,13 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiWHRKaDhuR
 var STYLE_LAYER_CM_MAP = 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn'; // Vector
 var STYLE_LAYER_CM_SAT = 'mapbox://styles/cleveland-metroparks/cjcutetjg07892ro6wunp2da9'; // Satellite
 
+
 var STYLE_LAYERS = {
     'map' : STYLE_LAYER_CM_MAP,
     'photo' : STYLE_LAYER_CM_SAT
 };
+
+var DEFAULT_LAYER = 'photo'; // tmp
 
 var STYLE_NAMES = {
     'CM Light' : 'map',
@@ -2626,7 +2629,7 @@ SETTINGS.coordinate_format = 'dms';
  */
 function initMap(mapOptions) {
     // Base map type; URL param or map (vs photo/satellite) default
-    var base = mapOptions.base || 'map';
+    var base = mapOptions.base || DEFAULT_LAYER;
     var basemap_style; // Mapbox base style layer
 
     switch (base) {
@@ -2869,7 +2872,7 @@ function saveWindowURL(urlParams, pushState) {
 /**
  * Set a bunch of query string parameters in window location.
  *
- * @param {object} params: 
+ * @param {object} params:
  * @param {Boolean} reset: Whether to clear all existing parameters.
  * @param {Boolean} pushState: Whether to push the new URL onto the stack
  *        so that the back button can be used.
