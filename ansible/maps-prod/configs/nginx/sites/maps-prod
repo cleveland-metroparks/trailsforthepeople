@@ -2,13 +2,23 @@ server {
 	listen 80 default_server;
 	listen [::]:80 default_server;
 
+	server_name maps.clevelandmetroparks.com
+		    maps-prod.clevelandmetroparks.com
+		    10.0.0.223
+		    127.0.0.1;
+
+	# Redirect all HTTP requests to HTTPS
+	return 301 https://$host$request_uri;
+}
+
+server {
 	listen 443 ssl default_server;
 	listen [::]:443 ssl default_server;
 
 	server_name maps.clevelandmetroparks.com
-                maps-prod.clevelandmetroparks.com
-				10.0.0.223
-				127.0.0.1;
+		    maps-prod.clevelandmetroparks.com
+		    10.0.0.223
+		    127.0.0.1;
 
 	root /var/www;
 
@@ -40,3 +50,4 @@ server {
 		proxy_cache_bypass $http_upgrade;
 	}
 }
+
