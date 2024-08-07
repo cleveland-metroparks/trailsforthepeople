@@ -75,7 +75,7 @@ var STYLE_LAYERS = {
     'photo' : STYLE_LAYER_CM_SAT
 };
 
-var DEFAULT_LAYER = 'photo'; // tmp
+var DEFAULT_LAYER = 'map';
 
 var STYLE_NAMES = {
     'CM Light' : 'map',
