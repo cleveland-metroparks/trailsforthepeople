@@ -69,6 +69,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY2xldmVsYW5kLW1ldHJvcGFya3MiLCJhIjoiWHRKaDhuR
 var STYLE_LAYER_CM_MAP = 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn?optimize=true'; // Vector
 var STYLE_LAYER_CM_SAT = 'mapbox://styles/cleveland-metroparks/cjcutetjg07892ro6wunp2da9?optimize=true'; // Satellite
 
+
 var STYLE_LAYERS = {
     'map' : STYLE_LAYER_CM_MAP,
     'photo' : STYLE_LAYER_CM_SAT
