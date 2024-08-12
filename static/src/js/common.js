@@ -36,7 +36,7 @@ SETTINGS.coordinate_format = 'dms';
  */
 function initMap(mapOptions) {
     // Base map type; URL param or map (vs photo/satellite) default
-    var base = mapOptions.base || 'map';
+    var base = mapOptions.base || DEFAULT_LAYER;
     var basemap_style; // Mapbox base style layer
 
     switch (base) {
@@ -284,7 +284,7 @@ function saveWindowURL(urlParams, pushState) {
 /**
  * Set a bunch of query string parameters in window location.
  *
- * @param {object} params: 
+ * @param {object} params:
  * @param {Boolean} reset: Whether to clear all existing parameters.
  * @param {Boolean} pushState: Whether to push the new URL onto the stack
  *        so that the back button can be used.

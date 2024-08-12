@@ -282,6 +282,10 @@ function str_to_bool(str) {
 $.get(API_NEW_BASE_URL + 'trails', null, function (reply) {
     // Key by id
     for (var i = 0; i < reply.data.length; i++) {
+        if (reply.data[i].status === 0) {
+            // Skip unpublished trails
+            continue;
+        }
         trail = reply.data[i];
         // Change string versions of "Yes" & "No" into booleans
         trail.bike = str_to_bool(trail.bike);

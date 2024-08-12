@@ -80,7 +80,7 @@ $(document).ready(function() {
      * Set up the map
      */
     var mapOptions = {
-        base: 'map',
+        base: DEFAULT_LAYER,
         scrollZoom: false,
         trackUserLocation: false
     };

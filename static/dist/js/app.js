@@ -74,6 +74,8 @@ var STYLE_LAYERS = {
     'photo' : STYLE_LAYER_CM_SAT
 };
 
+var DEFAULT_LAYER = 'map';
+
 var STYLE_NAMES = {
     'CM Light' : 'map',
     'CM-Aerial' : 'photo'
@@ -118,7 +120,7 @@ SETTINGS.coordinate_format = 'dms';
  */
 function initMap(mapOptions) {
     // Base map type; URL param or map (vs photo/satellite) default
-    var base = mapOptions.base || 'map';
+    var base = mapOptions.base || DEFAULT_LAYER;
     var basemap_style; // Mapbox base style layer
 
     switch (base) {
@@ -366,7 +368,7 @@ function saveWindowURL(urlParams, pushState) {
 /**
  * Set a bunch of query string parameters in window location.
  *
- * @param {object} params: 
+ * @param {object} params:
  * @param {Boolean} reset: Whether to clear all existing parameters.
  * @param {Boolean} pushState: Whether to push the new URL onto the stack
  *        so that the back button can be used.
@@ -671,6 +673,10 @@ function str_to_bool(str) {
 $.get(API_NEW_BASE_URL + 'trails', null, function (reply) {
     // Key by id
     for (var i = 0; i < reply.data.length; i++) {
+        if (reply.data[i].status === 0) {
+            // Skip unpublished trails
+            continue;
+        }
         trail = reply.data[i];
         // Change string versions of "Yes" & "No" into booleans
         trail.bike = str_to_bool(trail.bike);
@@ -1021,7 +1027,7 @@ function loadMapAndStartingState() {
     }
 
     // Set the appropriate basemap radio button in Settings
-    var base = urlParams.get('base') || 'map';
+    var base = urlParams.get('base') || DEFAULT_LAYER;
     var satelliteButton = $('input[name="basemap"][value="photo"]');
     var defaultMapButton = $('input[name="basemap"][value="map"]');
     switch (base) {
@@ -1695,7 +1701,7 @@ function updateWindowURLZoom() {
  */
 function updateWindowURLLayer() {
     // Default is vector/map layer
-    var layer = 'map';
+    var layer = DEFAULT_LAYER;
     // Else, satellite ("photo")
     if (getBasemap() == 'photo') {
         layer = 'photo';

@@ -216,7 +216,7 @@ function loadMapAndStartingState() {
     }
 
     // Set the appropriate basemap radio button in Settings
-    var base = urlParams.get('base') || 'map';
+    var base = urlParams.get('base') || DEFAULT_LAYER;
     var satelliteButton = $('input[name="basemap"][value="photo"]');
     var defaultMapButton = $('input[name="basemap"][value="map"]');
     switch (base) {
@@ -890,7 +890,7 @@ function updateWindowURLZoom() {
  */
 function updateWindowURLLayer() {
     // Default is vector/map layer
-    var layer = 'map';
+    var layer = DEFAULT_LAYER;
     // Else, satellite ("photo")
     if (getBasemap() == 'photo') {
         layer = 'photo';

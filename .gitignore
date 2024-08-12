@@ -1,7 +1,3 @@
-ROUTING_STEPS_FOR_DBDATAHTML.TXT
-TODO.TXT
-README.TXT
-
 # Mac OS X
 .DS_Store
 
@@ -17,9 +13,6 @@ node_modules
 
 # Grunt local config
 grunt-local-config.json
-
-# Native app releases
-/static/native_dev/
 
 # Temp
 /static/tmp/

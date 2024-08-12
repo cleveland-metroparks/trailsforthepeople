@@ -1,0 +1,83 @@
+# Ansible playbook for setting up the maps-dev server
+# (Ubuntu 22.04)
+
+- name: Set up maps-dev
+  hosts: maps-dev
+  become: true
+
+  tasks:
+
+  - name: install software-properties-common
+    apt:
+      name: software-properties-common
+      state: present
+      update_cache: yes
+
+  - name: Install packages
+    apt:
+      name:
+        - unattended-upgrades
+        - curl
+        - plocate
+        - git
+        - nginx
+        - postfix
+        - mailutils
+      state: present
+      update_cache: true
+
+  - name: Add repo for NodeJS 16.x
+    apt_repository:
+      repo: deb https://deb.nodesource.com/node_16.x jammy main
+      state: present
+      filename: nodesource.list
+      update_cache: yes
+
+  - name: Add repo key
+    apt_key:
+      url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+      state: present
+      update_cache: yes
+
+  - name: Install NodeJS
+    apt:
+      name:
+        - nodejs
+        - npm
+      state: present
+      update_cache: yes
+
+  - name: Copy nginx main config
+    copy:
+      src: configs/nginx/nginx.conf
+      dest: /etc/nginx/nginx.conf
+
+  - name: Copy nginx site config
+    copy:
+      src: configs/nginx/sites/maps-dev.conf
+      dest: /etc/nginx/sites-available/maps-dev.conf
+
+  - name: Enable nginx site config
+    file:
+      src: /etc/nginx/sites-available/maps-dev.conf
+      dest: /etc/nginx/sites-enabled/maps-dev.conf
+      state: link
+    notify: restart_nginx
+
+  - name: Start and Enable nginx
+    systemd:
+      name: nginx
+      state: started
+      enabled: true
+
+  - name: Install pm2
+    npm:
+      name: pm2
+      global: yes
+
+  handlers:
+
+    - name: restart_nginx
+      systemd:
+        name: nginx
+        state: restarted

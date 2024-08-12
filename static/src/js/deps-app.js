@@ -9,7 +9,7 @@ require('@popperjs/core');
 window.Tooltip = require('tooltip.js');
 window.Handlebars = require("handlebars");
 window.Fuse = require('fuse.js');
-window.Chart = require('chart.js');
+window.Chart = require('chart.js/auto');
 
 
 /**
