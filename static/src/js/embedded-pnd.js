@@ -53,7 +53,12 @@ let markerClasses = [
         color: 'DarkViolet'
 
         // color: '#3548B0' // Scheme: Indigo
-    }
+    },
+    {
+        id: 'external',
+        text: 'External Project',
+        color: 'Yellow'
+    },
 ];
 
 /**
