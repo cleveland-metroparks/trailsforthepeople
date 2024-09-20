@@ -2330,15 +2330,10 @@ window.Fuse = require('fuse.js');
  * Cleveland Metroparks
  */
 
-///// constants about all maps, Desktop and Mobile as well as Admin and Contributor
-///// The Admin and Contributor have their own versions too, which override the map URLs with SSL URLs
-///// for Admin and Contributors maps, see admin.js and contributors.js
-
 // How we get to our app's base files and to the API.
 // These change to remote URLs in main-site embedded maps.
 // @TODO: Put these into a local config so we can handle non-root basedirs.
 var WEBAPP_BASEPATH = '/';
-var API_BASEPATH = '/';
 var MAP = null;
 
 var API_NEW_HOST = 'maps-api.clevelandmetroparks.com';
@@ -2420,7 +2415,6 @@ var STYLE_NAMES = {
 // attempt to connect to the of domain where the embedded map lives.
 // (For local development, comment these out.)
 WEBAPP_BASEPATH = 'https://maps.clevelandmetroparks.com/';
-API_BASEPATH = 'https://maps.clevelandmetroparks.com/'; // (Old API server)
 
 ;
 /**
