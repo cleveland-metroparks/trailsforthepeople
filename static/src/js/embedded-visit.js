@@ -124,7 +124,7 @@ function processQueryParams() {
             }
 
             if (data.nearby_lat && data.nearby_lng) {
-                return $.get(API_NEW_BASE_URL + 'attractions', data, function(attractionsReply) {
+                return $.get(CM_MAPS_API_BASE_URL + 'attractions', data, function(attractionsReply) {
                     if (attractionsReply.data.length > 0) {
                         displayAttractions(attractionsReply.data);
                     } else {
@@ -145,7 +145,7 @@ function processQueryParams() {
                 data.nearby_lat = geocodeReply.data.lat;
                 data.nearby_lng = geocodeReply.data.lng;
 
-                return $.get(API_NEW_BASE_URL + 'attractions', data, function(attractionsReply) {
+                return $.get(CM_MAPS_API_BASE_URL + 'attractions', data, function(attractionsReply) {
                     if (attractionsReply.data.length > 0) {
                         displayAttractions(attractionsReply.data);
                     } else {
@@ -198,7 +198,7 @@ function disableGeolocation() {
  * Geocode address (AJAX)
  */
 function callGeocodeAddress(addressSearchText) {
-    return $.get(API_NEW_BASE_URL + 'geocode/' + addressSearchText, null, function (reply) {
+    return $.get(CM_MAPS_API_BASE_URL + 'geocode/' + addressSearchText, null, function (reply) {
         var lngLat = new mapboxgl.LngLat(reply.data.lng, reply.data.lat);
         // Point outside service area
         if (!MAX_BOUNDS.contains(lngLat)) {

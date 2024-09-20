@@ -23,7 +23,7 @@ $(document).ready(function(){
  * Get beach closures (AJAX)
  */
 function callGetBeachClosures(params) {
-    $.get(API_NEW_BASE_URL + 'beach_closures', null, function (reply) {
+    $.get(CM_MAPS_API_BASE_URL + 'beach_closures', null, function (reply) {
         displayBeachClosures(reply.data);
     }, 'json');
 }

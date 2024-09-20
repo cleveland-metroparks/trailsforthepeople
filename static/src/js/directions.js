@@ -36,7 +36,7 @@ function getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation) {
     switch (via) {
         // Driving directions from Bing, by way of our API
         case 'car':
-                $.get(API_NEW_BASE_URL + 'directions_driving', data, function (reply) {
+                $.get(CM_MAPS_API_BASE_URL + 'directions_driving', data, function (reply) {
                     renderDirectionsStructure(reply.data);
                     updateWindowURLWithDirections();
                 },'json')
@@ -52,7 +52,7 @@ function getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation) {
 
         // Transit directions from Bing, by way of our API
         case 'bus':
-                $.get(API_NEW_BASE_URL + 'directions_transit', data, function (reply) {
+                $.get(CM_MAPS_API_BASE_URL + 'directions_transit', data, function (reply) {
                     renderDirectionsStructure(reply.data);
                     updateWindowURLWithDirections();
                 },'json')
@@ -70,7 +70,7 @@ function getDirections(sourceLngLat, targetLngLat, via, isFromGeolocation) {
         default:
             data.via = via;
 
-            $.get(API_NEW_BASE_URL + 'directions_trails', data, function (reply) {
+            $.get(CM_MAPS_API_BASE_URL + 'directions_trails', data, function (reply) {
                 if (reply.data && reply.data.wkt) {
                     renderDirectionsStructure(reply.data);
                     updateWindowURLWithDirections();
@@ -250,7 +250,7 @@ function geocodeDirectionsInput($input) {
     var inputText = ($input).val();
 
     var geocodeResponse = $.ajax({
-        url: API_NEW_BASE_URL + 'geocode/' + inputText,
+        url: CM_MAPS_API_BASE_URL + 'geocode/' + inputText,
         dataType: 'json',
         success: function (reply) {
             if (reply && reply.data.lng && reply.data.lat) {

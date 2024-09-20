@@ -12,10 +12,10 @@
 var WEBAPP_BASEPATH = '/';
 var MAP = null;
 
-var API_NEW_HOST = 'maps-api.clevelandmetroparks.com';
-var API_NEW_PROTOCOL = 'https:';
-var API_NEW_BASEPATH = '/api/v1/';
-var API_NEW_BASE_URL = API_NEW_PROTOCOL + '//' + API_NEW_HOST + API_NEW_BASEPATH;
+var CM_MAPS_API_HOST = 'maps-api.clevelandmetroparks.com';
+var CM_MAPS_API_PROTOCOL = 'https:';
+var CM_MAPS_API_BASEPATH = '/api/v1/';
+var CM_MAPS_API_BASE_URL = CM_MAPS_API_PROTOCOL + '//' + CM_MAPS_API_HOST + CM_MAPS_API_BASEPATH;
 
 var WEBAPP_BASE_URL_ABSOLUTE_PROTOCOL = 'https:';
 var WEBAPP_BASE_URL_ABSOLUTE_HOST = 'maps.clevelandmetroparks.com';
