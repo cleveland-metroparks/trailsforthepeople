@@ -225,7 +225,9 @@ function showInfoPopup(message, type) {
  */
 function changeBasemap(layer_key) {
     active_layer = STYLE_LAYERS[layer_key];
-    MAP.setStyle(active_layer);
+    MAP.on('load', () => {
+        MAP.setStyle(active_layer);
+    })
     if (TRAILVIEW_ENABLED === true) {
         MAP.on('style.load', () => {
             addTrailViewMapLayer();
@@ -4246,7 +4248,7 @@ async function initTrailView() {
     if (trailviewEnableButton === null) {
         throw new Error("trailview_enable_button id not found");
     }
-    const healthRes = await fetch('https://trailview.cmparks.net/api/health', { method: 'GET' });
+    const healthRes = await fetch('https://trailview.clevelandmetroparks.com/api/health', { method: 'GET' });
     if (healthRes.status !== 200 || (await healthRes.json()).success !== true) {
         console.warn("TrailView unable to be contacted");
         return;
@@ -4290,7 +4292,7 @@ async function initTrailView() {
                 if (trailviewToggled === false) {
                     toggleTrailView({ latitude: pos.lat, longitude: pos.lng });
                 } else {
-                    const res = await fetch(`https://trailview.cmparks.net/api/near/${encodeURI(pos.lat.toString())}/${encodeURI(pos.lng.toString())}/standard`,
+                    const res = await fetch(`https://trailview.clevelandmetroparks.com/api/near/${encodeURI(pos.lat.toString())}/${encodeURI(pos.lng.toString())}/standard`,
                         { method: 'GET' });
                     const data = await res.json();
                     if (data.success === true && trailviewViewer !== null && data.data.distance < 300) {
@@ -4369,8 +4371,15 @@ function toggleTrailView(pos) {
     if (trailviewToggled === false) {
         trailviewToggled = true;
         document.querySelector('#trailview_enable_button').classList.add('trailview-button-active');
-        addTrailViewMapLayer();
-        createTrailviewMapMarker();
+        if (MAP.loaded()) {
+            addTrailViewMapLayer();
+            createTrailviewMapMarker();
+        } else {
+            MAP.on('load', () => {
+                addTrailViewMapLayer();
+                createTrailviewMapMarker();
+            })
+        }
         $('#trailview_viewer').fadeIn();
         if (trailviewViewer === null) {
             const options = trailviewer.defaultBaseOptions;
@@ -4561,7 +4570,7 @@ function addTrailViewMapLayer() {
     const layerData = {
         type: 'vector',
         format: 'pbf',
-        tiles: ['https://trailview.cmparks.net/api/tiles/{z}/{x}/{y}/standard'],
+        tiles: ['https://trailview.clevelandmetroparks.com/api/tiles/{z}/{x}/{y}'],
     };
 
     MAP.addSource('dots', layerData);
@@ -4573,13 +4582,8 @@ function addTrailViewMapLayer() {
         type: 'circle',
         paint: {
             'circle-radius': 10,
-            'circle-color': [
-                'case',
-                ['==', ['get', 'visible'], true],
-                '#00a108',
-                '#db8904',
-            ],
-        },
+            'circle-color': ['case', ['==', ['get', 'public'], true], '#00a108', '#db8904']
+        }
     });
     MAP.setPaintProperty('dots', 'circle-radius', [
         'interpolate',
@@ -4596,7 +4600,7 @@ function addTrailViewMapLayer() {
         7,
 
         20,
-        8,
+        8
     ]);
     MAP.setPaintProperty('dots', 'circle-opacity', [
         'interpolate',
@@ -4613,7 +4617,7 @@ function addTrailViewMapLayer() {
         0.25,
 
         20,
-        1,
+        1
     ]);
 
     MAP.on('mouseenter', 'dots', () => {

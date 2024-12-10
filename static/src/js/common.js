@@ -145,7 +145,9 @@ function showInfoPopup(message, type) {
  */
 function changeBasemap(layer_key) {
     active_layer = STYLE_LAYERS[layer_key];
-    MAP.setStyle(active_layer);
+    MAP.on('load', () => {
+        MAP.setStyle(active_layer);
+    })
     if (TRAILVIEW_ENABLED === true) {
         MAP.on('style.load', () => {
             addTrailViewMapLayer();
