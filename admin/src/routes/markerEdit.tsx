@@ -398,13 +398,15 @@ export function MarkerEdit() {
                     <DatesProvider settings={{ firstDayOfWeek: 0 }}>
                     <DatePickerInput
                       label="Start date"
-                      placeholder="Pick start date"
+                      // @TODO: Add placeholder
+                      // placeholder="Pick start date"
                       {...form.getInputProps('startDate')}
                     />
 
                     <DatePickerInput
                       label="Expires"
-                      placeholder="Pick expiration date"
+                      // @TODO: Add placeholder
+                      // placeholder="Pick expiration date"
                       {...form.getInputProps('expireDate')}
                       sx={{ margin: '1em 0 2em' }}
                     />

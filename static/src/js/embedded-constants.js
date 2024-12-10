@@ -11,4 +11,3 @@
 // attempt to connect to the of domain where the embedded map lives.
 // (For local development, comment these out.)
 WEBAPP_BASEPATH = 'https://maps.clevelandmetroparks.com/';
-API_BASEPATH = 'https://maps.clevelandmetroparks.com/'; // (Old API server)

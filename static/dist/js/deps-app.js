@@ -43270,9 +43270,9 @@ return Tooltip;
 },{}],57:[function(require,module,exports){
 var jquery = window.$ = window.jQuery = require('jquery');
 window.FastClick = require('fastclick');
-// require('jquery-mobile');
+// require('jquery-mobile'); // Including manually in index.html
 window.mapboxgl = require('mapbox-gl');
-// require('sidebar-v2/js/jquery-sidebar');
+// require('sidebar-v2/js/jquery-sidebar'); // Including manually in index.html
 window.Wkt = require('wicket');
 window.turf = require('@turf/turf');
 require('@popperjs/core');

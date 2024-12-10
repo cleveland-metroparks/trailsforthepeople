@@ -386,14 +386,14 @@ function showFeatureInfoContent(attractionType, id) {
         case 'loop': // "Blessed trail"
             if (id in CM.trails) {
                 // Query API for trail geometry
-                $.get(API_NEW_BASE_URL + 'trail_geometries/' + id, null, function (reply) {
+                $.get(CM_MAPS_API_BASE_URL + 'trail_geometries/' + id, null, function (reply) {
                     if (reply.data.geom_geojson) {
                         var geom_geojson = JSON.parse(reply.data.geom_geojson);
                         drawHighlightLine(geom_geojson);
                     }
                 });
                 // Query API for trail elevation profile
-                $.get(API_NEW_BASE_URL + 'trail_profiles/' + id, null, function (reply) {
+                $.get(CM_MAPS_API_BASE_URL + 'trail_profiles/' + id, null, function (reply) {
                     if (reply.data.elevation_profile) {
                         makeElevationProfileChart(reply.data.elevation_profile, 'elevation-profile-trail');
                     }
@@ -742,7 +742,7 @@ function clearHighlightLine() {
 function zoomToAddress(addressSearchText) {
     if (!addressSearchText) return false;
 
-    $.get(API_NEW_BASE_URL + 'geocode/' + addressSearchText, null, function (reply) {
+    $.get(CM_MAPS_API_BASE_URL + 'geocode/' + addressSearchText, null, function (reply) {
         if (!reply.data) {
             return alert("We couldn't find that address or city.\nPlease try again.");
         }

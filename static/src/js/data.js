@@ -52,7 +52,7 @@ var fuse = new Fuse([dummySearchItem], fuseOptions);
 //
 // Get categories, and populate global object, CM.categories
 //
-$.get(API_NEW_BASE_URL + 'categories', null, function (reply) {
+$.get(CM_MAPS_API_BASE_URL + 'categories', null, function (reply) {
     // Key by categorytypeid
     for (var i = 0; i < reply.data.length; i++) {
         var id = reply.data[i].categorytypeid;
@@ -69,7 +69,7 @@ $.get(API_NEW_BASE_URL + 'categories', null, function (reply) {
 //
 // Get amenities, and populate global object, CM.amenities
 //
-$.get(API_NEW_BASE_URL + 'amenities', null, function (reply) {
+$.get(CM_MAPS_API_BASE_URL + 'amenities', null, function (reply) {
     CM.amenities = reply.data;
 
     var amenity_icons = {
@@ -96,7 +96,7 @@ $.get(API_NEW_BASE_URL + 'amenities', null, function (reply) {
 //
 // Get visitor centers and populate global object, CM.visitor_centers
 //
-$.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
+$.get(CM_MAPS_API_BASE_URL + 'visitor_centers', null, function (reply) {
     CM.visitor_centers = reply.data;
 
     // Explode pipe-delimited strings to arrays
@@ -114,7 +114,7 @@ $.get(API_NEW_BASE_URL + 'visitor_centers', null, function (reply) {
 //
 // Get reservations, and populate global object, CM.reservations
 //
-$.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
+$.get(CM_MAPS_API_BASE_URL + 'reservations', null, function (reply) {
     CM.reservations = reply.data;
 
     // Add to Fuse search index
@@ -143,7 +143,7 @@ $.get(API_NEW_BASE_URL + 'reservations', null, function (reply) {
 //
 // Get attractions, and populate global object, CM.attractions
 //
-$.get(API_NEW_BASE_URL + 'attractions', null, function (reply) {
+$.get(CM_MAPS_API_BASE_URL + 'attractions', null, function (reply) {
     CM.attractions = reply.data;
 
     // Explode pipe-delimited strings to arrays
@@ -222,7 +222,7 @@ function activity_icon_filepath(activity_id) {
 // Get activities, and populate global object, CM.activities
 // Keyed by eventactivitytypeid.
 //
-$.get(API_NEW_BASE_URL + 'activities', null, function (reply) {
+$.get(CM_MAPS_API_BASE_URL + 'activities', null, function (reply) {
     // Key by eventactivitytypeid
     for (var i = 0; i < reply.data.length; i++) {
         var id = reply.data[i].eventactivitytypeid;
@@ -238,7 +238,7 @@ $.get(API_NEW_BASE_URL + 'activities', null, function (reply) {
 //
 // Get autocomplete keywords, and populate global object, CM.autocomplete_keywords
 //
-$.get(API_NEW_BASE_URL + 'autocomplete_keywords', null, function (reply) {
+$.get(CM_MAPS_API_BASE_URL + 'autocomplete_keywords', null, function (reply) {
     for (var i = 0; i < reply.data.length; i++) {
         CM.autocomplete_keywords.push(reply.data[i].word);
     }
@@ -279,7 +279,7 @@ function str_to_bool(str) {
 //
 // Get trails, and populate global object, CM.trails
 //
-$.get(API_NEW_BASE_URL + 'trails', null, function (reply) {
+$.get(CM_MAPS_API_BASE_URL + 'trails', null, function (reply) {
     // Key by id
     for (var i = 0; i < reply.data.length; i++) {
         if (reply.data[i].status === 0) {
