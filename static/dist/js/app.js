@@ -4292,7 +4292,7 @@ async function initTrailView() {
                 if (trailviewToggled === false) {
                     toggleTrailView({ latitude: pos.lat, longitude: pos.lng });
                 } else {
-                    const res = await fetch(`https://trailview.clevelandmetroparks.com/api/near/${encodeURI(pos.lat.toString())}/${encodeURI(pos.lng.toString())}/standard`,
+                    const res = await fetch(`https://trailview.clevelandmetroparks.com/api/images/near?lat=${encodeURI(pos.lat.toString())}&lng=${encodeURI(pos.lng.toString())}`,
                         { method: 'GET' });
                     const data = await res.json();
                     if (data.success === true && trailviewViewer !== null && data.data.distance < 300) {
@@ -4383,6 +4383,7 @@ function toggleTrailView(pos) {
         $('#trailview_viewer').fadeIn();
         if (trailviewViewer === null) {
             const options = trailviewer.defaultBaseOptions;
+            options.baseUrl = 'https://trailview.clevelandmetroparks.com'
             const params = new URLSearchParams(document.location.search);
             if (pos !== undefined) {
                 options.initial = pos;
@@ -4397,7 +4398,7 @@ function toggleTrailView(pos) {
             trailviewViewer = new trailviewer.TrailViewerBase(options);
             trailviewViewer.on('image-change', (image) => {
                 if (MAP !== null && trailviewMapMarker !== null) {
-                    trailviewMapMarker.setLngLat([image.longitude, image.latitude]);
+                    trailviewMapMarker.setLngLat(image.coordinates);
                     MAP.easeTo({
                         center: trailviewMapMarker.getLngLat(),
                         duration: 500,

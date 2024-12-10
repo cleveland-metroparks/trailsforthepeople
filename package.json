@@ -16,7 +16,7 @@
     "lodash": "^4.17.21"
   },
   "dependencies": {
-    "@cmparks/trailviewer": "^0.10.3",
+    "@cmparks/trailviewer": "^0.10.4",
     "@popperjs/core": "^2.9.1",
     "@turf/turf": "^7.0.0",
     "chart.js": "^4.4.3",
