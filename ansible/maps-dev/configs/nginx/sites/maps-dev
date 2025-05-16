@@ -32,7 +32,7 @@ server {
 	index index.html;
 
 	add_header 'Access-Control-Allow-Origin' '*' always;
-	add_header Content-Security-Policy "frame-ancestors *.clevelandmetroparks.com;" always;
+	add_header Content-Security-Policy "frame-ancestors https://*.clevelandmetroparks.com https://*.cmparks.net;" always;
 
 	ssl_certificate /etc/ssl/certs/wc24-maps.pem;
 	ssl_certificate_key /etc/ssl/private/wc24-maps.key;
