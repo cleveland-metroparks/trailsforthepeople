@@ -1,5 +1,14 @@
-# Mac OS X
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
 .DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.env
 
 # Sublime Text
 sftp-config.json
@@ -17,8 +26,6 @@ grunt-local-config.json
 # Temp
 /static/tmp/
 
-/application/logs/
-
 # Hint maps
 static/images/hint_maps/
 
@@ -27,3 +34,11 @@ static/images/hint_maps/
 .aaa.ini
 .aaa.log
 .aaa.pdf
+
+# Debug logs
+/application/logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
