@@ -97,7 +97,6 @@ function populatePaneActivities() {
 /**
  * Populate the Activities sidebar pane.
  */
-// COMMENTED OUT - Amenities functionality removed
 /*
 function populatePaneAmenities() {
     var template = CM.Templates.pane_amenities_item;
