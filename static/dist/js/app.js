@@ -563,35 +563,56 @@ $.get(CM_MAPS_API_BASE_URL + 'attractions', null, function (reply) {
 function activity_icon_filepath(activity_id) {
     var icons_dir = '/static/images/activities/'; // @TODO: Put in config and include basepath
     var activity_type_icons_by_id = {
-         1: 'bike',      // Biking & Cycling
-         2: 'swim',      // Swimming
-         3: 'boat',      // Boating, Sailing & Paddlesports
-         4: 'hike',      // Hiking & Walking
-         5: 'fish',      // Fishing & Ice Fishing
-         6: 'archery',   // Archery
-         7: 'xcski',     // Cross-Country Skiing
-         9: 'geocache',  // Geocaching
-        11: 'horse',     // Horseback Riding
-        12: 'mtnbike',   // Mountain Biking
-        13: 'picnic',    // Picnicking
-        14: '',          // Races & Competitions
-        15: 'sled',      // Sledding
-        16: 'snowshoe',  // Snowshoeing
-        17: '',          // Tobogganing
-        18: 'leafman',   // Rope Courses & Zip Lines
-        19: 'geology',   // Exploring Nature
-        20: 'history',   // Exploring Culture & History
-        21: 'dine',      // Dining
-        22: '',          // Classes, Workshops, & Lectures
-        23: 'leafman',   // Special Events & Programs
-        24: '',          // Concerts & Movies
-        25: 'fitness',   // Fitness Circuit
-        26: '',          // Disc Golf
-        30: 'golf',      // Golfing
-        39: 'fitness',   // Exercising
-        41: '',          // FootGolf
+        // Old activity types
+        //  1: 'bike',      // Biking & Cycling
+        //  2: 'swim',      // Swimming
+        //  3: 'boat',      // Boating, Sailing & Paddlesports
+        //  4: 'hike',      // Hiking & Walking
+        //  5: 'fish',      // Fishing & Ice Fishing
+        //  6: 'archery',   // Archery
+        //  7: 'xcski',     // Cross-Country Skiing
+        //  9: 'geocache',  // Geocaching
+        // 11: 'horse',     // Horseback Riding
+        // 12: 'mtnbike',   // Mountain Biking
+        // 13: 'picnic',    // Picnicking
+        // 14: '',          // Races & Competitions
+        // 15: 'sled',      // Sledding
+        // 16: 'snowshoe',  // Snowshoeing
+        // 17: '',          // Tobogganing
+        // 18: '',          // Rope Courses & Zip Lines
+        // 19: 'geology',   // Exploring Nature
+        // 20: 'history',   // Exploring Culture & History
+        // 21: 'dine',      // Dining
+        // 22: '',          // Classes, Workshops, & Lectures
+        // 23: 'leafman',   // Special Events & Programs
+        // 24: '',          // Concerts & Movies
+        // 25: 'fitness',   // Fitness Circuit
+        // 26: '',          // Disc Golf
+        // 30: 'golf',      // Golfing
+        // 39: 'fitness',   // Exercising
+        // 41: '',          // FootGolf
+
+        1147: 'golf',    // Golfing
+        1320: 'archery', // Archery
+        1325: '',        // Backpacking
+        1326: 'bike',    // Biking & Cycling
+        1329: 'boat',    // Boating Sailing & Paddlesports
+        1528: '',        // Climbing
+        1529: 'dine',    // Dining
+        1530: 'history', // Exploring Culture & History
+        1531: 'geology', // Exploring Nature
+        1532: 'fish',    // Fishing & Ice Fishing
+        1534: 'hike',    // Hiking & Walking
+        1535: 'horse',   // Horseback Riding
+        1536: 'mtnbike', // Mountain Biking
+        1538: 'picnic',  // Picnicking
+        1540: '',        // Rope Courses & Zip Lines
+        1541: 'sled',    // Sledding
+        1542: 'swim',    // Swimming
+        1543: '',        // Tobogganing
+        1544: '',        // Winter Activities
     };
-    var filename = activity_type_icons_by_id[activity_id];
+    var filename = activity_type_icons_by_id[activity_id] || 'leafman';
     if (filename) {
         var icon_path = icons_dir + filename + '.svg';
         return icon_path;
@@ -1778,9 +1799,22 @@ $(document).on("mapReady", function() {
  * Populate the sidebar panes with data.
  */
 function populateSidebarPanes() {
-    // Activities pane
+    // Activities pane - wait for both activities and attractions to be loaded
+    var activitiesReady = false;
+    var attractionsReady = false;
+
     $(document).on("dataReadyActivities", function() {
-        populatePaneActivities();
+        activitiesReady = true;
+        if (attractionsReady) {
+            populatePaneActivities();
+        }
+    });
+
+    $(document).on("dataReadyAttractions", function() {
+        attractionsReady = true;
+        if (activitiesReady) {
+            populatePaneActivities();
+        }
     });
 
     // Amenities pane
@@ -1802,16 +1836,21 @@ function populatePaneActivities() {
     var template = CM.Templates.pane_activities_item;
 
     CM.activities.forEach(function(activity) {
+        // Check if activity has an icon AND has associated attractions
         if (activity.icon) {
-            var link_param_category = 'pois_usetype_' + encodeURIComponent(activity.pagetitle);
-            activity.link_url = "#browse-results?id="
-                                + activity.eventactivitytypeid
-                                + "&category="
-                                + link_param_category;
-            var template_vars = {
-                activity: activity
-            };
-            $('#activities-list').append(template(template_vars));
+            // Check if this activity has any associated attractions
+            var associated_attractions = CM.get_attractions_by_activity(activity.eventactivitytypeid);
+            if (associated_attractions.length > 0) {
+                var link_param_category = 'pois_usetype_' + encodeURIComponent(activity.pagetitle);
+                activity.link_url = "#browse-results?id="
+                                    + activity.eventactivitytypeid
+                                    + "&category="
+                                    + link_param_category;
+                var template_vars = {
+                    activity: activity
+                };
+                $('#activities-list').append(template(template_vars));
+            }
         }
     });
 

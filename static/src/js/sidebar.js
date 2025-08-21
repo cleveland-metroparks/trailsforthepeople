@@ -11,9 +11,22 @@
  * Populate the sidebar panes with data.
  */
 function populateSidebarPanes() {
-    // Activities pane
+    // Activities pane - wait for both activities and attractions to be loaded
+    var activitiesReady = false;
+    var attractionsReady = false;
+
     $(document).on("dataReadyActivities", function() {
-        populatePaneActivities();
+        activitiesReady = true;
+        if (attractionsReady) {
+            populatePaneActivities();
+        }
+    });
+
+    $(document).on("dataReadyAttractions", function() {
+        attractionsReady = true;
+        if (activitiesReady) {
+            populatePaneActivities();
+        }
     });
 
     // Amenities pane
@@ -35,16 +48,21 @@ function populatePaneActivities() {
     var template = CM.Templates.pane_activities_item;
 
     CM.activities.forEach(function(activity) {
+        // Check if activity has an icon AND has associated attractions
         if (activity.icon) {
-            var link_param_category = 'pois_usetype_' + encodeURIComponent(activity.pagetitle);
-            activity.link_url = "#browse-results?id="
-                                + activity.eventactivitytypeid
-                                + "&category="
-                                + link_param_category;
-            var template_vars = {
-                activity: activity
-            };
-            $('#activities-list').append(template(template_vars));
+            // Check if this activity has any associated attractions
+            var associated_attractions = CM.get_attractions_by_activity(activity.eventactivitytypeid);
+            if (associated_attractions.length > 0) {
+                var link_param_category = 'pois_usetype_' + encodeURIComponent(activity.pagetitle);
+                activity.link_url = "#browse-results?id="
+                                    + activity.eventactivitytypeid
+                                    + "&category="
+                                    + link_param_category;
+                var template_vars = {
+                    activity: activity
+                };
+                $('#activities-list').append(template(template_vars));
+            }
         }
     });
 
