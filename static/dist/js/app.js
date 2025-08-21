@@ -394,7 +394,7 @@ function setWindowURLQueryStringParameters(params, reset, pushState) {
 //
 var CM = {
     activities : [],
-    amenities : [],
+    // amenities : [],
     attractions : [],
     attractions_nearby : [],
     autocomplete_keywords : [],
@@ -451,6 +451,7 @@ $.get(CM_MAPS_API_BASE_URL + 'categories', null, function (reply) {
 //
 // Get amenities, and populate global object, CM.amenities
 //
+/*
 $.get(CM_MAPS_API_BASE_URL + 'amenities', null, function (reply) {
     CM.amenities = reply.data;
 
@@ -474,6 +475,7 @@ $.get(CM_MAPS_API_BASE_URL + 'amenities', null, function (reply) {
         type: 'dataReadyAmenities',
     });
 }, 'json');
+*/
 
 //
 // Get visitor centers and populate global object, CM.visitor_centers
@@ -484,7 +486,7 @@ $.get(CM_MAPS_API_BASE_URL + 'visitor_centers', null, function (reply) {
     // Explode pipe-delimited strings to arrays
     CM.visitor_centers.forEach(function(visitor_center) {
         visitor_center.categories = visitor_center.categories ? visitor_center.categories.split('|').map(Number) : null;
-        visitor_center.amenities = visitor_center.amenities ? visitor_center.amenities.split('|').map(Number) : null;
+        // visitor_center.amenities = visitor_center.amenities ? visitor_center.amenities.split('|').map(Number) : null;
         visitor_center.activities = visitor_center.activities ? visitor_center.activities.split('|').map(Number) : null;
     });
 
@@ -531,7 +533,7 @@ $.get(CM_MAPS_API_BASE_URL + 'attractions', null, function (reply) {
     // Explode pipe-delimited strings to arrays
     CM.attractions.forEach(function(attraction) {
         attraction.categories = attraction.categories ? attraction.categories.split('|').map(Number) : null;
-        attraction.amenities = attraction.amenities ? attraction.amenities.split('|').map(Number) : null;
+        // attraction.amenities = attraction.amenities ? attraction.amenities.split('|').map(Number) : null;
         attraction.activities = attraction.activities ? attraction.activities.split('|').map(Number) : null;
     });
 
@@ -793,6 +795,7 @@ CM.get_attractions_by_activity = function(activity_ids) {
  *
  * @param amenity_ids
  */
+/*
 CM.get_attractions_by_amenity = function(amenity_ids) {
     // Accept either a single Amenity ID or an array of them.
     var amenity_ids = Array.isArray(amenity_ids) ? amenity_ids : [amenity_ids];
@@ -819,6 +822,7 @@ CM.get_attractions_by_amenity = function(amenity_ids) {
 
     return filtered_attractions;
 }
+*/
 
 ;
  /**
@@ -1818,10 +1822,12 @@ function populateSidebarPanes() {
     });
 
     // Amenities pane
+    /*
     // @TODO: We don't have data or API endpoint here yet?
     $(document).on("dataReadyAmenities", function() {
         populatePaneAmenities();
     });
+    */
 
     // Reservations in Trails pane
     $(document).on("dataReadyReservations", function() {
@@ -1883,6 +1889,8 @@ function populatePaneActivities() {
 /**
  * Populate the Activities sidebar pane.
  */
+// COMMENTED OUT - Amenities functionality removed
+/*
 function populatePaneAmenities() {
     var template = CM.Templates.pane_amenities_item;
     CM.amenities.forEach(function(amenity) {
@@ -1899,6 +1907,7 @@ function populatePaneAmenities() {
     /**
      * Set click event
      */
+    /*
     $('#amenities-list li a').click(function() {
         // Get Amenity ID from query string param
         // (purl.js apparently doesn't parse query string if URL begins with '#')
@@ -1916,6 +1925,7 @@ function populatePaneAmenities() {
         CM.display_attractions_results(pane_title, filtered_attractions, 'attraction');
     });
 }
+*/
 
 /**
  * Populate the Trails sidebar pane's reservations dropdown.

@@ -158,9 +158,9 @@
     .welcome-pane-visitorcenters .ui-bar {
         background: url(#{variables.$static_dir}/images/welcome_pane/visitorcenters.jpg) $gradient_screen;
     }
-    .welcome-pane-amenities .ui-bar {
-        background: url(#{variables.$static_dir}/images/welcome_pane/amenities.jpg) $gradient_screen;
-    }
+    // .welcome-pane-amenities .ui-bar {
+    //     background: url(#{variables.$static_dir}/images/welcome_pane/amenities.jpg) $gradient_screen;
+    // }
     .welcome-pane-trails .ui-bar {
         background: url(#{variables.$static_dir}/images/welcome_pane/trails.jpg) $gradient_screen;
     }

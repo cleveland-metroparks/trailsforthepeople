@@ -30,10 +30,12 @@ function populateSidebarPanes() {
     });
 
     // Amenities pane
+    /*
     // @TODO: We don't have data or API endpoint here yet?
     $(document).on("dataReadyAmenities", function() {
         populatePaneAmenities();
     });
+    */
 
     // Reservations in Trails pane
     $(document).on("dataReadyReservations", function() {
@@ -95,6 +97,8 @@ function populatePaneActivities() {
 /**
  * Populate the Activities sidebar pane.
  */
+// COMMENTED OUT - Amenities functionality removed
+/*
 function populatePaneAmenities() {
     var template = CM.Templates.pane_amenities_item;
     CM.amenities.forEach(function(amenity) {
@@ -111,6 +115,7 @@ function populatePaneAmenities() {
     /**
      * Set click event
      */
+    /*
     $('#amenities-list li a').click(function() {
         // Get Amenity ID from query string param
         // (purl.js apparently doesn't parse query string if URL begins with '#')
@@ -128,6 +133,7 @@ function populatePaneAmenities() {
         CM.display_attractions_results(pane_title, filtered_attractions, 'attraction');
     });
 }
+*/
 
 /**
  * Populate the Trails sidebar pane's reservations dropdown.
