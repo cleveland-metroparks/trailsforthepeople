@@ -586,6 +586,22 @@ $(document).ready(function () {
 });
 
 /**
+ * Distance (Haversine) from one point to another.
+ *
+ * @param fromLngLat {mapboxgl.LngLat}: From location
+ * @param toLngLat {mapboxgl.LngLat}: To location
+ *
+ * @return Distance in meters
+ */
+function distanceTo(fromLngLat, toLngLat) {
+    var turfFrom = turf.point(fromLngLat.toArray());
+    var turfTo = turf.point(toLngLat.toArray());
+    var options = {units: 'meters'};
+
+    return turf.distance(turfFrom, turfTo, options);
+}
+
+/**
  *
  */
 function getListDistances(target) {

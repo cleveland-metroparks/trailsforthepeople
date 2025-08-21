@@ -2895,34 +2895,33 @@ $.get(CM_MAPS_API_BASE_URL + 'attractions', null, function (reply) {
 function activity_icon_filepath(activity_id) {
     var icons_dir = '/static/images/activities/'; // @TODO: Put in config and include basepath
     var activity_type_icons_by_id = {
-        // Old activity types
-        //  1: 'bike',      // Biking & Cycling
-        //  2: 'swim',      // Swimming
-        //  3: 'boat',      // Boating, Sailing & Paddlesports
-        //  4: 'hike',      // Hiking & Walking
-        //  5: 'fish',      // Fishing & Ice Fishing
-        //  6: 'archery',   // Archery
-        //  7: 'xcski',     // Cross-Country Skiing
-        //  9: 'geocache',  // Geocaching
-        // 11: 'horse',     // Horseback Riding
-        // 12: 'mtnbike',   // Mountain Biking
-        // 13: 'picnic',    // Picnicking
-        // 14: '',          // Races & Competitions
-        // 15: 'sled',      // Sledding
-        // 16: 'snowshoe',  // Snowshoeing
-        // 17: '',          // Tobogganing
-        // 18: '',          // Rope Courses & Zip Lines
-        // 19: 'geology',   // Exploring Nature
-        // 20: 'history',   // Exploring Culture & History
-        // 21: 'dine',      // Dining
-        // 22: '',          // Classes, Workshops, & Lectures
-        // 23: 'leafman',   // Special Events & Programs
-        // 24: '',          // Concerts & Movies
-        // 25: 'fitness',   // Fitness Circuit
-        // 26: '',          // Disc Golf
-        // 30: 'golf',      // Golfing
-        // 39: 'fitness',   // Exercising
-        // 41: '',          // FootGolf
+         1: 'bike',      // Biking & Cycling
+         2: 'swim',      // Swimming
+         3: 'boat',      // Boating, Sailing & Paddlesports
+         4: 'hike',      // Hiking & Walking
+         5: 'fish',      // Fishing & Ice Fishing
+         6: 'archery',   // Archery
+         7: 'xcski',     // Cross-Country Skiing
+         9: 'geocache',  // Geocaching
+        11: 'horse',     // Horseback Riding
+        12: 'mtnbike',   // Mountain Biking
+        13: 'picnic',    // Picnicking
+        14: '',          // Races & Competitions
+        15: 'sled',      // Sledding
+        16: 'snowshoe',  // Snowshoeing
+        17: '',          // Tobogganing
+        18: '',          // Rope Courses & Zip Lines
+        19: 'geology',   // Exploring Nature
+        20: 'history',   // Exploring Culture & History
+        21: 'dine',      // Dining
+        22: '',          // Classes, Workshops, & Lectures
+        23: 'leafman',   // Special Events & Programs
+        24: '',          // Concerts & Movies
+        25: 'fitness',   // Fitness Circuit
+        26: '',          // Disc Golf
+        30: 'golf',      // Golfing
+        39: 'fitness',   // Exercising
+        41: '',          // FootGolf
 
         1147: 'golf',    // Golfing
         1320: 'archery', // Archery
