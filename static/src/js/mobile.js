@@ -15,7 +15,7 @@ var WINDOW_URL_QUERYSTRING = null;
 var sidebar = null;
 
 // Used by Nearby: sound an alert only if the list has in fact changed
-var LAST_BEEP_IDS = [];
+// var LAST_BEEP_IDS = [];
 
 // other stuff pertaining to our last known location and auto-centering
 var LAST_KNOWN_LOCATION = mapboxgl.LngLat.convert(START_CENTER);

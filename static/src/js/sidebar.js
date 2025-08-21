@@ -178,9 +178,9 @@ $(document).ready(function () {
     /**
      * Nearby pane (#pane-nearby)
      */
-    $('.sidebar-tabs li a[href="#pane-nearby"]').click(function() {
-        updateNearYouNow();
-    });
+    // $('.sidebar-tabs li a[href="#pane-nearby"]').click(function() {
+    //     updateNearYouNow();
+    // });
 
     /**
      * Welcome pane (#pane-welcome)

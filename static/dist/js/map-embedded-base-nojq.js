@@ -2726,7 +2726,7 @@ var CM = {
     activities : [],
     // amenities : [],
     attractions : [],
-    attractions_nearby : [],
+    // attractions_nearby : [],
     autocomplete_keywords : [],
     categories : [],
     reservations : [],
