@@ -144,12 +144,6 @@ module.exports = function(grunt) {
         files: {
           'static/dist/js/map-embedded-pnd.min.js': ['static/src/js/embedded-pnd.js']
         }
-      },
-      // For map embed of beach closures:
-      embedded_beach_closures: {
-        files: {
-          'static/dist/js/map-embedded-beach_closures.min.js': ['static/src/js/embedded-beach_closures.js']
-        }
       }
     },
 
@@ -303,12 +297,6 @@ module.exports = function(grunt) {
       //    'static/src/js/embedded-pnd.js'
       //  ],
       //  tasks: ['terser:embedded_pnd']
-      //},
-      //terser_embedded_beach_closures: {
-      //  files: [
-      //    'static/src/js/embedded-beach_closures.js'
-      //  ],
-      //  tasks: ['terser:embedded_beach_closures']
       //}
     }
   });
@@ -335,7 +323,6 @@ module.exports = function(grunt) {
     'terser:embedded_base_nojq',
     'terser:embedded_visit',
     'terser:embedded_pnd',
-    'terser:embedded_beach_closures',
 
     'sass:embedded'
   ]);
