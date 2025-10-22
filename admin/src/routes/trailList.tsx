@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Anchor, Button, Table, Text, TextInput, Title } from '@mantine/core';
+import { Anchor, Button, Table, Text, TextInput, Title, Select, Group } from '@mantine/core';
 import { keys } from '@mantine/utils';
 import { IconSearch } from '@tabler/icons-react';
 import { default as dayjs } from 'dayjs';
@@ -9,6 +9,7 @@ import { default as dayjs } from 'dayjs';
 import { mapsApiClient } from "../components/mapsApi";
 import type { Trail } from "../types/trail";
 import { sortTableData, Th } from "../components/tablesort";
+import { reservationListSelectOptions, reservationFilterSelectOptions } from "../types/reservation";
 
 // Get all trails from the API
 const getAllTrails = async () => {
@@ -40,11 +41,12 @@ export const loader =
 // The trail columns we'll display, sort, & filter
 const rowKeys: (keyof Trail)[] = ['name', 'res', 'distancetext', 'date_modified', 'modifier_username', 'status'];
 
-// Filter row data by search query
-function filterTableData(data: Trail[], search: string) {
+// Filter row data by search query and reservation
+function filterTableData(data: Trail[], search: string, reservationFilter: string) {
   const query = search.toLowerCase().trim();
-  return data.filter((item) =>
-    keys(data[0]).some(function (key) {
+  return data.filter((item) => {
+    // Apply text search filter
+    const matchesSearch = query === '' || keys(data[0]).some(function (key) {
       if (rowKeys.includes(key) && item[key]) {
         switch (key) {
           case 'date_modified':
@@ -54,8 +56,13 @@ function filterTableData(data: Trail[], search: string) {
         }
       }
       return false;
-    })
-  );
+    });
+
+    // Apply reservation filter
+    const matchesReservation = reservationFilter === '' || item.res === reservationFilter;
+
+    return matchesSearch && matchesReservation;
+  });
 }
 
 /**
@@ -70,8 +77,9 @@ export function TrailList() {
     error: trailsError,
   } = useQuery<Trail[], Error>(['trails'], getAllTrails);
 
-  // For table sorting
+  // For table sorting and filtering
   const [search, setSearch] = useState('');
+  const [reservationFilter, setReservationFilter] = useState('');
   const [sortedData, setSortedData] = useState(trailsData);
   const [sortBy, setSortBy] = useState<keyof Trail | null>(null);
   const [reverseSortDirection, setReverseSortDirection] = useState(false);
@@ -81,14 +89,21 @@ export function TrailList() {
     const reversed = field === sortBy ? !reverseSortDirection : false;
     setReverseSortDirection(reversed);
     setSortBy(field);
-    setSortedData(sortTableData(trailsData, { sortBy: field, reversed, search }, filterTableData));
+    setSortedData(sortTableData(trailsData, { sortBy: field, reversed, search }, (data) => filterTableData(data, search, reservationFilter)));
   };
 
   // Handle table search
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget;
     setSearch(value);
-    setSortedData(sortTableData(trailsData, { sortBy, reversed: reverseSortDirection, search: value }, filterTableData));
+    setSortedData(sortTableData(trailsData, { sortBy, reversed: reverseSortDirection, search: value }, (data) => filterTableData(data, value, reservationFilter)));
+  };
+
+  // Handle reservation filter change
+  const handleReservationFilterChange = (value: string | null) => {
+    const filterValue = value || '';
+    setReservationFilter(filterValue);
+    setSortedData(sortTableData(trailsData, { sortBy, reversed: reverseSortDirection, search }, (data) => filterTableData(data, search, filterValue)));
   };
 
   // Table rows
@@ -127,13 +142,25 @@ export function TrailList() {
       + Add Trail
     </Button>
 
-    <TextInput
-      placeholder="Filter by any field"
-      mb="md"
-      icon={<IconSearch size="0.9rem" stroke={1.5} />}
-      value={search}
-      onChange={handleSearchChange}
-    />
+    <Group spacing="md" mb="md">
+      <TextInput
+        label="Search"
+        placeholder="Search by any field"
+        icon={<IconSearch size="0.9rem" stroke={1.5} />}
+        value={search}
+        onChange={handleSearchChange}
+        sx={{ minWidth: 300 }}
+      />
+      <Select
+        label="Reservation"
+        placeholder="Filter by reservation"
+        data={reservationFilterSelectOptions}
+        value={reservationFilter}
+        onChange={handleReservationFilterChange}
+        clearable
+        sx={{ minWidth: 300 }}
+      />
+    </Group>
 
     <Table striped highlightOnHover>
       <thead>

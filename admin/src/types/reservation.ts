@@ -26,3 +26,8 @@ export const reservationListSelectOptions = reservationList.map(cat => ({
     value: cat,
     label: (cat !== '' && cat != null) ? cat : '(none)',
 }));
+
+export const reservationFilterSelectOptions = reservationList.map(cat => ({
+    value: cat,
+    label: (cat !== '' && cat != null) ? cat : '(all)',
+}));
