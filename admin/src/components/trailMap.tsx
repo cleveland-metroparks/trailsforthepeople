@@ -331,6 +331,19 @@ export function TrailMap(props: TrailMapProps) {
                 'line-width': 2
               }
             },
+            // Active (selected) points
+            {
+              "id": "gl-draw-point-active",
+              "type": "circle",
+              "filter": ["all",
+                ["==", "$type", "Point"],
+                ["==", "active", "true"]
+              ],
+              "paint": {
+                "circle-radius": 12,
+                "circle-color": "#000000"
+              }
+            },
             // Vertex point halos
             {
               "id": "gl-draw-polygon-and-line-vertex-halo-active",
