@@ -587,183 +587,185 @@ export function TrailEdit() {
             }
           >
 
-            <Tabs value={activeTab} onTabChange={setActiveTab} sx={{marginTop: '1em'}}>
+            <Grid sx={{marginTop: '1em'}}>
+              {/* Main content area */}
+              <Grid.Col span={9}>
+                <Tabs value={activeTab} onTabChange={setActiveTab}>
 
-              <Tabs.List>
-                <Tabs.Tab value="general">General</Tabs.Tab>
-                <Tabs.Tab value="route">Route</Tabs.Tab>
-              </Tabs.List>
+                  <Tabs.List>
+                    <Tabs.Tab value="general">General</Tabs.Tab>
+                    <Tabs.Tab value="route">Route</Tabs.Tab>
+                  </Tabs.List>
 
-              <Tabs.Panel value="general">
-                <Box sx={{ maxWidth: 800 }}>
+                  <Tabs.Panel value="general">
+                    <Box sx={{ maxWidth: 800 }}>
 
-                  <TextInput
-                    mt="md"
-                    required
-                    label="Name"
-                    placeholder="Trail name"
-                    {...form.getInputProps('name')}
-                  />
+                      <TextInput
+                        mt="md"
+                        required
+                        label="Name"
+                        placeholder="Trail name"
+                        {...form.getInputProps('name')}
+                      />
 
-                  <Box sx={{marginTop: '1em'}}>
-                    <Select
-                      label="Reservation"
-                      data={reservationListSelectOptions}
-                      {...form.getInputProps('res')}
-                    />
-                  </Box>
+                      <Box sx={{marginTop: '1em'}}>
+                        <Select
+                          label="Reservation"
+                          data={reservationListSelectOptions}
+                          {...form.getInputProps('res')}
+                        />
+                      </Box>
 
-                  <Input.Wrapper
-                    label="Description"
-                    withAsterisk
-                    sx={{marginTop: '1em'}}
+                      <Input.Wrapper
+                        label="Description"
+                        withAsterisk
+                        sx={{marginTop: '1em'}}
+                      >
+                        <RichTextEditor editor={richTextEditor}>
+                          <RichTextEditor.Toolbar sticky stickyOffset={60}>
+                            <RichTextEditor.ControlsGroup>
+                              <RichTextEditor.Bold />
+                              <RichTextEditor.Italic />
+                              <RichTextEditor.Underline />
+                            </RichTextEditor.ControlsGroup>
+
+                            <RichTextEditor.ControlsGroup>
+                              <RichTextEditor.Link />
+                              <RichTextEditor.Unlink />
+                            </RichTextEditor.ControlsGroup>
+
+                            <RichTextEditor.ControlsGroup>
+                              <RichTextEditor.BulletList />
+                              <RichTextEditor.OrderedList />
+                            </RichTextEditor.ControlsGroup>
+
+                            <RichTextEditor.ControlsGroup>
+                              <RichTextEditor.ClearFormatting />
+                              <RichTextEditor.Code />
+                            </RichTextEditor.ControlsGroup>
+                          </RichTextEditor.Toolbar>
+
+                          <RichTextEditor.Content />
+                        </RichTextEditor>
+                      </Input.Wrapper>
+
+                      <Group>
+                        <Checkbox
+                          mt="md"
+                          label="Published"
+                          {...form.getInputProps('status', { type: 'checkbox' })}
+                        />
+                      </Group>
+
+                      <Group mb="xs">
+                        <Checkbox
+                          mt="md"
+                          label="Hiking"
+                          {...form.getInputProps('hike', { type: 'checkbox' })}
+                        />
+                        <Checkbox
+                          mt="md"
+                          label="Biking"
+                          {...form.getInputProps('bike', { type: 'checkbox' })}
+                        />
+                        <Checkbox
+                          mt="md"
+                          label="Mountain biking"
+                          {...form.getInputProps('mountainbike', { type: 'checkbox' })}
+                        />
+                        <Checkbox
+                          mt="md"
+                          label="Horseback"
+                          {...form.getInputProps('bridle', { type: 'checkbox' })}
+                        />
+                      </Group>
+
+                    </Box>
+                  </Tabs.Panel>
+
+                  <Tabs.Panel value="route">
+                    <div style={{ minHeight: 600 }}>
+                      <TrailMap
+                        trail={trailData}
+                        trailGeom={trailGeometry}
+                        waypointsFeature={waypointsFeature}
+                        waypointsForDraw={waypointsForDraw}
+                        mapBounds={bounds}
+                        onDrawCreate={onDrawCreate}
+                        onDrawUpdate={onDrawUpdate}
+                        onDrawDelete={onDrawDelete}
+                        doCompleteTrail={completeTrail}
+                        activeTab={activeTab}
+                        onTravelModeChange={handleTravelModeChange}
+                        onElevationProfileToggle={handleElevationProfileToggle}
+                        showElevationProfile={showElevationProfile}
+                      />
+                      {showElevationProfile && <TrailProfileChart trailProfile={trailElevation} />}
+                    </div>
+                  </Tabs.Panel>
+
+                </Tabs>
+
+                {/* Save/Delete buttons */}
+                <Group position="left" my="xs">
+                  <Button
+                    type="submit"
+                    loading={savingState}
+                    sx={{ margin: '1em 0' }}
                   >
-                    <RichTextEditor editor={richTextEditor}>
-                      <RichTextEditor.Toolbar sticky stickyOffset={60}>
-                        <RichTextEditor.ControlsGroup>
-                          <RichTextEditor.Bold />
-                          <RichTextEditor.Italic />
-                          <RichTextEditor.Underline />
-                        </RichTextEditor.ControlsGroup>
+                  Save Trail
+                  </Button>
 
-                        <RichTextEditor.ControlsGroup>
-                          <RichTextEditor.Link />
-                          <RichTextEditor.Unlink />
-                        </RichTextEditor.ControlsGroup>
+                  {deleteTrailPath &&
+                    <Button
+                      onClick={() => openDeleteModal(deleteTrailPath)}
+                      variant="outline"
+                      color="red"
+                    >
+                      Delete Trail
+                    </Button>
+                  }
+                </Group>
+              </Grid.Col>
 
-                        <RichTextEditor.ControlsGroup>
-                          <RichTextEditor.BulletList />
-                          <RichTextEditor.OrderedList />
-                        </RichTextEditor.ControlsGroup>
-
-                        <RichTextEditor.ControlsGroup>
-                          <RichTextEditor.ClearFormatting />
-                          <RichTextEditor.Code />
-                        </RichTextEditor.ControlsGroup>
-                      </RichTextEditor.Toolbar>
-
-                      <RichTextEditor.Content />
-                    </RichTextEditor>
-                  </Input.Wrapper>
-
-                  <Group>
-                    <Checkbox
-                      mt="md"
-                      label="Published"
-                      {...form.getInputProps('status', { type: 'checkbox' })}
-                    />
-                  </Group>
-
-                  <Group mb="xs">
-                    <Checkbox
-                      mt="md"
-                      label="Hiking"
-                      {...form.getInputProps('hike', { type: 'checkbox' })}
-                    />
-                    <Checkbox
-                      mt="md"
-                      label="Biking"
-                      {...form.getInputProps('bike', { type: 'checkbox' })}
-                    />
-                    <Checkbox
-                      mt="md"
-                      label="Mountain biking"
-                      {...form.getInputProps('mountainbike', { type: 'checkbox' })}
-                    />
-                    <Checkbox
-                      mt="md"
-                      label="Horseback"
-                      {...form.getInputProps('bridle', { type: 'checkbox' })}
-                    />
-                  </Group>
-
-                </Box>
-              </Tabs.Panel>
-
-              <Tabs.Panel value="route">
-                <Grid>
-                  {/* Main content */}
-                  <Grid.Col span={9} style={{ minHeight: 600 }}>
-                    <TrailMap
-                      trail={trailData}
-                      trailGeom={trailGeometry}
-                      waypointsFeature={waypointsFeature}
-                      waypointsForDraw={waypointsForDraw}
-                      mapBounds={bounds}
-                      onDrawCreate={onDrawCreate}
-                      onDrawUpdate={onDrawUpdate}
-                      onDrawDelete={onDrawDelete}
-                      doCompleteTrail={completeTrail}
-                      activeTab={activeTab}
-                      onTravelModeChange={handleTravelModeChange}
-                      onElevationProfileToggle={handleElevationProfileToggle}
-                      showElevationProfile={showElevationProfile}
-                    />
-                    {showElevationProfile && <TrailProfileChart trailProfile={trailElevation} />}
-                  </Grid.Col>
-
-                  {/* Right sidebar */}
-                  <Grid.Col span={3}>
-                    <Accordion defaultValue="stats">
-                      <Accordion.Item value="stats">
-                        <Accordion.Control>Stats</Accordion.Control>
-                        <Accordion.Panel>
-                          <TrailStats stats={trailStats} />
-                        </Accordion.Panel>
-                      </Accordion.Item>
-                      <Accordion.Item value="directions">
-                        <Accordion.Control>Directions</Accordion.Control>
-                        <Accordion.Panel>
-                          <TrailDirections directions={trailDirections} />
-                        </Accordion.Panel>
-                      </Accordion.Item>
-                      <Accordion.Item value="waypoints">
-                        <Accordion.Control>Waypoints</Accordion.Control>
-                        <Accordion.Panel>
-                          <TrailWaypoints
-                            feature={waypointsFeature}
-                            // geojson={waypointsGeoJSON}
-                          />
-                        </Accordion.Panel>
-                      </Accordion.Item>
-                      <Accordion.Item value="authorship">
-                        <Accordion.Control>Authorship</Accordion.Control>
-                        <Accordion.Panel>
-                          <Authorship
-                            date_created={trailData.date_created}
-                            creator_username={trailData.creator_username}
-                            date_modified={trailData.date_modified}
-                            modifier_username={trailData.modifier_username}
-                          />
-                        </Accordion.Panel>
-                      </Accordion.Item>
-                    </Accordion>
-                  </Grid.Col>
-                </Grid>
-              </Tabs.Panel>
-
-            </Tabs>
-
-            <Group position="left" my="xs">
-              <Button
-                type="submit"
-                loading={savingState}
-                sx={{ margin: '1em 0' }}
-              >
-              Save Trail
-              </Button>
-
-              {deleteTrailPath &&
-                <Button
-                  onClick={() => openDeleteModal(deleteTrailPath)}
-                  variant="outline"
-                  color="red"
-                >
-                  Delete Trail
-                </Button>
-              }
-            </Group>
-
+              {/* Right sidebar */}
+              <Grid.Col span={3}>
+                <Accordion defaultValue="stats">
+                  <Accordion.Item value="stats">
+                    <Accordion.Control>Stats</Accordion.Control>
+                    <Accordion.Panel>
+                      <TrailStats stats={trailStats} />
+                    </Accordion.Panel>
+                  </Accordion.Item>
+                  <Accordion.Item value="directions">
+                    <Accordion.Control>Directions</Accordion.Control>
+                    <Accordion.Panel>
+                      <TrailDirections directions={trailDirections} />
+                    </Accordion.Panel>
+                  </Accordion.Item>
+                  <Accordion.Item value="waypoints">
+                    <Accordion.Control>Waypoints</Accordion.Control>
+                    <Accordion.Panel>
+                      <TrailWaypoints
+                        feature={waypointsFeature}
+                        // geojson={waypointsGeoJSON}
+                      />
+                    </Accordion.Panel>
+                  </Accordion.Item>
+                  <Accordion.Item value="authorship">
+                    <Accordion.Control>Authorship</Accordion.Control>
+                    <Accordion.Panel>
+                      <Authorship
+                        date_created={trailData.date_created}
+                        creator_username={trailData.creator_username}
+                        date_modified={trailData.date_modified}
+                        modifier_username={trailData.modifier_username}
+                      />
+                    </Accordion.Panel>
+                  </Accordion.Item>
+                </Accordion>
+              </Grid.Col>
+            </Grid>
 
           </form>
         </>
