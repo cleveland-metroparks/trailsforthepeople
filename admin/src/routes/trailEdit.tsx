@@ -30,11 +30,13 @@ import { reservationListSelectOptions } from "../types/reservation";
 
 import { mapsApiClient } from "../components/mapsApi";
 import { TrailMap } from "../components/trailMap";
-import { TrailWaypoints } from "../components/trailWaypoints";
-import { TrailStats } from "../components/trailStats";
-import { TrailDirections } from "../components/trailDirections";
+
+import { TrailWaypoints } from "../components/sidebarPanes/trailWaypoints";
+import { TrailStats } from "../components/sidebarPanes/trailStats";
+import { TrailDirections } from "../components/sidebarPanes/trailDirections";
+import { Authorship } from "../components/sidebarPanes/authorship";
+
 import { TrailProfileChart } from "../components/trailProfileChart";
-import { Authorship } from "../components/authorship";
 
 const trailsRootPath = '/trails';
 

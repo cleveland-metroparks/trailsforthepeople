@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Table, Text, Title, Code, Group } from '@mantine/core';
+import { Table } from '@mantine/core';
 
 interface TrailWaypointsProps {
   feature;
@@ -8,8 +8,8 @@ interface TrailWaypointsProps {
 
 /**
  * Trail Waypoints
- * @param props 
- * @returns 
+ * @param props
+ * @returns
  */
 export function TrailWaypoints(props: TrailWaypointsProps) {
   return (

@@ -21,7 +21,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { useAuth } from "../hooks/useAuth";
 
 import { mapsApiClient } from "../components/mapsApi";
-import { Authorship } from "../components/authorship";
+import { Authorship } from "../components/sidebarPanes/authorship";
 import type { Marker, MarkerFormData } from "../types/marker";
 import { markerCategorySelectOptions, emptyMarker, defaultMarkerFormData } from "../types/marker";
 import { reservationListSelectOptions } from "../types/reservation";
