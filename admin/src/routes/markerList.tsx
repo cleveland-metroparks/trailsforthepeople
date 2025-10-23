@@ -123,12 +123,6 @@ export function MarkerList() {
     <>
       <Title order={2}>Markers</Title>
 
-      {markersIsLoading && <div>Loading...</div>}
-
-      {markersIsError && (
-        <div>{`There is a problem fetching the post data - ${markersError.message}`}</div>
-      )}
-
       <Button component={Link} to="/markers/new"  variant="outline" sx={{ margin: '1em 0' }}>
         + Add Marker
       </Button>
@@ -185,9 +179,13 @@ export function MarkerList() {
         {
           markersData && rows && rows.length > 0 ? (rows) :
             <tr>
-              <td colSpan={4}>
+              <td colSpan={7}>
                 <Text weight={500} align="center">
-                  No markers found
+                  {markersIsError ?
+                    <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>{`There was a problem fetching the markers data - ${markersError.message}`}</div>
+                  :
+                  markersIsLoading ? <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>Loading...</div>: <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>No markers found</div>
+                  }
                 </Text>
               </td>
             </tr>

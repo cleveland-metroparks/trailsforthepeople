@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
-import { Table, Anchor, Box, Pagination } from '@mantine/core';
+import { Table, Anchor, Box, Pagination, Text } from '@mantine/core';
 import { default as dayjs } from 'dayjs';
 
 import { mapsApiClient } from "../components/mapsApi";
@@ -34,25 +34,30 @@ export function AuditLogView() {
   }
   // let logId = params.logId ? params.logId.toString() : '';
 
-  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<AuditLog, Error>(['audit_log', params.logId], () => getAuditLog(logId));
+  const {
+    isLoading: logIsLoading,
+    isError: logIsError,
+    data: logData,
+    error: logError
+  } = useQuery<AuditLog, Error>(['audit_log', params.logId], () => getAuditLog(logId));
 
   return (
     <div>
       <Anchor component={Link} to={`/logs`}>« Logs</Anchor>
 
-      {isLoading && <div>Loading...</div>}
+      {logIsLoading && <div>Loading...</div>}
 
-      {isError && (
-        <div>{`There is a problem fetching the post data - ${error.message}`}</div>
+      {logIsError && (
+        <div>{`There is a problem fetching the post data - ${logError.message}`}</div>
       )}
 
-      {data &&
+      {logData &&
         <div>
-          <h2>{dayjs(data.timestamp).format('YYYY-MM-DD HH:mm:ss Z')}</h2>
-          <span><strong>ID:</strong></span> <span>{data.id}</span><br />
-          <span><strong>IP Address:</strong></span> <span>{data.ipaddress}</span><br />
-          <span><strong>Username:</strong></span> <span>{data.username}</span><br />
-          <span><strong>Message:</strong></span> <span>{data.message}</span><br />
+          <h2>{dayjs(logData.timestamp).format('YYYY-MM-DD HH:mm:ss Z')}</h2>
+          <span><strong>ID:</strong></span> <span>{logData.id}</span><br />
+          <span><strong>IP Address:</strong></span> <span>{logData.ipaddress}</span><br />
+          <span><strong>Username:</strong></span> <span>{logData.username}</span><br />
+          <span><strong>Message:</strong></span> <span>{logData.message}</span><br />
         </div>
       }
     </div>
@@ -75,17 +80,16 @@ export function AuditLogsList() {
 
   const [page, setPage] = useState(1);
 
-  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<AuditLog[], Error>(['audit_logs', page], () => getAuditLogs(page), { keepPreviousData : true });
+  const {
+    isLoading: logsIsLoading,
+    isError: logsIsError,
+    data: logsData,
+    error: logsError,
+  } = useQuery<AuditLog[], Error>(['audit_logs', page], () => getAuditLogs(page), { keepPreviousData : true });
 
   return (
     <div>
       <h2>Logs</h2>
-
-      {isLoading && <div>Loading...</div>}
-
-      {isError && (
-        <div>{`There is a problem fetching the post data - ${error.message}`}</div>
-      )}
 
       <Table striped highlightOnHover>
         <thead>
@@ -98,23 +102,37 @@ export function AuditLogsList() {
         </thead>
 
         <tbody>
-        {data &&
-          data.map(audit_log => (
-            <tr key={audit_log.id}>
-              <td>
-                <Anchor
-                  component={Link}
-                  to={`/logs/${audit_log.id}`}
-                  key={audit_log.id}
-                >
-                  {dayjs(audit_log.timestamp).format('YYYY-MM-DD HH:mm:ss Z')}
-                </Anchor>
-              </td>
-              <td>{audit_log.ipaddress}</td>
-              <td>{audit_log.username}</td>
-              <td>{audit_log.message}</td>
-            </tr>
-          ))}
+        {
+          logsData && logsData.length > 0 ?
+            logsData.map(audit_log => (
+              <tr key={audit_log.id}>
+                <td>
+                  <Anchor
+                    component={Link}
+                    to={`/logs/${audit_log.id}`}
+                    key={audit_log.id}
+                  >
+                    {dayjs(audit_log.timestamp).format('YYYY-MM-DD HH:mm:ss Z')}
+                  </Anchor>
+                </td>
+                <td>{audit_log.ipaddress}</td>
+                <td>{audit_log.username}</td>
+                <td>{audit_log.message}</td>
+              </tr>
+            ))
+          :
+          <tr>
+            <td colSpan={4}>
+              <Text weight={500} align="center">
+                {logsIsError ?
+                  <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>{`There was a problem fetching the logs data - ${logsError.message}`}</div>
+                :
+                logsIsLoading ? <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>Loading...</div>: <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>No logs found</div>
+                }
+              </Text>
+            </td>
+          </tr>
+        }
         </tbody>
 
       </Table>

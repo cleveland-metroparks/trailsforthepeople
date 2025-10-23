@@ -133,9 +133,8 @@ export function TrailList() {
   return (<>
     <Title order={2}>Trails</Title>
 
-    {trailsIsLoading && <div>Loading...</div>}
     {trailsIsError && (
-      <div>{`There is a problem fetching the post data - ${trailsError.message}`}</div>
+      <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>{`There was a problem fetching the trails data - ${trailsError.message}`}</div>
     )}
 
     <Button component={Link} to="/trails/new"  variant="outline" sx={{ margin: '1em 0' }}>
@@ -201,9 +200,13 @@ export function TrailList() {
       {
         trailsData && rows && rows.length > 0 ? (rows) :
           <tr>
-            <td colSpan={4}>
+            <td colSpan={6}>
               <Text weight={500} align="center">
-                No trails found
+                {trailsIsError ?
+                  <div>{`There is a problem fetching the post data - ${trailsError.message}`}</div>
+                :
+                trailsIsLoading ? <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>Loading...</div>: <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>No trails found</div>
+                }
               </Text>
             </td>
           </tr>
