@@ -25,13 +25,15 @@ interface TrailMapProps {
   doCompleteTrail: () => void;
   activeTab: string;
   onTravelModeChange: (string) => void;
+  onElevationProfileToggle: () => void;
+  showElevationProfile: boolean;
 }
 
 /**
  * Trail Map
  *
- * @param props 
- * @returns 
+ * @param props
+ * @returns
  */
 export function TrailMap(props: TrailMapProps) {
   // if (props.trailGeom == null) {
@@ -354,6 +356,7 @@ export function TrailMap(props: TrailMapProps) {
         >
           <Autocomplete
             label="Zoom to reservation"
+            fw={700}
             placeholder="Type to filter..."
             data={autocompleteData}
             onChange={setZoomToValue}
@@ -373,6 +376,7 @@ export function TrailMap(props: TrailMapProps) {
         <Box>
           <Select
             label="Travel mode"
+            fw={700}
             data={travelModeSelectOptions}
             defaultValue='hike'
             onChange={props.onTravelModeChange}
@@ -381,11 +385,20 @@ export function TrailMap(props: TrailMapProps) {
 
         {/* Back to start */}
         <Box>
-          <Text size="sm">Complete trail</Text>
+          <Text size="sm" fw={700}>Complete trail</Text>
           <Button
             variant="light"
             onClick={props.doCompleteTrail}
           >Back to start</Button>
+        </Box>
+
+        {/* Show/hide Elevation Profile */}
+        <Box>
+          <Text size="sm" fw={700}>Elevation Profile</Text>
+          <Button
+            variant="light"
+            onClick={props.onElevationProfileToggle}
+          >{props.showElevationProfile ? '▲ Hide' : '▼ Show'}</Button>
         </Box>
       </Group>
     </>

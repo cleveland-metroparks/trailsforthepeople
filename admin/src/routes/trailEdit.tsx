@@ -58,6 +58,12 @@ export function TrailEdit() {
   const [savingState, setSavingState] = useState(false);
   const [redirectPath, setRedirectPath] = useState('');
 
+  const [showElevationProfile, setShowElevationProfile] = useState(false);
+
+  const handleElevationProfileToggle = () => {
+    setShowElevationProfile(!showElevationProfile);
+  }
+
   const mutation = useMutation(
     (formData: TrailFormData) => saveTrail(formData)
   );
@@ -226,7 +232,7 @@ export function TrailEdit() {
   }
   // END getTrail()
   //--------
-  
+
   const {
     isLoading: trailIsLoading,
     isError: trailIsError,
@@ -366,7 +372,7 @@ export function TrailEdit() {
   //---------------------------------------------------------------------------
 
   //
-  // Get trail geometry from API 
+  // Get trail geometry from API
   //
   const getTrailGeometry = async (id: string) => {
     if (id !== 'new') {
@@ -458,7 +464,7 @@ export function TrailEdit() {
 
   // Make GeoJSON linestring from waypoints (inside Draw/GeoJSON feature)
   function makeWaypointGeojsonString(feature) {
-    if (feature.geometry && feature.geometry.coordinates) { 
+    if (feature.geometry && feature.geometry.coordinates) {
       // Turn into GeoJSON string for DB storage
       const coordsLinestring = lineString(feature.geometry.coordinates); // Using turf
       const output = JSON.stringify(coordsLinestring);
@@ -698,8 +704,10 @@ export function TrailEdit() {
                       doCompleteTrail={completeTrail}
                       activeTab={activeTab}
                       onTravelModeChange={handleTravelModeChange}
+                      onElevationProfileToggle={handleElevationProfileToggle}
+                      showElevationProfile={showElevationProfile}
                     />
-                    <TrailProfileChart trailProfile={trailElevation} />
+                    {showElevationProfile && <TrailProfileChart trailProfile={trailElevation} />}
                   </Grid.Col>
                   <Grid.Col span={3}>
                     <Accordion defaultValue="stats">
