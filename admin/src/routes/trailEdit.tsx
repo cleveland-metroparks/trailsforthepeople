@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, Navigate, useParams, useSubmit } from "react-router-dom";
-import { Title, Text, Tabs, Grid, Accordion, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select, Space } from '@mantine/core';
+import { Title, Text, Tabs, Grid, Accordion, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
 
@@ -34,6 +34,7 @@ import { TrailWaypoints } from "../components/trailWaypoints";
 import { TrailStats } from "../components/trailStats";
 import { TrailDirections } from "../components/trailDirections";
 import { TrailProfileChart } from "../components/trailProfileChart";
+import { Authorship } from "../components/authorship";
 
 const trailsRootPath = '/trails';
 
@@ -681,6 +682,7 @@ export function TrailEdit() {
 
               <Tabs.Panel value="route">
                 <Grid>
+                  {/* Main content */}
                   <Grid.Col span={9} style={{ minHeight: 600 }}>
                     <TrailMap
                       trail={trailData}
@@ -699,6 +701,8 @@ export function TrailEdit() {
                     />
                     {showElevationProfile && <TrailProfileChart trailProfile={trailElevation} />}
                   </Grid.Col>
+
+                  {/* Right sidebar */}
                   <Grid.Col span={3}>
                     <Accordion defaultValue="stats">
                       <Accordion.Item value="stats">
@@ -719,6 +723,17 @@ export function TrailEdit() {
                           <TrailWaypoints
                             feature={waypointsFeature}
                             // geojson={waypointsGeoJSON}
+                          />
+                        </Accordion.Panel>
+                      </Accordion.Item>
+                      <Accordion.Item value="authorship">
+                        <Accordion.Control>Authorship</Accordion.Control>
+                        <Accordion.Panel>
+                          <Authorship
+                            date_created={trailData.date_created}
+                            creator_username={trailData.creator_username}
+                            date_modified={trailData.date_modified}
+                            modifier_username={trailData.modifier_username}
                           />
                         </Accordion.Panel>
                       </Accordion.Item>
@@ -749,25 +764,6 @@ export function TrailEdit() {
               }
             </Group>
 
-            <Box sx={{marginTop: '1em'}}>
-              {trailData.date_created &&
-                <Text fz="sm">Created: <Text span c="dimmed">{dayjs(trailData.date_created).format('dddd, MMMM D, YYYY [at] h:mma')}</Text></Text>
-              }
-              {trailData.creator_username &&
-                <Text fz="sm">by: <Text span c="dimmed">{trailData.creator_username}</Text></Text>
-              }
-
-              {((trailData.date_created || trailData.creator_username) && (trailData.date_modified || trailData.modifier_username)) &&
-                <Space h="xs" />
-              }
-
-              {trailData.date_modified &&
-              <Text fz="sm">Modified: <Text span c="dimmed">{dayjs(trailData.date_modified).format('dddd, MMMM D, YYYY [at] h:mma')}</Text></Text>
-              }
-              {trailData.modifier_username &&
-                <Text fz="sm">by: <Text span c="dimmed">{trailData.modifier_username}</Text></Text>
-              }
-            </Box>
 
           </form>
         </>

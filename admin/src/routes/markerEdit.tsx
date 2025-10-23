@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, Navigate, useParams, useSubmit } from "react-router-dom";
-import { createStyles, Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select, Space } from '@mantine/core';
+import { createStyles, Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
 
@@ -21,6 +21,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { useAuth } from "../hooks/useAuth";
 
 import { mapsApiClient } from "../components/mapsApi";
+import { Authorship } from "../components/authorship";
 import type { Marker, MarkerFormData } from "../types/marker";
 import { markerCategorySelectOptions, emptyMarker, defaultMarkerFormData } from "../types/marker";
 import { reservationListSelectOptions } from "../types/reservation";
@@ -52,7 +53,7 @@ export function MarkerEdit() {
 
   const queryClient = useQueryClient();
 
-  const { classes, cx } = useStyles();
+  useStyles();
 
   const mapRef = useRef<MapRef>(null);
 
@@ -226,7 +227,7 @@ export function MarkerEdit() {
   // Marker event: on drag
   const onMarkerDrag = useCallback((event: MarkerDragEvent) => {
     form.setValues({ latitude: event.lngLat.lat, longitude: event.lngLat.lng });
-  }, []);
+  }, [form]);
 
   // Marker event: on drag end
   const onMarkerDragEnd = useCallback((event: MarkerDragEvent) => {
@@ -430,23 +431,12 @@ export function MarkerEdit() {
                 <Accordion.Item value="authorship">
                   <Accordion.Control><Text fw={500}>Authorship</Text></Accordion.Control>
                   <Accordion.Panel>
-                    {markerData.date_created &&
-                      <Text fz="sm">Created: <Text span c="dimmed">{dayjs(markerData.date_created).format('dddd, MMMM D, YYYY [at] h:mma')}</Text></Text>
-                    }
-                    {markerData.creator_username &&
-                      <Text fz="sm">by: <Text span c="dimmed">{markerData.creator_username}</Text></Text>
-                    }
-
-                    {((markerData.date_created || markerData.creator_username) && (markerData.date_modified || markerData.modifier_username)) &&
-                      <Space h="xs" />
-                    }
-
-                    {markerData.date_modified &&
-                    <Text fz="sm">Modified: <Text span c="dimmed">{dayjs(markerData.date_modified).format('dddd, MMMM D, YYYY [at] h:mma')}</Text></Text>
-                    }
-                    {markerData.modifier_username &&
-                      <Text fz="sm">by: <Text span c="dimmed">{markerData.modifier_username}</Text></Text>
-                    }
+                    <Authorship
+                      date_created={markerData.date_created}
+                      creator_username={markerData.creator_username}
+                      date_modified={markerData.date_modified}
+                      modifier_username={markerData.modifier_username}
+                    />
                   </Accordion.Panel>
                 </Accordion.Item>
 
