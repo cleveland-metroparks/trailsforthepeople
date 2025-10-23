@@ -41,7 +41,6 @@ export function TrailMap(props: TrailMapProps) {
   // if (props.trailGeom == null) {
   //   props.trailGeom = '{"type":"MultiLineString","coordinates":[]}';
   // }
-  // console.log('trailGeom', props.trailGeom);
   const mapRef = useRef<MapRef>(null);
 
   const [currentTab, setCurrentTab] = useState(props.activeTab);
@@ -196,15 +195,11 @@ export function TrailMap(props: TrailMapProps) {
     }
   }
 
-  // Map onMove event
   const onMapMove = (event: ViewStateChangeEvent) => {
     setMapViewState(event.viewState);
   };
 
-  // Map onLoad event
   const onMapLoad = (event: MapEvent) => {
-    // console.log('onMapLoad');
-
     // @TODO: Not sure why we were doing the following...
     // React is automatically putting props.trailGeom data into the <Source> data.
     // const trailSource = mapRef.current.getSource('trail-data') as GeoJSONSource;
@@ -216,15 +211,8 @@ export function TrailMap(props: TrailMapProps) {
     }
   };
 
-  // Map onRender event
-  const onMapRender = (event: MapEvent) => {
-    // console.log('onMapRender');
-  }
-
-  // Map onResize event
-  const onMapResize = (event: MapEvent) => {
-    // console.log('onMapResize');
-  }
+  const onMapRender = (event: MapEvent) => {}
+  const onMapResize = (event: MapEvent) => {}
 
   const trailLayer: LineLayerSpecification = {
     id: "trail-line",

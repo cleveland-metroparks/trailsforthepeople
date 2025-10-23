@@ -24,7 +24,6 @@ type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
 };
 
 export default function DrawControl(props: DrawControlProps) {
-  // console.log('DrawControl');
   let draw = useControl<MapboxDraw>(
 
     // useControl onCreate:
@@ -41,7 +40,6 @@ export default function DrawControl(props: DrawControlProps) {
       map.on('load', function () {
         // Draw initial waypoints
         if (props.initialData.geometry) {
-          // console.log('draw() call to setDrawFeature');
           setDrawFeature(props.initialData);
         }
       })

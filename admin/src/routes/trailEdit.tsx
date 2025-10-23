@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, Navigate, useParams, useSubmit } from "react-router-dom";
 import { Title, Text, Tabs, Accordion, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
@@ -113,7 +113,13 @@ export function TrailEdit() {
   });
 
   // Travel mode ("via"), for routing
-  const [travelMode, setTravelMode] = useState('');
+  const [travelMode, setTravelMode] = useState('hike');
+  const travelModeRef = useRef(travelMode);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    travelModeRef.current = travelMode;
+  }, [travelMode]);
 
   const emptyLineStringFeature: LineStringFeature<LineString, GeoJsonProperties> = {
     type: "Feature",
@@ -488,46 +494,42 @@ export function TrailEdit() {
       return newFeature;
     });
 
-    // We have to call these, because Draw.create & Draw.update events
-    // are only called via user interaction
+    // We have to call these because Draw.create & Draw.update
+    // events are only called via user interaction
     const wpGeoJSON = makeWaypointGeojsonString(newFeature);
     setWaypointsGeoJSON(wpGeoJSON);
-    getRouteFromWaypoints(wpGeoJSON, travelMode);
+    getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
   }
 
-  // on Draw Create
-  // @TODO: all these callbacks have all become the same...
-  const onDrawCreate = e => {
+  const onDrawCreate = useCallback(e => {
     const feature_id = Object.keys(e.features)[0];
     setWaypointsFeature(curFeature => {
       return e.features[feature_id];
     });
     const wpGeoJSON = makeWaypointGeojsonString(e.features[feature_id]);
     setWaypointsGeoJSON(wpGeoJSON);
-    getRouteFromWaypoints(wpGeoJSON, travelMode);
-  };
+    getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
+  }, []);
 
-  // on Draw Update
-  const onDrawUpdate = e => {
+  const onDrawUpdate = useCallback(e => {
     const feature_id = Object.keys(e.features)[0];
     setWaypointsFeature(curFeature => {
       return e.features[feature_id];
     });
     const wpGeoJSON = makeWaypointGeojsonString(e.features[feature_id]);
     setWaypointsGeoJSON(wpGeoJSON);
-    getRouteFromWaypoints(wpGeoJSON, travelMode);
-  };
+    getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
+  }, []);
 
-  // on Draw Delete
-  const onDrawDelete = e => {
+  const onDrawDelete = useCallback(e => {
     const feature_id = Object.keys(e.features)[0];
     setWaypointsFeature(curFeature => {
       return e.features[feature_id];
     });
     const wpGeoJSON = makeWaypointGeojsonString(e.features[feature_id]);
     setWaypointsGeoJSON(wpGeoJSON);
-    getRouteFromWaypoints(wpGeoJSON, travelMode);
-  };
+    getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
+  }, []);
   //----------------------------------
 
   // When travel mode is changed (from within Trail Map component)
