@@ -6,9 +6,9 @@ import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
 import { openConfirmModal } from '@mantine/modals';
 import { default as dayjs } from 'dayjs';
-import type { MapRef, ViewState, ViewStateChangeEvent } from 'react-map-gl';
-import { NavigationControl } from 'react-map-gl';
-import * as ReactMapGl from 'react-map-gl'; // For "Map", to avoid collision
+import type { MapRef, ViewState, ViewStateChangeEvent } from 'react-map-gl/mapbox';
+import { NavigationControl } from 'react-map-gl/mapbox';
+import * as ReactMapGl from 'react-map-gl/mapbox'; // For "Map", to avoid collision
 
 import { mapsApiClient } from "../components/mapsApi";
 import type { HintMap, HintMapFormData } from "../types/hintmap";

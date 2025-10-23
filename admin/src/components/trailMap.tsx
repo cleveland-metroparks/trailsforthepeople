@@ -3,9 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { LngLat, LngLatBounds } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
-import { Source, NavigationControl, Layer, LineLayer } from 'react-map-gl';
-import * as ReactMapGl from 'react-map-gl'; // For "Map", to avoid collision
-import type { MapRef, MapboxEvent, ViewStateChangeEvent } from 'react-map-gl';
+import { Source, NavigationControl, Layer } from 'react-map-gl/mapbox';
+import type { LineLayerSpecification } from 'mapbox-gl';
+import * as ReactMapGl from 'react-map-gl/mapbox'; // For "Map", to avoid collision
+import type { MapRef, ViewStateChangeEvent } from 'react-map-gl/mapbox';
+import type { MapEvent } from 'mapbox-gl';
 import { Text, Button, Group, Box, Flex, Autocomplete, Select } from '@mantine/core';
 import DrawControl from './draw-control';
 
@@ -200,7 +202,7 @@ export function TrailMap(props: TrailMapProps) {
   };
 
   // Map onLoad event
-  const onMapLoad = (event: MapboxEvent) => {
+  const onMapLoad = (event: MapEvent) => {
     // console.log('onMapLoad');
 
     // @TODO: Not sure why we were doing the following...
@@ -215,21 +217,19 @@ export function TrailMap(props: TrailMapProps) {
   };
 
   // Map onRender event
-  const onMapRender = (event: MapboxEvent) => {
+  const onMapRender = (event: MapEvent) => {
     // console.log('onMapRender');
   }
 
   // Map onResize event
-  const onMapResize = (event: MapboxEvent) => {
+  const onMapResize = (event: MapEvent) => {
     // console.log('onMapResize');
   }
 
-  const trailLayer: LineLayer = {
+  const trailLayer: LineLayerSpecification = {
     id: "trail-line",
     type: "line",
-    source: {
-      type: "geojson"
-    },
+    source: "geojson",
     layout: {
       "line-join": "round",
       "line-cap": "round"

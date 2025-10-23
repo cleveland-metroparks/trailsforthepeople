@@ -14,8 +14,8 @@ import { Link as TipTapLink } from '@tiptap/extension-link';
 import { DatesProvider, DatePickerInput } from '@mantine/dates';
 import { openConfirmModal } from '@mantine/modals';
 import { default as dayjs } from 'dayjs';
-import * as MapGl from 'react-map-gl'; // Namespace as MapGl since we already have "Marker"
-import type { MapRef, MarkerDragEvent } from 'react-map-gl';
+import * as MapGl from 'react-map-gl/mapbox'; // Namespace as MapGl since we already have "Marker"
+import type { MapRef, MarkerDragEvent } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 import { useAuth } from "../hooks/useAuth";

@@ -1,7 +1,7 @@
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import { useControl } from 'react-map-gl';
-import type { ControlPosition } from 'react-map-gl';
-import type { MapContextValue } from 'react-map-gl/dist/esm/components/map';
+import { useControl } from 'react-map-gl/mapbox';
+import type { ControlPosition } from 'react-map-gl/mapbox';
+import type { MapContextValue } from '@vis.gl/react-mapbox/dist/components/map';
 import { useEffect } from 'react';
 
 /**
