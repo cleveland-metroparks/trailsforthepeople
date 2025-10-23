@@ -49,8 +49,13 @@ function App() {
                 />
               </MediaQuery>
 
-              <Anchor component={Link} to="/">
-                Maps Content Admin
+              <Anchor component={Link} to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginLeft: '.625rem', textDecoration: 'none' }}>
+                <img
+                  src={`${process.env.PUBLIC_URL}/cm-logo-mark_only-no_margin-364x462.png`}
+                  alt="CMP Logo"
+                  style={{ height: '40px', width: 'auto' }}
+                />
+                <span style={{ color: 'black' }}>Maps Content Admin</span>
               </Anchor>
             </div>
           </Header>

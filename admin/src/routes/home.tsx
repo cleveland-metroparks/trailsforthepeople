@@ -11,9 +11,16 @@ import { NavButtons, UserLinks } from '../components/navLinks';
 export function Home() {
   return (
     <>
-      <Title order={1} sx={{margin: '4em 0 0'}} align="center">
-        Maps Content Admin
-      </Title>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', margin: '4em 0 0' }}>
+        <img
+          src={`${process.env.PUBLIC_URL}/cm-logo-mark_only-no_margin-364x462.png`}
+          alt="CMP Logo"
+          style={{ height: '60px', width: 'auto' }}
+        />
+        <Title order={1}>
+          Maps Content Admin
+        </Title>
+      </div>
 
       <Text
         ta="center"
