@@ -308,8 +308,6 @@ export function TrailEdit() {
       modifier_username: user,
     };
 
-    console.log('Saving trail:', trailSaveData);
-
     // Saving a new trail
     const response = (trailId === 'new') ?
       mapsApiClient.post<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/trails', trailSaveData)
@@ -333,9 +331,6 @@ export function TrailEdit() {
 
           // Redirect to the trail edit page for this new trail
           setRedirectPath(trailsRootPath + '/' + trailId);
-          console.log('Redirecting to: ', trailsRootPath + '/' + trailId);
-
-          console.log(savedMsg + ':', response);
         }
       })
       .catch(function (error) {
@@ -518,15 +513,26 @@ export function TrailEdit() {
 
   const onDrawUpdate = useCallback(e => {
     const feature_id = Object.keys(e.features)[0];
+    const newFeature = e.features[feature_id];
+
+    const currentWaypointCount = waypointsFeature.geometry?.coordinates?.length || 0;
+    const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
+
     setWaypointsFeature(curFeature => {
-      return e.features[feature_id];
+      return newFeature;
     });
-    const wpGeoJSON = makeWaypointGeojsonString(e.features[feature_id]);
-    setWaypointsGeoJSON(wpGeoJSON);
-    getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
-  }, []);
+
+    // Only trigger routing if waypoints were moved or deleted;
+    // not for new waypoints, which are when midpoints convert to vertices
+    if (newWaypointCount <= currentWaypointCount) {
+      const wpGeoJSON = makeWaypointGeojsonString(newFeature);
+      setWaypointsGeoJSON(wpGeoJSON);
+      getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
+    }
+  }, [waypointsFeature]);
 
   const onDrawDelete = useCallback(e => {
+    console.log('onDrawDelete');
     const feature_id = Object.keys(e.features)[0];
     setWaypointsFeature(curFeature => {
       return e.features[feature_id];
