@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, Navigate, useParams, useSubmit } from "react-router-dom";
-import { Title, Text, Tabs, Grid, Accordion, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
+import { Title, Text, Tabs, Accordion, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
 
@@ -577,9 +577,49 @@ export function TrailEdit() {
 
       {trailData &&
         <>
-          <Title order={2} sx={{marginTop: '1em'}}>{trailData.name ? trailData.name : 'Add Trail'}</Title>
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginTop: '1em'
+          }}>
+            <Title order={2} sx={{ margin: 0 }}>{trailData.name ? trailData.name : 'Add Trail'}</Title>
+
+            {/* Published/Save/Delete */}
+            <Group position="right" spacing="sm">
+              {/* Published checkbox */}
+              <Group
+                sx={{ marginRight: '1rem' }}
+              >
+                <Checkbox
+                  label="Published"
+                  {...form.getInputProps('status', { type: 'checkbox' })}
+                />
+              </Group>
+              {/* Save Trail button */}
+              <Button
+                type="submit"
+                loading={savingState}
+                form="trail-form"
+              >
+              Save Trail
+              </Button>
+
+              {/* Delete Trail button */}
+              {deleteTrailPath &&
+                <Button
+                  onClick={() => openDeleteModal(deleteTrailPath)}
+                  variant="outline"
+                  color="red"
+                >
+                  Delete Trail
+                </Button>
+              }
+            </Group>
+          </Box>
 
           <form
+            id="trail-form"
             onSubmit={
               form.onSubmit((formValues) => {
                 mutation.mutate(formValues);
@@ -587,9 +627,23 @@ export function TrailEdit() {
             }
           >
 
-            <Grid sx={{marginTop: '1em'}}>
-              {/* Main content area */}
-              <Grid.Col span={9}>
+            {/* Content including main content area and sidebar */}
+            <Box sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: '1rem',
+              marginTop: '1em',
+              '@media (max-width: 1024px)': {
+                flexDirection: 'column'
+              }
+            }}>
+              {/* Main content area (left side) */}
+              <Box sx={{
+                flex: '0 0 75%',
+                '@media (max-width: 1024px)': {
+                  flex: '1 1 100%'
+                }
+              }}>
                 <Tabs value={activeTab} onTabChange={setActiveTab}>
 
                   <Tabs.List>
@@ -697,33 +751,17 @@ export function TrailEdit() {
                   </Tabs.Panel>
 
                 </Tabs>
-
-                {/* Save/Delete buttons */}
-                <Group position="left" my="xs">
-                  <Button
-                    type="submit"
-                    loading={savingState}
-                    sx={{ margin: '1em 0' }}
-                  >
-                  Save Trail
-                  </Button>
-
-                  {deleteTrailPath &&
-                    <Button
-                      onClick={() => openDeleteModal(deleteTrailPath)}
-                      variant="outline"
-                      color="red"
-                    >
-                      Delete Trail
-                    </Button>
-                  }
-                </Group>
-              </Grid.Col>
+              </Box>
 
               {/* Right sidebar */}
-              <Grid.Col span={3}>
+              <Box sx={{
+                flex: '0 0 25%',
+                '@media (max-width: 1024px)': {
+                  flex: '1 1 100%'
+                }
+              }}>
                 <Accordion defaultValue="stats">
-                  <Accordion.Item value="stats">
+                  <Accordion.Item value="stats" sx={{ borderTop: '0.0625rem solid #dee2e6' }}>
                     <Accordion.Control>Stats</Accordion.Control>
                     <Accordion.Panel>
                       <TrailStats stats={trailStats} />
@@ -756,18 +794,9 @@ export function TrailEdit() {
                     </Accordion.Panel>
                   </Accordion.Item>
                 </Accordion>
-                <Group
-                  mt={10}
-                  sx={{ marginLeft: '1.25rem' }}
-                >
-                  <Checkbox
-                    mt="md"
-                    label="Published"
-                    {...form.getInputProps('status', { type: 'checkbox' })}
-                  />
-                </Group>
-              </Grid.Col>
-            </Grid>
+              </Box>
+            </Box>
+
 
           </form>
         </>
