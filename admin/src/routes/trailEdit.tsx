@@ -663,7 +663,7 @@ export function TrailEdit() {
                     />
                   </Group>
 
-                  <Group>
+                  <Group mb="xs">
                     <Checkbox
                       mt="md"
                       label="Hiking"
@@ -739,7 +739,7 @@ export function TrailEdit() {
 
             </Tabs>
 
-            <Group position="left" mt="md">
+            <Group position="left" my="xs">
               <Button
                 type="submit"
                 loading={savingState}

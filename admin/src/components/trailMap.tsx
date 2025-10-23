@@ -342,10 +342,11 @@ export function TrailMap(props: TrailMapProps) {
         />
       </ReactMapGl.Map>
 
+      {/* Extra controls beneath map */}
       <Group
         position="apart"
-        mt={10}
-        mb={30}
+        mt="xs"
+        mb="xs"
         >
 
         {/* Zoom to reservation */}
@@ -355,8 +356,7 @@ export function TrailMap(props: TrailMapProps) {
           align="flex-end"
         >
           <Autocomplete
-            label="Zoom to reservation"
-            fw={700}
+            label={<span style={{fontWeight: 500, marginTop: '12px', marginBottom: '8px', display: 'block'}}>Zoom to reservation</span>}
             placeholder="Type to filter..."
             data={autocompleteData}
             onChange={setZoomToValue}
@@ -375,8 +375,7 @@ export function TrailMap(props: TrailMapProps) {
         {/* Travel mode ("via") filter */}
         <Box>
           <Select
-            label="Travel mode"
-            fw={700}
+            label={<span style={{fontWeight: 500, marginTop: '12px', marginBottom: '8px', display: 'block'}}>Travel mode</span>}
             data={travelModeSelectOptions}
             defaultValue='hike'
             onChange={props.onTravelModeChange}
@@ -385,7 +384,7 @@ export function TrailMap(props: TrailMapProps) {
 
         {/* Back to start */}
         <Box>
-          <Text size="sm" fw={700}>Complete trail</Text>
+          <Text size="sm" fw={500} mt="sm" mb="xs">Complete trail</Text>
           <Button
             variant="light"
             onClick={props.doCompleteTrail}
@@ -394,7 +393,7 @@ export function TrailMap(props: TrailMapProps) {
 
         {/* Show/hide Elevation Profile */}
         <Box>
-          <Text size="sm" fw={700}>Elevation Profile</Text>
+          <Text size="sm" fw={500} mt="sm" mb="xs">Elevation Profile</Text>
           <Button
             variant="light"
             onClick={props.onElevationProfileToggle}
