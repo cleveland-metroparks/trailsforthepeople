@@ -8,7 +8,7 @@ import type { LineLayerSpecification } from 'mapbox-gl';
 import * as ReactMapGl from 'react-map-gl/mapbox'; // For "Map", to avoid collision
 import type { MapRef, ViewStateChangeEvent } from 'react-map-gl/mapbox';
 import type { MapEvent } from 'mapbox-gl';
-import { Text, Button, Group, Box, Flex, Autocomplete, Select } from '@mantine/core';
+import { Text, Button, Group, Box, Flex, Autocomplete, Select, Loader } from '@mantine/core';
 import DrawControl from './draw-control';
 
 import { mapsApiClient } from "../components/mapsApi";
@@ -29,6 +29,7 @@ interface TrailMapProps {
   onTravelModeChange: (string) => void;
   onElevationProfileToggle: () => void;
   showElevationProfile: boolean;
+  isRouting: boolean;
 }
 
 /**
@@ -231,29 +232,30 @@ export function TrailMap(props: TrailMapProps) {
 
   return (
     <>
-      <ReactMapGl.Map
-        // "reuseMaps" bypasses initialization when a map is removed and re-added
-        // (switching screens, tabs, etc.) in order to avoid MapBox
-        // generating a billable event with every map initialization
-        // https://visgl.github.io/react-map-gl/docs/get-started/tips-and-tricks#minimize-cost-from-frequent-re-mounting
-        //
-        // @TODO:
-        // However, it also seems to break the re-loading of the DrawControl
-        // when the map is removed and re-rendered.
-        // Maybe this is relevant:? https://github.com/visgl/react-map-gl/issues/699
-        //
-        // reuseMaps={true}
+      <Box sx={{ position: 'relative' }}>
+        <ReactMapGl.Map
+          // "reuseMaps" bypasses initialization when a map is removed and re-added
+          // (switching screens, tabs, etc.) in order to avoid MapBox
+          // generating a billable event with every map initialization
+          // https://visgl.github.io/react-map-gl/docs/get-started/tips-and-tricks#minimize-cost-from-frequent-re-mounting
+          //
+          // @TODO:
+          // However, it also seems to break the re-loading of the DrawControl
+          // when the map is removed and re-rendered.
+          // Maybe this is relevant:? https://github.com/visgl/react-map-gl/issues/699
+          //
+          // reuseMaps={true}
 
-        ref={mapRef}
-        {...mapViewState}
-        style={{width: "100%", height: mapHeight}}
-        mapStyle={process.env.REACT_APP_MAPBOX_STYLE_URL}
-        mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
-        onLoad={onMapLoad}
-        onMove={onMapMove}
-        onRender={onMapRender}
-        onResize={onMapResize}
-      >
+          ref={mapRef}
+          {...mapViewState}
+          style={{width: "100%", height: mapHeight}}
+          mapStyle={process.env.REACT_APP_MAPBOX_STYLE_URL}
+          mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+          onLoad={onMapLoad}
+          onMove={onMapMove}
+          onRender={onMapRender}
+          onResize={onMapResize}
+        >
         <Source
           id="trail-data"
           type="geojson"
@@ -389,7 +391,31 @@ export function TrailMap(props: TrailMapProps) {
           onCreate={props.onDrawCreate} // draw.create
           onDelete={props.onDrawDelete} // draw.delete
         />
-      </ReactMapGl.Map>
+        </ReactMapGl.Map>
+
+        {/* Routing spinner overlay */}
+        {props.isRouting && (
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: '20px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 1000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '60px',
+              height: '60px',
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              borderRadius: '50%',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+            }}
+          >
+            <Loader size="sm" />
+          </Box>
+        )}
+      </Box>
 
       {/* Resize bar */}
       <div

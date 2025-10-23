@@ -60,6 +60,7 @@ export function TrailEdit() {
 
   const [savingState, setSavingState] = useState(false);
   const [redirectPath, setRedirectPath] = useState('');
+  const [isRouting, setIsRouting] = useState(false);
 
   const [showElevationProfile, setShowElevationProfile] = useState(false);
 
@@ -406,6 +407,7 @@ export function TrailEdit() {
 
   // Get route from waypoints from API
   const getRouteFromWaypoints = async (waypointsGeojson: string, travelMode: string) => {
+    setIsRouting(true);
     const params = new URLSearchParams({
       waypoints: waypointsGeojson,
       via: travelMode
@@ -454,6 +456,9 @@ export function TrailEdit() {
           autoClose: false,
           color: 'red',
         });
+      })
+      .finally(() => {
+        setIsRouting(false);
       });
   }
   //---------------------------------------------------------------------------
@@ -749,6 +754,7 @@ export function TrailEdit() {
                         onTravelModeChange={handleTravelModeChange}
                         onElevationProfileToggle={handleElevationProfileToggle}
                         showElevationProfile={showElevationProfile}
+                        isRouting={isRouting}
                       />
                       {showElevationProfile && <TrailProfileChart trailProfile={trailElevation} />}
                     </div>
