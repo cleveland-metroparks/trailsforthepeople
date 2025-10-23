@@ -56,6 +56,10 @@ export function sortTableData(
 
   return filterData(
     [...data].sort((a, b) => {
+      if (sortBy === 'distancetext') {
+        return compareTableItems(a.distance_feet, b.distance_feet, payload.reversed);
+      }
+
       return compareTableItems(a[sortBy], b[sortBy], payload.reversed);
     }),
     payload.search

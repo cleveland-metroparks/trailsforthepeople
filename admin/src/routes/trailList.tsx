@@ -9,7 +9,7 @@ import { default as dayjs } from 'dayjs';
 import { mapsApiClient } from "../components/mapsApi";
 import type { Trail } from "../types/trail";
 import { sortTableData, Th } from "../components/tablesort";
-import { reservationListSelectOptions, reservationFilterSelectOptions } from "../types/reservation";
+import { reservationFilterSelectOptions } from "../types/reservation";
 
 // Get all trails from the API
 const getAllTrails = async () => {
