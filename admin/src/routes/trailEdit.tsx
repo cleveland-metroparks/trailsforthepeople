@@ -649,14 +649,6 @@ export function TrailEdit() {
                         </RichTextEditor>
                       </Input.Wrapper>
 
-                      <Group>
-                        <Checkbox
-                          mt="md"
-                          label="Published"
-                          {...form.getInputProps('status', { type: 'checkbox' })}
-                        />
-                      </Group>
-
                       <Group mb="xs">
                         <Checkbox
                           mt="md"
@@ -764,6 +756,16 @@ export function TrailEdit() {
                     </Accordion.Panel>
                   </Accordion.Item>
                 </Accordion>
+                <Group
+                  mt={10}
+                  sx={{ marginLeft: '1.25rem' }}
+                >
+                  <Checkbox
+                    mt="md"
+                    label="Published"
+                    {...form.getInputProps('status', { type: 'checkbox' })}
+                  />
+                </Group>
               </Grid.Col>
             </Grid>
 
