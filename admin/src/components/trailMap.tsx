@@ -1,11 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { LngLat, LngLatBounds } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { Source, NavigationControl, Layer, LineLayer } from 'react-map-gl';
 import * as ReactMapGl from 'react-map-gl'; // For "Map", to avoid collision
-import type { MapRef, MapboxEvent, ViewStateChangeEvent, GeoJSONSource } from 'react-map-gl';
+import type { MapRef, MapboxEvent, ViewStateChangeEvent } from 'react-map-gl';
 import { Text, Button, Group, Box, Flex, Autocomplete, Select } from '@mantine/core';
 import DrawControl from './draw-control';
 
@@ -44,11 +44,64 @@ export function TrailMap(props: TrailMapProps) {
 
   const [currentTab, setCurrentTab] = useState(props.activeTab);
 
+  // Map resize functionality
+  const [mapHeight, setMapHeight] = useState(600);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStateRef = useRef({
+    startY: 0,
+    startHeight: 600,
+    isDragging: false
+  });
+
   const [mapViewState, setMapViewState] = useState({
     longitude: parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LNG),
     latitude: parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LAT),
     zoom: parseFloat(process.env.REACT_APP_MAP_DEFAULT_ZOOM),
   });
+
+  // Trigger map resize when height changes
+  useEffect(() => {
+    if (mapRef.current) {
+      // Small delay to ensure DOM has updated
+      const timeoutId = setTimeout(() => {
+        mapRef.current?.resize();
+      }, 10);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [mapHeight]);
+
+  // Drag handlers for map resize
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!dragStateRef.current.isDragging) return;
+
+    const deltaY = e.clientY - dragStateRef.current.startY;
+    const newHeight = Math.max(200, dragStateRef.current.startHeight + deltaY);
+    setMapHeight(newHeight);
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    dragStateRef.current.isDragging = false;
+    setIsDragging(false);
+
+    // Remove document-level event listeners
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  }, [handleMouseMove]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    dragStateRef.current.isDragging = true;
+    dragStateRef.current.startY = e.clientY;
+    dragStateRef.current.startHeight = mapHeight;
+    setIsDragging(true);
+
+    // Add document-level event listeners
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }, [mapHeight, handleMouseMove, handleMouseUp]);
 
   // Park features for the ZoomTo autocomplete field
   const [autocompleteData, setAutocompleteData] = useState([]);
@@ -86,14 +139,14 @@ export function TrailMap(props: TrailMapProps) {
       // Construct LngLat from coords data, if it exists
       let coords = {};
       if ((data.longitude && data.latitude) &&
-       (data.longitude != 0 && data.latitude != 0)) {
+       (data.longitude !== 0 && data.latitude !== 0)) {
         coords = new LngLat(data.longitude, data.latitude);
       }
 
       // Construct LngLatBounds from bounds data, if it exists
       let bounds = {};
       if ((data.boxw && data.boxs && data.boxe && data.boxn) &&
-        (data.boxw != 0 && data.boxs != 0 && data.boxe != 0 && data.boxn != 0)  ) {
+        (data.boxw !== 0 && data.boxs !== 0 && data.boxe !== 0 && data.boxn !== 0)  ) {
         const sw = new LngLat(data.boxw, data.boxs);
         const ne = new LngLat(data.boxe, data.boxn);
         bounds = new LngLatBounds(sw, ne);
@@ -122,12 +175,7 @@ export function TrailMap(props: TrailMapProps) {
     return response.data.data;
   } // End getReservations()
 
-  const {
-    isLoading: getReservationsCallIsLoading,
-    isError: getReservationsCallIsError,
-    data: getReservationsCallData,
-    error: getReservationsCallError
-  } = useQuery<Trail[], Error>(['trails'], getReservations);
+  useQuery<Trail[], Error>(['trails'], getReservations);
   //------------------
 
   // Zoom map to (a park location)
@@ -171,7 +219,7 @@ export function TrailMap(props: TrailMapProps) {
     // console.log('onMapRender');
   }
 
-  // Map onRender event
+  // Map onResize event
   const onMapResize = (event: MapboxEvent) => {
     // console.log('onMapResize');
   }
@@ -210,7 +258,7 @@ export function TrailMap(props: TrailMapProps) {
 
         ref={mapRef}
         {...mapViewState}
-        style={{width: "100%", height: 600}}
+        style={{width: "100%", height: mapHeight}}
         mapStyle={process.env.REACT_APP_MAPBOX_STYLE_URL}
         mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
         onLoad={onMapLoad}
@@ -342,6 +390,72 @@ export function TrailMap(props: TrailMapProps) {
         />
       </ReactMapGl.Map>
 
+      {/* Resize bar */}
+      <div
+        onMouseDown={handleMouseDown}
+        style={{
+          height: '10px',
+          backgroundColor: isDragging ? '#339af0' : '#e9ecef',
+          cursor: 'ns-resize',
+          borderTop: '1px solid #dee2e6',
+          borderBottom: '1px solid #dee2e6',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          transition: isDragging ? 'none' : 'background-color 0.2s ease',
+        }}
+        onMouseEnter={(e) => {
+          if (!isDragging) {
+            e.currentTarget.style.backgroundColor = '#ced4da';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isDragging) {
+            e.currentTarget.style.backgroundColor = '#e9ecef';
+          }
+        }}
+      >
+        {/* Grip indicator */}
+        <div
+          style={{
+            width: '40px',
+            height: '4px',
+            backgroundColor: isDragging ? '#ffffff' : '#6c757d',
+            borderRadius: '2px',
+            display: 'flex',
+            gap: '2px',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div
+            style={{
+              width: '2px',
+              height: '2px',
+              backgroundColor: 'currentColor',
+              borderRadius: '50%',
+            }}
+          />
+          <div
+            style={{
+              width: '2px',
+              height: '2px',
+              backgroundColor: 'currentColor',
+              borderRadius: '50%',
+            }}
+          />
+          <div
+            style={{
+              width: '2px',
+              height: '2px',
+              backgroundColor: 'currentColor',
+              borderRadius: '50%',
+            }}
+          />
+        </div>
+      </div>
+
       {/* Extra controls beneath map */}
       <Group
         position="apart"
@@ -356,7 +470,7 @@ export function TrailMap(props: TrailMapProps) {
           align="flex-end"
         >
           <Autocomplete
-            label={<span style={{fontWeight: 500, marginTop: '12px', marginBottom: '8px', display: 'block'}}>Zoom to reservation</span>}
+            label={<span style={{fontWeight: 500, marginTop: '8px', marginBottom: '8px', display: 'block'}}>Zoom to reservation</span>}
             placeholder="Type to filter..."
             data={autocompleteData}
             onChange={setZoomToValue}
@@ -375,7 +489,7 @@ export function TrailMap(props: TrailMapProps) {
         {/* Travel mode ("via") filter */}
         <Box>
           <Select
-            label={<span style={{fontWeight: 500, marginTop: '12px', marginBottom: '8px', display: 'block'}}>Travel mode</span>}
+            label={<span style={{fontWeight: 500, marginTop: '8px', marginBottom: '8px', display: 'block'}}>Travel mode</span>}
             data={travelModeSelectOptions}
             defaultValue='hike'
             onChange={props.onTravelModeChange}
@@ -384,7 +498,7 @@ export function TrailMap(props: TrailMapProps) {
 
         {/* Back to start */}
         <Box>
-          <Text size="sm" fw={500} mt="sm" mb="xs">Complete trail</Text>
+          <Text size="sm" fw={500} mt="xs" mb="xs">Complete trail</Text>
           <Button
             variant="light"
             onClick={props.doCompleteTrail}
@@ -393,7 +507,7 @@ export function TrailMap(props: TrailMapProps) {
 
         {/* Show/hide Elevation Profile */}
         <Box>
-          <Text size="sm" fw={500} mt="sm" mb="xs">Elevation Profile</Text>
+          <Text size="sm" fw={500} mt="xs" mb="xs">Elevation Profile</Text>
           <Button
             variant="light"
             onClick={props.onElevationProfileToggle}

@@ -199,7 +199,7 @@ export function TrailEdit() {
         const initialCoords = trailWaypoints.geometry.coordinates;
         if (initialCoords) {
           filteredCoords = initialCoords.filter(function(coordinate, index, arr) {
-            return ((coordinate[0] != 0) && (coordinate[1] != 0));
+            return ((coordinate[0] !== 0) && (coordinate[1] !== 0));
           });
           trailWaypoints.geometry.coordinates = filteredCoords;
         }
@@ -363,12 +363,7 @@ export function TrailEdit() {
     return {data: {}};
   }
 
-  const {
-    isLoading: trailProfileIsLoading,
-    isError: trailProfileIsError,
-    data: trailProfileData,
-    error: trailProfileError
-  } = useQuery<TrailProfile, Error>(['trail_profile', trailId], () => getTrailProfile(trailId));
+  useQuery<TrailProfile, Error>(['trail_profile', trailId], () => getTrailProfile(trailId));
   //---------------------------------------------------------------------------
 
   //
@@ -397,12 +392,7 @@ export function TrailEdit() {
     return {data: {}};
   }
 
-  const {
-    isLoading: trailGeomIsLoading,
-    isError: trailGeomIsError,
-    data: trailGeomData,
-    error: trailGeomError
-  } = useQuery<TrailGeometry, Error>(['trail_geometry', trailId], () => getTrailGeometry(trailId));
+  useQuery<TrailGeometry, Error>(['trail_geometry', trailId], () => getTrailGeometry(trailId));
   //---------------------------------------------------------------------------
 
   // Get route from waypoints from API
@@ -478,7 +468,7 @@ export function TrailEdit() {
     let newFeature = {...waypointsFeature};
     let coords = newFeature.geometry.coordinates;
     if (coords.length > 1) {
-      if (coords[0] != coords[coords.length - 1]) {
+      if (coords[0] !== coords[coords.length - 1]) {
         // Add the first coordinate to the end of the coords array
         coords.push(coords[0]);
       } else {
