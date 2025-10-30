@@ -31,7 +31,6 @@ export function Login() {
   const { user, onLogin } = useAuth();
 
   if (user) {
-    console.log(user);
     return <Navigate to="/" />;
   }
 
@@ -40,21 +39,19 @@ export function Login() {
     // For Laravel Sanctum we need to get a CSRF cookie first
     mapsApiClient.get<any>('/sanctum/csrf-cookie')
     .then(function (csrfResponse: any) {
-      console.log('CSRF cookie response:', csrfResponse);
       // Then we can login
       mapsApiClient.post<any>("/login", {
         username: username,
         password: password,
       })
       .then(function (loginResponse: any) {
-        console.log('API auth login response:', loginResponse);
         // Since Laravel Sanctum's SPA authentication is tokenless,
         // there's no response data to store in the browser
         // onLogin(loginResponse.data.data);
         onLogin(username);
       })
       .catch(function (error) {
-        console.log('API auth login error:', error);
+        console.error('API auth login error:', error);
 
         let msg = error.code + ': ' + error.message;
         if (error.response && error.response.data && error.response.data.message) {

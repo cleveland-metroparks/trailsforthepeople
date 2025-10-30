@@ -37,7 +37,7 @@ export const loader = (queryClient) =>
  * Hint Map List component
  */
 export function HintMapList() {
-  const { isLoading, isSuccess, isError, data, error, refetch } = useQuery<HintMap[], Error>(['hint_maps'], getAllHintMaps);
+  const { isLoading, isError, data, error } = useQuery<HintMap[], Error>(['hint_maps'], getAllHintMaps);
   return (
     <>
       <Title order={2}>Hint Maps</Title>
@@ -76,8 +76,8 @@ export function HintMapList() {
                   {hint_map.title}
                 </Anchor>
               </td>
-              <td><img src={hint_map.url_external} width="100" height="100" /></td>
-              <td><img src={formatMapsHintMapLink(hint_map.image_filename_local)} width="100" height="100" /></td>
+              <td><img src={hint_map.url_external} alt={hint_map.title} width="100" height="100" /></td>
+              <td><img src={formatMapsHintMapLink(hint_map.image_filename_local)} alt={hint_map.title} width="100" height="100" /></td>
               <td>{dayjs(hint_map.last_edited).format('YYYY-MM-DD HH:mm:ss Z')}</td>
               {/* <td>{dayjs(hint_map.last_refreshed).format('YYYY-MM-DD HH:mm:ss Z')}</td> */}
             </tr>

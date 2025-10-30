@@ -2,7 +2,7 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { useControl } from 'react-map-gl/mapbox';
 import type { ControlPosition } from 'react-map-gl/mapbox';
 import type { MapContextValue } from '@vis.gl/react-mapbox/dist/components/map';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 
 /**
  * See:
@@ -59,7 +59,7 @@ export default function DrawControl(props: DrawControlProps) {
   );
 
   // Replace the draw component's feature(s) with a given one
-  const setDrawFeature = (feature) => {
+  const setDrawFeature = useCallback((feature) => {
     // @TODO: It might be more efficient to pass a FeatureCollection
     // and call Draw.set(). See:
     // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md
@@ -68,15 +68,14 @@ export default function DrawControl(props: DrawControlProps) {
     draw.deleteAll();
     // Add our waypoints linestring as a new Draw feature
     draw.add(feature);
-  }
+  }, [draw]);
 
   //
   useEffect(() => {
     if (props.waypointsGeom.geometry.coordinates.length) {
-      // console.log('useEffect() call to setDrawFeature');
       setDrawFeature(props.waypointsGeom);
     }
-  }, [props.waypointsGeom]);
+  }, [props.waypointsGeom, setDrawFeature]);
 
   return null;
 }

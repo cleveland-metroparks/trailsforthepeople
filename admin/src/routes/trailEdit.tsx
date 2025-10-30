@@ -20,7 +20,6 @@ import { default as timezone } from 'dayjs/plugin/timezone';
 import { LngLat, LngLatBounds } from 'mapbox-gl';
 import { coordEach } from '@turf/meta';
 import { lineString } from '@turf/helpers';
-import { LineString, GeoJsonProperties } from 'geojson';
 
 import { useAuth } from "../hooks/useAuth";
 
@@ -122,7 +121,7 @@ export function TrailEdit() {
     travelModeRef.current = travelMode;
   }, [travelMode]);
 
-  const emptyLineStringFeature: LineStringFeature<LineString, GeoJsonProperties> = {
+  const emptyLineStringFeature: LineStringFeature = {
     type: "Feature",
     geometry: {
       type: 'LineString',
@@ -532,7 +531,6 @@ export function TrailEdit() {
   }, [waypointsFeature]);
 
   const onDrawDelete = useCallback(e => {
-    console.log('onDrawDelete');
     const feature_id = Object.keys(e.features)[0];
     setWaypointsFeature(curFeature => {
       return e.features[feature_id];
@@ -563,7 +561,7 @@ export function TrailEdit() {
       labels: { confirm: 'Delete Trail', cancel: "Cancel" },
       confirmProps: { color: 'red' },
       onCancel: () => {
-        console.log('Trail delete cancelled')
+        console.warn('Trail delete cancelled')
       },
       onConfirm: () => {
         // We pass in deleteFormAction

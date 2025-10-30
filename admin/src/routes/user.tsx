@@ -53,7 +53,7 @@ export function UserAccount() {
 
   const {
     isLoading: tokensIsLoading,
-    isSuccess: tokensIsSuccess,
+    // isSuccess: tokensIsSuccess,
     isError: tokensIsError,
     data: tokensData,
     error: tokensError,
@@ -114,7 +114,7 @@ export function UserAccount() {
       tokensRefetch();
     })
     .catch(function (error) {
-      console.log('Create API token error:', error);
+      console.error('Create API token error:', error);
 
       let msg = error.code + ': ' + error.message;
       if (error.response && error.response.data && error.response.data.message) {
@@ -159,7 +159,7 @@ export function UserAccount() {
       tokensRefetch();
     })
     .catch(function (error) {
-      console.log('Revoke API token error:', error);
+      console.error('Revoke API token error:', error);
 
       let msg = error.code + ': ' + error.message;
       if (error.response && error.response.data && error.response.data.message) {

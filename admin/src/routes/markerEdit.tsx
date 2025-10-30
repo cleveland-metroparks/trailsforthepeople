@@ -173,8 +173,6 @@ export function MarkerEdit() {
       modifier_username: user,
     };
 
-    console.log('Saving marker:', markerSaveData);
-
     // Saving a new marker
     const response = (markerId === 'new') ?
       mapsApiClient.post<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/markers', markerSaveData)
@@ -198,9 +196,6 @@ export function MarkerEdit() {
 
           // Redirect to the marker edit page for this new marker
           setRedirectPath(markersRootPath + '/' + markerId);
-          console.log('Redirecting to: ', markersRootPath + '/' + markerId);
-
-          console.log(savedMsg + ':', response);
         }
       })
       .catch(function (error) {
@@ -249,7 +244,7 @@ export function MarkerEdit() {
       labels: { confirm: 'Delete Marker', cancel: "Cancel" },
       confirmProps: { color: 'red' },
       onCancel: () => {
-        console.log('Marker delete cancelled')
+        console.warn('Marker delete cancelled')
       },
       onConfirm: () => {
         // We pass in deleteFormAction

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Route, MapPin, Map, FileText, User, Logout } from 'tabler-icons-react';
-import { ThemeIcon, UnstyledButton, Button, Group, Text, Box } from '@mantine/core';
+import { ThemeIcon, UnstyledButton, Button, Group, Text } from '@mantine/core';
 import { Link } from "react-router-dom";
 
 interface NavLinkProps {

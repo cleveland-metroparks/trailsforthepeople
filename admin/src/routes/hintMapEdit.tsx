@@ -22,13 +22,6 @@ export function HintMapEdit() {
 
   const [savingState, setSavingState] = useState(false);
 
-  // We can probably do without this, but leaving here for now
-  const [mapViewState, setMapViewState] = useState({
-    longitude: parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LNG),
-    latitude: parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LAT),
-    zoom: parseFloat(process.env.REACT_APP_MAP_DEFAULT_ZOOM),
-  });
-
   const [mapboxStaticImg, setMapboxStaticImg] = useState('');
 
   const mutation = useMutation(
@@ -83,7 +76,6 @@ export function HintMapEdit() {
           const re = new RegExp('/styles/v1/cleveland-metroparks/.*/static/(.*),(.*),(.*),.*,.*/(.*)x(.*)(@2x)?');
           const matches = url.pathname.match(re);
           if (matches) {
-            console.log('External URL regex match.', matches[0]);
             hintMapData.longitude = parseFloat(matches[1]);
             hintMapData.latitude = parseFloat(matches[2]);
             hintMapData.zoom = parseFloat(matches[3]);
@@ -164,7 +156,6 @@ export function HintMapEdit() {
         });
         setSavingState(false);
         queryClient.invalidateQueries({ queryKey: ['hintmap'] });
-        console.log(savedMsg + ':', response);
       })
       .catch(function (error) {
         const errMsg = error.name + ': ' + error.message + ' (' + error.code + ')';
@@ -196,7 +187,6 @@ export function HintMapEdit() {
 
   // Map onMove event
   const onMapMove = (event: ViewStateChangeEvent) => {
-    setMapViewState(event.viewState);
     form.setValues({
       latitude: event.viewState.latitude,
       longitude: event.viewState.longitude,
@@ -253,7 +243,7 @@ export function HintMapEdit() {
       labels: { confirm: 'Delete Hint Map', cancel: "Cancel" },
       confirmProps: { color: 'red' },
       onCancel: () => {
-        console.log('Hint Map delete cancelled')
+        console.warn('Hint Map delete cancelled')
       },
       onConfirm: () => {
         // We pass in deleteFormAction

@@ -1,4 +1,4 @@
-import { LineString, GeoJsonProperties, GeoJsonObject} from 'geojson';
+import type { LineString, GeoJsonProperties, GeoJsonObject } from 'geojson';
 
 export type Trail = {
   id: number,
@@ -77,7 +77,7 @@ export type TrailGeometry = {
   geom_geojson: string,
 };
 
-export interface LineStringFeature<LineString, GeoJsonProperties> extends GeoJsonObject {
+export interface LineStringFeature extends GeoJsonObject {
   type: "Feature";
   geometry: LineString;
   id?: string | number | undefined;
