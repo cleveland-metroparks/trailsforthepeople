@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useCallback } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "./useLocalStorage";
 
@@ -10,6 +10,8 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useLocalStorage("user", null);
   const navigate = useNavigate();
+
+  const skipLogin = (process.env.REACT_APP_SKIP_LOGIN || "").toLowerCase() === "true";
 
   // call this function when you want to authenticate the user
   const onLogin = useCallback(async (data) => {
@@ -31,6 +33,13 @@ export const AuthProvider = ({ children }) => {
     }),
     [user, onLogin, onLogout]
   );
+
+  // If skipping login is enabled, ensure a default user is present
+  useEffect(() => {
+    if (skipLogin && !user) {
+      setUser("dev");
+    }
+  }, [skipLogin, user, setUser]);
 
   return <AuthContext.Provider value={value}>
            {children}

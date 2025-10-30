@@ -19,6 +19,7 @@ import { useAuth } from "../hooks/useAuth";
  * Login screen
  */
 export function Login() {
+  const skipLogin = (process.env.REACT_APP_SKIP_LOGIN || "").toLowerCase() === "true";
   const form = useForm({
     initialValues: {
       username: '',
@@ -30,7 +31,7 @@ export function Login() {
 
   const { user, onLogin } = useAuth();
 
-  if (user) {
+  if (user || skipLogin) {
     return <Navigate to="/" />;
   }
 
