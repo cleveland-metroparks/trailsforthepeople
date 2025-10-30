@@ -37,7 +37,11 @@ export const loader = (queryClient) =>
  * Hint Map List component
  */
 export function HintMapList() {
-  const { isLoading, isError, data, error } = useQuery<HintMap[], Error>(['hint_maps'], getAllHintMaps);
+  const { isLoading, isError, data, error } = useQuery<HintMap[], Error>({
+    ...getAllHintMapsQuery(),
+    staleTime: 10000,
+    refetchOnMount: false,
+  });
   return (
     <>
       <Title order={2}>Hint Maps</Title>

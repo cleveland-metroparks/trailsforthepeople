@@ -75,7 +75,11 @@ export function TrailList() {
     isError: trailsIsError,
     data: trailsData,
     error: trailsError,
-  } = useQuery<Trail[], Error>(['trails'], getAllTrails);
+  } = useQuery<Trail[], Error>({
+    ...getAllTrailsQuery(),
+    staleTime: 10000,
+    refetchOnMount: false,
+  });
 
   // For table sorting and filtering
   const [search, setSearch] = useState('');

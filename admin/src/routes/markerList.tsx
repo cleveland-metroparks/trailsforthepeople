@@ -68,7 +68,11 @@ export function MarkerList() {
     isError: markersIsError,
     data: markersData,
     error: markersError,
-  } = useQuery<Marker[], Error>(['markers'], getAllMarkersQuery());
+  } = useQuery<Marker[], Error>({
+    ...getAllMarkersQuery(),
+    staleTime: 10000,
+    refetchOnMount: false,
+  });
 
   // For table sorting
   const [search, setSearch] = useState('');
