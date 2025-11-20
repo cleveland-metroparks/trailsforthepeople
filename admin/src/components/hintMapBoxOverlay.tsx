@@ -20,7 +20,6 @@ class OverlayControl implements IControl {
   onAdd(map: Map) {
     this._map = map;
     map.on('move', this._redraw);
-    /* global document */
     this._container = document.createElement('div');
     this._redraw();
     return this._container;
