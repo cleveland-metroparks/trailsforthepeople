@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router";
 import { Table, Anchor, Box, Pagination, Text } from '@mantine/core';
 import { default as dayjs } from 'dayjs';
 

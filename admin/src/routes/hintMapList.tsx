@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { Table, Title, Anchor, Button } from '@mantine/core';
 import { default as dayjs } from 'dayjs';
 

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Route, MapPin, Map, FileText, User, Logout } from 'tabler-icons-react';
 import { ThemeIcon, UnstyledButton, Button, Group, Text } from '@mantine/core';
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 interface NavLinkProps {
   icon: React.ReactNode;

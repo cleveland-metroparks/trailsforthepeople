@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, useParams, Navigate, useSubmit } from "react-router-dom";
+import { Link, useParams, Navigate, useSubmit } from "react-router";
 import { Flex, Text, Title, Anchor, Box, Input, TextInput, Button, Group } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';

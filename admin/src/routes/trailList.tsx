@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { Anchor, Button, Table, Text, TextInput, Title, Select, Group } from '@mantine/core';
 import { keys } from '@mantine/utils';
 import { IconSearch } from '@tabler/icons-react';

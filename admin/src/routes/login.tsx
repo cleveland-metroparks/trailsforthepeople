@@ -8,7 +8,7 @@ import {
   Text,
   Anchor,
 } from '@mantine/core';
-import { Navigate } from "react-router-dom";
+import { Navigate } from "react-router";
 import { useForm } from '@mantine/form';
 import { showNotification } from '@mantine/notifications';
 

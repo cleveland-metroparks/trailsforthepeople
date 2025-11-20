@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './App.css';
-import { Link, Outlet, Navigate } from "react-router-dom";
+import { Link, Outlet, Navigate } from "react-router";
 import {
   Anchor,
   AppShell,
