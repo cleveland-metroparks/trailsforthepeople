@@ -31,7 +31,7 @@
     "@types/react": "^18.0.12",
     "@types/react-dom": "^18.0.5",
     "axios": "^1.12.0",
-    "dayjs": "^1.11.3",
+    "dayjs": "^1.11.19",
     "mapbox-gl": "^3.16.0",
     "react": "^18.1.0",
     "react-chartjs-2": "^4.3.1",
