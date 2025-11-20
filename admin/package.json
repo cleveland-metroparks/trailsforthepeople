@@ -23,7 +23,7 @@
     "@turf/helpers": "^7.3.0",
     "@turf/turf": "^7.3.0",
     "@types/mapbox__mapbox-gl-draw": "^1.4.9",
-    "@types/node": "^16.11.39",
+    "@types/node": "^24.10.1",
     "@types/react": "^19.2.6",
     "@types/react-dom": "^19.2.3",
     "axios": "^1.13.2",
