@@ -396,7 +396,7 @@ export function TrailMap(props: TrailMapProps) {
           displayControlsDefault={false}
           controls={{
             line_string: true,
-            trash: true
+            // trash: true
           }}
           initialData={
             props.waypointsFeature

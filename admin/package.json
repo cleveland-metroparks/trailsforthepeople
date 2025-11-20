@@ -1,6 +1,6 @@
 {
   "name": "Cleveland Metroparks Maps Content Admin",
-  "version": "1.2.1",
+  "version": "1.2.3",
   "private": true,
   "homepage": "/admin",
   "dependencies": {
