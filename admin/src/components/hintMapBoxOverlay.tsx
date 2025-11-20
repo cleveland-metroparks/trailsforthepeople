@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import {useState, cloneElement} from 'react';
+import {useState} from 'react';
 import {useControl} from 'react-map-gl/mapbox';
 import {createPortal} from 'react-dom';
 
@@ -43,7 +43,7 @@ class OverlayControl implements IControl {
 /**
  * A custom control that rerenders arbitrary React content whenever the camera changes
  */
-function CustomOverlay(props: {children: React.ReactNode}) {
+function CustomOverlay(props: {children: React.ReactElement<{map?: Map}>}) {
   const [, setVersion] = useState(0);
 
   const ctrl = useControl<OverlayControl>(() => {
@@ -53,7 +53,11 @@ function CustomOverlay(props: {children: React.ReactNode}) {
 
   const map = ctrl.getMap();
 
-  return map && createPortal(cloneElement(props.children as React.ReactElement, {map}), ctrl.getElement());
+  if (!map) return null;
+
+  const childWithMap = React.cloneElement(props.children, {map} as any);
+
+  return createPortal(childWithMap, ctrl.getElement());
 }
 
 export default React.memo(CustomOverlay);
