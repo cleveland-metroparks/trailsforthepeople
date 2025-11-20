@@ -28,6 +28,35 @@ export default function DrawControl(props: DrawControlProps) {
   const mouseDownRef = useRef<{x: number; y: number; time: number} | null>(null);
   const isDraggingRef = useRef(false);
 
+  // Function to update the line button state based on whether features exist
+  const updateLineButtonState = useCallback((drawInstance: MapboxDraw) => {
+    // Use setTimeout to ensure the DOM has been updated
+    setTimeout(() => {
+      const data = drawInstance.getAll();
+      const hasFeatures = data.features.some((feature: any) =>
+        feature.geometry.type === 'LineString' &&
+        feature.geometry.coordinates &&
+        feature.geometry.coordinates.length > 0
+      );
+
+      // Find the line_string button (Mapbox Draw uses class name mapbox-gl-draw_line)
+      const lineButton = document.querySelector('button.mapbox-gl-draw_line') as HTMLButtonElement;
+      if (lineButton) {
+        if (hasFeatures) {
+          lineButton.disabled = true;
+          lineButton.classList.add('mapbox-gl-draw_line-disabled');
+          lineButton.style.opacity = '0.3';
+          lineButton.style.cursor = 'not-allowed';
+        } else {
+          lineButton.disabled = false;
+          lineButton.classList.remove('mapbox-gl-draw_line-disabled');
+          lineButton.style.opacity = '1';
+          lineButton.style.cursor = 'pointer';
+        }
+      }
+    }, 0);
+  }, []);
+
   let draw = useControl<MapboxDraw>(
 
     // useControl onCreate:
@@ -37,16 +66,51 @@ export default function DrawControl(props: DrawControlProps) {
 
     // useControl onAdd:
     ({ map }: MapContextValue) => {
-      map.on('draw.create', props.onCreate);
-      map.on('draw.update', props.onUpdate);
-      map.on('draw.delete', props.onDelete);
+      // Function to set draw feature (defined here to have access to draw instance)
+      const setDrawFeature = (feature: any) => {
+        // Delete the initial empty feature that Draw initiates with
+        draw.deleteAll();
+        // Add our waypoints linestring as a new Draw feature
+        const addedFeatureIds = draw.add(feature);
+        // Select the feature so vertices are clickable
+        if (addedFeatureIds && addedFeatureIds.length > 0) {
+          draw.changeMode('simple_select', { featureIds: [addedFeatureIds[0]] });
+        }
+        // Update button state after setting feature
+        updateLineButtonState(draw);
+      };
+
+      // Wrap the original handlers to also update button state
+      const handleCreate = (e: {features: object[]}) => {
+        props.onCreate?.(e);
+        updateLineButtonState(draw);
+      };
+
+      const handleUpdate = (e: {features: object[]; action: string}) => {
+        props.onUpdate?.(e);
+        updateLineButtonState(draw);
+      };
+
+      const handleDelete = (e: {features: object[]}) => {
+        props.onDelete?.(e);
+        updateLineButtonState(draw);
+      };
+
+      map.on('draw.create', handleCreate);
+      map.on('draw.update', handleUpdate);
+      map.on('draw.delete', handleDelete);
 
       map.on('load', function () {
         // Draw initial waypoints
-        if (props.initialData.geometry) {
+        if (props.initialData?.geometry) {
           setDrawFeature(props.initialData);
         }
+        // Update button state after initial load
+        updateLineButtonState(draw);
       });
+
+      // Store setDrawFeature for use in useEffect
+      (map as any)._setDrawFeature = setDrawFeature;
 
       // Track mouse down to distinguish clicks from drags
       const handleMouseDown = (e: any) => {
@@ -116,6 +180,18 @@ export default function DrawControl(props: DrawControlProps) {
           });
 
           if (closestFeature && closestIndex >= 0 && props.onVertexClick) {
+            // Get the current draw mode - only show popover when editing, not during creation
+            const currentMode = draw.getMode();
+
+            // Only trigger vertex click when in edit modes, not during drawing
+            // draw_line_string = actively drawing a new feature
+            // simple_select = selecting/editing an existing feature
+            // direct_select = directly selecting vertices of a feature
+            if (currentMode === 'draw_line_string') {
+              // Don't show popover during creation - let the draw tool handle the click
+              return;
+            }
+
             // Prevent map click from firing
             e.originalEvent?.stopPropagation?.();
 
@@ -146,13 +222,24 @@ export default function DrawControl(props: DrawControlProps) {
         map.off('mousemove', handleMouseMove);
         map.off('mouseup', handleMouseUp);
       };
+
+      // Store handlers for cleanup
+      (map as any)._drawControlHandlers = {
+        create: handleCreate,
+        update: handleUpdate,
+        delete: handleDelete
+      };
     },
 
     // useControl onRemove:
     ({ map }: MapContextValue) => {
-      map.off('draw.create', props.onCreate);
-      map.off('draw.update', props.onUpdate);
-      map.off('draw.delete', props.onDelete);
+      const handlers = (map as any)._drawControlHandlers;
+      if (handlers) {
+        map.off('draw.create', handlers.create);
+        map.off('draw.update', handlers.update);
+        map.off('draw.delete', handlers.delete);
+        delete (map as any)._drawControlHandlers;
+      }
 
       // Clean up vertex click handlers
       if ((map as any)._drawControlCleanup) {
@@ -168,7 +255,7 @@ export default function DrawControl(props: DrawControlProps) {
   );
 
   // Replace the draw component's feature(s) with a given one
-  const setDrawFeature = useCallback((feature) => {
+  const setDrawFeature = useCallback((feature: any) => {
     // @TODO: It might be more efficient to pass a FeatureCollection
     // and call Draw.set(). See:
     // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md
@@ -181,14 +268,19 @@ export default function DrawControl(props: DrawControlProps) {
     if (addedFeatureIds && addedFeatureIds.length > 0) {
       draw.changeMode('simple_select', { featureIds: [addedFeatureIds[0]] });
     }
-  }, [draw]);
+    // Update button state after setting feature
+    updateLineButtonState(draw);
+  }, [draw, updateLineButtonState]);
 
   //
   useEffect(() => {
-    if (props.waypointsGeom.geometry.coordinates.length) {
+    if (props.waypointsGeom?.geometry?.coordinates?.length) {
       setDrawFeature(props.waypointsGeom);
+    } else {
+      // If no waypoints, update button state to enable it
+      updateLineButtonState(draw);
     }
-  }, [props.waypointsGeom, setDrawFeature]);
+  }, [props.waypointsGeom, setDrawFeature, updateLineButtonState, draw]);
 
   return null;
 }
