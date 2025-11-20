@@ -123,6 +123,9 @@ export function TrailEdit() {
     travelModeRef.current = travelMode;
   }, [travelMode]);
 
+  // Track current waypoint count in a ref to avoid stale closures in onDrawUpdate
+  const waypointCountRef = useRef(0);
+
   const emptyLineStringFeature: LineStringFeature = {
     type: "Feature",
     geometry: {
@@ -143,6 +146,11 @@ export function TrailEdit() {
   // trigger an extra redraw of the draw control (via our create/update callbacks) every
   // time the user edits it via the Draw UI.
   const [waypointsForDraw, setWaypointsForDraw] = useState(emptyLineStringFeature);
+
+  // Keep waypoint count ref in sync with waypointsFeature
+  useEffect(() => {
+    waypointCountRef.current = waypointsFeature.geometry?.coordinates?.length || 0;
+  }, [waypointsFeature]);
 
   const [waypointsGeoJSON, setWaypointsGeoJSON] = useState('');
 
@@ -489,6 +497,8 @@ export function TrailEdit() {
       // @TODO: Warning to user: not enought waypoints
     }
 
+    const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
+    waypointCountRef.current = newWaypointCount;
     setWaypointsFeature(curFeature => {
       return newFeature;
     });
@@ -505,10 +515,13 @@ export function TrailEdit() {
 
   const onDrawCreate = useCallback(e => {
     const feature_id = Object.keys(e.features)[0];
+    const newFeature = e.features[feature_id];
+    const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
+    waypointCountRef.current = newWaypointCount;
     setWaypointsFeature(curFeature => {
-      return e.features[feature_id];
+      return newFeature;
     });
-    const wpGeoJSON = makeWaypointGeojsonString(e.features[feature_id]);
+    const wpGeoJSON = makeWaypointGeojsonString(newFeature);
     setWaypointsGeoJSON(wpGeoJSON);
     getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
   }, []);
@@ -517,8 +530,11 @@ export function TrailEdit() {
     const feature_id = Object.keys(e.features)[0];
     const newFeature = e.features[feature_id];
 
-    const currentWaypointCount = waypointsFeature.geometry?.coordinates?.length || 0;
+    const currentWaypointCount = waypointCountRef.current;
     const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
+
+    // Update ref immediately to ensure it's current for next call
+    waypointCountRef.current = newWaypointCount;
 
     setWaypointsFeature(curFeature => {
       return newFeature;
@@ -531,14 +547,17 @@ export function TrailEdit() {
       setWaypointsGeoJSON(wpGeoJSON);
       getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
     }
-  }, [waypointsFeature]);
+  }, []);
 
   const onDrawDelete = useCallback(e => {
     const feature_id = Object.keys(e.features)[0];
+    const newFeature = e.features[feature_id];
+    const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
+    waypointCountRef.current = newWaypointCount;
     setWaypointsFeature(curFeature => {
-      return e.features[feature_id];
+      return newFeature;
     });
-    const wpGeoJSON = makeWaypointGeojsonString(e.features[feature_id]);
+    const wpGeoJSON = makeWaypointGeojsonString(newFeature);
     setWaypointsGeoJSON(wpGeoJSON);
     getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
   }, []);
