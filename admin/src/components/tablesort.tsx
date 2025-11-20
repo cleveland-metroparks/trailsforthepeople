@@ -3,7 +3,6 @@ import { IconSelector, IconChevronDown, IconChevronUp } from '@tabler/icons-reac
 
 import type { Trail } from "../types/trail";
 import type { Marker } from "../types/marker";
-import type { HintMap } from "../types/hintmap";
 
 // Table sort styles
 // Derived from https://ui.mantine.dev/component/table-sort
@@ -29,7 +28,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 // Table row data; can be our major types
-type RowData = Trail | Marker | HintMap | any;
+type RowData = Trail | Marker | any;
 
 // Comparison for sorting, for strings & numbers
 export function compareTableItems(a: string | number, b: string | number, reversed: boolean) {

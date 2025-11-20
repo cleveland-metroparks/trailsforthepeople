@@ -29,10 +29,6 @@ import { MarkerList, loader as markerListLoader } from "./routes/markerList";
 import { MarkerEdit } from "./routes/markerEdit";
 import { action as deleteMarkerAction } from "./routes/markerDelete";
 
-import { HintMapList, loader as hintMapListLoader } from "./routes/hintMapList";
-import { HintMapEdit } from "./routes/hintMapEdit";
-import { action as deleteHintMapAction } from "./routes/hintMapDelete";
-
 import { AuditLogsList, AuditLogView } from "./routes/logs";
 
 import './index.css';
@@ -95,15 +91,6 @@ const routes = createRoutesFromElements(
             <Route path=":markerId" element={<MarkerEdit />} />
             {/* <Route path=":markerId/delete" action={deleteMarkerAction} element={<MarkerDelete onDelete />} /> */}
             <Route path=":markerId/delete" action={deleteMarkerAction} />
-          </Route>
-          <Route path="hint_maps">
-            <Route
-              index
-              element={<HintMapList />}
-              loader={hintMapListLoader(queryClient)}
-            />
-            <Route path=":hintMapId" element={<HintMapEdit />} />
-            <Route path=":hintMapId/delete" action={deleteHintMapAction} />
           </Route>
           <Route path="logs">
             <Route index element={<AuditLogsList />} />

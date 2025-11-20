@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Route, MapPin, Map, FileText, User, Logout } from 'tabler-icons-react';
+import { Route, MapPin, FileText, User, Logout } from 'tabler-icons-react';
 import { ThemeIcon, UnstyledButton, Button, Group, Text } from '@mantine/core';
 import { Link } from "react-router";
 
@@ -14,7 +14,6 @@ interface NavLinkProps {
 const navLinksData = [
   { icon: <Route />, color: 'blue', label: 'Trails', urlPath: 'trails' },
   { icon: <MapPin />, color: 'teal', label: 'Markers', urlPath: 'markers' },
-  { icon: <Map />, color: 'violet', label: 'Hint Maps', urlPath: 'hint_maps' },
   { icon: <FileText />, color: 'grape', label: 'Logs', urlPath: 'logs' },
 ];
 
