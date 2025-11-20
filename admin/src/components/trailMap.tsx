@@ -8,8 +8,9 @@ import type { LineLayerSpecification } from 'mapbox-gl';
 import * as ReactMapGl from 'react-map-gl/mapbox'; // For "Map", to avoid collision
 import type { MapRef, ViewStateChangeEvent } from 'react-map-gl/mapbox';
 import type { MapEvent } from 'mapbox-gl';
-import { Text, Button, Group, Box, Flex, Autocomplete, Select, Loader } from '@mantine/core';
+import { Text, Button, Group, Box, Flex, Autocomplete, Select, Loader, Popover } from '@mantine/core';
 import DrawControl from './draw-control';
+import { IconTrash } from '@tabler/icons-react';
 
 import { mapsApiClient } from "../components/mapsApi";
 import type { Trail } from "../types/trail";
@@ -31,6 +32,7 @@ interface TrailMapProps {
   onElevationProfileToggle: () => void;
   showElevationProfile: boolean;
   isRouting: boolean;
+  onVertexSelect?: (index: number | null) => void;
 }
 
 /**
@@ -112,6 +114,35 @@ export function TrailMap(props: TrailMapProps) {
   const [parkFeatureLocations, setParkFeatureLocations] = useState(new Map());
   // Current value of the zoomTo field
   const [zoomToValue, setZoomToValue] = useState('');
+
+  // Vertex popover state
+  const [popoverOpened, setPopoverOpened] = useState(false);
+  const [vertexInfo, setVertexInfo] = useState<{
+    lngLat: {lng: number; lat: number};
+    vertexIndex: number;
+    featureId: string;
+  } | null>(null);
+  const [popoverPosition, setPopoverPosition] = useState<{x: number; y: number} | null>(null);
+  const isHandlingVertexClickRef = useRef(false);
+
+  // Update popover position when map moves/resizes/zooms
+  const updatePopoverPosition = useCallback(() => {
+    if (mapRef.current && vertexInfo && popoverOpened) {
+      const point = mapRef.current.project([vertexInfo.lngLat.lng, vertexInfo.lngLat.lat]);
+      setPopoverPosition({ x: point.x, y: point.y });
+    }
+  }, [vertexInfo, popoverOpened]);
+
+  // Update popover position when map height changes (after resize completes)
+  useEffect(() => {
+    if (mapRef.current && popoverOpened) {
+      const timeoutId = setTimeout(() => {
+        updatePopoverPosition();
+      }, 20); // Slightly longer delay to ensure resize is complete
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [mapHeight, popoverOpened, updatePopoverPosition]);
 
   // Map needs repaint to size correctly when user switches tabs,
   // else the map shows up as 400 x 300
@@ -199,6 +230,7 @@ export function TrailMap(props: TrailMapProps) {
 
   const onMapMove = (event: ViewStateChangeEvent) => {
     setMapViewState(event.viewState);
+    updatePopoverPosition();
   };
 
   const onMapLoad = (event: MapEvent) => {
@@ -213,8 +245,98 @@ export function TrailMap(props: TrailMapProps) {
     }
   };
 
-  const onMapRender = (event: MapEvent) => {}
-  const onMapResize = (event: MapEvent) => {}
+  // Close popover when map is clicked (but not on a vertex)
+  const onMapClick = useCallback(() => {
+    // Don't close if we're in the middle of handling a vertex click
+    if (isHandlingVertexClickRef.current) {
+      return;
+    }
+    if (popoverOpened) {
+      setPopoverOpened(false);
+      setVertexInfo(null);
+      setPopoverPosition(null);
+      // Clear selection
+      if (props.onVertexSelect) {
+        props.onVertexSelect(null);
+      }
+    }
+  }, [popoverOpened, props]);
+
+  const onMapRender = (event: MapEvent) => {
+    updatePopoverPosition();
+  }
+  const onMapResize = (event: MapEvent) => {
+    updatePopoverPosition();
+  }
+
+  // Handle vertex click - show popover
+  const handleVertexClick = useCallback((e: {lngLat: {lng: number; lat: number}; vertexIndex: number; featureId: string}) => {
+    // Prevent map click from clearing the popover
+    isHandlingVertexClickRef.current = true;
+
+    if (mapRef.current) {
+      // Convert lng/lat to pixel coordinates for popover positioning
+      const point = mapRef.current.project([e.lngLat.lng, e.lngLat.lat]);
+      setPopoverPosition({ x: point.x, y: point.y });
+      setVertexInfo(e);
+      setPopoverOpened(true);
+
+      // Notify parent of selected vertex
+      if (props.onVertexSelect) {
+        props.onVertexSelect(e.vertexIndex);
+      }
+
+      // Reset the flag after a short delay to allow state updates to complete
+      setTimeout(() => {
+        isHandlingVertexClickRef.current = false;
+      }, 100);
+    }
+  }, [mapRef, props]);
+
+  // Handle vertex deletion
+  const { waypointsFeature, onDrawUpdate } = props;
+  const handleDeleteVertex = useCallback(() => {
+    if (!vertexInfo || !waypointsFeature) {
+      return;
+    }
+
+    const feature = waypointsFeature as any;
+    if (feature.geometry && feature.geometry.type === 'LineString' && feature.geometry.coordinates) {
+      const coordinates = [...feature.geometry.coordinates];
+
+      // Don't allow deleting if there are 2 vertices or fewer
+      if (coordinates.length <= 2) {
+        setPopoverOpened(false);
+        return;
+      }
+
+      // Remove the vertex at the specified index
+      coordinates.splice(vertexInfo.vertexIndex, 1);
+
+      // Create updated feature
+      const updatedFeature = {
+        ...feature,
+        geometry: {
+          ...feature.geometry,
+          coordinates: coordinates
+        }
+      };
+
+      // Trigger update with the modified feature (matching the pattern from trailEdit.tsx)
+      const featureId = feature.id || '0';
+      onDrawUpdate({
+        features: { [featureId]: updatedFeature } as any,
+        action: 'delete_vertex'
+      });
+
+      setPopoverOpened(false);
+      setVertexInfo(null);
+      // Clear selection
+      if (props.onVertexSelect) {
+        props.onVertexSelect(null);
+      }
+    }
+  }, [vertexInfo, waypointsFeature, onDrawUpdate, props]);
 
   const trailLayer: LineLayerSpecification = {
     id: "trail-line",
@@ -256,6 +378,7 @@ export function TrailMap(props: TrailMapProps) {
           onMove={onMapMove}
           onRender={onMapRender}
           onResize={onMapResize}
+          onClick={onMapClick}
         >
         <Source
           id="trail-data"
@@ -391,6 +514,7 @@ export function TrailMap(props: TrailMapProps) {
           onUpdate={props.onDrawUpdate} // draw.update
           onCreate={props.onDrawCreate} // draw.create
           onDelete={props.onDrawDelete} // draw.delete
+          onVertexClick={handleVertexClick}
         />
         </ReactMapGl.Map>
 
@@ -399,6 +523,47 @@ export function TrailMap(props: TrailMapProps) {
           <Box className={styles.routingOverlay}>
             <Loader size="sm" />
           </Box>
+        )}
+
+        {/* Vertex deletion popover */}
+        {popoverPosition && vertexInfo && (
+          <Popover
+            opened={popoverOpened}
+            onChange={setPopoverOpened}
+            position="top"
+            withArrow
+            shadow="md"
+            withinPortal
+          >
+            <Popover.Target>
+              <div
+                style={{
+                  position: 'absolute',
+                  left: `${popoverPosition.x}px`,
+                  top: `${popoverPosition.y}px`,
+                  width: '1px',
+                  height: '1px',
+                  pointerEvents: 'none'
+                }}
+              />
+            </Popover.Target>
+            <Popover.Dropdown>
+              <Box p={4}>
+                <Text size="xs" fw={500} style={{ fontSize: '11px', marginBottom: '4px' }}>
+                  Waypoint {vertexInfo.vertexIndex + 1}
+                </Text>
+                <Button
+                  size="xs"
+                  color="red"
+                  onClick={handleDeleteVertex}
+                  leftSection={<IconTrash size={14} style={{ marginRight: -3 }} />}
+                  style={{ fontSize: '11px', padding: '2px 8px', height: '24px' }}
+                >
+                  Delete
+                </Button>
+              </Box>
+            </Popover.Dropdown>
+          </Popover>
         )}
       </Box>
 

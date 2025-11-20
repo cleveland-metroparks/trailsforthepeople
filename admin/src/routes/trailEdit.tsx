@@ -147,6 +147,9 @@ export function TrailEdit() {
   // time the user edits it via the Draw UI.
   const [waypointsForDraw, setWaypointsForDraw] = useState(emptyLineStringFeature);
 
+  // Track selected vertex index for highlighting in waypoints list
+  const [selectedVertexIndex, setSelectedVertexIndex] = useState<number | null>(null);
+
   // Keep waypoint count ref in sync with waypointsFeature
   useEffect(() => {
     waypointCountRef.current = waypointsFeature.geometry?.coordinates?.length || 0;
@@ -540,6 +543,13 @@ export function TrailEdit() {
       return newFeature;
     });
 
+    // Update waypointsForDraw when vertex is deleted so DrawControl reflects the change
+    if (e.action === 'delete_vertex') {
+      setWaypointsForDraw(curFeature => {
+        return newFeature;
+      });
+    }
+
     // Only trigger routing if waypoints were moved or deleted;
     // not for new waypoints, which are when midpoints convert to vertices
     if (newWaypointCount <= currentWaypointCount) {
@@ -764,6 +774,7 @@ export function TrailEdit() {
                         onElevationProfileToggle={handleElevationProfileToggle}
                         showElevationProfile={showElevationProfile}
                         isRouting={isRouting}
+                        onVertexSelect={setSelectedVertexIndex}
                       />
                       {showElevationProfile && <TrailProfileChart trailProfile={trailElevation} />}
                     </div>
@@ -792,6 +803,7 @@ export function TrailEdit() {
                     <Accordion.Panel>
                       <TrailWaypoints
                         feature={waypointsFeature}
+                        selectedVertexIndex={selectedVertexIndex}
                         // geojson={waypointsGeoJSON}
                       />
                     </Accordion.Panel>
