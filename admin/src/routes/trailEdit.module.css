@@ -1,0 +1,59 @@
+.headerBox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1em;
+}
+
+.titleMargin {
+  margin: 0;
+}
+
+.groupMargin {
+  margin-right: 1rem;
+}
+
+.contentBox {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-top: 1em;
+}
+
+@media (max-width: 1024px) {
+  .contentBox {
+    flex-direction: column;
+  }
+}
+
+.mainContentBox {
+  flex: 0 0 75%;
+}
+
+@media (max-width: 1024px) {
+  .mainContentBox {
+    flex: 1 1 100%;
+  }
+}
+
+.sidebarBox {
+  flex: 0 0 25%;
+}
+
+@media (max-width: 1024px) {
+  .sidebarBox {
+    flex: 1 1 100%;
+  }
+}
+
+.maxWidth {
+  max-width: 800px;
+}
+
+.marginTop {
+  margin-top: 1em;
+}
+
+.accordionItemBorder {
+  border-top: 0.0625rem solid #dee2e6;
+}

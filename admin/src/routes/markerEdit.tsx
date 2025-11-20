@@ -1,9 +1,10 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, Navigate, useParams, useSubmit } from "react-router";
-import { createStyles, Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
+import { Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
+import utils from '../styles/utils.module.css';
 
 import { RichTextEditor } from '@mantine/tiptap';
 import { useEditor } from '@tiptap/react';
@@ -28,13 +29,6 @@ import { reservationListSelectOptions } from "../types/reservation";
 
 const markersRootPath = '/markers';
 
-// Styling for datepicker weekend days
-const useStyles = createStyles((theme) => ({
-  weekend: {
-    color: `${theme.colors.blue[5]} !important`,
-  },
-}));
-
 
 /**
  * Marker Edit
@@ -53,8 +47,6 @@ export function MarkerEdit() {
 
   const queryClient = useQueryClient();
 
-  useStyles();
-
   const mapRef = useRef<MapRef>(null);
 
   const [markerContent, setMarkerContent] = useState('');
@@ -63,6 +55,7 @@ export function MarkerEdit() {
   const richTextEditor = useEditor({
     extensions: [ StarterKit, Underline, TipTapLink ],
     content: markerContent,
+    shouldRerenderOnTransaction: true,
     // Update form value on editor update
     onUpdate: ({ editor }) => {
       form.setFieldValue('content', editor.getHTML());
@@ -273,7 +266,7 @@ export function MarkerEdit() {
 
       {markerData &&
         <>
-          <Title order={2} sx={{marginTop: '1em'}}>{markerData.title ? markerData.title : 'Add Marker'}</Title>
+          <Title order={2} mt="md">{markerData.title ? markerData.title : 'Add Marker'}</Title>
 
           <form
             onSubmit={
@@ -282,7 +275,7 @@ export function MarkerEdit() {
               })
             }
           >
-            <Box sx={{ maxWidth: 800 }}>
+            <Box className={utils.maxWidth}>
 
               <TextInput
                 mt="md"
@@ -295,7 +288,7 @@ export function MarkerEdit() {
               <Input.Wrapper
                 label="Content"
                 withAsterisk
-                sx={{marginTop: '1em'}}
+                mt="md"
               >
                 <RichTextEditor editor={richTextEditor}>
                   <RichTextEditor.Toolbar sticky stickyOffset={60}>
@@ -325,7 +318,7 @@ export function MarkerEdit() {
                 </RichTextEditor>
               </Input.Wrapper>
 
-              <Box sx={{marginTop: '1em'}}>
+              <Box mt="md">
                 <Select
                   label="Category"
                   data={markerCategorySelectOptions}
@@ -333,7 +326,7 @@ export function MarkerEdit() {
                 />
               </Box>
 
-              <Box sx={{marginTop: '1em'}}>
+              <Box mt="md">
                 <Select
                   label="Reservation"
                   placeholder="Choose a reservation"
@@ -343,7 +336,7 @@ export function MarkerEdit() {
                 />
               </Box>
 
-              <Box sx={{marginTop: '1em'}}>
+              <Box mt="md">
                 <MapGl.Map
                   reuseMaps
                   ref={mapRef}
@@ -369,7 +362,7 @@ export function MarkerEdit() {
 
               <Flex
                 justify="flex-start"
-                sx={{margin: '1em 0'}}
+                my="md"
               >
                 <Input.Wrapper label="Latitude">
                   <Input
@@ -404,7 +397,8 @@ export function MarkerEdit() {
                       // @TODO: Add placeholder
                       // placeholder="Pick expiration date"
                       {...form.getInputProps('expireDate')}
-                      sx={{ margin: '1em 0 2em' }}
+                      my="md"
+                      mb="xl"
                     />
                     </DatesProvider>
 
@@ -412,7 +406,7 @@ export function MarkerEdit() {
                       mt="md"
                       label="Enabled"
                       {...form.getInputProps('enabled', { type: 'checkbox' })}
-                      sx={{ margin: '1em 0' }}
+                      my="md"
                     />
 
                     <Checkbox
@@ -437,11 +431,11 @@ export function MarkerEdit() {
 
               </Accordion>
 
-              <Group position="left" mt="md">
+              <Group justify="flex-start" mt="md">
                 <Button
                   type="submit"
                   loading={savingState}
-                  sx={{ margin: '1em 0' }}
+                  my="md"
                 >
                 Save Marker
                 </Button>

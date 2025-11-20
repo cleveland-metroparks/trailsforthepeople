@@ -86,14 +86,15 @@ export function Login() {
       <Text
         ta="center"
         fz={{base: 'lg', sm: 'xl'}}
-        sx={{margin: '2em 0 3em'}}
+        my="xl"
+        mb="xl"
       >
         For the Cleveland Metroparks <strong>maps</strong> and <strong>trails</strong> <Anchor href="https://maps.clevelandmetroparks.com/">web app</Anchor> & <Anchor href="https://maps-api.clevelandmetroparks.com/api/docs#/">API</Anchor>.
       </Text>
 
-      <Container size={250} sx={{marginTop: '2em'}}>
+      <Container size={250} mt="xl">
 
-        <Title order={2} sx={{margin: '0 0 .5em'}} align="left">Sign in</Title>
+        <Title order={2} mb="xs" ta="left">Sign in</Title>
 
         <form onSubmit={form.onSubmit((values) => {
           authLogin(values.username, values.password);
@@ -107,7 +108,8 @@ export function Login() {
             {...form.getInputProps('username')}
           />
 
-          <PasswordInput sx={{marginTop: '1em'}}
+          <PasswordInput
+            mt="md"
             placeholder="Password"
             label="Password"
             autoComplete="current-password"
@@ -115,7 +117,7 @@ export function Login() {
             {...form.getInputProps('password')}
           />
 
-          <Group position="right" mt="md">
+          <Group justify="flex-end" mt="md">
             <Button type="submit">Login</Button>
           </Group>
 

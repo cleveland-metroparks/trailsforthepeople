@@ -92,21 +92,21 @@ export function AuditLogsList() {
       <h2>Logs</h2>
 
       <Table striped highlightOnHover>
-        <thead>
-          <tr>
-            <th>Timestamp</th>
-            <th>IP address</th>
-            <th>User</th>
-            <th>Message</th>
-          </tr>
-        </thead>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Timestamp</Table.Th>
+            <Table.Th>IP address</Table.Th>
+            <Table.Th>User</Table.Th>
+            <Table.Th>Message</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
 
-        <tbody>
+        <Table.Tbody>
         {
           logsData && logsData.length > 0 ?
             logsData.map(audit_log => (
-              <tr key={audit_log.id}>
-                <td>
+              <Table.Tr key={audit_log.id}>
+                <Table.Td>
                   <Anchor
                     component={Link}
                     to={`/logs/${audit_log.id}`}
@@ -114,30 +114,30 @@ export function AuditLogsList() {
                   >
                     {dayjs(audit_log.timestamp).format('YYYY-MM-DD HH:mm:ss Z')}
                   </Anchor>
-                </td>
-                <td>{audit_log.ipaddress}</td>
-                <td>{audit_log.username}</td>
-                <td>{audit_log.message}</td>
-              </tr>
+                </Table.Td>
+                <Table.Td>{audit_log.ipaddress}</Table.Td>
+                <Table.Td>{audit_log.username}</Table.Td>
+                <Table.Td>{audit_log.message}</Table.Td>
+              </Table.Tr>
             ))
           :
-          <tr>
-            <td colSpan={4}>
-              <Text weight={500} align="center">
+          <Table.Tr>
+            <Table.Td colSpan={4}>
+              <Text fw={500} ta="center">
                 {logsIsError ?
                   <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>{`There was a problem fetching the logs data - ${logsError.message}`}</div>
                 :
                 logsIsLoading ? <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>Loading...</div>: <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>No logs found</div>
                 }
               </Text>
-            </td>
-          </tr>
+            </Table.Td>
+          </Table.Tr>
         }
-        </tbody>
+        </Table.Tbody>
 
       </Table>
 
-      <Box sx={{marginTop: '1em' }}>
+      <Box mt="md">
         <Pagination value={page} onChange={setPage} total={200} />
       </Box>
 

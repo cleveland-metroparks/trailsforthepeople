@@ -25,7 +25,8 @@ export function Home() {
       <Text
         ta="center"
         fz={{base: 'lg', sm: 'xl'}}
-        sx={{margin: '2em 0 3em'}}
+        my="xl"
+        mb="xl"
       >
         For the Cleveland Metroparks <strong>maps</strong> and <strong>trails</strong> <Anchor href="https://maps.clevelandmetroparks.com/">web app</Anchor> & <Anchor href="https://maps-api.clevelandmetroparks.com/api/docs#/">API</Anchor>.
       </Text>
@@ -34,7 +35,8 @@ export function Home() {
         direction={{base: 'column', md: 'row'}}
         gap={{base: 'sm', sm: 'lg'}}
         justify={{sm: 'center'}}
-        sx={{margin: '3em 0 18em'}}
+        my="xl"
+        mb="xl"
         >
         <NavButtons />
       </Flex>

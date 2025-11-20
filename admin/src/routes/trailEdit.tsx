@@ -4,6 +4,8 @@ import { Link, Navigate, useParams, useSubmit } from "react-router";
 import { Title, Text, Tabs, Accordion, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { useForm } from '@mantine/form';
+import styles from './trailEdit.module.css';
+import utils from '../styles/utils.module.css';
 
 import { RichTextEditor } from '@mantine/tiptap';
 import { useEditor } from '@tiptap/react';
@@ -154,6 +156,7 @@ export function TrailEdit() {
   const richTextEditor = useEditor({
     extensions: [ StarterKit, Underline, TipTapLink ],
     content: trailDescription,
+    shouldRerenderOnTransaction: true,
     // Update form value on editor update
     onUpdate: ({ editor }) => {
       form.setFieldValue('description', editor.getHTML());
@@ -590,20 +593,16 @@ export function TrailEdit() {
 
       {trailData &&
         <>
-          <Box sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: '1em'
-          }}>
-            <Title order={2} sx={{ margin: 0 }}>{trailData.name ? trailData.name : 'Add Trail'}</Title>
+          <Box
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+            mt="md"
+          >
+            <Title order={2} m={0}>{trailData.name ? trailData.name : 'Add Trail'}</Title>
 
             {/* Published/Save/Delete */}
-            <Group position="right" spacing="sm">
+            <Group justify="flex-end" gap="sm">
               {/* Published checkbox */}
-              <Group
-                sx={{ marginRight: '1rem' }}
-              >
+              <Group mr="md">
                 <Checkbox
                   label="Published"
                   {...form.getInputProps('status', { type: 'checkbox' })}
@@ -641,23 +640,10 @@ export function TrailEdit() {
           >
 
             {/* Content including main content area and sidebar */}
-            <Box sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: '1rem',
-              marginTop: '1em',
-              '@media (max-width: 1024px)': {
-                flexDirection: 'column'
-              }
-            }}>
+            <Box className={styles.contentBox}>
               {/* Main content area (left side) */}
-              <Box sx={{
-                flex: '0 0 75%',
-                '@media (max-width: 1024px)': {
-                  flex: '1 1 100%'
-                }
-              }}>
-                <Tabs value={activeTab} onTabChange={setActiveTab}>
+              <Box className={styles.mainContentBox}>
+                <Tabs value={activeTab} onChange={setActiveTab}>
 
                   <Tabs.List>
                     <Tabs.Tab value="general">General</Tabs.Tab>
@@ -665,7 +651,7 @@ export function TrailEdit() {
                   </Tabs.List>
 
                   <Tabs.Panel value="general">
-                    <Box sx={{ maxWidth: 800 }}>
+                    <Box className={utils.maxWidth}>
 
                       <TextInput
                         mt="md"
@@ -675,7 +661,7 @@ export function TrailEdit() {
                         {...form.getInputProps('name')}
                       />
 
-                      <Box sx={{marginTop: '1em'}}>
+                      <Box mt="md">
                         <Select
                           label="Reservation"
                           data={reservationListSelectOptions}
@@ -686,7 +672,7 @@ export function TrailEdit() {
                       <Input.Wrapper
                         label="Description"
                         withAsterisk
-                        sx={{marginTop: '1em'}}
+                        mt="md"
                       >
                         <RichTextEditor editor={richTextEditor}>
                           <RichTextEditor.Toolbar sticky stickyOffset={60}>
@@ -768,14 +754,9 @@ export function TrailEdit() {
               </Box>
 
               {/* Right sidebar */}
-              <Box sx={{
-                flex: '0 0 25%',
-                '@media (max-width: 1024px)': {
-                  flex: '1 1 100%'
-                }
-              }}>
+              <Box className={styles.sidebarBox}>
                 <Accordion defaultValue="stats">
-                  <Accordion.Item value="stats" sx={{ borderTop: '0.0625rem solid #dee2e6' }}>
+                  <Accordion.Item value="stats" className={utils.accordionItemBorder}>
                     <Accordion.Control>Stats</Accordion.Control>
                     <Accordion.Panel>
                       <TrailStats stats={trailStats} />

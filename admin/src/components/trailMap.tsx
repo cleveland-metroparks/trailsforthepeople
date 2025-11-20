@@ -14,6 +14,7 @@ import DrawControl from './draw-control';
 import { mapsApiClient } from "../components/mapsApi";
 import type { Trail } from "../types/trail";
 import { travelModeSelectOptions } from "../types/trail";
+import styles from './trailMap.module.css';
 
 interface TrailMapProps {
   trail: Trail;
@@ -232,7 +233,7 @@ export function TrailMap(props: TrailMapProps) {
 
   return (
     <>
-      <Box sx={{ position: 'relative' }}>
+      <Box className={styles.mapContainer}>
         <ReactMapGl.Map
           // "reuseMaps" bypasses initialization when a map is removed and re-added
           // (switching screens, tabs, etc.) in order to avoid MapBox
@@ -395,23 +396,7 @@ export function TrailMap(props: TrailMapProps) {
 
         {/* Routing spinner overlay */}
         {props.isRouting && (
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: '20px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 1000,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '60px',
-              height: '60px',
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              borderRadius: '50%',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-            }}
-          >
+          <Box className={styles.routingOverlay}>
             <Loader size="sm" />
           </Box>
         )}
@@ -485,7 +470,7 @@ export function TrailMap(props: TrailMapProps) {
 
       {/* Extra controls beneath map */}
       <Group
-        position="apart"
+        justify="space-between"
         mt="xs"
         mb="xs"
         >

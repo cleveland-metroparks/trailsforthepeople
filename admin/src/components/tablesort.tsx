@@ -1,31 +1,9 @@
-import { Center, createStyles, Group, rem, Text, UnstyledButton } from '@mantine/core';
+import { Center, Group, Text, UnstyledButton, Table } from '@mantine/core';
 import { IconSelector, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 
 import type { Trail } from "../types/trail";
 import type { Marker } from "../types/marker";
-
-// Table sort styles
-// Derived from https://ui.mantine.dev/component/table-sort
-const useStyles = createStyles((theme) => ({
-  th: {
-    padding: '0 !important',
-  },
-
-  control: {
-    width: '100%',
-    padding: `${theme.spacing.xs} ${theme.spacing.md}`,
-
-    '&:hover': {
-      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
-    },
-  },
-
-  icon: {
-    width: rem(21),
-    height: rem(21),
-    borderRadius: rem(21),
-  },
-}));
+import styles from './tablesort.module.css';
 
 // Table row data; can be our major types
 type RowData = Trail | Marker | any;
@@ -75,20 +53,19 @@ interface ThProps {
 
 // Table header cell component
 export function Th({ children, reversed, sorted, onSort }: ThProps) {
-  const { classes } = useStyles();
   const Icon = sorted ? (reversed ? IconChevronUp : IconChevronDown) : IconSelector;
   return (
-    <th className={classes.th}>
-    <UnstyledButton onClick={onSort} className={classes.control}>
-      <Group position="apart">
+    <Table.Th className={styles.th}>
+    <UnstyledButton onClick={onSort} className={styles.control}>
+      <Group justify="space-between">
         <Text fw={500} fz="sm">
           {children}
         </Text>
-        <Center className={classes.icon}>
+        <Center className={styles.icon}>
           <Icon size="0.9rem" stroke={1.5} />
         </Center>
       </Group>
     </UnstyledButton>
-    </th>
+    </Table.Th>
   );
 }

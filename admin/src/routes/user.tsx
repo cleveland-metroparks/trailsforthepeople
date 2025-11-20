@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from "../hooks/useAuth";
 import { ActionIcon, Box, Button, Code, CopyButton, Group, Modal, Table, Title, Text, TextInput, Tooltip } from '@mantine/core';
-import { Copy, Check } from 'tabler-icons-react';
+import { IconCopy, IconCheck } from '@tabler/icons-react'
 import { useDisclosure } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
 import { useQuery } from "@tanstack/react-query";
@@ -10,6 +10,7 @@ import { default as dayjs } from 'dayjs';
 
 import { mapsApiClient } from "../components/mapsApi";
 import type { ApiAccessToken } from "../types/user";
+import utils from '../styles/utils.module.css';
 
 // Get all tokens
 const getUserTokens = async () => {
@@ -88,18 +89,18 @@ export function UserAccount() {
       // Build modal content with the token info
       let newTokenModalContent = (
         <>
-          <Text sx={{ marginBottom: '1em' }}>
+          <Text mb="md">
             Your new token, "{createTokenResponse.data.name}" has been created.<br />
             Make sure to record this now, as <Text span fw={700}>you won't be able to see it again:</Text>
           </Text>
           <Group>
             <Text>Token:</Text>
-            <Code color="blue" sx={{ fontSize: '1.2em'}}>{createTokenResponse.data.token}</Code>
+            <Code color="blue" className={utils.codeFontSize}>{createTokenResponse.data.token}</Code>
             <CopyButton value={createTokenResponse.data.token}>
               {({ copied, copy }) => (
                 <Tooltip label={copied ? 'Copied' : 'Copy'} withArrow position="right">
                   <ActionIcon color={copied ? 'teal' : 'gray'} onClick={copy}>
-                    {copied ? <Check size="1rem" /> : <Copy size="1rem" />}
+                    {copied ? <IconCheck size="1rem" /> : <IconCopy size="1rem" />}
                   </ActionIcon>
                 </Tooltip>
               )}
@@ -179,7 +180,7 @@ export function UserAccount() {
 
   return (
     <>
-      <Title order={2} sx={{marginBottom: '1em' }}>User: {user}</Title>
+      <Title order={2} mb="md">User: {user}</Title>
 
       {tokensIsLoading && <div>Loading...</div>}
 
@@ -187,41 +188,41 @@ export function UserAccount() {
         <div>{`There is a problem fetching the post data - ${tokensError.message}`}</div>
       )}
 
-      <Title order={3} sx={{margin: '1em 0 .5em'}}>API access tokens</Title>
+      <Title order={3} my="md" mb="xs">API access tokens</Title>
       <Table striped highlightOnHover>
-        <thead>
-          <tr>
-            <th>Token name</th>
-            <th>Abilities</th>
-            <th>Last used</th>
-            <th>Created</th>
-            <th>Updated</th>
-            <th>Revoke token</th>
-          </tr>
-        </thead>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Token name</Table.Th>
+            <Table.Th>Abilities</Table.Th>
+            <Table.Th>Last used</Table.Th>
+            <Table.Th>Created</Table.Th>
+            <Table.Th>Updated</Table.Th>
+            <Table.Th>Revoke token</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
 
-        <tbody>
+        <Table.Tbody>
           {tokensData && tokensData.map(token => (
-            <tr key={token.id}>
-              <td>{token.name}</td>
-              <td>{token.abilities}</td>
-              <td>{token.last_used_at}</td>
-              <td>{token.created_at}</td>
-              <td>{token.updated_at}</td>
-              <td>
+            <Table.Tr key={token.id}>
+              <Table.Td>{token.name}</Table.Td>
+              <Table.Td>{token.abilities}</Table.Td>
+              <Table.Td>{token.last_used_at}</Table.Td>
+              <Table.Td>{token.created_at}</Table.Td>
+              <Table.Td>{token.updated_at}</Table.Td>
+              <Table.Td>
                 <Button
                   variant="outline"
                   onClick={() => revokeToken(token.id)}
                 >
                   Revoke
                 </Button>
-              </td>
-            </tr>
+              </Table.Td>
+            </Table.Tr>
           ))}
-        </tbody>
+        </Table.Tbody>
       </Table>
 
-      <Title order={3} sx={{margin: '1em 0 .5em'}}>Create a new token</Title>
+      <Title order={3} my="md" mb="xs">Create a new token</Title>
       <form
         onSubmit={
           form.onSubmit((formValues) => {
@@ -229,7 +230,7 @@ export function UserAccount() {
           })
         }
       >
-        <Box sx={{ maxWidth: 800 }}>
+        <Box className={utils.maxWidth}>
           <TextInput
             label="Token name"
             placeholder="Briefly describe this token's use"
@@ -239,7 +240,7 @@ export function UserAccount() {
           />
           <Button
             type="submit"
-            sx={{ margin: '1em 0' }}
+            my="md"
             loading={creatingState}
             >Create API token</Button>
         </Box>

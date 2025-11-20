@@ -1,42 +1,38 @@
 import { Table } from '@mantine/core';
+import styles from './trailDirections.module.css';
 
 /**
  * Trail Directions
  *
- * @param props 
- * @returns 
+ * @param props
+ * @returns
  */
 export function TrailDirections(props) {
   return (
     <>
       {props.directions && Array.isArray(props.directions) &&
         <>
-          <Table sx={{
-            'thead tr th, tbody tr td': {
-              fontSize: '.8em',
-              padding: 0
-            }
-          }}>
-            <thead>
-              <tr>
-                <th>Step</th>
-                <th>Dist</th>
-                <th>Hike</th>
-                <th>Bike</th>
-                <th>Bridle</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table className={styles.table}>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Step</Table.Th>
+                <Table.Th>Dist</Table.Th>
+                <Table.Th>Hike</Table.Th>
+                <Table.Th>Bike</Table.Th>
+                <Table.Th>Bridle</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
               {props.directions.map(step => (
-                <tr key={step.step_number}>
-                  <td>{step.step_number}. {step.text}</td>
-                  <td>{step.distance}</td>
-                  <td>{step.time_hike}</td>
-                  <td>{step.time_bike}</td>
-                  <td>{step.time_bridle}</td>
-                </tr>
+                <Table.Tr key={step.step_number}>
+                  <Table.Td>{step.step_number}. {step.text}</Table.Td>
+                  <Table.Td>{step.distance}</Table.Td>
+                  <Table.Td>{step.time_hike}</Table.Td>
+                  <Table.Td>{step.time_bike}</Table.Td>
+                  <Table.Td>{step.time_bridle}</Table.Td>
+                </Table.Tr>
               ))}
-            </tbody>
+            </Table.Tbody>
           </Table>
         </>
       }

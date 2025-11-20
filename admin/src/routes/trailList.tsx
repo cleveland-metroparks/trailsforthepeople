@@ -10,6 +10,7 @@ import { mapsApiClient } from "../components/mapsApi";
 import type { Trail } from "../types/trail";
 import { sortTableData, Th } from "../components/tablesort";
 import { reservationFilterSelectOptions } from "../types/reservation";
+import utils from '../styles/utils.module.css';
 
 // Get all trails from the API
 const getAllTrails = async () => {
@@ -112,21 +113,21 @@ export function TrailList() {
 
   // Table rows
   const rows = sortedData?.map((row, index) => (
-    <tr key={index}>
-      <td>
+    <Table.Tr key={index}>
+      <Table.Td>
         <Anchor
           component={Link}
           to={`/trails/${row.id}`}
         >
           {row.name}
         </Anchor>
-      </td>
-      <td>{row.res}</td>
-      <td>{row.distancetext}</td>
-      <td>{row.date_modified ? dayjs(row.date_modified).format('MMM D, YYYY, h:mma') : ''}</td>
-      <td>{row.modifier_username}</td>
-      <td>{row.status ? 'Yes' : 'No'}</td>
-    </tr>
+      </Table.Td>
+      <Table.Td>{row.res}</Table.Td>
+      <Table.Td>{row.distancetext}</Table.Td>
+      <Table.Td>{row.date_modified ? dayjs(row.date_modified).format('MMM D, YYYY, h:mma') : ''}</Table.Td>
+      <Table.Td>{row.modifier_username}</Table.Td>
+      <Table.Td>{row.status ? 'Yes' : 'No'}</Table.Td>
+    </Table.Tr>
   ));
 
   // Set table data when we get Trails
@@ -141,18 +142,18 @@ export function TrailList() {
       <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>{`There was a problem fetching the trails data - ${trailsError.message}`}</div>
     )}
 
-    <Button component={Link} to="/trails/new"  variant="outline" sx={{ margin: '1em 0' }}>
+    <Button component={Link} to="/trails/new"  variant="outline" my="md">
       + Add Trail
     </Button>
 
-    <Group spacing="md" mb="md">
+    <Group gap="md" mb="md">
       <TextInput
         label="Search"
         placeholder="Search by any field"
-        icon={<IconSearch size="0.9rem" stroke={1.5} />}
+        leftSection={<IconSearch size="0.9rem" stroke={1.5} />}
         value={search}
         onChange={handleSearchChange}
-        sx={{ minWidth: 300 }}
+        className={utils.minWidth300}
       />
       <Select
         label="Reservation"
@@ -161,13 +162,13 @@ export function TrailList() {
         value={reservationFilter}
         onChange={handleReservationFilterChange}
         clearable
-        sx={{ minWidth: 300 }}
+        className={utils.minWidth300}
       />
     </Group>
 
     <Table striped highlightOnHover>
-      <thead>
-        <tr>
+      <Table.Thead>
+        <Table.Tr>
           <Th
             sorted={sortBy === 'name'}
             reversed={reverseSortDirection}
@@ -198,24 +199,24 @@ export function TrailList() {
             reversed={reverseSortDirection}
             onSort={() => setSorting('status')}
           >Published</Th>
-        </tr>
-      </thead>
-      <tbody>
+        </Table.Tr>
+      </Table.Thead>
+      <Table.Tbody>
       {
         trailsData && rows && rows.length > 0 ? (rows) :
-          <tr>
-            <td colSpan={6}>
-              <Text weight={500} align="center">
+          <Table.Tr>
+            <Table.Td colSpan={6}>
+              <Text fw={500} ta="center">
                 {trailsIsError ?
                   <div>{`There is a problem fetching the post data - ${trailsError.message}`}</div>
                 :
                 trailsIsLoading ? <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>Loading...</div>: <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>No trails found</div>
                 }
               </Text>
-            </td>
-          </tr>
+            </Table.Td>
+          </Table.Tr>
       }
-      </tbody>
+      </Table.Tbody>
     </Table>
   </>);
   }

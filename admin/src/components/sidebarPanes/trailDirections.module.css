@@ -1,0 +1,9 @@
+.table {
+  font-size: 0.8em;
+}
+
+.table thead tr th,
+.table tbody tr td {
+  font-size: 0.8em;
+  padding: 0;
+}

@@ -1,0 +1,15 @@
+.maxWidth {
+  max-width: 800px;
+}
+
+.minWidth300 {
+  min-width: 300px;
+}
+
+.codeFontSize {
+  font-size: 1.2em;
+}
+
+.accordionItemBorder {
+  border-top: 0.0625rem solid #dee2e6;
+}

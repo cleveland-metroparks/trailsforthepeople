@@ -19,8 +19,8 @@ export function ErrorScreen() {
   return (
     <>
       <Title order={2}>Oops!</Title>
-      <Text sx={{marginTop: '1em'}}>Sorry, an error has occurred:</Text>
-      <Text fs="italic" sx={{marginTop: '1em'}}>{ messageText }</Text>
+      <Text mt="md">Sorry, an error has occurred:</Text>
+      <Text fs="italic" mt="md">{ messageText }</Text>
     </>
   );
 }

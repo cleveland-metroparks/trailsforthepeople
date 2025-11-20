@@ -97,10 +97,8 @@ export function MarkerList() {
 
   // Table rows
   const rows = sortedData?.map((row, index) => (
-    <tr key={index}>
-
-
-      <td>
+    <Table.Tr key={index}>
+      <Table.Td>
         <Anchor
           component={Link}
           to={`/markers/${row.id}`}
@@ -108,14 +106,14 @@ export function MarkerList() {
         >
           {row.title}
         </Anchor>
-      </td>
-      <td>{row.category}</td>
-      <td>{row.reservation}</td>
-      <td>{row.date_modified ? dayjs(row.date_modified).format('MMM D, YYYY, h:mma') : ''}</td>
-      <td>{row.modifier_username}</td>
-      <td>{row.annual ? 'Annual' : ''}</td>
-      <td>{row.enabled ? 'Enabled' : ''}</td>
-    </tr>
+      </Table.Td>
+      <Table.Td>{row.category}</Table.Td>
+      <Table.Td>{row.reservation}</Table.Td>
+      <Table.Td>{row.date_modified ? dayjs(row.date_modified).format('MMM D, YYYY, h:mma') : ''}</Table.Td>
+      <Table.Td>{row.modifier_username}</Table.Td>
+      <Table.Td>{row.annual ? 'Annual' : ''}</Table.Td>
+      <Table.Td>{row.enabled ? 'Enabled' : ''}</Table.Td>
+    </Table.Tr>
   ));
 
   // Set table data when we get Markers
@@ -127,21 +125,21 @@ export function MarkerList() {
     <>
       <Title order={2}>Markers</Title>
 
-      <Button component={Link} to="/markers/new"  variant="outline" sx={{ margin: '1em 0' }}>
+      <Button component={Link} to="/markers/new"  variant="outline" my="md">
         + Add Marker
       </Button>
 
       <TextInput
         placeholder="Filter by any field"
         mb="md"
-        icon={<IconSearch size="0.9rem" stroke={1.5} />}
+        leftSection={<IconSearch size="0.9rem" stroke={1.5} />}
         value={search}
         onChange={handleSearchChange}
       />
 
       <Table striped highlightOnHover>
-        <thead>
-          <tr>
+        <Table.Thead>
+          <Table.Tr>
             <Th
               sorted={sortBy === 'title'}
               reversed={reverseSortDirection}
@@ -177,24 +175,24 @@ export function MarkerList() {
               reversed={reverseSortDirection}
               onSort={() => setSorting('enabled')}
             >Enabled</Th>
-          </tr>
-        </thead>
-        <tbody>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
         {
           markersData && rows && rows.length > 0 ? (rows) :
-            <tr>
-              <td colSpan={7}>
-                <Text weight={500} align="center">
+            <Table.Tr>
+              <Table.Td colSpan={7}>
+                <Text fw={500} ta="center">
                   {markersIsError ?
                     <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>{`There was a problem fetching the markers data - ${markersError.message}`}</div>
                   :
                   markersIsLoading ? <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>Loading...</div>: <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>No markers found</div>
                   }
                 </Text>
-              </td>
-            </tr>
+              </Table.Td>
+            </Table.Tr>
         }
-        </tbody>
+        </Table.Tbody>
       </Table>
     </>
   );

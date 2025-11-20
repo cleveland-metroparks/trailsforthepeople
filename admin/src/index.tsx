@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom/client';
 import { MantineProvider } from '@mantine/core';
 import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';
+import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
+import '@mantine/notifications/styles.css';
+import '@mantine/tiptap/styles.css';
 import {
   RouterProvider,
   Route,
@@ -120,7 +124,7 @@ const router = createBrowserRouter(routes, { basename: REACT_APP_ROOT_PATH });
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-        <MantineProvider withNormalizeCSS withGlobalStyles>
+        <MantineProvider>
           <ModalsProvider>
               <Notifications />
               <RouterProvider router={router} />
