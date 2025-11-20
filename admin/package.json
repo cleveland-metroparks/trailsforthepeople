@@ -22,7 +22,6 @@
     "@tiptap/starter-kit": "^2.1.7",
     "@turf/helpers": "^7.3.0",
     "@turf/turf": "^7.3.0",
-    "@types/jest": "^27.5.2",
     "@types/mapbox__mapbox-gl-draw": "^1.4.9",
     "@types/node": "^16.11.39",
     "@types/react": "^18.0.12",
@@ -47,8 +46,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
+      "react-app"
     ]
   },
   "browserslist": {
