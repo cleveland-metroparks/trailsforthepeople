@@ -47,9 +47,9 @@ export function MarkerEdit() {
   const [savingState, setSavingState] = useState(false);
   const [redirectPath, setRedirectPath] = useState('');
 
-  const mutation = useMutation(
-    (formData: MarkerFormData) => saveMarker(formData)
-  );
+  const mutation = useMutation({
+    mutationFn: (formData: MarkerFormData) => saveMarker(formData)
+  });
 
   const queryClient = useQueryClient();
 
@@ -137,7 +137,7 @@ export function MarkerEdit() {
     isError: markerIsError,
     data: markerData,
     error: markerError,
-  } = useQuery<Marker, Error>(['marker', params.markerId], () => getMarker(markerId));
+  } = useQuery<Marker, Error>({ queryKey: ['marker', params.markerId], queryFn: () => getMarker(markerId) });
 
   // Save Marker to the API
   const saveMarker = async (formData) => {

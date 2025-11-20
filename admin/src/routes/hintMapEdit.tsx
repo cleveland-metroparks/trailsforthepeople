@@ -24,9 +24,9 @@ export function HintMapEdit() {
 
   const [mapboxStaticImg, setMapboxStaticImg] = useState('');
 
-  const mutation = useMutation(
-    (formData: HintMapFormData) => saveHintMap(formData)
-  );
+  const mutation = useMutation({
+    mutationFn: (formData: HintMapFormData) => saveHintMap(formData)
+  });
 
   const queryClient = useQueryClient();
 
@@ -111,7 +111,7 @@ export function HintMapEdit() {
     isError: hintMapIsError,
     data: hintMapData,
     error: hintMapError,
-  } = useQuery<HintMap, Error>(['hint_map', params.hintMapId], () => getHintMap(hintMapId));
+  } = useQuery<HintMap, Error>({ queryKey: ['hint_map', params.hintMapId], queryFn: () => getHintMap(hintMapId) });
 
   // Save Hint Map via the API
   const saveHintMap = async (formData) => {

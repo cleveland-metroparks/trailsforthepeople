@@ -67,9 +67,9 @@ export function TrailEdit() {
     setShowElevationProfile(!showElevationProfile);
   }
 
-  const mutation = useMutation(
-    (formData: TrailFormData) => saveTrail(formData)
-  );
+  const mutation = useMutation({
+    mutationFn: (formData: TrailFormData) => saveTrail(formData)
+  });
 
   const queryClient = useQueryClient();
 
@@ -247,7 +247,7 @@ export function TrailEdit() {
     isError: trailIsError,
     data: trailData,
     error: trailError
-  } = useQuery<Trail, Error>(['trail', params.trailId], () => getTrail(trailId));
+  } = useQuery<Trail, Error>({ queryKey: ['trail', params.trailId], queryFn: () => getTrail(trailId) });
   //---------------------------------------------------------------------------
 
   // Save Trail via the API
@@ -367,7 +367,7 @@ export function TrailEdit() {
     return {data: {}};
   }
 
-  useQuery<TrailProfile, Error>(['trail_profile', trailId], () => getTrailProfile(trailId));
+  useQuery<TrailProfile, Error>({ queryKey: ['trail_profile', trailId], queryFn: () => getTrailProfile(trailId) });
   //---------------------------------------------------------------------------
 
   //
@@ -396,7 +396,7 @@ export function TrailEdit() {
     return {data: {}};
   }
 
-  useQuery<TrailGeometry, Error>(['trail_geometry', trailId], () => getTrailGeometry(trailId));
+  useQuery<TrailGeometry, Error>({ queryKey: ['trail_geometry', trailId], queryFn: () => getTrailGeometry(trailId) });
   //---------------------------------------------------------------------------
 
   // Get route from waypoints from API

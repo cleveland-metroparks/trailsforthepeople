@@ -58,7 +58,7 @@ export function UserAccount() {
     data: tokensData,
     error: tokensError,
     refetch: tokensRefetch,
-  } = useQuery<ApiAccessToken[], Error>(['tokens'], getUserTokens);
+  } = useQuery<ApiAccessToken[], Error>({ queryKey: ['tokens'], queryFn: getUserTokens });
 
   const form = useForm({
     initialValues: {

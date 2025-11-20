@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import { Table, Anchor, Box, Pagination, Text } from '@mantine/core';
 import { default as dayjs } from 'dayjs';
@@ -39,7 +39,7 @@ export function AuditLogView() {
     isError: logIsError,
     data: logData,
     error: logError
-  } = useQuery<AuditLog, Error>(['audit_log', params.logId], () => getAuditLog(logId));
+  } = useQuery<AuditLog, Error>({ queryKey: ['audit_log', params.logId], queryFn: () => getAuditLog(logId) });
 
   return (
     <div>
@@ -85,7 +85,7 @@ export function AuditLogsList() {
     isError: logsIsError,
     data: logsData,
     error: logsError,
-  } = useQuery<AuditLog[], Error>(['audit_logs', page], () => getAuditLogs(page), { keepPreviousData : true });
+  } = useQuery<AuditLog[], Error>({ queryKey: ['audit_logs', page], queryFn: () => getAuditLogs(page), placeholderData: keepPreviousData });
 
   return (
     <div>

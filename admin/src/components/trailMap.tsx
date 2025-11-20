@@ -177,7 +177,7 @@ export function TrailMap(props: TrailMapProps) {
     return response.data.data;
   } // End getReservations()
 
-  useQuery<Trail[], Error>(['trails'], getReservations);
+  useQuery<Trail[], Error>({ queryKey: ['trails'], queryFn: getReservations });
   //------------------
 
   // Zoom map to (a park location)
