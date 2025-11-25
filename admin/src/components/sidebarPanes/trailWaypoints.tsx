@@ -22,6 +22,14 @@ export function TrailWaypoints(props: TrailWaypointsProps) {
     null
   );
 
+  // Check if there are 2 or fewer points (disable delete if so)
+  const canDelete = React.useMemo(() => {
+    if (!props.feature?.geometry?.coordinates) {
+      return false;
+    }
+    return props.feature.geometry.coordinates.length > 2;
+  }, [props.feature]);
+
   return (
     <>
       <Table striped highlightOnHover>
@@ -92,13 +100,20 @@ export function TrailWaypoints(props: TrailWaypointsProps) {
                   <Table.Td>{lat_lng[0].toFixed(5)}</Table.Td>
                   <Table.Td>{lat_lng[1].toFixed(5)}</Table.Td>
                   <Table.Td>
-                    <Tooltip label="Delete Waypoint">
+                    <Tooltip
+                      label={
+                        canDelete
+                          ? "Delete Waypoint"
+                          : "Cannot delete: need at least 2 waypoints"
+                      }
+                    >
                       <ActionIcon
                         variant="subtle"
                         color={actionIconColor}
+                        disabled={!canDelete}
                         onClick={(e) => {
                           e.stopPropagation(); // Prevent row click
-                          if (props.onVertexDelete) {
+                          if (props.onVertexDelete && canDelete) {
                             props.onVertexDelete(i);
                           }
                         }}

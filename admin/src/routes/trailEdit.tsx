@@ -749,8 +749,11 @@ export function TrailEdit() {
   // When travel mode is changed (from within Trail Map component)
   const handleTravelModeChange = (mode) => {
     setTravelMode(mode);
-    // Re-calculate route
-    getRouteFromWaypoints(waypointsGeoJSON, mode);
+    // Only re-calculate route if there are at least 2 waypoints
+    const waypointCount = waypointsFeature.geometry?.coordinates?.length || 0;
+    if (waypointCount >= 2) {
+      getRouteFromWaypoints(waypointsGeoJSON, mode);
+    }
   };
 
   //

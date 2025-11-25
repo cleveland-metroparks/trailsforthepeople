@@ -502,6 +502,18 @@ export function TrailMap(props: TrailMapProps) {
     },
   };
 
+  // Check if there are less than 2 points
+  const hasEnoughPoints = useMemo(() => {
+    if (
+      !props.waypointsFeature ||
+      !(props.waypointsFeature as any).geometry?.coordinates
+    ) {
+      return false;
+    }
+    const coordinates = (props.waypointsFeature as any).geometry.coordinates;
+    return coordinates.length >= 2;
+  }, [props.waypointsFeature]);
+
   return (
     <>
       <Box className={styles.mapContainer}>
@@ -724,21 +736,37 @@ export function TrailMap(props: TrailMapProps) {
                 >
                   Waypoint {vertexInfo.vertexIndex + 1}
                 </Text>
-                <Button
-                  size="xs"
-                  color="red"
-                  onClick={handleDeleteVertex}
-                  leftSection={
-                    <IconTrash size={14} style={{ marginRight: -3 }} />
+                <Tooltip
+                  label={
+                    hasEnoughPoints &&
+                    (props.waypointsFeature as any)?.geometry?.coordinates
+                      ?.length > 2
+                      ? "Delete waypoint"
+                      : "Cannot delete: need at least 2 waypoints"
                   }
-                  style={{
-                    fontSize: "11px",
-                    padding: "2px 8px",
-                    height: "24px",
-                  }}
                 >
-                  Delete
-                </Button>
+                  <Button
+                    size="xs"
+                    color="red"
+                    onClick={handleDeleteVertex}
+                    disabled={
+                      !hasEnoughPoints ||
+                      !(props.waypointsFeature as any)?.geometry?.coordinates ||
+                      (props.waypointsFeature as any).geometry.coordinates
+                        .length <= 2
+                    }
+                    leftSection={
+                      <IconTrash size={14} style={{ marginRight: -3 }} />
+                    }
+                    style={{
+                      fontSize: "11px",
+                      padding: "2px 8px",
+                      height: "24px",
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </Tooltip>
               </Box>
             </Popover.Dropdown>
           </Popover>
@@ -890,7 +918,11 @@ export function TrailMap(props: TrailMapProps) {
             Recalculate route
           </Text>
           <Tooltip label="Recalculate the route over the current waypoints">
-            <Button variant="light" onClick={props.doRecalculateRoute}>
+            <Button
+              variant="light"
+              onClick={props.doRecalculateRoute}
+              disabled={!hasEnoughPoints}
+            >
               Recalculate
             </Button>
           </Tooltip>
@@ -902,7 +934,11 @@ export function TrailMap(props: TrailMapProps) {
             Complete trail
           </Text>
           <Tooltip label="Add the starting point to the end of the waypoints">
-            <Button variant="light" onClick={props.doCompleteTrail}>
+            <Button
+              variant="light"
+              onClick={props.doCompleteTrail}
+              disabled={!hasEnoughPoints}
+            >
               Back to start
             </Button>
           </Tooltip>
