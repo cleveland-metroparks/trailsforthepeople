@@ -18,6 +18,7 @@ import {
   Select,
   Loader,
   Popover,
+  Tooltip,
 } from "@mantine/core";
 import DrawControl from "./draw-control";
 import { IconTrash } from "@tabler/icons-react";
@@ -37,6 +38,7 @@ interface TrailMapProps {
   onDrawUpdate: (e: { features: object[]; action: string }) => void;
   onDrawDelete: (e: { features: object[] }) => void;
   doCompleteTrail: () => void;
+  doRecalculateRoute: () => void;
   activeTab: string;
   onTravelModeChange: (string) => void;
   onElevationProfileToggle: () => void;
@@ -756,14 +758,28 @@ export function TrailMap(props: TrailMapProps) {
           />
         </Box>
 
+        {/* Recalculate route */}
+        <Box>
+          <Text size="sm" fw={500} mt="xs" mb="xs">
+            Recalculate route
+          </Text>
+          <Tooltip label="Recalculate the route over the current waypoints">
+            <Button variant="light" onClick={props.doRecalculateRoute}>
+              Recalculate
+            </Button>
+          </Tooltip>
+        </Box>
+
         {/* Back to start */}
         <Box>
           <Text size="sm" fw={500} mt="xs" mb="xs">
             Complete trail
           </Text>
-          <Button variant="light" onClick={props.doCompleteTrail}>
-            Back to start
-          </Button>
+          <Tooltip label="Add the starting point to the end of the waypoints">
+            <Button variant="light" onClick={props.doCompleteTrail}>
+              Back to start
+            </Button>
+          </Tooltip>
         </Box>
 
         {/* Show/hide Elevation Profile */}

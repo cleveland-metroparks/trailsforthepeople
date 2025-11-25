@@ -550,6 +550,7 @@ export function TrailEdit() {
       });
   };
   //---------------------------------------------------------------------------
+
   //
   // Waypoints Draw update callbacks
   //
@@ -564,6 +565,11 @@ export function TrailEdit() {
     }
   }
 
+  // Recalculate the route over the current waypoints
+  const recalculateRoute = () => {
+    getRouteFromWaypoints(waypointsGeoJSON, travelModeRef.current);
+  };
+
   // Complete the trail; back to start
   const completeTrail = () => {
     // Create the new feature and append the coordinate
@@ -574,10 +580,24 @@ export function TrailEdit() {
         // Add the first coordinate to the end of the coords array
         coords.push(coords[0]);
       } else {
-        // @TODO: Warning to user: already added
+        // Warning to user: already added
+        showNotification({
+          id: "trail-complete-already-added",
+          title: "Trail Already Complete",
+          message: "The trail is already complete (start == end).",
+          autoClose: 5000,
+          color: "yellow",
+        });
       }
     } else {
-      // @TODO: Warning to user: not enought waypoints
+      // Warning to user: not enough waypoints
+      showNotification({
+        id: "trail-complete-waypoint-warning",
+        title: "Not Enough Waypoints",
+        message: "You need at least two waypoints to complete the trail.",
+        autoClose: 5000,
+        color: "yellow",
+      });
     }
 
     const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
@@ -846,6 +866,7 @@ export function TrailEdit() {
                         onDrawUpdate={onDrawUpdate}
                         onDrawDelete={onDrawDelete}
                         doCompleteTrail={completeTrail}
+                        doRecalculateRoute={recalculateRoute}
                         activeTab={activeTab}
                         onTravelModeChange={handleTravelModeChange}
                         onElevationProfileToggle={handleElevationProfileToggle}
