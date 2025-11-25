@@ -1,34 +1,50 @@
-import { useCallback, useRef, useState, useEffect } from 'react';
+import { useCallback, useRef, useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, Navigate, useParams, useSubmit } from "react-router";
-import { Flex, Text, Title, Anchor, Box, Input, TextInput, Checkbox, Button, Group, Accordion, Select } from '@mantine/core';
-import { showNotification, updateNotification } from '@mantine/notifications';
-import { useForm } from '@mantine/form';
-import utils from '../styles/utils.module.css';
+import {
+  Flex,
+  Text,
+  Title,
+  Anchor,
+  Box,
+  Input,
+  TextInput,
+  Checkbox,
+  Button,
+  Group,
+  Accordion,
+  Select,
+} from "@mantine/core";
+import { showNotification, updateNotification } from "@mantine/notifications";
+import { useForm } from "@mantine/form";
+import utils from "../styles/utils.module.css";
 
-import { RichTextEditor } from '@mantine/tiptap';
-import { useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
-import { Link as TipTapLink } from '@tiptap/extension-link';
+import { RichTextEditor } from "@mantine/tiptap";
+import { useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import { Link as TipTapLink } from "@tiptap/extension-link";
 
-import { DatesProvider, DatePickerInput } from '@mantine/dates';
-import { openConfirmModal } from '@mantine/modals';
-import { default as dayjs } from 'dayjs';
-import * as MapGl from 'react-map-gl/mapbox'; // Namespace as MapGl since we already have "Marker"
-import type { MapRef, MarkerDragEvent } from 'react-map-gl/mapbox';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import { DatesProvider, DatePickerInput } from "@mantine/dates";
+import { openConfirmModal } from "@mantine/modals";
+import { default as dayjs } from "dayjs";
+import * as MapGl from "react-map-gl/mapbox"; // Namespace as MapGl since we already have "Marker"
+import type { MapRef, MarkerDragEvent } from "react-map-gl/mapbox";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 import { useAuth } from "../hooks/useAuth";
 
 import { mapsApiClient } from "../components/mapsApi";
 import { Authorship } from "../components/sidebarPanes/authorship";
 import type { Marker, MarkerFormData } from "../types/marker";
-import { markerCategorySelectOptions, emptyMarker, defaultMarkerFormData } from "../types/marker";
+import {
+  markerCategorySelectOptions,
+  emptyMarker,
+  defaultMarkerFormData,
+} from "../types/marker";
 import { reservationListSelectOptions } from "../types/reservation";
 
-const markersRootPath = '/markers';
-
+const markersRootPath = "/markers";
 
 /**
  * Marker Edit
@@ -39,27 +55,27 @@ export function MarkerEdit() {
   const submitDelete = useSubmit();
 
   const [savingState, setSavingState] = useState(false);
-  const [redirectPath, setRedirectPath] = useState('');
+  const [redirectPath, setRedirectPath] = useState("");
 
   const mutation = useMutation({
-    mutationFn: (formData: MarkerFormData) => saveMarker(formData)
+    mutationFn: (formData: MarkerFormData) => saveMarker(formData),
   });
 
   const queryClient = useQueryClient();
 
   const mapRef = useRef<MapRef>(null);
 
-  const [markerContent, setMarkerContent] = useState('');
+  const [markerContent, setMarkerContent] = useState("");
 
   // Rich text editor
   const richTextEditor = useEditor({
-    extensions: [ StarterKit, Underline, TipTapLink ],
+    extensions: [StarterKit, Underline, TipTapLink],
     content: markerContent,
     shouldRerenderOnTransaction: true,
     // Update form value on editor update
     onUpdate: ({ editor }) => {
-      form.setFieldValue('content', editor.getHTML());
-    }
+      form.setFieldValue("content", editor.getHTML());
+    },
   });
 
   // Set initial editor content when we get marker [content] from API
@@ -74,16 +90,17 @@ export function MarkerEdit() {
     validate: {},
   });
 
-  let markerId = '',
-      deleteMarkerPath = '';
+  let markerId = "",
+    deleteMarkerPath = "";
 
   let params = useParams();
 
   if (params.markerId) {
-    if (!isNaN(parseFloat(params.markerId))) { // Ensure marker ID is an int
+    if (!isNaN(parseFloat(params.markerId))) {
+      // Ensure marker ID is an int
       markerId = params.markerId;
-      deleteMarkerPath = markersRootPath + '/' + markerId + '/delete';
-    } else if (params.markerId === 'new') {
+      deleteMarkerPath = markersRootPath + "/" + markerId + "/delete";
+    } else if (params.markerId === "new") {
       markerId = params.markerId;
     } else {
       throw new Error("Invalid Marker ID");
@@ -94,21 +111,30 @@ export function MarkerEdit() {
   const getMarker = async (id: string) => {
     let markerData: Marker = emptyMarker;
 
-    if (id !== 'new') {
-      const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/markers/" + id);
+    if (id !== "new") {
+      const response = await mapsApiClient.get<any>(
+        process.env.REACT_APP_MAPS_API_BASE_PATH + "/markers/" + id
+      );
 
       markerData = response.data.data;
 
       // Date value handling; capture nulls & reformat
-      const initExpireDate = response.data.data.expires ? dayjs(response.data.data.expires).toDate() : null;
-      const initStartDate = response.data.data.startdate ? dayjs(response.data.data.startdate).toDate() : null;
+      const initExpireDate = response.data.data.expires
+        ? dayjs(response.data.data.expires).toDate()
+        : null;
+      const initStartDate = response.data.data.startdate
+        ? dayjs(response.data.data.startdate).toDate()
+        : null;
 
       setMarkerContent(response.data.data.content);
 
       form.setValues({
         title: response.data.data.title,
         content: response.data.data.content,
-        category: response.data.data.category != null ? response.data.data.category : '',
+        category:
+          response.data.data.category != null
+            ? response.data.data.category
+            : "",
         enabled: response.data.data.enabled === 1,
         annual: response.data.data.annual === 1,
         startDate: initStartDate,
@@ -121,7 +147,7 @@ export function MarkerEdit() {
     }
 
     return markerData;
-  }
+  };
   // END getMarker()
   //--------
 
@@ -130,114 +156,147 @@ export function MarkerEdit() {
     isError: markerIsError,
     data: markerData,
     error: markerError,
-  } = useQuery<Marker, Error>({ queryKey: ['marker', params.markerId], queryFn: () => getMarker(markerId) });
+  } = useQuery<Marker, Error>({
+    queryKey: ["marker", params.markerId],
+    queryFn: () => getMarker(markerId),
+  });
 
   // Save Marker to the API
   const saveMarker = async (formData) => {
     setSavingState(true);
     showNotification({
-      id: 'save-marker',
+      id: "save-marker",
       loading: true,
-      title: 'Saving Marker',
-      message: 'One moment',
+      title: "Saving Marker",
+      message: "One moment",
       autoClose: false,
       withCloseButton: false,
     });
 
-    const now_datetime = dayjs().tz('America/New_York').format('YYYY-MM-DD HH:mm:ss');
+    const now_datetime = dayjs()
+      .tz("America/New_York")
+      .format("YYYY-MM-DD HH:mm:ss");
 
     const markerSaveData = {
       lat: formData.latitude,
       lng: formData.longitude,
       content: formData.content,
       title: formData.title,
-      expires: formData.expireDate ? dayjs(formData.expireDate).format('YYYY-MM-DD') : null,
-      geom_geojson: '', // @TODO
+      expires: formData.expireDate
+        ? dayjs(formData.expireDate).format("YYYY-MM-DD")
+        : null,
+      geom_geojson: "", // @TODO
       category: formData.category,
       reservation: formData.reservation,
       enabled: formData.enabled ? 1 : 0,
       annual: formData.annual ? 1 : 0,
-      startdate: formData.expireDate ? dayjs(formData.startDate).format('YYYY-MM-DD') : null,
+      startdate: formData.expireDate
+        ? dayjs(formData.startDate).format("YYYY-MM-DD")
+        : null,
 
-      date_created: (markerId === 'new') ? now_datetime : markerData.date_created ? dayjs(markerData.date_created).tz('America/New_York').format('YYYY-MM-DD HH:mm:ss') : null,
+      date_created:
+        markerId === "new"
+          ? now_datetime
+          : markerData.date_created
+            ? dayjs(markerData.date_created)
+                .tz("America/New_York")
+                .format("YYYY-MM-DD HH:mm:ss")
+            : null,
       date_modified: now_datetime,
 
-      creator_username: markerData.creator_username ? markerData.creator_username : (markerId === 'new') ? user : null,
+      creator_username: markerData.creator_username
+        ? markerData.creator_username
+        : markerId === "new"
+          ? user
+          : null,
       modifier_username: user,
     };
 
     // Saving a new marker
-    const response = (markerId === 'new') ?
-      mapsApiClient.post<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/markers', markerSaveData)
-      : mapsApiClient.put<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/markers/' + markerId, markerSaveData);
+    const response =
+      markerId === "new"
+        ? mapsApiClient.post<any>(
+            process.env.REACT_APP_MAPS_API_BASE_PATH + "/markers",
+            markerSaveData
+          )
+        : mapsApiClient.put<any>(
+            process.env.REACT_APP_MAPS_API_BASE_PATH + "/markers/" + markerId,
+            markerSaveData
+          );
     response
       .then(function (response) {
         // Get new marker ID:
-        if (response.hasOwnProperty('data') && response['data'].data.id) {
-          markerId = response['data'].data.id;
+        if (response.hasOwnProperty("data") && response["data"].data.id) {
+          markerId = response["data"].data.id;
 
-          const savedMsg = `Marker "${response['data'].data.title}" (ID: ${markerId}) saved`;
+          const savedMsg = `Marker "${response["data"].data.title}" (ID: ${markerId}) saved`;
           updateNotification({
-            id: 'save-marker',
+            id: "save-marker",
             loading: false,
             title: savedMsg,
-            message: '',
+            message: "",
             autoClose: 5000,
           });
           setSavingState(false);
-          queryClient.invalidateQueries({ queryKey: ['marker'] });
+          queryClient.invalidateQueries({ queryKey: ["marker"] });
 
           // Redirect to the marker edit page for this new marker
-          setRedirectPath(markersRootPath + '/' + markerId);
+          setRedirectPath(markersRootPath + "/" + markerId);
         }
       })
       .catch(function (error) {
-        const errMsg = error.name + ': ' + error.message + ' (' + error.code + ')';
+        const errMsg =
+          error.name + ": " + error.message + " (" + error.code + ")";
         updateNotification({
-          id: 'save-marker',
+          id: "save-marker",
           loading: false,
-          color: 'red',
-          title: 'Error saving Marker',
+          color: "red",
+          title: "Error saving Marker",
           message: errMsg,
           autoClose: false,
         });
         setSavingState(false);
         console.error("Error saving Marker:", error);
-      }
-    );
+      });
 
     return response;
-  }
+  };
   // END saveMarker()
   //--------
 
   //--------
   // Marker event: on drag
-  const onMarkerDrag = useCallback((event: MarkerDragEvent) => {
-    form.setValues({ latitude: event.lngLat.lat, longitude: event.lngLat.lng });
-  }, [form]);
+  const onMarkerDrag = useCallback(
+    (event: MarkerDragEvent) => {
+      form.setValues({
+        latitude: event.lngLat.lat,
+        longitude: event.lngLat.lng,
+      });
+    },
+    [form]
+  );
 
   // Marker event: on drag end
   const onMarkerDragEnd = useCallback((event: MarkerDragEvent) => {
     // Center map on marker location
-    mapRef.current?.easeTo({center: [event.lngLat.lng, event.lngLat.lat]});
+    mapRef.current?.easeTo({ center: [event.lngLat.lng, event.lngLat.lat] });
   }, []);
   //--------
 
   //
   const openDeleteModal = (deleteFormAction) =>
     openConfirmModal({
-      title: 'Delete Marker',
+      title: "Delete Marker",
       centered: true,
       children: (
         <Text size="sm">
           Are you sure you want to delete this marker? This cannot be undone.
         </Text>
       ),
-      labels: { confirm: 'Delete Marker', cancel: "Cancel" },
-      confirmProps: { color: 'red' },
+      labels: { confirm: "Delete Marker", cancel: "Cancel" },
+      confirmProps: { color: "red" },
       onCancel: () => {
-        console.warn('Marker delete cancelled')
+        console.warn("Marker delete cancelled");
       },
       onConfirm: () => {
         // We pass in deleteFormAction
@@ -249,14 +308,15 @@ export function MarkerEdit() {
         // it was removed in 6.4 or thereabouts.
         submitDelete(null, { method: "post", action: deleteFormAction });
       },
-    }
-  );
+    });
 
   return (
     <>
       {redirectPath && <Navigate to={redirectPath} />}
 
-      <Anchor component={Link} to={`/markers`}>« Markers</Anchor>
+      <Anchor component={Link} to={`/markers`}>
+        « Markers
+      </Anchor>
 
       {markerIsLoading && <Text>Loading...</Text>}
 
@@ -264,32 +324,27 @@ export function MarkerEdit() {
         <Text>{`There is a problem fetching the marker - ${markerError.message}`}</Text>
       )}
 
-      {markerData &&
+      {markerData && (
         <>
-          <Title order={2} mt="md">{markerData.title ? markerData.title : 'Add Marker'}</Title>
+          <Title order={2} mt="md">
+            {markerData.title ? markerData.title : "Add Marker"}
+          </Title>
 
           <form
-            onSubmit={
-              form.onSubmit((formValues) => {
-                mutation.mutate(formValues);
-              })
-            }
+            onSubmit={form.onSubmit((formValues) => {
+              mutation.mutate(formValues);
+            })}
           >
             <Box className={utils.maxWidth}>
-
               <TextInput
                 mt="md"
                 required
                 label="Title"
                 placeholder="Marker title"
-                {...form.getInputProps('title')}
+                {...form.getInputProps("title")}
               />
 
-              <Input.Wrapper
-                label="Content"
-                withAsterisk
-                mt="md"
-              >
+              <Input.Wrapper label="Content" withAsterisk mt="md">
                 <RichTextEditor editor={richTextEditor}>
                   <RichTextEditor.Toolbar sticky stickyOffset={60}>
                     <RichTextEditor.ControlsGroup>
@@ -322,7 +377,7 @@ export function MarkerEdit() {
                 <Select
                   label="Category"
                   data={markerCategorySelectOptions}
-                  {...form.getInputProps('category')}
+                  {...form.getInputProps("category")}
                 />
               </Box>
 
@@ -331,8 +386,8 @@ export function MarkerEdit() {
                   label="Reservation"
                   placeholder="Choose a reservation"
                   data={reservationListSelectOptions}
-                  defaultValue=''
-                  {...form.getInputProps('reservation')}
+                  defaultValue=""
+                  {...form.getInputProps("reservation")}
                 />
               </Box>
 
@@ -345,7 +400,7 @@ export function MarkerEdit() {
                     longitude: markerData.lng,
                     zoom: parseFloat(process.env.REACT_APP_MAP_DEFAULT_ZOOM),
                   }}
-                  style={{width: 800, height: 400}}
+                  style={{ width: 800, height: 400 }}
                   mapStyle={process.env.REACT_APP_MAPBOX_STYLE_URL}
                   mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
                 >
@@ -360,65 +415,66 @@ export function MarkerEdit() {
                 </MapGl.Map>
               </Box>
 
-              <Flex
-                justify="flex-start"
-                my="md"
-              >
+              <Flex justify="flex-start" my="md">
                 <Input.Wrapper label="Latitude">
                   <Input
                     variant="unstyled"
                     placeholder="Latitude"
-                    {...form.getInputProps('latitude')}
+                    {...form.getInputProps("latitude")}
                   />
                 </Input.Wrapper>
                 <Input.Wrapper label="Longitude">
                   <Input
                     variant="unstyled"
                     placeholder="Longitude"
-                    {...form.getInputProps('longitude')}
+                    {...form.getInputProps("longitude")}
                   />
                 </Input.Wrapper>
               </Flex>
 
               <Accordion defaultValue="publishing">
                 <Accordion.Item value="publishing">
-                  <Accordion.Control><Text fw={500}>Publishing status</Text></Accordion.Control>
+                  <Accordion.Control>
+                    <Text fw={500}>Publishing status</Text>
+                  </Accordion.Control>
                   <Accordion.Panel>
                     <DatesProvider settings={{ firstDayOfWeek: 0 }}>
-                    <DatePickerInput
-                      label="Start date"
-                      // @TODO: Add placeholder
-                      // placeholder="Pick start date"
-                      {...form.getInputProps('startDate')}
-                    />
+                      <DatePickerInput
+                        label="Start date"
+                        // @TODO: Add placeholder
+                        // placeholder="Pick start date"
+                        {...form.getInputProps("startDate")}
+                      />
 
-                    <DatePickerInput
-                      label="Expires"
-                      // @TODO: Add placeholder
-                      // placeholder="Pick expiration date"
-                      {...form.getInputProps('expireDate')}
-                      my="md"
-                      mb="xl"
-                    />
+                      <DatePickerInput
+                        label="Expires"
+                        // @TODO: Add placeholder
+                        // placeholder="Pick expiration date"
+                        {...form.getInputProps("expireDate")}
+                        my="md"
+                        mb="xl"
+                      />
                     </DatesProvider>
 
                     <Checkbox
                       mt="md"
                       label="Enabled"
-                      {...form.getInputProps('enabled', { type: 'checkbox' })}
+                      {...form.getInputProps("enabled", { type: "checkbox" })}
                       my="md"
                     />
 
                     <Checkbox
                       mt="md"
                       label="Annual"
-                      {...form.getInputProps('annual', { type: 'checkbox' })}
+                      {...form.getInputProps("annual", { type: "checkbox" })}
                     />
                   </Accordion.Panel>
                 </Accordion.Item>
 
                 <Accordion.Item value="authorship">
-                  <Accordion.Control><Text fw={500}>Authorship</Text></Accordion.Control>
+                  <Accordion.Control>
+                    <Text fw={500}>Authorship</Text>
+                  </Accordion.Control>
                   <Accordion.Panel>
                     <Authorship
                       date_created={markerData.date_created}
@@ -428,19 +484,14 @@ export function MarkerEdit() {
                     />
                   </Accordion.Panel>
                 </Accordion.Item>
-
               </Accordion>
 
               <Group justify="flex-start" mt="md">
-                <Button
-                  type="submit"
-                  loading={savingState}
-                  my="md"
-                >
-                Save Marker
+                <Button type="submit" loading={savingState} my="md">
+                  Save Marker
                 </Button>
 
-                {deleteMarkerPath &&
+                {deleteMarkerPath && (
                   <Button
                     onClick={() => openDeleteModal(deleteMarkerPath)}
                     variant="outline"
@@ -448,15 +499,12 @@ export function MarkerEdit() {
                   >
                     Delete Marker
                   </Button>
-                }
+                )}
               </Group>
-
             </Box>
-
           </form>
         </>
-      }
-
+      )}
     </>
   );
 }

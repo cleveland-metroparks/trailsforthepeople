@@ -1,6 +1,6 @@
 {
   "name": "Cleveland Metroparks Maps Content Admin",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "private": true,
   "homepage": "/admin",
   "dependencies": {
@@ -13,6 +13,7 @@
     "@mantine/tiptap": "^8.3.8",
     "@mantine/utils": "^6.0.22",
     "@mapbox/mapbox-gl-draw": "^1.5.1",
+    "@tabler/icons-react": "^3.35.0",
     "@tanstack/react-query": "^5.90.10",
     "@tiptap/extension-link": "^2.1.12",
     "@tiptap/extension-underline": "^2.1.12",
@@ -33,7 +34,6 @@
     "react-map-gl": "^8.1.0",
     "react-router": "^7.9.6",
     "react-scripts": "^5.0.1",
-    "@tabler/icons-react": "^3.35.0",
     "typescript": "^4.7.3"
   },
   "scripts": {
@@ -42,6 +42,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "lint": "eslint src --ext .ts,.tsx",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,scss,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,scss,md}\"",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -60,5 +62,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
   }
 }

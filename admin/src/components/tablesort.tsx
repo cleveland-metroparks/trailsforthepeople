@@ -1,18 +1,26 @@
-import { Center, Group, Text, UnstyledButton, Table } from '@mantine/core';
-import { IconSelector, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import { Center, Group, Text, UnstyledButton, Table } from "@mantine/core";
+import {
+  IconSelector,
+  IconChevronDown,
+  IconChevronUp,
+} from "@tabler/icons-react";
 
 import type { Trail } from "../types/trail";
 import type { Marker } from "../types/marker";
-import styles from './tablesort.module.css';
+import styles from "./tablesort.module.css";
 
 // Table row data; can be our major types
 type RowData = Trail | Marker | any;
 
 // Comparison for sorting, for strings & numbers
-export function compareTableItems(a: string | number, b: string | number, reversed: boolean) {
+export function compareTableItems(
+  a: string | number,
+  b: string | number,
+  reversed: boolean
+) {
   if (a === b) {
     return 0;
-  } else if ((a > b) || (b === null) || (b === undefined) || (b === '')) {
+  } else if (a > b || b === null || b === undefined || b === "") {
     return reversed ? -1 : 1;
   } else {
     return reversed ? 1 : -1;
@@ -33,8 +41,12 @@ export function sortTableData(
 
   return filterData(
     [...data].sort((a, b) => {
-      if (sortBy === 'distancetext') {
-        return compareTableItems(a.distance_feet, b.distance_feet, payload.reversed);
+      if (sortBy === "distancetext") {
+        return compareTableItems(
+          a.distance_feet,
+          b.distance_feet,
+          payload.reversed
+        );
       }
 
       return compareTableItems(a[sortBy], b[sortBy], payload.reversed);
@@ -53,19 +65,23 @@ interface ThProps {
 
 // Table header cell component
 export function Th({ children, reversed, sorted, onSort }: ThProps) {
-  const Icon = sorted ? (reversed ? IconChevronUp : IconChevronDown) : IconSelector;
+  const Icon = sorted
+    ? reversed
+      ? IconChevronUp
+      : IconChevronDown
+    : IconSelector;
   return (
     <Table.Th className={styles.th}>
-    <UnstyledButton onClick={onSort} className={styles.control}>
-      <Group justify="space-between">
-        <Text fw={500} fz="sm">
-          {children}
-        </Text>
-        <Center className={styles.icon}>
-          <Icon size="0.9rem" stroke={1.5} />
-        </Center>
-      </Group>
-    </UnstyledButton>
+      <UnstyledButton onClick={onSort} className={styles.control}>
+        <Group justify="space-between">
+          <Text fw={500} fz="sm">
+            {children}
+          </Text>
+          <Center className={styles.icon}>
+            <Icon size="0.9rem" stroke={1.5} />
+          </Center>
+        </Group>
+      </UnstyledButton>
     </Table.Th>
   );
 }

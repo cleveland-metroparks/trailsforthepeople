@@ -1,5 +1,5 @@
-import { Table } from '@mantine/core';
-import styles from './trailDirections.module.css';
+import { Table } from "@mantine/core";
+import styles from "./trailDirections.module.css";
 
 /**
  * Trail Directions
@@ -10,7 +10,7 @@ import styles from './trailDirections.module.css';
 export function TrailDirections(props) {
   return (
     <>
-      {props.directions && Array.isArray(props.directions) &&
+      {props.directions && Array.isArray(props.directions) && (
         <>
           <Table className={styles.table}>
             <Table.Thead>
@@ -23,9 +23,11 @@ export function TrailDirections(props) {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {props.directions.map(step => (
+              {props.directions.map((step) => (
                 <Table.Tr key={step.step_number}>
-                  <Table.Td>{step.step_number}. {step.text}</Table.Td>
+                  <Table.Td>
+                    {step.step_number}. {step.text}
+                  </Table.Td>
                   <Table.Td>{step.distance}</Table.Td>
                   <Table.Td>{step.time_hike}</Table.Td>
                   <Table.Td>{step.time_bike}</Table.Td>
@@ -35,7 +37,7 @@ export function TrailDirections(props) {
             </Table.Tbody>
           </Table>
         </>
-      }
+      )}
     </>
   );
 }

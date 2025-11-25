@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { Table } from '@mantine/core';
+import * as React from "react";
+import { Table } from "@mantine/core";
 
 interface TrailWaypointsProps {
   feature;
@@ -31,15 +31,15 @@ export function TrailWaypoints(props: TrailWaypointsProps) {
               <Table.Tr
                 key={i}
                 style={{
-                  backgroundColor: props.selectedVertexIndex === i ? '#e3f2fd' : undefined
+                  backgroundColor:
+                    props.selectedVertexIndex === i ? "#e3f2fd" : undefined,
                 }}
               >
                 <Table.Td>{i + 1}</Table.Td>
                 <Table.Td>{lat_lng[0].toFixed(5)}</Table.Td>
                 <Table.Td>{lat_lng[1].toFixed(5)}</Table.Td>
               </Table.Tr>
-            ))
-          }
+            ))}
         </Table.Tbody>
       </Table>
       {/* <Group mt="md">

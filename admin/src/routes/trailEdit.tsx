@@ -1,31 +1,50 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, Navigate, useParams, useSubmit } from "react-router";
-import { Title, Text, Tabs, Accordion, Anchor, Input, TextInput, Checkbox, Button, Group, Box, Select } from '@mantine/core';
-import { showNotification, updateNotification } from '@mantine/notifications';
-import { useForm } from '@mantine/form';
-import styles from './trailEdit.module.css';
-import utils from '../styles/utils.module.css';
+import {
+  Title,
+  Text,
+  Tabs,
+  Accordion,
+  Anchor,
+  Input,
+  TextInput,
+  Checkbox,
+  Button,
+  Group,
+  Box,
+  Select,
+} from "@mantine/core";
+import { showNotification, updateNotification } from "@mantine/notifications";
+import { useForm } from "@mantine/form";
+import styles from "./trailEdit.module.css";
+import utils from "../styles/utils.module.css";
 
-import { RichTextEditor } from '@mantine/tiptap';
-import { useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
-import { Link as TipTapLink } from '@tiptap/extension-link';
+import { RichTextEditor } from "@mantine/tiptap";
+import { useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import { Link as TipTapLink } from "@tiptap/extension-link";
 
-import { openConfirmModal } from '@mantine/modals';
-import { default as dayjs } from 'dayjs';
+import { openConfirmModal } from "@mantine/modals";
+import { default as dayjs } from "dayjs";
 // Import timezone and utc plugins from dayjs
-import { default as utc } from 'dayjs/plugin/utc';
-import { default as timezone } from 'dayjs/plugin/timezone';
+import { default as utc } from "dayjs/plugin/utc";
+import { default as timezone } from "dayjs/plugin/timezone";
 
-import { LngLat, LngLatBounds } from 'mapbox-gl';
-import { coordEach } from '@turf/meta';
-import { lineString } from '@turf/helpers';
+import { LngLat, LngLatBounds } from "mapbox-gl";
+import { coordEach } from "@turf/meta";
+import { lineString } from "@turf/helpers";
 
 import { useAuth } from "../hooks/useAuth";
 
-import type { Trail, TrailProfile, TrailGeometry, LineStringFeature, TrailFormData } from "../types/trail";
+import type {
+  Trail,
+  TrailProfile,
+  TrailGeometry,
+  LineStringFeature,
+  TrailFormData,
+} from "../types/trail";
 import { emptyTrail, defaultTrailFormData } from "../types/trail";
 import { reservationListSelectOptions } from "../types/reservation";
 
@@ -39,11 +58,11 @@ import { Authorship } from "../components/sidebarPanes/authorship";
 
 import { TrailProfileChart } from "../components/trailProfileChart";
 
-const trailsRootPath = '/trails';
+const trailsRootPath = "/trails";
 
 const defaultTrailProfile: TrailProfile = {
   id: null,
-  elevation_profile: []
+  elevation_profile: [],
 };
 
 // Set up dayjs TZ
@@ -60,31 +79,32 @@ export function TrailEdit() {
   const submitDelete = useSubmit();
 
   const [savingState, setSavingState] = useState(false);
-  const [redirectPath, setRedirectPath] = useState('');
+  const [redirectPath, setRedirectPath] = useState("");
   const [isRouting, setIsRouting] = useState(false);
 
   const [showElevationProfile, setShowElevationProfile] = useState(false);
 
   const handleElevationProfileToggle = () => {
     setShowElevationProfile(!showElevationProfile);
-  }
+  };
 
   const mutation = useMutation({
-    mutationFn: (formData: TrailFormData) => saveTrail(formData)
+    mutationFn: (formData: TrailFormData) => saveTrail(formData),
   });
 
   const queryClient = useQueryClient();
 
-  let trailId = '',
-      deleteTrailPath = '';
+  let trailId = "",
+    deleteTrailPath = "";
 
   let params = useParams();
 
   if (params.trailId) {
-    if (!isNaN(parseFloat(params.trailId))) { // Ensure trail ID is an int
+    if (!isNaN(parseFloat(params.trailId))) {
+      // Ensure trail ID is an int
       trailId = params.trailId;
-      deleteTrailPath = trailsRootPath + '/' + trailId + '/delete';
-    } else if (params.trailId === 'new') {
+      deleteTrailPath = trailsRootPath + "/" + trailId + "/delete";
+    } else if (params.trailId === "new") {
       trailId = params.trailId;
     } else {
       throw new Error("Invalid Trail ID");
@@ -94,7 +114,7 @@ export function TrailEdit() {
   // @TODO: starting on "general" tab breaks map sizing
   const [activeTab, setActiveTab] = useState("route");
 
-  const [trailGeometry, setTrailGeometry] = useState('');
+  const [trailGeometry, setTrailGeometry] = useState("");
   const [trailDirections, setTrailDirections] = useState({});
   const [trailElevation, setTrailElevation] = useState(defaultTrailProfile);
   const [trailStats, setTrailStats] = useState({
@@ -107,15 +127,15 @@ export function TrailEdit() {
     boxe: 180,
     boxn: 90,
     // Distance/duration
-    distancetext : '',
-    distance_feet : '',
-    durationtext_hike : '',
-    durationtext_bike : '',
-    durationtext_bridle : '',
+    distancetext: "",
+    distance_feet: "",
+    durationtext_hike: "",
+    durationtext_bike: "",
+    durationtext_bridle: "",
   });
 
   // Travel mode ("via"), for routing
-  const [travelMode, setTravelMode] = useState('hike');
+  const [travelMode, setTravelMode] = useState("hike");
   const travelModeRef = useRef(travelMode);
 
   // Keep ref in sync with state
@@ -129,49 +149,56 @@ export function TrailEdit() {
   const emptyLineStringFeature: LineStringFeature = {
     type: "Feature",
     geometry: {
-      type: 'LineString',
+      type: "LineString",
       coordinates: [],
     },
-    id: '',
+    id: "",
     properties: {},
   };
   // @TODO: We should be able to simplify this by just storing coordinates at this level
   // and turning them into a feature only where necessary in child components.
   // Could then get rid of LineStringFeature type.
-  const [waypointsFeature, setWaypointsFeature] = useState(emptyLineStringFeature);
+  const [waypointsFeature, setWaypointsFeature] = useState(
+    emptyLineStringFeature
+  );
   // Keeping a separate waypoints feature that we use for the "Back to start"
   // functionality. Triggering that functionality causes us to update the Draw
   // Control; we catch this waypointsForDraw data in the DrawControl with useEffect().
   // We don't want to use the same waypointsFeature as above because we don't want to
   // trigger an extra redraw of the draw control (via our create/update callbacks) every
   // time the user edits it via the Draw UI.
-  const [waypointsForDraw, setWaypointsForDraw] = useState(emptyLineStringFeature);
+  const [waypointsForDraw, setWaypointsForDraw] = useState(
+    emptyLineStringFeature
+  );
 
   // Track selected vertex index for highlighting in waypoints list
-  const [selectedVertexIndex, setSelectedVertexIndex] = useState<number | null>(null);
+  const [selectedVertexIndex, setSelectedVertexIndex] = useState<number | null>(
+    null
+  );
 
   // Keep waypoint count ref in sync with waypointsFeature
   useEffect(() => {
-    waypointCountRef.current = waypointsFeature.geometry?.coordinates?.length || 0;
+    waypointCountRef.current =
+      waypointsFeature.geometry?.coordinates?.length || 0;
   }, [waypointsFeature]);
 
-  const [waypointsGeoJSON, setWaypointsGeoJSON] = useState('');
+  const [waypointsGeoJSON, setWaypointsGeoJSON] = useState("");
 
   const sw = new LngLat(-82.08504, 41.11816);
   const ne = new LngLat(-81.28029, 41.70009);
   const [bounds, setBounds] = useState(new LngLatBounds(sw, ne));
 
-  const [trailDescription, setTrailDescription] = useState('');
+  const [trailDescription, setTrailDescription] = useState("");
 
   // Rich text editor
   const richTextEditor = useEditor({
-    extensions: [ StarterKit, Underline, TipTapLink ],
+    extensions: [StarterKit, Underline, TipTapLink],
     content: trailDescription,
     shouldRerenderOnTransaction: true,
     // Update form value on editor update
     onUpdate: ({ editor }) => {
-      form.setFieldValue('description', editor.getHTML());
-    }
+      form.setFieldValue("description", editor.getHTML());
+    },
   });
 
   // Set initial editor content when we get trail [description] from API
@@ -190,8 +217,10 @@ export function TrailEdit() {
   const getTrail = async (id: string) => {
     let trailData: Trail = emptyTrail;
 
-    if (id !== 'new') {
-      const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/trails/" + id);
+    if (id !== "new") {
+      const response = await mapsApiClient.get<any>(
+        process.env.REACT_APP_MAPS_API_BASE_PATH + "/trails/" + id
+      );
 
       trailData = response.data.data;
 
@@ -205,11 +234,13 @@ export function TrailEdit() {
         boxe: response.data.data.boxe,
         boxn: response.data.data.boxn,
         // Distance/duration
-        distancetext : response.data.data.distancetext,
-        distance_feet : response.data.data.distance_feet ? response.data.data.distance_feet.toString() : '',
-        durationtext_hike : response.data.data.durationtext_hike,
-        durationtext_bike : response.data.data.durationtext_bike,
-        durationtext_bridle : response.data.data.durationtext_bridle,
+        distancetext: response.data.data.distancetext,
+        distance_feet: response.data.data.distance_feet
+          ? response.data.data.distance_feet.toString()
+          : "",
+        durationtext_hike: response.data.data.durationtext_hike,
+        durationtext_bike: response.data.data.durationtext_bike,
+        durationtext_bridle: response.data.data.durationtext_bridle,
       });
 
       setWaypointsGeoJSON(response.data.data.waypoints_geojson);
@@ -221,9 +252,11 @@ export function TrailEdit() {
       if (trailWaypoints != null && trailWaypoints.geometry != null) {
         const initialCoords = trailWaypoints.geometry.coordinates;
         if (initialCoords) {
-          filteredCoords = initialCoords.filter(function(coordinate, index, arr) {
-            return ((coordinate[0] !== 0) && (coordinate[1] !== 0));
-          });
+          filteredCoords = initialCoords.filter(
+            function (coordinate, index, arr) {
+              return coordinate[0] !== 0 && coordinate[1] !== 0;
+            }
+          );
           trailWaypoints.geometry.coordinates = filteredCoords;
         }
       }
@@ -252,7 +285,7 @@ export function TrailEdit() {
     }
 
     return trailData;
-  }
+  };
   // END getTrail()
   //--------
 
@@ -260,23 +293,28 @@ export function TrailEdit() {
     isLoading: trailIsLoading,
     isError: trailIsError,
     data: trailData,
-    error: trailError
-  } = useQuery<Trail, Error>({ queryKey: ['trail', params.trailId], queryFn: () => getTrail(trailId) });
+    error: trailError,
+  } = useQuery<Trail, Error>({
+    queryKey: ["trail", params.trailId],
+    queryFn: () => getTrail(trailId),
+  });
   //---------------------------------------------------------------------------
 
   // Save Trail via the API
   const saveTrail = async (formData) => {
     setSavingState(true);
     showNotification({
-      id: 'save-trail',
+      id: "save-trail",
       loading: true,
-      title: 'Saving Trail',
-      message: 'One moment',
+      title: "Saving Trail",
+      message: "One moment",
       autoClose: false,
       withCloseButton: false,
     });
 
-    const now_datetime = dayjs().tz('America/New_York').format('YYYY-MM-DD HH:mm:ss');
+    const now_datetime = dayjs()
+      .tz("America/New_York")
+      .format("YYYY-MM-DD HH:mm:ss");
 
     const trailSaveData = {
       name: formData.name,
@@ -312,57 +350,75 @@ export function TrailEdit() {
       // dd_lat: number,
       // dd_lng: number,
 
-      date_created: (trailId === 'new') ? now_datetime : trailData.date_created ? dayjs(trailData.date_created).tz('America/New_York').format('YYYY-MM-DD HH:mm:ss') : null,
+      date_created:
+        trailId === "new"
+          ? now_datetime
+          : trailData.date_created
+            ? dayjs(trailData.date_created)
+                .tz("America/New_York")
+                .format("YYYY-MM-DD HH:mm:ss")
+            : null,
       date_modified: now_datetime,
 
       status: formData.status ? 1 : 0,
 
-      creator_username: trailData.creator_username ? trailData.creator_username : (trailId === 'new') ? user : null,
+      creator_username: trailData.creator_username
+        ? trailData.creator_username
+        : trailId === "new"
+          ? user
+          : null,
       modifier_username: user,
     };
 
     // Saving a new trail
-    const response = (trailId === 'new') ?
-      mapsApiClient.post<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/trails', trailSaveData)
-      : mapsApiClient.put<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + '/trails/' + trailId, trailSaveData);
+    const response =
+      trailId === "new"
+        ? mapsApiClient.post<any>(
+            process.env.REACT_APP_MAPS_API_BASE_PATH + "/trails",
+            trailSaveData
+          )
+        : mapsApiClient.put<any>(
+            process.env.REACT_APP_MAPS_API_BASE_PATH + "/trails/" + trailId,
+            trailSaveData
+          );
     response
       .then(function (response) {
         // Get new trail ID:
-        if (response.hasOwnProperty('data') && response['data'].data.id) {
-          trailId = response['data'].data.id;
+        if (response.hasOwnProperty("data") && response["data"].data.id) {
+          trailId = response["data"].data.id;
 
-          const savedMsg = `Trail "${response['data'].data.name}" (ID: ${trailId}) saved`;
+          const savedMsg = `Trail "${response["data"].data.name}" (ID: ${trailId}) saved`;
           updateNotification({
-            id: 'save-trail',
+            id: "save-trail",
             loading: false,
             title: savedMsg,
-            message: '',
+            message: "",
             autoClose: 5000,
           });
           setSavingState(false);
-          queryClient.invalidateQueries({ queryKey: ['trail'] });
+          queryClient.invalidateQueries({ queryKey: ["trail"] });
 
           // Redirect to the trail edit page for this new trail
-          setRedirectPath(trailsRootPath + '/' + trailId);
+          setRedirectPath(trailsRootPath + "/" + trailId);
         }
       })
       .catch(function (error) {
-        const errMsg = error.name + ': ' + error.message + ' (' + error.code + ')';
+        const errMsg =
+          error.name + ": " + error.message + " (" + error.code + ")";
         updateNotification({
-          id: 'save-trail',
+          id: "save-trail",
           loading: false,
-          color: 'red',
-          title: 'Error saving Trail',
+          color: "red",
+          title: "Error saving Trail",
           message: errMsg,
           autoClose: false,
         });
         setSavingState(false);
         console.error("Error saving Trail:", error);
-      }
-    );
+      });
 
     return response;
-  }
+  };
   // END saveTrail()
   //--------
 
@@ -370,26 +426,33 @@ export function TrailEdit() {
   // Get trail Elevation Profile from API
   //
   const getTrailProfile = async (id: string) => {
-    if (id !== 'new') {
-      const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/trail_profiles/" + id);
+    if (id !== "new") {
+      const response = await mapsApiClient.get<any>(
+        process.env.REACT_APP_MAPS_API_BASE_PATH + "/trail_profiles/" + id
+      );
 
       setTrailElevation(response.data.data.elevation_profile);
 
       return response.data.data;
     }
 
-    return {data: {}};
-  }
+    return { data: {} };
+  };
 
-  useQuery<TrailProfile, Error>({ queryKey: ['trail_profile', trailId], queryFn: () => getTrailProfile(trailId) });
+  useQuery<TrailProfile, Error>({
+    queryKey: ["trail_profile", trailId],
+    queryFn: () => getTrailProfile(trailId),
+  });
   //---------------------------------------------------------------------------
 
   //
   // Get trail geometry from API
   //
   const getTrailGeometry = async (id: string) => {
-    if (id !== 'new') {
-      const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/trail_geometries/" + id);
+    if (id !== "new") {
+      const response = await mapsApiClient.get<any>(
+        process.env.REACT_APP_MAPS_API_BASE_PATH + "/trail_geometries/" + id
+      );
       const geojson = JSON.parse(response.data.data.geom_geojson);
 
       setTrailGeometry(response.data.data.geom_geojson);
@@ -407,21 +470,30 @@ export function TrailEdit() {
       return response.data.data;
     }
 
-    return {data: {}};
-  }
+    return { data: {} };
+  };
 
-  useQuery<TrailGeometry, Error>({ queryKey: ['trail_geometry', trailId], queryFn: () => getTrailGeometry(trailId) });
+  useQuery<TrailGeometry, Error>({
+    queryKey: ["trail_geometry", trailId],
+    queryFn: () => getTrailGeometry(trailId),
+  });
   //---------------------------------------------------------------------------
 
   // Get route from waypoints from API
-  const getRouteFromWaypoints = async (waypointsGeojson: string, travelMode: string) => {
+  const getRouteFromWaypoints = async (
+    waypointsGeojson: string,
+    travelMode: string
+  ) => {
     setIsRouting(true);
     const params = new URLSearchParams({
       waypoints: waypointsGeojson,
-      via: travelMode
+      via: travelMode,
     });
 
-    await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/route_waypoints", { params })
+    await mapsApiClient
+      .get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/route_waypoints", {
+        params,
+      })
       .then(function (response) {
         setTrailGeometry(JSON.stringify(response.data.data.geojson));
 
@@ -448,27 +520,35 @@ export function TrailEdit() {
 
         // "route_waypoints" API endpoint returns the profile data in a different format than "trail_profiles" (@TODO).
         // The chart component apparently needs the coordinates as strings.
-        const transformedProfile = response.data.data.elevationprofile.map(({y, x}) => { return {x: x.toString(), y: y.toString()}})
+        const transformedProfile = response.data.data.elevationprofile.map(
+          ({ y, x }) => {
+            return { x: x.toString(), y: y.toString() };
+          }
+        );
         setTrailElevation(transformedProfile);
       })
       .catch(function (error) {
-        console.error('Error getting route from waypoints', error);
-        let msg = error.code + ': ' + error.message;
-        if (error.response && error.response.data && error.response.data.message) {
+        console.error("Error getting route from waypoints", error);
+        let msg = error.code + ": " + error.message;
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.message
+        ) {
           msg += ": " + error.response.data.message;
         }
         showNotification({
-          id: 'routing-error',
-          title: 'Error getting route from waypoints',
+          id: "routing-error",
+          title: "Error getting route from waypoints",
           message: msg,
           autoClose: false,
-          color: 'red',
+          color: "red",
         });
       })
       .finally(() => {
         setIsRouting(false);
       });
-  }
+  };
   //---------------------------------------------------------------------------
   //
   // Waypoints Draw update callbacks
@@ -487,7 +567,7 @@ export function TrailEdit() {
   // Complete the trail; back to start
   const completeTrail = () => {
     // Create the new feature and append the coordinate
-    let newFeature = {...waypointsFeature};
+    let newFeature = { ...waypointsFeature };
     let coords = newFeature.geometry.coordinates;
     if (coords.length > 1) {
       if (coords[0] !== coords[coords.length - 1]) {
@@ -502,10 +582,10 @@ export function TrailEdit() {
 
     const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
     waypointCountRef.current = newWaypointCount;
-    setWaypointsFeature(curFeature => {
+    setWaypointsFeature((curFeature) => {
       return newFeature;
     });
-    setWaypointsForDraw(curFeature => {
+    setWaypointsForDraw((curFeature) => {
       return newFeature;
     });
 
@@ -514,14 +594,14 @@ export function TrailEdit() {
     const wpGeoJSON = makeWaypointGeojsonString(newFeature);
     setWaypointsGeoJSON(wpGeoJSON);
     getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
-  }
+  };
 
-  const onDrawCreate = useCallback(e => {
+  const onDrawCreate = useCallback((e) => {
     const feature_id = Object.keys(e.features)[0];
     const newFeature = e.features[feature_id];
     const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
     waypointCountRef.current = newWaypointCount;
-    setWaypointsFeature(curFeature => {
+    setWaypointsFeature((curFeature) => {
       return newFeature;
     });
     const wpGeoJSON = makeWaypointGeojsonString(newFeature);
@@ -529,7 +609,7 @@ export function TrailEdit() {
     getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
   }, []);
 
-  const onDrawUpdate = useCallback(e => {
+  const onDrawUpdate = useCallback((e) => {
     const feature_id = Object.keys(e.features)[0];
     const newFeature = e.features[feature_id];
 
@@ -539,13 +619,13 @@ export function TrailEdit() {
     // Update ref immediately to ensure it's current for next call
     waypointCountRef.current = newWaypointCount;
 
-    setWaypointsFeature(curFeature => {
+    setWaypointsFeature((curFeature) => {
       return newFeature;
     });
 
     // Update waypointsForDraw when vertex is deleted so DrawControl reflects the change
-    if (e.action === 'delete_vertex') {
-      setWaypointsForDraw(curFeature => {
+    if (e.action === "delete_vertex") {
+      setWaypointsForDraw((curFeature) => {
         return newFeature;
       });
     }
@@ -559,12 +639,12 @@ export function TrailEdit() {
     }
   }, []);
 
-  const onDrawDelete = useCallback(e => {
+  const onDrawDelete = useCallback((e) => {
     const feature_id = Object.keys(e.features)[0];
     const newFeature = e.features[feature_id];
     const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
     waypointCountRef.current = newWaypointCount;
-    setWaypointsFeature(curFeature => {
+    setWaypointsFeature((curFeature) => {
       return newFeature;
     });
     const wpGeoJSON = makeWaypointGeojsonString(newFeature);
@@ -578,22 +658,22 @@ export function TrailEdit() {
     setTravelMode(mode);
     // Re-calculate route
     getRouteFromWaypoints(waypointsGeoJSON, mode);
-  }
+  };
 
   //
   const openDeleteModal = (deleteFormAction) =>
     openConfirmModal({
-      title: 'Delete Trail',
+      title: "Delete Trail",
       centered: true,
       children: (
         <Text size="sm">
           Are you sure you want to delete this trail? This cannot be undone.
         </Text>
       ),
-      labels: { confirm: 'Delete Trail', cancel: "Cancel" },
-      confirmProps: { color: 'red' },
+      labels: { confirm: "Delete Trail", cancel: "Cancel" },
+      confirmProps: { color: "red" },
       onCancel: () => {
-        console.warn('Trail delete cancelled')
+        console.warn("Trail delete cancelled");
       },
       onConfirm: () => {
         // We pass in deleteFormAction
@@ -605,14 +685,15 @@ export function TrailEdit() {
         // it was removed in 6.4 or thereabouts.
         submitDelete(null, { method: "post", action: deleteFormAction });
       },
-    }
-  );
+    });
 
   return (
     <>
       {redirectPath && <Navigate to={redirectPath} />}
 
-      <Anchor component={Link} to={`/trails`}>« Trails</Anchor>
+      <Anchor component={Link} to={`/trails`}>
+        « Trails
+      </Anchor>
 
       {trailIsLoading && <div>Loading...</div>}
 
@@ -620,13 +701,19 @@ export function TrailEdit() {
         <Text>{`There is a problem fetching the trail - ${trailError.message}`}</Text>
       )}
 
-      {trailData &&
+      {trailData && (
         <>
           <Box
-            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
             mt="md"
           >
-            <Title order={2} m={0}>{trailData.name ? trailData.name : 'Add Trail'}</Title>
+            <Title order={2} m={0}>
+              {trailData.name ? trailData.name : "Add Trail"}
+            </Title>
 
             {/* Published/Save/Delete */}
             <Group justify="flex-end" gap="sm">
@@ -634,20 +721,16 @@ export function TrailEdit() {
               <Group mr="md">
                 <Checkbox
                   label="Published"
-                  {...form.getInputProps('status', { type: 'checkbox' })}
+                  {...form.getInputProps("status", { type: "checkbox" })}
                 />
               </Group>
               {/* Save Trail button */}
-              <Button
-                type="submit"
-                loading={savingState}
-                form="trail-form"
-              >
-              Save Trail
+              <Button type="submit" loading={savingState} form="trail-form">
+                Save Trail
               </Button>
 
               {/* Delete Trail button */}
-              {deleteTrailPath &&
+              {deleteTrailPath && (
                 <Button
                   onClick={() => openDeleteModal(deleteTrailPath)}
                   variant="outline"
@@ -655,25 +738,21 @@ export function TrailEdit() {
                 >
                   Delete Trail
                 </Button>
-              }
+              )}
             </Group>
           </Box>
 
           <form
             id="trail-form"
-            onSubmit={
-              form.onSubmit((formValues) => {
-                mutation.mutate(formValues);
-              })
-            }
+            onSubmit={form.onSubmit((formValues) => {
+              mutation.mutate(formValues);
+            })}
           >
-
             {/* Content including main content area and sidebar */}
             <Box className={styles.contentBox}>
               {/* Main content area (left side) */}
               <Box className={styles.mainContentBox}>
                 <Tabs value={activeTab} onChange={setActiveTab}>
-
                   <Tabs.List>
                     <Tabs.Tab value="general">General</Tabs.Tab>
                     <Tabs.Tab value="route">Route</Tabs.Tab>
@@ -681,28 +760,23 @@ export function TrailEdit() {
 
                   <Tabs.Panel value="general">
                     <Box className={utils.maxWidth}>
-
                       <TextInput
                         mt="md"
                         required
                         label="Name"
                         placeholder="Trail name"
-                        {...form.getInputProps('name')}
+                        {...form.getInputProps("name")}
                       />
 
                       <Box mt="md">
                         <Select
                           label="Reservation"
                           data={reservationListSelectOptions}
-                          {...form.getInputProps('res')}
+                          {...form.getInputProps("res")}
                         />
                       </Box>
 
-                      <Input.Wrapper
-                        label="Description"
-                        withAsterisk
-                        mt="md"
-                      >
+                      <Input.Wrapper label="Description" withAsterisk mt="md">
                         <RichTextEditor editor={richTextEditor}>
                           <RichTextEditor.Toolbar sticky stickyOffset={60}>
                             <RichTextEditor.ControlsGroup>
@@ -735,25 +809,28 @@ export function TrailEdit() {
                         <Checkbox
                           mt="md"
                           label="Hiking"
-                          {...form.getInputProps('hike', { type: 'checkbox' })}
+                          {...form.getInputProps("hike", { type: "checkbox" })}
                         />
                         <Checkbox
                           mt="md"
                           label="Biking"
-                          {...form.getInputProps('bike', { type: 'checkbox' })}
+                          {...form.getInputProps("bike", { type: "checkbox" })}
                         />
                         <Checkbox
                           mt="md"
                           label="Mountain biking"
-                          {...form.getInputProps('mountainbike', { type: 'checkbox' })}
+                          {...form.getInputProps("mountainbike", {
+                            type: "checkbox",
+                          })}
                         />
                         <Checkbox
                           mt="md"
                           label="Horseback"
-                          {...form.getInputProps('bridle', { type: 'checkbox' })}
+                          {...form.getInputProps("bridle", {
+                            type: "checkbox",
+                          })}
                         />
                       </Group>
-
                     </Box>
                   </Tabs.Panel>
 
@@ -776,17 +853,21 @@ export function TrailEdit() {
                         isRouting={isRouting}
                         onVertexSelect={setSelectedVertexIndex}
                       />
-                      {showElevationProfile && <TrailProfileChart trailProfile={trailElevation} />}
+                      {showElevationProfile && (
+                        <TrailProfileChart trailProfile={trailElevation} />
+                      )}
                     </div>
                   </Tabs.Panel>
-
                 </Tabs>
               </Box>
 
               {/* Right sidebar */}
               <Box className={styles.sidebarBox}>
                 <Accordion defaultValue="stats">
-                  <Accordion.Item value="stats" className={utils.accordionItemBorder}>
+                  <Accordion.Item
+                    value="stats"
+                    className={utils.accordionItemBorder}
+                  >
                     <Accordion.Control>Stats</Accordion.Control>
                     <Accordion.Panel>
                       <TrailStats stats={trailStats} />
@@ -822,12 +903,9 @@ export function TrailEdit() {
                 </Accordion>
               </Box>
             </Box>
-
-
           </form>
         </>
-      }
-
+      )}
     </>
   );
 }

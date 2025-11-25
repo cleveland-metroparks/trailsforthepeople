@@ -1,15 +1,15 @@
 import { useRouteError, isRouteErrorResponse } from "react-router";
 
-import { Title, Text } from '@mantine/core';
+import { Title, Text } from "@mantine/core";
 
 export function ErrorScreen() {
   const error = useRouteError();
 
   console.error("Error:", error);
 
-  let messageText = '';
+  let messageText = "";
   if (isRouteErrorResponse(error)) {
-    messageText = error.status + ' ' + error.statusText;
+    messageText = error.status + " " + error.statusText;
   } else if (error instanceof Error) {
     messageText = error.message;
   } else {
@@ -20,7 +20,9 @@ export function ErrorScreen() {
     <>
       <Title order={2}>Oops!</Title>
       <Text mt="md">Sorry, an error has occurred:</Text>
-      <Text fs="italic" mt="md">{ messageText }</Text>
+      <Text fs="italic" mt="md">
+        {messageText}
+      </Text>
     </>
   );
 }

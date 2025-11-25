@@ -1,8 +1,8 @@
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import { useControl } from 'react-map-gl/mapbox';
-import type { ControlPosition } from 'react-map-gl/mapbox';
-import type { MapContextValue } from '@vis.gl/react-mapbox/dist/components/map';
-import { useEffect, useCallback, useRef } from 'react';
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import { useControl } from "react-map-gl/mapbox";
+import type { ControlPosition } from "react-map-gl/mapbox";
+import type { MapContextValue } from "@vis.gl/react-mapbox/dist/components/map";
+import { useEffect, useCallback, useRef } from "react";
 
 /**
  * See:
@@ -18,14 +18,20 @@ type DrawControlProps = ConstructorParameters<typeof MapboxDraw>[0] & {
 
   // See mapbox-gl-draw API for create/update/delete events
   //   https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md
-  onCreate?: (e: {features: object[]}) => void;
-  onUpdate?: (e: {features: object[]; action: string}) => void;
-  onDelete?: (e: {features: object[]}) => void;
-  onVertexClick?: (e: {lngLat: {lng: number; lat: number}; vertexIndex: number; featureId: string}) => void;
+  onCreate?: (e: { features: object[] }) => void;
+  onUpdate?: (e: { features: object[]; action: string }) => void;
+  onDelete?: (e: { features: object[] }) => void;
+  onVertexClick?: (e: {
+    lngLat: { lng: number; lat: number };
+    vertexIndex: number;
+    featureId: string;
+  }) => void;
 };
 
 export default function DrawControl(props: DrawControlProps) {
-  const mouseDownRef = useRef<{x: number; y: number; time: number} | null>(null);
+  const mouseDownRef = useRef<{ x: number; y: number; time: number } | null>(
+    null
+  );
   const isDraggingRef = useRef(false);
 
   // Function to update the line button state based on whether features exist
@@ -33,32 +39,34 @@ export default function DrawControl(props: DrawControlProps) {
     // Use setTimeout to ensure the DOM has been updated
     setTimeout(() => {
       const data = drawInstance.getAll();
-      const hasFeatures = data.features.some((feature: any) =>
-        feature.geometry.type === 'LineString' &&
-        feature.geometry.coordinates &&
-        feature.geometry.coordinates.length > 0
+      const hasFeatures = data.features.some(
+        (feature: any) =>
+          feature.geometry.type === "LineString" &&
+          feature.geometry.coordinates &&
+          feature.geometry.coordinates.length > 0
       );
 
       // Find the line_string button (Mapbox Draw uses class name mapbox-gl-draw_line)
-      const lineButton = document.querySelector('button.mapbox-gl-draw_line') as HTMLButtonElement;
+      const lineButton = document.querySelector(
+        "button.mapbox-gl-draw_line"
+      ) as HTMLButtonElement;
       if (lineButton) {
         if (hasFeatures) {
           lineButton.disabled = true;
-          lineButton.classList.add('mapbox-gl-draw_line-disabled');
-          lineButton.style.opacity = '0.3';
-          lineButton.style.cursor = 'not-allowed';
+          lineButton.classList.add("mapbox-gl-draw_line-disabled");
+          lineButton.style.opacity = "0.3";
+          lineButton.style.cursor = "not-allowed";
         } else {
           lineButton.disabled = false;
-          lineButton.classList.remove('mapbox-gl-draw_line-disabled');
-          lineButton.style.opacity = '1';
-          lineButton.style.cursor = 'pointer';
+          lineButton.classList.remove("mapbox-gl-draw_line-disabled");
+          lineButton.style.opacity = "1";
+          lineButton.style.cursor = "pointer";
         }
       }
     }, 0);
   }, []);
 
   let draw = useControl<MapboxDraw>(
-
     // useControl onCreate:
     ({ map }: MapContextValue) => {
       return new MapboxDraw(props);
@@ -74,33 +82,35 @@ export default function DrawControl(props: DrawControlProps) {
         const addedFeatureIds = draw.add(feature);
         // Select the feature so vertices are clickable
         if (addedFeatureIds && addedFeatureIds.length > 0) {
-          draw.changeMode('simple_select', { featureIds: [addedFeatureIds[0]] });
+          draw.changeMode("simple_select", {
+            featureIds: [addedFeatureIds[0]],
+          });
         }
         // Update button state after setting feature
         updateLineButtonState(draw);
       };
 
       // Wrap the original handlers to also update button state
-      const handleCreate = (e: {features: object[]}) => {
+      const handleCreate = (e: { features: object[] }) => {
         props.onCreate?.(e);
         updateLineButtonState(draw);
       };
 
-      const handleUpdate = (e: {features: object[]; action: string}) => {
+      const handleUpdate = (e: { features: object[]; action: string }) => {
         props.onUpdate?.(e);
         updateLineButtonState(draw);
       };
 
-      const handleDelete = (e: {features: object[]}) => {
+      const handleDelete = (e: { features: object[] }) => {
         props.onDelete?.(e);
         updateLineButtonState(draw);
       };
 
-      map.on('draw.create', handleCreate);
-      map.on('draw.update', handleUpdate);
-      map.on('draw.delete', handleDelete);
+      map.on("draw.create", handleCreate);
+      map.on("draw.update", handleUpdate);
+      map.on("draw.delete", handleDelete);
 
-      map.on('load', function () {
+      map.on("load", function () {
         // Draw initial waypoints
         if (props.initialData?.geometry) {
           setDrawFeature(props.initialData);
@@ -117,7 +127,7 @@ export default function DrawControl(props: DrawControlProps) {
         mouseDownRef.current = {
           x: e.originalEvent.clientX,
           y: e.originalEvent.clientY,
-          time: Date.now()
+          time: Date.now(),
         };
         isDraggingRef.current = false;
       };
@@ -137,11 +147,19 @@ export default function DrawControl(props: DrawControlProps) {
         // Check if this was a click (not a drag) and if a vertex was clicked
         const clickThreshold = 5; // pixels
         const timeThreshold = 300; // milliseconds
-        const deltaX = Math.abs(e.originalEvent.clientX - mouseDownRef.current.x);
-        const deltaY = Math.abs(e.originalEvent.clientY - mouseDownRef.current.y);
+        const deltaX = Math.abs(
+          e.originalEvent.clientX - mouseDownRef.current.x
+        );
+        const deltaY = Math.abs(
+          e.originalEvent.clientY - mouseDownRef.current.y
+        );
         const deltaTime = Date.now() - mouseDownRef.current.time;
 
-        if (deltaX < clickThreshold && deltaY < clickThreshold && deltaTime < timeThreshold) {
+        if (
+          deltaX < clickThreshold &&
+          deltaY < clickThreshold &&
+          deltaTime < timeThreshold
+        ) {
           // This was a click, check if a vertex was clicked
           // Get all features (not just selected ones) to handle cases where feature isn't selected
           const allFeatures = draw.getAll();
@@ -155,7 +173,10 @@ export default function DrawControl(props: DrawControlProps) {
           const pixelThreshold = 15;
 
           allFeatures.features.forEach((feature: any) => {
-            if (feature.geometry.type === 'LineString' && feature.geometry.coordinates) {
+            if (
+              feature.geometry.type === "LineString" &&
+              feature.geometry.coordinates
+            ) {
               const coordinates = feature.geometry.coordinates;
 
               coordinates.forEach((coord: number[], index: number) => {
@@ -167,10 +188,13 @@ export default function DrawControl(props: DrawControlProps) {
                 // Calculate pixel distance
                 const pixelDistance = Math.sqrt(
                   Math.pow(vertexPoint.x - clickPixelPoint.x, 2) +
-                  Math.pow(vertexPoint.y - clickPixelPoint.y, 2)
+                    Math.pow(vertexPoint.y - clickPixelPoint.y, 2)
                 );
 
-                if (pixelDistance < minPixelDistance && pixelDistance < pixelThreshold) {
+                if (
+                  pixelDistance < minPixelDistance &&
+                  pixelDistance < pixelThreshold
+                ) {
                   minPixelDistance = pixelDistance;
                   closestIndex = index;
                   closestFeature = feature;
@@ -187,7 +211,7 @@ export default function DrawControl(props: DrawControlProps) {
             // draw_line_string = actively drawing a new feature
             // simple_select = selecting/editing an existing feature
             // direct_select = directly selecting vertices of a feature
-            if (currentMode === 'draw_line_string') {
+            if (currentMode === "draw_line_string") {
               // Don't show popover during creation - let the draw tool handle the click
               return;
             }
@@ -197,13 +221,15 @@ export default function DrawControl(props: DrawControlProps) {
 
             // Select the feature if it's not already selected
             if (!draw.getSelectedIds().includes(closestFeature.id)) {
-              draw.changeMode('simple_select', { featureIds: [closestFeature.id] });
+              draw.changeMode("simple_select", {
+                featureIds: [closestFeature.id],
+              });
             }
 
             props.onVertexClick({
               lngLat: { lng: clickPoint[0], lat: clickPoint[1] },
               vertexIndex: closestIndex,
-              featureId: closestFeature.id as string
+              featureId: closestFeature.id as string,
             });
           }
         }
@@ -212,22 +238,22 @@ export default function DrawControl(props: DrawControlProps) {
         isDraggingRef.current = false;
       };
 
-      map.on('mousedown', handleMouseDown);
-      map.on('mousemove', handleMouseMove);
-      map.on('mouseup', handleMouseUp);
+      map.on("mousedown", handleMouseDown);
+      map.on("mousemove", handleMouseMove);
+      map.on("mouseup", handleMouseUp);
 
       // Store cleanup handlers
       (map as any)._drawControlCleanup = () => {
-        map.off('mousedown', handleMouseDown);
-        map.off('mousemove', handleMouseMove);
-        map.off('mouseup', handleMouseUp);
+        map.off("mousedown", handleMouseDown);
+        map.off("mousemove", handleMouseMove);
+        map.off("mouseup", handleMouseUp);
       };
 
       // Store handlers for cleanup
       (map as any)._drawControlHandlers = {
         create: handleCreate,
         update: handleUpdate,
-        delete: handleDelete
+        delete: handleDelete,
       };
     },
 
@@ -235,9 +261,9 @@ export default function DrawControl(props: DrawControlProps) {
     ({ map }: MapContextValue) => {
       const handlers = (map as any)._drawControlHandlers;
       if (handlers) {
-        map.off('draw.create', handlers.create);
-        map.off('draw.update', handlers.update);
-        map.off('draw.delete', handlers.delete);
+        map.off("draw.create", handlers.create);
+        map.off("draw.update", handlers.update);
+        map.off("draw.delete", handlers.delete);
         delete (map as any)._drawControlHandlers;
       }
 
@@ -250,27 +276,30 @@ export default function DrawControl(props: DrawControlProps) {
 
     // useControl opts:
     {
-      position: props.position
+      position: props.position,
     }
   );
 
   // Replace the draw component's feature(s) with a given one
-  const setDrawFeature = useCallback((feature: any) => {
-    // @TODO: It might be more efficient to pass a FeatureCollection
-    // and call Draw.set(). See:
-    // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md
+  const setDrawFeature = useCallback(
+    (feature: any) => {
+      // @TODO: It might be more efficient to pass a FeatureCollection
+      // and call Draw.set(). See:
+      // https://github.com/mapbox/mapbox-gl-draw/blob/main/docs/API.md
 
-    // Delete the initial empty feature that Draw initiates with
-    draw.deleteAll();
-    // Add our waypoints linestring as a new Draw feature
-    const addedFeatureIds = draw.add(feature);
-    // Select the feature so vertices are clickable
-    if (addedFeatureIds && addedFeatureIds.length > 0) {
-      draw.changeMode('simple_select', { featureIds: [addedFeatureIds[0]] });
-    }
-    // Update button state after setting feature
-    updateLineButtonState(draw);
-  }, [draw, updateLineButtonState]);
+      // Delete the initial empty feature that Draw initiates with
+      draw.deleteAll();
+      // Add our waypoints linestring as a new Draw feature
+      const addedFeatureIds = draw.add(feature);
+      // Select the feature so vertices are clickable
+      if (addedFeatureIds && addedFeatureIds.length > 0) {
+        draw.changeMode("simple_select", { featureIds: [addedFeatureIds[0]] });
+      }
+      // Update button state after setting feature
+      updateLineButtonState(draw);
+    },
+    [draw, updateLineButtonState]
+  );
 
   //
   useEffect(() => {
@@ -289,5 +318,5 @@ DrawControl.defaultProps = {
   onCreate: () => {},
   onUpdate: () => {},
   onDelete: () => {},
-  onVertexClick: () => {}
+  onVertexClick: () => {},
 };

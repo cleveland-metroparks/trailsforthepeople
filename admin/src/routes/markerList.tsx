@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router";
-import { Anchor, Button, Table, Text, TextInput, Title } from '@mantine/core';
-import { keys } from '@mantine/utils';
-import { IconSearch } from '@tabler/icons-react';
-import { default as dayjs } from 'dayjs';
+import { Anchor, Button, Table, Text, TextInput, Title } from "@mantine/core";
+import { keys } from "@mantine/utils";
+import { IconSearch } from "@tabler/icons-react";
+import { default as dayjs } from "dayjs";
 
 import { mapsApiClient } from "../components/mapsApi";
 import type { Marker } from "../types/marker";
@@ -12,32 +12,41 @@ import { sortTableData, Th } from "../components/tablesort";
 
 // Get all markers from the API
 const getAllMarkers = async () => {
-  const response = await mapsApiClient.get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/markers");
+  const response = await mapsApiClient.get<any>(
+    process.env.REACT_APP_MAPS_API_BASE_PATH + "/markers"
+  );
   return response.data.data;
-}
+};
 
 // See https://tkdodo.eu/blog/react-query-meets-react-router
 // for React Router (>=6.4) + React Query
 
 // Define the "Get all markers" query
 const getAllMarkersQuery = () => ({
-  queryKey: ['markerList'],
+  queryKey: ["markerList"],
   queryFn: async () => getAllMarkers(),
-})
+});
 
 // Data loader (React Router)
-export const loader = (queryClient) =>
-  async () => {
-    const query = getAllMarkersQuery();
-    // Return cached data or fetch anew
-    return (
-      queryClient.getQueryData(query.queryKey) ??
-      (await queryClient.fetchQuery(query))
-    )
+export const loader = (queryClient) => async () => {
+  const query = getAllMarkersQuery();
+  // Return cached data or fetch anew
+  return (
+    queryClient.getQueryData(query.queryKey) ??
+    (await queryClient.fetchQuery(query))
+  );
 };
 
 // The marker columns we'll display, sort, & filter
-const rowKeys: (keyof Marker)[] = ['title', 'category', 'reservation', 'enabled', 'annual', 'date_modified', 'modifier_username'];
+const rowKeys: (keyof Marker)[] = [
+  "title",
+  "category",
+  "reservation",
+  "enabled",
+  "annual",
+  "date_modified",
+  "modifier_username",
+];
 
 // Filter row data by search query
 function filterTableData(data: Marker[], search: string) {
@@ -46,9 +55,12 @@ function filterTableData(data: Marker[], search: string) {
     keys(data[0]).some(function (key) {
       if (rowKeys.includes(key) && item[key]) {
         switch (key) {
-          case 'date_modified':
-          case 'date_created':
-            return dayjs(item[key]).format('MMM D, YYYY, h:mma').toLowerCase().includes(query);
+          case "date_modified":
+          case "date_created":
+            return dayjs(item[key])
+              .format("MMM D, YYYY, h:mma")
+              .toLowerCase()
+              .includes(query);
           default:
             return item[key].toString().toLowerCase().includes(query);
         }
@@ -75,7 +87,7 @@ export function MarkerList() {
   });
 
   // For table sorting
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [sortedData, setSortedData] = useState(markersData);
   const [sortBy, setSortBy] = useState<keyof Marker | null>(null);
   const [reverseSortDirection, setReverseSortDirection] = useState(false);
@@ -85,14 +97,26 @@ export function MarkerList() {
     const reversed = field === sortBy ? !reverseSortDirection : false;
     setReverseSortDirection(reversed);
     setSortBy(field);
-    setSortedData(sortTableData(markersData, { sortBy: field, reversed, search }, filterTableData));
+    setSortedData(
+      sortTableData(
+        markersData,
+        { sortBy: field, reversed, search },
+        filterTableData
+      )
+    );
   };
 
   // Handle table search
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget;
     setSearch(value);
-    setSortedData(sortTableData(markersData, { sortBy, reversed: reverseSortDirection, search: value }, filterTableData));
+    setSortedData(
+      sortTableData(
+        markersData,
+        { sortBy, reversed: reverseSortDirection, search: value },
+        filterTableData
+      )
+    );
   };
 
   // Table rows
@@ -109,10 +133,14 @@ export function MarkerList() {
       </Table.Td>
       <Table.Td>{row.category}</Table.Td>
       <Table.Td>{row.reservation}</Table.Td>
-      <Table.Td>{row.date_modified ? dayjs(row.date_modified).format('MMM D, YYYY, h:mma') : ''}</Table.Td>
+      <Table.Td>
+        {row.date_modified
+          ? dayjs(row.date_modified).format("MMM D, YYYY, h:mma")
+          : ""}
+      </Table.Td>
       <Table.Td>{row.modifier_username}</Table.Td>
-      <Table.Td>{row.annual ? 'Annual' : ''}</Table.Td>
-      <Table.Td>{row.enabled ? 'Enabled' : ''}</Table.Td>
+      <Table.Td>{row.annual ? "Annual" : ""}</Table.Td>
+      <Table.Td>{row.enabled ? "Enabled" : ""}</Table.Td>
     </Table.Tr>
   ));
 
@@ -125,7 +153,7 @@ export function MarkerList() {
     <>
       <Title order={2}>Markers</Title>
 
-      <Button component={Link} to="/markers/new"  variant="outline" my="md">
+      <Button component={Link} to="/markers/new" variant="outline" my="md">
         + Add Marker
       </Button>
 
@@ -141,57 +169,80 @@ export function MarkerList() {
         <Table.Thead>
           <Table.Tr>
             <Th
-              sorted={sortBy === 'title'}
+              sorted={sortBy === "title"}
               reversed={reverseSortDirection}
-              onSort={() => setSorting('title')}
-            >Title</Th>
+              onSort={() => setSorting("title")}
+            >
+              Title
+            </Th>
             <Th
-              sorted={sortBy === 'category'}
+              sorted={sortBy === "category"}
               reversed={reverseSortDirection}
-              onSort={() => setSorting('category')}
-            >Category</Th>
+              onSort={() => setSorting("category")}
+            >
+              Category
+            </Th>
             <Th
-              sorted={sortBy === 'reservation'}
+              sorted={sortBy === "reservation"}
               reversed={reverseSortDirection}
-              onSort={() => setSorting('reservation')}
-            >Reservation</Th>
+              onSort={() => setSorting("reservation")}
+            >
+              Reservation
+            </Th>
             <Th
-              sorted={sortBy === 'date_modified'}
+              sorted={sortBy === "date_modified"}
               reversed={reverseSortDirection}
-              onSort={() => setSorting('date_modified')}
-            >Last modified</Th>
+              onSort={() => setSorting("date_modified")}
+            >
+              Last modified
+            </Th>
             <Th
-              sorted={sortBy === 'modifier_username'}
+              sorted={sortBy === "modifier_username"}
               reversed={reverseSortDirection}
-              onSort={() => setSorting('modifier_username')}
-            >Modified by</Th>
+              onSort={() => setSorting("modifier_username")}
+            >
+              Modified by
+            </Th>
             <Th
-              sorted={sortBy === 'annual'}
+              sorted={sortBy === "annual"}
               reversed={reverseSortDirection}
-              onSort={() => setSorting('annual')}
-            >Annual</Th>
+              onSort={() => setSorting("annual")}
+            >
+              Annual
+            </Th>
             <Th
-              sorted={sortBy === 'enabled'}
+              sorted={sortBy === "enabled"}
               reversed={reverseSortDirection}
-              onSort={() => setSorting('enabled')}
-            >Enabled</Th>
+              onSort={() => setSorting("enabled")}
+            >
+              Enabled
+            </Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-        {
-          markersData && rows && rows.length > 0 ? (rows) :
+          {markersData && rows && rows.length > 0 ? (
+            rows
+          ) : (
             <Table.Tr>
               <Table.Td colSpan={7}>
                 <Text fw={500} ta="center">
-                  {markersIsError ?
-                    <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>{`There was a problem fetching the markers data - ${markersError.message}`}</div>
-                  :
-                  markersIsLoading ? <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>Loading...</div>: <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>No markers found</div>
-                  }
+                  {markersIsError ? (
+                    <div
+                      style={{ marginTop: "1rem", marginBottom: "1rem" }}
+                    >{`There was a problem fetching the markers data - ${markersError.message}`}</div>
+                  ) : markersIsLoading ? (
+                    <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+                      Loading...
+                    </div>
+                  ) : (
+                    <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+                      No markers found
+                    </div>
+                  )}
                 </Text>
               </Table.Td>
             </Table.Tr>
-        }
+          )}
         </Table.Tbody>
       </Table>
     </>

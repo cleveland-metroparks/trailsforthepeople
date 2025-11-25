@@ -7,22 +7,23 @@ import { useAuth } from "../hooks/useAuth";
  * Logout functionality
  */
 export function Logout() {
-    const { user, onLogout } = useAuth();
+  const { user, onLogout } = useAuth();
 
-    // Submit logout to API
-    const authLogout = async () => {
-      mapsApiClient.post<any>("/logout", {})
-        .then(function (logoutResponse: any) {
-          onLogout();
-        })
-        .catch(function (error) {
-          console.error('API auth logout error:', error);
-        });
-    };
+  // Submit logout to API
+  const authLogout = async () => {
+    mapsApiClient
+      .post<any>("/logout", {})
+      .then(function (logoutResponse: any) {
+        onLogout();
+      })
+      .catch(function (error) {
+        console.error("API auth logout error:", error);
+      });
+  };
 
-    if (user) {
-      authLogout();
-    }
+  if (user) {
+    authLogout();
+  }
 
-    return <Navigate to="/login" />;
+  return <Navigate to="/login" />;
 }

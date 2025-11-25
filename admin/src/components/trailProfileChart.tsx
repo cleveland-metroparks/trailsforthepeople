@@ -1,4 +1,4 @@
-import * as mantineCore from '@mantine/core';
+import * as mantineCore from "@mantine/core";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -8,8 +8,8 @@ import {
   Title,
   Tooltip,
   Legend,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
+} from "chart.js";
+import { Line } from "react-chartjs-2";
 
 import type { TrailProfile } from "../types/trail";
 
@@ -27,41 +27,41 @@ ChartJS.register(
 /**
  * Trail Profile Chart
  *
- * @param props 
- * @returns 
+ * @param props
+ * @returns
  */
 export function TrailProfileChart(props: { trailProfile: TrailProfile }) {
   const chartOptions = {
     responsive: true,
     plugins: {
       legend: {
-          display: false,
+        display: false,
       },
       responsive: true,
       scales: {
         y: {
-            title: {
-              display: true,
-              text: 'Elevation (feet)',
-              color: '#000'
-            }
-        },
-        x: {
-          type: 'linear',
           title: {
             display: true,
-            text: 'Distance (miles)',
-            color: '#000'
+            text: "Elevation (feet)",
+            color: "#000",
+          },
+        },
+        x: {
+          type: "linear",
+          title: {
+            display: true,
+            text: "Distance (miles)",
+            color: "#000",
           },
           ticks: {
             min: 0,
-            precision: 2
+            precision: 2,
           },
         },
       },
       title: {
         display: false,
-        text: 'Elevation Profile',
+        text: "Elevation Profile",
       },
     },
   };
@@ -69,29 +69,25 @@ export function TrailProfileChart(props: { trailProfile: TrailProfile }) {
   let chartData = {
     datasets: [
       {
-        label: 'Elevation Prfofile',
+        label: "Elevation Prfofile",
         data: props.trailProfile,
         pointRadius: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.2)',
-        borderColor: 'rgba(0, 0, 0, 1)',
+        backgroundColor: "rgba(0, 0, 0, 0.2)",
+        borderColor: "rgba(0, 0, 0, 1)",
         borderWidth: 2,
-        fill: false
-      }
+        fill: false,
+      },
     ],
   };
 
   return (
     <>
-      {props.trailProfile &&
+      {props.trailProfile && (
         <>
           <mantineCore.Title order={6}>Elevation Profile</mantineCore.Title>
-          <Line
-            options={chartOptions}
-            data={chartData}
-            height={50}
-          />
+          <Line options={chartOptions} data={chartData} height={50} />
         </>
-      }
+      )}
     </>
   );
 }

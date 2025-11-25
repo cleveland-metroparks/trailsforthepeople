@@ -1,18 +1,18 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { MantineProvider } from '@mantine/core';
-import { ModalsProvider } from '@mantine/modals';
-import { Notifications } from '@mantine/notifications';
-import '@mantine/core/styles.css';
-import '@mantine/dates/styles.css';
-import '@mantine/notifications/styles.css';
-import '@mantine/tiptap/styles.css';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
+import { Notifications } from "@mantine/notifications";
+import "@mantine/core/styles.css";
+import "@mantine/dates/styles.css";
+import "@mantine/notifications/styles.css";
+import "@mantine/tiptap/styles.css";
 import {
   RouterProvider,
   Route,
   Navigate,
   createRoutesFromElements,
-  createBrowserRouter
+  createBrowserRouter,
 } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
@@ -35,9 +35,9 @@ import { action as deleteMarkerAction } from "./routes/markerDelete";
 
 import { AuditLogsList, AuditLogView } from "./routes/logs";
 
-import './index.css';
+import "./index.css";
 
-import App from './App';
+import App from "./App";
 
 let REACT_APP_ROOT_PATH = process.env.REACT_APP_ROOT_PATH;
 
@@ -52,28 +52,25 @@ const queryClient = new QueryClient({
 
 //
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
+  document.getElementById("root") as HTMLElement
 );
 
 //
 const routes = createRoutesFromElements(
   <>
-    <Route
-      element={<AuthLayout />}
-    >
+    <Route element={<AuthLayout />}>
       <Route index element={<Home />} />
-      <Route path="home" element={
-        <ProtectedRoute>
-          <Home />
-        </ProtectedRoute>
-      } />
+      <Route
+        path="home"
+        element={
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        }
+      />
       <Route path="login" element={<Login />} />
       <Route path="logout" element={<Logout />} />
-      <Route
-        path="/"
-        element={<App />}
-        errorElement={<ErrorScreen />}
-      >
+      <Route path="/" element={<App />} errorElement={<ErrorScreen />}>
         <Route errorElement={<ErrorScreen />}>
           <Route path="trails">
             <Route
@@ -124,12 +121,12 @@ const router = createBrowserRouter(routes, { basename: REACT_APP_ROOT_PATH });
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-        <MantineProvider>
-          <ModalsProvider>
-              <Notifications />
-              <RouterProvider router={router} />
-          </ModalsProvider>
-        </MantineProvider>
+      <MantineProvider>
+        <ModalsProvider>
+          <Notifications />
+          <RouterProvider router={router} />
+        </ModalsProvider>
+      </MantineProvider>
       {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   </React.StrictMode>
