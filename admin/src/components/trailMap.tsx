@@ -836,6 +836,7 @@ export function TrailMap(props: TrailMapProps) {
           />
           <Button
             variant="light"
+            disabled={!zoomToValue}
             onClick={() => {
               if (zoomToValue) {
                 const parkFeatureLocation =
