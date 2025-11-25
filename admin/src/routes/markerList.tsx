@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router";
-import { Anchor, Button, Table, Text, TextInput, Title } from "@mantine/core";
+import {
+  Anchor,
+  Button,
+  Table,
+  Text,
+  TextInput,
+  Title,
+  Group,
+} from "@mantine/core";
 import { keys } from "@mantine/utils";
 import { IconSearch } from "@tabler/icons-react";
 import { default as dayjs } from "dayjs";
@@ -119,6 +127,18 @@ export function MarkerList() {
     );
   };
 
+  // Handle reset filters
+  const handleResetFilters = () => {
+    setSearch("");
+    setSortedData(
+      sortTableData(
+        markersData,
+        { sortBy, reversed: reverseSortDirection, search: "" },
+        filterTableData
+      )
+    );
+  };
+
   // Table rows
   const rows = sortedData?.map((row, index) => (
     <Table.Tr key={index}>
@@ -157,13 +177,22 @@ export function MarkerList() {
         + Add Marker
       </Button>
 
-      <TextInput
-        placeholder="Filter by any field"
-        mb="md"
-        leftSection={<IconSearch size="0.9rem" stroke={1.5} />}
-        value={search}
-        onChange={handleSearchChange}
-      />
+      <Group gap="md" mb="md">
+        <TextInput
+          label="Search"
+          placeholder="Filter by any field"
+          leftSection={<IconSearch size="0.9rem" stroke={1.5} />}
+          value={search}
+          onChange={handleSearchChange}
+        />
+        <Button
+          variant="outline"
+          onClick={handleResetFilters}
+          style={{ alignSelf: "flex-end" }}
+        >
+          Reset
+        </Button>
+      </Group>
 
       <Table striped highlightOnHover>
         <Table.Thead>

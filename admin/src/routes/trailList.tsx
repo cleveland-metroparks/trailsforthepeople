@@ -155,6 +155,19 @@ export function TrailList() {
     );
   };
 
+  // Handle reset filters
+  const handleResetFilters = () => {
+    setSearch("");
+    setReservationFilter("");
+    setSortedData(
+      sortTableData(
+        trailsData,
+        { sortBy, reversed: reverseSortDirection, search: "" },
+        (data) => filterTableData(data, "", "")
+      )
+    );
+  };
+
   // Table rows
   const rows = sortedData?.map((row, index) => (
     <Table.Tr key={index}>
@@ -212,6 +225,13 @@ export function TrailList() {
           clearable
           className={utils.minWidth300}
         />
+        <Button
+          variant="outline"
+          onClick={handleResetFilters}
+          style={{ alignSelf: "flex-end" }}
+        >
+          Reset
+        </Button>
       </Group>
 
       <Table striped highlightOnHover>
