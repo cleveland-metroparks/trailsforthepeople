@@ -433,7 +433,7 @@ export function MarkerEdit() {
                 </Input.Wrapper>
               </Flex>
 
-              <Accordion defaultValue="publishing">
+              <Accordion multiple defaultValue={["publishing"]}>
                 <Accordion.Item value="publishing">
                   <Accordion.Control>
                     <Text fw={500}>Publishing status</Text>

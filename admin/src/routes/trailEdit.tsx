@@ -961,7 +961,7 @@ export function TrailEdit() {
 
               {/* Right sidebar */}
               <Box className={styles.sidebarBox}>
-                <Accordion defaultValue="stats">
+                <Accordion multiple defaultValue={["stats"]}>
                   <Accordion.Item
                     value="stats"
                     className={utils.accordionItemBorder}
