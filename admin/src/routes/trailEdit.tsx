@@ -971,12 +971,6 @@ export function TrailEdit() {
                       <TrailStats stats={trailStats} />
                     </Accordion.Panel>
                   </Accordion.Item>
-                  <Accordion.Item value="directions">
-                    <Accordion.Control>Directions</Accordion.Control>
-                    <Accordion.Panel>
-                      <TrailDirections directions={trailDirections} />
-                    </Accordion.Panel>
-                  </Accordion.Item>
                   <Accordion.Item value="waypoints">
                     <Accordion.Control>Waypoints</Accordion.Control>
                     <Accordion.Panel>
@@ -995,6 +989,12 @@ export function TrailEdit() {
                         onVertexDelete={handleDeleteVertex}
                         // geojson={waypointsGeoJSON}
                       />
+                    </Accordion.Panel>
+                  </Accordion.Item>
+                  <Accordion.Item value="directions">
+                    <Accordion.Control>Directions</Accordion.Control>
+                    <Accordion.Panel>
+                      <TrailDirections directions={trailDirections} />
                     </Accordion.Panel>
                   </Accordion.Item>
                   <Accordion.Item value="authorship">
