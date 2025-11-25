@@ -1,9 +1,12 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { LngLat, LngLatBounds } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { Source, NavigationControl, Layer } from "react-map-gl/mapbox";
-import type { LineLayerSpecification } from "mapbox-gl";
+import type {
+  LineLayerSpecification,
+  CircleLayerSpecification,
+} from "mapbox-gl";
 import * as ReactMapGl from "react-map-gl/mapbox"; // For "Map", to avoid collision
 import type { MapRef, ViewStateChangeEvent } from "react-map-gl/mapbox";
 import type { MapEvent } from "mapbox-gl";
@@ -43,6 +46,9 @@ interface TrailMapProps {
   showElevationProfile: boolean;
   isRouting: boolean;
   onVertexSelect?: (index: number | null) => void;
+  hoveredVertexIndex?: number | null;
+  triggerVertexClickIndex?: number | null;
+  selectedVertexIndex?: number | null;
 }
 
 /**
@@ -209,20 +215,23 @@ export function TrailMap(props: TrailMapProps) {
     }
   };
 
-  // Close popover when map is clicked (but not on a vertex)
+  // Close popover and clear selection when map is clicked (but not on a vertex)
   const onMapClick = useCallback(() => {
     // Don't close if we're in the middle of handling a vertex click
     if (isHandlingVertexClickRef.current) {
       return;
     }
+
+    // Always clear selection when clicking on map (Mapbox Draw will deselect the feature)
+    if (props.onVertexSelect) {
+      props.onVertexSelect(null);
+    }
+
+    // Close popover if it's open
     if (popoverOpened) {
       setPopoverOpened(false);
       setVertexInfo(null);
       setPopoverPosition(null);
-      // Clear selection
-      if (props.onVertexSelect) {
-        props.onVertexSelect(null);
-      }
     }
   }, [popoverOpened, props]);
 
@@ -263,6 +272,50 @@ export function TrailMap(props: TrailMapProps) {
     },
     [mapRef, props]
   );
+
+  // Handle vertex click triggered by index (e.g., from waypoints list)
+  const prevTriggerIndexRef = useRef<number | null | undefined>(undefined);
+  useEffect(() => {
+    const triggerIndex = props.triggerVertexClickIndex;
+
+    // Only trigger if the value changed and is not null/undefined
+    if (
+      triggerIndex !== null &&
+      triggerIndex !== undefined &&
+      triggerIndex !== prevTriggerIndexRef.current &&
+      props.waypointsFeature &&
+      mapRef.current
+    ) {
+      prevTriggerIndexRef.current = triggerIndex;
+
+      const feature = props.waypointsFeature as any;
+      if (
+        feature.geometry &&
+        feature.geometry.type === "LineString" &&
+        feature.geometry.coordinates &&
+        triggerIndex >= 0 &&
+        triggerIndex < feature.geometry.coordinates.length
+      ) {
+        const coordinates = feature.geometry.coordinates;
+        const coord = coordinates[triggerIndex];
+        const lngLat = { lng: coord[0], lat: coord[1] };
+        const featureId = feature.id || "0";
+
+        handleVertexClick({
+          lngLat,
+          vertexIndex: triggerIndex,
+          featureId,
+        });
+      }
+    } else if (triggerIndex === null) {
+      // Reset the ref when cleared
+      prevTriggerIndexRef.current = undefined;
+    }
+  }, [
+    props.triggerVertexClickIndex,
+    props.waypointsFeature,
+    handleVertexClick,
+  ]);
 
   // Handle vertex deletion
   const { waypointsFeature, onDrawUpdate } = props;
@@ -328,6 +381,127 @@ export function TrailMap(props: TrailMapProps) {
     },
   };
 
+  // Create GeoJSON for highlighted markers (selected and/or hovered)
+  const highlightedMarkerGeoJSON = useMemo(() => {
+    if (
+      !props.waypointsFeature ||
+      !(props.waypointsFeature as any).geometry?.coordinates
+    ) {
+      return {
+        type: "FeatureCollection" as const,
+        features: [],
+      };
+    }
+
+    const feature = props.waypointsFeature as any;
+    const coordinates = feature.geometry.coordinates;
+    const features: any[] = [];
+
+    // Add selected marker if there is one
+    if (
+      props.selectedVertexIndex !== null &&
+      props.selectedVertexIndex !== undefined &&
+      props.selectedVertexIndex >= 0 &&
+      props.selectedVertexIndex < coordinates.length
+    ) {
+      const coord = coordinates[props.selectedVertexIndex];
+      features.push({
+        type: "Feature" as const,
+        geometry: {
+          type: "Point" as const,
+          coordinates: [coord[0], coord[1]],
+        },
+        properties: {
+          isSelected: true,
+        },
+      });
+    }
+
+    // Add hovered marker if there is one and it's different from selected
+    if (
+      props.hoveredVertexIndex !== null &&
+      props.hoveredVertexIndex !== undefined &&
+      props.hoveredVertexIndex !== props.selectedVertexIndex &&
+      props.hoveredVertexIndex >= 0 &&
+      props.hoveredVertexIndex < coordinates.length
+    ) {
+      const coord = coordinates[props.hoveredVertexIndex];
+      features.push({
+        type: "Feature" as const,
+        geometry: {
+          type: "Point" as const,
+          coordinates: [coord[0], coord[1]],
+        },
+        properties: {
+          isSelected: false,
+        },
+      });
+    }
+
+    return {
+      type: "FeatureCollection" as const,
+      features,
+    };
+  }, [
+    props.selectedVertexIndex,
+    props.hoveredVertexIndex,
+    props.waypointsFeature,
+  ]);
+
+  const highlightedMarkerHaloLayer: CircleLayerSpecification = {
+    id: "highlighted-marker-halo",
+    type: "circle",
+    source: "highlighted-marker",
+    filter: ["==", ["get", "isSelected"], true],
+    paint: {
+      "circle-radius": 18,
+      "circle-color": "#ffffff",
+      "circle-opacity": 0.9,
+      "circle-stroke-width": 0,
+    },
+  };
+
+  const highlightedMarkerLayer: CircleLayerSpecification = {
+    id: "highlighted-marker",
+    type: "circle",
+    source: "highlighted-marker",
+    filter: ["==", ["get", "isSelected"], true],
+    paint: {
+      "circle-radius": 14,
+      "circle-color": "#339af0",
+      "circle-opacity": 1,
+      "circle-stroke-width": 4,
+      "circle-stroke-color": "#ffffff",
+    },
+  };
+
+  const hoveredMarkerHaloLayer: CircleLayerSpecification = {
+    id: "hovered-marker-halo",
+    type: "circle",
+    source: "highlighted-marker",
+    filter: ["!=", ["get", "isSelected"], true],
+    paint: {
+      "circle-radius": 14,
+      "circle-color": "#ffffff",
+      "circle-opacity": 0.9,
+      "circle-stroke-width": 0,
+    },
+  };
+
+  const hoveredMarkerLayer: CircleLayerSpecification = {
+    id: "hovered-marker",
+    type: "circle",
+    source: "highlighted-marker",
+    filter: ["!=", ["get", "isSelected"], true],
+    paint: {
+      "circle-radius": 12,
+      "circle-color": "#4dabf7",
+      "circle-opacity": 1,
+      "circle-stroke-width": 3,
+      "circle-stroke-color": "#ffffff",
+    },
+  };
+
   return (
     <>
       <Box className={styles.mapContainer}>
@@ -365,6 +539,18 @@ export function TrailMap(props: TrailMapProps) {
             }
           >
             <Layer {...trailLayer} />
+          </Source>
+          <Source
+            id="highlighted-marker"
+            type="geojson"
+            data={highlightedMarkerGeoJSON}
+          >
+            {/* Selected marker (larger, more prominent) */}
+            <Layer {...highlightedMarkerHaloLayer} />
+            <Layer {...highlightedMarkerLayer} />
+            {/* Hovered marker (smaller, only when not selected) */}
+            <Layer {...hoveredMarkerHaloLayer} />
+            <Layer {...hoveredMarkerLayer} />
           </Source>
           <NavigationControl showCompass={true} visualizePitch={true} />
           <DrawControl
@@ -419,20 +605,21 @@ export function TrailMap(props: TrailMapProps) {
                   "line-width": 2,
                 },
               },
-              // Active (selected) points
-              {
-                id: "gl-draw-point-active",
-                type: "circle",
-                filter: [
-                  "all",
-                  ["==", "$type", "Point"],
-                  ["==", "active", "true"],
-                ],
-                paint: {
-                  "circle-radius": 12,
-                  "circle-color": "#000000",
-                },
-              },
+              // We're doing this now in the highlighted marker layers, instead
+              // // Active (selected) points
+              // {
+              //   id: "gl-draw-point-active",
+              //   type: "circle",
+              //   filter: [
+              //     "all",
+              //     ["==", "$type", "Point"],
+              //     ["==", "active", "true"],
+              //   ],
+              //   paint: {
+              //     "circle-radius": 12,
+              //     "circle-color": "#000000",
+              //   },
+              // },
               // Vertex point halos
               {
                 id: "gl-draw-polygon-and-line-vertex-halo-active",

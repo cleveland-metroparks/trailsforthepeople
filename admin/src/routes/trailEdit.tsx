@@ -177,6 +177,16 @@ export function TrailEdit() {
     null
   );
 
+  // Track hovered vertex index for highlighting marker on map
+  const [hoveredVertexIndex, setHoveredVertexIndex] = useState<number | null>(
+    null
+  );
+
+  // Track vertex click trigger from waypoints list
+  const [triggerVertexClickIndex, setTriggerVertexClickIndex] = useState<
+    number | null
+  >(null);
+
   // Keep waypoint count ref in sync with waypointsFeature
   useEffect(() => {
     waypointCountRef.current =
@@ -672,6 +682,68 @@ export function TrailEdit() {
     setWaypointsGeoJSON(wpGeoJSON);
     getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
   }, []);
+
+  // Handle vertex deletion from waypoints list
+  const handleDeleteVertex = useCallback(
+    (vertexIndex: number) => {
+      if (!waypointsFeature) {
+        return;
+      }
+
+      const feature = waypointsFeature as any;
+      if (
+        feature.geometry &&
+        feature.geometry.type === "LineString" &&
+        feature.geometry.coordinates
+      ) {
+        const coordinates = [...feature.geometry.coordinates];
+
+        // Don't allow deleting if there are 2 vertices or fewer
+        if (coordinates.length <= 2) {
+          return;
+        }
+
+        // Remove the vertex at the specified index
+        coordinates.splice(vertexIndex, 1);
+
+        // Create updated feature
+        const updatedFeature = {
+          ...feature,
+          geometry: {
+            ...feature.geometry,
+            coordinates: coordinates,
+          },
+        };
+
+        // Update waypoint count
+        const newWaypointCount = coordinates.length;
+        waypointCountRef.current = newWaypointCount;
+
+        // Update waypointsFeature
+        setWaypointsFeature(updatedFeature);
+
+        // Update waypointsForDraw so DrawControl reflects the change
+        setWaypointsForDraw(updatedFeature);
+
+        // Generate GeoJSON and trigger routing
+        const wpGeoJSON = makeWaypointGeojsonString(updatedFeature);
+        setWaypointsGeoJSON(wpGeoJSON);
+        getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
+
+        // Clear selection if the deleted vertex was selected
+        if (selectedVertexIndex === vertexIndex) {
+          setSelectedVertexIndex(null);
+        } else if (
+          selectedVertexIndex !== null &&
+          selectedVertexIndex > vertexIndex
+        ) {
+          // Adjust selected index if a vertex before it was deleted
+          setSelectedVertexIndex(selectedVertexIndex - 1);
+        }
+      }
+    },
+    [waypointsFeature, selectedVertexIndex, travelModeRef]
+  );
   //----------------------------------
 
   // When travel mode is changed (from within Trail Map component)
@@ -875,6 +947,9 @@ export function TrailEdit() {
                         showElevationProfile={showElevationProfile}
                         isRouting={isRouting}
                         onVertexSelect={setSelectedVertexIndex}
+                        hoveredVertexIndex={hoveredVertexIndex}
+                        triggerVertexClickIndex={triggerVertexClickIndex}
+                        selectedVertexIndex={selectedVertexIndex}
                       />
                       {showElevationProfile && (
                         <TrailProfileChart trailProfile={trailElevation} />
@@ -908,6 +983,16 @@ export function TrailEdit() {
                       <TrailWaypoints
                         feature={waypointsFeature}
                         selectedVertexIndex={selectedVertexIndex}
+                        onVertexHover={setHoveredVertexIndex}
+                        onVertexClick={(index) => {
+                          // Use a small delay to ensure the effect in TrailMap triggers
+                          // even if clicking the same row twice
+                          setTriggerVertexClickIndex(null);
+                          setTimeout(() => {
+                            setTriggerVertexClickIndex(index);
+                          }, 0);
+                        }}
+                        onVertexDelete={handleDeleteVertex}
                         // geojson={waypointsGeoJSON}
                       />
                     </Accordion.Panel>

@@ -1,9 +1,13 @@
 import * as React from "react";
-import { Table } from "@mantine/core";
+import { Table, Tooltip, ActionIcon } from "@mantine/core";
+import { IconTrash } from "@tabler/icons-react";
 
 interface TrailWaypointsProps {
   feature;
   selectedVertexIndex?: number | null;
+  onVertexHover?: (index: number | null) => void;
+  onVertexClick?: (index: number) => void;
+  onVertexDelete?: (index: number) => void;
   // geojson: string;
 }
 
@@ -13,6 +17,11 @@ interface TrailWaypointsProps {
  * @returns
  */
 export function TrailWaypoints(props: TrailWaypointsProps) {
+  const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
+  const [hoveredIconIndex, setHoveredIconIndex] = React.useState<number | null>(
+    null
+  );
+
   return (
     <>
       <Table striped highlightOnHover>
@@ -21,25 +30,95 @@ export function TrailWaypoints(props: TrailWaypointsProps) {
             <Table.Th>#</Table.Th>
             <Table.Th>lat</Table.Th>
             <Table.Th>lng</Table.Th>
+            <Table.Th></Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
           {props.feature &&
             props.feature.geometry &&
             props.feature.geometry.coordinates &&
-            props.feature.geometry.coordinates.map((lat_lng, i) => (
-              <Table.Tr
-                key={i}
-                style={{
-                  backgroundColor:
-                    props.selectedVertexIndex === i ? "#e3f2fd" : undefined,
-                }}
-              >
-                <Table.Td>{i + 1}</Table.Td>
-                <Table.Td>{lat_lng[0].toFixed(5)}</Table.Td>
-                <Table.Td>{lat_lng[1].toFixed(5)}</Table.Td>
-              </Table.Tr>
-            ))}
+            props.feature.geometry.coordinates.map((lat_lng, i) => {
+              const isSelected = props.selectedVertexIndex === i;
+              const isHovered = hoveredIndex === i;
+              const isIconHovered = hoveredIconIndex === i;
+
+              let backgroundColor: string | undefined;
+              if (isSelected) {
+                backgroundColor = "#e3f2fd"; // Selected: darker blue
+              } else if (isHovered) {
+                backgroundColor = "#f0f7ff"; // Hovered: lighter blue
+              }
+
+              // Determine icon color based on priority:
+              let iconColor: string;
+              let actionIconColor: string | undefined;
+              if (isIconHovered) {
+                iconColor = "#fa5252"; // Red
+                actionIconColor = "red";
+              } else if (isSelected || isHovered) {
+                iconColor = "#000000"; // Black
+                actionIconColor = "dark";
+              } else {
+                iconColor = "#868e96"; // Gray lighter than text
+                actionIconColor = "gray";
+              }
+
+              return (
+                <Table.Tr
+                  key={i}
+                  style={{
+                    backgroundColor,
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={() => {
+                    setHoveredIndex(i);
+                    if (props.onVertexHover) {
+                      props.onVertexHover(i);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    setHoveredIndex(null);
+                    if (props.onVertexHover) {
+                      props.onVertexHover(null);
+                    }
+                  }}
+                  onClick={() => {
+                    if (props.onVertexClick) {
+                      props.onVertexClick(i);
+                    }
+                  }}
+                >
+                  <Table.Td>{i + 1}</Table.Td>
+                  <Table.Td>{lat_lng[0].toFixed(5)}</Table.Td>
+                  <Table.Td>{lat_lng[1].toFixed(5)}</Table.Td>
+                  <Table.Td>
+                    <Tooltip label="Delete Waypoint">
+                      <ActionIcon
+                        variant="subtle"
+                        color={actionIconColor}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent row click
+                          if (props.onVertexDelete) {
+                            props.onVertexDelete(i);
+                          }
+                        }}
+                        onMouseEnter={() => {
+                          setHoveredIconIndex(i);
+                        }}
+                        onMouseLeave={() => {
+                          setHoveredIconIndex(null);
+                        }}
+                        style={{
+                          color: iconColor,
+                        }}
+                      >
+                        <IconTrash size={16} />
+                      </ActionIcon>
+                    </Tooltip>
+                  </Table.Td>
+                </Table.Tr>
+              );
+            })}
         </Table.Tbody>
       </Table>
       {/* <Group mt="md">

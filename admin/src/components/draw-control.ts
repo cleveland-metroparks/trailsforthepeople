@@ -38,30 +38,35 @@ export default function DrawControl(props: DrawControlProps) {
   const updateLineButtonState = useCallback((drawInstance: MapboxDraw) => {
     // Use setTimeout to ensure the DOM has been updated
     setTimeout(() => {
-      const data = drawInstance.getAll();
-      const hasFeatures = data.features.some(
-        (feature: any) =>
-          feature.geometry.type === "LineString" &&
-          feature.geometry.coordinates &&
-          feature.geometry.coordinates.length > 0
-      );
+      try {
+        const data = drawInstance.getAll();
+        const hasFeatures = data.features.some(
+          (feature: any) =>
+            feature.geometry.type === "LineString" &&
+            feature.geometry.coordinates &&
+            feature.geometry.coordinates.length > 0
+        );
 
-      // Find the line_string button (Mapbox Draw uses class name mapbox-gl-draw_line)
-      const lineButton = document.querySelector(
-        "button.mapbox-gl-draw_line"
-      ) as HTMLButtonElement;
-      if (lineButton) {
-        if (hasFeatures) {
-          lineButton.disabled = true;
-          lineButton.classList.add("mapbox-gl-draw_line-disabled");
-          lineButton.style.opacity = "0.3";
-          lineButton.style.cursor = "not-allowed";
-        } else {
-          lineButton.disabled = false;
-          lineButton.classList.remove("mapbox-gl-draw_line-disabled");
-          lineButton.style.opacity = "1";
-          lineButton.style.cursor = "pointer";
+        // Find the line_string button (Mapbox Draw uses class name mapbox-gl-draw_line)
+        const lineButton = document.querySelector(
+          "button.mapbox-gl-draw_line"
+        ) as HTMLButtonElement;
+        if (lineButton) {
+          if (hasFeatures) {
+            lineButton.disabled = true;
+            lineButton.classList.add("mapbox-gl-draw_line-disabled");
+            lineButton.style.opacity = "0.3";
+            lineButton.style.cursor = "not-allowed";
+          } else {
+            lineButton.disabled = false;
+            lineButton.classList.remove("mapbox-gl-draw_line-disabled");
+            lineButton.style.opacity = "1";
+            lineButton.style.cursor = "pointer";
+          }
         }
+      } catch (error) {
+        // Draw instance might not be fully initialized yet
+        console.warn("Failed to update line button state:", error);
       }
     }, 0);
   }, []);
