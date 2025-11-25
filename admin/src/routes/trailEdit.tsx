@@ -37,6 +37,7 @@ import { coordEach } from "@turf/meta";
 import { lineString } from "@turf/helpers";
 
 import { useAuth } from "../hooks/useAuth";
+import { useReservations } from "../hooks/useReservations";
 
 import type {
   Trail,
@@ -46,7 +47,6 @@ import type {
   TrailFormData,
 } from "../types/trail";
 import { emptyTrail, defaultTrailFormData } from "../types/trail";
-import { reservationListSelectOptions } from "../types/reservation";
 
 import { mapsApiClient } from "../components/mapsApi";
 import { TrailMap } from "../components/trailMap";
@@ -75,6 +75,7 @@ dayjs.tz.setDefault();
  */
 export function TrailEdit() {
   const { user } = useAuth();
+  const { reservationSelectOptions } = useReservations();
 
   const submitDelete = useSubmit();
 
@@ -791,7 +792,8 @@ export function TrailEdit() {
                       <Box mt="md">
                         <Select
                           label="Reservation"
-                          data={reservationListSelectOptions}
+                          data={reservationSelectOptions}
+                          searchable
                           {...form.getInputProps("res")}
                         />
                       </Box>

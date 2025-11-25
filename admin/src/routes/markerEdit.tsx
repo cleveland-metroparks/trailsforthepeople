@@ -33,6 +33,7 @@ import type { MapRef, MarkerDragEvent } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 import { useAuth } from "../hooks/useAuth";
+import { useReservations } from "../hooks/useReservations";
 
 import { mapsApiClient } from "../components/mapsApi";
 import { Authorship } from "../components/sidebarPanes/authorship";
@@ -42,7 +43,6 @@ import {
   emptyMarker,
   defaultMarkerFormData,
 } from "../types/marker";
-import { reservationListSelectOptions } from "../types/reservation";
 
 const markersRootPath = "/markers";
 
@@ -51,6 +51,7 @@ const markersRootPath = "/markers";
  */
 export function MarkerEdit() {
   const { user } = useAuth();
+  const { reservationSelectOptions } = useReservations();
 
   const submitDelete = useSubmit();
 
@@ -385,8 +386,8 @@ export function MarkerEdit() {
                 <Select
                   label="Reservation"
                   placeholder="Choose a reservation"
-                  data={reservationListSelectOptions}
-                  defaultValue=""
+                  data={reservationSelectOptions}
+                  searchable
                   {...form.getInputProps("reservation")}
                 />
               </Box>

@@ -18,7 +18,7 @@ import { default as dayjs } from "dayjs";
 import { mapsApiClient } from "../components/mapsApi";
 import type { Trail } from "../types/trail";
 import { sortTableData, Th } from "../components/tablesort";
-import { reservationFilterSelectOptions } from "../types/reservation";
+import { useReservations } from "../hooks/useReservations";
 import utils from "../styles/utils.module.css";
 
 // Get all trails from the API
@@ -96,6 +96,8 @@ function filterTableData(
  * Trail List
  */
 export function TrailList() {
+  const { reservationFilterSelectOptions } = useReservations();
+
   // Instead of useLoaderData(); see tkdodo.eu article above
   const {
     isLoading: trailsIsLoading,

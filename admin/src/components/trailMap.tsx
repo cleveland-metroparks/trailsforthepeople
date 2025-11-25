@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { LngLat, LngLatBounds } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
@@ -14,7 +13,6 @@ import {
   Group,
   Box,
   Flex,
-  Autocomplete,
   Select,
   Loader,
   Popover,
@@ -23,9 +21,9 @@ import {
 import DrawControl from "./draw-control";
 import { IconTrash } from "@tabler/icons-react";
 
-import { mapsApiClient } from "../components/mapsApi";
 import type { Trail } from "../types/trail";
 import { travelModeSelectOptions } from "../types/trail";
+import { useReservations } from "../hooks/useReservations";
 import styles from "./trailMap.module.css";
 
 interface TrailMapProps {
@@ -123,10 +121,9 @@ export function TrailMap(props: TrailMapProps) {
     [mapHeight, handleMouseMove, handleMouseUp]
   );
 
-  // Park features for the ZoomTo autocomplete field
-  const [autocompleteData, setAutocompleteData] = useState([]);
-  // Keyed array (Map) of park feature to coordinates
-  const [parkFeatureLocations, setParkFeatureLocations] = useState(new Map());
+  // Get reservations data from shared hook
+  const { reservationSelectOptionsWithoutNone, parkFeatureLocations } =
+    useReservations();
   // Current value of the zoomTo field
   const [zoomToValue, setZoomToValue] = useState("");
 
@@ -178,82 +175,6 @@ export function TrailMap(props: TrailMapProps) {
   } else if (currentTab === "route" && props.activeTab === "general") {
     setCurrentTab("general");
   }
-
-  /**
-   * Populate the zoomTo autocomplete component with CMP features
-   */
-
-  // Get Reservations data from the API
-  const getReservations = async () => {
-    const response = await mapsApiClient.get<any>(
-      process.env.REACT_APP_MAPS_API_BASE_PATH + "/reservations"
-    );
-
-    // Get the name, group (type), coordinates, and bounds (if set) of each reservation
-    // for the Autocomplete component
-    let autocompleteReservations = response.data.data.map((data) => {
-      // Construct LngLat from coords data, if it exists
-      let coords = {};
-      if (
-        data.longitude &&
-        data.latitude &&
-        data.longitude !== 0 &&
-        data.latitude !== 0
-      ) {
-        coords = new LngLat(data.longitude, data.latitude);
-      }
-
-      // Construct LngLatBounds from bounds data, if it exists
-      let bounds = {};
-      if (
-        data.boxw &&
-        data.boxs &&
-        data.boxe &&
-        data.boxn &&
-        data.boxw !== 0 &&
-        data.boxs !== 0 &&
-        data.boxe !== 0 &&
-        data.boxn !== 0
-      ) {
-        const sw = new LngLat(data.boxw, data.boxs);
-        const ne = new LngLat(data.boxe, data.boxn);
-        bounds = new LngLatBounds(sw, ne);
-      }
-
-      return {
-        value: data.pagetitle,
-        // group: "Reservations",
-        coords: coords,
-        bounds: bounds,
-      };
-    });
-
-    // Keep only unique entries by name (value):
-    autocompleteReservations = [
-      ...new Map(
-        autocompleteReservations.map((item) => [item.value, item])
-      ).values(),
-    ];
-    setAutocompleteData(autocompleteReservations);
-
-    // Make Map array object of locations, keyed by name and storing coords & bounds
-    // -- for lookup by autocomplete text
-    const locs = new Map(
-      autocompleteReservations.map((item) => [
-        item.value,
-        {
-          coords: item.coords,
-          bounds: item.bounds,
-        },
-      ])
-    );
-    setParkFeatureLocations(locs);
-
-    return response.data.data;
-  }; // End getReservations()
-
-  useQuery<Trail[], Error>({ queryKey: ["trails"], queryFn: getReservations });
-  //------------------
 
   // Zoom map to (a park location)
   const zoomMapTo = (coords: LngLat, bounds: LngLatBounds) => {
@@ -707,7 +628,7 @@ export function TrailMap(props: TrailMapProps) {
       <Group justify="space-between" mt="xs" mb="xs">
         {/* Zoom to reservation */}
         <Flex gap="sm" justify="flex-start" align="flex-end">
-          <Autocomplete
+          <Select
             label={
               <span
                 style={{
@@ -720,17 +641,34 @@ export function TrailMap(props: TrailMapProps) {
                 Zoom to reservation
               </span>
             }
-            placeholder="Type to filter..."
-            data={autocompleteData}
+            placeholder="Select a reservation..."
+            data={reservationSelectOptionsWithoutNone}
+            value={zoomToValue}
             onChange={setZoomToValue}
+            searchable
           />
           <Button
             variant="light"
             onClick={() => {
-              // Get the coordinates of the current value in the autocomplete field
-              // const coords = {lng: -81.804, lat: 41.301};
-              const parkFeatureLocation = parkFeatureLocations.get(zoomToValue);
-              zoomMapTo(parkFeatureLocation.coords, parkFeatureLocation.bounds);
+              if (zoomToValue) {
+                const parkFeatureLocation =
+                  parkFeatureLocations.get(zoomToValue);
+                if (parkFeatureLocation) {
+                  const coords = parkFeatureLocation.coords;
+                  const bounds = parkFeatureLocation.bounds;
+                  // Type guard: check if we have valid coords and bounds
+                  if (bounds instanceof LngLatBounds) {
+                    // If bounds is valid, use it (zoomMapTo will handle empty bounds)
+                    zoomMapTo(
+                      coords instanceof LngLat ? coords : new LngLat(0, 0),
+                      bounds
+                    );
+                  } else if (coords instanceof LngLat) {
+                    // If we have coords but no bounds, use coords with empty bounds
+                    zoomMapTo(coords, new LngLatBounds());
+                  }
+                }
+              }
             }}
           >
             Zoom
