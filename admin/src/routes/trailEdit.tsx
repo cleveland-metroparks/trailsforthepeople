@@ -55,6 +55,7 @@ import { TrailWaypoints } from "../components/sidebarPanes/trailWaypoints";
 import { TrailStats } from "../components/sidebarPanes/trailStats";
 import { TrailDirections } from "../components/sidebarPanes/trailDirections";
 import { Authorship } from "../components/sidebarPanes/authorship";
+import { History } from "../components/sidebarPanes/history";
 
 import { TrailProfileChart } from "../components/trailProfileChart";
 
@@ -147,6 +148,23 @@ export function TrailEdit() {
   // Track current waypoint count in a ref to avoid stale closures in onDrawUpdate
   const waypointCountRef = useRef(0);
 
+  // Undo/Redo history management
+  const [waypointHistory, setWaypointHistory] = useState<LineStringFeature[]>(
+    []
+  );
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const isRestoringHistoryRef = useRef(false);
+
+  // Refs to track current history values to avoid stale closures
+  const waypointHistoryRef = useRef<LineStringFeature[]>([]);
+  const historyIndexRef = useRef(-1);
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    waypointHistoryRef.current = waypointHistory;
+    historyIndexRef.current = historyIndex;
+  }, [waypointHistory, historyIndex]);
+
   const emptyLineStringFeature: LineStringFeature = {
     type: "Feature",
     geometry: {
@@ -156,6 +174,10 @@ export function TrailEdit() {
     id: "",
     properties: {},
   };
+
+  // Track current waypoints feature in a ref to avoid stale closures
+  const waypointsFeatureRef = useRef<LineStringFeature>(emptyLineStringFeature);
+
   // @TODO: We should be able to simplify this by just storing coordinates at this level
   // and turning them into a feature only where necessary in child components.
   // Could then get rid of LineStringFeature type.
@@ -187,13 +209,88 @@ export function TrailEdit() {
     number | null
   >(null);
 
-  // Keep waypoint count ref in sync with waypointsFeature
+  // Keep waypoint count ref and waypoints feature ref in sync with waypointsFeature
   useEffect(() => {
     waypointCountRef.current =
       waypointsFeature.geometry?.coordinates?.length || 0;
+    waypointsFeatureRef.current = waypointsFeature;
   }, [waypointsFeature]);
 
+  // Initialize history when waypoints are first loaded
+  const historyInitializedRef = useRef(false);
+  useEffect(() => {
+    if (
+      !historyInitializedRef.current &&
+      waypointsFeature.geometry?.coordinates
+    ) {
+      const initialFeature = deepCloneFeature(waypointsFeature);
+      setWaypointHistory([initialFeature]);
+      setHistoryIndex(0);
+      historyInitializedRef.current = true;
+    }
+  }, [waypointsFeature]);
+
+  // Clear history when trailId changes (loading a new trail)
+  useEffect(() => {
+    historyInitializedRef.current = false;
+    setWaypointHistory([]);
+    setHistoryIndex(-1);
+  }, [trailId]);
+
   const [waypointsGeoJSON, setWaypointsGeoJSON] = useState("");
+
+  // History management functions
+  const deepCloneFeature = (feature: LineStringFeature): LineStringFeature => {
+    // Use structuredClone if available (modern browsers), fallback to JSON for compatibility
+    if (typeof structuredClone !== "undefined") {
+      return structuredClone(feature);
+    }
+    return JSON.parse(JSON.stringify(feature));
+  };
+
+  const addToHistory = useCallback((feature: LineStringFeature) => {
+    // Don't add to history if we're restoring from undo/redo
+    if (isRestoringHistoryRef.current) {
+      return;
+    }
+
+    const clonedFeature = deepCloneFeature(feature);
+
+    // Use refs to get current values (avoid stale closures)
+    const currentHistory = waypointHistoryRef.current;
+    const currentIndex = historyIndexRef.current;
+
+    // If we're not at the end of history, remove future entries
+    const newHistory =
+      currentIndex < currentHistory.length - 1
+        ? currentHistory.slice(0, currentIndex + 1)
+        : currentHistory;
+
+    // Add new entry
+    const updatedHistory = [...newHistory, clonedFeature];
+
+    // Limit history size to 50 entries
+    const maxHistory = 50;
+    const finalHistory =
+      updatedHistory.length > maxHistory
+        ? updatedHistory.slice(-maxHistory)
+        : updatedHistory;
+
+    // Calculate new index (always points to last item)
+    const newIndex = finalHistory.length - 1;
+
+    // Update both states (React will batch these)
+    setWaypointHistory(finalHistory);
+    setHistoryIndex(newIndex);
+  }, []);
+
+  const canUndo = useCallback(() => {
+    return historyIndex > 0;
+  }, [historyIndex]);
+
+  const canRedo = useCallback(() => {
+    return historyIndex < waypointHistory.length - 1;
+  }, [historyIndex, waypointHistory.length]);
 
   const sw = new LngLat(-82.08504, 41.11816);
   const ne = new LngLat(-81.28029, 41.70009);
@@ -491,75 +588,78 @@ export function TrailEdit() {
   //---------------------------------------------------------------------------
 
   // Get route from waypoints from API
-  const getRouteFromWaypoints = async (
-    waypointsGeojson: string,
-    travelMode: string
-  ) => {
-    setIsRouting(true);
-    const params = new URLSearchParams({
-      waypoints: waypointsGeojson,
-      via: travelMode,
-    });
-
-    await mapsApiClient
-      .get<any>(process.env.REACT_APP_MAPS_API_BASE_PATH + "/route_waypoints", {
-        params,
-      })
-      .then(function (response) {
-        setTrailGeometry(JSON.stringify(response.data.data.geojson));
-
-        // Callback to update stats
-        setTrailStats({
-          // Totals
-          distancetext: response.data.data.totals.distancetext,
-          distance_feet: response.data.data.totals.distance_feet,
-          durationtext_hike: response.data.data.totals.durationtext_hike,
-          durationtext_bike: response.data.data.totals.durationtext_bike,
-          durationtext_bridle: response.data.data.totals.durationtext_bridle,
-          // Starting point
-          lat: response.data.data.start.lat,
-          lng: response.data.data.start.lng,
-          // Bounds
-          boxw: response.data.data.bounds.west,
-          boxs: response.data.data.bounds.south,
-          boxe: response.data.data.bounds.east,
-          boxn: response.data.data.bounds.north,
-        });
-
-        // Callback to update turn-by-turn directions
-        setTrailDirections(response.data.data.steps);
-
-        // "route_waypoints" API endpoint returns the profile data in a different format than "trail_profiles" (@TODO).
-        // The chart component apparently needs the coordinates as strings.
-        const transformedProfile = response.data.data.elevationprofile.map(
-          ({ y, x }) => {
-            return { x: x.toString(), y: y.toString() };
-          }
-        );
-        setTrailElevation(transformedProfile);
-      })
-      .catch(function (error) {
-        console.error("Error getting route from waypoints", error);
-        let msg = error.code + ": " + error.message;
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.message
-        ) {
-          msg += ": " + error.response.data.message;
-        }
-        showNotification({
-          id: "routing-error",
-          title: "Error getting route from waypoints",
-          message: msg,
-          autoClose: false,
-          color: "red",
-        });
-      })
-      .finally(() => {
-        setIsRouting(false);
+  const getRouteFromWaypoints = useCallback(
+    async (waypointsGeojson: string, travelMode: string) => {
+      setIsRouting(true);
+      const params = new URLSearchParams({
+        waypoints: waypointsGeojson,
+        via: travelMode,
       });
-  };
+
+      await mapsApiClient
+        .get<any>(
+          process.env.REACT_APP_MAPS_API_BASE_PATH + "/route_waypoints",
+          {
+            params,
+          }
+        )
+        .then(function (response) {
+          setTrailGeometry(JSON.stringify(response.data.data.geojson));
+
+          // Callback to update stats
+          setTrailStats({
+            // Totals
+            distancetext: response.data.data.totals.distancetext,
+            distance_feet: response.data.data.totals.distance_feet,
+            durationtext_hike: response.data.data.totals.durationtext_hike,
+            durationtext_bike: response.data.data.totals.durationtext_bike,
+            durationtext_bridle: response.data.data.totals.durationtext_bridle,
+            // Starting point
+            lat: response.data.data.start.lat,
+            lng: response.data.data.start.lng,
+            // Bounds
+            boxw: response.data.data.bounds.west,
+            boxs: response.data.data.bounds.south,
+            boxe: response.data.data.bounds.east,
+            boxn: response.data.data.bounds.north,
+          });
+
+          // Callback to update turn-by-turn directions
+          setTrailDirections(response.data.data.steps);
+
+          // "route_waypoints" API endpoint returns the profile data in a different format than "trail_profiles" (@TODO).
+          // The chart component apparently needs the coordinates as strings.
+          const transformedProfile = response.data.data.elevationprofile.map(
+            ({ y, x }) => {
+              return { x: x.toString(), y: y.toString() };
+            }
+          );
+          setTrailElevation(transformedProfile);
+        })
+        .catch(function (error) {
+          console.error("Error getting route from waypoints", error);
+          let msg = error.code + ": " + error.message;
+          if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+          ) {
+            msg += ": " + error.response.data.message;
+          }
+          showNotification({
+            id: "routing-error",
+            title: "Error getting route from waypoints",
+            message: msg,
+            autoClose: false,
+            color: "red",
+          });
+        })
+        .finally(() => {
+          setIsRouting(false);
+        });
+    },
+    []
+  );
   //---------------------------------------------------------------------------
 
   //
@@ -575,6 +675,69 @@ export function TrailEdit() {
       return output;
     }
   }
+
+  // Undo/Redo functions
+  const undo = useCallback(() => {
+    if (!canUndo()) {
+      return;
+    }
+
+    isRestoringHistoryRef.current = true;
+    const newIndex = historyIndex - 1;
+    const restoredFeature = deepCloneFeature(waypointHistory[newIndex]);
+
+    setHistoryIndex(newIndex);
+    setWaypointsFeature(restoredFeature);
+    setWaypointsForDraw(restoredFeature);
+
+    const wpGeoJSON = makeWaypointGeojsonString(restoredFeature);
+    if (wpGeoJSON) {
+      setWaypointsGeoJSON(wpGeoJSON);
+
+      // Update waypoint count ref
+      waypointCountRef.current =
+        restoredFeature.geometry?.coordinates?.length || 0;
+
+      // Recalculate route
+      getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
+    }
+
+    // Reset flag after a short delay to ensure all state updates complete
+    setTimeout(() => {
+      isRestoringHistoryRef.current = false;
+    }, 100);
+  }, [historyIndex, waypointHistory, canUndo, getRouteFromWaypoints]);
+
+  const redo = useCallback(() => {
+    if (!canRedo()) {
+      return;
+    }
+
+    isRestoringHistoryRef.current = true;
+    const newIndex = historyIndex + 1;
+    const restoredFeature = deepCloneFeature(waypointHistory[newIndex]);
+
+    setHistoryIndex(newIndex);
+    setWaypointsFeature(restoredFeature);
+    setWaypointsForDraw(restoredFeature);
+
+    const wpGeoJSON = makeWaypointGeojsonString(restoredFeature);
+    if (wpGeoJSON) {
+      setWaypointsGeoJSON(wpGeoJSON);
+
+      // Update waypoint count ref
+      waypointCountRef.current =
+        restoredFeature.geometry?.coordinates?.length || 0;
+
+      // Recalculate route
+      getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
+    }
+
+    // Reset flag after a short delay to ensure all state updates complete
+    setTimeout(() => {
+      isRestoringHistoryRef.current = false;
+    }, 100);
+  }, [historyIndex, waypointHistory, canRedo, getRouteFromWaypoints]);
 
   // Recalculate the route over the current waypoints
   const recalculateRoute = () => {
@@ -620,6 +783,9 @@ export function TrailEdit() {
       return newFeature;
     });
 
+    // Add new state to history after completing trail
+    addToHistory(newFeature);
+
     // We have to call these because Draw.create & Draw.update
     // events are only called via user interaction
     const wpGeoJSON = makeWaypointGeojsonString(newFeature);
@@ -627,61 +793,115 @@ export function TrailEdit() {
     getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
   };
 
-  const onDrawCreate = useCallback((e) => {
-    const feature_id = Object.keys(e.features)[0];
-    const newFeature = e.features[feature_id];
-    const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
-    waypointCountRef.current = newWaypointCount;
-    setWaypointsFeature((curFeature) => {
-      return newFeature;
-    });
-    const wpGeoJSON = makeWaypointGeojsonString(newFeature);
-    setWaypointsGeoJSON(wpGeoJSON);
-    getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
-  }, []);
+  const onDrawCreate = useCallback(
+    (e) => {
+      const feature_id = Object.keys(e.features)[0];
+      const newFeature = e.features[feature_id];
 
-  const onDrawUpdate = useCallback((e) => {
-    const feature_id = Object.keys(e.features)[0];
-    const newFeature = e.features[feature_id];
-
-    const currentWaypointCount = waypointCountRef.current;
-    const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
-
-    // Update ref immediately to ensure it's current for next call
-    waypointCountRef.current = newWaypointCount;
-
-    setWaypointsFeature((curFeature) => {
-      return newFeature;
-    });
-
-    // Update waypointsForDraw when vertex is deleted so DrawControl reflects the change
-    if (e.action === "delete_vertex") {
-      setWaypointsForDraw((curFeature) => {
+      const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
+      waypointCountRef.current = newWaypointCount;
+      setWaypointsFeature((curFeature) => {
         return newFeature;
       });
-    }
 
-    // Only trigger routing if waypoints were moved or deleted;
-    // not for new waypoints, which are when midpoints convert to vertices
-    if (newWaypointCount <= currentWaypointCount) {
+      // Add new state to history after changes
+      addToHistory(newFeature);
+
       const wpGeoJSON = makeWaypointGeojsonString(newFeature);
       setWaypointsGeoJSON(wpGeoJSON);
       getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
-    }
-  }, []);
+    },
+    [addToHistory, getRouteFromWaypoints]
+  );
 
-  const onDrawDelete = useCallback((e) => {
-    const feature_id = Object.keys(e.features)[0];
-    const newFeature = e.features[feature_id];
-    const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
-    waypointCountRef.current = newWaypointCount;
-    setWaypointsFeature((curFeature) => {
-      return newFeature;
-    });
-    const wpGeoJSON = makeWaypointGeojsonString(newFeature);
-    setWaypointsGeoJSON(wpGeoJSON);
-    getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
-  }, []);
+  const onDrawUpdate = useCallback(
+    (e) => {
+      const feature_id = Object.keys(e.features)[0];
+      const newFeature = e.features[feature_id];
+
+      const currentWaypointCount = waypointCountRef.current;
+      const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
+
+      // Check if coordinates have changed (for moving waypoints)
+      // Use ref to avoid stale closure
+      const coordinatesChanged = (() => {
+        const currentFeature = waypointsFeatureRef.current;
+        if (
+          !currentFeature?.geometry?.coordinates ||
+          !newFeature?.geometry?.coordinates
+        ) {
+          return false;
+        }
+        const currentCoords = currentFeature.geometry.coordinates;
+        const newCoords = newFeature.geometry.coordinates;
+
+        // If count changed, coordinates definitely changed
+        if (currentCoords.length !== newCoords.length) {
+          return true;
+        }
+
+        // Compare coordinates (allowing for floating point precision)
+        for (let i = 0; i < currentCoords.length; i++) {
+          if (
+            Math.abs(currentCoords[i][0] - newCoords[i][0]) > 0.000001 ||
+            Math.abs(currentCoords[i][1] - newCoords[i][1]) > 0.000001
+          ) {
+            return true;
+          }
+        }
+        return false;
+      })();
+
+      // Update ref immediately to ensure it's current for next call
+      waypointCountRef.current = newWaypointCount;
+
+      setWaypointsFeature((curFeature) => {
+        return newFeature;
+      });
+
+      // Add new state to history if waypoint count changed OR coordinates changed (moving waypoints)
+      if (newWaypointCount !== currentWaypointCount || coordinatesChanged) {
+        addToHistory(newFeature);
+      }
+
+      // Update waypointsForDraw when vertex is deleted so DrawControl reflects the change
+      if (e.action === "delete_vertex") {
+        setWaypointsForDraw((curFeature) => {
+          return newFeature;
+        });
+      }
+
+      // Only trigger routing if waypoints were moved or deleted;
+      // not for new waypoints, which are when midpoints convert to vertices
+      if (newWaypointCount <= currentWaypointCount) {
+        const wpGeoJSON = makeWaypointGeojsonString(newFeature);
+        setWaypointsGeoJSON(wpGeoJSON);
+        getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
+      }
+    },
+    [addToHistory, getRouteFromWaypoints]
+  );
+
+  const onDrawDelete = useCallback(
+    (e) => {
+      const feature_id = Object.keys(e.features)[0];
+      const newFeature = e.features[feature_id];
+
+      const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
+      waypointCountRef.current = newWaypointCount;
+      setWaypointsFeature((curFeature) => {
+        return newFeature;
+      });
+
+      // Add new state to history after deletion
+      addToHistory(newFeature);
+
+      const wpGeoJSON = makeWaypointGeojsonString(newFeature);
+      setWaypointsGeoJSON(wpGeoJSON);
+      getRouteFromWaypoints(wpGeoJSON, travelModeRef.current);
+    },
+    [addToHistory, getRouteFromWaypoints]
+  );
 
   // Handle vertex deletion from waypoints list
   const handleDeleteVertex = useCallback(
@@ -725,6 +945,9 @@ export function TrailEdit() {
         // Update waypointsForDraw so DrawControl reflects the change
         setWaypointsForDraw(updatedFeature);
 
+        // Add new state to history after deletion
+        addToHistory(updatedFeature);
+
         // Generate GeoJSON and trigger routing
         const wpGeoJSON = makeWaypointGeojsonString(updatedFeature);
         setWaypointsGeoJSON(wpGeoJSON);
@@ -742,7 +965,13 @@ export function TrailEdit() {
         }
       }
     },
-    [waypointsFeature, selectedVertexIndex, travelModeRef]
+    [
+      waypointsFeature,
+      selectedVertexIndex,
+      travelModeRef,
+      addToHistory,
+      getRouteFromWaypoints,
+    ]
   );
   //----------------------------------
 
@@ -953,6 +1182,10 @@ export function TrailEdit() {
                         hoveredVertexIndex={hoveredVertexIndex}
                         triggerVertexClickIndex={triggerVertexClickIndex}
                         selectedVertexIndex={selectedVertexIndex}
+                        canUndo={canUndo()}
+                        canRedo={canRedo()}
+                        onUndo={undo}
+                        onRedo={redo}
                       />
                       {showElevationProfile && (
                         <TrailProfileChart trailProfile={trailElevation} />
@@ -974,6 +1207,15 @@ export function TrailEdit() {
                       <TrailStats stats={trailStats} />
                     </Accordion.Panel>
                   </Accordion.Item>
+                  {/* <Accordion.Item value="history">
+                    <Accordion.Control>History</Accordion.Control>
+                    <Accordion.Panel>
+                      <History
+                        waypointHistory={waypointHistory}
+                        historyIndex={historyIndex}
+                      />
+                    </Accordion.Panel>
+                  </Accordion.Item> */}
                   <Accordion.Item value="waypoints">
                     <Accordion.Control>Waypoints</Accordion.Control>
                     <Accordion.Panel>

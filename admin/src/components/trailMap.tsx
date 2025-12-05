@@ -22,7 +22,11 @@ import {
   Tooltip,
 } from "@mantine/core";
 import DrawControl from "./draw-control";
-import { IconTrash } from "@tabler/icons-react";
+import {
+  IconTrash,
+  IconArrowBackUp,
+  IconArrowForwardUp,
+} from "@tabler/icons-react";
 
 import type { Trail } from "../types/trail";
 import { travelModeSelectOptions } from "../types/trail";
@@ -49,6 +53,10 @@ interface TrailMapProps {
   hoveredVertexIndex?: number | null;
   triggerVertexClickIndex?: number | null;
   selectedVertexIndex?: number | null;
+  canUndo?: boolean;
+  canRedo?: boolean;
+  onUndo?: () => void;
+  onRedo?: () => void;
 }
 
 /**
@@ -704,6 +712,32 @@ export function TrailMap(props: TrailMapProps) {
             <Loader size="sm" />
           </Box>
         )}
+
+        {/* Undo/Redo buttons */}
+        <Box className={styles.undoRedoControls}>
+          <Tooltip label="Undo">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={props.onUndo}
+              disabled={!props.canUndo}
+              className={styles.undoRedoButton}
+            >
+              <IconArrowBackUp size={18} />
+            </Button>
+          </Tooltip>
+          <Tooltip label="Redo">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={props.onRedo}
+              disabled={!props.canRedo}
+              className={styles.undoRedoButton}
+            >
+              <IconArrowForwardUp size={18} />
+            </Button>
+          </Tooltip>
+        </Box>
 
         {/* Vertex deletion popover */}
         {popoverPosition && vertexInfo && (

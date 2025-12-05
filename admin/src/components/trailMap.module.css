@@ -17,3 +17,27 @@
   border-radius: 50%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
+
+.undoRedoControls {
+  position: absolute;
+  top: 10px;
+  left: 50px;
+  z-index: 1000;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.undoRedoButton {
+  min-width: 29px !important;
+  width: 29px !important;
+  height: 29px !important;
+  padding: 0 !important;
+  background-color: #ffffff !important;
+  border: none;
+  box-shadow: 0 0 0 2px #0000001a !important;
+}
+
+.undoRedoButton:hover {
+  background-color: #f5f5f5 !important;
+}
