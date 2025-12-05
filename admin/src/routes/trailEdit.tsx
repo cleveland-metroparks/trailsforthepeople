@@ -55,7 +55,7 @@ import { TrailWaypoints } from "../components/sidebarPanes/trailWaypoints";
 import { TrailStats } from "../components/sidebarPanes/trailStats";
 import { TrailDirections } from "../components/sidebarPanes/trailDirections";
 import { Authorship } from "../components/sidebarPanes/authorship";
-import { History } from "../components/sidebarPanes/history";
+// import { History } from "../components/sidebarPanes/history";
 
 import { TrailProfileChart } from "../components/trailProfileChart";
 
