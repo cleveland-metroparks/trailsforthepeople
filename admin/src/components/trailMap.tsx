@@ -522,6 +522,27 @@ export function TrailMap(props: TrailMapProps) {
     return coordinates.length >= 2;
   }, [props.waypointsFeature]);
 
+  // Check if start and end waypoints are already the same
+  const isAlreadyComplete = useMemo(() => {
+    if (
+      !props.waypointsFeature ||
+      !(props.waypointsFeature as any).geometry?.coordinates
+    ) {
+      return false;
+    }
+    const coordinates = (props.waypointsFeature as any).geometry.coordinates;
+    if (coordinates.length < 2) {
+      return false;
+    }
+    const first = coordinates[0];
+    const last = coordinates[coordinates.length - 1];
+    // Compare coordinates (allowing for floating point precision)
+    return (
+      Math.abs(first[0] - last[0]) < 0.000001 &&
+      Math.abs(first[1] - last[1]) < 0.000001
+    );
+  }, [props.waypointsFeature]);
+
   return (
     <>
       <Box className={styles.mapContainer}>
@@ -967,11 +988,17 @@ export function TrailMap(props: TrailMapProps) {
           <Text size="sm" fw={500} mt="xs" mb="xs">
             Complete trail
           </Text>
-          <Tooltip label="Add the starting point to the end of the waypoints">
+          <Tooltip
+            label={
+              isAlreadyComplete
+                ? "Trail is already complete (start == end)"
+                : "Add the starting point to the end of the waypoints"
+            }
+          >
             <Button
               variant="light"
               onClick={props.doCompleteTrail}
-              disabled={!hasEnoughPoints}
+              disabled={!hasEnoughPoints || isAlreadyComplete}
             >
               Back to start
             </Button>
