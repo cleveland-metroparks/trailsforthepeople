@@ -65,5 +65,9 @@
   },
   "devDependencies": {
     "prettier": "^3.6.2"
+  },
+  "volta": {
+    "node": "20.19.5",
+    "npm": "11.6.4"
   }
 }
