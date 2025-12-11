@@ -34,8 +34,8 @@ export function FloatingSearch() {
     <Box
       style={{
         position: 'absolute',
-        top: '26px', // 16px (Box padding) - title and spacing removed
-        left: '106px', // 80px (tabs) + 16px (Box padding)
+        top: '26px',
+        left: '96px',
         zIndex: 1000,
         width: inputWidth,
         opacity: isSidebarCollapsed ? 1 : 0,

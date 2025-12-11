@@ -19,7 +19,7 @@ export function Layout({ children }: LayoutProps) {
 
   const navbarWidth = hasActivePanel
     ? { sm: 300, lg: 400 }
-    : { sm: 90, lg: 90 }
+    : { sm: 80, lg: 80 }
 
   return (
     <SearchProvider>
@@ -31,7 +31,9 @@ export function Layout({ children }: LayoutProps) {
         padding={0} // Remove padding to allow map to fill full space
         navbar={
           <Navbar
-            p={"xs"}
+            py={"xs"}
+            pr={"xs"}
+            pl={"none"}
             width={navbarWidth}
             styles={{
               root: {

@@ -1,5 +1,5 @@
-import { Tabs } from '@mantine/core'
-import { Search, MapPin, Route, Share, InfoCircle } from 'tabler-icons-react'
+import { Tabs, Divider } from '@mantine/core'
+import { Search, MapPin, Route, Share, InfoCircle, Trees, Walk, Golf } from 'tabler-icons-react'
 import { useState, useEffect, useImperativeHandle, forwardRef } from 'react'
 import { SearchPanel } from './panels/SearchPanel'
 import { NearbyPanel } from './panels/NearbyPanel'
@@ -63,6 +63,9 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           fontSize: '12px',
           lineHeight: 1.2,
         },
+        tabIcon: {
+          marginRight: '0 !important',
+        },
         panel: {
           display: activeTab ? 'flex' : 'none',
           flexDirection: 'column',
@@ -73,12 +76,30 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
         <Tabs.Tab value="search" icon={<Search size={24} />}>
           Search
         </Tabs.Tab>
+
+        <Divider orientation="horizontal" my="md" />
+
+        <Tabs.Tab value="parks" icon={<Trees size={24} color="#1d5c1e" />}>
+          Parks
+        </Tabs.Tab>
+        <Tabs.Tab value="activities" icon={<Golf size={24} color="#1d5c1e" />}>
+          Activities
+        </Tabs.Tab>
+        <Tabs.Tab value="trails" icon={<Walk size={24} color="#1d5c1e" />}>
+          Trails
+        </Tabs.Tab>
+
+        <Divider orientation="horizontal" my="md" />
+
         <Tabs.Tab value="nearby" icon={<MapPin size={24} />}>
           Nearby
         </Tabs.Tab>
         <Tabs.Tab value="directions" icon={<Route size={24} />}>
           Directions
         </Tabs.Tab>
+
+        <Divider orientation="horizontal" my="md" />
+
         <Tabs.Tab value="share" icon={<Share size={24} />}>
           Share
         </Tabs.Tab>
