@@ -1,6 +1,6 @@
 import { Tabs } from '@mantine/core'
 import { Search, MapPin, Route, Share, InfoCircle } from 'tabler-icons-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useImperativeHandle, forwardRef } from 'react'
 import { SearchPanel } from './panels/SearchPanel'
 import { NearbyPanel } from './panels/NearbyPanel'
 import { DirectionsPanel } from './panels/DirectionsPanel'
@@ -11,12 +11,22 @@ interface SidebarProps {
   onPanelStateChange?: (hasActivePanel: boolean) => void
 }
 
-export function Sidebar({ onPanelStateChange }: SidebarProps) {
+export interface SidebarRef {
+  activateSearchTab: () => void
+}
+
+export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChange }, ref) => {
   const [activeTab, setActiveTab] = useState<string | null>('search')
 
   useEffect(() => {
     onPanelStateChange?.(activeTab !== null)
   }, [activeTab, onPanelStateChange])
+
+  useImperativeHandle(ref, () => ({
+    activateSearchTab: () => {
+      setActiveTab('search')
+    },
+  }))
 
   const handleClosePanel = () => {
     setActiveTab(null)
@@ -61,7 +71,7 @@ export function Sidebar({ onPanelStateChange }: SidebarProps) {
     >
       <Tabs.List>
         <Tabs.Tab value="search" icon={<Search size={24} />}>
-          Find
+          Search
         </Tabs.Tab>
         <Tabs.Tab value="nearby" icon={<MapPin size={24} />}>
           Nearby
@@ -102,4 +112,6 @@ export function Sidebar({ onPanelStateChange }: SidebarProps) {
       )}
     </Tabs>
   )
-}
+})
+
+Sidebar.displayName = 'Sidebar'

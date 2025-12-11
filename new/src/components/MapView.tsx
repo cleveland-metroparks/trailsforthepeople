@@ -3,6 +3,7 @@ import { Box, Alert } from '@mantine/core'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { useMapConfig } from '../hooks/useMapConfig'
+import { FloatingSearch } from './FloatingSearch'
 
 export function MapView() {
   const mapContainer = useRef<HTMLDivElement>(null)
@@ -100,6 +101,7 @@ export function MapView() {
 
   return (
     <Box className="map-container" style={{ width: '100%', height: '100%', position: 'relative' }}>
+      <FloatingSearch />
       <div
         ref={mapContainer}
         style={{

@@ -1,6 +1,8 @@
 import { AppShell, Navbar } from '@mantine/core'
-import { useState } from 'react'
-import { Sidebar } from './Sidebar'
+import { useState, useRef } from 'react'
+import { Sidebar, SidebarRef } from './Sidebar'
+import { SearchProvider } from '../contexts/SearchContext'
+import { SidebarProvider } from '../contexts/SidebarContext'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -8,28 +10,39 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const [hasActivePanel, setHasActivePanel] = useState(true)
+  const sidebarRef = useRef<SidebarRef>(null)
+
+  const handleSearchSubmit = () => {
+    setHasActivePanel(true)
+    sidebarRef.current?.activateSearchTab()
+  }
 
   const navbarWidth = hasActivePanel
     ? { sm: 300, lg: 400 }
     : { sm: 90, lg: 90 }
 
   return (
-    <AppShell
-      padding={0} // Remove padding to allow map to fill full space
-      navbar={
-        <Navbar
-          p={"xs"}
-          width={navbarWidth}
-          styles={{
-            root: {
-              boxSizing: 'border-box',
-              borderRight: hasActivePanel ? undefined : 'none',
-            },
-          }}
-        >
-          <Sidebar onPanelStateChange={setHasActivePanel} />
-        </Navbar>
-      }
+    <SearchProvider>
+      <SidebarProvider
+        isSidebarCollapsed={!hasActivePanel}
+        onSearchSubmit={handleSearchSubmit}
+      >
+        <AppShell
+        padding={0} // Remove padding to allow map to fill full space
+        navbar={
+          <Navbar
+            p={"xs"}
+            width={navbarWidth}
+            styles={{
+              root: {
+                boxSizing: 'border-box',
+                borderRight: hasActivePanel ? undefined : 'none',
+              },
+            }}
+          >
+            <Sidebar ref={sidebarRef} onPanelStateChange={setHasActivePanel} />
+          </Navbar>
+        }
       styles={(theme) => ({
         main: {
           backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
@@ -66,5 +79,7 @@ export function Layout({ children }: LayoutProps) {
         />
       </div>
     </AppShell>
+    </SidebarProvider>
+    </SearchProvider>
   )
 }

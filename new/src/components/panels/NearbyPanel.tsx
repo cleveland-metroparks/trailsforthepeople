@@ -1,5 +1,5 @@
-import { Text, Box, Button, Stack, ActionIcon } from '@mantine/core'
-import { MapPin, X } from 'tabler-icons-react'
+import { Text, Box, Button, Stack } from '@mantine/core'
+import { MapPin } from 'tabler-icons-react'
 
 interface NearbyPanelProps {
   onClose: () => void
@@ -8,14 +8,6 @@ interface NearbyPanelProps {
 export function NearbyPanel({ onClose }: NearbyPanelProps) {
   return (
     <Box p="md" style={{ position: 'relative' }}>
-      <ActionIcon
-        style={{ position: 'absolute', top: 16, right: 16 }}
-        onClick={onClose}
-        variant="subtle"
-        color="gray"
-      >
-        <X size={18} />
-      </ActionIcon>
       <Stack spacing="md">
         <Text size="lg" weight={500}>
           Nearby Places
