@@ -8,21 +8,41 @@ import { InfoPanel } from './panels/InfoPanel'
 
 export function Sidebar() {
   return (
-    <Tabs defaultValue="search" orientation="vertical" style={{ height: '100%' }}>
+    <Tabs
+      defaultValue="search"
+      orientation="vertical"
+      style={{ height: '100%' }}
+      styles={{
+        tabsList: {
+          width: '80px',
+        },
+        tab: {
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '4px',
+          padding: '12px 8px',
+          minHeight: '70px',
+        },
+        tabLabel: {
+          fontSize: '12px',
+          lineHeight: 1.2,
+        },
+      }}
+    >
       <Tabs.List>
-        <Tabs.Tab value="search" icon={<Search size={16} />}>
+        <Tabs.Tab value="search" icon={<Search size={24} />}>
           Find
         </Tabs.Tab>
-        <Tabs.Tab value="nearby" icon={<MapPin size={16} />}>
+        <Tabs.Tab value="nearby" icon={<MapPin size={24} />}>
           Nearby
         </Tabs.Tab>
-        <Tabs.Tab value="directions" icon={<Route size={16} />}>
+        <Tabs.Tab value="directions" icon={<Route size={24} />}>
           Directions
         </Tabs.Tab>
-        <Tabs.Tab value="share" icon={<Share size={16} />}>
+        <Tabs.Tab value="share" icon={<Share size={24} />}>
           Share
         </Tabs.Tab>
-        <Tabs.Tab value="info" icon={<InfoCircle size={16} />}>
+        <Tabs.Tab value="info" icon={<InfoCircle size={24} />}>
           Info
         </Tabs.Tab>
       </Tabs.List>
