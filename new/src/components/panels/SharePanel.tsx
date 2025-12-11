@@ -1,8 +1,12 @@
-import { Text, Box, Stack, Button, TextInput, Group } from '@mantine/core'
-import { Copy, Share } from 'tabler-icons-react'
+import { Text, Box, Stack, Button, TextInput, Group, ActionIcon } from '@mantine/core'
+import { Copy, Share, X } from 'tabler-icons-react'
 import { useState } from 'react'
 
-export function SharePanel() {
+interface SharePanelProps {
+  onClose: () => void
+}
+
+export function SharePanel({ onClose }: SharePanelProps) {
   const [shareUrl, setShareUrl] = useState('')
 
   const handleShare = () => {
@@ -18,7 +22,15 @@ export function SharePanel() {
   }
 
   return (
-    <Box p="md">
+    <Box p="md" style={{ position: 'relative' }}>
+      <ActionIcon
+        style={{ position: 'absolute', top: 16, right: 16 }}
+        onClick={onClose}
+        variant="subtle"
+        color="gray"
+      >
+        <X size={18} />
+      </ActionIcon>
       <Stack spacing="md">
         <Text size="lg" weight={500}>
           Share This Map

@@ -1,8 +1,21 @@
-import { Text, Box, Stack, Anchor } from '@mantine/core'
+import { Text, Box, Stack, Anchor, ActionIcon } from '@mantine/core'
+import { X } from 'tabler-icons-react'
 
-export function InfoPanel() {
+interface InfoPanelProps {
+  onClose: () => void
+}
+
+export function InfoPanel({ onClose }: InfoPanelProps) {
   return (
-    <Box p="md">
+    <Box p="md" style={{ position: 'relative' }}>
+      <ActionIcon
+        style={{ position: 'absolute', top: 16, right: 16 }}
+        onClick={onClose}
+        variant="subtle"
+        color="gray"
+      >
+        <X size={18} />
+      </ActionIcon>
       <Stack spacing="md">
         <Text size="lg" weight={500}>
           About Cleveland Metroparks

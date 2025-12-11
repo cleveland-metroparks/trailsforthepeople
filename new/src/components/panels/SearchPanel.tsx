@@ -1,8 +1,12 @@
-import { TextInput, Button, Stack, Text, Box } from '@mantine/core'
-import { Search } from 'tabler-icons-react'
+import { TextInput, Button, Stack, Text, Box, ActionIcon } from '@mantine/core'
+import { Search, X } from 'tabler-icons-react'
 import { useState } from 'react'
 
-export function SearchPanel() {
+interface SearchPanelProps {
+  onClose: () => void
+}
+
+export function SearchPanel({ onClose }: SearchPanelProps) {
   const [searchTerm, setSearchTerm] = useState('')
 
   const handleSearch = () => {
@@ -11,7 +15,15 @@ export function SearchPanel() {
   }
 
   return (
-    <Box p="md">
+    <Box p="md" style={{ position: 'relative' }}>
+      <ActionIcon
+        style={{ position: 'absolute', top: 16, right: 16 }}
+        onClick={onClose}
+        variant="subtle"
+        color="gray"
+      >
+        <X size={18} />
+      </ActionIcon>
       <Stack spacing="md">
         <Text size="lg" weight={500}>
           Find Parks & Trails

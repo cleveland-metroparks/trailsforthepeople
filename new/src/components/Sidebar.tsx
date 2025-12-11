@@ -1,20 +1,46 @@
 import { Tabs } from '@mantine/core'
 import { Search, MapPin, Route, Share, InfoCircle } from 'tabler-icons-react'
+import { useState, useEffect } from 'react'
 import { SearchPanel } from './panels/SearchPanel'
 import { NearbyPanel } from './panels/NearbyPanel'
 import { DirectionsPanel } from './panels/DirectionsPanel'
 import { SharePanel } from './panels/SharePanel'
 import { InfoPanel } from './panels/InfoPanel'
 
-export function Sidebar() {
+interface SidebarProps {
+  onPanelStateChange?: (hasActivePanel: boolean) => void
+}
+
+export function Sidebar({ onPanelStateChange }: SidebarProps) {
+  const [activeTab, setActiveTab] = useState<string | null>('search')
+
+  useEffect(() => {
+    onPanelStateChange?.(activeTab !== null)
+  }, [activeTab, onPanelStateChange])
+
+  const handleClosePanel = () => {
+    setActiveTab(null)
+  }
+
+  const handleTabChange = (value: string | null) => {
+    setActiveTab(value === activeTab ? null : value)
+  }
+
   return (
     <Tabs
-      defaultValue="search"
+      value={activeTab}
+      onTabChange={handleTabChange}
       orientation="vertical"
-      style={{ height: '100%' }}
+      style={{ height: '100%', width: '100%' }}
       styles={{
+        root: {
+          display: 'flex',
+          flexDirection: 'row',
+          width: '100%',
+        },
         tabsList: {
           width: '80px',
+          flexShrink: 0,
         },
         tab: {
           flexDirection: 'column',
@@ -26,6 +52,10 @@ export function Sidebar() {
         tabLabel: {
           fontSize: '12px',
           lineHeight: 1.2,
+        },
+        panel: {
+          display: activeTab ? 'flex' : 'none',
+          flexDirection: 'column',
         },
       }}
     >
@@ -47,25 +77,29 @@ export function Sidebar() {
         </Tabs.Tab>
       </Tabs.List>
 
-      <Tabs.Panel value="search" style={{ flex: 1, overflow: 'auto' }}>
-        <SearchPanel />
-      </Tabs.Panel>
+      {activeTab && (
+        <>
+          <Tabs.Panel value="search" style={{ flex: 1, overflow: 'auto' }}>
+            <SearchPanel onClose={handleClosePanel} />
+          </Tabs.Panel>
 
-      <Tabs.Panel value="nearby" style={{ flex: 1, overflow: 'auto' }}>
-        <NearbyPanel />
-      </Tabs.Panel>
+          <Tabs.Panel value="nearby" style={{ flex: 1, overflow: 'auto' }}>
+            <NearbyPanel onClose={handleClosePanel} />
+          </Tabs.Panel>
 
-      <Tabs.Panel value="directions" style={{ flex: 1, overflow: 'auto' }}>
-        <DirectionsPanel />
-      </Tabs.Panel>
+          <Tabs.Panel value="directions" style={{ flex: 1, overflow: 'auto' }}>
+            <DirectionsPanel onClose={handleClosePanel} />
+          </Tabs.Panel>
 
-      <Tabs.Panel value="share" style={{ flex: 1, overflow: 'auto' }}>
-        <SharePanel />
-      </Tabs.Panel>
+          <Tabs.Panel value="share" style={{ flex: 1, overflow: 'auto' }}>
+            <SharePanel onClose={handleClosePanel} />
+          </Tabs.Panel>
 
-      <Tabs.Panel value="info" style={{ flex: 1, overflow: 'auto' }}>
-        <InfoPanel />
-      </Tabs.Panel>
+          <Tabs.Panel value="info" style={{ flex: 1, overflow: 'auto' }}>
+            <InfoPanel onClose={handleClosePanel} />
+          </Tabs.Panel>
+        </>
+      )}
     </Tabs>
   )
 }

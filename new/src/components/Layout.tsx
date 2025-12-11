@@ -9,13 +9,29 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const theme = useMantineTheme()
   const [opened, setOpened] = useState(false)
+  const [hasActivePanel, setHasActivePanel] = useState(true)
+
+  const navbarWidth = hasActivePanel
+    ? { sm: 300, lg: 400 }
+    : { sm: 90, lg: 90 }
 
   return (
     <AppShell
       padding={0} // Remove padding to allow map to fill full space
       navbar={
-        <Navbar p="md" hiddenBreakpoint="sm" hidden={!opened} width={{ sm: 300, lg: 400 }}>
-          <Sidebar />
+        <Navbar
+          p={"xs"}
+          hiddenBreakpoint="sm"
+          hidden={!opened}
+          width={navbarWidth}
+          styles={{
+            root: {
+              boxSizing: 'border-box',
+              borderRight: hasActivePanel ? undefined : 'none',
+            },
+          }}
+        >
+          <Sidebar onPanelStateChange={setHasActivePanel} />
         </Navbar>
       }
       header={
