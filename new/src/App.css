@@ -22,10 +22,10 @@ body {
 /* Sidebar styles */
 .mantine-AppShell-main {
   padding: 0 !important;
-  height: calc(100vh - 70px) !important; /* Account for header */
+  height: 100vh !important;
 }
 
 /* Ensure the map container takes full space */
-.mantine-AppShell-main > div {
+.mantine-AppShell-main > .map-container {
   height: 100% !important;
 }

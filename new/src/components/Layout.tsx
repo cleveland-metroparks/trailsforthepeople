@@ -1,4 +1,4 @@
-import { AppShell, Header, Navbar, MediaQuery, Burger, useMantineTheme } from '@mantine/core'
+import { AppShell, Navbar } from '@mantine/core'
 import { useState } from 'react'
 import { Sidebar } from './Sidebar'
 
@@ -7,8 +7,6 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const theme = useMantineTheme()
-  const [opened, setOpened] = useState(false)
   const [hasActivePanel, setHasActivePanel] = useState(true)
 
   const navbarWidth = hasActivePanel
@@ -21,8 +19,6 @@ export function Layout({ children }: LayoutProps) {
       navbar={
         <Navbar
           p={"xs"}
-          hiddenBreakpoint="sm"
-          hidden={!opened}
           width={navbarWidth}
           styles={{
             root: {
@@ -34,32 +30,12 @@ export function Layout({ children }: LayoutProps) {
           <Sidebar onPanelStateChange={setHasActivePanel} />
         </Navbar>
       }
-      header={
-        <Header height={70} p="md">
-          <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-            <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
-              <Burger
-                opened={opened}
-                onClick={() => setOpened((o) => !o)}
-                size="sm"
-                color={theme.colors.gray[6]}
-                mr="xl"
-              />
-            </MediaQuery>
-
-            <div style={{ flex: 1 }}>
-              <h1 style={{ margin: 0, fontSize: '1.5rem' }}>
-                Cleveland Metroparks Map
-              </h1>
-            </div>
-          </div>
-        </Header>
-      }
       styles={(theme) => ({
         main: {
           backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
           padding: 0, // Ensure no padding in main area
-          height: 'calc(100vh - 70px)', // Account for header height
+          height: '100vh',
+          position: 'relative',
         },
         root: {
           height: '100vh',
@@ -67,6 +43,28 @@ export function Layout({ children }: LayoutProps) {
       })}
     >
       {children}
+      <div
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '50%',
+          backgroundColor: 'rgba(255, 252, 245, 0.75)',
+          borderRadius: '18px',
+          padding: '10px 14px',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
+          pointerEvents: 'none',
+        }}
+      >
+        <img
+          src="/cleveland-metroparks-logo-horiz.png"
+          alt="Cleveland Metroparks"
+          style={{
+            height: '40px',
+            filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))',
+          }}
+        />
+      </div>
     </AppShell>
   )
 }

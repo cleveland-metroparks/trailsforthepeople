@@ -99,7 +99,7 @@ export function MapView() {
   }
 
   return (
-    <Box style={{ width: '100%', height: '100%', position: 'relative' }}>
+    <Box className="map-container" style={{ width: '100%', height: '100%', position: 'relative' }}>
       <div
         ref={mapContainer}
         style={{
