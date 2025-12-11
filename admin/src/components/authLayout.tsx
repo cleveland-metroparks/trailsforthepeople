@@ -1,4 +1,4 @@
-import { useOutlet } from "react-router-dom";
+import { useOutlet } from "react-router";
 import { AuthProvider } from "../hooks/useAuth";
 
 /**
@@ -6,12 +6,10 @@ import { AuthProvider } from "../hooks/useAuth";
  *
  * This component is used to wrap routes that require authentication,
  * so we can provide the auth context to those routes.
- * Necessary because we're using react-router-dom's createRoutesFromElements().
+ * Necessary because we're using react-router's createRoutesFromElements().
  */
 export const AuthLayout = () => {
   const outlet = useOutlet();
 
-  return (
-    <AuthProvider>{outlet}</AuthProvider>
-  );
+  return <AuthProvider>{outlet}</AuthProvider>;
 };

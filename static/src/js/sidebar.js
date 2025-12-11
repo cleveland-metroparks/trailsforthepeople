@@ -11,16 +11,31 @@
  * Populate the sidebar panes with data.
  */
 function populateSidebarPanes() {
-    // Activities pane
+    // Activities pane - wait for both activities and attractions to be loaded
+    var activitiesReady = false;
+    var attractionsReady = false;
+
     $(document).on("dataReadyActivities", function() {
-        populatePaneActivities();
+        activitiesReady = true;
+        if (attractionsReady) {
+            populatePaneActivities();
+        }
+    });
+
+    $(document).on("dataReadyAttractions", function() {
+        attractionsReady = true;
+        if (activitiesReady) {
+            populatePaneActivities();
+        }
     });
 
     // Amenities pane
+    /*
     // @TODO: We don't have data or API endpoint here yet?
     $(document).on("dataReadyAmenities", function() {
         populatePaneAmenities();
     });
+    */
 
     // Reservations in Trails pane
     $(document).on("dataReadyReservations", function() {
@@ -35,16 +50,21 @@ function populatePaneActivities() {
     var template = CM.Templates.pane_activities_item;
 
     CM.activities.forEach(function(activity) {
+        // Check if activity has an icon AND has associated attractions
         if (activity.icon) {
-            var link_param_category = 'pois_usetype_' + encodeURIComponent(activity.pagetitle);
-            activity.link_url = "#browse-results?id="
-                                + activity.eventactivitytypeid
-                                + "&category="
-                                + link_param_category;
-            var template_vars = {
-                activity: activity
-            };
-            $('#activities-list').append(template(template_vars));
+            // Check if this activity has any associated attractions
+            var associated_attractions = CM.get_attractions_by_activity(activity.eventactivitytypeid);
+            if (associated_attractions.length > 0) {
+                var link_param_category = 'pois_usetype_' + encodeURIComponent(activity.pagetitle);
+                activity.link_url = "#browse-results?id="
+                                    + activity.eventactivitytypeid
+                                    + "&category="
+                                    + link_param_category;
+                var template_vars = {
+                    activity: activity
+                };
+                $('#activities-list').append(template(template_vars));
+            }
         }
     });
 
@@ -77,6 +97,7 @@ function populatePaneActivities() {
 /**
  * Populate the Activities sidebar pane.
  */
+/*
 function populatePaneAmenities() {
     var template = CM.Templates.pane_amenities_item;
     CM.amenities.forEach(function(amenity) {
@@ -93,6 +114,7 @@ function populatePaneAmenities() {
     /**
      * Set click event
      */
+    /*
     $('#amenities-list li a').click(function() {
         // Get Amenity ID from query string param
         // (purl.js apparently doesn't parse query string if URL begins with '#')
@@ -110,6 +132,7 @@ function populatePaneAmenities() {
         CM.display_attractions_results(pane_title, filtered_attractions, 'attraction');
     });
 }
+*/
 
 /**
  * Populate the Trails sidebar pane's reservations dropdown.
@@ -155,9 +178,9 @@ $(document).ready(function () {
     /**
      * Nearby pane (#pane-nearby)
      */
-    $('.sidebar-tabs li a[href="#pane-nearby"]').click(function() {
-        updateNearYouNow();
-    });
+    // $('.sidebar-tabs li a[href="#pane-nearby"]').click(function() {
+    //     updateNearYouNow();
+    // });
 
     /**
      * Welcome pane (#pane-welcome)

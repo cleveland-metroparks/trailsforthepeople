@@ -53,21 +53,21 @@ $(document).on("mapInitialized", function () {
         // Adjust the Near You Now listing
         // @TODO: Why do we do this again when opening the panel?
         // @TODO: Also, should this be mobile only?
-        updateNearYouNow();
+        // updateNearYouNow();
 
         // Check the Nearby alerts to see if anything relevant is within range
-        if ( $('#nearby_enabled').is(':checked') ) {
-            var meters = $('#nearby-radius').val();
-            var categories = [];
-            $('input[name="nearby-category"]:checked').each(
-                function () {
-                    categories[categories.length] = $(this).val()
-                }
-            );
-            var current_location = mapboxgl.LngLat.convert([event.coords.longitude, event.coords.latitude]);
-            placeCircle(current_location, meters);
-            checkNearby(current_location, meters, categories);
-        }
+        // if ( $('#nearby_enabled').is(':checked') ) {
+        //     var meters = $('#nearby-radius').val();
+        //     var categories = [];
+        //     $('input[name="nearby-category"]:checked').each(
+        //         function () {
+        //             categories[categories.length] = $(this).val()
+        //         }
+        //     );
+        //     var current_location = mapboxgl.LngLat.convert([event.coords.longitude, event.coords.latitude]);
+        //     placeCircle(current_location, meters);
+        //     checkNearby(current_location, meters, categories);
+        // }
 
         // Update display of user lat/lng
         updateUserCoordsDisplay();

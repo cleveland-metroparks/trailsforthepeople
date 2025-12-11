@@ -12,9 +12,9 @@
 //
 var CM = {
     activities : [],
-    amenities : [],
+    // amenities : [],
     attractions : [],
-    attractions_nearby : [],
+    // attractions_nearby : [],
     autocomplete_keywords : [],
     categories : [],
     reservations : [],
@@ -69,6 +69,7 @@ $.get(CM_MAPS_API_BASE_URL + 'categories', null, function (reply) {
 //
 // Get amenities, and populate global object, CM.amenities
 //
+/*
 $.get(CM_MAPS_API_BASE_URL + 'amenities', null, function (reply) {
     CM.amenities = reply.data;
 
@@ -92,6 +93,7 @@ $.get(CM_MAPS_API_BASE_URL + 'amenities', null, function (reply) {
         type: 'dataReadyAmenities',
     });
 }, 'json');
+*/
 
 //
 // Get visitor centers and populate global object, CM.visitor_centers
@@ -102,7 +104,7 @@ $.get(CM_MAPS_API_BASE_URL + 'visitor_centers', null, function (reply) {
     // Explode pipe-delimited strings to arrays
     CM.visitor_centers.forEach(function(visitor_center) {
         visitor_center.categories = visitor_center.categories ? visitor_center.categories.split('|').map(Number) : null;
-        visitor_center.amenities = visitor_center.amenities ? visitor_center.amenities.split('|').map(Number) : null;
+        // visitor_center.amenities = visitor_center.amenities ? visitor_center.amenities.split('|').map(Number) : null;
         visitor_center.activities = visitor_center.activities ? visitor_center.activities.split('|').map(Number) : null;
     });
 
@@ -149,7 +151,7 @@ $.get(CM_MAPS_API_BASE_URL + 'attractions', null, function (reply) {
     // Explode pipe-delimited strings to arrays
     CM.attractions.forEach(function(attraction) {
         attraction.categories = attraction.categories ? attraction.categories.split('|').map(Number) : null;
-        attraction.amenities = attraction.amenities ? attraction.amenities.split('|').map(Number) : null;
+        // attraction.amenities = attraction.amenities ? attraction.amenities.split('|').map(Number) : null;
         attraction.activities = attraction.activities ? attraction.activities.split('|').map(Number) : null;
     });
 
@@ -196,7 +198,7 @@ function activity_icon_filepath(activity_id) {
         15: 'sled',      // Sledding
         16: 'snowshoe',  // Snowshoeing
         17: '',          // Tobogganing
-        18: 'leafman',   // Rope Courses & Zip Lines
+        18: '',          // Rope Courses & Zip Lines
         19: 'geology',   // Exploring Nature
         20: 'history',   // Exploring Culture & History
         21: 'dine',      // Dining
@@ -208,8 +210,28 @@ function activity_icon_filepath(activity_id) {
         30: 'golf',      // Golfing
         39: 'fitness',   // Exercising
         41: '',          // FootGolf
+
+        1147: 'golf',    // Golfing
+        1320: 'archery', // Archery
+        1325: '',        // Backpacking
+        1326: 'bike',    // Biking & Cycling
+        1329: 'boat',    // Boating Sailing & Paddlesports
+        1528: '',        // Climbing
+        1529: 'dine',    // Dining
+        1530: 'history', // Exploring Culture & History
+        1531: 'geology', // Exploring Nature
+        1532: 'fish',    // Fishing & Ice Fishing
+        1534: 'hike',    // Hiking & Walking
+        1535: 'horse',   // Horseback Riding
+        1536: 'mtnbike', // Mountain Biking
+        1538: 'picnic',  // Picnicking
+        1540: '',        // Rope Courses & Zip Lines
+        1541: 'sled',    // Sledding
+        1542: 'swim',    // Swimming
+        1543: '',        // Tobogganing
+        1544: '',        // Winter Activities
     };
-    var filename = activity_type_icons_by_id[activity_id];
+    var filename = activity_type_icons_by_id[activity_id] || 'leafman';
     if (filename) {
         var icon_path = icons_dir + filename + '.svg';
         return icon_path;
@@ -390,6 +412,7 @@ CM.get_attractions_by_activity = function(activity_ids) {
  *
  * @param amenity_ids
  */
+/*
 CM.get_attractions_by_amenity = function(amenity_ids) {
     // Accept either a single Amenity ID or an array of them.
     var amenity_ids = Array.isArray(amenity_ids) ? amenity_ids : [amenity_ids];
@@ -416,3 +439,4 @@ CM.get_attractions_by_amenity = function(amenity_ids) {
 
     return filtered_attractions;
 }
+*/

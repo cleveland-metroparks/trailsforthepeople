@@ -15,7 +15,7 @@ var WINDOW_URL_QUERYSTRING = null;
 var sidebar = null;
 
 // Used by Nearby: sound an alert only if the list has in fact changed
-var LAST_BEEP_IDS = [];
+// var LAST_BEEP_IDS = [];
 
 // other stuff pertaining to our last known location and auto-centering
 var LAST_KNOWN_LOCATION = mapboxgl.LngLat.convert(START_CENTER);
@@ -584,6 +584,22 @@ $(document).ready(function () {
         zoomElementClick($(this));
     });
 });
+
+/**
+ * Distance (Haversine) from one point to another.
+ *
+ * @param fromLngLat {mapboxgl.LngLat}: From location
+ * @param toLngLat {mapboxgl.LngLat}: To location
+ *
+ * @return Distance in meters
+ */
+function distanceTo(fromLngLat, toLngLat) {
+    var turfFrom = turf.point(fromLngLat.toArray());
+    var turfTo = turf.point(toLngLat.toArray());
+    var options = {units: 'meters'};
+
+    return turf.distance(turfFrom, turfTo, options);
+}
 
 /**
  *
