@@ -6,6 +6,9 @@ import { NearbyPanel } from './panels/NearbyPanel'
 import { DirectionsPanel } from './panels/DirectionsPanel'
 import { SharePanel } from './panels/SharePanel'
 import { InfoPanel } from './panels/InfoPanel'
+import { ParksPanel } from './panels/ParksPanel'
+import { ActivitiesPanel } from './panels/ActivitiesPanel'
+import { TrailsPanel } from './panels/TrailsPanel'
 
 interface SidebarProps {
   onPanelStateChange?: (hasActivePanel: boolean) => void
@@ -77,7 +80,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           Search
         </Tabs.Tab>
 
-        <Divider orientation="horizontal" my="md" />
+        <Divider orientation="horizontal" my="sm" />
 
         <Tabs.Tab value="parks" icon={<Trees size={24} color="#1d5c1e" />}>
           Parks
@@ -89,16 +92,16 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           Trails
         </Tabs.Tab>
 
-        <Divider orientation="horizontal" my="md" />
+        <Divider orientation="horizontal" my="sm" />
 
-        <Tabs.Tab value="nearby" icon={<MapPin size={24} />}>
-          Nearby
-        </Tabs.Tab>
         <Tabs.Tab value="directions" icon={<Route size={24} />}>
           Directions
         </Tabs.Tab>
+        <Tabs.Tab value="nearby" icon={<MapPin size={24} />}>
+          Nearby
+        </Tabs.Tab>
 
-        <Divider orientation="horizontal" my="md" />
+        <Divider orientation="horizontal" my="sm" />
 
         <Tabs.Tab value="share" icon={<Share size={24} />}>
           Share
@@ -112,6 +115,18 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
         <>
           <Tabs.Panel value="search" style={{ flex: 1, overflow: 'auto' }}>
             <SearchPanel onClose={handleClosePanel} />
+          </Tabs.Panel>
+
+          <Tabs.Panel value="parks" style={{ flex: 1, overflow: 'auto' }}>
+            <ParksPanel onClose={handleClosePanel} />
+          </Tabs.Panel>
+
+          <Tabs.Panel value="activities" style={{ flex: 1, overflow: 'auto' }}>
+            <ActivitiesPanel onClose={handleClosePanel} />
+          </Tabs.Panel>
+
+          <Tabs.Panel value="trails" style={{ flex: 1, overflow: 'auto' }}>
+            <TrailsPanel onClose={handleClosePanel} />
           </Tabs.Panel>
 
           <Tabs.Panel value="nearby" style={{ flex: 1, overflow: 'auto' }}>
