@@ -1,7 +1,8 @@
 import { Text, Box, Stack, Loader, Alert, Button, Anchor, Divider } from '@mantine/core'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useActivitiesData, useAttractionsByActivity } from '../../hooks/useActivitiesData'
 import { useCategoriesData } from '../../hooks/useCategoriesData'
+import { useParksData } from '../../hooks/useParksData'
 import { useMap } from '../../contexts/MapContext'
 import { zoomToFeature } from '../../lib/mapUtils'
 import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
@@ -20,7 +21,18 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
     selectedActivityId
   )
   const { categoriesMap } = useCategoriesData()
+  const { data: parks } = useParksData()
   const { map } = useMap()
+
+  // Create a map of reservation ID to park name for quick lookup
+  const parksMap = useMemo(() => {
+    if (!parks) return new Map<number | string, string>()
+    const map = new Map<number | string, string>()
+    parks.forEach((park) => {
+      map.set(park.record_id, park.pagetitle)
+    })
+    return map
+  }, [parks])
 
   // Filter activities to only show those with icons and associated attractions
   const activitiesWithAttractions = activities.filter((activity) => {
@@ -286,40 +298,50 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                       {filteredAttractions.length}{' '}
                       {filteredAttractions.length === 1 ? 'attraction' : 'attractions'}
                     </Text>
-                    {filteredAttractions.map((attraction, index) => (
-                      <Box
-                        key={String(attraction.gis_id || attraction.record_id || index)}
-                        p="sm"
-                        style={{
-                          border: '1px solid #e0e0e0',
-                          borderTop: index === 0 ? '1px solid #e0e0e0' : 'none',
-                          borderRadius: index === 0 ? '4px 4px 0 0' : index === filteredAttractions.length - 1 ? '0 0 4px 4px' : '0',
-                          cursor: 'pointer',
-                        }}
-                        sx={{
-                          '&:hover': {
-                            backgroundColor: '#f5f5f5',
-                          },
-                        }}
-                        onClick={() => {
-                          setSelectedAttraction(attraction)
-                          // Zoom to attraction on map
-                          const attractionData = attraction as Record<string, unknown>
-                          const lat = attractionData.latitude as number | undefined
-                          const lng = attractionData.longitude as number | undefined
-                          if (lat && lng) {
-                            zoomToFeature(map, {
-                              lat,
-                              lng,
-                            })
-                          }
-                        }}
-                      >
-                        <Text size="sm" weight={500}>
-                          {String(attraction.pagetitle)}
-                        </Text>
-                      </Box>
-                    ))}
+                    {filteredAttractions.map((attraction, index) => {
+                      const attractionData = attraction as Record<string, unknown>
+                      const reservationId = attractionData.reservation as number | string | undefined
+                      const parkName = reservationId ? parksMap.get(reservationId) : undefined
+
+                      return (
+                        <Box
+                          key={String(attraction.gis_id || attraction.record_id || index)}
+                          p="sm"
+                          style={{
+                            border: '1px solid #e0e0e0',
+                            borderTop: index === 0 ? '1px solid #e0e0e0' : 'none',
+                            borderRadius: index === 0 ? '4px 4px 0 0' : index === filteredAttractions.length - 1 ? '0 0 4px 4px' : '0',
+                            cursor: 'pointer',
+                          }}
+                          sx={{
+                            '&:hover': {
+                              backgroundColor: '#f5f5f5',
+                            },
+                          }}
+                          onClick={() => {
+                            setSelectedAttraction(attraction)
+                            // Zoom to attraction on map
+                            const lat = attractionData.latitude as number | undefined
+                            const lng = attractionData.longitude as number | undefined
+                            if (lat && lng) {
+                              zoomToFeature(map, {
+                                lat,
+                                lng,
+                              })
+                            }
+                          }}
+                        >
+                          <Text size="sm" weight={500}>
+                            {String(attraction.pagetitle)}
+                          </Text>
+                          {parkName && (
+                            <Text size="xs" color="dimmed" mt={2}>
+                              {parkName}
+                            </Text>
+                          )}
+                        </Box>
+                      )
+                    })}
                   </Stack>
                 )}
               </>
