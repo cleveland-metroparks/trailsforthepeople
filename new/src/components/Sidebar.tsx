@@ -1,6 +1,6 @@
 import { Tabs, Divider } from '@mantine/core'
 import { Search, MapPin, Route, Share, InfoCircle, Trees, Walk, Golf } from 'tabler-icons-react'
-import { useState, useEffect, useImperativeHandle, forwardRef } from 'react'
+import { useState, useEffect, useImperativeHandle, forwardRef, useRef } from 'react'
 import { SearchPanel } from './panels/SearchPanel'
 import { NearbyPanel } from './panels/NearbyPanel'
 import { DirectionsPanel } from './panels/DirectionsPanel'
@@ -9,6 +9,7 @@ import { InfoPanel } from './panels/InfoPanel'
 import { ParksPanel } from './panels/ParksPanel'
 import { ActivitiesPanel } from './panels/ActivitiesPanel'
 import { TrailsPanel } from './panels/TrailsPanel'
+import { useURLState } from '../hooks/useURLState'
 
 interface SidebarProps {
   onPanelStateChange?: (hasActivePanel: boolean) => void
@@ -18,12 +19,35 @@ export interface SidebarRef {
   activateSearchTab: () => void
 }
 
+/**
+ * Map URL feature types to sidebar tab names
+ */
+function getTabForFeatureType(type: string | null | undefined, activityId: string | null | undefined): string | null {
+  if (type === 'park') return 'parks'
+  if (type === 'trail') return 'trails'
+  if (type === 'attraction' || activityId) return 'activities'
+  return null
+}
+
 export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChange }, ref) => {
   const [activeTab, setActiveTab] = useState<string | null>(null)
+  const { params } = useURLState()
+  const initializedRef = useRef(false)
 
   useEffect(() => {
     onPanelStateChange?.(activeTab !== null)
   }, [activeTab, onPanelStateChange])
+
+  // Open the appropriate panel when loading a feature via URL (on initial load only)
+  useEffect(() => {
+    if (initializedRef.current) return
+    
+    const tabForFeature = getTabForFeatureType(params.type, params.activityId)
+    if (tabForFeature) {
+      setActiveTab(tabForFeature)
+      initializedRef.current = true
+    }
+  }, [params.type, params.activityId])
 
   useImperativeHandle(ref, () => ({
     activateSearchTab: () => {
