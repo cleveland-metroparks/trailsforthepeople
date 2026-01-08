@@ -4,7 +4,7 @@ import { useParksData } from '../../hooks/useParksData'
 import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
 import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
 import { useMap } from '../../contexts/MapContext'
-import { zoomToFeature, highlightParkBoundary, clearParkHighlight } from '../../lib/mapUtils'
+import { zoomToFeature, highlightParkBoundary, clearParkHighlight, getBoundingBoxFromGeometry } from '../../lib/mapUtils'
 import type { Reservation } from '../../types/api'
 
 interface ParksPanelProps {
@@ -180,14 +180,25 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
                       }}
                       onClick={() => {
                         setSelectedPark(park)
-                        // Zoom to park on map
-                        if (hasBoundingBox) {
-                          // Use bounding box if available
+                        // Zoom to park on map using its boundary geometry
+                        if (parkGeometry) {
+                          const boundingBox = getBoundingBoxFromGeometry(parkGeometry)
+                          if (boundingBox) {
+                            zoomToFeature(map, boundingBox)
+                          } else if (park.latitude && park.longitude) {
+                            // Fall back to lat/lng if bounding box calculation fails
+                            zoomToFeature(map, {
+                              lat: park.latitude,
+                              lng: park.longitude,
+                            })
+                          }
+                        } else if (park.boxw && park.boxs && park.boxe && park.boxn) {
+                          // Use bounding box from park data if geometry not available
                           zoomToFeature(map, {
-                            w: parkData.boxw as number,
-                            s: parkData.boxs as number,
-                            e: parkData.boxe as number,
-                            n: parkData.boxn as number,
+                            w: park.boxw,
+                            s: park.boxs,
+                            e: park.boxe,
+                            n: park.boxn,
                           })
                         } else if (park.latitude && park.longitude) {
                           // Fall back to lat/lng

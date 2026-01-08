@@ -1,4 +1,5 @@
 import mapboxgl from 'mapbox-gl'
+import bbox from '@turf/bbox'
 
 // Default zoom level for points of interest (matches old DEFAULT_POI_ZOOM)
 export const DEFAULT_POI_ZOOM = 15
@@ -284,5 +285,41 @@ export function clearParkHighlight(map: mapboxgl.Map | null): void {
   // Remove source
   if (map.getSource(PARK_HIGHLIGHT_SOURCE_ID)) {
     map.removeSource(PARK_HIGHLIGHT_SOURCE_ID)
+  }
+}
+
+/**
+ * Calculate bounding box from GeoJSON geometry
+ *
+ * @param geometry - GeoJSON geometry (Polygon or MultiPolygon)
+ * @returns Bounding box object with w, s, e, n coordinates, or null if invalid
+ */
+export function getBoundingBoxFromGeometry(
+  geometry: GeoJSON.Polygon | GeoJSON.MultiPolygon
+): BoundingBoxFeature | null {
+  if (!geometry || (geometry.type !== 'Polygon' && geometry.type !== 'MultiPolygon')) {
+    return null
+  }
+
+  try {
+    const feature: GeoJSON.Feature = {
+      type: 'Feature',
+      geometry: geometry,
+      properties: {},
+    }
+
+    // Calculate bounding box using turf
+    // bbox returns [minX, minY, maxX, maxY] = [west, south, east, north]
+    const [w, s, e, n] = bbox(feature)
+
+    return {
+      w,
+      s,
+      e,
+      n,
+    }
+  } catch (error) {
+    console.warn('getBoundingBoxFromGeometry: Failed to calculate bounding box', error)
+    return null
   }
 }
