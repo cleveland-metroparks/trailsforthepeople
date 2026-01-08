@@ -1,4 +1,4 @@
-import { Text, Box, Stack, Loader, Alert, Select, Button, Divider } from '@mantine/core'
+import { Text, Box, Stack, Loader, Alert, Select, Button, Divider, Badge, Group } from '@mantine/core'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useTrailsData } from '../../hooks/useTrailsData'
 import { useParksData } from '../../hooks/useParksData'
@@ -8,6 +8,11 @@ import { zoomToFeature, highlightTrailLine, clearTrailHighlight } from '../../li
 import { getTrailGeometry } from '../../lib/api'
 import { useURLState } from '../../hooks/useURLState'
 import type { TransformedTrail } from '../../types/api'
+
+// Abbreviate distance units for compact display
+function abbreviateDistance(text: string): string {
+  return text.replace(/Miles?/gi, 'mi').replace(/Feet/gi, 'ft')
+}
 
 interface TrailsPanelProps {
   onClose: () => void
@@ -320,19 +325,33 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
                         }
                       }}
                     >
-                      <Text size="sm" weight={500}>
-                        {String(trail.name)}
-                      </Text>
-                      {trailRes && (
-                        <Text size="xs" color="dimmed" mt={2}>
-                          {trailRes}
-                        </Text>
-                      )}
-                      {distancetext && (
-                        <Text size="xs" color="dimmed" mt={2}>
-                          {distancetext}
-                        </Text>
-                      )}
+                      <Group position="apart" noWrap>
+                        <Box style={{ minWidth: 0 }}>
+                          <Text size="sm" weight={500}>
+                            {String(trail.name)}
+                          </Text>
+                          {trailRes && (
+                            <Text size="xs" color="dimmed" mt={2}>
+                              {trailRes}
+                            </Text>
+                          )}
+                        </Box>
+                        {distancetext && (
+                          <Badge
+                            size="md"
+                            style={{
+                              flexShrink: 0,
+                              backgroundColor: '#1D5C1F',
+                              color: 'white',
+                              paddingLeft: 8,
+                              paddingRight: 8,
+                              textTransform: 'none',
+                            }}
+                          >
+                            {abbreviateDistance(distancetext)}
+                          </Badge>
+                        )}
+                      </Group>
                     </Box>
                   )
                 })}
