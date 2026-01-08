@@ -1,5 +1,5 @@
 import { Text, Box, Stack, Loader, Alert, Button, Anchor, Divider } from '@mantine/core'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useActivitiesData, useAttractionsByActivity } from '../../hooks/useActivitiesData'
 import { useCategoriesData } from '../../hooks/useCategoriesData'
 import { useParksData } from '../../hooks/useParksData'
@@ -7,6 +7,7 @@ import { useMap } from '../../contexts/MapContext'
 import { zoomToFeature } from '../../lib/mapUtils'
 import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
 import { ActivityIcon } from '../ActivityIcon'
+import { useURLState } from '../../hooks/useURLState'
 import type { TransformedAttraction } from '../../types/api'
 
 interface ActivitiesPanelProps {
@@ -15,6 +16,7 @@ interface ActivitiesPanelProps {
 
 export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
   const { activities, attractions, isLoading, isError, error } = useActivitiesData()
+  const { params, setParams } = useURLState()
   const [selectedActivityId, setSelectedActivityId] = useState<number | null>(null)
   const [selectedAttraction, setSelectedAttraction] = useState<TransformedAttraction | null>(null)
   const { attractions: filteredAttractions } = useAttractionsByActivity(
@@ -23,6 +25,45 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
   const { categoriesMap } = useCategoriesData()
   const { data: parks } = useParksData()
   const { map } = useMap()
+
+  // Load activity/attraction from URL on mount or when params change
+  useEffect(() => {
+    if (params.activityId) {
+      const activityId = parseInt(params.activityId, 10)
+      if (!isNaN(activityId) && activityId !== selectedActivityId) {
+        setSelectedActivityId(activityId)
+      }
+    } else if (params.activityId === null && selectedActivityId !== null) {
+      setSelectedActivityId(null)
+    }
+  }, [params.activityId, selectedActivityId])
+
+  useEffect(() => {
+    if (!attractions || !params.type || params.type !== 'attraction' || !params.gid) {
+      if (params.type !== 'attraction') {
+        setSelectedAttraction(null)
+      }
+      return
+    }
+
+    const attractionId = params.gid
+    const attraction = attractions.find(
+      (a) => String(a.gis_id || a.record_id) === attractionId
+    )
+    if (attraction && attraction !== selectedAttraction) {
+      setSelectedAttraction(attraction)
+      // Zoom to attraction when loaded from URL
+      const attractionData = attraction as Record<string, unknown>
+      const lat = attractionData.latitude as number | undefined
+      const lng = attractionData.longitude as number | undefined
+      if (lat && lng) {
+        zoomToFeature(map, {
+          lat,
+          lng,
+        })
+      }
+    }
+  }, [params.type, params.gid, attractions, map, selectedAttraction])
 
   // Create a map of reservation ID to park name for quick lookup
   const parksMap = useMemo(() => {
@@ -87,7 +128,11 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
           <Button
             variant="subtle"
             size="sm"
-            onClick={() => setSelectedAttraction(null)}
+            onClick={() => {
+              setSelectedAttraction(null)
+              // Clear attraction from URL, keep activity if present
+              setParams({ type: null, gid: null }, false, true)
+            }}
             style={{ alignSelf: 'flex-start' }}
           >
             ← {selectedActivity?.pagetitle || 'Activities'}
@@ -252,7 +297,19 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                             backgroundColor: '#f5f5f5',
                           },
                         }}
-                        onClick={() => setSelectedActivityId(activity.eventactivitytypeid)}
+                        onClick={() => {
+                          setSelectedActivityId(activity.eventactivitytypeid)
+                          // Update URL with activity selection (pushState for back button)
+                          setParams(
+                            {
+                              activityId: String(activity.eventactivitytypeid),
+                              type: null, // Clear any previous feature selection
+                              gid: null,
+                            },
+                            false,
+                            true
+                          )
+                        }}
                       >
                         {activity.icon && (
                           <ActivityIcon
@@ -275,7 +332,11 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                 <Button
                   variant="subtle"
                   size="sm"
-                  onClick={() => setSelectedActivityId(null)}
+                  onClick={() => {
+                    setSelectedActivityId(null)
+                    // Clear activity from URL
+                    setParams({ activityId: null }, false, true)
+                  }}
                   style={{ alignSelf: 'flex-start' }}
                 >
                   ← Activities
@@ -320,6 +381,16 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                           }}
                           onClick={() => {
                             setSelectedAttraction(attraction)
+                            // Update URL with attraction selection (pushState for back button)
+                            setParams(
+                              {
+                                type: 'attraction',
+                                gid: String(attraction.gis_id || attraction.record_id),
+                                activityId: selectedActivityId ? String(selectedActivityId) : null,
+                              },
+                              false,
+                              true
+                            )
                             // Zoom to attraction on map
                             const lat = attractionData.latitude as number | undefined
                             const lng = attractionData.longitude as number | undefined

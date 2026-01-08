@@ -5,15 +5,19 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import { useMapConfig } from '../hooks/useMapConfig'
 import { FloatingSearch } from './FloatingSearch'
 import { useMap } from '../contexts/MapContext'
+import { useMapURLSync, getInitialMapStateFromURL } from '../hooks/useMapURLSync'
 
 export function MapView() {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
-  const { setMap } = useMap()
+  const { map: mapFromContext, setMap } = useMap()
   const { mapConfig } = useMapConfig()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isContainerReady, setIsContainerReady] = useState(false)
+
+  // Sync map position to URL
+  useMapURLSync(mapFromContext)
 
   // Check if container is ready
   useEffect(() => {
@@ -28,6 +32,7 @@ export function MapView() {
     checkContainer()
   }, [])
 
+
   useEffect(() => {
     if (map.current || !isContainerReady) return
 
@@ -40,11 +45,23 @@ export function MapView() {
     mapboxgl.accessToken = mapConfig.accessToken;
 
     try {
+      // Get initial state from URL or use defaults
+      const urlState = getInitialMapStateFromURL()
+      const initialCenter: [number, number] = urlState.lat !== null && urlState.lng !== null
+        ? [urlState.lng, urlState.lat]
+        : mapConfig.startCenter
+      const initialZoom = urlState.zoom !== null ? urlState.zoom : mapConfig.startZoom
+      
+      // Choose style based on URL 'base' param ('map' or 'photo')
+      const initialStyle = urlState.base && mapConfig.styleLayers[urlState.base]
+        ? mapConfig.styleLayers[urlState.base]
+        : mapConfig.styleLayer
+
       map.current = new mapboxgl.Map({
         container: mapContainer.current!,
-        style: mapConfig.styleLayer,
-        center: mapConfig.startCenter,
-        zoom: mapConfig.startZoom,
+        style: initialStyle,
+        center: initialCenter,
+        zoom: initialZoom,
       })
 
       // Update context so other components can access the map
@@ -71,29 +88,34 @@ export function MapView() {
         setIsLoading(false)
       })
 
-      setTimeout(() => {
-        if (isLoading) {
-          if (map.current && map.current.isStyleLoaded()) {
-            setIsLoading(false)
-          } else {
-            setError('Map failed to load.')
-            setIsLoading(false)
-          }
+      const timeoutId = setTimeout(() => {
+        if (map.current && map.current.isStyleLoaded()) {
+          setIsLoading(false)
+        } else {
+          setError('Map failed to load.')
+          setIsLoading(false)
         }
       }, 5000)
 
+      return () => {
+        clearTimeout(timeoutId)
+        if (map.current) {
+          setMap(null) // Clear map from context
+          map.current.remove()
+        }
+      }
     } catch (err) {
       setError('Failed to initialize map. Please check your configuration.')
       setIsLoading(false)
-    }
-
-    return () => {
-      if (map.current) {
-        setMap(null) // Clear map from context
-        map.current.remove()
+      return () => {
+        if (map.current) {
+          setMap(null)
+          map.current.remove()
+        }
       }
     }
   }, [mapConfig, isContainerReady, setMap])
+
 
   if (error) {
     return (

@@ -6,6 +6,7 @@ import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
 import { useMap } from '../../contexts/MapContext'
 import { zoomToFeature, highlightTrailLine, clearTrailHighlight } from '../../lib/mapUtils'
 import { getTrailGeometry } from '../../lib/api'
+import { useURLState } from '../../hooks/useURLState'
 import type { TransformedTrail } from '../../types/api'
 
 interface TrailsPanelProps {
@@ -15,6 +16,7 @@ interface TrailsPanelProps {
 export function TrailsPanel({ onClose }: TrailsPanelProps) {
   const { data: trails, isLoading: trailsLoading, isError: trailsError, error: trailsErrorObj } = useTrailsData()
   const { data: parks, isLoading: parksLoading, isError: parksError, error: parksErrorObj } = useParksData()
+  const { params, setParams } = useURLState()
   const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null)
   const [selectedTrail, setSelectedTrail] = useState<TransformedTrail | null>(null)
   const { map } = useMap()
@@ -56,6 +58,45 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
 
   // Track the current trail being fetched to avoid race conditions
   const currentTrailRef = useRef<number | null>(null)
+
+  // Load trail from URL on mount or when params change
+  useEffect(() => {
+    if (!trails || !params.type || params.type !== 'trail' || !params.gid) {
+      if (params.type !== 'trail') {
+        setSelectedTrail(null)
+      }
+      return
+    }
+
+    const trailId = params.gid
+    const trail = trails.find((t) => String(t.id) === trailId)
+    if (trail && trail !== selectedTrail) {
+      setSelectedTrail(trail)
+      // Zoom to trail when loaded from URL
+      const trailData = trail as Record<string, unknown>
+      if (trailData.boxw && trailData.boxs && trailData.boxe && trailData.boxn) {
+        zoomToFeature(map, {
+          w: trailData.boxw as number,
+          s: trailData.boxs as number,
+          e: trailData.boxe as number,
+          n: trailData.boxn as number,
+        }, {
+          padding: sidebarAwarePadding,
+        })
+      } else {
+        const lat = trail.lat as number | undefined
+        const lng = trail.lng as number | undefined
+        if (lat && lng) {
+          zoomToFeature(map, {
+            lat,
+            lng,
+          }, {
+            padding: sidebarAwarePadding,
+          })
+        }
+      }
+    }
+  }, [params.type, params.gid, trails, map, sidebarAwarePadding, selectedTrail])
 
   // Fetch and highlight trail geometry when a trail is selected
   useEffect(() => {
@@ -129,6 +170,8 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
             onClick={() => {
               setSelectedTrail(null)
               clearTrailHighlight(map)
+              // Clear trail from URL
+              setParams({ type: null, gid: null }, false, true)
             }}
             style={{ alignSelf: 'flex-start' }}
           >
@@ -221,76 +264,78 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
                 <Text size="sm" weight={500} color="dimmed">
                   {filteredTrails.length} {filteredTrails.length === 1 ? 'trail' : 'trails'}
                 </Text>
-                {filteredTrails.map((trail, index) => (
-                  <Box
-                    key={String(trail.id)}
-                    p="sm"
-                    style={{
-                      border: '1px solid #e0e0e0',
-                      borderTop: index === 0 ? '1px solid #e0e0e0' : 'none',
-                      borderRadius: index === 0 ? '4px 4px 0 0' : index === filteredTrails.length - 1 ? '0 0 4px 4px' : '0',
-                      cursor: 'pointer',
-                    }}
-                    sx={{
-                      '&:hover': {
-                        backgroundColor: '#f5f5f5',
-                      },
-                    }}
-                    onClick={() => {
-                      setSelectedTrail(trail)
-                      // Zoom to trail on map with padding that accounts for sidebar
-                      const trailData = trail as Record<string, unknown>
-                      if (trailData.boxw && trailData.boxs && trailData.boxe && trailData.boxn) {
-                        zoomToFeature(map, {
-                          w: trailData.boxw as number,
-                          s: trailData.boxs as number,
-                          e: trailData.boxe as number,
-                          n: trailData.boxn as number,
-                        }, {
-                          padding: sidebarAwarePadding,
-                        })
-                      } else {
-                        // Fall back to lat/lng
-                        const lat = trail.lat as number | undefined
-                        const lng = trail.lng as number | undefined
-                        if (lat && lng) {
+                {filteredTrails.map((trail, index) => {
+                  const trailData = trail as Record<string, unknown>
+                  const trailRes = trailData.res as string | undefined
+                  const distancetext = trailData.distancetext as string | undefined
+
+                  return (
+                    <Box
+                      key={String(trail.id)}
+                      p="sm"
+                      style={{
+                        border: '1px solid #e0e0e0',
+                        borderTop: index === 0 ? '1px solid #e0e0e0' : 'none',
+                        borderRadius: index === 0 ? '4px 4px 0 0' : index === filteredTrails.length - 1 ? '0 0 4px 4px' : '0',
+                        cursor: 'pointer',
+                      }}
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: '#f5f5f5',
+                        },
+                      }}
+                      onClick={() => {
+                        setSelectedTrail(trail)
+                        // Update URL with trail selection (pushState for back button)
+                        setParams(
+                          {
+                            type: 'trail',
+                            gid: String(trail.id),
+                          },
+                          false,
+                          true
+                        )
+                        // Zoom to trail on map with padding that accounts for sidebar
+                        if (trailData.boxw && trailData.boxs && trailData.boxe && trailData.boxn) {
                           zoomToFeature(map, {
-                            lat,
-                            lng,
+                            w: trailData.boxw as number,
+                            s: trailData.boxs as number,
+                            e: trailData.boxe as number,
+                            n: trailData.boxn as number,
                           }, {
                             padding: sidebarAwarePadding,
                           })
+                        } else {
+                          // Fall back to lat/lng
+                          const lat = trail.lat as number | undefined
+                          const lng = trail.lng as number | undefined
+                          if (lat && lng) {
+                            zoomToFeature(map, {
+                              lat,
+                              lng,
+                            }, {
+                              padding: sidebarAwarePadding,
+                            })
+                          }
                         }
-                      }
-                    }}
-                  >
-                    <Text size="sm" weight={500}>
-                      {String(trail.name)}
-                    </Text>
-                    <Box style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                      {trail.hike && (
-                        <Text size="xs" color="dimmed">
-                          Hiking
+                      }}
+                    >
+                      <Text size="sm" weight={500}>
+                        {String(trail.name)}
+                      </Text>
+                      {trailRes && (
+                        <Text size="xs" color="dimmed" mt={2}>
+                          {trailRes}
                         </Text>
                       )}
-                      {trail.bike && (
-                        <Text size="xs" color="dimmed">
-                          Biking
-                        </Text>
-                      )}
-                      {trail.mountainbike && (
-                        <Text size="xs" color="dimmed">
-                          Mountain Biking
-                        </Text>
-                      )}
-                      {trail.bridle && (
-                        <Text size="xs" color="dimmed">
-                          Horseback
+                      {distancetext && (
+                        <Text size="xs" color="dimmed" mt={2}>
+                          {distancetext}
                         </Text>
                       )}
                     </Box>
-                  </Box>
-                ))}
+                  )
+                })}
               </Stack>
             )}
           </>

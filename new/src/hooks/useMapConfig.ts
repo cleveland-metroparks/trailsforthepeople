@@ -1,8 +1,18 @@
 import { useMemo } from 'react'
 
+// Mapbox styles (baselayers)
+const STYLE_LAYER_MAP = import.meta.env.VITE_MAPBOX_STYLE_URL || 'mapbox://styles/cleveland-metroparks/cisvvmgwe00112xlk4jnmrehn'
+const STYLE_LAYER_SATELLITE = 'mapbox://styles/cleveland-metroparks/cjcutetjg07892ro6wunp2da9'
+
 const MAP_CONFIG = {
   accessToken: import.meta.env.VITE_MAPBOX_TOKEN || '',
-  styleLayer: import.meta.env.VITE_MAPBOX_STYLE_URL || 'mapbox://styles/mapbox/streets-v12',
+  
+  // Style layers
+  styleLayer: STYLE_LAYER_MAP, // Default style
+  styleLayers: {
+    map: STYLE_LAYER_MAP,
+    photo: STYLE_LAYER_SATELLITE,
+  } as Record<string, string>,
 
   startCenter: [-81.6730, 41.3953] as [number, number],
   startZoom: 11,

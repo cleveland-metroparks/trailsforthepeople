@@ -293,7 +293,7 @@ function addHighlightLayer(map: mapboxgl.Map, geojson: GeoJSON.FeatureCollection
  * @param map - The mapbox map instance (can be null)
  */
 export function clearParkHighlight(map: mapboxgl.Map | null): void {
-  if (!map) {
+  if (!map || !map.isStyleLoaded()) {
     return
   }
 
@@ -307,17 +307,22 @@ export function clearParkHighlight(map: mapboxgl.Map | null): void {
     parkHighlightFadeOutAnimationFrame = null
   }
 
-  // Remove layers
-  if (map.getLayer(PARK_HIGHLIGHT_LAYER_ID)) {
-    map.removeLayer(PARK_HIGHLIGHT_LAYER_ID)
-  }
-  if (map.getLayer(`${PARK_HIGHLIGHT_LAYER_ID}-outline`)) {
-    map.removeLayer(`${PARK_HIGHLIGHT_LAYER_ID}-outline`)
-  }
+  // Remove layers (check if they exist first)
+  try {
+    if (map.getLayer(PARK_HIGHLIGHT_LAYER_ID)) {
+      map.removeLayer(PARK_HIGHLIGHT_LAYER_ID)
+    }
+    if (map.getLayer(`${PARK_HIGHLIGHT_LAYER_ID}-outline`)) {
+      map.removeLayer(`${PARK_HIGHLIGHT_LAYER_ID}-outline`)
+    }
 
-  // Remove source
-  if (map.getSource(PARK_HIGHLIGHT_SOURCE_ID)) {
-    map.removeSource(PARK_HIGHLIGHT_SOURCE_ID)
+    // Remove source
+    if (map.getSource(PARK_HIGHLIGHT_SOURCE_ID)) {
+      map.removeSource(PARK_HIGHLIGHT_SOURCE_ID)
+    }
+  } catch (error) {
+    // Map might be in a state where layers can't be accessed
+    console.warn('clearParkHighlight: Error clearing highlight', error)
   }
 }
 
@@ -519,17 +524,22 @@ function addTrailHighlightLayer(map: mapboxgl.Map, geojson: GeoJSON.FeatureColle
  * @param map - The mapbox map instance (can be null)
  */
 export function clearTrailHighlight(map: mapboxgl.Map | null): void {
-  if (!map) {
+  if (!map || !map.isStyleLoaded()) {
     return
   }
 
-  // Remove layer
-  if (map.getLayer(TRAIL_HIGHLIGHT_LAYER_ID)) {
-    map.removeLayer(TRAIL_HIGHLIGHT_LAYER_ID)
-  }
+  // Remove layer (check if it exists first)
+  try {
+    if (map.getLayer(TRAIL_HIGHLIGHT_LAYER_ID)) {
+      map.removeLayer(TRAIL_HIGHLIGHT_LAYER_ID)
+    }
 
-  // Remove source
-  if (map.getSource(TRAIL_HIGHLIGHT_SOURCE_ID)) {
-    map.removeSource(TRAIL_HIGHLIGHT_SOURCE_ID)
+    // Remove source
+    if (map.getSource(TRAIL_HIGHLIGHT_SOURCE_ID)) {
+      map.removeSource(TRAIL_HIGHLIGHT_SOURCE_ID)
+    }
+  } catch (error) {
+    // Map might be in a state where layers can't be accessed
+    console.warn('clearTrailHighlight: Error clearing highlight', error)
   }
 }

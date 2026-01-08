@@ -6,6 +6,7 @@ import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
 import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
 import { useMap } from '../../contexts/MapContext'
 import { zoomToFeature, highlightParkBoundary, clearParkHighlight, fadeOutParkHighlight, getBoundingBoxFromGeometry } from '../../lib/mapUtils'
+import { useURLState } from '../../hooks/useURLState'
 import type { Reservation } from '../../types/api'
 
 interface ParksPanelProps {
@@ -15,9 +16,12 @@ interface ParksPanelProps {
 export function ParksPanel({ onClose }: ParksPanelProps) {
   const { data: parks, isLoading, isError, error } = useParksData()
   const { data: boundaries, isLoading: boundariesLoading } = useReservationBoundaries()
-  const [selectedPark, setSelectedPark] = useState<Reservation | null>(null)
+  const { params, setParams } = useURLState()
   const { map } = useMap()
   const sidebarAwarePadding = useSidebarAwarePadding(120)
+
+  // Initialize selected park from URL if present
+  const [selectedPark, setSelectedPark] = useState<Reservation | null>(null)
 
   // Create a map of park names to boundaries for quick lookup
   const boundariesByParkName = useMemo(() => {
@@ -34,6 +38,34 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
     })
     return map
   }, [boundaries])
+  
+  // Load park from URL on mount or when params change
+  useEffect(() => {
+    if (!parks || !params.type || params.type !== 'park' || !params.gid) {
+      if (params.type !== 'park') {
+        setSelectedPark(null)
+      }
+      return
+    }
+
+    const parkId = params.gid
+    const park = parks.find((p) => String(p.record_id) === parkId)
+    if (park && park !== selectedPark) {
+      setSelectedPark(park)
+      // Zoom to park when loaded from URL
+      const parkGeometry = boundariesByParkName.get(park.pagetitle)
+      if (parkGeometry) {
+        const boundingBox = getBoundingBoxFromGeometry(parkGeometry)
+        if (boundingBox) {
+          zoomToFeature(map, boundingBox, {
+            padding: sidebarAwarePadding,
+          })
+          highlightParkBoundary(map, parkGeometry)
+          fadeOutParkHighlight(map, 1000, 2000)
+        }
+      }
+    }
+  }, [params.type, params.gid, parks, boundariesByParkName, map, sidebarAwarePadding, selectedPark])
 
   // Clear highlight when component unmounts
   useEffect(() => {
@@ -56,7 +88,11 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
           <Button
             variant="subtle"
             size="sm"
-            onClick={() => setSelectedPark(null)}
+            onClick={() => {
+              setSelectedPark(null)
+              // Clear park from URL
+              setParams({ type: null, gid: null }, false, true)
+            }}
             style={{ alignSelf: 'flex-start' }}
           >
             ← Parks
@@ -176,6 +212,15 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
                       }}
                       onClick={() => {
                         setSelectedPark(park)
+                        // Update URL with park selection (pushState for back button)
+                        setParams(
+                          {
+                            type: 'park',
+                            gid: String(park.record_id),
+                          },
+                          false,
+                          true
+                        )
                         // Highlight park boundary if geometry is available
                         if (parkGeometry) {
                           highlightParkBoundary(map, parkGeometry)
