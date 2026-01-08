@@ -1,5 +1,5 @@
 import { Text, Box, Stack, Loader, Alert, Button, Anchor, Divider } from '@mantine/core'
-import { useState, useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParksData } from '../../hooks/useParksData'
 import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
 import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
@@ -20,52 +20,89 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
   const { map } = useMap()
   const sidebarAwarePadding = useSidebarAwarePadding(120)
 
-  // Initialize selected park from URL if present
-  const [selectedPark, setSelectedPark] = useState<Reservation | null>(null)
+  // Track whether we should zoom (only on user click, not URL restoration)
+  const shouldZoomRef = useRef(false)
+  // Track the park ID we've zoomed to (to avoid duplicate zooms)
+  const zoomedParkIdRef = useRef<string | null>(null)
+  // Track if this is the initial load (to zoom to park from URL on page load)
+  const isInitialLoadRef = useRef(true)
 
   // Create a map of park names to boundaries for quick lookup
   const boundariesByParkName = useMemo(() => {
     if (!boundaries) return new Map<string, GeoJSON.Polygon | GeoJSON.MultiPolygon>()
 
-    const map = new Map<string, GeoJSON.Polygon | GeoJSON.MultiPolygon>()
+    const boundaryMap = new Map<string, GeoJSON.Polygon | GeoJSON.MultiPolygon>()
     boundaries.forEach((boundary) => {
       try {
         const geometry = JSON.parse(boundary.geom_geojson) as GeoJSON.Polygon | GeoJSON.MultiPolygon
-        map.set(boundary.res, geometry)
+        boundaryMap.set(boundary.res, geometry)
       } catch (e) {
         console.error('Failed to parse geometry for', boundary.res, e)
       }
     })
-    return map
+    return boundaryMap
   }, [boundaries])
-  
-  // Load park from URL on mount or when params change
-  useEffect(() => {
-    if (!parks || !params.type || params.type !== 'park' || !params.gid) {
-      if (params.type !== 'park') {
-        setSelectedPark(null)
+
+  // SINGLE SOURCE OF TRUTH: Derive selectedPark from URL params
+  const selectedPark = useMemo(() => {
+    if (!parks || params.type !== 'park' || !params.gid) {
+      return null
+    }
+    return parks.find((p) => String(p.record_id) === params.gid) || null
+  }, [parks, params.type, params.gid])
+
+  // Helper to zoom to a park
+  const zoomToPark = useCallback((park: Reservation) => {
+    if (!map) return
+    const parkGeometry = boundariesByParkName.get(park.pagetitle)
+    if (parkGeometry) {
+      const boundingBox = getBoundingBoxFromGeometry(parkGeometry)
+      if (boundingBox) {
+        zoomToFeature(map, boundingBox, {
+          padding: sidebarAwarePadding,
+        })
+        highlightParkBoundary(map, parkGeometry)
+        fadeOutParkHighlight(map, 1000, 2000)
+        return
       }
-      return
+    }
+    // Fall back to bounding box or lat/lng from park data
+    if (park.boxw && park.boxs && park.boxe && park.boxn) {
+      zoomToFeature(map, {
+        w: park.boxw,
+        s: park.boxs,
+        e: park.boxe,
+        n: park.boxn,
+      }, {
+        padding: sidebarAwarePadding,
+      })
+    } else if (park.latitude && park.longitude) {
+      zoomToFeature(map, {
+        lat: park.latitude,
+        lng: park.longitude,
+      }, {
+        padding: sidebarAwarePadding,
+      })
+    }
+  }, [map, boundariesByParkName, sidebarAwarePadding])
+
+  // Handle zoom: on user click OR initial page load with park in URL
+  useEffect(() => {
+    if (!selectedPark || !map) return
+
+    const parkId = params.gid ?? null
+    const alreadyZoomed = parkId === zoomedParkIdRef.current
+
+    // Zoom if: user clicked (shouldZoomRef) OR initial load with park in URL
+    if ((shouldZoomRef.current || isInitialLoadRef.current) && !alreadyZoomed) {
+      zoomToPark(selectedPark)
+      zoomedParkIdRef.current = parkId
     }
 
-    const parkId = params.gid
-    const park = parks.find((p) => String(p.record_id) === parkId)
-    if (park && park !== selectedPark) {
-      setSelectedPark(park)
-      // Zoom to park when loaded from URL
-      const parkGeometry = boundariesByParkName.get(park.pagetitle)
-      if (parkGeometry) {
-        const boundingBox = getBoundingBoxFromGeometry(parkGeometry)
-        if (boundingBox) {
-          zoomToFeature(map, boundingBox, {
-            padding: sidebarAwarePadding,
-          })
-          highlightParkBoundary(map, parkGeometry)
-          fadeOutParkHighlight(map, 1000, 2000)
-        }
-      }
-    }
-  }, [params.type, params.gid, parks, boundariesByParkName, map, sidebarAwarePadding, selectedPark])
+    // Clear flags after processing
+    shouldZoomRef.current = false
+    isInitialLoadRef.current = false
+  }, [selectedPark, params.gid, map, zoomToPark])
 
   // Clear highlight when component unmounts
   useEffect(() => {
@@ -89,8 +126,9 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
             variant="subtle"
             size="sm"
             onClick={() => {
-              setSelectedPark(null)
-              // Clear park from URL
+              // Reset zoom tracking
+              zoomedParkIdRef.current = null
+              // Clear park from URL (this will clear selectedPark via derived state)
               setParams({ type: null, gid: null }, false, true)
             }}
             style={{ alignSelf: 'flex-start' }}
@@ -211,8 +249,10 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
                         clearParkHighlight(map)
                       }}
                       onClick={() => {
-                        setSelectedPark(park)
+                        // Mark that we want to zoom (user initiated)
+                        shouldZoomRef.current = true
                         // Update URL with park selection (pushState for back button)
+                        // This will update selectedPark via derived state
                         setParams(
                           {
                             type: 'park',
@@ -221,47 +261,6 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
                           false,
                           true
                         )
-                        // Highlight park boundary if geometry is available
-                        if (parkGeometry) {
-                          highlightParkBoundary(map, parkGeometry)
-                          // Fade out highlight after 3 seconds
-                          fadeOutParkHighlight(map, 1000, 2000)
-                        }
-                        // Zoom to park on map using its boundary geometry
-                        if (parkGeometry) {
-                          const boundingBox = getBoundingBoxFromGeometry(parkGeometry)
-                          if (boundingBox) {
-                            zoomToFeature(map, boundingBox, {
-                              padding: sidebarAwarePadding,
-                            })
-                          } else if (park.latitude && park.longitude) {
-                            // Fall back to lat/lng if bounding box calculation fails
-                            zoomToFeature(map, {
-                              lat: park.latitude,
-                              lng: park.longitude,
-                            }, {
-                              padding: sidebarAwarePadding,
-                            })
-                          }
-                        } else if (park.boxw && park.boxs && park.boxe && park.boxn) {
-                          // Use bounding box from park data if geometry not available
-                          zoomToFeature(map, {
-                            w: park.boxw,
-                            s: park.boxs,
-                            e: park.boxe,
-                            n: park.boxn,
-                          }, {
-                            padding: sidebarAwarePadding,
-                          })
-                        } else if (park.latitude && park.longitude) {
-                          // Fall back to lat/lng
-                          zoomToFeature(map, {
-                            lat: park.latitude,
-                            lng: park.longitude,
-                          }, {
-                            padding: sidebarAwarePadding,
-                          })
-                        }
                       }}
                     >
                       <Text size="sm" weight={500}>

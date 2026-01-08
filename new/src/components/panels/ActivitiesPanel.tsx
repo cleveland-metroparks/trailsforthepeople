@@ -1,10 +1,11 @@
 import { Text, Box, Stack, Loader, Alert, Button, Anchor, Divider } from '@mantine/core'
-import { useState, useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useRef, useCallback } from 'react'
 import { useActivitiesData, useAttractionsByActivity } from '../../hooks/useActivitiesData'
 import { useCategoriesData } from '../../hooks/useCategoriesData'
 import { useParksData } from '../../hooks/useParksData'
 import { useMap } from '../../contexts/MapContext'
 import { zoomToFeature } from '../../lib/mapUtils'
+import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
 import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
 import { ActivityIcon } from '../ActivityIcon'
 import { useURLState } from '../../hooks/useURLState'
@@ -17,8 +18,22 @@ interface ActivitiesPanelProps {
 export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
   const { activities, attractions, isLoading, isError, error } = useActivitiesData()
   const { params, setParams } = useURLState()
-  const [selectedActivityId, setSelectedActivityId] = useState<number | null>(null)
-  const [selectedAttraction, setSelectedAttraction] = useState<TransformedAttraction | null>(null)
+  const sidebarAwarePadding = useSidebarAwarePadding(120)
+
+  // Track whether we should zoom (only on user click, not URL restoration)
+  const shouldZoomRef = useRef(false)
+  // Track the attraction ID we've zoomed to (to avoid duplicate zooms)
+  const zoomedAttractionIdRef = useRef<string | null>(null)
+  // Track if this is the initial load (to zoom to attraction from URL on page load)
+  const isInitialLoadRef = useRef(true)
+
+  // SINGLE SOURCE OF TRUTH: Derive selectedActivityId from URL params
+  const selectedActivityId = useMemo(() => {
+    if (!params.activityId) return null
+    const activityId = parseInt(params.activityId, 10)
+    return isNaN(activityId) ? null : activityId
+  }, [params.activityId])
+
   const { attractions: filteredAttractions } = useAttractionsByActivity(
     selectedActivityId
   )
@@ -26,44 +41,44 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
   const { data: parks } = useParksData()
   const { map } = useMap()
 
-  // Load activity/attraction from URL on mount or when params change
-  useEffect(() => {
-    if (params.activityId) {
-      const activityId = parseInt(params.activityId, 10)
-      if (!isNaN(activityId) && activityId !== selectedActivityId) {
-        setSelectedActivityId(activityId)
-      }
-    } else if (params.activityId === null && selectedActivityId !== null) {
-      setSelectedActivityId(null)
+  // SINGLE SOURCE OF TRUTH: Derive selectedAttraction from URL params
+  const selectedAttraction = useMemo(() => {
+    if (!attractions || params.type !== 'attraction' || !params.gid) {
+      return null
     }
-  }, [params.activityId, selectedActivityId])
+    return attractions.find(
+      (a) => String(a.gis_id || a.record_id) === params.gid
+    ) || null
+  }, [attractions, params.type, params.gid])
 
+  // Helper to zoom to an attraction
+  const zoomToAttraction = useCallback((attraction: TransformedAttraction) => {
+    if (!map) return
+    const attractionData = attraction as Record<string, unknown>
+    const lat = attractionData.latitude as number | undefined
+    const lng = attractionData.longitude as number | undefined
+    if (lat && lng) {
+      zoomToFeature(map, { lat, lng }, { padding: sidebarAwarePadding })
+    }
+  }, [map, sidebarAwarePadding])
+
+  // Handle zoom: on user click OR initial page load with attraction in URL
   useEffect(() => {
-    if (!attractions || !params.type || params.type !== 'attraction' || !params.gid) {
-      if (params.type !== 'attraction') {
-        setSelectedAttraction(null)
-      }
-      return
+    if (!selectedAttraction || !map) return
+
+    const attractionId = params.gid ?? null
+    const alreadyZoomed = attractionId === zoomedAttractionIdRef.current
+
+    // Zoom if: user clicked (shouldZoomRef) OR initial load with attraction in URL
+    if ((shouldZoomRef.current || isInitialLoadRef.current) && !alreadyZoomed) {
+      zoomToAttraction(selectedAttraction)
+      zoomedAttractionIdRef.current = attractionId
     }
 
-    const attractionId = params.gid
-    const attraction = attractions.find(
-      (a) => String(a.gis_id || a.record_id) === attractionId
-    )
-    if (attraction && attraction !== selectedAttraction) {
-      setSelectedAttraction(attraction)
-      // Zoom to attraction when loaded from URL
-      const attractionData = attraction as Record<string, unknown>
-      const lat = attractionData.latitude as number | undefined
-      const lng = attractionData.longitude as number | undefined
-      if (lat && lng) {
-        zoomToFeature(map, {
-          lat,
-          lng,
-        })
-      }
-    }
-  }, [params.type, params.gid, attractions, map, selectedAttraction])
+    // Clear flags after processing
+    shouldZoomRef.current = false
+    isInitialLoadRef.current = false
+  }, [selectedAttraction, params.gid, map, zoomToAttraction])
 
   // Create a map of reservation ID to park name for quick lookup
   const parksMap = useMemo(() => {
@@ -117,7 +132,7 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
     const activityIcons = selectedAttraction.activities
       ? selectedAttraction.activities
           .map((activityId) => activities.find((a) => a.eventactivitytypeid === activityId))
-          .filter((activity): activity is typeof activity & { icon: string } => 
+          .filter((activity): activity is typeof activity & { icon: string } =>
             activity !== undefined && activity.icon !== null
           )
       : []
@@ -129,8 +144,10 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
             variant="subtle"
             size="sm"
             onClick={() => {
-              setSelectedAttraction(null)
+              // Reset zoom tracking
+              zoomedAttractionIdRef.current = null
               // Clear attraction from URL, keep activity if present
+              // This will clear selectedAttraction via derived state
               setParams({ type: null, gid: null }, false, true)
             }}
             style={{ alignSelf: 'flex-start' }}
@@ -235,7 +252,7 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
               <Divider />
               <Box>
                 <Anchor href={cmp_url.startsWith('/') ? `https://www.clevelandmetroparks.com${cmp_url}` : cmp_url} target="_blank" size="sm">
-                  More info
+                  More info on clevelandmetroparks.com
                 </Anchor>
               </Box>
             </>
@@ -298,8 +315,8 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                           },
                         }}
                         onClick={() => {
-                          setSelectedActivityId(activity.eventactivitytypeid)
                           // Update URL with activity selection (pushState for back button)
+                          // This will update selectedActivityId via derived state
                           setParams(
                             {
                               activityId: String(activity.eventactivitytypeid),
@@ -333,8 +350,7 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                   variant="subtle"
                   size="sm"
                   onClick={() => {
-                    setSelectedActivityId(null)
-                    // Clear activity from URL
+                    // Clear activity from URL (this will clear selectedActivityId via derived state)
                     setParams({ activityId: null }, false, true)
                   }}
                   style={{ alignSelf: 'flex-start' }}
@@ -380,8 +396,10 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                             },
                           }}
                           onClick={() => {
-                            setSelectedAttraction(attraction)
+                            // Mark that we want to zoom (user initiated)
+                            shouldZoomRef.current = true
                             // Update URL with attraction selection (pushState for back button)
+                            // This will update selectedAttraction via derived state
                             setParams(
                               {
                                 type: 'attraction',
@@ -391,15 +409,6 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                               false,
                               true
                             )
-                            // Zoom to attraction on map
-                            const lat = attractionData.latitude as number | undefined
-                            const lng = attractionData.longitude as number | undefined
-                            if (lat && lng) {
-                              zoomToFeature(map, {
-                                lat,
-                                lng,
-                              })
-                            }
                           }}
                         >
                           <Text size="sm" weight={500}>
