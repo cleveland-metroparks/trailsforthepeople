@@ -4,10 +4,12 @@ import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { useMapConfig } from '../hooks/useMapConfig'
 import { FloatingSearch } from './FloatingSearch'
+import { useMap } from '../contexts/MapContext'
 
 export function MapView() {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
+  const { setMap } = useMap()
   const { mapConfig } = useMapConfig()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -44,6 +46,9 @@ export function MapView() {
         center: mapConfig.startCenter,
         zoom: mapConfig.startZoom,
       })
+
+      // Update context so other components can access the map
+      setMap(map.current)
 
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right')
 
@@ -84,10 +89,11 @@ export function MapView() {
 
     return () => {
       if (map.current) {
+        setMap(null) // Clear map from context
         map.current.remove()
       }
     }
-  }, [mapConfig, isContainerReady])
+  }, [mapConfig, isContainerReady, setMap])
 
   if (error) {
     return (

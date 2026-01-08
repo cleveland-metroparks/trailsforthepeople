@@ -2,6 +2,8 @@ import { Text, Box, Stack, Loader, Alert, Button, Anchor, Divider } from '@manti
 import { useState } from 'react'
 import { useParksData } from '../../hooks/useParksData'
 import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
+import { useMap } from '../../contexts/MapContext'
+import { zoomToFeature } from '../../lib/mapUtils'
 import type { Reservation } from '../../types/api'
 
 interface ParksPanelProps {
@@ -11,6 +13,7 @@ interface ParksPanelProps {
 export function ParksPanel({ onClose }: ParksPanelProps) {
   const { data: parks, isLoading, isError, error } = useParksData()
   const [selectedPark, setSelectedPark] = useState<Reservation | null>(null)
+  const { map } = useMap()
 
   // Show detail view if a park is selected
   if (selectedPark) {
@@ -133,6 +136,23 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
                     }}
                     onClick={() => {
                       setSelectedPark(park)
+                      // Zoom to park on map
+                      const parkData = park as Record<string, unknown>
+                      if (parkData.boxw && parkData.boxs && parkData.boxe && parkData.boxn) {
+                        // Use bounding box if available
+                        zoomToFeature(map, {
+                          w: parkData.boxw as number,
+                          s: parkData.boxs as number,
+                          e: parkData.boxe as number,
+                          n: parkData.boxn as number,
+                        })
+                      } else if (park.latitude && park.longitude) {
+                        // Fall back to lat/lng
+                        zoomToFeature(map, {
+                          lat: park.latitude,
+                          lng: park.longitude,
+                        })
+                      }
                     }}
                   >
                     <Text size="sm" weight={500}>

@@ -2,6 +2,8 @@ import { Text, Box, Stack, Loader, Alert, Select, Button, Divider } from '@manti
 import { useState, useMemo } from 'react'
 import { useTrailsData } from '../../hooks/useTrailsData'
 import { useParksData } from '../../hooks/useParksData'
+import { useMap } from '../../contexts/MapContext'
+import { zoomToFeature } from '../../lib/mapUtils'
 import type { TransformedTrail } from '../../types/api'
 
 interface TrailsPanelProps {
@@ -13,6 +15,7 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
   const { data: parks, isLoading: parksLoading, isError: parksError, error: parksErrorObj } = useParksData()
   const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null)
   const [selectedTrail, setSelectedTrail] = useState<TransformedTrail | null>(null)
+  const { map } = useMap()
 
   const isLoading = trailsLoading || parksLoading
   const isError = trailsError || parksError
@@ -171,6 +174,27 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
                     }}
                     onClick={() => {
                       setSelectedTrail(trail)
+                      // Zoom to trail on map
+                      const trailData = trail as Record<string, unknown>
+                      if (trailData.boxw && trailData.boxs && trailData.boxe && trailData.boxn) {
+                        // Use bounding box if available
+                        zoomToFeature(map, {
+                          w: trailData.boxw as number,
+                          s: trailData.boxs as number,
+                          e: trailData.boxe as number,
+                          n: trailData.boxn as number,
+                        })
+                      } else {
+                        // Fall back to lat/lng
+                        const lat = trail.lat as number | undefined
+                        const lng = trail.lng as number | undefined
+                        if (lat && lng) {
+                          zoomToFeature(map, {
+                            lat,
+                            lng,
+                          })
+                        }
+                      }
                     }}
                   >
                     <Text size="sm" weight={500}>

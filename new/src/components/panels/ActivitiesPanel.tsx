@@ -1,6 +1,8 @@
 import { Text, Box, Stack, Loader, Alert, Image } from '@mantine/core'
 import { useState } from 'react'
 import { useActivitiesData, useAttractionsByActivity } from '../../hooks/useActivitiesData'
+import { useMap } from '../../contexts/MapContext'
+import { zoomToFeature } from '../../lib/mapUtils'
 
 interface ActivitiesPanelProps {
   onClose: () => void
@@ -12,6 +14,7 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
   const { attractions: filteredAttractions } = useAttractionsByActivity(
     selectedActivityId
   )
+  const { map } = useMap()
 
   // Filter activities to only show those with icons and associated attractions
   const activitiesWithAttractions = activities.filter((activity) => {
@@ -168,8 +171,16 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                           },
                         }}
                         onClick={() => {
-                          // TODO: Handle attraction click - center map, show details, etc.
-                          console.log('Attraction clicked:', attraction)
+                          // Zoom to attraction on map
+                          const attractionData = attraction as Record<string, unknown>
+                          const lat = attractionData.latitude as number | undefined
+                          const lng = attractionData.longitude as number | undefined
+                          if (lat && lng) {
+                            zoomToFeature(map, {
+                              lat,
+                              lng,
+                            })
+                          }
                         }}
                       >
                         <Text size="sm" weight={500}>
