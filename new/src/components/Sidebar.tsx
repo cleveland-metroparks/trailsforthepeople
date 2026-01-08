@@ -19,7 +19,7 @@ export interface SidebarRef {
 }
 
 export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChange }, ref) => {
-  const [activeTab, setActiveTab] = useState<string | null>('search')
+  const [activeTab, setActiveTab] = useState<string | null>(null)
 
   useEffect(() => {
     onPanelStateChange?.(activeTab !== null)
