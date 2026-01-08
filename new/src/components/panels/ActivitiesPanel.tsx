@@ -1,8 +1,11 @@
-import { Text, Box, Stack, Loader, Alert, Image } from '@mantine/core'
+import { Text, Box, Stack, Loader, Alert, Image, Button, Anchor, Divider } from '@mantine/core'
 import { useState } from 'react'
 import { useActivitiesData, useAttractionsByActivity } from '../../hooks/useActivitiesData'
+import { useCategoriesData } from '../../hooks/useCategoriesData'
 import { useMap } from '../../contexts/MapContext'
 import { zoomToFeature } from '../../lib/mapUtils'
+import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
+import type { TransformedAttraction } from '../../types/api'
 
 interface ActivitiesPanelProps {
   onClose: () => void
@@ -11,9 +14,11 @@ interface ActivitiesPanelProps {
 export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
   const { activities, attractions, isLoading, isError, error } = useActivitiesData()
   const [selectedActivityId, setSelectedActivityId] = useState<number | null>(null)
+  const [selectedAttraction, setSelectedAttraction] = useState<TransformedAttraction | null>(null)
   const { attractions: filteredAttractions } = useAttractionsByActivity(
     selectedActivityId
   )
+  const { categoriesMap } = useCategoriesData()
   const { map } = useMap()
 
   // Filter activities to only show those with icons and associated attractions
@@ -32,12 +37,119 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
     a.pagetitle.localeCompare(b.pagetitle)
   )
 
+  // Get selected activity name for back button
+  const selectedActivity = selectedActivityId
+    ? activities.find((a) => a.eventactivitytypeid === selectedActivityId)
+    : null
+
+  // Show attraction detail view if selected
+  if (selectedAttraction) {
+    const pagethumbnail = (selectedAttraction as Record<string, unknown>).pagethumbnail as string | undefined
+    const imgProps = makeImageFromPagethumbnail(pagethumbnail, 320)
+    const descr = (selectedAttraction as Record<string, unknown>).descr as string | undefined
+    const hoursofoperation = (selectedAttraction as Record<string, unknown>).hoursofoperation as string | undefined
+    const phone = (selectedAttraction as Record<string, unknown>).phone as string | undefined
+    const cmp_url = (selectedAttraction as Record<string, unknown>).cmp_url as string | undefined
+
+    // Get category names
+    const categoryNames = selectedAttraction.categories
+      ? selectedAttraction.categories
+          .map((id) => categoriesMap[id])
+          .filter((name) => name)
+          .join(', ')
+      : null
+
+    return (
+      <Box p="md" style={{ position: 'relative' }}>
+        <Stack spacing="md">
+          <Button
+            variant="subtle"
+            size="sm"
+            onClick={() => setSelectedAttraction(null)}
+            style={{ alignSelf: 'flex-start' }}
+          >
+            ← {selectedActivity?.pagetitle || 'Activities'}
+          </Button>
+
+          <Text size="lg" weight={500}>
+            {String(selectedAttraction.pagetitle)}
+          </Text>
+
+          {categoryNames && (
+            <Text size="sm" color="dimmed">
+              {categoryNames}
+            </Text>
+          )}
+
+          {imgProps && (
+            <Box>
+              <img
+                src={imgProps.src}
+                width={imgProps.width}
+                height={imgProps.height}
+                alt={String(selectedAttraction.pagetitle)}
+                style={{ maxWidth: '100%', height: 'auto' }}
+              />
+            </Box>
+          )}
+
+          {descr && (
+            <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
+              {descr}
+            </Text>
+          )}
+
+          {hoursofoperation && (
+            <>
+              <Divider />
+              <Box>
+                <Text size="sm" weight={500} mb="xs">
+                  Hours of Operation
+                </Text>
+                <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
+                  {hoursofoperation}
+                </Text>
+              </Box>
+            </>
+          )}
+
+          {phone && (
+            <>
+              <Divider />
+              <Box>
+                <Text size="sm" weight={500} mb="xs">
+                  Phone
+                </Text>
+                <Anchor href={`tel:${phone}`} size="sm">
+                  {phone}
+                </Anchor>
+              </Box>
+            </>
+          )}
+
+          {cmp_url && (
+            <>
+              <Divider />
+              <Box>
+                <Anchor href={cmp_url.startsWith('/') ? `https://www.clevelandmetroparks.com${cmp_url}` : cmp_url} target="_blank" size="sm">
+                  More info
+                </Anchor>
+              </Box>
+            </>
+          )}
+        </Stack>
+      </Box>
+    )
+  }
+
   return (
     <Box p="md" style={{ position: 'relative' }}>
       <Stack spacing="md">
-        <Text size="lg" weight={500}>
-          Activities
-        </Text>
+        {selectedActivityId === null && (
+          <Text size="lg" weight={500}>
+            Activities
+          </Text>
+        )}
 
         {isLoading && (
           <Box style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
@@ -123,20 +235,14 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
               </>
             ) : (
               <>
-                <Box
-                  p="sm"
-                  style={{
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    backgroundColor: '#f5f5f5',
-                  }}
+                <Button
+                  variant="subtle"
+                  size="sm"
                   onClick={() => setSelectedActivityId(null)}
+                  style={{ alignSelf: 'flex-start' }}
                 >
-                  <Text size="sm" weight={500}>
-                    ← Back to Activities
-                  </Text>
-                </Box>
+                  ← Activities
+                </Button>
 
                 <Text size="md" weight={500}>
                   {
@@ -157,7 +263,7 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                     </Text>
                     {filteredAttractions.map((attraction, index) => (
                       <Box
-                        key={attraction.gis_id || attraction.record_id}
+                        key={String(attraction.gis_id || attraction.record_id || index)}
                         p="sm"
                         style={{
                           border: '1px solid #e0e0e0',
@@ -171,6 +277,7 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                           },
                         }}
                         onClick={() => {
+                          setSelectedAttraction(attraction)
                           // Zoom to attraction on map
                           const attractionData = attraction as Record<string, unknown>
                           const lat = attractionData.latitude as number | undefined
@@ -184,7 +291,7 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                         }}
                       >
                         <Text size="sm" weight={500}>
-                          {attraction.pagetitle}
+                          {String(attraction.pagetitle)}
                         </Text>
                       </Box>
                     ))}

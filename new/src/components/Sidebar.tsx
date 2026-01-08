@@ -45,7 +45,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
       onTabChange={handleTabChange}
       orientation="vertical"
       style={{ height: '100%', width: '100%' }}
-      styles={{
+      styles={(theme) => ({
         root: {
           display: 'flex',
           flexDirection: 'row',
@@ -61,6 +61,20 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           gap: '4px',
           padding: '12px 8px',
           minHeight: '70px',
+          '&[data-active]': {
+            backgroundColor: theme.colorScheme === 'dark' 
+              ? theme.colors.dark[6] 
+              : theme.colors.gray[1],
+            borderLeft: `3px solid ${theme.colors.green[6]}`,
+            fontWeight: 600,
+          },
+          '&[data-active="true"]': {
+            backgroundColor: theme.colorScheme === 'dark' 
+              ? theme.colors.dark[6] 
+              : theme.colors.gray[1],
+            borderLeft: `3px solid ${theme.colors.green[6]}`,
+            fontWeight: 600,
+          },
         },
         tabLabel: {
           fontSize: '12px',
@@ -73,7 +87,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           display: activeTab ? 'flex' : 'none',
           flexDirection: 'column',
         },
-      }}
+      })}
     >
       <Tabs.List>
         <Tabs.Tab value="search" icon={<Search size={24} />}>

@@ -174,3 +174,128 @@ export function zoomToFeature(
 
   console.warn('zoomToFeature: No valid coordinates found in feature', feature)
 }
+
+// Constants for park highlight layer
+const PARK_HIGHLIGHT_SOURCE_ID = 'park-highlight-source'
+const PARK_HIGHLIGHT_LAYER_ID = 'park-highlight-layer'
+
+/**
+ * Highlight a park boundary on the map using its bounding box
+ *
+ * @param map - The mapbox map instance (can be null)
+ * @param bbox - Bounding box coordinates (w, s, e, n)
+ */
+export function highlightParkBoundary(
+  map: mapboxgl.Map | null,
+  bbox: BoundingBoxFeature
+): void {
+  if (!map) {
+    console.warn('highlightParkBoundary: Map instance is null')
+    return
+  }
+
+  if (!hasValidBoundingBox(bbox)) {
+    console.warn('highlightParkBoundary: Invalid bounding box', bbox)
+    return
+  }
+
+  // Create a rectangle polygon from the bounding box
+  const polygon: GeoJSON.Polygon = {
+    type: 'Polygon',
+    coordinates: [
+      [
+        [bbox.w, bbox.s], // Southwest
+        [bbox.e, bbox.s], // Southeast
+        [bbox.e, bbox.n], // Northeast
+        [bbox.w, bbox.n], // Northwest
+        [bbox.w, bbox.s], // Close the polygon
+      ],
+    ],
+  }
+
+  const feature: GeoJSON.Feature = {
+    type: 'Feature',
+    geometry: polygon,
+    properties: {},
+  }
+
+  const geojson: GeoJSON.FeatureCollection = {
+    type: 'FeatureCollection',
+    features: [feature],
+  }
+
+  // Wait for map to be loaded if needed
+  if (!map.isStyleLoaded()) {
+    map.once('style.load', () => {
+      addHighlightLayer(map, geojson)
+    })
+  } else {
+    addHighlightLayer(map, geojson)
+  }
+}
+
+/**
+ * Add or update the highlight layer on the map
+ */
+function addHighlightLayer(map: mapboxgl.Map, geojson: GeoJSON.FeatureCollection): void {
+  // Remove existing layer and source if they exist
+  if (map.getLayer(PARK_HIGHLIGHT_LAYER_ID)) {
+    map.removeLayer(PARK_HIGHLIGHT_LAYER_ID)
+  }
+  if (map.getSource(PARK_HIGHLIGHT_SOURCE_ID)) {
+    map.removeSource(PARK_HIGHLIGHT_SOURCE_ID)
+  }
+
+  // Add the source
+  map.addSource(PARK_HIGHLIGHT_SOURCE_ID, {
+    type: 'geojson',
+    data: geojson,
+  })
+
+  // Add the fill layer
+  map.addLayer({
+    id: PARK_HIGHLIGHT_LAYER_ID,
+    type: 'fill',
+    source: PARK_HIGHLIGHT_SOURCE_ID,
+    paint: {
+      'fill-color': '#3b82f6', // Blue color
+      'fill-opacity': 0.3,
+    },
+  })
+
+  // Add the outline layer
+  map.addLayer({
+    id: `${PARK_HIGHLIGHT_LAYER_ID}-outline`,
+    type: 'line',
+    source: PARK_HIGHLIGHT_SOURCE_ID,
+    paint: {
+      'line-color': '#3b82f6',
+      'line-width': 2,
+      'line-opacity': 0.8,
+    },
+  })
+}
+
+/**
+ * Clear the park boundary highlight from the map
+ *
+ * @param map - The mapbox map instance (can be null)
+ */
+export function clearParkHighlight(map: mapboxgl.Map | null): void {
+  if (!map) {
+    return
+  }
+
+  // Remove layers
+  if (map.getLayer(PARK_HIGHLIGHT_LAYER_ID)) {
+    map.removeLayer(PARK_HIGHLIGHT_LAYER_ID)
+  }
+  if (map.getLayer(`${PARK_HIGHLIGHT_LAYER_ID}-outline`)) {
+    map.removeLayer(`${PARK_HIGHLIGHT_LAYER_ID}-outline`)
+  }
+
+  // Remove source
+  if (map.getSource(PARK_HIGHLIGHT_SOURCE_ID)) {
+    map.removeSource(PARK_HIGHLIGHT_SOURCE_ID)
+  }
+}

@@ -68,7 +68,7 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
             onClick={() => setSelectedTrail(null)}
             style={{ alignSelf: 'flex-start' }}
           >
-            ← Back
+            ← Trails
           </Button>
 
           <Text size="lg" weight={500}>

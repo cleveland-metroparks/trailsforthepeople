@@ -5,6 +5,7 @@ import type {
   Attraction,
   Activity,
   Trail,
+  Category,
   TransformedAttraction,
   TransformedTrail,
 } from '../types/api'
@@ -76,6 +77,14 @@ export async function getTrails(): Promise<TransformedTrail[]> {
   return response.data.data
     .filter((trail) => trail.status !== 0) // Skip unpublished trails
     .map(transformTrail)
+}
+
+/**
+ * Fetch categories from the API
+ */
+export async function getCategories(): Promise<Category[]> {
+  const response = await apiClient.get<ApiResponse<Category>>('categories')
+  return response.data.data
 }
 
 export { apiClient }

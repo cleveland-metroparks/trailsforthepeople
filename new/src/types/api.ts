@@ -64,6 +64,13 @@ export interface Trail {
   [key: string]: unknown // Allow for additional fields
 }
 
+// Category
+export interface Category {
+  categorytypeid: number
+  name: string
+  [key: string]: unknown // Allow for additional fields
+}
+
 // Transformed Trail (after processing)
 export interface TransformedTrail extends Omit<Trail, 'bike' | 'hike' | 'bridle' | 'mountainbike'> {
   bike: boolean

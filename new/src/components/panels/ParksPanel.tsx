@@ -1,9 +1,9 @@
 import { Text, Box, Stack, Loader, Alert, Button, Anchor, Divider } from '@mantine/core'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParksData } from '../../hooks/useParksData'
 import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
 import { useMap } from '../../contexts/MapContext'
-import { zoomToFeature } from '../../lib/mapUtils'
+import { zoomToFeature, highlightParkBoundary, clearParkHighlight } from '../../lib/mapUtils'
 import type { Reservation } from '../../types/api'
 
 interface ParksPanelProps {
@@ -14,6 +14,19 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
   const { data: parks, isLoading, isError, error } = useParksData()
   const [selectedPark, setSelectedPark] = useState<Reservation | null>(null)
   const { map } = useMap()
+
+  // Clear highlight when component unmounts or park is selected
+  useEffect(() => {
+    return () => {
+      clearParkHighlight(map)
+    }
+  }, [map])
+
+  useEffect(() => {
+    if (selectedPark) {
+      clearParkHighlight(map)
+    }
+  }, [selectedPark, map])
 
   // Show detail view if a park is selected
   if (selectedPark) {
@@ -32,7 +45,7 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
             onClick={() => setSelectedPark(null)}
             style={{ alignSelf: 'flex-start' }}
           >
-            ← Back
+            ← Parks
           </Button>
 
           <Text size="lg" weight={500}>
@@ -119,47 +132,74 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
                 <Text size="sm" weight={500} color="dimmed">
                   {parks.length} {parks.length === 1 ? 'park' : 'parks'}
                 </Text>
-                {parks.map((park, index) => (
-                  <Box
-                    key={park.record_id}
-                    p="sm"
-                    style={{
-                      border: '1px solid #e0e0e0',
-                      borderTop: index === 0 ? '1px solid #e0e0e0' : 'none',
-                      borderRadius: index === 0 ? '4px 4px 0 0' : index === parks.length - 1 ? '0 0 4px 4px' : '0',
-                      cursor: 'pointer',
-                    }}
-                    sx={{
-                      '&:hover': {
-                        backgroundColor: '#f5f5f5',
-                      },
-                    }}
-                    onClick={() => {
-                      setSelectedPark(park)
-                      // Zoom to park on map
-                      const parkData = park as Record<string, unknown>
-                      if (parkData.boxw && parkData.boxs && parkData.boxe && parkData.boxn) {
-                        // Use bounding box if available
-                        zoomToFeature(map, {
-                          w: parkData.boxw as number,
-                          s: parkData.boxs as number,
-                          e: parkData.boxe as number,
-                          n: parkData.boxn as number,
-                        })
-                      } else if (park.latitude && park.longitude) {
-                        // Fall back to lat/lng
-                        zoomToFeature(map, {
-                          lat: park.latitude,
-                          lng: park.longitude,
-                        })
-                      }
-                    }}
-                  >
-                    <Text size="sm" weight={500}>
-                      {park.pagetitle}
-                    </Text>
-                  </Box>
-                ))}
+                {parks.map((park, index) => {
+                  const parkData = park as Record<string, unknown>
+                  const hasBoundingBox =
+                    parkData.boxw &&
+                    parkData.boxs &&
+                    parkData.boxe &&
+                    parkData.boxn &&
+                    parkData.boxw !== 0 &&
+                    parkData.boxs !== 0 &&
+                    parkData.boxe !== 0 &&
+                    parkData.boxn !== 0
+
+                  return (
+                    <Box
+                      key={park.record_id}
+                      p="sm"
+                      style={{
+                        border: '1px solid #e0e0e0',
+                        borderTop: index === 0 ? '1px solid #e0e0e0' : 'none',
+                        borderRadius: index === 0 ? '4px 4px 0 0' : index === parks.length - 1 ? '0 0 4px 4px' : '0',
+                        cursor: 'pointer',
+                      }}
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: '#f5f5f5',
+                        },
+                      }}
+                      onMouseEnter={() => {
+                        // Highlight park boundary on hover
+                        if (hasBoundingBox) {
+                          highlightParkBoundary(map, {
+                            w: parkData.boxw as number,
+                            s: parkData.boxs as number,
+                            e: parkData.boxe as number,
+                            n: parkData.boxn as number,
+                          })
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        // Clear highlight when mouse leaves
+                        clearParkHighlight(map)
+                      }}
+                      onClick={() => {
+                        setSelectedPark(park)
+                        // Zoom to park on map
+                        if (hasBoundingBox) {
+                          // Use bounding box if available
+                          zoomToFeature(map, {
+                            w: parkData.boxw as number,
+                            s: parkData.boxs as number,
+                            e: parkData.boxe as number,
+                            n: parkData.boxn as number,
+                          })
+                        } else if (park.latitude && park.longitude) {
+                          // Fall back to lat/lng
+                          zoomToFeature(map, {
+                            lat: park.latitude,
+                            lng: park.longitude,
+                          })
+                        }
+                      }}
+                    >
+                      <Text size="sm" weight={500}>
+                        {park.pagetitle}
+                      </Text>
+                    </Box>
+                  )
+                })}
               </Stack>
             )}
           </>
