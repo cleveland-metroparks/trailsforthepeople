@@ -6,6 +6,7 @@ import { useMapConfig } from '../hooks/useMapConfig'
 import { FloatingSearch } from './FloatingSearch'
 import { useMap } from '../contexts/MapContext'
 import { useMapURLSync, getInitialMapStateFromURL } from '../hooks/useMapURLSync'
+import { ResetMapControl } from './ResetMapControl'
 
 export function MapView() {
   const mapContainer = useRef<HTMLDivElement>(null)
@@ -66,6 +67,15 @@ export function MapView() {
 
       // Update context so other components can access the map
       setMap(map.current)
+
+      // Add reset control (above zoom buttons)
+      map.current.addControl(
+        new ResetMapControl({
+          center: mapConfig.startCenter,
+          zoom: mapConfig.startZoom,
+        }),
+        'top-right'
+      )
 
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right')
 

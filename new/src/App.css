@@ -29,3 +29,18 @@ body {
 .mantine-AppShell-main > .map-container {
   height: 100% !important;
 }
+
+/* Reset map control button styling */
+.mapboxgl-ctrl-group button.mapboxgl-ctrl-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mapboxgl-ctrl-group button.mapboxgl-ctrl-icon svg {
+  color: #333;
+}
+
+.mapboxgl-ctrl-group button.mapboxgl-ctrl-icon:hover svg {
+  color: #000;
+}
