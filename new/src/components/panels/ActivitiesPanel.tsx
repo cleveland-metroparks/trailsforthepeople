@@ -82,21 +82,33 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                         onClick={() => setSelectedActivityId(activity.eventactivitytypeid)}
                       >
                         {activity.icon && (
-                          <Image
-                            src={activity.icon}
-                            alt={activity.pagetitle}
-                            w={24}
-                            h={24}
+                          <Box
                             style={{
                               flexShrink: 0,
-                              width: '24px',
-                              height: '24px',
-                              maxWidth: '24px',
-                              maxHeight: '24px',
-                              objectFit: 'contain'
+                              width: '28px',
+                              height: '28px',
+                              border: '2px solid #373735',
+                              borderRadius: '4px',
+                              backgroundColor: '#373735',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
                             }}
-                            fallbackSrc="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3C/svg%3E"
-                          />
+                          >
+                            <Image
+                              src={activity.icon}
+                              alt={activity.pagetitle}
+                              w={24}
+                              h={24}
+                              style={{
+                                width: '24px',
+                                height: '24px',
+                                maxWidth: '24px',
+                                maxHeight: '24px',
+                                objectFit: 'contain'
+                              }}
+                            />
+                          </Box>
                         )}
                         <Text size="sm" weight={500} style={{ flex: 1 }}>
                           {activity.pagetitle}
