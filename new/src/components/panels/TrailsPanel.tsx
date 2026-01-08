@@ -1,5 +1,5 @@
 import { Text, Box, Stack, Loader, Alert, Select, Button, Divider, Badge, Group } from '@mantine/core'
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { useTrailsData } from '../../hooks/useTrailsData'
 import { useParksData } from '../../hooks/useParksData'
 import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
@@ -23,13 +23,27 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
   const { data: parks, isLoading: parksLoading, isError: parksError, error: parksErrorObj } = useParksData()
   const { params, setParams } = useURLState()
   const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null)
-  const [selectedTrail, setSelectedTrail] = useState<TransformedTrail | null>(null)
   const { map } = useMap()
   const sidebarAwarePadding = useSidebarAwarePadding(120)
+
+  // Track whether we should zoom (only on user click, not URL restoration)
+  const shouldZoomRef = useRef(false)
+  // Track the trail ID we've zoomed to (to avoid duplicate zooms)
+  const zoomedTrailIdRef = useRef<string | null>(null)
+  // Track if this is the initial load (to zoom to trail from URL on page load)
+  const isInitialLoadRef = useRef(true)
 
   const isLoading = trailsLoading || parksLoading
   const isError = trailsError || parksError
   const error = trailsErrorObj || parksErrorObj
+
+  // SINGLE SOURCE OF TRUTH: Derive selectedTrail from URL params
+  const selectedTrail = useMemo(() => {
+    if (!trails || params.type !== 'trail' || !params.gid) {
+      return null
+    }
+    return trails.find((t) => String(t.id) === params.gid) || null
+  }, [trails, params.type, params.gid])
 
   // Filter trails by selected reservation
   const filteredTrails = useMemo(() => {
@@ -64,44 +78,49 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
   // Track the current trail being fetched to avoid race conditions
   const currentTrailRef = useRef<number | null>(null)
 
-  // Load trail from URL on mount or when params change
-  useEffect(() => {
-    if (!trails || !params.type || params.type !== 'trail' || !params.gid) {
-      if (params.type !== 'trail') {
-        setSelectedTrail(null)
+  // Helper to zoom to a trail
+  const zoomToTrail = useCallback((trail: TransformedTrail) => {
+    if (!map) return
+    const trailData = trail as Record<string, unknown>
+    if (trailData.boxw && trailData.boxs && trailData.boxe && trailData.boxn) {
+      zoomToFeature(map, {
+        w: trailData.boxw as number,
+        s: trailData.boxs as number,
+        e: trailData.boxe as number,
+        n: trailData.boxn as number,
+      }, {
+        padding: sidebarAwarePadding,
+      })
+    } else {
+      const lat = trail.lat as number | undefined
+      const lng = trail.lng as number | undefined
+      if (lat && lng) {
+        zoomToFeature(map, { lat, lng }, { padding: sidebarAwarePadding })
       }
-      return
+    }
+  }, [map, sidebarAwarePadding])
+
+  // Handle zoom: on user click OR initial page load with trail in URL
+  useEffect(() => {
+    if (!selectedTrail || !map) return
+
+    const trailId = params.gid ?? null
+    const alreadyZoomed = trailId === zoomedTrailIdRef.current
+
+    // Zoom if: user clicked (shouldZoomRef) OR initial load with trail in URL
+    if ((shouldZoomRef.current || isInitialLoadRef.current) && !alreadyZoomed) {
+      zoomToTrail(selectedTrail)
+      zoomedTrailIdRef.current = trailId
     }
 
-    const trailId = params.gid
-    const trail = trails.find((t) => String(t.id) === trailId)
-    if (trail && trail !== selectedTrail) {
-      setSelectedTrail(trail)
-      // Zoom to trail when loaded from URL
-      const trailData = trail as Record<string, unknown>
-      if (trailData.boxw && trailData.boxs && trailData.boxe && trailData.boxn) {
-        zoomToFeature(map, {
-          w: trailData.boxw as number,
-          s: trailData.boxs as number,
-          e: trailData.boxe as number,
-          n: trailData.boxn as number,
-        }, {
-          padding: sidebarAwarePadding,
-        })
-      } else {
-        const lat = trail.lat as number | undefined
-        const lng = trail.lng as number | undefined
-        if (lat && lng) {
-          zoomToFeature(map, {
-            lat,
-            lng,
-          }, {
-            padding: sidebarAwarePadding,
-          })
-        }
-      }
-    }
-  }, [params.type, params.gid, trails, map, sidebarAwarePadding, selectedTrail])
+    // Clear flags after processing
+    shouldZoomRef.current = false
+    isInitialLoadRef.current = false
+  }, [selectedTrail, params.gid, map, zoomToTrail])
+
+  // Extract trail ID from URL params - using primitive value as dependency
+  // to avoid re-running effect when trail object reference changes
+  const selectedTrailId = params.type === 'trail' && params.gid ? parseInt(params.gid, 10) : null
 
   // Fetch and highlight trail geometry when a trail is selected
   useEffect(() => {
@@ -109,29 +128,18 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
       return
     }
 
-    if (!selectedTrail) {
-      // Clear highlight if no trail is selected
+    if (!selectedTrailId || isNaN(selectedTrailId)) {
       currentTrailRef.current = null
       clearTrailHighlight(map)
       return
     }
 
-    // Fetch trail geometry
-    const trailId: number = selectedTrail.id as number
-    if (!trailId || typeof trailId !== 'number') {
-      return
-    }
-
-    // Mark this trail as the current one being fetched
-    currentTrailRef.current = trailId
-
-    // Clear previous highlight before fetching new one
+    currentTrailRef.current = selectedTrailId
     clearTrailHighlight(map)
 
-    getTrailGeometry(trailId)
+    getTrailGeometry(selectedTrailId)
       .then((geometry) => {
-        // Only highlight if this is still the selected trail (avoid race conditions)
-        if (currentTrailRef.current === trailId && geometry && map) {
+        if (currentTrailRef.current === selectedTrailId && geometry && map) {
           highlightTrailLine(map, geometry)
         }
       })
@@ -139,14 +147,12 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
         console.error('Error highlighting trail:', error)
       })
 
-    // Cleanup: mark trail as no longer current when effect re-runs or unmounts
     return () => {
-      // If we're switching to a different trail, mark the old one as no longer current
-      if (currentTrailRef.current === trailId) {
+      if (currentTrailRef.current === selectedTrailId) {
         currentTrailRef.current = null
       }
     }
-  }, [selectedTrail, map])
+  }, [selectedTrailId, map])
 
   // Clear highlight when component unmounts
   useEffect(() => {
@@ -173,9 +179,11 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
             variant="subtle"
             size="sm"
             onClick={() => {
-              setSelectedTrail(null)
+              // Clear trail highlight
               clearTrailHighlight(map)
-              // Clear trail from URL
+              // Reset zoom tracking
+              zoomedTrailIdRef.current = null
+              // Clear trail from URL (this will clear selectedTrail via derived state)
               setParams({ type: null, gid: null }, false, true)
             }}
             style={{ alignSelf: 'flex-start' }}
@@ -290,8 +298,10 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
                         },
                       }}
                       onClick={() => {
-                        setSelectedTrail(trail)
+                        // Mark that we want to zoom (user initiated)
+                        shouldZoomRef.current = true
                         // Update URL with trail selection (pushState for back button)
+                        // This will update selectedTrail via derived state
                         setParams(
                           {
                             type: 'trail',
@@ -300,29 +310,6 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
                           false,
                           true
                         )
-                        // Zoom to trail on map with padding that accounts for sidebar
-                        if (trailData.boxw && trailData.boxs && trailData.boxe && trailData.boxn) {
-                          zoomToFeature(map, {
-                            w: trailData.boxw as number,
-                            s: trailData.boxs as number,
-                            e: trailData.boxe as number,
-                            n: trailData.boxn as number,
-                          }, {
-                            padding: sidebarAwarePadding,
-                          })
-                        } else {
-                          // Fall back to lat/lng
-                          const lat = trail.lat as number | undefined
-                          const lng = trail.lng as number | undefined
-                          if (lat && lng) {
-                            zoomToFeature(map, {
-                              lat,
-                              lng,
-                            }, {
-                              padding: sidebarAwarePadding,
-                            })
-                          }
-                        }
                       }}
                     >
                       <Group position="apart" noWrap>

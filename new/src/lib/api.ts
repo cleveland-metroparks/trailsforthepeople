@@ -115,8 +115,7 @@ export async function getTrailGeometry(trailId: number): Promise<GeoJSON.LineStr
   try {
     const response = await apiClient.get<TrailGeometryResponse>(`trail_geometries/${trailId}`)
     if (response.data.data.geom_geojson) {
-      const geom_geojson = JSON.parse(response.data.data.geom_geojson)
-      return geom_geojson
+      return JSON.parse(response.data.data.geom_geojson)
     }
     return null
   } catch (error) {

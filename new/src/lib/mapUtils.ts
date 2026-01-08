@@ -189,6 +189,10 @@ const PARK_HIGHLIGHT_LAYER_ID = 'park-highlight-layer'
 const TRAIL_HIGHLIGHT_SOURCE_ID = 'trail-highlight-source'
 const TRAIL_HIGHLIGHT_LAYER_ID = 'trail-highlight-layer'
 
+// Version counter to invalidate stale highlight operations (handles race conditions
+// when user clicks trails faster than style.load can complete)
+let trailHighlightVersion = 0
+
 // Track fade-out timeout to allow cancellation
 let parkHighlightFadeOutTimeout: ReturnType<typeof setTimeout> | null = null
 let parkHighlightFadeOutAnimationFrame: number | null = null
@@ -458,6 +462,9 @@ export function highlightTrailLine(
     return
   }
 
+  // Increment version to mark this as the current highlight operation
+  const thisVersion = ++trailHighlightVersion
+
   const feature: GeoJSON.Feature = {
     type: 'Feature',
     geometry: geometry,
@@ -469,13 +476,18 @@ export function highlightTrailLine(
     features: [feature],
   }
 
-  // Wait for map to be loaded if needed
-  if (!map.isStyleLoaded()) {
+  // Try to add the layer directly - isStyleLoaded() can return false even when
+  // the map is usable, and in those cases style.load won't fire again
+  const success = addTrailHighlightLayer(map, geojson)
+  
+  if (!success && !map.isStyleLoaded()) {
+    // Only defer if the add actually failed AND style reports not loaded
     map.once('style.load', () => {
-      addTrailHighlightLayer(map, geojson)
+      // Only apply if this is still the current highlight operation
+      if (trailHighlightVersion === thisVersion) {
+        addTrailHighlightLayer(map, geojson)
+      }
     })
-  } else {
-    addTrailHighlightLayer(map, geojson)
   }
 }
 
@@ -486,36 +498,42 @@ export function highlightTrailLine(
  * - line-width: 6
  * - line-opacity: 0.75
  */
-function addTrailHighlightLayer(map: mapboxgl.Map, geojson: GeoJSON.FeatureCollection): void {
-  // Remove existing layer and source if they exist
-  if (map.getLayer(TRAIL_HIGHLIGHT_LAYER_ID)) {
-    map.removeLayer(TRAIL_HIGHLIGHT_LAYER_ID)
-  }
-  if (map.getSource(TRAIL_HIGHLIGHT_SOURCE_ID)) {
-    map.removeSource(TRAIL_HIGHLIGHT_SOURCE_ID)
-  }
+function addTrailHighlightLayer(map: mapboxgl.Map, geojson: GeoJSON.FeatureCollection): boolean {
+  try {
+    // Remove existing layer and source if they exist
+    if (map.getLayer(TRAIL_HIGHLIGHT_LAYER_ID)) {
+      map.removeLayer(TRAIL_HIGHLIGHT_LAYER_ID)
+    }
+    if (map.getSource(TRAIL_HIGHLIGHT_SOURCE_ID)) {
+      map.removeSource(TRAIL_HIGHLIGHT_SOURCE_ID)
+    }
 
-  // Add the source
-  map.addSource(TRAIL_HIGHLIGHT_SOURCE_ID, {
-    type: 'geojson',
-    data: geojson,
-  })
+    // Add the source
+    map.addSource(TRAIL_HIGHLIGHT_SOURCE_ID, {
+      type: 'geojson',
+      data: geojson,
+    })
 
-  // Add the line layer
-  map.addLayer({
-    id: TRAIL_HIGHLIGHT_LAYER_ID,
-    type: 'line',
-    source: TRAIL_HIGHLIGHT_SOURCE_ID,
-    layout: {
-      'line-join': 'round',
-      'line-cap': 'round',
-    },
-    paint: {
-      'line-color': '#01B3FD',
-      'line-width': 6,
-      'line-opacity': 0.75,
-    },
-  })
+    // Add the line layer
+    map.addLayer({
+      id: TRAIL_HIGHLIGHT_LAYER_ID,
+      type: 'line',
+      source: TRAIL_HIGHLIGHT_SOURCE_ID,
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round',
+      },
+      paint: {
+        'line-color': '#01B3FD',
+        'line-width': 6,
+        'line-opacity': 0.75,
+      },
+    })
+    
+    return !!map.getLayer(TRAIL_HIGHLIGHT_LAYER_ID)
+  } catch {
+    return false
+  }
 }
 
 /**
@@ -524,6 +542,10 @@ function addTrailHighlightLayer(map: mapboxgl.Map, geojson: GeoJSON.FeatureColle
  * @param map - The mapbox map instance (can be null)
  */
 export function clearTrailHighlight(map: mapboxgl.Map | null): void {
+  // Increment version to invalidate any pending highlight operations
+  // (this must happen even if we can't clear the layer yet)
+  trailHighlightVersion++
+
   if (!map || !map.isStyleLoaded()) {
     return
   }
@@ -538,8 +560,7 @@ export function clearTrailHighlight(map: mapboxgl.Map | null): void {
     if (map.getSource(TRAIL_HIGHLIGHT_SOURCE_ID)) {
       map.removeSource(TRAIL_HIGHLIGHT_SOURCE_ID)
     }
-  } catch (error) {
+  } catch {
     // Map might be in a state where layers can't be accessed
-    console.warn('clearTrailHighlight: Error clearing highlight', error)
   }
 }
