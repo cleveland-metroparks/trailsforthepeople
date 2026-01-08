@@ -246,7 +246,7 @@ function addHighlightLayer(map: mapboxgl.Map, geojson: GeoJSON.FeatureCollection
     type: 'fill',
     source: PARK_HIGHLIGHT_SOURCE_ID,
     paint: {
-      'fill-color': '#3b82f6', // Blue color
+      'fill-color': '#6AB03E', // green_light
       'fill-opacity': 0.3,
     },
   })
@@ -257,7 +257,7 @@ function addHighlightLayer(map: mapboxgl.Map, geojson: GeoJSON.FeatureCollection
     type: 'line',
     source: PARK_HIGHLIGHT_SOURCE_ID,
     paint: {
-      'line-color': '#3b82f6',
+      'line-color': '#1D5C1F', // green_dark
       'line-width': 2,
       'line-opacity': 0.8,
     },
