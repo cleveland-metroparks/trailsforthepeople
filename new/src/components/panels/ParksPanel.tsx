@@ -5,7 +5,7 @@ import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
 import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
 import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
 import { useMap } from '../../contexts/MapContext'
-import { zoomToFeature, highlightParkBoundary, clearParkHighlight, getBoundingBoxFromGeometry } from '../../lib/mapUtils'
+import { zoomToFeature, highlightParkBoundary, clearParkHighlight, fadeOutParkHighlight, getBoundingBoxFromGeometry } from '../../lib/mapUtils'
 import type { Reservation } from '../../types/api'
 
 interface ParksPanelProps {
@@ -22,7 +22,7 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
   // Create a map of park names to boundaries for quick lookup
   const boundariesByParkName = useMemo(() => {
     if (!boundaries) return new Map<string, GeoJSON.Polygon | GeoJSON.MultiPolygon>()
-    
+
     const map = new Map<string, GeoJSON.Polygon | GeoJSON.MultiPolygon>()
     boundaries.forEach((boundary) => {
       try {
@@ -35,18 +35,12 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
     return map
   }, [boundaries])
 
-  // Clear highlight when component unmounts or park is selected
+  // Clear highlight when component unmounts
   useEffect(() => {
     return () => {
       clearParkHighlight(map)
     }
   }, [map])
-
-  useEffect(() => {
-    if (selectedPark) {
-      clearParkHighlight(map)
-    }
-  }, [selectedPark, map])
 
   // Show detail view if a park is selected
   if (selectedPark) {
@@ -182,6 +176,12 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
                       }}
                       onClick={() => {
                         setSelectedPark(park)
+                        // Highlight park boundary if geometry is available
+                        if (parkGeometry) {
+                          highlightParkBoundary(map, parkGeometry)
+                          // Fade out highlight after 3 seconds
+                          fadeOutParkHighlight(map, 1000, 2000)
+                        }
                         // Zoom to park on map using its boundary geometry
                         if (parkGeometry) {
                           const boundingBox = getBoundingBoxFromGeometry(parkGeometry)

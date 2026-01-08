@@ -189,6 +189,10 @@ const PARK_HIGHLIGHT_LAYER_ID = 'park-highlight-layer'
 const TRAIL_HIGHLIGHT_SOURCE_ID = 'trail-highlight-source'
 const TRAIL_HIGHLIGHT_LAYER_ID = 'trail-highlight-layer'
 
+// Track fade-out timeout to allow cancellation
+let parkHighlightFadeOutTimeout: ReturnType<typeof setTimeout> | null = null
+let parkHighlightFadeOutAnimationFrame: number | null = null
+
 /**
  * Highlight a park boundary on the map using GeoJSON geometry
  *
@@ -205,6 +209,16 @@ export function highlightParkBoundary(
 
   if (!geometry || (geometry.type !== 'Polygon' && geometry.type !== 'MultiPolygon')) {
     return
+  }
+
+  // Cancel any existing fade-out
+  if (parkHighlightFadeOutTimeout !== null) {
+    clearTimeout(parkHighlightFadeOutTimeout)
+    parkHighlightFadeOutTimeout = null
+  }
+  if (parkHighlightFadeOutAnimationFrame !== null) {
+    cancelAnimationFrame(parkHighlightFadeOutAnimationFrame)
+    parkHighlightFadeOutAnimationFrame = null
   }
 
   const feature: GeoJSON.Feature = {
@@ -283,6 +297,16 @@ export function clearParkHighlight(map: mapboxgl.Map | null): void {
     return
   }
 
+  // Cancel any ongoing fade-out animations
+  if (parkHighlightFadeOutTimeout !== null) {
+    clearTimeout(parkHighlightFadeOutTimeout)
+    parkHighlightFadeOutTimeout = null
+  }
+  if (parkHighlightFadeOutAnimationFrame !== null) {
+    cancelAnimationFrame(parkHighlightFadeOutAnimationFrame)
+    parkHighlightFadeOutAnimationFrame = null
+  }
+
   // Remove layers
   if (map.getLayer(PARK_HIGHLIGHT_LAYER_ID)) {
     map.removeLayer(PARK_HIGHLIGHT_LAYER_ID)
@@ -294,6 +318,83 @@ export function clearParkHighlight(map: mapboxgl.Map | null): void {
   // Remove source
   if (map.getSource(PARK_HIGHLIGHT_SOURCE_ID)) {
     map.removeSource(PARK_HIGHLIGHT_SOURCE_ID)
+  }
+}
+
+/**
+ * Fade out the park boundary highlight over a duration, then clear it
+ *
+ * @param map - The mapbox map instance (can be null)
+ * @param duration - Duration of fade in milliseconds (default: 1000)
+ * @param delay - Delay before starting fade in milliseconds (default: 0)
+ */
+export function fadeOutParkHighlight(
+  map: mapboxgl.Map | null,
+  duration: number = 1000,
+  delay: number = 0
+): void {
+  if (!map) {
+    return
+  }
+
+  // Cancel any existing fade-out
+  if (parkHighlightFadeOutTimeout !== null) {
+    clearTimeout(parkHighlightFadeOutTimeout)
+    parkHighlightFadeOutTimeout = null
+  }
+  if (parkHighlightFadeOutAnimationFrame !== null) {
+    cancelAnimationFrame(parkHighlightFadeOutAnimationFrame)
+    parkHighlightFadeOutAnimationFrame = null
+  }
+
+  const fadeOut = () => {
+    const fillLayer = map.getLayer(PARK_HIGHLIGHT_LAYER_ID)
+    const outlineLayer = map.getLayer(`${PARK_HIGHLIGHT_LAYER_ID}-outline`)
+
+    if (!fillLayer || !outlineLayer) {
+      return
+    }
+
+    // Get initial opacity values
+    const initialFillOpacity = 0.3
+    const initialOutlineOpacity = 0.8
+
+    const startTime = Date.now()
+    const animate = () => {
+      // Check if layers still exist (might have been cleared)
+      if (!map.getLayer(PARK_HIGHLIGHT_LAYER_ID) || !map.getLayer(`${PARK_HIGHLIGHT_LAYER_ID}-outline`)) {
+        parkHighlightFadeOutAnimationFrame = null
+        return
+      }
+
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      
+      // Ease out animation
+      const easeOut = 1 - Math.pow(1 - progress, 3)
+      
+      const currentFillOpacity = initialFillOpacity * (1 - easeOut)
+      const currentOutlineOpacity = initialOutlineOpacity * (1 - easeOut)
+
+      map.setPaintProperty(PARK_HIGHLIGHT_LAYER_ID, 'fill-opacity', currentFillOpacity)
+      map.setPaintProperty(`${PARK_HIGHLIGHT_LAYER_ID}-outline`, 'line-opacity', currentOutlineOpacity)
+
+      if (progress < 1) {
+        parkHighlightFadeOutAnimationFrame = requestAnimationFrame(animate)
+      } else {
+        // Clear after animation completes
+        parkHighlightFadeOutAnimationFrame = null
+        clearParkHighlight(map)
+      }
+    }
+
+    parkHighlightFadeOutAnimationFrame = requestAnimationFrame(animate)
+  }
+
+  if (delay > 0) {
+    parkHighlightFadeOutTimeout = setTimeout(fadeOut, delay)
+  } else {
+    fadeOut()
   }
 }
 
