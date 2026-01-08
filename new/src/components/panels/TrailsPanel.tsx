@@ -1,7 +1,8 @@
-import { Text, Box, Stack, Loader, Alert, Select } from '@mantine/core'
+import { Text, Box, Stack, Loader, Alert, Select, Button, Divider } from '@mantine/core'
 import { useState, useMemo } from 'react'
 import { useTrailsData } from '../../hooks/useTrailsData'
 import { useParksData } from '../../hooks/useParksData'
+import type { TransformedTrail } from '../../types/api'
 
 interface TrailsPanelProps {
   onClose: () => void
@@ -11,6 +12,7 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
   const { data: trails, isLoading: trailsLoading, isError: trailsError, error: trailsErrorObj } = useTrailsData()
   const { data: parks, isLoading: parksLoading, isError: parksError, error: parksErrorObj } = useParksData()
   const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null)
+  const [selectedTrail, setSelectedTrail] = useState<TransformedTrail | null>(null)
 
   const isLoading = trailsLoading || parksLoading
   const isError = trailsError || parksError
@@ -45,6 +47,73 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
       })),
     ]
   }, [parks])
+
+  // Show detail view if a trail is selected
+  if (selectedTrail) {
+    const distancetext = (selectedTrail as Record<string, unknown>).distancetext as string | undefined
+    const durationtext_hike = (selectedTrail as Record<string, unknown>).durationtext_hike as string | undefined
+    const durationtext_bike = (selectedTrail as Record<string, unknown>).durationtext_bike as string | undefined
+    const durationtext_bridle = (selectedTrail as Record<string, unknown>).durationtext_bridle as string | undefined
+    const description = (selectedTrail as Record<string, unknown>).description as string | undefined
+
+    return (
+      <Box p="md" style={{ position: 'relative' }}>
+        <Stack spacing="md">
+          <Button
+            variant="subtle"
+            size="sm"
+            onClick={() => setSelectedTrail(null)}
+            style={{ alignSelf: 'flex-start' }}
+          >
+            ← Back
+          </Button>
+
+          <Text size="lg" weight={500}>
+            {String(selectedTrail.name)}
+          </Text>
+
+          <Stack spacing="xs">
+            {distancetext && (
+              <Text size="sm">
+                <span style={{ fontWeight: 600 }}>Length:</span> {distancetext}
+              </Text>
+            )}
+
+            {selectedTrail.hike && durationtext_hike && (
+              <Text size="sm">
+                <span style={{ fontWeight: 600 }}>Est time, walking:</span> {durationtext_hike}
+              </Text>
+            )}
+
+            {selectedTrail.bike && durationtext_bike && (
+              <Text size="sm">
+                <span style={{ fontWeight: 600 }}>Est time, bicycle:</span> {durationtext_bike}
+              </Text>
+            )}
+
+            {selectedTrail.bridle && durationtext_bridle && (
+              <Text size="sm">
+                <span style={{ fontWeight: 600 }}>Est time, horseback:</span> {durationtext_bridle}
+              </Text>
+            )}
+          </Stack>
+
+          {description && (
+            <>
+              <Divider />
+              <Text
+                size="sm"
+                style={{ whiteSpace: 'pre-wrap' }}
+                dangerouslySetInnerHTML={{
+                  __html: description,
+                }}
+              />
+            </>
+          )}
+        </Stack>
+      </Box>
+    )
+  }
 
   return (
     <Box p="md" style={{ position: 'relative' }}>
@@ -87,7 +156,7 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
                 </Text>
                 {filteredTrails.map((trail, index) => (
                   <Box
-                    key={trail.id}
+                    key={String(trail.id)}
                     p="sm"
                     style={{
                       border: '1px solid #e0e0e0',
@@ -95,13 +164,17 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
                       borderRadius: index === 0 ? '4px 4px 0 0' : index === filteredTrails.length - 1 ? '0 0 4px 4px' : '0',
                       cursor: 'pointer',
                     }}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: '#f5f5f5',
+                      },
+                    }}
                     onClick={() => {
-                      // TODO: Handle trail click - center map, show details, etc.
-                      console.log('Trail clicked:', trail)
+                      setSelectedTrail(trail)
                     }}
                   >
                     <Text size="sm" weight={500}>
-                      {trail.name}
+                      {String(trail.name)}
                     </Text>
                     <Box style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                       {trail.hike && (

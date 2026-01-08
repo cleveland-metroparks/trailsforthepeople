@@ -159,3 +159,65 @@ export function filterAttractionsByActivity(
     return numericIds.every((id) => attraction.activities!.includes(id))
   })
 }
+
+/**
+ * Make image from pagethumbnail
+ * (Based on make_image_from_pagethumbnail in mobile.js)
+ *
+ * Take an image URL path (called pagethumbnail in the database) referring to an image on the main site, like:
+ * ~/getmedia/6cb586c0-e293-4ffa-b6c2-0be8904856b2/North_Chagrin_thumb_01.jpg.ashx?width=1440&height=864&ext=.jpg
+ * and turn it into an absolute URL, scaled proportionately to the width provided.
+ *
+ * We double the requested image size, for retina displays.
+ *
+ * @param url_str string
+ * @param new_width int: New image width, in pixels
+ *
+ * @return object with src, width, and height (ready to become <img>)
+ */
+export function makeImageFromPagethumbnail(
+  url_str: string | null | undefined,
+  new_width: number
+): { src: string; width: number; height: number } | null {
+  if (!url_str) return null
+
+  const main_site_url = 'https://www.clevelandmetroparks.com/'
+  const url_str_processed = url_str.replace('~/', main_site_url)
+
+  try {
+    const url = new URL(url_str_processed)
+
+    const orig_width = url.searchParams.get('width')
+    const orig_height = url.searchParams.get('height')
+
+    if (!orig_width || !orig_height) return null
+
+    const orig_width_num = parseInt(orig_width, 10)
+    const orig_height_num = parseInt(orig_height, 10)
+
+    if (isNaN(orig_width_num) || isNaN(orig_height_num)) return null
+
+    const newParams = new URLSearchParams(url.searchParams)
+    const new_height = Math.round(orig_height_num / (orig_width_num / new_width))
+    // Doubled, for retina displays
+    newParams.set('width', String(2 * new_width))
+    newParams.set('height', String(2 * new_height))
+
+    const new_url =
+      url.protocol +
+      '//' +
+      url.hostname +
+      url.pathname +
+      '?' +
+      newParams.toString()
+
+    return {
+      src: new_url,
+      width: new_width,
+      height: new_height,
+    }
+  } catch (e) {
+    console.error('Error processing pagethumbnail URL:', e)
+    return null
+  }
+}

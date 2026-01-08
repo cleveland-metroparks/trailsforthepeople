@@ -74,6 +74,11 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                           alignItems: 'center',
                           gap: '12px',
                         }}
+                        sx={{
+                          '&:hover': {
+                            backgroundColor: '#f5f5f5',
+                          },
+                        }}
                         onClick={() => setSelectedActivityId(activity.eventactivitytypeid)}
                       >
                         {activity.icon && (
@@ -137,6 +142,11 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                           borderTop: index === 0 ? '1px solid #e0e0e0' : 'none',
                           borderRadius: index === 0 ? '4px 4px 0 0' : index === filteredAttractions.length - 1 ? '0 0 4px 4px' : '0',
                           cursor: 'pointer',
+                        }}
+                        sx={{
+                          '&:hover': {
+                            backgroundColor: '#f5f5f5',
+                          },
                         }}
                         onClick={() => {
                           // TODO: Handle attraction click - center map, show details, etc.
