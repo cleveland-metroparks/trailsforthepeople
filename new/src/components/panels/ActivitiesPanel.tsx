@@ -87,7 +87,14 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                             alt={activity.pagetitle}
                             w={24}
                             h={24}
-                            style={{ flexShrink: 0 }}
+                            style={{
+                              flexShrink: 0,
+                              width: '24px',
+                              height: '24px',
+                              maxWidth: '24px',
+                              maxHeight: '24px',
+                              objectFit: 'contain'
+                            }}
                             fallbackSrc="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3C/svg%3E"
                           />
                         )}

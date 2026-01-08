@@ -33,7 +33,7 @@ export function strToBool(str: string | boolean | number | null | undefined): bo
  * Based on the activity_icon_filepath function from data.js
  */
 export function getActivityIcon(activityId: number): string | null {
-  const iconsDir = '/static/images/activities/'
+  const iconsDir = '/images/activities/'
   const activityTypeIconsById: Record<number, string> = {
     1: 'bike', // Biking & Cycling
     2: 'swim', // Swimming
