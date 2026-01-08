@@ -1,10 +1,11 @@
-import { Text, Box, Stack, Loader, Alert, Image, Button, Anchor, Divider } from '@mantine/core'
+import { Text, Box, Stack, Loader, Alert, Button, Anchor, Divider } from '@mantine/core'
 import { useState } from 'react'
 import { useActivitiesData, useAttractionsByActivity } from '../../hooks/useActivitiesData'
 import { useCategoriesData } from '../../hooks/useCategoriesData'
 import { useMap } from '../../contexts/MapContext'
 import { zoomToFeature } from '../../lib/mapUtils'
 import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
+import { ActivityIcon } from '../ActivityIcon'
 import type { TransformedAttraction } from '../../types/api'
 
 interface ActivitiesPanelProps {
@@ -59,6 +60,15 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
           .join(', ')
       : null
 
+    // Get activity icons for this attraction
+    const activityIcons = selectedAttraction.activities
+      ? selectedAttraction.activities
+          .map((activityId) => activities.find((a) => a.eventactivitytypeid === activityId))
+          .filter((activity): activity is typeof activity & { icon: string } => 
+            activity !== undefined && activity.icon !== null
+          )
+      : []
+
     return (
       <Box p="md" style={{ position: 'relative' }}>
         <Stack spacing="md">
@@ -79,6 +89,42 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
             <Text size="sm" color="dimmed">
               {categoryNames}
             </Text>
+          )}
+
+          {activityIcons.length > 0 && (
+            <Box>
+              <Text size="sm" weight={500} mb="xs">
+                Activities:
+              </Text>
+              <Box
+                component="ul"
+                style={{
+                  listStyle: 'none',
+                  margin: 0,
+                  padding: 0,
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '0.5em',
+                }}
+              >
+                {activityIcons.map((activity) => (
+                  <Box
+                    key={activity.eventactivitytypeid}
+                    component="li"
+                    style={{
+                      display: 'inline-block',
+                    }}
+                  >
+                    <ActivityIcon
+                      icon={activity.icon}
+                      alt={activity.pagetitle}
+                      title={activity.pagetitle}
+                      size={24}
+                    />
+                  </Box>
+                ))}
+              </Box>
+            </Box>
           )}
 
           {imgProps && (
@@ -197,33 +243,12 @@ export function ActivitiesPanel({ onClose }: ActivitiesPanelProps) {
                         onClick={() => setSelectedActivityId(activity.eventactivitytypeid)}
                       >
                         {activity.icon && (
-                          <Box
-                            style={{
-                              flexShrink: 0,
-                              width: '28px',
-                              height: '28px',
-                              border: '2px solid #373735',
-                              borderRadius: '4px',
-                              backgroundColor: '#373735',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
-                          >
-                            <Image
-                              src={activity.icon}
-                              alt={activity.pagetitle}
-                              w={24}
-                              h={24}
-                              style={{
-                                width: '24px',
-                                height: '24px',
-                                maxWidth: '24px',
-                                maxHeight: '24px',
-                                objectFit: 'contain'
-                              }}
-                            />
-                          </Box>
+                          <ActivityIcon
+                            icon={activity.icon}
+                            alt={activity.pagetitle}
+                            title={activity.pagetitle}
+                            size={24}
+                          />
                         )}
                         <Text size="sm" weight={500} style={{ flex: 1 }}>
                           {activity.pagetitle}
