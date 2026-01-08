@@ -180,42 +180,26 @@ const PARK_HIGHLIGHT_SOURCE_ID = 'park-highlight-source'
 const PARK_HIGHLIGHT_LAYER_ID = 'park-highlight-layer'
 
 /**
- * Highlight a park boundary on the map using its bounding box
+ * Highlight a park boundary on the map using GeoJSON geometry
  *
  * @param map - The mapbox map instance (can be null)
- * @param bbox - Bounding box coordinates (w, s, e, n)
+ * @param geometry - GeoJSON geometry (Polygon or MultiPolygon)
  */
 export function highlightParkBoundary(
   map: mapboxgl.Map | null,
-  bbox: BoundingBoxFeature
+  geometry: GeoJSON.Polygon | GeoJSON.MultiPolygon
 ): void {
   if (!map) {
-    console.warn('highlightParkBoundary: Map instance is null')
     return
   }
 
-  if (!hasValidBoundingBox(bbox)) {
-    console.warn('highlightParkBoundary: Invalid bounding box', bbox)
+  if (!geometry || (geometry.type !== 'Polygon' && geometry.type !== 'MultiPolygon')) {
     return
-  }
-
-  // Create a rectangle polygon from the bounding box
-  const polygon: GeoJSON.Polygon = {
-    type: 'Polygon',
-    coordinates: [
-      [
-        [bbox.w, bbox.s], // Southwest
-        [bbox.e, bbox.s], // Southeast
-        [bbox.e, bbox.n], // Northeast
-        [bbox.w, bbox.n], // Northwest
-        [bbox.w, bbox.s], // Close the polygon
-      ],
-    ],
   }
 
   const feature: GeoJSON.Feature = {
     type: 'Feature',
-    geometry: polygon,
+    geometry: geometry,
     properties: {},
   }
 
@@ -241,6 +225,9 @@ function addHighlightLayer(map: mapboxgl.Map, geojson: GeoJSON.FeatureCollection
   // Remove existing layer and source if they exist
   if (map.getLayer(PARK_HIGHLIGHT_LAYER_ID)) {
     map.removeLayer(PARK_HIGHLIGHT_LAYER_ID)
+  }
+  if (map.getLayer(`${PARK_HIGHLIGHT_LAYER_ID}-outline`)) {
+    map.removeLayer(`${PARK_HIGHLIGHT_LAYER_ID}-outline`)
   }
   if (map.getSource(PARK_HIGHLIGHT_SOURCE_ID)) {
     map.removeSource(PARK_HIGHLIGHT_SOURCE_ID)

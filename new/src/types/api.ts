@@ -78,3 +78,16 @@ export interface TransformedTrail extends Omit<Trail, 'bike' | 'hike' | 'bridle'
   bridle: boolean
   mountainbike: boolean
 }
+
+// Reservation Boundary
+export interface ReservationBoundary {
+  res_id: number
+  res: string
+  geom_geojson: string // Stringified GeoJSON that needs to be parsed
+}
+
+// API Response for boundaries (different structure)
+export interface BoundaryApiResponse {
+  success: boolean
+  data: ReservationBoundary[]
+}

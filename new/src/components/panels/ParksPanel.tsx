@@ -1,6 +1,7 @@
 import { Text, Box, Stack, Loader, Alert, Button, Anchor, Divider } from '@mantine/core'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParksData } from '../../hooks/useParksData'
+import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
 import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
 import { useMap } from '../../contexts/MapContext'
 import { zoomToFeature, highlightParkBoundary, clearParkHighlight } from '../../lib/mapUtils'
@@ -12,8 +13,25 @@ interface ParksPanelProps {
 
 export function ParksPanel({ onClose }: ParksPanelProps) {
   const { data: parks, isLoading, isError, error } = useParksData()
+  const { data: boundaries, isLoading: boundariesLoading } = useReservationBoundaries()
   const [selectedPark, setSelectedPark] = useState<Reservation | null>(null)
   const { map } = useMap()
+
+  // Create a map of park names to boundaries for quick lookup
+  const boundariesByParkName = useMemo(() => {
+    if (!boundaries) return new Map<string, GeoJSON.Polygon | GeoJSON.MultiPolygon>()
+    
+    const map = new Map<string, GeoJSON.Polygon | GeoJSON.MultiPolygon>()
+    boundaries.forEach((boundary) => {
+      try {
+        const geometry = JSON.parse(boundary.geom_geojson) as GeoJSON.Polygon | GeoJSON.MultiPolygon
+        map.set(boundary.res, geometry)
+      } catch (e) {
+        console.error('Failed to parse geometry for', boundary.res, e)
+      }
+    })
+    return map
+  }, [boundaries])
 
   // Clear highlight when component unmounts or park is selected
   useEffect(() => {
@@ -133,16 +151,7 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
                   {parks.length} {parks.length === 1 ? 'park' : 'parks'}
                 </Text>
                 {parks.map((park, index) => {
-                  const parkData = park as Record<string, unknown>
-                  const hasBoundingBox =
-                    parkData.boxw &&
-                    parkData.boxs &&
-                    parkData.boxe &&
-                    parkData.boxn &&
-                    parkData.boxw !== 0 &&
-                    parkData.boxs !== 0 &&
-                    parkData.boxe !== 0 &&
-                    parkData.boxn !== 0
+                  const parkGeometry = boundariesByParkName.get(park.pagetitle)
 
                   return (
                     <Box
@@ -160,14 +169,9 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
                         },
                       }}
                       onMouseEnter={() => {
-                        // Highlight park boundary on hover
-                        if (hasBoundingBox) {
-                          highlightParkBoundary(map, {
-                            w: parkData.boxw as number,
-                            s: parkData.boxs as number,
-                            e: parkData.boxe as number,
-                            n: parkData.boxn as number,
-                          })
+                        // Highlight park boundary on hover using geometry if available
+                        if (parkGeometry) {
+                          highlightParkBoundary(map, parkGeometry)
                         }
                       }}
                       onMouseLeave={() => {

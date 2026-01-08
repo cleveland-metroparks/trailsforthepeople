@@ -8,6 +8,8 @@ import type {
   Category,
   TransformedAttraction,
   TransformedTrail,
+  ReservationBoundary,
+  BoundaryApiResponse,
 } from '../types/api'
 import {
   transformAttraction,
@@ -84,6 +86,14 @@ export async function getTrails(): Promise<TransformedTrail[]> {
  */
 export async function getCategories(): Promise<Category[]> {
   const response = await apiClient.get<ApiResponse<Category>>('categories')
+  return response.data.data
+}
+
+/**
+ * Fetch reservation boundaries from the API
+ */
+export async function getReservationBoundaries(): Promise<ReservationBoundary[]> {
+  const response = await apiClient.get<BoundaryApiResponse>('reservation_boundaries')
   return response.data.data
 }
 
