@@ -36,8 +36,8 @@ export type MapFeature = PointFeature | BoundingBoxFeature | (PointFeature & Par
 export interface ZoomToFeatureOptions {
   /** Custom zoom level for point features (default: DEFAULT_POI_ZOOM) */
   zoom?: number
-  /** Padding in pixels for bounding box fits (default: 10) */
-  padding?: number
+  /** Padding in pixels for bounding box fits (default: 10). Can be a number for uniform padding or an object with top, bottom, left, right properties. */
+  padding?: number | { top?: number; bottom?: number; left?: number; right?: number }
   /** Duration of the animation in milliseconds (default: mapbox default) */
   duration?: number
   /** Whether to use flyTo animation (default: true) */
@@ -62,6 +62,8 @@ function isValidCoordinate(lat: number, lng: number): boolean {
 
 /**
  * Check if a feature has a valid bounding box
+ * Only checks that all coordinates are valid numbers, not their ordering
+ * (coordinates may be swapped and will be corrected in zoomToFeature)
  */
 function hasValidBoundingBox(feature: MapFeature): feature is BoundingBoxFeature {
   const bbox = feature as BoundingBoxFeature
@@ -73,13 +75,9 @@ function hasValidBoundingBox(feature: MapFeature): feature is BoundingBoxFeature
     !isNaN(bbox.w) &&
     !isNaN(bbox.s) &&
     !isNaN(bbox.e) &&
-    !isNaN(bbox.n) &&
-    bbox.w !== 0 &&
-    bbox.s !== 0 &&
-    bbox.e !== 0 &&
-    bbox.n !== 0 &&
-    bbox.w < bbox.e && // west must be less than east
-    bbox.s < bbox.n // south must be less than north
+    !isNaN(bbox.n)
+    // Note: We don't check ordering (w < e or s < n) because coordinates
+    // might be swapped in the data. We'll handle that in zoomToFeature.
   )
 }
 
@@ -136,8 +134,15 @@ export function zoomToFeature(
   // Prefer bounding box if available and valid
   if (hasValidBoundingBox(feature)) {
     try {
-      const sw = new mapboxgl.LngLat(feature.w, feature.s)
-      const ne = new mapboxgl.LngLat(feature.e, feature.n)
+      // Ensure proper ordering (handle swapped coordinates)
+      // West should be less than East, South should be less than North
+      const west = Math.min(feature.w, feature.e)
+      const east = Math.max(feature.w, feature.e)
+      const south = Math.min(feature.s, feature.n)
+      const north = Math.max(feature.s, feature.n)
+      
+      const sw = new mapboxgl.LngLat(west, south)
+      const ne = new mapboxgl.LngLat(east, north)
       const bounds = new mapboxgl.LngLatBounds(sw, ne)
 
       const fitBoundsOptions: Parameters<mapboxgl.Map['fitBounds']>[1] = { padding }
@@ -179,6 +184,10 @@ export function zoomToFeature(
 // Constants for park highlight layer
 const PARK_HIGHLIGHT_SOURCE_ID = 'park-highlight-source'
 const PARK_HIGHLIGHT_LAYER_ID = 'park-highlight-layer'
+
+// Constants for trail highlight layer
+const TRAIL_HIGHLIGHT_SOURCE_ID = 'trail-highlight-source'
+const TRAIL_HIGHLIGHT_LAYER_ID = 'trail-highlight-layer'
 
 /**
  * Highlight a park boundary on the map using GeoJSON geometry
@@ -321,5 +330,105 @@ export function getBoundingBoxFromGeometry(
   } catch (error) {
     console.warn('getBoundingBoxFromGeometry: Failed to calculate bounding box', error)
     return null
+  }
+}
+
+/**
+ * Highlight a trail line on the map using GeoJSON geometry
+ * Similar to drawHighlightLine() in mobile.js
+ *
+ * @param map - The mapbox map instance (can be null)
+ * @param geometry - GeoJSON geometry (LineString or MultiLineString)
+ */
+export function highlightTrailLine(
+  map: mapboxgl.Map | null,
+  geometry: GeoJSON.LineString | GeoJSON.MultiLineString
+): void {
+  if (!map) {
+    return
+  }
+
+  if (!geometry || (geometry.type !== 'LineString' && geometry.type !== 'MultiLineString')) {
+    return
+  }
+
+  const feature: GeoJSON.Feature = {
+    type: 'Feature',
+    geometry: geometry,
+    properties: {},
+  }
+
+  const geojson: GeoJSON.FeatureCollection = {
+    type: 'FeatureCollection',
+    features: [feature],
+  }
+
+  // Wait for map to be loaded if needed
+  if (!map.isStyleLoaded()) {
+    map.once('style.load', () => {
+      addTrailHighlightLayer(map, geojson)
+    })
+  } else {
+    addTrailHighlightLayer(map, geojson)
+  }
+}
+
+/**
+ * Add or update the trail highlight layer on the map
+ * Matches the styling from drawHighlightLine() in mobile.js:
+ * - line-color: '#01B3FD'
+ * - line-width: 6
+ * - line-opacity: 0.75
+ */
+function addTrailHighlightLayer(map: mapboxgl.Map, geojson: GeoJSON.FeatureCollection): void {
+  // Remove existing layer and source if they exist
+  if (map.getLayer(TRAIL_HIGHLIGHT_LAYER_ID)) {
+    map.removeLayer(TRAIL_HIGHLIGHT_LAYER_ID)
+  }
+  if (map.getSource(TRAIL_HIGHLIGHT_SOURCE_ID)) {
+    map.removeSource(TRAIL_HIGHLIGHT_SOURCE_ID)
+  }
+
+  // Add the source
+  map.addSource(TRAIL_HIGHLIGHT_SOURCE_ID, {
+    type: 'geojson',
+    data: geojson,
+  })
+
+  // Add the line layer
+  map.addLayer({
+    id: TRAIL_HIGHLIGHT_LAYER_ID,
+    type: 'line',
+    source: TRAIL_HIGHLIGHT_SOURCE_ID,
+    layout: {
+      'line-join': 'round',
+      'line-cap': 'round',
+    },
+    paint: {
+      'line-color': '#01B3FD',
+      'line-width': 6,
+      'line-opacity': 0.75,
+    },
+  })
+}
+
+/**
+ * Clear the trail highlight line from the map
+ *
+ * @param map - The mapbox map instance (can be null)
+ */
+export function clearTrailHighlight(map: mapboxgl.Map | null): void {
+  if (!map) {
+    return
+  }
+
+  // Remove layer
+  if (map.getLayer(TRAIL_HIGHLIGHT_LAYER_ID)) {
+    map.removeLayer(TRAIL_HIGHLIGHT_LAYER_ID)
+  }
+
+  // Remove source
+  if (map.getSource(TRAIL_HIGHLIGHT_SOURCE_ID)) {
+    map.removeSource(TRAIL_HIGHLIGHT_SOURCE_ID)
   }
 }

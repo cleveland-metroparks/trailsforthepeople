@@ -97,4 +97,32 @@ export async function getReservationBoundaries(): Promise<ReservationBoundary[]>
   return response.data.data
 }
 
+/**
+ * Trail geometry API response
+ */
+interface TrailGeometryResponse {
+  data: {
+    geom_geojson: string // JSON string that needs to be parsed
+  }
+}
+
+/**
+ * Fetch trail geometry from the API
+ * @param trailId - The ID of the trail
+ * @returns Parsed GeoJSON geometry (LineString or MultiLineString)
+ */
+export async function getTrailGeometry(trailId: number): Promise<GeoJSON.LineString | GeoJSON.MultiLineString | null> {
+  try {
+    const response = await apiClient.get<TrailGeometryResponse>(`trail_geometries/${trailId}`)
+    if (response.data.data.geom_geojson) {
+      const geom_geojson = JSON.parse(response.data.data.geom_geojson)
+      return geom_geojson
+    }
+    return null
+  } catch (error) {
+    console.error('Error fetching trail geometry:', error)
+    return null
+  }
+}
+
 export { apiClient }

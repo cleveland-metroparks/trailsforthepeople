@@ -1,9 +1,12 @@
 import { Text, Box, Stack, Loader, Alert, Select, Button, Divider } from '@mantine/core'
-import { useState, useMemo } from 'react'
+import { useMediaQuery } from '@mantine/hooks'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useTrailsData } from '../../hooks/useTrailsData'
 import { useParksData } from '../../hooks/useParksData'
 import { useMap } from '../../contexts/MapContext'
-import { zoomToFeature } from '../../lib/mapUtils'
+import { useSidebar } from '../../contexts/SidebarContext'
+import { zoomToFeature, highlightTrailLine, clearTrailHighlight } from '../../lib/mapUtils'
+import { getTrailGeometry } from '../../lib/api'
 import type { TransformedTrail } from '../../types/api'
 
 interface TrailsPanelProps {
@@ -16,6 +19,8 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
   const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null)
   const [selectedTrail, setSelectedTrail] = useState<TransformedTrail | null>(null)
   const { map } = useMap()
+  const { isSidebarCollapsed } = useSidebar()
+  const isLargeScreen = useMediaQuery('(min-width: 992px)') // Mantine's lg breakpoint
 
   const isLoading = trailsLoading || parksLoading
   const isError = trailsError || parksError
@@ -51,6 +56,64 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
     ]
   }, [parks])
 
+  // Track the current trail being fetched to avoid race conditions
+  const currentTrailRef = useRef<number | null>(null)
+
+  // Fetch and highlight trail geometry when a trail is selected
+  useEffect(() => {
+    if (!map) {
+      return
+    }
+
+    if (!selectedTrail) {
+      // Clear highlight if no trail is selected
+      currentTrailRef.current = null
+      clearTrailHighlight(map)
+      return
+    }
+
+    // Fetch trail geometry
+    const trailId = selectedTrail.id
+    if (!trailId) {
+      return
+    }
+
+    // Mark this trail as the current one being fetched
+    currentTrailRef.current = trailId
+
+    // Clear previous highlight before fetching new one
+    clearTrailHighlight(map)
+
+    getTrailGeometry(trailId)
+      .then((geometry) => {
+        // Only highlight if this is still the selected trail (avoid race conditions)
+        if (currentTrailRef.current === trailId && geometry && map) {
+          highlightTrailLine(map, geometry)
+        }
+      })
+      .catch((error) => {
+        console.error('Error highlighting trail:', error)
+      })
+
+    // Cleanup: mark trail as no longer current when effect re-runs or unmounts
+    return () => {
+      // If we're switching to a different trail, mark the old one as no longer current
+      if (currentTrailRef.current === trailId) {
+        currentTrailRef.current = null
+      }
+    }
+  }, [selectedTrail, map])
+
+  // Clear highlight when component unmounts
+  useEffect(() => {
+    return () => {
+      currentTrailRef.current = null
+      if (map) {
+        clearTrailHighlight(map)
+      }
+    }
+  }, [map])
+
   // Show detail view if a trail is selected
   if (selectedTrail) {
     const distancetext = (selectedTrail as Record<string, unknown>).distancetext as string | undefined
@@ -65,7 +128,10 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
           <Button
             variant="subtle"
             size="sm"
-            onClick={() => setSelectedTrail(null)}
+            onClick={() => {
+              setSelectedTrail(null)
+              clearTrailHighlight(map)
+            }}
             style={{ alignSelf: 'flex-start' }}
           >
             ← Trails
@@ -174,15 +240,27 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
                     }}
                     onClick={() => {
                       setSelectedTrail(trail)
-                      // Zoom to trail on map
+                      // Calculate sidebar width to account for it in padding
+                      // Sidebar width: 400px (lg) or 300px (sm) when open, 80px when collapsed
+                      const sidebarWidth = isSidebarCollapsed
+                        ? 80
+                        : (isLargeScreen ? 400 : 300)
+
+                      // Zoom to trail on map with padding that accounts for sidebar
                       const trailData = trail as Record<string, unknown>
                       if (trailData.boxw && trailData.boxs && trailData.boxe && trailData.boxn) {
-                        // Use bounding box if available
                         zoomToFeature(map, {
                           w: trailData.boxw as number,
                           s: trailData.boxs as number,
                           e: trailData.boxe as number,
                           n: trailData.boxn as number,
+                        }, {
+                          padding: {
+                            top: 120,
+                            bottom: 120,
+                            left: sidebarWidth + 120, // Add sidebar width plus buffer
+                            right: 120,
+                          },
                         })
                       } else {
                         // Fall back to lat/lng
@@ -192,6 +270,13 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
                           zoomToFeature(map, {
                             lat,
                             lng,
+                          }, {
+                            padding: {
+                              top: 120,
+                              bottom: 120,
+                              left: sidebarWidth + 120,
+                              right: 120,
+                            },
                           })
                         }
                       }
