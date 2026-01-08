@@ -1,10 +1,9 @@
 import { Text, Box, Stack, Loader, Alert, Select, Button, Divider } from '@mantine/core'
-import { useMediaQuery } from '@mantine/hooks'
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { useTrailsData } from '../../hooks/useTrailsData'
 import { useParksData } from '../../hooks/useParksData'
+import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
 import { useMap } from '../../contexts/MapContext'
-import { useSidebar } from '../../contexts/SidebarContext'
 import { zoomToFeature, highlightTrailLine, clearTrailHighlight } from '../../lib/mapUtils'
 import { getTrailGeometry } from '../../lib/api'
 import type { TransformedTrail } from '../../types/api'
@@ -19,8 +18,7 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
   const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null)
   const [selectedTrail, setSelectedTrail] = useState<TransformedTrail | null>(null)
   const { map } = useMap()
-  const { isSidebarCollapsed } = useSidebar()
-  const isLargeScreen = useMediaQuery('(min-width: 992px)') // Mantine's lg breakpoint
+  const sidebarAwarePadding = useSidebarAwarePadding(120)
 
   const isLoading = trailsLoading || parksLoading
   const isError = trailsError || parksError
@@ -73,8 +71,8 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
     }
 
     // Fetch trail geometry
-    const trailId = selectedTrail.id
-    if (!trailId) {
+    const trailId: number = selectedTrail.id as number
+    if (!trailId || typeof trailId !== 'number') {
       return
     }
 
@@ -240,12 +238,6 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
                     }}
                     onClick={() => {
                       setSelectedTrail(trail)
-                      // Calculate sidebar width to account for it in padding
-                      // Sidebar width: 400px (lg) or 300px (sm) when open, 80px when collapsed
-                      const sidebarWidth = isSidebarCollapsed
-                        ? 80
-                        : (isLargeScreen ? 400 : 300)
-
                       // Zoom to trail on map with padding that accounts for sidebar
                       const trailData = trail as Record<string, unknown>
                       if (trailData.boxw && trailData.boxs && trailData.boxe && trailData.boxn) {
@@ -255,12 +247,7 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
                           e: trailData.boxe as number,
                           n: trailData.boxn as number,
                         }, {
-                          padding: {
-                            top: 120,
-                            bottom: 120,
-                            left: sidebarWidth + 120, // Add sidebar width plus buffer
-                            right: 120,
-                          },
+                          padding: sidebarAwarePadding,
                         })
                       } else {
                         // Fall back to lat/lng
@@ -271,12 +258,7 @@ export function TrailsPanel({ onClose }: TrailsPanelProps) {
                             lat,
                             lng,
                           }, {
-                            padding: {
-                              top: 120,
-                              bottom: 120,
-                              left: sidebarWidth + 120,
-                              right: 120,
-                            },
+                            padding: sidebarAwarePadding,
                           })
                         }
                       }

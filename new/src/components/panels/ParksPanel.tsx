@@ -2,6 +2,7 @@ import { Text, Box, Stack, Loader, Alert, Button, Anchor, Divider } from '@manti
 import { useState, useEffect, useMemo } from 'react'
 import { useParksData } from '../../hooks/useParksData'
 import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
+import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
 import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
 import { useMap } from '../../contexts/MapContext'
 import { zoomToFeature, highlightParkBoundary, clearParkHighlight, getBoundingBoxFromGeometry } from '../../lib/mapUtils'
@@ -16,6 +17,7 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
   const { data: boundaries, isLoading: boundariesLoading } = useReservationBoundaries()
   const [selectedPark, setSelectedPark] = useState<Reservation | null>(null)
   const { map } = useMap()
+  const sidebarAwarePadding = useSidebarAwarePadding(120)
 
   // Create a map of park names to boundaries for quick lookup
   const boundariesByParkName = useMemo(() => {
@@ -184,12 +186,16 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
                         if (parkGeometry) {
                           const boundingBox = getBoundingBoxFromGeometry(parkGeometry)
                           if (boundingBox) {
-                            zoomToFeature(map, boundingBox)
+                            zoomToFeature(map, boundingBox, {
+                              padding: sidebarAwarePadding,
+                            })
                           } else if (park.latitude && park.longitude) {
                             // Fall back to lat/lng if bounding box calculation fails
                             zoomToFeature(map, {
                               lat: park.latitude,
                               lng: park.longitude,
+                            }, {
+                              padding: sidebarAwarePadding,
                             })
                           }
                         } else if (park.boxw && park.boxs && park.boxe && park.boxn) {
@@ -199,12 +205,16 @@ export function ParksPanel({ onClose }: ParksPanelProps) {
                             s: park.boxs,
                             e: park.boxe,
                             n: park.boxn,
+                          }, {
+                            padding: sidebarAwarePadding,
                           })
                         } else if (park.latitude && park.longitude) {
                           // Fall back to lat/lng
                           zoomToFeature(map, {
                             lat: park.latitude,
                             lng: park.longitude,
+                          }, {
+                            padding: sidebarAwarePadding,
                           })
                         }
                       }}
