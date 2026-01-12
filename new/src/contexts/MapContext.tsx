@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode, useState } from 'react'
-import mapboxgl from 'mapbox-gl'
+import type * as mapboxgl from 'mapbox-gl'
 
 interface MapContextType {
   map: mapboxgl.Map | null

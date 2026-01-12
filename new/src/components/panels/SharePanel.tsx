@@ -6,7 +6,7 @@ interface SharePanelProps {
   onClose: () => void
 }
 
-export function SharePanel({ onClose }: SharePanelProps) {
+export function SharePanel({ onClose: _onClose }: SharePanelProps) {
   const [shareUrl, setShareUrl] = useState('')
 
   const handleShare = () => {

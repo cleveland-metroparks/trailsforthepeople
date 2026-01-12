@@ -4,7 +4,7 @@ interface DirectionsPanelProps {
   onClose: () => void
 }
 
-export function DirectionsPanel({ onClose }: DirectionsPanelProps) {
+export function DirectionsPanel({ onClose: _onClose }: DirectionsPanelProps) {
   return (
     <Box p="md" style={{ position: 'relative' }}>
       <Stack spacing="md">

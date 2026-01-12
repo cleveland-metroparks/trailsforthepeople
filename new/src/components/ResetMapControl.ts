@@ -1,4 +1,4 @@
-import mapboxgl from 'mapbox-gl'
+import type * as mapboxgl from 'mapbox-gl'
 
 interface ResetMapControlOptions {
   center: [number, number]

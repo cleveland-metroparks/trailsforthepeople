@@ -1,6 +1,5 @@
 import { useMediaQuery } from '@mantine/hooks'
 import { useSidebar } from '../contexts/SidebarContext'
-import type { ZoomToFeatureOptions } from '../lib/mapUtils'
 
 /**
  * Hook to get padding options for zoomToFeature that accounts for the sidebar width

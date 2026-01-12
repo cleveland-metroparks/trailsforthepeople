@@ -4,7 +4,7 @@ interface InfoPanelProps {
   onClose: () => void
 }
 
-export function InfoPanel({ onClose }: InfoPanelProps) {
+export function InfoPanel({ onClose: _onClose }: InfoPanelProps) {
   return (
     <Box p="md" style={{ position: 'relative' }}>
       <Stack spacing="md">

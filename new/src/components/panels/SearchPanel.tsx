@@ -6,7 +6,7 @@ interface SearchPanelProps {
   onClose: () => void
 }
 
-export function SearchPanel({ onClose }: SearchPanelProps) {
+export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
   const { searchTerm, setSearchTerm, searchResults, isLoading, submitSearch } = useSearch()
 
   const handleSearch = () => {

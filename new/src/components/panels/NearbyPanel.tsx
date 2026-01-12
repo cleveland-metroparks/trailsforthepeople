@@ -5,7 +5,7 @@ interface NearbyPanelProps {
   onClose: () => void
 }
 
-export function NearbyPanel({ onClose }: NearbyPanelProps) {
+export function NearbyPanel({ onClose: _onClose }: NearbyPanelProps) {
   return (
     <Box p="md" style={{ position: 'relative' }}>
       <Stack spacing="md">
