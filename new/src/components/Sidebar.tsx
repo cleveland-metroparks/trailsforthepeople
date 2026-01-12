@@ -1,15 +1,17 @@
-import { Tabs, Divider } from '@mantine/core'
+import { Tabs, Divider, Loader, Center } from '@mantine/core'
 import { Search, MapPin, Route, Share, InfoCircle, Trees, Walk, Golf } from 'tabler-icons-react'
-import { useState, useEffect, useImperativeHandle, forwardRef, useRef } from 'react'
-import { SearchPanel } from './panels/SearchPanel'
-import { NearbyPanel } from './panels/NearbyPanel'
-import { DirectionsPanel } from './panels/DirectionsPanel'
-import { SharePanel } from './panels/SharePanel'
-import { InfoPanel } from './panels/InfoPanel'
-import { ParksPanel } from './panels/ParksPanel'
-import { ActivitiesPanel } from './panels/ActivitiesPanel'
-import { TrailsPanel } from './panels/TrailsPanel'
+import { useState, useEffect, useImperativeHandle, forwardRef, useRef, Suspense, lazy } from 'react'
 import { useURLState } from '../hooks/useURLState'
+
+// Lazy load all panels
+const SearchPanel = lazy(() => import('./panels/SearchPanel').then(m => ({ default: m.SearchPanel })))
+const NearbyPanel = lazy(() => import('./panels/NearbyPanel').then(m => ({ default: m.NearbyPanel })))
+const DirectionsPanel = lazy(() => import('./panels/DirectionsPanel').then(m => ({ default: m.DirectionsPanel })))
+const SharePanel = lazy(() => import('./panels/SharePanel').then(m => ({ default: m.SharePanel })))
+const InfoPanel = lazy(() => import('./panels/InfoPanel').then(m => ({ default: m.InfoPanel })))
+const ParksPanel = lazy(() => import('./panels/ParksPanel').then(m => ({ default: m.ParksPanel })))
+const ActivitiesPanel = lazy(() => import('./panels/ActivitiesPanel').then(m => ({ default: m.ActivitiesPanel })))
+const TrailsPanel = lazy(() => import('./panels/TrailsPanel').then(m => ({ default: m.TrailsPanel })))
 
 interface SidebarProps {
   onPanelStateChange?: (hasActivePanel: boolean) => void
@@ -28,6 +30,13 @@ function getTabForFeatureType(type: string | null | undefined, activityId: strin
   if (type === 'attraction' || activityId) return 'activities'
   return null
 }
+
+// Loading fallback component
+const PanelLoader = () => (
+  <Center style={{ flex: 1 }}>
+    <Loader size="sm" />
+  </Center>
+)
 
 export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChange }, ref) => {
   const [activeTab, setActiveTab] = useState<string | null>(null)
@@ -152,35 +161,51 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
       {activeTab && (
         <>
           <Tabs.Panel value="search" style={{ flex: 1, overflow: 'auto' }}>
-            <SearchPanel onClose={handleClosePanel} />
+            <Suspense fallback={<PanelLoader />}>
+              <SearchPanel onClose={handleClosePanel} />
+            </Suspense>
           </Tabs.Panel>
 
           <Tabs.Panel value="parks" style={{ flex: 1, overflow: 'auto' }}>
-            <ParksPanel onClose={handleClosePanel} />
+            <Suspense fallback={<PanelLoader />}>
+              <ParksPanel onClose={handleClosePanel} />
+            </Suspense>
           </Tabs.Panel>
 
           <Tabs.Panel value="activities" style={{ flex: 1, overflow: 'auto' }}>
-            <ActivitiesPanel onClose={handleClosePanel} />
+            <Suspense fallback={<PanelLoader />}>
+              <ActivitiesPanel onClose={handleClosePanel} />
+            </Suspense>
           </Tabs.Panel>
 
           <Tabs.Panel value="trails" style={{ flex: 1, overflow: 'auto' }}>
-            <TrailsPanel onClose={handleClosePanel} />
+            <Suspense fallback={<PanelLoader />}>
+              <TrailsPanel onClose={handleClosePanel} />
+            </Suspense>
           </Tabs.Panel>
 
           <Tabs.Panel value="nearby" style={{ flex: 1, overflow: 'auto' }}>
-            <NearbyPanel onClose={handleClosePanel} />
+            <Suspense fallback={<PanelLoader />}>
+              <NearbyPanel onClose={handleClosePanel} />
+            </Suspense>
           </Tabs.Panel>
 
           <Tabs.Panel value="directions" style={{ flex: 1, overflow: 'auto' }}>
-            <DirectionsPanel onClose={handleClosePanel} />
+            <Suspense fallback={<PanelLoader />}>
+              <DirectionsPanel onClose={handleClosePanel} />
+            </Suspense>
           </Tabs.Panel>
 
           <Tabs.Panel value="share" style={{ flex: 1, overflow: 'auto' }}>
-            <SharePanel onClose={handleClosePanel} />
+            <Suspense fallback={<PanelLoader />}>
+              <SharePanel onClose={handleClosePanel} />
+            </Suspense>
           </Tabs.Panel>
 
           <Tabs.Panel value="info" style={{ flex: 1, overflow: 'auto' }}>
-            <InfoPanel onClose={handleClosePanel} />
+            <Suspense fallback={<PanelLoader />}>
+              <InfoPanel onClose={handleClosePanel} />
+            </Suspense>
           </Tabs.Panel>
         </>
       )}
