@@ -26,12 +26,18 @@ export default defineConfig({
             if (id.includes('mapbox-gl')) {
               return 'mapbox-gl'
             }
-            // Split large vendor libraries into separate chunks
-            if (id.includes('react') || id.includes('react-dom')) {
+            // Keep React, Mantine, and Emotion together since they have tight dependencies
+            // This avoids initialization order issues between React and Mantine hooks
+            if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('use-sync-external-store') ||
+              id.includes('scheduler') ||
+              id.includes('@emotion') ||
+              id.includes('@mantine') ||
+              id.includes('create-use-external-events')
+            ) {
               return 'react-vendor'
-            }
-            if (id.includes('@mantine')) {
-              return 'mantine-vendor'
             }
             if (id.includes('@turf')) {
               return 'turf-vendor'
