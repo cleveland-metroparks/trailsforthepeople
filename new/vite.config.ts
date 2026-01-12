@@ -18,6 +18,30 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // Split mapbox-gl into its own chunk for better caching
+          if (id.includes('node_modules')) {
+            if (id.includes('mapbox-gl')) {
+              return 'mapbox-gl'
+            }
+            // Split large vendor libraries into separate chunks
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor'
+            }
+            if (id.includes('@mantine')) {
+              return 'mantine-vendor'
+            }
+            if (id.includes('@turf')) {
+              return 'turf-vendor'
+            }
+            // Group other vendor libraries
+            return 'vendor'
+          }
+        },
+      },
+    },
   },
   define: {
     // Make environment variables available
