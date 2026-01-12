@@ -48,15 +48,23 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   }, [activeTab, onPanelStateChange])
 
   // Open the appropriate panel when loading a feature via URL (on initial load only)
+  // But don't switch tabs if the feature was selected from search
   useEffect(() => {
     if (initializedRef.current) return
+    
+    // If fromSearch=true, keep Search tab active (don't switch)
+    if (params.fromSearch === 'true') {
+      setActiveTab('search')
+      initializedRef.current = true
+      return
+    }
     
     const tabForFeature = getTabForFeatureType(params.type, params.activityId)
     if (tabForFeature) {
       setActiveTab(tabForFeature)
       initializedRef.current = true
     }
-  }, [params.type, params.activityId])
+  }, [params.type, params.activityId, params.fromSearch])
 
   useImperativeHandle(ref, () => ({
     activateSearchTab: () => {

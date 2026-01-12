@@ -124,4 +124,51 @@ export async function getTrailGeometry(trailId: number): Promise<GeoJSON.LineStr
   }
 }
 
+/**
+ * Geocode result from API
+ */
+export interface GeocodeResult {
+  title: string
+  lat: number
+  lng: number
+  w?: number | null
+  s?: number | null
+  e?: number | null
+  n?: number | null
+}
+
+/**
+ * Geocode API response
+ */
+interface GeocodeApiResponse {
+  data: GeocodeResult
+}
+
+/**
+ * Geocode an address string
+ *
+ * @param address - Address or location string to geocode
+ * @returns Geocode result with coordinates and title
+ * @throws Error if geocoding fails
+ */
+export async function geocodeAddress(address: string): Promise<GeocodeResult> {
+  if (!address.trim()) {
+    throw new Error('Address cannot be empty')
+  }
+
+  try {
+    const response = await apiClient.get<GeocodeApiResponse>(`geocode/${encodeURIComponent(address)}`)
+    if (!response.data.data) {
+      throw new Error('No geocoding results found')
+    }
+    return response.data.data
+  } catch (error) {
+    if (error && typeof error === 'object' && 'response' in error && (error as { response?: { status?: number } }).response?.status === 404) {
+      throw new Error("We couldn't find that address or city. Please try again.")
+    }
+    console.error('Geocoding error:', error)
+    throw new Error('Failed to geocode address. Please try again.')
+  }
+}
+
 export { apiClient }

@@ -19,6 +19,7 @@
         "@turf/turf": "^6.5.0",
         "axios": "^1.4.0",
         "dayjs": "^1.11.3",
+        "flexsearch": "^0.8.212",
         "mapbox-gl": "^3.14.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",

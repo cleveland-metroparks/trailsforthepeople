@@ -36,6 +36,9 @@ export interface URLStateParams {
 
   // Activity-specific
   activityId?: string | null // Activity ID for filtering attractions
+
+  // Search-specific
+  fromSearch?: string | null // 'true' when feature was selected from search (prevents tab switching)
 }
 
 /**
@@ -53,6 +56,7 @@ export function useURLState() {
       type: searchParams.get('type'),
       gid: searchParams.get('gid'),
       activityId: searchParams.get('activityId'),
+      fromSearch: searchParams.get('fromSearch'),
     }
   }, [searchParams])
 
