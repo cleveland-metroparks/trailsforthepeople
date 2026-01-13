@@ -49,7 +49,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
   const { data: trails, isLoading: trailsLoading } = useTrailsData()
   const { categoriesMap } = useCategoriesData()
   const { data: boundaries } = useReservationBoundaries()
-  
+
   // Check if any required data is still loading
   const isDataLoading = activitiesLoading || parksLoading || trailsLoading
 
@@ -235,7 +235,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
   // will be found synchronously via useMemo
   if (selectedSearchResult && !selectedFeature && isDataLoading) {
     return (
-      <Box p="md" style={{ position: 'relative' }}>
+      <Box p="md" pr="sm" style={{ position: 'relative' }}>
         <Stack spacing="md">
           <Button
             variant="subtle"
@@ -284,7 +284,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
         : []
 
       return (
-        <Box p="md" style={{ position: 'relative' }}>
+        <Box p="md" pr="sm" style={{ position: 'relative' }}>
           <Stack spacing="md">
             <Button
               variant="subtle"
@@ -420,7 +420,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
       const phone = (park as Record<string, unknown>).phone as string | undefined
 
       return (
-        <Box p="md" style={{ position: 'relative' }}>
+        <Box p="md" pr="sm" style={{ position: 'relative' }}>
           <Stack spacing="md">
             <Button
               variant="subtle"
@@ -499,7 +499,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
       const description = (trail as Record<string, unknown>).description as string | undefined
 
       return (
-        <Box p="md" style={{ position: 'relative' }}>
+        <Box p="md" pr="sm" style={{ position: 'relative' }}>
           <Stack spacing="md">
             <Button
               variant="subtle"
@@ -636,7 +636,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
   }
 
   return (
-    <Box p="md" style={{ position: 'relative' }}>
+    <Box p="md" pr="sm" style={{ position: 'relative' }}>
       <Stack spacing="md">
         <Box style={{ position: 'relative' }}>
           <TextInput

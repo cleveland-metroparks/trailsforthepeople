@@ -6,7 +6,7 @@ interface InfoPanelProps {
 
 export function InfoPanel({ onClose: _onClose }: InfoPanelProps) {
   return (
-    <Box p="md" style={{ position: 'relative' }}>
+    <Box p="md" pr="sm" style={{ position: 'relative' }}>
       <Stack spacing="md">
         <Text size="lg" weight={500}>
           About Cleveland Metroparks

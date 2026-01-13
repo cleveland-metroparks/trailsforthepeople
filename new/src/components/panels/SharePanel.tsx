@@ -22,7 +22,7 @@ export function SharePanel({ onClose: _onClose }: SharePanelProps) {
   }
 
   return (
-    <Box p="md" style={{ position: 'relative' }}>
+    <Box p="md" pr="sm" style={{ position: 'relative' }}>
       <Stack spacing="md">
         <Text size="lg" weight={500}>
           Share This Map

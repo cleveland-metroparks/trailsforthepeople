@@ -138,7 +138,7 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
       : []
 
     return (
-      <Box p="md" style={{ position: 'relative' }}>
+      <Box p="md" pr="sm" style={{ position: 'relative' }}>
         <Stack spacing="md">
           <Button
             variant="subtle"
@@ -263,7 +263,7 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
   }
 
   return (
-    <Box p="md" style={{ position: 'relative' }}>
+    <Box p="md" pr="sm" style={{ position: 'relative' }}>
       <Stack spacing="md">
         {selectedActivityId === null && (
           <Text size="lg" weight={500}>

@@ -1,5 +1,5 @@
-import { Tabs, Divider, Loader, Center } from '@mantine/core'
-import { Search, MapPin, Route, Share, InfoCircle, Trees, Walk, Golf } from 'tabler-icons-react'
+import { Tabs, Divider, Loader, Center, ActionIcon, Box } from '@mantine/core'
+import { Search, MapPin, Route, Share, InfoCircle, Trees, Walk, Golf, X } from 'tabler-icons-react'
 import { useState, useEffect, useImperativeHandle, forwardRef, useRef, Suspense, lazy } from 'react'
 import { useURLState } from '../hooks/useURLState'
 
@@ -51,14 +51,14 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   // But don't switch tabs if the feature was selected from search
   useEffect(() => {
     if (initializedRef.current) return
-    
+
     // If fromSearch=true, keep Search tab active (don't switch)
     if (params.fromSearch === 'true') {
       setActiveTab('search')
       initializedRef.current = true
       return
     }
-    
+
     const tabForFeature = getTabForFeatureType(params.type, params.activityId)
     if (tabForFeature) {
       setActiveTab(tabForFeature)
@@ -91,6 +91,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           display: 'flex',
           flexDirection: 'row',
           width: '100%',
+          overflow: 'visible',
         },
         tabsList: {
           width: '80px',
@@ -103,15 +104,15 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           padding: '12px 8px',
           minHeight: '70px',
           '&[data-active]': {
-            backgroundColor: theme.colorScheme === 'dark' 
-              ? theme.colors.dark[6] 
+            backgroundColor: theme.colorScheme === 'dark'
+              ? theme.colors.dark[6]
               : theme.colors.gray[1],
             borderLeft: `3px solid ${theme.colors.green[6]}`,
             fontWeight: 600,
           },
           '&[data-active="true"]': {
-            backgroundColor: theme.colorScheme === 'dark' 
-              ? theme.colors.dark[6] 
+            backgroundColor: theme.colorScheme === 'dark'
+              ? theme.colors.dark[6]
               : theme.colors.gray[1],
             borderLeft: `3px solid ${theme.colors.green[6]}`,
             fontWeight: 600,
@@ -168,52 +169,204 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
 
       {activeTab && (
         <>
-          <Tabs.Panel value="search" style={{ flex: 1, overflow: 'auto' }}>
-            <Suspense fallback={<PanelLoader />}>
-              <SearchPanel onClose={handleClosePanel} />
-            </Suspense>
+          <Tabs.Panel value="search" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+            <ActionIcon
+              onClick={handleClosePanel}
+              size="lg"
+              radius="xl"
+              variant="light"
+              color="gray"
+              style={{
+                position: 'absolute',
+                top: '8px',
+                right: '-28px',
+                zIndex: 1000,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                cursor: 'pointer',
+              }}
+            >
+              <X size={18} />
+            </ActionIcon>
+            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+              <Suspense fallback={<PanelLoader />}>
+                <SearchPanel onClose={handleClosePanel} />
+              </Suspense>
+            </Box>
           </Tabs.Panel>
 
-          <Tabs.Panel value="parks" style={{ flex: 1, overflow: 'auto' }}>
-            <Suspense fallback={<PanelLoader />}>
-              <ParksPanel onClose={handleClosePanel} />
-            </Suspense>
+          <Tabs.Panel value="parks" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+            <ActionIcon
+              onClick={handleClosePanel}
+              size="lg"
+              radius="xl"
+              variant="light"
+              color="gray"
+              style={{
+                position: 'absolute',
+                top: '8px',
+                right: '-28px',
+                zIndex: 1000,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                cursor: 'pointer',
+              }}
+            >
+              <X size={18} />
+            </ActionIcon>
+            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+              <Suspense fallback={<PanelLoader />}>
+                <ParksPanel onClose={handleClosePanel} />
+              </Suspense>
+            </Box>
           </Tabs.Panel>
 
-          <Tabs.Panel value="activities" style={{ flex: 1, overflow: 'auto' }}>
-            <Suspense fallback={<PanelLoader />}>
-              <ActivitiesPanel onClose={handleClosePanel} />
-            </Suspense>
+          <Tabs.Panel value="activities" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+            <ActionIcon
+              onClick={handleClosePanel}
+              size="lg"
+              radius="xl"
+              variant="light"
+              color="gray"
+              style={{
+                position: 'absolute',
+                top: '8px',
+                right: '-28px',
+                zIndex: 1000,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                cursor: 'pointer',
+              }}
+            >
+              <X size={18} />
+            </ActionIcon>
+            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+              <Suspense fallback={<PanelLoader />}>
+                <ActivitiesPanel onClose={handleClosePanel} />
+              </Suspense>
+            </Box>
           </Tabs.Panel>
 
-          <Tabs.Panel value="trails" style={{ flex: 1, overflow: 'auto' }}>
-            <Suspense fallback={<PanelLoader />}>
-              <TrailsPanel onClose={handleClosePanel} />
-            </Suspense>
+          <Tabs.Panel value="trails" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+            <ActionIcon
+              onClick={handleClosePanel}
+              size="lg"
+              radius="xl"
+              variant="light"
+              color="gray"
+              style={{
+                position: 'absolute',
+                top: '8px',
+                right: '-28px',
+                zIndex: 1000,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                cursor: 'pointer',
+              }}
+            >
+              <X size={18} />
+            </ActionIcon>
+            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+              <Suspense fallback={<PanelLoader />}>
+                <TrailsPanel onClose={handleClosePanel} />
+              </Suspense>
+            </Box>
           </Tabs.Panel>
 
-          <Tabs.Panel value="nearby" style={{ flex: 1, overflow: 'auto' }}>
-            <Suspense fallback={<PanelLoader />}>
-              <NearbyPanel onClose={handleClosePanel} />
-            </Suspense>
+          <Tabs.Panel value="nearby" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+            <ActionIcon
+              onClick={handleClosePanel}
+              size="lg"
+              radius="xl"
+              variant="light"
+              color="gray"
+              style={{
+                position: 'absolute',
+                top: '8px',
+                right: '-28px',
+                zIndex: 1000,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                cursor: 'pointer',
+              }}
+            >
+              <X size={18} />
+            </ActionIcon>
+            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+              <Suspense fallback={<PanelLoader />}>
+                <NearbyPanel onClose={handleClosePanel} />
+              </Suspense>
+            </Box>
           </Tabs.Panel>
 
-          <Tabs.Panel value="directions" style={{ flex: 1, overflow: 'auto' }}>
-            <Suspense fallback={<PanelLoader />}>
-              <DirectionsPanel onClose={handleClosePanel} />
-            </Suspense>
+          <Tabs.Panel value="directions" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+            <ActionIcon
+              onClick={handleClosePanel}
+              size="lg"
+              radius="xl"
+              variant="light"
+              color="gray"
+              style={{
+                position: 'absolute',
+                top: '8px',
+                right: '-28px',
+                zIndex: 1000,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                cursor: 'pointer',
+              }}
+            >
+              <X size={18} />
+            </ActionIcon>
+            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+              <Suspense fallback={<PanelLoader />}>
+                <DirectionsPanel onClose={handleClosePanel} />
+              </Suspense>
+            </Box>
           </Tabs.Panel>
 
-          <Tabs.Panel value="share" style={{ flex: 1, overflow: 'auto' }}>
-            <Suspense fallback={<PanelLoader />}>
-              <SharePanel onClose={handleClosePanel} />
-            </Suspense>
+          <Tabs.Panel value="share" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+            <ActionIcon
+              onClick={handleClosePanel}
+              size="lg"
+              radius="xl"
+              variant="light"
+              color="gray"
+              style={{
+                position: 'absolute',
+                top: '8px',
+                right: '-28px',
+                zIndex: 1000,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                cursor: 'pointer',
+              }}
+            >
+              <X size={18} />
+            </ActionIcon>
+            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+              <Suspense fallback={<PanelLoader />}>
+                <SharePanel onClose={handleClosePanel} />
+              </Suspense>
+            </Box>
           </Tabs.Panel>
 
-          <Tabs.Panel value="info" style={{ flex: 1, overflow: 'auto' }}>
-            <Suspense fallback={<PanelLoader />}>
-              <InfoPanel onClose={handleClosePanel} />
-            </Suspense>
+          <Tabs.Panel value="info" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+            <ActionIcon
+              onClick={handleClosePanel}
+              size="lg"
+              radius="xl"
+              variant="light"
+              color="gray"
+              style={{
+                position: 'absolute',
+                top: '8px',
+                right: '-28px',
+                zIndex: 1000,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                cursor: 'pointer',
+              }}
+            >
+              <X size={18} />
+            </ActionIcon>
+            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+              <Suspense fallback={<PanelLoader />}>
+                <InfoPanel onClose={handleClosePanel} />
+              </Suspense>
+            </Box>
           </Tabs.Panel>
         </>
       )}

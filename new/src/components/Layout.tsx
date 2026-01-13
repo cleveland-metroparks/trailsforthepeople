@@ -41,6 +41,7 @@ export function Layout({ children }: LayoutProps) {
               root: {
                 boxSizing: 'border-box',
                 borderRight: hasActivePanel ? undefined : 'none',
+                overflow: 'visible',
               },
             }}
           >

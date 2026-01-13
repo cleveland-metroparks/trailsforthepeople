@@ -173,7 +173,7 @@ export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
     const description = (selectedTrail as Record<string, unknown>).description as string | undefined
 
     return (
-      <Box p="md" style={{ position: 'relative' }}>
+      <Box p="md" pr="sm" style={{ position: 'relative' }}>
         <Stack spacing="md">
           <Button
             variant="subtle"
@@ -239,7 +239,7 @@ export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
   }
 
   return (
-    <Box p="md" style={{ position: 'relative' }}>
+    <Box p="md" pr="sm" style={{ position: 'relative' }}>
       <Stack spacing="md">
         <Text size="lg" weight={500}>
           Trails

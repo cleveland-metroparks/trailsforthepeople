@@ -120,7 +120,7 @@ export function ParksPanel({ onClose: _onClose }: ParksPanelProps) {
     const phone = (selectedPark as Record<string, unknown>).phone as string | undefined
 
     return (
-      <Box p="md" style={{ position: 'relative' }}>
+      <Box p="md" pr="sm" style={{ position: 'relative' }}>
         <Stack spacing="md">
           <Button
             variant="subtle"
@@ -191,7 +191,7 @@ export function ParksPanel({ onClose: _onClose }: ParksPanelProps) {
   }
 
   return (
-    <Box p="md" style={{ position: 'relative' }}>
+    <Box p="md" pr="sm" style={{ position: 'relative' }}>
       <Stack spacing="md">
         <Text size="lg" weight={500}>
           Parks
