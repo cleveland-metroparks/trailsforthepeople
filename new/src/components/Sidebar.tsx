@@ -1,11 +1,10 @@
 import { Tabs, Divider, Loader, Center, ActionIcon, Box } from '@mantine/core'
-import { Search, MapPin, Route, Share, InfoCircle, Trees, Walk, Golf, X } from 'tabler-icons-react'
+import { Search, Route, Share, InfoCircle, Trees, Walk, Golf, X } from 'tabler-icons-react'
 import { useState, useEffect, useImperativeHandle, forwardRef, useRef, Suspense, lazy } from 'react'
 import { useURLState } from '../hooks/useURLState'
 
 // Lazy load all panels
 const SearchPanel = lazy(() => import('./panels/SearchPanel').then(m => ({ default: m.SearchPanel })))
-const NearbyPanel = lazy(() => import('./panels/NearbyPanel').then(m => ({ default: m.NearbyPanel })))
 const DirectionsPanel = lazy(() => import('./panels/DirectionsPanel').then(m => ({ default: m.DirectionsPanel })))
 const SharePanel = lazy(() => import('./panels/SharePanel').then(m => ({ default: m.SharePanel })))
 const InfoPanel = lazy(() => import('./panels/InfoPanel').then(m => ({ default: m.InfoPanel })))
@@ -153,9 +152,6 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
         <Tabs.Tab value="directions" icon={<Route size={24} />}>
           Directions
         </Tabs.Tab>
-        <Tabs.Tab value="nearby" icon={<MapPin size={24} />}>
-          Nearby
-        </Tabs.Tab>
 
         <Divider orientation="horizontal" my="sm" />
 
@@ -265,31 +261,6 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
             <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
               <Suspense fallback={<PanelLoader />}>
                 <TrailsPanel onClose={handleClosePanel} />
-              </Suspense>
-            </Box>
-          </Tabs.Panel>
-
-          <Tabs.Panel value="nearby" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
-            <ActionIcon
-              onClick={handleClosePanel}
-              size="lg"
-              radius="xl"
-              variant="light"
-              color="gray"
-              style={{
-                position: 'absolute',
-                top: '8px',
-                right: '-28px',
-                zIndex: 1000,
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-                cursor: 'pointer',
-              }}
-            >
-              <X size={18} />
-            </ActionIcon>
-            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
-              <Suspense fallback={<PanelLoader />}>
-                <NearbyPanel onClose={handleClosePanel} />
               </Suspense>
             </Box>
           </Tabs.Panel>
