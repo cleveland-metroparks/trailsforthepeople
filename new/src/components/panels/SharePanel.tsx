@@ -46,7 +46,7 @@ export function SharePanel({ onClose: _onClose }: SharePanelProps) {
         )}
 
         <Text size="sm" color="dimmed">
-          Share functionality coming soon...
+          Coming soon...
         </Text>
       </Stack>
     </Box>
