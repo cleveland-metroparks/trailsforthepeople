@@ -5,7 +5,7 @@ import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
 import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
 import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
 import { useMap } from '../../contexts/MapContext'
-import { zoomToFeature, highlightParkBoundary, clearParkHighlight, fadeOutParkHighlight, getBoundingBoxFromGeometry } from '../../lib/mapUtils'
+import { zoomToFeature, highlightParkBoundary, clearParkHighlight, fadeOutParkHighlight, getBoundingBoxFromGeometry, clearAttractionMarker } from '../../lib/mapUtils'
 import { useURLState } from '../../hooks/useURLState'
 import type { Reservation } from '../../types/api'
 
@@ -110,6 +110,14 @@ export function ParksPanel({ onClose: _onClose }: ParksPanelProps) {
       clearParkHighlight(map)
     }
   }, [map])
+
+  // Clear attraction marker when park is selected
+  useEffect(() => {
+    if (!map) return
+    if (selectedPark && params.type === 'park') {
+      clearAttractionMarker(map)
+    }
+  }, [selectedPark, params.type, map])
 
   // Show detail view if a park is selected
   if (selectedPark) {

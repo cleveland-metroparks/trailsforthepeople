@@ -4,7 +4,7 @@ import { useTrailsData } from '../../hooks/useTrailsData'
 import { useParksData } from '../../hooks/useParksData'
 import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
 import { useMap } from '../../contexts/MapContext'
-import { zoomToFeature, highlightTrailLine, clearTrailHighlight } from '../../lib/mapUtils'
+import { zoomToFeature, highlightTrailLine, clearTrailHighlight, clearAttractionMarker } from '../../lib/mapUtils'
 import { getTrailGeometry } from '../../lib/api'
 import { useURLState } from '../../hooks/useURLState'
 import type { TransformedTrail } from '../../types/api'
@@ -136,6 +136,7 @@ export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
 
     currentTrailRef.current = selectedTrailId
     clearTrailHighlight(map)
+    clearAttractionMarker(map) // Clear attraction marker when trail is selected
 
     getTrailGeometry(selectedTrailId)
       .then((geometry) => {

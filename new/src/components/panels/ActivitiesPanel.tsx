@@ -4,7 +4,7 @@ import { useActivitiesData, useAttractionsByActivity } from '../../hooks/useActi
 import { useCategoriesData } from '../../hooks/useCategoriesData'
 import { useParksData } from '../../hooks/useParksData'
 import { useMap } from '../../contexts/MapContext'
-import { zoomToFeature } from '../../lib/mapUtils'
+import { zoomToFeature, placeAttractionMarker, clearAttractionMarker } from '../../lib/mapUtils'
 import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
 import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
 import { ActivityIcon } from '../ActivityIcon'
@@ -79,6 +79,23 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
     shouldZoomRef.current = false
     isInitialLoadRef.current = false
   }, [selectedAttraction, params.gid, map, zoomToAttraction])
+
+  // Place marker when attraction is selected
+  useEffect(() => {
+    if (!map) return
+
+    if (selectedAttraction && params.type === 'attraction') {
+      const attractionData = selectedAttraction as Record<string, unknown>
+      const lat = attractionData.latitude as number | undefined
+      const lng = attractionData.longitude as number | undefined
+      if (lat && lng) {
+        placeAttractionMarker(map, lat, lng)
+      }
+    } else {
+      // Clear marker when no attraction is selected or type changes
+      clearAttractionMarker(map)
+    }
+  }, [selectedAttraction, params.type, map])
 
   // Create a map of reservation ID to park name for quick lookup
   const parksMap = useMemo(() => {

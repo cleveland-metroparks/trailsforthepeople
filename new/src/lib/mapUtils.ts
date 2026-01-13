@@ -189,6 +189,10 @@ const PARK_HIGHLIGHT_LAYER_ID = 'park-highlight-layer'
 const TRAIL_HIGHLIGHT_SOURCE_ID = 'trail-highlight-source'
 const TRAIL_HIGHLIGHT_LAYER_ID = 'trail-highlight-layer'
 
+// Constants for attraction marker layer
+const ATTRACTION_MARKER_SOURCE_ID = 'attraction-marker-source'
+const ATTRACTION_MARKER_LAYER_ID = 'attraction-marker-layer'
+
 // Version counter to invalidate stale highlight operations (handles race conditions
 // when user clicks trails faster than style.load can complete)
 let trailHighlightVersion = 0
@@ -562,5 +566,114 @@ export function clearTrailHighlight(map: mapboxgl.Map | null): void {
     }
   } catch {
     // Map might be in a state where layers can't be accessed
+  }
+}
+
+/**
+ * Place a marker on the map for an attraction
+ * Uses a simple circle marker similar to the old MARKER_TARGET style
+ *
+ * @param map - The mapbox map instance (can be null)
+ * @param lat - Latitude of the attraction
+ * @param lng - Longitude of the attraction
+ */
+export function placeAttractionMarker(
+  map: mapboxgl.Map | null,
+  lat: number,
+  lng: number
+): void {
+  if (!map) {
+    return
+  }
+
+  if (!isValidCoordinate(lat, lng)) {
+    console.warn('placeAttractionMarker: Invalid coordinates', { lat, lng })
+    return
+  }
+
+  const feature: GeoJSON.Feature = {
+    type: 'Feature',
+    geometry: {
+      type: 'Point',
+      coordinates: [lng, lat],
+    },
+    properties: {},
+  }
+
+  const geojson: GeoJSON.FeatureCollection = {
+    type: 'FeatureCollection',
+    features: [feature],
+  }
+
+  // Wait for map to be loaded if needed
+  if (!map.isStyleLoaded()) {
+    map.once('style.load', () => {
+      addAttractionMarkerLayer(map, geojson)
+    })
+  } else {
+    addAttractionMarkerLayer(map, geojson)
+  }
+}
+
+/**
+ * Add or update the attraction marker layer on the map
+ */
+function addAttractionMarkerLayer(map: mapboxgl.Map, geojson: GeoJSON.FeatureCollection): void {
+  try {
+    // Remove existing layer and source if they exist
+    if (map.getLayer(ATTRACTION_MARKER_LAYER_ID)) {
+      map.removeLayer(ATTRACTION_MARKER_LAYER_ID)
+    }
+    if (map.getSource(ATTRACTION_MARKER_SOURCE_ID)) {
+      map.removeSource(ATTRACTION_MARKER_SOURCE_ID)
+    }
+
+    // Add the source
+    map.addSource(ATTRACTION_MARKER_SOURCE_ID, {
+      type: 'geojson',
+      data: geojson,
+    })
+
+    // Add the circle layer (marker)
+    map.addLayer({
+      id: ATTRACTION_MARKER_LAYER_ID,
+      type: 'circle',
+      source: ATTRACTION_MARKER_SOURCE_ID,
+      paint: {
+        'circle-radius': 10,
+        'circle-color': '#207FD0', // Same blue as old MARKER_TARGET
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#ffffff',
+        'circle-opacity': 1,
+      },
+    })
+  } catch (error) {
+    console.warn('addAttractionMarkerLayer: Error adding marker', error)
+  }
+}
+
+/**
+ * Clear the attraction marker from the map
+ *
+ * @param map - The mapbox map instance (can be null)
+ */
+export function clearAttractionMarker(map: mapboxgl.Map | null): void {
+  if (!map || !map.isStyleLoaded()) {
+    return
+  }
+
+  // Remove layer (check if it exists first)
+  try {
+    if (map.getLayer(ATTRACTION_MARKER_LAYER_ID)) {
+      map.removeLayer(ATTRACTION_MARKER_LAYER_ID)
+    }
+
+    // Remove source
+    if (map.getSource(ATTRACTION_MARKER_SOURCE_ID)) {
+      map.removeSource(ATTRACTION_MARKER_SOURCE_ID)
+    }
+  } catch (error) {
+    // Map might be in a state where layers can't be accessed
+    console.warn('clearAttractionMarker: Error clearing marker', error)
   }
 }

@@ -12,7 +12,7 @@ import { useTrailsData } from '../../hooks/useTrailsData'
 import { useCategoriesData } from '../../hooks/useCategoriesData'
 import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
 import { ActivityIcon } from '../ActivityIcon'
-import { highlightTrailLine, clearTrailHighlight, highlightParkBoundary, fadeOutParkHighlight, getBoundingBoxFromGeometry } from '../../lib/mapUtils'
+import { highlightTrailLine, clearTrailHighlight, highlightParkBoundary, fadeOutParkHighlight, getBoundingBoxFromGeometry, placeAttractionMarker, clearAttractionMarker } from '../../lib/mapUtils'
 import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
 import { getTrailGeometry } from '../../lib/api'
 import type { Reservation, TransformedAttraction, TransformedTrail } from '../../types/api'
@@ -197,6 +197,23 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
       }
     }
   }, [map, selectedSearchResult])
+
+  // Manage attraction marker based on selected feature type
+  useEffect(() => {
+    if (!map) return
+
+    if (selectedSearchResult?.type === 'attraction') {
+      const attraction = selectedFeature as TransformedAttraction
+      const lat = typeof attraction.latitude === 'number' ? attraction.latitude : Number(attraction.latitude)
+      const lng = typeof attraction.longitude === 'number' ? attraction.longitude : Number(attraction.longitude)
+      if (lat && lng && !isNaN(lat) && !isNaN(lng)) {
+        placeAttractionMarker(map, lat, lng)
+      }
+    } else {
+      // Clear marker when other feature types are selected or no selection
+      clearAttractionMarker(map)
+    }
+  }, [selectedSearchResult, selectedFeature, map])
 
   // Close autocomplete when clicking outside
   useEffect(() => {
