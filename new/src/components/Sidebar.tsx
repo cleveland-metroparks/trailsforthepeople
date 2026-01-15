@@ -2,6 +2,7 @@ import { Tabs, Divider, Loader, Center, ActionIcon, Box } from '@mantine/core'
 import { Search, Share, InfoCircle, Trees, Walk, Golf, X, Bug } from 'tabler-icons-react'
 import { useState, useEffect, useImperativeHandle, forwardRef, Suspense, lazy } from 'react'
 import { useURLState } from '../hooks/useURLState'
+import { useMapSelection } from '../contexts/MapSelectionContext'
 
 // Lazy load all panels
 const SearchPanel = lazy(() => import('./panels/SearchPanel').then(m => ({ default: m.SearchPanel })))
@@ -40,6 +41,7 @@ const PanelLoader = () => (
 export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChange }, ref) => {
   const [activeTab, setActiveTab] = useState<string | null>(null)
   const { params } = useURLState()
+  const { selectionTick } = useMapSelection()
 
   useEffect(() => {
     onPanelStateChange?.(activeTab !== null)
@@ -56,7 +58,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     if (tabForFeature) {
       setActiveTab(tabForFeature)
     }
-  }, [params.type, params.activityId, params.fromSearch])
+  }, [params.type, params.activityId, params.fromSearch, selectionTick])
 
   useImperativeHandle(ref, () => ({
     activateSearchTab: () => {

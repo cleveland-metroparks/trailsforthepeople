@@ -6,6 +6,7 @@ import { useMapConfig } from '../hooks/useMapConfig'
 import { FloatingSearch } from './FloatingSearch'
 import { useMap } from '../contexts/MapContext'
 import { useMapHover } from '../contexts/MapHoverContext'
+import { useMapSelection } from '../contexts/MapSelectionContext'
 import { useURLState } from '../hooks/useURLState'
 import { useMapURLSync, getInitialMapStateFromURL } from '../hooks/useMapURLSync'
 import { ResetMapControl } from './ResetMapControl'
@@ -41,6 +42,7 @@ export function MapView() {
   const map = useRef<mapboxgl.Map | null>(null)
   const { map: mapFromContext, setMap } = useMap()
   const { setHoverInfo } = useMapHover()
+  const { bumpSelectionTick } = useMapSelection()
   const { setParams } = useURLState()
   const popupRef = useRef<mapboxgl.Popup | null>(null)
   const { mapConfig } = useMapConfig()
@@ -243,6 +245,7 @@ export function MapView() {
         return
       }
 
+      bumpSelectionTick()
       setParams(
         {
           type: 'attraction',

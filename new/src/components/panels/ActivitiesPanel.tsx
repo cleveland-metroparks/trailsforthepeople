@@ -51,6 +51,20 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
     ) || null
   }, [attractions, params.type, params.gid])
 
+  // Clear invalid attraction selections (e.g., gis_id not found)
+  useEffect(() => {
+    if (params.type !== 'attraction' || !params.gid) return
+    if (isLoading || !attractions) return
+
+    const hasMatch = attractions.some(
+      (a) => String(a.gis_id || a.record_id) === params.gid
+    )
+
+    if (!hasMatch) {
+      setParams({ type: null, gid: null }, false, false)
+    }
+  }, [params.type, params.gid, isLoading, attractions, setParams])
+
   // Helper to zoom to an attraction
   const zoomToAttraction = useCallback((attraction: TransformedAttraction) => {
     if (!map) return
