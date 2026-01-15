@@ -1,21 +1,56 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Box, Alert } from '@mantine/core'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { useMapConfig } from '../hooks/useMapConfig'
 import { FloatingSearch } from './FloatingSearch'
 import { useMap } from '../contexts/MapContext'
+import { useMapHover } from '../contexts/MapHoverContext'
+import { useURLState } from '../hooks/useURLState'
 import { useMapURLSync, getInitialMapStateFromURL } from '../hooks/useMapURLSync'
 import { ResetMapControl } from './ResetMapControl'
+
+function isValidGisId(value: unknown): boolean {
+  if (value === null || value === undefined) return false
+  if (typeof value === 'number') return value !== 0
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    return trimmed !== '' && trimmed !== '0'
+  }
+  return true
+}
+
+function isClickableFeature(feature: mapboxgl.MapboxGeoJSONFeature): boolean {
+  const props = (feature.properties ?? {}) as Record<string, unknown>
+  return isValidGisId(props.gis_id)
+}
+
+function getFilteredFeatures(
+  map: mapboxgl.Map,
+  point: mapboxgl.PointLike,
+  allowedLayerIds: Set<string>
+): mapboxgl.MapboxGeoJSONFeature[] {
+  return map.queryRenderedFeatures(point).filter((feature) => {
+    const layerId = feature.layer?.id
+    return layerId ? allowedLayerIds.has(layerId) : false
+  })
+}
 
 export function MapView() {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
   const { map: mapFromContext, setMap } = useMap()
+  const { setHoverInfo } = useMapHover()
+  const { setParams } = useURLState()
+  const popupRef = useRef<mapboxgl.Popup | null>(null)
   const { mapConfig } = useMapConfig()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isContainerReady, setIsContainerReady] = useState(false)
+  const allowedLayerIds = useMemo(
+    () => new Set(['Attractions 1', 'Attractions 2', 'Attractions 3', 'Park Amenities']),
+    []
+  )
 
   // Sync map position to URL
   useMapURLSync(mapFromContext)
@@ -52,7 +87,7 @@ export function MapView() {
         ? [urlState.lng, urlState.lat]
         : mapConfig.startCenter
       const initialZoom = urlState.zoom !== null ? urlState.zoom : mapConfig.startZoom
-      
+
       // Choose style based on URL 'base' param ('map' or 'photo')
       const initialStyle = urlState.base && mapConfig.styleLayers[urlState.base]
         ? mapConfig.styleLayers[urlState.base]
@@ -125,6 +160,115 @@ export function MapView() {
       }
     }
   }, [mapConfig, isContainerReady, setMap])
+
+  useEffect(() => {
+    if (!mapFromContext) return
+
+    const handleMouseMove = (event: mapboxgl.MapMouseEvent) => {
+      const features = getFilteredFeatures(mapFromContext, event.point, allowedLayerIds)
+
+      setHoverInfo({
+        lngLat: { lng: event.lngLat.lng, lat: event.lngLat.lat },
+        point: { x: event.point.x, y: event.point.y },
+        features,
+      })
+
+      if (features.length === 0) {
+        mapFromContext.getCanvas().style.cursor = ''
+        popupRef.current?.remove()
+        return
+      }
+
+      const clickableFeature = features.find((candidate) => isClickableFeature(candidate))
+      mapFromContext.getCanvas().style.cursor = clickableFeature ? 'pointer' : ''
+
+      if (clickableFeature) {
+        popupRef.current?.remove()
+        return
+      }
+
+      const feature = features[0]
+      const properties = (feature.properties ?? {}) as Record<string, unknown>
+
+      const container = document.createElement('div')
+      container.style.fontSize = '12px'
+      container.style.lineHeight = '1.4'
+      container.style.fontFamily = 'sans-serif'
+
+      const nameValue = properties.name ?? '—'
+      const parkValue = properties.res ?? '—'
+
+      const titleRow = document.createElement('div')
+      titleRow.textContent = String(nameValue)
+      titleRow.style.fontWeight = '600'
+      titleRow.style.marginBottom = '2px'
+      container.appendChild(titleRow)
+
+      const parkRow = document.createElement('div')
+      parkRow.textContent = String(parkValue)
+      container.appendChild(parkRow)
+
+      if (!popupRef.current) {
+        popupRef.current = new mapboxgl.Popup({
+          closeButton: false,
+          closeOnClick: false,
+          offset: 12,
+        })
+      }
+
+      popupRef.current
+        .setLngLat(event.lngLat)
+        .setDOMContent(container)
+        .addTo(mapFromContext)
+    }
+
+    const handleMouseOut = () => {
+      mapFromContext.getCanvas().style.cursor = ''
+      popupRef.current?.remove()
+      setHoverInfo(null)
+    }
+
+    const handleClick = (event: mapboxgl.MapMouseEvent) => {
+      const features = getFilteredFeatures(mapFromContext, event.point, allowedLayerIds)
+
+      const clickableFeature = features.find((candidate) => isClickableFeature(candidate))
+
+      if (!clickableFeature) {
+        return
+      }
+
+      const props = (clickableFeature.properties ?? {}) as Record<string, unknown>
+      const gisId = props.gis_id
+      if (!isValidGisId(gisId)) {
+        return
+      }
+
+      setParams(
+        {
+          type: 'attraction',
+          gid: String(gisId),
+          activityId: null,
+          fromSearch: null,
+        },
+        false,
+        true
+      )
+    }
+
+    mapFromContext.on('mousemove', handleMouseMove)
+    mapFromContext.on('mouseout', handleMouseOut)
+    mapFromContext.on('click', handleClick)
+
+    return () => {
+      mapFromContext.off('mousemove', handleMouseMove)
+      mapFromContext.off('mouseout', handleMouseOut)
+      mapFromContext.off('click', handleClick)
+      popupRef.current?.remove()
+      popupRef.current = null
+      mapFromContext.getCanvas().style.cursor = ''
+      setHoverInfo(null)
+    }
+  }, [allowedLayerIds, mapFromContext, setHoverInfo, setParams])
 
 
   if (error) {

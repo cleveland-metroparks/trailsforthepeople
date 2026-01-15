@@ -1,6 +1,6 @@
 import { Tabs, Divider, Loader, Center, ActionIcon, Box } from '@mantine/core'
-import { Search, Share, InfoCircle, Trees, Walk, Golf, X } from 'tabler-icons-react'
-import { useState, useEffect, useImperativeHandle, forwardRef, useRef, Suspense, lazy } from 'react'
+import { Search, Share, InfoCircle, Trees, Walk, Golf, X, Bug } from 'tabler-icons-react'
+import { useState, useEffect, useImperativeHandle, forwardRef, Suspense, lazy } from 'react'
 import { useURLState } from '../hooks/useURLState'
 
 // Lazy load all panels
@@ -10,6 +10,7 @@ const InfoPanel = lazy(() => import('./panels/InfoPanel').then(m => ({ default: 
 const ParksPanel = lazy(() => import('./panels/ParksPanel').then(m => ({ default: m.ParksPanel })))
 const ActivitiesPanel = lazy(() => import('./panels/ActivitiesPanel').then(m => ({ default: m.ActivitiesPanel })))
 const TrailsPanel = lazy(() => import('./panels/TrailsPanel').then(m => ({ default: m.TrailsPanel })))
+const DebugPanel = lazy(() => import('./panels/DebugPanel').then(m => ({ default: m.DebugPanel })))
 
 interface SidebarProps {
   onPanelStateChange?: (hasActivePanel: boolean) => void
@@ -39,28 +40,21 @@ const PanelLoader = () => (
 export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChange }, ref) => {
   const [activeTab, setActiveTab] = useState<string | null>(null)
   const { params } = useURLState()
-  const initializedRef = useRef(false)
 
   useEffect(() => {
     onPanelStateChange?.(activeTab !== null)
   }, [activeTab, onPanelStateChange])
 
-  // Open the appropriate panel when loading a feature via URL (on initial load only)
+  // Open the appropriate panel when a feature is selected via URL
   // But don't switch tabs if the feature was selected from search
   useEffect(() => {
-    if (initializedRef.current) return
-
-    // If fromSearch=true, keep Search tab active (don't switch)
     if (params.fromSearch === 'true') {
-      setActiveTab('search')
-      initializedRef.current = true
       return
     }
 
     const tabForFeature = getTabForFeatureType(params.type, params.activityId)
     if (tabForFeature) {
       setActiveTab(tabForFeature)
-      initializedRef.current = true
     }
   }, [params.type, params.activityId, params.fromSearch])
 
@@ -153,6 +147,9 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
         </Tabs.Tab>
         <Tabs.Tab value="info" icon={<InfoCircle size={24} />}>
           Info
+        </Tabs.Tab>
+        <Tabs.Tab value="debug" icon={<Bug size={24} />}>
+          Debug
         </Tabs.Tab>
       </Tabs.List>
 
@@ -304,6 +301,31 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
             <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
               <Suspense fallback={<PanelLoader />}>
                 <InfoPanel onClose={handleClosePanel} />
+              </Suspense>
+            </Box>
+          </Tabs.Panel>
+
+          <Tabs.Panel value="debug" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+            <ActionIcon
+              onClick={handleClosePanel}
+              size="lg"
+              radius="xl"
+              variant="light"
+              color="gray"
+              style={{
+                position: 'absolute',
+                top: '8px',
+                right: '-28px',
+                zIndex: 1000,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                cursor: 'pointer',
+              }}
+            >
+              <X size={18} />
+            </ActionIcon>
+            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+              <Suspense fallback={<PanelLoader />}>
+                <DebugPanel onClose={handleClosePanel} />
               </Suspense>
             </Box>
           </Tabs.Panel>

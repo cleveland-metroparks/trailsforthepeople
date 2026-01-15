@@ -4,6 +4,7 @@ import { Sidebar, SidebarRef } from './Sidebar'
 import { SearchProvider } from '../contexts/SearchContext'
 import { SidebarProvider } from '../contexts/SidebarContext'
 import { MapProvider } from '../contexts/MapContext'
+import { MapHoverProvider } from '../contexts/MapHoverContext'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -24,11 +25,12 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <MapProvider>
-      <SearchProvider>
-        <SidebarProvider
-          isSidebarCollapsed={!hasActivePanel}
-          onSearchSubmit={handleSearchSubmit}
-        >
+      <MapHoverProvider>
+        <SearchProvider>
+          <SidebarProvider
+            isSidebarCollapsed={!hasActivePanel}
+            onSearchSubmit={handleSearchSubmit}
+          >
         <AppShell
         padding={0} // Remove padding to allow map to fill full space
         navbar={
@@ -84,8 +86,9 @@ export function Layout({ children }: LayoutProps) {
         />
       </div>
     </AppShell>
-    </SidebarProvider>
-    </SearchProvider>
+          </SidebarProvider>
+        </SearchProvider>
+      </MapHoverProvider>
     </MapProvider>
   )
 }
