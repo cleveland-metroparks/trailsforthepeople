@@ -1,10 +1,10 @@
 import { createContext, useContext, useState, ReactNode } from 'react'
-import type mapboxgl from 'mapbox-gl'
+import type { MapboxGeoJSONFeature } from 'mapbox-gl'
 
 export interface HoverInfo {
   lngLat: { lng: number; lat: number } | null
   point: { x: number; y: number } | null
-  features: mapboxgl.MapboxGeoJSONFeature[]
+  features: MapboxGeoJSONFeature[]
 }
 
 interface MapHoverContextType {

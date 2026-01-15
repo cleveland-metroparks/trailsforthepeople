@@ -1,5 +1,5 @@
 import { Box, Divider, Stack, Text, Title } from '@mantine/core'
-import mapboxgl from 'mapbox-gl'
+import type { MapboxGeoJSONFeature } from 'mapbox-gl'
 import { useMemo } from 'react'
 import { useMapHover } from '../../contexts/MapHoverContext'
 
@@ -46,7 +46,7 @@ function summarizeGeometry(geometry: GeoJSON.Geometry | null | undefined) {
   }
 }
 
-function formatFeature(feature: mapboxgl.MapboxGeoJSONFeature) {
+function formatFeature(feature: MapboxGeoJSONFeature) {
   return {
     id: feature.id ?? null,
     layer: feature.layer
@@ -54,7 +54,7 @@ function formatFeature(feature: mapboxgl.MapboxGeoJSONFeature) {
           id: feature.layer.id,
           type: feature.layer.type,
           source: feature.layer.source,
-          sourceLayer: feature.layer.sourceLayer ?? null,
+          sourceLayer: feature.layer['source-layer'] ?? null,
           minzoom: feature.layer.minzoom ?? null,
           maxzoom: feature.layer.maxzoom ?? null,
         }
