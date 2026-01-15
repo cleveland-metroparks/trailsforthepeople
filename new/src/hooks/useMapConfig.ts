@@ -6,7 +6,7 @@ const STYLE_LAYER_SATELLITE = 'mapbox://styles/cleveland-metroparks/cjcutetjg078
 
 const MAP_CONFIG = {
   accessToken: import.meta.env.VITE_MAPBOX_TOKEN || '',
-  
+
   // Style layers
   styleLayer: STYLE_LAYER_MAP, // Default style
   styleLayers: {
@@ -22,7 +22,7 @@ const MAP_CONFIG = {
     ne: [-81.28029, 41.70009] as [number, number],
   },
 
-  mapsApiBaseUrl: 'https://maps-api.clevelandmetroparks.com/api/v1/',
+  mapsApiBaseUrl: `${import.meta.env.VITE_MAPS_API_BASE_URL || 'https://maps-api.clevelandmetroparks.com'}/${import.meta.env.VITE_MAPS_API_BASE_PATH || 'api/v1'}/`,
 }
 
 export function useMapConfig() {

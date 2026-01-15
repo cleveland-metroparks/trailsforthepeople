@@ -19,7 +19,7 @@ import {
 
 // API client configuration
 const apiClient = axios.create({
-  baseURL: 'https://maps-api.clevelandmetroparks.com/api/v1/',
+  baseURL: `${import.meta.env.VITE_MAPS_API_BASE_URL || 'https://maps-api.clevelandmetroparks.com'}/${import.meta.env.VITE_MAPS_API_BASE_PATH || 'api/v1'}/`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
