@@ -1,8 +1,11 @@
 import { Flex, Title, Text, Anchor, Divider } from "@mantine/core";
 
 import { NavButtons, UserLinks } from "../components/navLinks";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 export function Home() {
+  useDocumentTitle("Home");
+
   return (
     <>
       <div

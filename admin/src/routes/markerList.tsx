@@ -17,6 +17,7 @@ import { default as dayjs } from "dayjs";
 import { mapsApiClient } from "../components/mapsApi";
 import type { Marker } from "../types/marker";
 import { sortTableData, Th } from "../components/tablesort";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 // Get all markers from the API
 const getAllMarkers = async () => {
@@ -82,6 +83,8 @@ function filterTableData(data: Marker[], search: string) {
  * Marker List component
  */
 export function MarkerList() {
+  useDocumentTitle("Markers");
+
   // Instead of useLoaderData(); see tkdodo.eu article above
   const {
     isLoading: markersIsLoading,

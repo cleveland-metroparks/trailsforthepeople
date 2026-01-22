@@ -3,6 +3,7 @@ import "./App.css";
 import { Link, Outlet, Navigate } from "react-router";
 import {
   Anchor,
+  ActionIcon,
   AppShell,
   Burger,
   Divider,
@@ -10,6 +11,7 @@ import {
   useMantineColorScheme,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 
 import { useAuth } from "./hooks/useAuth";
 import { NavLinks, UserLinks } from "./components/navLinks";
@@ -18,8 +20,10 @@ function App() {
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
   const [opened, setOpened] = useState(false);
+  const [navCollapsed, setNavCollapsed] = useState(false);
   const { user } = useAuth();
   const isMobile = !useMediaQuery("(min-width: 768px)");
+  const isNavCollapsed = navCollapsed && !isMobile;
 
   if (!user) {
     return <Navigate to="/login" />;
@@ -29,20 +33,44 @@ function App() {
     <AppShell
       padding="md"
       navbar={{
-        width: { sm: 200, lg: 300 },
+        width: { sm: isNavCollapsed ? 72 : 200, lg: isNavCollapsed ? 84 : 300 },
         breakpoint: "sm",
         collapsed: { mobile: !opened },
       }}
       header={{ height: 70 }}
     >
-      <AppShell.Navbar p="md">
-        <NavLinks />
+      <AppShell.Navbar p="md" style={{ display: "flex", flexDirection: "column" }}>
+        <NavLinks showLabels={!isNavCollapsed} />
         <Divider my="sm" variant="dotted" />
-        <UserLinks />
+        <UserLinks showLabels={!isNavCollapsed} />
+        {!isMobile && (
+          <div style={{ marginTop: "auto" }}>
+            <ActionIcon
+              variant="subtle"
+              onClick={() => setNavCollapsed((value) => !value)}
+              aria-label={
+                isNavCollapsed ? "Expand navigation" : "Collapse navigation"
+              }
+            >
+              {isNavCollapsed ? (
+                <IconChevronRight size={18} />
+              ) : (
+                <IconChevronLeft size={18} />
+              )}
+            </ActionIcon>
+          </div>
+        )}
       </AppShell.Navbar>
 
       <AppShell.Header p="md">
-        <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            height: "100%",
+            gap: "12px",
+          }}
+        >
           {isMobile && (
             <Burger
               opened={opened}

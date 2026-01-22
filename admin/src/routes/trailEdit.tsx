@@ -38,6 +38,7 @@ import { lineString } from "@turf/helpers";
 
 import { useAuth } from "../hooks/useAuth";
 import { useReservations } from "../hooks/useReservations";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 import type {
   Trail,
@@ -406,6 +407,10 @@ export function TrailEdit() {
     queryKey: ["trail", params.trailId],
     queryFn: () => getTrail(trailId),
   });
+
+  const trailTitle =
+    trailId === "new" ? "Add Trail" : trailData?.name ? trailData.name : "Trail";
+  useDocumentTitle(`${trailTitle}`);
   //---------------------------------------------------------------------------
 
   // Save Trail via the API
