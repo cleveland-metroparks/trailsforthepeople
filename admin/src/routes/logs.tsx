@@ -5,6 +5,7 @@ import { Table, Anchor, Box, Pagination, Text } from "@mantine/core";
 import { default as dayjs } from "dayjs";
 
 import { mapsApiClient } from "../components/mapsApi";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 type AuditLog = {
   id: number;
@@ -16,6 +17,8 @@ type AuditLog = {
 
 //
 export function AuditLogView() {
+  useDocumentTitle("Logs");
+
   //
   const getAuditLog = async (id: string) => {
     const response = await mapsApiClient.get<any>(
@@ -90,6 +93,8 @@ export function AuditLogView() {
 
 //
 export function AuditLogsList() {
+  useDocumentTitle("Logs");
+
   //
   const getAuditLogs = async (page: number) => {
     const limit = 20;

@@ -14,11 +14,14 @@ import { showNotification } from "@mantine/notifications";
 
 import { mapsApiClient } from "../components/mapsApi";
 import { useAuth } from "../hooks/useAuth";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 /**
  * Login screen
  */
 export function Login() {
+  useDocumentTitle("Login");
+
   const skipLogin =
     (process.env.REACT_APP_SKIP_LOGIN || "").toLowerCase() === "true";
   const form = useForm({

@@ -34,6 +34,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 import { useAuth } from "../hooks/useAuth";
 import { useReservations } from "../hooks/useReservations";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 import { mapsApiClient } from "../components/mapsApi";
 import { Authorship } from "../components/sidebarPanes/authorship";
@@ -161,6 +162,14 @@ export function MarkerEdit() {
     queryKey: ["marker", params.markerId],
     queryFn: () => getMarker(markerId),
   });
+
+  const markerTitle =
+    markerId === "new"
+      ? "Add Marker"
+      : markerData?.title
+        ? markerData.title
+        : "Marker";
+  useDocumentTitle(`${markerTitle}`);
 
   // Save Marker to the API
   const saveMarker = async (formData) => {

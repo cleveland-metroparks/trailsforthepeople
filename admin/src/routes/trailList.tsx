@@ -19,6 +19,7 @@ import { mapsApiClient } from "../components/mapsApi";
 import type { Trail } from "../types/trail";
 import { sortTableData, Th } from "../components/tablesort";
 import { useReservations } from "../hooks/useReservations";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import utils from "../styles/utils.module.css";
 
 // Get all trails from the API
@@ -96,6 +97,8 @@ function filterTableData(
  * Trail List
  */
 export function TrailList() {
+  useDocumentTitle("Trails");
+
   const { reservationFilterSelectOptions } = useReservations();
 
   // Instead of useLoaderData(); see tkdodo.eu article above

@@ -28,6 +28,7 @@ import { default as dayjs } from "dayjs";
 import { mapsApiClient } from "../components/mapsApi";
 import type { ApiAccessToken } from "../types/user";
 import utils from "../styles/utils.module.css";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 // Get all tokens
 const getUserTokens = async () => {
@@ -64,6 +65,8 @@ const getUserTokens = async () => {
  */
 export function UserAccount() {
   const { user } = useAuth();
+
+  useDocumentTitle(user ? `${user}` : "Users");
 
   const [openedModal, { open: openModal, close: closeModal }] =
     useDisclosure(false);
