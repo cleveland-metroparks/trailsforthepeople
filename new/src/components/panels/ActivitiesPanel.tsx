@@ -37,6 +37,11 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
   const { attractions: filteredAttractions } = useAttractionsByActivity(
     selectedActivityId
   )
+  const sortedAttractions = useMemo(() => {
+    return [...filteredAttractions].sort((a, b) =>
+      String(a.pagetitle).localeCompare(String(b.pagetitle))
+    )
+  }, [filteredAttractions])
   const { categoriesMap } = useCategoriesData()
   const { data: parks } = useParksData()
   const { map } = useMap()
@@ -167,6 +172,9 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
             activity !== undefined && activity.icon !== null
           )
       : []
+    const sortedActivityIcons = [...activityIcons].sort((a, b) =>
+      a.pagetitle.localeCompare(b.pagetitle)
+    )
 
     return (
       <Box p="md" pr="sm" style={{ position: 'relative' }}>
@@ -212,7 +220,7 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
                   gap: '0.5em',
                 }}
               >
-                {activityIcons.map((activity) => (
+                {sortedActivityIcons.map((activity) => (
                   <Box
                     key={activity.eventactivitytypeid}
                     component="li"
@@ -396,17 +404,17 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
                   }
                 </Text>
 
-                {filteredAttractions.length === 0 ? (
+                {sortedAttractions.length === 0 ? (
                   <Text size="sm" color="dimmed">
                     No attractions found for this activity.
                   </Text>
                 ) : (
                   <Stack spacing={0}>
                     <Text size="sm" weight={500} color="dimmed">
-                      {filteredAttractions.length}{' '}
-                      {filteredAttractions.length === 1 ? 'attraction' : 'attractions'}
+                      {sortedAttractions.length}{' '}
+                      {sortedAttractions.length === 1 ? 'attraction' : 'attractions'}
                     </Text>
-                    {filteredAttractions.map((attraction, index) => {
+                    {sortedAttractions.map((attraction, index) => {
                       const attractionData = attraction as Record<string, unknown>
                       const reservationId = attractionData.reservation as number | string | undefined
                       const parkName = reservationId ? parksMap.get(reservationId) : undefined

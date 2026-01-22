@@ -299,6 +299,9 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
               activity !== undefined && activity.icon !== null
             )
         : []
+      const sortedActivityIcons = [...activityIcons].sort((a, b) =>
+        a.pagetitle.localeCompare(b.pagetitle)
+      )
 
       return (
         <Box p="md" pr="sm" style={{ position: 'relative' }}>
@@ -342,7 +345,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
                     gap: '0.5em',
                   }}
                 >
-                  {activityIcons.map((activity) => (
+                  {sortedActivityIcons.map((activity) => (
                     <Box
                       key={activity.eventactivitytypeid}
                       component="li"

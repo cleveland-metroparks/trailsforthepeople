@@ -48,27 +48,33 @@ export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
   // Filter trails by selected reservation
   const filteredTrails = useMemo(() => {
     if (!trails) return []
-    if (!selectedReservationId) return trails
+    if (!selectedReservationId) {
+      return [...trails].sort((a, b) => String(a.name).localeCompare(String(b.name)))
+    }
 
     // Filter trails that belong to the selected reservation
     // Note: The old code uses trail['res'] and compares with reservation pagetitle
     // This matches the old implementation where the dropdown value is pagetitle
-    return trails.filter((trail) => {
+    const trailsForReservation = trails.filter((trail) => {
       const trailRes = (trail as { res?: string | number })['res']
       if (trailRes === undefined) return false
 
       // Compare with selected reservation (which is pagetitle in old code)
       return String(trailRes) === String(selectedReservationId)
     })
+    return trailsForReservation.sort((a, b) =>
+      String(a.name).localeCompare(String(b.name))
+    )
   }, [trails, selectedReservationId])
 
   // Prepare reservation options for dropdown
   // Note: Old code uses pagetitle as the value (see pane_trails_reservation_filter_option.hbs)
   const reservationOptions = useMemo(() => {
     if (!parks) return []
+    const sortedParks = [...parks].sort((a, b) => a.pagetitle.localeCompare(b.pagetitle))
     return [
       { value: '', label: 'All Parks' },
-      ...parks.map((park) => ({
+      ...sortedParks.map((park) => ({
         value: park.pagetitle, // Using pagetitle to match old implementation
         label: park.pagetitle,
       })),

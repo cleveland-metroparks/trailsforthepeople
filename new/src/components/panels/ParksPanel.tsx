@@ -51,6 +51,11 @@ export function ParksPanel({ onClose: _onClose }: ParksPanelProps) {
     return parks.find((p) => String(p.record_id) === params.gid) || null
   }, [parks, params.type, params.gid])
 
+  const sortedParks = useMemo(() => {
+    if (!parks) return []
+    return [...parks].sort((a, b) => a.pagetitle.localeCompare(b.pagetitle))
+  }, [parks])
+
   // Helper to zoom to a park
   const zoomToPark = useCallback((park: Reservation) => {
     if (!map) return
@@ -219,16 +224,16 @@ export function ParksPanel({ onClose: _onClose }: ParksPanelProps) {
 
         {!isLoading && !isError && parks && (
           <>
-            {parks.length === 0 ? (
+            {sortedParks.length === 0 ? (
               <Text size="sm" color="dimmed">
                 No parks found.
               </Text>
             ) : (
               <Stack spacing={0}>
                 <Text size="sm" weight={500} color="dimmed">
-                  {parks.length} {parks.length === 1 ? 'park' : 'parks'}
+                  {sortedParks.length} {sortedParks.length === 1 ? 'park' : 'parks'}
                 </Text>
-                {parks.map((park, index) => {
+                {sortedParks.map((park, index) => {
                   const parkGeometry = boundariesByParkName.get(park.pagetitle)
 
                   return (
@@ -238,7 +243,7 @@ export function ParksPanel({ onClose: _onClose }: ParksPanelProps) {
                       style={{
                         border: '1px solid #e0e0e0',
                         borderTop: index === 0 ? '1px solid #e0e0e0' : 'none',
-                        borderRadius: index === 0 ? '4px 4px 0 0' : index === parks.length - 1 ? '0 0 4px 4px' : '0',
+                        borderRadius: index === 0 ? '4px 4px 0 0' : index === sortedParks.length - 1 ? '0 0 4px 4px' : '0',
                         cursor: 'pointer',
                       }}
                       sx={{
