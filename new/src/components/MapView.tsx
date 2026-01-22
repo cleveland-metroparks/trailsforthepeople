@@ -267,7 +267,7 @@ export function MapView() {
       if (!clickableFeature && attractionGroupFeature) {
         mapFromContext.flyTo({
           center: [event.lngLat.lng, event.lngLat.lat],
-          zoom: 14,
+          zoom: 16.5,
         })
         return
       }
