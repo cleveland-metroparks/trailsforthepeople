@@ -37,6 +37,14 @@ function getFilteredFeatures(
   })
 }
 
+function isAttractionGroupFeature(
+  feature: mapboxgl.MapboxGeoJSONFeature,
+  attractionGroupLayerIds: Set<string>
+): boolean {
+  const layerId = feature.layer?.id
+  return layerId ? attractionGroupLayerIds.has(layerId) : false
+}
+
 export function MapView() {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
@@ -49,9 +57,17 @@ export function MapView() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isContainerReady, setIsContainerReady] = useState(false)
-  const allowedLayerIds = useMemo(
+  const attractionLayerIds = useMemo(
     () => new Set(['Attractions 1', 'Attractions 2', 'Attractions 3', 'Park Amenities']),
     []
+  )
+  const attractionGroupLayerIds = useMemo(
+    () => new Set(['Attraction Groups 1', 'Attraction Groups 2', 'Attraction Groups 3', 'Attraction Groups Outliers']),
+    []
+  )
+  const allowedLayerIds = useMemo(
+    () => new Set([...attractionLayerIds, ...attractionGroupLayerIds]),
+    [attractionLayerIds, attractionGroupLayerIds]
   )
 
   // Sync map position to URL
@@ -182,9 +198,19 @@ export function MapView() {
       }
 
       const clickableFeature = features.find((candidate) => isClickableFeature(candidate))
-      mapFromContext.getCanvas().style.cursor = clickableFeature ? 'pointer' : ''
+      const attractionGroupFeature = features.find((candidate) =>
+        isAttractionGroupFeature(candidate, attractionGroupLayerIds)
+      )
 
       if (clickableFeature) {
+        mapFromContext.getCanvas().style.cursor = 'pointer'
+      } else if (attractionGroupFeature) {
+        mapFromContext.getCanvas().style.cursor = 'zoom-in'
+      } else {
+        mapFromContext.getCanvas().style.cursor = ''
+      }
+
+      if (clickableFeature || attractionGroupFeature) {
         popupRef.current?.remove()
         return
       }
@@ -234,6 +260,17 @@ export function MapView() {
       const features = getFilteredFeatures(mapFromContext, event.point, allowedLayerIds)
 
       const clickableFeature = features.find((candidate) => isClickableFeature(candidate))
+      const attractionGroupFeature = features.find((candidate) =>
+        isAttractionGroupFeature(candidate, attractionGroupLayerIds)
+      )
+
+      if (!clickableFeature && attractionGroupFeature) {
+        mapFromContext.flyTo({
+          center: [event.lngLat.lng, event.lngLat.lat],
+          zoom: 14,
+        })
+        return
+      }
 
       if (!clickableFeature) {
         return
@@ -271,7 +308,7 @@ export function MapView() {
       mapFromContext.getCanvas().style.cursor = ''
       setHoverInfo(null)
     }
-  }, [allowedLayerIds, mapFromContext, setHoverInfo, setParams])
+  }, [allowedLayerIds, attractionGroupLayerIds, mapFromContext, setHoverInfo, setParams])
 
 
   if (error) {
