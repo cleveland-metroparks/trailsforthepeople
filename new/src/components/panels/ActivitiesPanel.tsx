@@ -39,7 +39,7 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
   )
   const sortedAttractions = useMemo(() => {
     return [...filteredAttractions].sort((a, b) =>
-      String(a.pagetitle).localeCompare(String(b.pagetitle))
+      String(a?.pagetitle ?? '').localeCompare(String(b?.pagetitle ?? ''))
     )
   }, [filteredAttractions])
   const { categoriesMap } = useCategoriesData()
@@ -159,21 +159,21 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
     // Get category names
     const categoryNames = selectedAttraction.categories
       ? selectedAttraction.categories
-          .map((id) => categoriesMap[id])
-          .filter((name) => name)
-          .join(', ')
+        .map((id) => categoriesMap[id])
+        .filter((name) => name)
+        .join(', ')
       : null
 
     // Get activity icons for this attraction
     const activityIcons = selectedAttraction.activities
       ? selectedAttraction.activities
-          .map((activityId) => activities.find((a) => a.eventactivitytypeid === activityId))
-          .filter((activity): activity is typeof activity & { icon: string } =>
-            activity !== undefined && activity.icon !== null
-          )
+        .map((activityId) => activities.find((a) => a.eventactivitytypeid === activityId))
+        .filter((activity): activity is typeof activity & { icon: string } =>
+          activity !== undefined && activity.icon !== null
+        )
       : []
     const sortedActivityIcons = [...activityIcons].sort((a, b) =>
-      a.pagetitle.localeCompare(b.pagetitle)
+      String(a?.pagetitle ?? '').localeCompare(String(b?.pagetitle ?? ''))
     )
 
     return (

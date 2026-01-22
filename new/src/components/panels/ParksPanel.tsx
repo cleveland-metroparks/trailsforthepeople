@@ -53,7 +53,9 @@ export function ParksPanel({ onClose: _onClose }: ParksPanelProps) {
 
   const sortedParks = useMemo(() => {
     if (!parks) return []
-    return [...parks].sort((a, b) => a.pagetitle.localeCompare(b.pagetitle))
+    return [...parks].sort((a, b) =>
+      String(a?.pagetitle ?? '').localeCompare(String(b?.pagetitle ?? ''))
+    )
   }, [parks])
 
   // Helper to zoom to a park

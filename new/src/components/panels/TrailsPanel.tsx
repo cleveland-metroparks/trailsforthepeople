@@ -49,7 +49,9 @@ export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
   const filteredTrails = useMemo(() => {
     if (!trails) return []
     if (!selectedReservationId) {
-      return [...trails].sort((a, b) => String(a.name).localeCompare(String(b.name)))
+      return [...trails].sort((a, b) =>
+        String(a?.name ?? '').localeCompare(String(b?.name ?? ''))
+      )
     }
 
     // Filter trails that belong to the selected reservation
@@ -63,7 +65,7 @@ export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
       return String(trailRes) === String(selectedReservationId)
     })
     return trailsForReservation.sort((a, b) =>
-      String(a.name).localeCompare(String(b.name))
+      String(a?.name ?? '').localeCompare(String(b?.name ?? ''))
     )
   }, [trails, selectedReservationId])
 
@@ -71,7 +73,9 @@ export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
   // Note: Old code uses pagetitle as the value (see pane_trails_reservation_filter_option.hbs)
   const reservationOptions = useMemo(() => {
     if (!parks) return []
-    const sortedParks = [...parks].sort((a, b) => a.pagetitle.localeCompare(b.pagetitle))
+    const sortedParks = [...parks].sort((a, b) =>
+      String(a?.pagetitle ?? '').localeCompare(String(b?.pagetitle ?? ''))
+    )
     return [
       { value: '', label: 'All Parks' },
       ...sortedParks.map((park) => ({

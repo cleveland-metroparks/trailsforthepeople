@@ -287,20 +287,20 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
 
       const categoryNames = attraction.categories
         ? attraction.categories
-            .map((id) => categoriesMap[id])
-            .filter((name) => name)
-            .join(', ')
+          .map((id) => categoriesMap[id])
+          .filter((name) => name)
+          .join(', ')
         : null
 
       const activityIcons = attraction.activities
         ? attraction.activities
-            .map((activityId) => activities.find((a) => a.eventactivitytypeid === activityId))
-            .filter((activity): activity is typeof activity & { icon: string } =>
-              activity !== undefined && activity.icon !== null
-            )
+          .map((activityId) => activities.find((a) => a.eventactivitytypeid === activityId))
+          .filter((activity): activity is typeof activity & { icon: string } =>
+            activity !== undefined && activity.icon !== null
+          )
         : []
       const sortedActivityIcons = [...activityIcons].sort((a, b) =>
-        a.pagetitle.localeCompare(b.pagetitle)
+        String(a?.pagetitle ?? '').localeCompare(String(b?.pagetitle ?? ''))
       )
 
       return (
