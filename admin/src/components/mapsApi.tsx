@@ -8,6 +8,9 @@ axios.defaults.withCredentials = !skipLogin;
 export const mapsApiClient = axios.create({
   baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
   withCredentials: !skipLogin,
+  headers: {
+    Accept: "application/json",
+  },
 });
 
 // Add an interceptor to attach the CSRF token to each request
