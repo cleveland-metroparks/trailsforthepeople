@@ -43,7 +43,8 @@ mapsApiClient.interceptors.response.use(
       // Clear the user from localStorage
       window.localStorage.removeItem("user");
       // Redirect to login page
-      window.location.href = "/login";
+      const rootPath = process.env.REACT_APP_ROOT_PATH || "";
+      window.location.href = `${rootPath}/login`;
     }
     return Promise.reject(error);
   }
