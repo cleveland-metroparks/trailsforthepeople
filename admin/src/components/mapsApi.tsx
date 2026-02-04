@@ -33,3 +33,18 @@ mapsApiClient.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
+// Add a response interceptor to handle expired sessions
+mapsApiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // If we get a 401 Unauthorized, the session has expired
+    if (error.response?.status === 401 && !skipLogin) {
+      // Clear the user from localStorage
+      window.localStorage.removeItem("user");
+      // Redirect to login page
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
