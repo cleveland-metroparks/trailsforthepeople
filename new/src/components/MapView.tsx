@@ -4,6 +4,7 @@ import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { useMapConfig } from '../hooks/useMapConfig'
 import { FloatingSearch } from './FloatingSearch'
+import { useActivitiesData } from '../hooks/useActivitiesData'
 import { useMap } from '../contexts/MapContext'
 import { useMapHover } from '../contexts/MapHoverContext'
 import { useMapSelection } from '../contexts/MapSelectionContext'
@@ -11,19 +12,31 @@ import { useURLState } from '../hooks/useURLState'
 import { useMapURLSync, getInitialMapStateFromURL } from '../hooks/useMapURLSync'
 import { ResetMapControl } from './ResetMapControl'
 
-function isValidGisId(value: unknown): boolean {
-  if (value === null || value === undefined) return false
-  if (typeof value === 'number') return value !== 0
+function normalizeGisId(value: unknown): string | null {
+  if (value === null || value === undefined) return null
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value) || value === 0) return null
+    return String(value)
+  }
   if (typeof value === 'string') {
     const trimmed = value.trim()
-    return trimmed !== '' && trimmed !== '0'
+    return trimmed !== '' && trimmed !== '0' ? trimmed : null
   }
-  return true
+  return null
 }
 
-function isClickableFeature(feature: mapboxgl.MapboxGeoJSONFeature): boolean {
+function isValidGisId(value: unknown, validIds: Set<string> | null): boolean {
+  const normalized = normalizeGisId(value)
+  if (!normalized || !validIds) return false
+  return validIds.has(normalized)
+}
+
+function isClickableFeature(
+  feature: mapboxgl.MapboxGeoJSONFeature,
+  validIds: Set<string> | null
+): boolean {
   const props = (feature.properties ?? {}) as Record<string, unknown>
-  return isValidGisId(props.gis_id)
+  return isValidGisId(props.gis_id, validIds)
 }
 
 function getFilteredFeatures(
@@ -48,6 +61,7 @@ function isAttractionGroupFeature(
 export function MapView() {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
+  const { attractions, isLoading: isAttractionsLoading } = useActivitiesData()
   const { map: mapFromContext, setMap } = useMap()
   const { setHoverInfo } = useMapHover()
   const { bumpSelectionTick } = useMapSelection()
@@ -69,6 +83,17 @@ export function MapView() {
     () => new Set([...attractionLayerIds, ...attractionGroupLayerIds]),
     [attractionLayerIds, attractionGroupLayerIds]
   )
+  const validGisIdSet = useMemo(() => {
+    if (isAttractionsLoading) return null
+    const set = new Set<string>()
+    attractions.forEach((attraction) => {
+      const id = normalizeGisId(attraction.gis_id ?? attraction.record_id)
+      if (id) {
+        set.add(id)
+      }
+    })
+    return set
+  }, [attractions, isAttractionsLoading])
 
   // Sync map position to URL
   useMapURLSync(mapFromContext)
@@ -197,7 +222,9 @@ export function MapView() {
         return
       }
 
-      const clickableFeature = features.find((candidate) => isClickableFeature(candidate))
+      const clickableFeature = features.find((candidate) =>
+        isClickableFeature(candidate, validGisIdSet)
+      )
       const attractionGroupFeature = features.find((candidate) =>
         isAttractionGroupFeature(candidate, attractionGroupLayerIds)
       )
@@ -259,7 +286,9 @@ export function MapView() {
     const handleClick = (event: mapboxgl.MapMouseEvent) => {
       const features = getFilteredFeatures(mapFromContext, event.point, allowedLayerIds)
 
-      const clickableFeature = features.find((candidate) => isClickableFeature(candidate))
+      const clickableFeature = features.find((candidate) =>
+        isClickableFeature(candidate, validGisIdSet)
+      )
       const attractionGroupFeature = features.find((candidate) =>
         isAttractionGroupFeature(candidate, attractionGroupLayerIds)
       )
@@ -278,7 +307,7 @@ export function MapView() {
 
       const props = (clickableFeature.properties ?? {}) as Record<string, unknown>
       const gisId = props.gis_id
-      if (!isValidGisId(gisId)) {
+      if (!isValidGisId(gisId, validGisIdSet)) {
         return
       }
 
@@ -308,7 +337,7 @@ export function MapView() {
       mapFromContext.getCanvas().style.cursor = ''
       setHoverInfo(null)
     }
-  }, [allowedLayerIds, attractionGroupLayerIds, mapFromContext, setHoverInfo, setParams])
+  }, [allowedLayerIds, attractionGroupLayerIds, mapFromContext, setHoverInfo, setParams, validGisIdSet])
 
 
   if (error) {
