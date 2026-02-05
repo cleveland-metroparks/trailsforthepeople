@@ -1,4 +1,4 @@
-import { Navigate } from "react-router";
+import { useEffect } from "react";
 
 import { mapsApiClient } from "../components/mapsApi";
 import { useAuth } from "../hooks/useAuth";
@@ -9,21 +9,26 @@ import { useAuth } from "../hooks/useAuth";
 export function Logout() {
   const { user, onLogout } = useAuth();
 
-  // Submit logout to API
-  const authLogout = async () => {
-    mapsApiClient
-      .post<any>("/logout", {})
-      .then(function (logoutResponse: any) {
-        onLogout();
-      })
-      .catch(function (error) {
-        console.error("API auth logout error:", error);
-      });
-  };
+  useEffect(() => {
+    if (user) {
+      // Submit logout to API
+      mapsApiClient
+        .post<any>("/logout", {})
+        .then(function (logoutResponse: any) {
+          onLogout();
+        })
+        .catch(function (error) {
+          console.error("API auth logout error:", error);
+          // Still logout locally even if API call fails
+          onLogout();
+        });
+    } else {
+      // No user, just redirect to login
+      onLogout();
+    }
+  }, [user, onLogout]);
 
-  if (user) {
-    authLogout();
-  }
-
-  return <Navigate to="/login" />;
+  // Show nothing while logout is in progress
+  // onLogout() will handle navigation to /login
+  return null;
 }
