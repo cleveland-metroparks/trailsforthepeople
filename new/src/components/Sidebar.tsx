@@ -40,12 +40,24 @@ const PanelLoader = () => (
 
 export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChange }, ref) => {
   const [activeTab, setActiveTab] = useState<string | null>(null)
+  const [showDebugTab, setShowDebugTab] = useState(false)
   const { params } = useURLState()
   const { selectionTick } = useMapSelection()
 
   useEffect(() => {
     onPanelStateChange?.(activeTab !== null)
   }, [activeTab, onPanelStateChange])
+
+  // Expose showDebugPanel to the console for developers
+  useEffect(() => {
+    (window as any).showDebugPanel = () => {
+      setShowDebugTab(true)
+      setActiveTab('debug')
+    }
+    return () => {
+      delete (window as any).showDebugPanel
+    }
+  }, [])
 
   // Open the appropriate panel when a feature is selected via URL
   // But don't switch tabs if the feature was selected from search
@@ -150,9 +162,11 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
         <Tabs.Tab value="info" icon={<InfoCircle size={24} />}>
           Info
         </Tabs.Tab>
-        <Tabs.Tab value="debug" icon={<Bug size={24} />}>
-          Debug
-        </Tabs.Tab>
+        {showDebugTab && (
+          <Tabs.Tab value="debug" icon={<Bug size={24} />}>
+            Debug
+          </Tabs.Tab>
+        )}
       </Tabs.List>
 
       {activeTab && (
@@ -307,30 +321,32 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
             </Box>
           </Tabs.Panel>
 
-          <Tabs.Panel value="debug" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
-            <ActionIcon
-              onClick={handleClosePanel}
-              size="lg"
-              radius="xl"
-              variant="light"
-              color="gray"
-              style={{
-                position: 'absolute',
-                top: '8px',
-                right: '-28px',
-                zIndex: 1000,
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-                cursor: 'pointer',
-              }}
-            >
-              <X size={18} />
-            </ActionIcon>
-            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
-              <Suspense fallback={<PanelLoader />}>
-                <DebugPanel onClose={handleClosePanel} />
-              </Suspense>
-            </Box>
-          </Tabs.Panel>
+          {showDebugTab && (
+            <Tabs.Panel value="debug" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+              <ActionIcon
+                onClick={handleClosePanel}
+                size="lg"
+                radius="xl"
+                variant="light"
+                color="gray"
+                style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '-28px',
+                  zIndex: 1000,
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                  cursor: 'pointer',
+                }}
+              >
+                <X size={18} />
+              </ActionIcon>
+              <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+                <Suspense fallback={<PanelLoader />}>
+                  <DebugPanel onClose={handleClosePanel} />
+                </Suspense>
+              </Box>
+            </Tabs.Panel>
+          )}
         </>
       )}
     </Tabs>
