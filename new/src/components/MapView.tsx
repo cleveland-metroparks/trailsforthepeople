@@ -167,32 +167,52 @@ export function MapView() {
         'top-right'
       )
 
+      let loadTimeoutId: ReturnType<typeof setTimeout> | null = null
+      let hasLoaded = false
+
       map.current.on('style.load', () => {
+        hasLoaded = true
+        if (loadTimeoutId) {
+          clearTimeout(loadTimeoutId)
+          loadTimeoutId = null
+        }
         setIsLoading(false)
       })
 
-      map.current.on('error', () => {
-        setError('Failed to load map. Please check your configuration.')
-        setIsLoading(false)
-      })
-
-      const timeoutId = setTimeout(() => {
-        if (map.current && map.current.isStyleLoaded()) {
-          setIsLoading(false)
-        } else {
-          setError('Map failed to load.')
+      map.current.on('error', (e) => {
+        // Only set error if we haven't successfully loaded yet
+        // Ignore errors that occur after initial load (e.g., during style switches)
+        if (!hasLoaded) {
+          console.error('Mapbox error:', e)
+          setError('Failed to load map. Please check your configuration.')
           setIsLoading(false)
         }
-      }, 5000)
+      })
+
+      loadTimeoutId = setTimeout(() => {
+        // Only show timeout error if we haven't successfully loaded yet
+        if (!hasLoaded) {
+          if (map.current && map.current.isStyleLoaded()) {
+            hasLoaded = true
+            setIsLoading(false)
+          } else {
+            setError('Map failed to load. Please try refreshing the page.')
+            setIsLoading(false)
+          }
+        }
+      }, 10000)
 
       return () => {
-        clearTimeout(timeoutId)
+        if (loadTimeoutId) {
+          clearTimeout(loadTimeoutId)
+        }
         if (map.current) {
           setMap(null) // Clear map from context
           map.current.remove()
         }
       }
     } catch (err) {
+      console.error('Map initialization error:', err)
       setError('Failed to initialize map. Please check your configuration.')
       setIsLoading(false)
       return () => {
