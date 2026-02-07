@@ -291,6 +291,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           display: activeTab ? 'flex' : 'none',
           flexDirection: 'column',
           backgroundColor: SIDEBAR_COLORS.panel.background,
+          boxShadow: '4px 0 12px rgba(0, 0, 0, 0.15)',
         },
       })}
     >
