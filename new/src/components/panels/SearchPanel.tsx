@@ -1,5 +1,7 @@
-import { TextInput, Button, Stack, Text, Box, Loader, Badge, Alert, Anchor, Divider } from '@mantine/core'
-import { Search } from 'tabler-icons-react'
+import { TextInput, Button, Stack, Text, Box, Loader, Badge, Alert, Anchor, Divider, Group } from '@mantine/core'
+import { PanelList } from '../PanelList'
+import { PanelHeader } from '../PanelHeader'
+import { Search, Clock, Phone } from 'tabler-icons-react'
 import { useSearch } from '../../contexts/SearchContext'
 import { useMap } from '../../contexts/MapContext'
 import { useURLState } from '../../hooks/useURLState'
@@ -319,7 +321,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
               ← Search Results
             </Button>
 
-            <Text size="lg" weight={500}>
+            <Text size="lg" weight={900}>
               {String(attraction.pagetitle)}
             </Text>
 
@@ -385,29 +387,25 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
 
             {hoursofoperation && (
               <>
-                <Divider />
-                <Box>
-                  <Text size="sm" weight={500} mb="xs">
-                    Hours of Operation
-                  </Text>
+                <Group spacing="xs" align="flex-start">
+                  <Clock size={20} style={{ color: '#6AB03E', flexShrink: 0, marginTop: 2 }} />
                   <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
                     {hoursofoperation}
                   </Text>
-                </Box>
+                </Group>
+                <Divider />
               </>
             )}
 
             {phone && (
               <>
-                <Divider />
-                <Box>
-                  <Text size="sm" weight={500} mb="xs">
-                    Phone
-                  </Text>
-                  <Anchor href={`tel:${phone}`} size="sm">
+                <Group spacing="xs" align="center">
+                  <Phone size={20} style={{ color: '#6AB03E', flexShrink: 0 }} />
+                  <Anchor href={`tel:${phone}`} size="sm" className="phone-link">
                     {phone}
                   </Anchor>
-                </Box>
+                </Group>
+                <Divider />
               </>
             )}
 
@@ -455,7 +453,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
               ← Search Results
             </Button>
 
-            <Text size="lg" weight={500}>
+            <Text size="lg" weight={900}>
               {park.pagetitle}
             </Text>
 
@@ -479,29 +477,25 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
 
             {hoursofoperation && (
               <>
-                <Divider />
-                <Box>
-                  <Text size="sm" weight={500} mb="xs">
-                    Hours of Operation
-                  </Text>
+                <Group spacing="xs" align="flex-start">
+                  <Clock size={20} style={{ color: '#6AB03E', flexShrink: 0, marginTop: 2 }} />
                   <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
                     {hoursofoperation}
                   </Text>
-                </Box>
+                </Group>
+                <Divider />
               </>
             )}
 
             {phone && (
               <>
-                <Divider />
-                <Box>
-                  <Text size="sm" weight={500} mb="xs">
-                    Phone
-                  </Text>
-                  <Anchor href={`tel:${phone}`} size="sm">
+                <Group spacing="xs" align="center">
+                  <Phone size={20} style={{ color: '#6AB03E', flexShrink: 0 }} />
+                  <Anchor href={`tel:${phone}`} size="sm" className="phone-link">
                     {phone}
                   </Anchor>
-                </Box>
+                </Group>
+                <Divider />
               </>
             )}
           </Stack>
@@ -536,7 +530,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
               ← Search Results
             </Button>
 
-            <Text size="lg" weight={500}>
+            <Text size="lg" weight={900}>
               {String(trail.name)}
             </Text>
 
@@ -657,6 +651,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
 
   return (
     <Box p="md" pr="sm" style={{ position: 'relative' }}>
+      <PanelHeader title="Search" />
       <Stack spacing="md">
         <Box style={{ position: 'relative' }}>
           <TextInput
@@ -709,7 +704,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
                     }}
                     sx={{
                       '&:hover': {
-                        backgroundColor: '#f5f5f5',
+                        backgroundColor: '#F2F8E1',
                       },
                       '&:last-child': {
                         borderBottom: 'none',
@@ -755,35 +750,26 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
         )}
 
         {!isLoading && searchResults.length > 0 && (
-          <Stack spacing="xs">
-            <Text size="sm" weight={500}>
+          <>
+            <Text size="sm" weight={500} mb="xs">
               Results ({searchResults.length})
             </Text>
-            {searchResults.map((result) => (
-              <Box
-                key={result.id}
-                p="sm"
-                style={{
-                  border: '1px solid #e0e0e0',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                }}
-                sx={{
-                  '&:hover': {
-                    backgroundColor: '#f5f5f5',
-                  },
-                }}
-                onClick={() => handleResultClick(result)}
-              >
-                <Text size="sm" weight={500}>
-                  {result.title}
-                </Text>
-                <Badge size="xs" variant="light" mt={4}>
-                  {getResultTypeLabel(result.type)}
-                </Badge>
-              </Box>
-            ))}
-          </Stack>
+            <PanelList
+              items={searchResults}
+              keyExtractor={(result) => result.id}
+              onClick={(result) => handleResultClick(result)}
+              renderItem={(result) => (
+                <>
+                  <Text size="sm" weight={500}>
+                    {result.title}
+                  </Text>
+                  <Badge size="xs" variant="light" mt={4}>
+                    {getResultTypeLabel(result.type)}
+                  </Badge>
+                </>
+              )}
+            />
+          </>
         )}
 
         {!isLoading && searchResults.length === 0 && searchTerm && !error && (

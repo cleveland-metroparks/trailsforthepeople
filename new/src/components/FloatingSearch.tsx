@@ -1,20 +1,23 @@
-import { TextInput, Box, useMantineTheme } from '@mantine/core'
+import { TextInput, Box } from '@mantine/core'
 import { Search } from 'tabler-icons-react'
 import { useSearch } from '../contexts/SearchContext'
 import { useSidebar } from '../contexts/SidebarContext'
-import { useMediaQuery } from '@mantine/hooks'
+
+// Panel content width (matches Layout.tsx PANEL_WIDTH minus padding)
+const PANEL_CONTENT_WIDTH = 288 // 320px panel - 32px padding
 
 export function FloatingSearch() {
-  const { isSidebarCollapsed, onSearchSubmit } = useSidebar()
+  const { isSidebarCollapsed, navWidth, onSearchSubmit } = useSidebar()
   const { searchTerm, setSearchTerm, submitSearch } = useSearch()
-  const theme = useMantineTheme()
-  const isLargeScreen = useMediaQuery(`(min-width: ${theme.breakpoints.lg}px)`)
 
-  // Panel width: 300px (sm) or 400px (lg), minus 32px for padding (16px each side)
-  const panelWidth = isLargeScreen ? '368px' : '268px'
+  // Position: nav width + padding to align with panel content
+  const leftPosition = navWidth + 16
 
-  // Floating width: viewport-based, max 600px
-  const floatingWidth = 'min(600px, calc(100vw - 200px))'
+  // Width when floating (sidebar collapsed): wider, responsive
+  const floatingWidth = `min(600px, calc(100vw - ${leftPosition + 40}px))`
+
+  // Width when panel is open: match the panel content width
+  const panelWidth = `${PANEL_CONTENT_WIDTH}px`
 
   // Use floating width when collapsed, panel width when open
   const inputWidth = isSidebarCollapsed ? floatingWidth : panelWidth
@@ -34,17 +37,17 @@ export function FloatingSearch() {
     <Box
       style={{
         position: 'absolute',
-        top: '26px',
-        left: '96px',
+        top: '16px', // Match SearchPanel's p="md" (16px) padding
+        left: `${leftPosition}px`,
         zIndex: 1000,
         width: inputWidth,
         opacity: isSidebarCollapsed ? 1 : 0,
         pointerEvents: isSidebarCollapsed ? 'auto' : 'none',
-        transition: 'width 200ms ease-in-out, opacity 150ms ease-in-out',
+        transition: 'left 200ms ease, width 200ms ease, opacity 150ms ease',
       }}
     >
       <TextInput
-        placeholder="Search for parks, trails, or activities..."
+        placeholder="Search parks, trails, attractions..."
         value={searchTerm}
         onChange={handleChange}
         onKeyPress={handleKeyPress}

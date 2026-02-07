@@ -1,4 +1,7 @@
-import { Text, Box, Stack, Loader, Alert, Select, Button, Divider, Badge, Group } from '@mantine/core'
+import { Text, Box, Stack, Loader, Alert, Select, Divider, Badge, Group } from '@mantine/core'
+import { PanelList } from '../PanelList'
+import { PanelHeader } from '../PanelHeader'
+import { BackButton } from '../BackButton'
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { useTrailsData } from '../../hooks/useTrailsData'
 import { useParksData } from '../../hooks/useParksData'
@@ -185,10 +188,9 @@ export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
 
     return (
       <Box p="md" pr="sm" style={{ position: 'relative' }}>
+        <PanelHeader title="Trails" />
         <Stack spacing="md">
-          <Button
-            variant="subtle"
-            size="sm"
+          <BackButton
             onClick={() => {
               // Clear trail highlight
               clearTrailHighlight(map)
@@ -197,12 +199,9 @@ export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
               // Clear trail from URL (this will clear selectedTrail via derived state)
               setParams({ type: null, gid: null }, false, true)
             }}
-            style={{ alignSelf: 'flex-start' }}
-          >
-            ← Trails
-          </Button>
+          />
 
-          <Text size="lg" weight={500}>
+          <Text size="lg" weight={900}>
             {String(selectedTrail.name)}
           </Text>
 
@@ -251,11 +250,8 @@ export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
 
   return (
     <Box p="md" pr="sm" style={{ position: 'relative' }}>
+      <PanelHeader title="Trails" />
       <Stack spacing="md">
-        <Text size="lg" weight={500}>
-          Trails
-        </Text>
-
         {isLoading && (
           <Box style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
             <Loader size="sm" />
@@ -279,82 +275,61 @@ export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
               clearable
             />
 
-            {filteredTrails.length === 0 ? (
-              <Text size="sm" color="dimmed">
-                {selectedReservationId ? 'No trails found for the selected park.' : 'No trails found.'}
-              </Text>
-            ) : (
-              <Stack spacing={0}>
-                <Text size="sm" weight={500} color="dimmed">
-                  {filteredTrails.length} {filteredTrails.length === 1 ? 'trail' : 'trails'}
-                </Text>
-                {filteredTrails.map((trail, index) => {
-                  const trailData = trail as Record<string, unknown>
-                  const trailRes = trailData.res as string | undefined
-                  const distancetext = trailData.distancetext as string | undefined
+            <PanelList
+              items={filteredTrails}
+              keyExtractor={(trail) => String(trail.id)}
+              countLabel={{ singular: 'trail', plural: 'trails' }}
+              emptyMessage={selectedReservationId ? 'No trails found for the selected park.' : 'No trails found.'}
+              onClick={(trail) => {
+                // Mark that we want to zoom (user initiated)
+                shouldZoomRef.current = true
+                // Update URL with trail selection (pushState for back button)
+                // This will update selectedTrail via derived state
+                setParams(
+                  {
+                    type: 'trail',
+                    gid: String(trail.id),
+                  },
+                  false,
+                  true
+                )
+              }}
+              renderItem={(trail) => {
+                const trailData = trail as Record<string, unknown>
+                const trailRes = trailData.res as string | undefined
+                const distancetext = trailData.distancetext as string | undefined
 
-                  return (
-                    <Box
-                      key={String(trail.id)}
-                      p="sm"
-                      style={{
-                        border: '1px solid #e0e0e0',
-                        borderTop: index === 0 ? '1px solid #e0e0e0' : 'none',
-                        borderRadius: index === 0 ? '4px 4px 0 0' : index === filteredTrails.length - 1 ? '0 0 4px 4px' : '0',
-                        cursor: 'pointer',
-                      }}
-                      sx={{
-                        '&:hover': {
-                          backgroundColor: '#f5f5f5',
-                        },
-                      }}
-                      onClick={() => {
-                        // Mark that we want to zoom (user initiated)
-                        shouldZoomRef.current = true
-                        // Update URL with trail selection (pushState for back button)
-                        // This will update selectedTrail via derived state
-                        setParams(
-                          {
-                            type: 'trail',
-                            gid: String(trail.id),
-                          },
-                          false,
-                          true
-                        )
-                      }}
-                    >
-                      <Group position="apart" noWrap>
-                        <Box style={{ minWidth: 0 }}>
-                          <Text size="sm" weight={500}>
-                            {String(trail.name)}
-                          </Text>
-                          {trailRes && (
-                            <Text size="xs" color="dimmed" mt={2}>
-                              {trailRes}
-                            </Text>
-                          )}
-                        </Box>
-                        {distancetext && (
-                          <Badge
-                            size="md"
-                            style={{
-                              flexShrink: 0,
-                              backgroundColor: '#1D5C1F',
-                              color: 'white',
-                              paddingLeft: 8,
-                              paddingRight: 8,
-                              textTransform: 'none',
-                            }}
-                          >
-                            {abbreviateDistance(distancetext)}
-                          </Badge>
-                        )}
-                      </Group>
+                return (
+                  <Group position="apart" noWrap>
+                    <Box style={{ minWidth: 0 }}>
+                      <Text size="sm" weight={500}>
+                        {String(trail.name)}
+                      </Text>
+                      {trailRes && (
+                        <Text size="xs" color="dimmed" mt={2}>
+                          {trailRes}
+                        </Text>
+                      )}
                     </Box>
-                  )
-                })}
-              </Stack>
-            )}
+                    {distancetext && (
+                      <Badge
+                        size="md"
+                        style={{
+                          flexShrink: 0,
+                          backgroundColor: '#1D5C1F',
+                          color: 'white',
+                          paddingLeft: 8,
+                          paddingRight: 8,
+                          textTransform: 'none',
+                        }}
+                      >
+                        {abbreviateDistance(distancetext)}
+                      </Badge>
+                    )}
+                  </Group>
+                )
+              }}
+            />
           </>
         )}
       </Stack>

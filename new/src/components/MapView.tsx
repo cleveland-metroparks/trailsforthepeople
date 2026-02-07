@@ -383,6 +383,28 @@ export function MapView() {
           left: 0,
         }}
       />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '16px',
+          left: '55%',
+          backgroundColor: 'rgba(255, 252, 245, 0.75)',
+          borderRadius: '14px',
+          padding: '8px 12px',
+          transform: 'translateX(-50%)',
+          zIndex: 1,
+          pointerEvents: 'none',
+        }}
+      >
+        <img
+          src="/cleveland-metroparks-logo-horiz.png"
+          alt="Cleveland Metroparks"
+          style={{
+            height: '30px',
+            filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))',
+          }}
+        />
+      </div>
       {isLoading && (
         <Box
           style={{

@@ -1,18 +1,22 @@
 import { AppShell, Navbar } from '@mantine/core'
 import { useState, useRef } from 'react'
-import { Sidebar, SidebarRef } from './Sidebar'
+import { Sidebar, SidebarRef, NAV_WIDTH_EXPANDED, NAV_WIDTH_COLLAPSED } from './Sidebar'
 import { SearchProvider } from '../contexts/SearchContext'
 import { SidebarProvider } from '../contexts/SidebarContext'
 import { MapProvider } from '../contexts/MapContext'
 import { MapHoverProvider } from '../contexts/MapHoverContext'
 import { MapSelectionProvider } from '../contexts/MapSelectionContext'
 
+// Panel width when content is shown
+const PANEL_WIDTH = 320
+
 interface LayoutProps {
   children: React.ReactNode
 }
 
 export function Layout({ children }: LayoutProps) {
-  const [hasActivePanel, setHasActivePanel] = useState(true)
+  const [hasActivePanel, setHasActivePanel] = useState(false)
+  const [isNavExpanded, setIsNavExpanded] = useState(true)
   const sidebarRef = useRef<SidebarRef>(null)
 
   const handleSearchSubmit = () => {
@@ -20,9 +24,10 @@ export function Layout({ children }: LayoutProps) {
     sidebarRef.current?.activateSearchTab()
   }
 
-  const navbarWidth = hasActivePanel
-    ? { sm: 300, lg: 400 }
-    : { sm: 80, lg: 80 }
+  // Calculate navbar width based on nav expansion and panel state
+  const navWidth = isNavExpanded ? NAV_WIDTH_EXPANDED : NAV_WIDTH_COLLAPSED
+  const totalWidth = hasActivePanel ? navWidth + PANEL_WIDTH : navWidth
+  const navbarWidth = { sm: totalWidth, lg: totalWidth }
 
   return (
     <MapProvider>
@@ -31,25 +36,29 @@ export function Layout({ children }: LayoutProps) {
           <SearchProvider>
             <SidebarProvider
               isSidebarCollapsed={!hasActivePanel}
+              navWidth={navWidth}
               onSearchSubmit={handleSearchSubmit}
             >
         <AppShell
         padding={0} // Remove padding to allow map to fill full space
         navbar={
           <Navbar
-            py={"xs"}
-            pr={"xs"}
-            pl={"none"}
+            p={0}
             width={navbarWidth}
             styles={{
               root: {
                 boxSizing: 'border-box',
-                borderRight: hasActivePanel ? undefined : 'none',
+                borderRight: 'none',
                 overflow: 'visible',
+                backgroundColor: 'transparent',
               },
             }}
           >
-            <Sidebar ref={sidebarRef} onPanelStateChange={setHasActivePanel} />
+            <Sidebar
+              ref={sidebarRef}
+              onPanelStateChange={setHasActivePanel}
+              onNavExpandedChange={setIsNavExpanded}
+            />
           </Navbar>
         }
       styles={(theme) => ({
@@ -65,28 +74,6 @@ export function Layout({ children }: LayoutProps) {
       })}
     >
       {children}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          left: '50%',
-          backgroundColor: 'rgba(255, 252, 245, 0.75)',
-          borderRadius: '18px',
-          padding: '10px 14px',
-          transform: 'translateX(-50%)',
-          zIndex: 1000,
-          pointerEvents: 'none',
-        }}
-      >
-        <img
-          src="/cleveland-metroparks-logo-horiz.png"
-          alt="Cleveland Metroparks"
-          style={{
-            height: '40px',
-            filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))',
-          }}
-        />
-      </div>
     </AppShell>
             </SidebarProvider>
           </SearchProvider>

@@ -25,6 +25,46 @@ body {
   height: 100vh !important;
 }
 
+/* Sidebar panel (second-level) styling */
+.mantine-Tabs-panel {
+  background-color: #FFFFFF;
+  color: #000000;
+}
+
+.mantine-Tabs-panel .mantine-Title-root {
+  color: #000000;
+}
+
+/* Links in panels use black with underline */
+.mantine-Tabs-panel .mantine-Anchor-root {
+  color: #000000;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.mantine-Tabs-panel .mantine-Anchor-root:hover {
+  color: #000000;
+  opacity: 0.8;
+}
+
+/* Phone links - no underline except on hover */
+.mantine-Tabs-panel .mantine-Anchor-root.phone-link {
+  text-decoration: none;
+}
+
+.mantine-Tabs-panel .mantine-Anchor-root.phone-link:hover {
+  text-decoration: underline;
+}
+
+/* Subtle buttons in panels use green text */
+.mantine-Tabs-panel .mantine-Button-root[data-variant="subtle"] {
+  color: #6AB03E;
+}
+
+.mantine-Tabs-panel .mantine-Button-root[data-variant="subtle"]:hover {
+  background-color: rgba(106, 176, 62, 0.1);
+}
+
 /* Ensure the map container takes full space */
 .mantine-AppShell-main > .map-container {
   height: 100% !important;

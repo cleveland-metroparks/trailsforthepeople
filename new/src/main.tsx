@@ -9,6 +9,8 @@ import App from './App.tsx'
 import { theme } from './theme'
 import './index.css'
 
+const SHOW_REACT_QUERY_DEVTOOLS = false
+
 // Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,7 +30,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <App />
         </BrowserRouter>
       </MantineProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {SHOW_REACT_QUERY_DEVTOOLS && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   </React.StrictMode>,
 )

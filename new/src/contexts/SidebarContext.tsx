@@ -2,6 +2,7 @@ import { createContext, useContext, ReactNode } from 'react'
 
 interface SidebarContextType {
   isSidebarCollapsed: boolean
+  navWidth: number
   onSearchSubmit: () => void
 }
 
@@ -10,14 +11,16 @@ const SidebarContext = createContext<SidebarContextType | undefined>(undefined)
 export function SidebarProvider({
   children,
   isSidebarCollapsed,
+  navWidth,
   onSearchSubmit,
 }: {
   children: ReactNode
   isSidebarCollapsed: boolean
+  navWidth: number
   onSearchSubmit: () => void
 }) {
   return (
-    <SidebarContext.Provider value={{ isSidebarCollapsed, onSearchSubmit }}>
+    <SidebarContext.Provider value={{ isSidebarCollapsed, navWidth, onSearchSubmit }}>
       {children}
     </SidebarContext.Provider>
   )

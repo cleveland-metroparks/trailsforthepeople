@@ -1,4 +1,8 @@
-import { Text, Box, Stack, Loader, Alert, Button, Anchor, Divider } from '@mantine/core'
+import { Text, Box, Stack, Loader, Alert, Anchor, Divider, Group } from '@mantine/core'
+import { Clock, Phone } from 'tabler-icons-react'
+import { PanelList } from '../PanelList'
+import { PanelHeader } from '../PanelHeader'
+import { BackButton } from '../BackButton'
 import { useMemo, useEffect, useRef, useCallback } from 'react'
 import { useActivitiesData, useAttractionsByActivity } from '../../hooks/useActivitiesData'
 import { useCategoriesData } from '../../hooks/useCategoriesData'
@@ -142,7 +146,7 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
     a.pagetitle.localeCompare(b.pagetitle)
   )
 
-  // Get selected activity name for back button
+  // Get selected activity for display
   const selectedActivity = selectedActivityId
     ? activities.find((a) => a.eventactivitytypeid === selectedActivityId)
     : null
@@ -178,10 +182,9 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
 
     return (
       <Box p="md" pr="sm" style={{ position: 'relative' }}>
+        <PanelHeader title="Activities" />
         <Stack spacing="md">
-          <Button
-            variant="subtle"
-            size="sm"
+          <BackButton
             onClick={() => {
               // Reset zoom tracking
               zoomedAttractionIdRef.current = null
@@ -189,12 +192,9 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
               // This will clear selectedAttraction via derived state
               setParams({ type: null, gid: null }, false, true)
             }}
-            style={{ alignSelf: 'flex-start' }}
-          >
-            ← {selectedActivity?.pagetitle || 'Activities'}
-          </Button>
+          />
 
-          <Text size="lg" weight={500}>
+          <Text size="lg" weight={900}>
             {String(selectedAttraction.pagetitle)}
           </Text>
 
@@ -260,29 +260,25 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
 
           {hoursofoperation && (
             <>
-              <Divider />
-              <Box>
-                <Text size="sm" weight={500} mb="xs">
-                  Hours of Operation
-                </Text>
+              <Group spacing="xs" align="flex-start">
+                <Clock size={20} style={{ color: '#6AB03E', flexShrink: 0, marginTop: 2 }} />
                 <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
                   {hoursofoperation}
                 </Text>
-              </Box>
+              </Group>
+              <Divider />
             </>
           )}
 
           {phone && (
             <>
-              <Divider />
-              <Box>
-                <Text size="sm" weight={500} mb="xs">
-                  Phone
-                </Text>
-                <Anchor href={`tel:${phone}`} size="sm">
+              <Group spacing="xs" align="center">
+                <Phone size={20} style={{ color: '#6AB03E', flexShrink: 0 }} />
+                <Anchor href={`tel:${phone}`} size="sm" className="phone-link">
                   {phone}
                 </Anchor>
-              </Box>
+              </Group>
+              <Divider />
             </>
           )}
 
@@ -303,13 +299,8 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
 
   return (
     <Box p="md" pr="sm" style={{ position: 'relative' }}>
+      <PanelHeader title="Activities" />
       <Stack spacing="md">
-        {selectedActivityId === null && (
-          <Text size="lg" weight={500}>
-            Activities
-          </Text>
-        )}
-
         {isLoading && (
           <Box style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
             <Loader size="sm" />
@@ -325,144 +316,92 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
         {!isLoading && !isError && (
           <>
             {selectedActivityId === null ? (
-              <>
-                {sortedActivities.length === 0 ? (
-                  <Text size="sm" color="dimmed">
-                    No activities found.
-                  </Text>
-                ) : (
-                  <Stack spacing={0}>
-                    <Text size="sm" weight={500} color="dimmed">
-                      {sortedActivities.length} {sortedActivities.length === 1 ? 'activity' : 'activities'}
+              <PanelList
+                items={sortedActivities}
+                keyExtractor={(activity) => String(activity.eventactivitytypeid)}
+                countLabel={{ singular: 'activity', plural: 'activities' }}
+                emptyMessage="No activities found."
+                onClick={(activity) => {
+                  // Update URL with activity selection (pushState for back button)
+                  // This will update selectedActivityId via derived state
+                  setParams(
+                    {
+                      activityId: String(activity.eventactivitytypeid),
+                      type: null, // Clear any previous feature selection
+                      gid: null,
+                    },
+                    false,
+                    true
+                  )
+                }}
+                renderItem={(activity) => (
+                  <Box style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {activity.icon && (
+                      <ActivityIcon
+                        icon={activity.icon}
+                        alt={activity.pagetitle}
+                        title={activity.pagetitle}
+                        size={24}
+                      />
+                    )}
+                    <Text size="sm" weight={500} style={{ flex: 1 }}>
+                      {activity.pagetitle}
                     </Text>
-                    {sortedActivities.map((activity, index) => (
-                      <Box
-                        key={activity.eventactivitytypeid}
-                        p="sm"
-                        style={{
-                          border: '1px solid #e0e0e0',
-                          borderTop: index === 0 ? '1px solid #e0e0e0' : 'none',
-                          borderRadius: index === 0 ? '4px 4px 0 0' : index === sortedActivities.length - 1 ? '0 0 4px 4px' : '0',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '12px',
-                        }}
-                        sx={{
-                          '&:hover': {
-                            backgroundColor: '#f5f5f5',
-                          },
-                        }}
-                        onClick={() => {
-                          // Update URL with activity selection (pushState for back button)
-                          // This will update selectedActivityId via derived state
-                          setParams(
-                            {
-                              activityId: String(activity.eventactivitytypeid),
-                              type: null, // Clear any previous feature selection
-                              gid: null,
-                            },
-                            false,
-                            true
-                          )
-                        }}
-                      >
-                        {activity.icon && (
-                          <ActivityIcon
-                            icon={activity.icon}
-                            alt={activity.pagetitle}
-                            title={activity.pagetitle}
-                            size={24}
-                          />
-                        )}
-                        <Text size="sm" weight={500} style={{ flex: 1 }}>
-                          {activity.pagetitle}
-                        </Text>
-                      </Box>
-                    ))}
-                  </Stack>
+                  </Box>
                 )}
-              </>
+              />
             ) : (
               <>
-                <Button
-                  variant="subtle"
-                  size="sm"
+                <BackButton
                   onClick={() => {
                     // Clear activity from URL (this will clear selectedActivityId via derived state)
                     setParams({ activityId: null }, false, true)
                   }}
-                  style={{ alignSelf: 'flex-start' }}
-                >
-                  ← Activities
-                </Button>
+                />
 
                 <Text size="md" weight={500}>
-                  {
-                    activities.find((a) => a.eventactivitytypeid === selectedActivityId)
-                      ?.pagetitle
-                  }
+                  {selectedActivity?.pagetitle}
                 </Text>
 
-                {sortedAttractions.length === 0 ? (
-                  <Text size="sm" color="dimmed">
-                    No attractions found for this activity.
-                  </Text>
-                ) : (
-                  <Stack spacing={0}>
-                    <Text size="sm" weight={500} color="dimmed">
-                      {sortedAttractions.length}{' '}
-                      {sortedAttractions.length === 1 ? 'attraction' : 'attractions'}
-                    </Text>
-                    {sortedAttractions.map((attraction, index) => {
-                      const attractionData = attraction as Record<string, unknown>
-                      const reservationId = attractionData.reservation as number | string | undefined
-                      const parkName = reservationId ? parksMap.get(reservationId) : undefined
+                <PanelList
+                  items={sortedAttractions}
+                  keyExtractor={(attraction, index) => String(attraction.gis_id || attraction.record_id || index)}
+                  countLabel={{ singular: 'attraction', plural: 'attractions' }}
+                  emptyMessage="No attractions found for this activity."
+                  onClick={(attraction) => {
+                    // Mark that we want to zoom (user initiated)
+                    shouldZoomRef.current = true
+                    // Update URL with attraction selection (pushState for back button)
+                    // This will update selectedAttraction via derived state
+                    setParams(
+                      {
+                        type: 'attraction',
+                        gid: String(attraction.gis_id || attraction.record_id),
+                        activityId: selectedActivityId ? String(selectedActivityId) : null,
+                      },
+                      false,
+                      true
+                    )
+                  }}
+                  renderItem={(attraction) => {
+                    const attractionData = attraction as Record<string, unknown>
+                    const reservationId = attractionData.reservation as number | string | undefined
+                    const parkName = reservationId ? parksMap.get(reservationId) : undefined
 
-                      return (
-                        <Box
-                          key={String(attraction.gis_id || attraction.record_id || index)}
-                          p="sm"
-                          style={{
-                            border: '1px solid #e0e0e0',
-                            borderTop: index === 0 ? '1px solid #e0e0e0' : 'none',
-                            borderRadius: index === 0 ? '4px 4px 0 0' : index === filteredAttractions.length - 1 ? '0 0 4px 4px' : '0',
-                            cursor: 'pointer',
-                          }}
-                          sx={{
-                            '&:hover': {
-                              backgroundColor: '#f5f5f5',
-                            },
-                          }}
-                          onClick={() => {
-                            // Mark that we want to zoom (user initiated)
-                            shouldZoomRef.current = true
-                            // Update URL with attraction selection (pushState for back button)
-                            // This will update selectedAttraction via derived state
-                            setParams(
-                              {
-                                type: 'attraction',
-                                gid: String(attraction.gis_id || attraction.record_id),
-                                activityId: selectedActivityId ? String(selectedActivityId) : null,
-                              },
-                              false,
-                              true
-                            )
-                          }}
-                        >
-                          <Text size="sm" weight={500}>
-                            {String(attraction.pagetitle)}
+                    return (
+                      <>
+                        <Text size="sm" weight={500}>
+                          {String(attraction.pagetitle)}
+                        </Text>
+                        {parkName && (
+                          <Text size="xs" color="dimmed" mt={2}>
+                            {parkName}
                           </Text>
-                          {parkName && (
-                            <Text size="xs" color="dimmed" mt={2}>
-                              {parkName}
-                            </Text>
-                          )}
-                        </Box>
-                      )
-                    })}
-                  </Stack>
-                )}
+                        )}
+                      </>
+                    )
+                  }}
+                />
               </>
             )}
           </>

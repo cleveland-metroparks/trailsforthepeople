@@ -1,4 +1,8 @@
-import { Text, Box, Stack, Loader, Alert, Button, Anchor, Divider } from '@mantine/core'
+import { Text, Box, Stack, Loader, Alert, Anchor, Divider, Group } from '@mantine/core'
+import { Clock, Phone } from 'tabler-icons-react'
+import { PanelList } from '../PanelList'
+import { PanelHeader } from '../PanelHeader'
+import { BackButton } from '../BackButton'
 import { useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParksData } from '../../hooks/useParksData'
 import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
@@ -136,22 +140,18 @@ export function ParksPanel({ onClose: _onClose }: ParksPanelProps) {
 
     return (
       <Box p="md" pr="sm" style={{ position: 'relative' }}>
+        <PanelHeader title="Parks" />
         <Stack spacing="md">
-          <Button
-            variant="subtle"
-            size="sm"
+          <BackButton
             onClick={() => {
               // Reset zoom tracking
               zoomedParkIdRef.current = null
               // Clear park from URL (this will clear selectedPark via derived state)
               setParams({ type: null, gid: null }, false, true)
             }}
-            style={{ alignSelf: 'flex-start' }}
-          >
-            ← Parks
-          </Button>
+          />
 
-          <Text size="lg" weight={500}>
+          <Text size="lg" weight={900}>
             {selectedPark.pagetitle}
           </Text>
 
@@ -175,29 +175,25 @@ export function ParksPanel({ onClose: _onClose }: ParksPanelProps) {
 
           {hoursofoperation && (
             <>
-              <Divider />
-              <Box>
-                <Text size="sm" weight={500} mb="xs">
-                  Hours of Operation
-                </Text>
+              <Group spacing="xs" align="flex-start">
+                <Clock size={20} style={{ color: '#6AB03E', flexShrink: 0, marginTop: 2 }} />
                 <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
                   {hoursofoperation}
                 </Text>
-              </Box>
+              </Group>
+              <Divider />
             </>
           )}
 
           {phone && (
             <>
-              <Divider />
-              <Box>
-                <Text size="sm" weight={500} mb="xs">
-                  Phone
-                </Text>
-                <Anchor href={`tel:${phone}`} size="sm">
+              <Group spacing="xs" align="center">
+                <Phone size={20} style={{ color: '#6AB03E', flexShrink: 0 }} />
+                <Anchor href={`tel:${phone}`} size="sm" className="phone-link">
                   {phone}
                 </Anchor>
-              </Box>
+              </Group>
+              <Divider />
             </>
           )}
         </Stack>
@@ -207,11 +203,8 @@ export function ParksPanel({ onClose: _onClose }: ParksPanelProps) {
 
   return (
     <Box p="md" pr="sm" style={{ position: 'relative' }}>
+      <PanelHeader title="Parks" />
       <Stack spacing="md">
-        <Text size="lg" weight={500}>
-          Parks
-        </Text>
-
         {isLoading && (
           <Box style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
             <Loader size="sm" />
@@ -225,68 +218,42 @@ export function ParksPanel({ onClose: _onClose }: ParksPanelProps) {
         )}
 
         {!isLoading && !isError && parks && (
-          <>
-            {sortedParks.length === 0 ? (
-              <Text size="sm" color="dimmed">
-                No parks found.
+          <PanelList
+            items={sortedParks}
+            keyExtractor={(park) => String(park.record_id)}
+            countLabel={{ singular: 'park', plural: 'parks' }}
+            emptyMessage="No parks found."
+            onClick={(park) => {
+              // Mark that we want to zoom (user initiated)
+              shouldZoomRef.current = true
+              // Update URL with park selection (pushState for back button)
+              // This will update selectedPark via derived state
+              setParams(
+                {
+                  type: 'park',
+                  gid: String(park.record_id),
+                },
+                false,
+                true
+              )
+            }}
+            onMouseEnter={(park) => {
+              // Highlight park boundary on hover using geometry if available
+              const parkGeometry = boundariesByParkName.get(park.pagetitle)
+              if (parkGeometry) {
+                highlightParkBoundary(map, parkGeometry)
+              }
+            }}
+            onMouseLeave={() => {
+              // Clear highlight when mouse leaves
+              clearParkHighlight(map)
+            }}
+            renderItem={(park) => (
+              <Text size="sm" weight={500}>
+                {park.pagetitle}
               </Text>
-            ) : (
-              <Stack spacing={0}>
-                <Text size="sm" weight={500} color="dimmed">
-                  {sortedParks.length} {sortedParks.length === 1 ? 'park' : 'parks'}
-                </Text>
-                {sortedParks.map((park, index) => {
-                  const parkGeometry = boundariesByParkName.get(park.pagetitle)
-
-                  return (
-                    <Box
-                      key={park.record_id}
-                      p="sm"
-                      style={{
-                        border: '1px solid #e0e0e0',
-                        borderTop: index === 0 ? '1px solid #e0e0e0' : 'none',
-                        borderRadius: index === 0 ? '4px 4px 0 0' : index === sortedParks.length - 1 ? '0 0 4px 4px' : '0',
-                        cursor: 'pointer',
-                      }}
-                      sx={{
-                        '&:hover': {
-                          backgroundColor: '#f5f5f5',
-                        },
-                      }}
-                      onMouseEnter={() => {
-                        // Highlight park boundary on hover using geometry if available
-                        if (parkGeometry) {
-                          highlightParkBoundary(map, parkGeometry)
-                        }
-                      }}
-                      onMouseLeave={() => {
-                        // Clear highlight when mouse leaves
-                        clearParkHighlight(map)
-                      }}
-                      onClick={() => {
-                        // Mark that we want to zoom (user initiated)
-                        shouldZoomRef.current = true
-                        // Update URL with park selection (pushState for back button)
-                        // This will update selectedPark via derived state
-                        setParams(
-                          {
-                            type: 'park',
-                            gid: String(park.record_id),
-                          },
-                          false,
-                          true
-                        )
-                      }}
-                    >
-                      <Text size="sm" weight={500}>
-                        {park.pagetitle}
-                      </Text>
-                    </Box>
-                  )
-                })}
-              </Stack>
             )}
-          </>
+          />
         )}
       </Stack>
     </Box>

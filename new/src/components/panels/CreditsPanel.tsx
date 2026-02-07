@@ -1,16 +1,15 @@
 import { Text, Box, Stack, Anchor, Title } from '@mantine/core'
+import { PanelHeader } from '../PanelHeader'
 
-interface InfoPanelProps {
+interface CreditsPanelProps {
   onClose: () => void
 }
 
-export function InfoPanel({ onClose: _onClose }: InfoPanelProps) {
+export function CreditsPanel({ onClose: _onClose }: CreditsPanelProps) {
   return (
     <Box p="md" pr="sm" style={{ position: 'relative' }}>
+      <PanelHeader title="Credits" />
       <Stack spacing="md">
-        <Title order={1} size="h3">
-          Credits
-        </Title>
 
         <Text size="sm">
           Parks and facilities data by:<br />
