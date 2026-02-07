@@ -1,5 +1,5 @@
 import { Tabs, Loader, Center, ActionIcon, Box, Text, Divider } from '@mantine/core'
-import { Search, Share, InfoCircle, Trees, Walk, Flag3, Bug, ChevronLeft, Menu2 } from 'tabler-icons-react'
+import { Search, Share, InfoCircle, Tree, Walk, Flag3, Bug, ChevronLeft, Menu2 } from 'tabler-icons-react'
 import { PanelCloseButton } from './PanelCloseButton'
 import { useState, useEffect, useRef, useImperativeHandle, forwardRef, Suspense, lazy } from 'react'
 import { useURLState } from '../hooks/useURLState'
@@ -373,7 +373,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           </Box>
           <TabItem
             value="parks"
-            icon={<Trees size={24} color={SIDEBAR_COLORS.topSection.icon} />}
+            icon={<Tree size={24} color={SIDEBAR_COLORS.topSection.icon} />}
             label="Parks"
           />
           <TabItem

@@ -313,10 +313,10 @@ export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
                     </Box>
                     {distancetext && (
                       <Badge
-                        size="md"
+                        size="lg"
                         style={{
                           flexShrink: 0,
-                          backgroundColor: '#1D5C1F',
+                          backgroundColor: '#43424a',
                           color: 'white',
                           paddingLeft: 8,
                           paddingRight: 8,
