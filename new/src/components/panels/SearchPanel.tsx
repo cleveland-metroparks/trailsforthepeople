@@ -105,6 +105,24 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
     return null
   }, [selectedSearchResult, attractions, parks, trails])
 
+  // Park name lookup for search results (attractions and trails)
+  const getParkName = useMemo(() => {
+    const parksMap = new Map<number | string, string>()
+    parks?.forEach((p) => parksMap.set(p.record_id, String(p.pagetitle)))
+    return (type: string, gid: string | number): string | undefined => {
+      if (type === 'attraction') {
+        const att = attractions.find((a) => String(a.gis_id || a.record_id) === String(gid))
+        const resId = (att as { reservation?: number | string } | undefined)?.reservation
+        return resId ? parksMap.get(resId) : undefined
+      }
+      if (type === 'trail') {
+        const trail = trails?.find((t) => String(t.id) === String(gid))
+        return (trail as { res?: string } | undefined)?.res
+      }
+      return undefined
+    }
+  }, [attractions, parks, trails])
+
   // Create boundaries map for parks
   const boundariesByParkName = useMemo(() => {
     if (!boundaries) return new Map<string, GeoJSON.Polygon | GeoJSON.MultiPolygon>()
@@ -405,7 +423,6 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
                     {phone}
                   </Anchor>
                 </Group>
-                <Divider />
               </>
             )}
 
@@ -715,9 +732,16 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
                     <Text size="sm" weight={500}>
                       {suggestion.title}
                     </Text>
-                    <Badge size="xs" variant="light" mt={4}>
-                      {getResultTypeLabel(suggestion.type)}
-                    </Badge>
+                    <Group spacing="xs" mt={4}>
+                      {getParkName(suggestion.type, suggestion.gid) && (
+                        <Text size="xs" color="dimmed">
+                          {getParkName(suggestion.type, suggestion.gid)}
+                        </Text>
+                      )}
+                      <Badge size="xs" variant="light">
+                        {getResultTypeLabel(suggestion.type)}
+                      </Badge>
+                    </Group>
                   </Box>
                 ))}
               </Stack>
@@ -763,9 +787,16 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
                   <Text size="sm" weight={500}>
                     {result.title}
                   </Text>
-                  <Badge size="xs" variant="light" mt={4}>
-                    {getResultTypeLabel(result.type)}
-                  </Badge>
+                  <Group spacing="xs" mt={4}>
+                    {getParkName(result.type, result.gid) && (
+                      <Text size="xs" color="dimmed">
+                        {getParkName(result.type, result.gid)}
+                      </Text>
+                    )}
+                    <Badge size="xs" variant="light">
+                      {getResultTypeLabel(result.type)}
+                    </Badge>
+                  </Group>
                 </>
               )}
             />

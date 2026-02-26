@@ -3,6 +3,7 @@ import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
 import { ShareButton } from '../ShareButton'
+import { GetDirectionsButtons } from '../GetDirectionsButtons'
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { useTrailsData } from '../../hooks/useTrailsData'
 import { useParksData } from '../../hooks/useParksData'
@@ -244,6 +245,24 @@ export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
               />
             </>
           )}
+
+          {(() => {
+            const lat = selectedTrail.lat as number | undefined
+            const lng = selectedTrail.lng as number | undefined
+            return lat && lng ? (
+              <>
+                <Divider />
+                <GetDirectionsButtons
+                  target={{
+                    name: String(selectedTrail.name),
+                    lat,
+                    lng,
+                  }}
+                />
+                <Divider />
+              </>
+            ) : null
+          })()}
 
           <ShareButton />
         </Stack>

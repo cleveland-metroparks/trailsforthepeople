@@ -4,6 +4,7 @@ import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
 import { ShareButton } from '../ShareButton'
+import { GetDirectionsButtons } from '../GetDirectionsButtons'
 import { useMemo, useEffect, useRef, useCallback } from 'react'
 import { useActivitiesData, useAttractionsByActivity } from '../../hooks/useActivitiesData'
 import { useCategoriesData } from '../../hooks/useCategoriesData'
@@ -285,14 +286,31 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
 
           {cmp_url && (
             <>
-              <Divider />
               <Box>
                 <Anchor href={cmp_url.startsWith('/') ? `https://www.clevelandmetroparks.com${cmp_url}` : cmp_url} target="_blank" size="sm">
                   More info on clevelandmetroparks.com
                 </Anchor>
               </Box>
+              <Divider />
             </>
           )}
+
+          {(() => {
+            const lat = (selectedAttraction as Record<string, unknown>).latitude as number | undefined
+            const lng = (selectedAttraction as Record<string, unknown>).longitude as number | undefined
+            return lat && lng ? (
+              <>
+                <GetDirectionsButtons
+                  target={{
+                    name: String(selectedAttraction.pagetitle),
+                    lat,
+                    lng,
+                  }}
+                />
+                <Divider />
+              </>
+            ) : null
+          })()}
 
           <ShareButton />
         </Stack>

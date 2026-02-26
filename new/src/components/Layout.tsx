@@ -6,6 +6,7 @@ import { SidebarProvider } from '../contexts/SidebarContext'
 import { MapProvider } from '../contexts/MapContext'
 import { MapHoverProvider } from '../contexts/MapHoverContext'
 import { MapSelectionProvider } from '../contexts/MapSelectionContext'
+import { DirectionsProvider } from '../contexts/DirectionsContext'
 
 // Panel width when content is shown
 const PANEL_WIDTH = 320
@@ -34,6 +35,7 @@ export function Layout({ children }: LayoutProps) {
       <MapSelectionProvider>
         <MapHoverProvider>
           <SearchProvider>
+            <DirectionsProvider>
             <SidebarProvider
               isSidebarCollapsed={!hasActivePanel}
               navWidth={navWidth}
@@ -76,6 +78,7 @@ export function Layout({ children }: LayoutProps) {
       {children}
     </AppShell>
             </SidebarProvider>
+            </DirectionsProvider>
           </SearchProvider>
         </MapHoverProvider>
       </MapSelectionProvider>

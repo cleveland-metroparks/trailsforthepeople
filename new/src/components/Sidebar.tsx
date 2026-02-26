@@ -1,9 +1,10 @@
 import { Tabs, Loader, Center, ActionIcon, Box, Text, Divider } from '@mantine/core'
-import { Search, Share, InfoCircle, Tree, Walk, Flag3, Bug, ChevronLeft, Menu2 } from 'tabler-icons-react'
+import { Search, Share, InfoCircle, Tree, Walk, Flag3, Bug, ChevronLeft, Menu2, Route } from 'tabler-icons-react'
 import { PanelCloseButton } from './PanelCloseButton'
 import { useState, useEffect, useRef, useImperativeHandle, forwardRef, Suspense, lazy } from 'react'
 import { useURLState } from '../hooks/useURLState'
 import { useMapSelection } from '../contexts/MapSelectionContext'
+import { useDirections } from '../contexts/DirectionsContext'
 
 // Lazy load all panels
 const SearchPanel = lazy(() => import('./panels/SearchPanel').then(m => ({ default: m.SearchPanel })))
@@ -13,6 +14,7 @@ const ParksPanel = lazy(() => import('./panels/ParksPanel').then(m => ({ default
 const ActivitiesPanel = lazy(() => import('./panels/ActivitiesPanel').then(m => ({ default: m.ActivitiesPanel })))
 const TrailsPanel = lazy(() => import('./panels/TrailsPanel').then(m => ({ default: m.TrailsPanel })))
 const DebugPanel = lazy(() => import('./panels/DebugPanel').then(m => ({ default: m.DebugPanel })))
+const DirectionsPanel = lazy(() => import('./panels/DirectionsPanel').then(m => ({ default: m.DirectionsPanel })))
 
 // Nav widths
 const NAV_WIDTH_EXPANDED = 200
@@ -75,6 +77,9 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   const [isNavExpanded, setIsNavExpanded] = useState(true)
   const { params, setParams } = useURLState()
   const { selectionTick } = useMapSelection()
+  const { openRequestId, closeRequestId } = useDirections()
+  const prevOpenRequestId = useRef(0)
+  const prevCloseRequestId = useRef(0)
 
   // Track activeTab in a ref so the URL-sync effect can read it without depending on it.
   // This breaks the feedback loop: user tab changes don't re-trigger the URL-sync effect.
@@ -122,6 +127,23 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
       setActiveTab(tabForFeature)
     }
   }, [params.type, params.activityId, params.fromSearch, selectionTick])
+
+  // Switch to directions panel when openDirections is called
+  useEffect(() => {
+    if (openRequestId > prevOpenRequestId.current) {
+      prevOpenRequestId.current = openRequestId
+      setActiveTab('directions')
+    }
+  }, [openRequestId])
+
+  // Return to the appropriate panel when closeDirections is called
+  useEffect(() => {
+    if (closeRequestId > prevCloseRequestId.current) {
+      prevCloseRequestId.current = closeRequestId
+      const tab = getTabForFeatureType(params.type, params.activityId)
+      setActiveTab(tab)
+    }
+  }, [closeRequestId, params.type, params.activityId])
 
   useImperativeHandle(ref, () => ({
     activateSearchTab: () => {
@@ -394,10 +416,21 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           </Box>
 
           <TabItem
+            value="directions"
+            icon={<Route size={24} color={SIDEBAR_COLORS.topSection.icon} />}
+            label="Directions"
+          />
+          <TabItem
             value="search"
             icon={<Search size={24} color={SIDEBAR_COLORS.topSection.icon} />}
             label="Search"
           />
+
+          {/* Divider */}
+          <Box px={isNavExpanded ? 'md' : 'xs'} py="sm">
+            <Divider color="rgba(255, 255, 255, 0.4)" />
+          </Box>
+
           <TabItem
             value="share"
             icon={<Share size={24} color={SIDEBAR_COLORS.topSection.icon} />}
@@ -477,6 +510,15 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
             <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
               <Suspense fallback={<PanelLoader />}>
                 <SharePanel onClose={handleClosePanel} />
+              </Suspense>
+            </Box>
+          </Tabs.Panel>
+
+          <Tabs.Panel value="directions" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+            <PanelCloseButton onClick={handleClosePanel} />
+            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+              <Suspense fallback={<PanelLoader />}>
+                <DirectionsPanel onClose={handleClosePanel} />
               </Suspense>
             </Box>
           </Tabs.Panel>

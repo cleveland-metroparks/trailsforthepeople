@@ -4,6 +4,7 @@ import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
 import { ShareButton } from '../ShareButton'
+import { GetDirectionsButtons } from '../GetDirectionsButtons'
 import { useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParksData } from '../../hooks/useParksData'
 import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
@@ -194,6 +195,19 @@ export function ParksPanel({ onClose: _onClose }: ParksPanelProps) {
                   {phone}
                 </Anchor>
               </Group>
+              <Divider />
+            </>
+          )}
+
+          {selectedPark.latitude && selectedPark.longitude && (
+            <>
+              <GetDirectionsButtons
+                target={{
+                  name: selectedPark.pagetitle,
+                  lat: selectedPark.latitude,
+                  lng: selectedPark.longitude,
+                }}
+              />
               <Divider />
             </>
           )}

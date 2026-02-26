@@ -10,6 +10,8 @@ import type {
   TransformedTrail,
   ReservationBoundary,
   BoundaryApiResponse,
+  DirectionsResult,
+  DirectionsApiResponse,
 } from '../types/api'
 import {
   transformAttraction,
@@ -169,6 +171,58 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult> {
     console.error('Geocoding error:', error)
     throw new Error('Failed to geocode address. Please try again.')
   }
+}
+
+/**
+ * Directions request parameters
+ */
+interface DirectionsParams {
+  sourcelat: number
+  sourcelng: number
+  targetlat: number
+  targetlng: number
+  via?: string
+}
+
+/**
+ * Get directions between two points.
+ *
+ * Routes to the appropriate API endpoint based on transport mode:
+ * - 'car' → directions_driving (Bing)
+ * - 'bus' → directions_transit (Bing)
+ * - 'hike', 'bike' → directions_trails (internal)
+ */
+export async function getDirections(
+  sourceLat: number,
+  sourceLng: number,
+  targetLat: number,
+  targetLng: number,
+  via: string
+): Promise<DirectionsResult> {
+  const params: DirectionsParams = {
+    sourcelat: sourceLat,
+    sourcelng: sourceLng,
+    targetlat: targetLat,
+    targetlng: targetLng,
+  }
+
+  let endpoint: string
+
+  switch (via) {
+    case 'car':
+      endpoint = 'directions_driving'
+      break
+    case 'bus':
+      endpoint = 'directions_transit'
+      break
+    default:
+      endpoint = 'directions_trails'
+      params.via = via
+      break
+  }
+
+  const response = await apiClient.get<DirectionsApiResponse>(endpoint, { params })
+  return response.data.data
 }
 
 export { apiClient }

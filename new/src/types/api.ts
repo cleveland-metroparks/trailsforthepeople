@@ -91,3 +91,34 @@ export interface BoundaryApiResponse {
   success: boolean
   data: ReservationBoundary[]
 }
+
+// Directions step (individual turn-by-turn instruction)
+export interface DirectionsStep {
+  step_action?: string
+  text: string
+  distance?: string
+  duration?: string
+}
+
+// Directions totals
+export interface DirectionsTotals {
+  distance: string
+  duration: string
+}
+
+// Directions result from the API
+export interface DirectionsResult {
+  start: { lat: number; lng: number }
+  end: { lat: number; lng: number }
+  wkt: string
+  bounds: { west: number; south: number; east: number; north: number }
+  steps: DirectionsStep[]
+  totals: DirectionsTotals
+  retries?: number
+  elevationprofile?: Array<{ x: number; y: number }>
+}
+
+// Directions API response wrapper
+export interface DirectionsApiResponse {
+  data: DirectionsResult
+}

@@ -193,6 +193,14 @@ const TRAIL_HIGHLIGHT_LAYER_ID = 'trail-highlight-layer'
 const ATTRACTION_MARKER_SOURCE_ID = 'attraction-marker-source'
 const ATTRACTION_MARKER_LAYER_ID = 'attraction-marker-layer'
 
+// Constants for directions route layer
+const DIRECTIONS_LINE_SOURCE_ID = 'directions-line-source'
+const DIRECTIONS_LINE_LAYER_ID = 'directions-line-layer'
+const DIRECTIONS_START_SOURCE_ID = 'directions-start-source'
+const DIRECTIONS_START_LAYER_ID = 'directions-start-layer'
+const DIRECTIONS_END_SOURCE_ID = 'directions-end-source'
+const DIRECTIONS_END_LAYER_ID = 'directions-end-layer'
+
 // Version counter to invalidate stale highlight operations (handles race conditions
 // when user clicks trails faster than style.load can complete)
 let trailHighlightVersion = 0
@@ -675,5 +683,117 @@ export function clearAttractionMarker(map: mapboxgl.Map | null): void {
   } catch (error) {
     // Map might be in a state where layers can't be accessed
     console.warn('clearAttractionMarker: Error clearing marker', error)
+  }
+}
+
+/**
+ * Draw a directions route line on the map with start/end markers.
+ * Similar to drawDirectionsLine() in the old site's directions.js.
+ */
+export function drawDirectionsLine(
+  map: mapboxgl.Map | null,
+  polyline: GeoJSON.Geometry,
+  from: { lat: number; lng: number },
+  to: { lat: number; lng: number }
+): void {
+  if (!map) return
+
+  clearDirectionsLine(map)
+
+  const lineFeature: GeoJSON.Feature = {
+    type: 'Feature',
+    geometry: polyline,
+    properties: {},
+  }
+
+  const addLayers = () => {
+    try {
+      // Route line
+      map.addSource(DIRECTIONS_LINE_SOURCE_ID, {
+        type: 'geojson',
+        data: lineFeature,
+      })
+      map.addLayer({
+        id: DIRECTIONS_LINE_LAYER_ID,
+        type: 'line',
+        source: DIRECTIONS_LINE_SOURCE_ID,
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: { 'line-color': '#0000FF', 'line-width': 6, 'line-opacity': 0.5 },
+      })
+
+      // Start marker (green)
+      map.addSource(DIRECTIONS_START_SOURCE_ID, {
+        type: 'geojson',
+        data: { type: 'Feature', geometry: { type: 'Point', coordinates: [from.lng, from.lat] }, properties: {} },
+      })
+      map.addLayer({
+        id: DIRECTIONS_START_LAYER_ID,
+        type: 'circle',
+        source: DIRECTIONS_START_SOURCE_ID,
+        paint: { 'circle-radius': 9, 'circle-color': '#22b14c', 'circle-stroke-width': 2, 'circle-stroke-color': '#fff' },
+      })
+
+      // End marker (red)
+      map.addSource(DIRECTIONS_END_SOURCE_ID, {
+        type: 'geojson',
+        data: { type: 'Feature', geometry: { type: 'Point', coordinates: [to.lng, to.lat] }, properties: {} },
+      })
+      map.addLayer({
+        id: DIRECTIONS_END_LAYER_ID,
+        type: 'circle',
+        source: DIRECTIONS_END_SOURCE_ID,
+        paint: { 'circle-radius': 9, 'circle-color': '#ed1c24', 'circle-stroke-width': 2, 'circle-stroke-color': '#fff' },
+      })
+    } catch (error) {
+      console.warn('drawDirectionsLine: Error adding layers', error)
+    }
+  }
+
+  if (!map.isStyleLoaded()) {
+    map.once('style.load', addLayers)
+  } else {
+    addLayers()
+  }
+}
+
+/**
+ * Clear the directions route line and markers from the map.
+ */
+export function clearDirectionsLine(map: mapboxgl.Map | null): void {
+  if (!map || !map.isStyleLoaded()) return
+
+  const layersAndSources = [
+    { layer: DIRECTIONS_LINE_LAYER_ID, source: DIRECTIONS_LINE_SOURCE_ID },
+    { layer: DIRECTIONS_START_LAYER_ID, source: DIRECTIONS_START_SOURCE_ID },
+    { layer: DIRECTIONS_END_LAYER_ID, source: DIRECTIONS_END_SOURCE_ID },
+  ]
+
+  try {
+    for (const { layer, source } of layersAndSources) {
+      if (map.getLayer(layer)) map.removeLayer(layer)
+      if (map.getSource(source)) map.removeSource(source)
+    }
+  } catch {
+    // Map might be in a transitional state
+  }
+}
+
+/**
+ * Zoom the map to fit the directions route bounds.
+ */
+export function zoomToDirectionsBounds(
+  map: mapboxgl.Map | null,
+  bounds: { west: number; south: number; east: number; north: number },
+  padding: number | { top?: number; bottom?: number; left?: number; right?: number } = 60
+): void {
+  if (!map) return
+
+  try {
+    const sw = new mapboxgl.LngLat(bounds.west, bounds.south)
+    const ne = new mapboxgl.LngLat(bounds.east, bounds.north)
+    const mapBounds = new mapboxgl.LngLatBounds(sw, ne)
+    map.fitBounds(mapBounds, { padding })
+  } catch (error) {
+    console.warn('zoomToDirectionsBounds: Error fitting bounds', error)
   }
 }

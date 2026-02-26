@@ -36,7 +36,9 @@ export function ShareButton() {
           style={{ cursor: 'pointer' }}
         >
           <Share size={20} style={{ color: '#6AB03E', flexShrink: 0 }} />
-          <Text size="sm">Share</Text>
+          <Text size="sm"
+          style={{ color: '#000000', textDecoration: 'underline', textUnderlineOffset: '2px' }}
+          >Share</Text>
         </Group>
       </Popover.Target>
       <Popover.Dropdown>
