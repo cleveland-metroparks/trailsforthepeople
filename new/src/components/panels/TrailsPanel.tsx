@@ -2,6 +2,7 @@ import { Text, Box, Stack, Loader, Alert, Select, Divider, Badge, Group } from '
 import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
+import { ShareButton } from '../ShareButton'
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { useTrailsData } from '../../hooks/useTrailsData'
 import { useParksData } from '../../hooks/useParksData'
@@ -243,6 +244,8 @@ export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
               />
             </>
           )}
+
+          <ShareButton />
         </Stack>
       </Box>
     )

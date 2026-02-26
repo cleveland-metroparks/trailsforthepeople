@@ -3,6 +3,7 @@ import { Clock, Phone } from 'tabler-icons-react'
 import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
+import { ShareButton } from '../ShareButton'
 import { useMemo, useEffect, useRef, useCallback } from 'react'
 import { useActivitiesData, useAttractionsByActivity } from '../../hooks/useActivitiesData'
 import { useCategoriesData } from '../../hooks/useCategoriesData'
@@ -292,6 +293,8 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
               </Box>
             </>
           )}
+
+          <ShareButton />
         </Stack>
       </Box>
     )

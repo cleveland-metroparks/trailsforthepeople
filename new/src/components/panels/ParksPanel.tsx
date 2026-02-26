@@ -3,6 +3,7 @@ import { Clock, Phone } from 'tabler-icons-react'
 import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
+import { ShareButton } from '../ShareButton'
 import { useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParksData } from '../../hooks/useParksData'
 import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
@@ -196,6 +197,8 @@ export function ParksPanel({ onClose: _onClose }: ParksPanelProps) {
               <Divider />
             </>
           )}
+
+          <ShareButton />
         </Stack>
       </Box>
     )
