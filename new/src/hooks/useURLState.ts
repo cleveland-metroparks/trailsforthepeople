@@ -69,8 +69,11 @@ export function useURLState() {
    */
   const setParams = useCallback(
     (newParams: Partial<URLStateParams>, reset: boolean = false, pushState: boolean = false) => {
-      setSearchParams((prev) => {
-        const params = reset ? new URLSearchParams() : new URLSearchParams(prev)
+      setSearchParams(() => {
+        // Read from the real URL, not React Router's internal state, because
+        // map-position params (lat, lng, zoom, base) are set via replaceState
+        // and React Router doesn't know about them.
+        const params = reset ? new URLSearchParams() : new URLSearchParams(window.location.search)
 
         // Set each parameter
         Object.entries(newParams).forEach(([key, value]) => {
