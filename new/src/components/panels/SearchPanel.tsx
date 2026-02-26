@@ -42,6 +42,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
   const { params, setParams } = useURLState()
   const sidebarAwarePadding = useSidebarAwarePadding(120)
   const [showAutocomplete, setShowAutocomplete] = useState(false)
+  const [selectedIndex, setSelectedIndex] = useState(-1)
   const inputRef = useRef<HTMLInputElement>(null)
   const autocompleteRef = useRef<HTMLDivElement>(null)
 
@@ -234,6 +235,11 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
       clearAttractionMarker(map)
     }
   }, [selectedSearchResult, selectedFeature, map])
+
+  // Reset selected index when suggestions change
+  useEffect(() => {
+    setSelectedIndex(-1)
+  }, [autocompleteSuggestions])
 
   // Close autocomplete when clicking outside
   useEffect(() => {
@@ -600,12 +606,29 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
     submitSearch()
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      setShowAutocomplete(false)
+      setSelectedIndex(-1)
+    } else if (showAutocomplete && autocompleteSuggestions.length > 0) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setSelectedIndex((i) => (i < autocompleteSuggestions.length - 1 ? i + 1 : 0))
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setSelectedIndex((i) => (i <= 0 ? autocompleteSuggestions.length - 1 : i - 1))
+      } else if (e.key === 'Enter') {
+        e.preventDefault()
+        if (selectedIndex >= 0 && autocompleteSuggestions[selectedIndex]) {
+          handleSuggestionClick(autocompleteSuggestions[selectedIndex])
+        } else {
+          setShowAutocomplete(false)
+          handleSearch()
+        }
+      }
+    } else if (e.key === 'Enter') {
       setShowAutocomplete(false)
       handleSearch()
-    } else if (e.key === 'Escape') {
-      setShowAutocomplete(false)
     }
   }
 
@@ -676,7 +699,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
             placeholder="Search parks, trails, attractions..."
             value={searchTerm}
             onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyDown}
             onFocus={() => {
               if (searchTerm.length >= 2 && autocompleteSuggestions.length > 0) {
                 setShowAutocomplete(true)
@@ -711,7 +734,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
               }}
             >
               <Stack spacing={0}>
-                {autocompleteSuggestions.map((suggestion) => (
+                {autocompleteSuggestions.map((suggestion, idx) => (
                   <Box
                     key={suggestion.id}
                     p="sm"
@@ -720,6 +743,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
                       borderBottom: '1px solid #f0f0f0',
                     }}
                     sx={{
+                      backgroundColor: selectedIndex === idx ? '#F2F8E1' : undefined,
                       '&:hover': {
                         backgroundColor: '#F2F8E1',
                       },
@@ -728,6 +752,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
                       },
                     }}
                     onClick={() => handleSuggestionClick(suggestion)}
+                    onMouseEnter={() => setSelectedIndex(idx)}
                   >
                     <Text size="sm" weight={500}>
                       {suggestion.title}

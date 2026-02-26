@@ -19,6 +19,7 @@ export function FloatingSearch() {
   const { data: trails } = useTrailsData()
 
   const [showAutocomplete, setShowAutocomplete] = useState(false)
+  const [selectedIndex, setSelectedIndex] = useState(-1)
   const inputRef = useRef<HTMLInputElement>(null)
   const autocompleteRef = useRef<HTMLDivElement>(null)
 
@@ -52,6 +53,11 @@ export function FloatingSearch() {
   // Use floating width when collapsed, panel width when open
   const inputWidth = isSidebarCollapsed ? floatingWidth : panelWidth
 
+  // Reset selected index when suggestions change
+  useEffect(() => {
+    setSelectedIndex(-1)
+  }, [autocompleteSuggestions])
+
   // Close autocomplete when clicking outside (autocompleteRef wraps input + dropdown)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -64,13 +70,31 @@ export function FloatingSearch() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      setShowAutocomplete(false)
+      setSelectedIndex(-1)
+    } else if (showAutocomplete && autocompleteSuggestions.length > 0) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setSelectedIndex((i) => (i < autocompleteSuggestions.length - 1 ? i + 1 : 0))
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setSelectedIndex((i) => (i <= 0 ? autocompleteSuggestions.length - 1 : i - 1))
+      } else if (e.key === 'Enter') {
+        e.preventDefault()
+        if (selectedIndex >= 0 && autocompleteSuggestions[selectedIndex]) {
+          handleSuggestionClick(autocompleteSuggestions[selectedIndex])
+        } else {
+          setShowAutocomplete(false)
+          submitSearch()
+          onSearchSubmit()
+        }
+      }
+    } else if (e.key === 'Enter') {
       setShowAutocomplete(false)
       submitSearch()
       onSearchSubmit()
-    } else if (e.key === 'Escape') {
-      setShowAutocomplete(false)
     }
   }
 
@@ -109,7 +133,7 @@ export function FloatingSearch() {
           placeholder="Search parks, trails, attractions..."
           value={searchTerm}
           onChange={handleChange}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           onFocus={() => {
             if (searchTerm.length >= 2 && autocompleteSuggestions.length > 0) {
               setShowAutocomplete(true)
@@ -146,7 +170,7 @@ export function FloatingSearch() {
             }}
           >
             <Stack spacing={0}>
-              {autocompleteSuggestions.map((suggestion) => (
+              {autocompleteSuggestions.map((suggestion, idx) => (
                 <Box
                   key={suggestion.id}
                   p="sm"
@@ -155,6 +179,7 @@ export function FloatingSearch() {
                     borderBottom: '1px solid #f0f0f0',
                   }}
                   sx={{
+                    backgroundColor: selectedIndex === idx ? '#F2F8E1' : undefined,
                     '&:hover': {
                       backgroundColor: '#F2F8E1',
                     },
@@ -163,6 +188,7 @@ export function FloatingSearch() {
                     },
                   }}
                   onClick={() => handleSuggestionClick(suggestion)}
+                  onMouseEnter={() => setSelectedIndex(idx)}
                 >
                   <Text size="sm" weight={500}>
                     {suggestion.title}

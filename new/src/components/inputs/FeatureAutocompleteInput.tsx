@@ -46,6 +46,7 @@ export function FeatureAutocompleteInput({
 }: FeatureAutocompleteInputProps) {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [suggestions, setSuggestions] = useState<Array<{ id: string; title: string; type: string; parkName?: string; lat?: number; lng?: number }>>([])
+  const [selectedIndex, setSelectedIndex] = useState(-1)
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -110,6 +111,11 @@ export function FeatureAutocompleteInput({
   // Show dropdown when we have suggestions and user has typed enough
   const shouldShowDropdown = showSuggestions && suggestions.length > 0 && value.length >= 2
 
+  // Reset selected index when suggestions change
+  useEffect(() => {
+    setSelectedIndex(-1)
+  }, [suggestions])
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -145,6 +151,18 @@ export function FeatureAutocompleteInput({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       setShowSuggestions(false)
+      setSelectedIndex(-1)
+    } else if (shouldShowDropdown && suggestions.length > 0) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setSelectedIndex((i) => (i < suggestions.length - 1 ? i + 1 : 0))
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setSelectedIndex((i) => (i <= 0 ? suggestions.length - 1 : i - 1))
+      } else if (e.key === 'Enter' && selectedIndex >= 0 && suggestions[selectedIndex]) {
+        e.preventDefault()
+        handleSuggestionClick(suggestions[selectedIndex])
+      }
     }
   }
 
@@ -168,7 +186,7 @@ export function FeatureAutocompleteInput({
       {shouldShowDropdown && (
         <Box ref={dropdownRef} style={DROPDOWN_STYLES}>
           <Stack spacing={0}>
-            {suggestions.map((s) => (
+            {suggestions.map((s, idx) => (
               <Box
                 key={s.id}
                 p="sm"
@@ -177,6 +195,7 @@ export function FeatureAutocompleteInput({
                   borderBottom: '1px solid #f0f0f0',
                 }}
                 sx={{
+                  backgroundColor: selectedIndex === idx ? '#F2F8E1' : undefined,
                   '&:hover': {
                     backgroundColor: '#F2F8E1',
                   },
@@ -185,6 +204,7 @@ export function FeatureAutocompleteInput({
                   },
                 }}
                 onClick={() => handleSuggestionClick(s)}
+                onMouseEnter={() => setSelectedIndex(idx)}
               >
                 <Text size="sm" weight={500}>
                   {s.title}
