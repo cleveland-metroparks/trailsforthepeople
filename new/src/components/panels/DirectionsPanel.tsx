@@ -12,7 +12,14 @@ import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
 import { useResolveLocation } from '../../hooks/useResolveLocation'
 import { getDirections as fetchDirections } from '../../lib/api'
 import { wktToGeoJSON } from '../../lib/wktUtils'
-import { drawDirectionsLine, clearDirectionsLine, zoomToDirectionsBounds } from '../../lib/mapUtils'
+import {
+  drawDirectionsLine,
+  clearAttractionMarker,
+  clearDirectionsLine,
+  clearParkHighlight,
+  clearTrailHighlight,
+  zoomToDirectionsBounds,
+} from '../../lib/mapUtils'
 import { FeatureAutocompleteInput } from '../inputs/FeatureAutocompleteInput'
 import { ViaModeSelector } from '../ViaModeSelector'
 import { DirectionsResultDisplay } from './DirectionsResultDisplay'
@@ -22,8 +29,15 @@ interface DirectionsPanelProps {
   onClose: () => void
 }
 
+interface DirectionsInputs {
+  sourceText: string
+  targetText: string
+  sourceLngLat: { lat: number; lng: number } | null
+  targetLngLat: { lat: number; lng: number } | null
+}
+
 export function DirectionsPanel(_props: DirectionsPanelProps) {
-  const { target, via, setVia, closeDirections } = useDirections()
+  const { target, via, setVia, closeDirections, openRequestId } = useDirections()
   const { map } = useMap()
   const sidebarAwarePadding = useSidebarAwarePadding(120)
   const resolveLocation = useResolveLocation()
@@ -40,6 +54,17 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
   const [result, setResult] = useState<DirectionsResult | null>(null)
 
   const prevTargetRef = useRef(target)
+  const prevOpenRequestIdRef = useRef(openRequestId)
+
+  useEffect(() => {
+    if (openRequestId > prevOpenRequestIdRef.current) {
+      setSourceText('')
+      setSourceLngLat(null)
+      setResult(null)
+      setErrorMsg(null)
+    }
+    prevOpenRequestIdRef.current = openRequestId
+  }, [openRequestId])
 
   useEffect(() => {
     if (target && target !== prevTargetRef.current) {
@@ -74,14 +99,22 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
     )
   }
 
-  const handleGetDirections = async () => {
+  const handleGetDirections = async (overrides?: Partial<DirectionsInputs>) => {
+    const sourceTextValue = overrides?.sourceText ?? sourceText
+    const targetTextValue = overrides?.targetText ?? targetText
+    const sourceLngLatValue = overrides?.sourceLngLat ?? sourceLngLat
+    const targetLngLatValue = overrides?.targetLngLat ?? targetLngLat
+
     setErrorMsg(null)
     setResult(null)
     clearDirectionsLine(map)
+    clearAttractionMarker(map)
+    clearTrailHighlight(map)
+    clearParkHighlight(map)
     setIsLoading(true)
 
     try {
-      const source = await resolveLocation(sourceText, sourceLngLat)
+      const source = await resolveLocation(sourceTextValue, sourceLngLatValue)
       if (!source) {
         setErrorMsg('Please enter a starting location (From).')
         setIsLoading(false)
@@ -89,7 +122,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
       }
       setSourceLngLat(source)
 
-      const destination = await resolveLocation(targetText, targetLngLat)
+      const destination = await resolveLocation(targetTextValue, targetLngLatValue)
       if (!destination) {
         setErrorMsg('Please enter a destination (To).')
         setIsLoading(false)
@@ -130,6 +163,12 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
     }
   }
 
+  const maybeAutoGetDirections = (nextInputs: DirectionsInputs) => {
+    if (isLoading) return
+    if (!nextInputs.sourceLngLat || !nextInputs.targetLngLat) return
+    void handleGetDirections(nextInputs)
+  }
+
   const handleBack = () => {
     clearDirectionsLine(map)
     closeDirections()
@@ -167,9 +206,17 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
           value={sourceText}
           onChange={handleSourceChange}
           onSelect={(s) => {
-            setSourceText(s.text)
-            setSourceLngLat({ lat: s.lat, lng: s.lng })
+            const nextSourceText = s.text
+            const nextSourceLngLat = { lat: s.lat, lng: s.lng }
+            setSourceText(nextSourceText)
+            setSourceLngLat(nextSourceLngLat)
             setResult(null)
+            maybeAutoGetDirections({
+              sourceText: nextSourceText,
+              sourceLngLat: nextSourceLngLat,
+              targetText,
+              targetLngLat,
+            })
           }}
           rightSection={
             <Tooltip label="Use my location" withArrow>
@@ -185,16 +232,26 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
           value={targetText}
           onChange={handleTargetChange}
           onSelect={(s) => {
-            setTargetText(s.text)
-            setTargetLngLat({ lat: s.lat, lng: s.lng })
+            const nextTargetText = s.text
+            const nextTargetLngLat = { lat: s.lat, lng: s.lng }
+            setTargetText(nextTargetText)
+            setTargetLngLat(nextTargetLngLat)
             setResult(null)
+            maybeAutoGetDirections({
+              sourceText,
+              sourceLngLat,
+              targetText: nextTargetText,
+              targetLngLat: nextTargetLngLat,
+            })
           }}
         />
 
         <Button
           fullWidth
           loading={isLoading}
-          onClick={handleGetDirections}
+          onClick={() => {
+            void handleGetDirections()
+          }}
           styles={{
             root: {
               backgroundColor: '#6AB03E',

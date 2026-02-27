@@ -7,6 +7,7 @@ import { useActivitiesData, useAttractionsByActivity } from '../../hooks/useActi
 import { useCategoriesData } from '../../hooks/useCategoriesData'
 import { useParksData } from '../../hooks/useParksData'
 import { useMap } from '../../contexts/MapContext'
+import { useDirections } from '../../contexts/DirectionsContext'
 import { zoomToFeature, placeAttractionMarker, clearAttractionMarker } from '../../lib/mapUtils'
 import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
 import { ActivityIcon } from '../ActivityIcon'
@@ -52,6 +53,8 @@ export function ActivitiesPanel(_props: ActivitiesPanelProps) {
   const { categoriesMap } = useCategoriesData()
   const { data: parks } = useParksData()
   const { map } = useMap()
+  const { closeRequestId } = useDirections()
+  const lastDirectionsCloseRequestIdRef = useRef(closeRequestId)
 
   // SINGLE SOURCE OF TRUTH: Derive selectedAttraction from URL params
   const selectedAttraction = useMemo(() => {
@@ -94,9 +97,10 @@ export function ActivitiesPanel(_props: ActivitiesPanelProps) {
 
     const attractionId = params.gid ?? null
     const alreadyZoomed = attractionId === zoomedAttractionIdRef.current
+    const didCloseDirections = closeRequestId > lastDirectionsCloseRequestIdRef.current
 
     // Zoom if: user clicked (shouldZoomRef) OR initial load with attraction in URL
-    if ((shouldZoomRef.current || isInitialLoadRef.current) && !alreadyZoomed) {
+    if ((shouldZoomRef.current || isInitialLoadRef.current || didCloseDirections) && (!alreadyZoomed || didCloseDirections)) {
       zoomToAttraction(selectedAttraction)
       zoomedAttractionIdRef.current = attractionId
     }
@@ -104,7 +108,8 @@ export function ActivitiesPanel(_props: ActivitiesPanelProps) {
     // Clear flags after processing
     shouldZoomRef.current = false
     isInitialLoadRef.current = false
-  }, [selectedAttraction, params.gid, map, zoomToAttraction])
+    lastDirectionsCloseRequestIdRef.current = closeRequestId
+  }, [selectedAttraction, params.gid, map, zoomToAttraction, closeRequestId])
 
   // Place marker when attraction is selected
   useEffect(() => {
@@ -121,7 +126,7 @@ export function ActivitiesPanel(_props: ActivitiesPanelProps) {
       // Clear marker when no attraction is selected or type changes
       clearAttractionMarker(map)
     }
-  }, [selectedAttraction, params.type, map])
+  }, [selectedAttraction, params.type, map, closeRequestId])
 
   // Create a map of reservation ID to park name for quick lookup
   const parksMap = useMemo(() => {

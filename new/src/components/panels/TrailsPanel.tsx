@@ -7,6 +7,7 @@ import { useTrailsData } from '../../hooks/useTrailsData'
 import { useParksData } from '../../hooks/useParksData'
 import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
 import { useMap } from '../../contexts/MapContext'
+import { useDirections } from '../../contexts/DirectionsContext'
 import { zoomToFeature, highlightTrailLine, clearTrailHighlight, clearAttractionMarker } from '../../lib/mapUtils'
 import { getTrailGeometry } from '../../lib/api'
 import { useURLState } from '../../hooks/useURLState'
@@ -28,6 +29,7 @@ export function TrailsPanel(_props: TrailsPanelProps) {
   const { params, setParams } = useURLState()
   const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null)
   const { map } = useMap()
+  const { closeRequestId } = useDirections()
   const sidebarAwarePadding = useSidebarAwarePadding(120)
 
   // Track whether we should zoom (only on user click, not URL restoration)
@@ -38,6 +40,7 @@ export function TrailsPanel(_props: TrailsPanelProps) {
   const [focusTrailItemKey, setFocusTrailItemKey] = useState<string | null>(null)
   // Track if this is the initial load (to zoom to trail from URL on page load)
   const isInitialLoadRef = useRef(true)
+  const lastDirectionsCloseRequestIdRef = useRef(closeRequestId)
 
   const isLoading = trailsLoading || parksLoading
   const isError = trailsError || parksError
@@ -127,9 +130,10 @@ export function TrailsPanel(_props: TrailsPanelProps) {
 
     const trailId = params.gid ?? null
     const alreadyZoomed = trailId === zoomedTrailIdRef.current
+    const didCloseDirections = closeRequestId > lastDirectionsCloseRequestIdRef.current
 
     // Zoom if: user clicked (shouldZoomRef) OR initial load with trail in URL
-    if ((shouldZoomRef.current || isInitialLoadRef.current) && !alreadyZoomed) {
+    if ((shouldZoomRef.current || isInitialLoadRef.current || didCloseDirections) && (!alreadyZoomed || didCloseDirections)) {
       zoomToTrail(selectedTrail)
       zoomedTrailIdRef.current = trailId
     }
@@ -137,7 +141,8 @@ export function TrailsPanel(_props: TrailsPanelProps) {
     // Clear flags after processing
     shouldZoomRef.current = false
     isInitialLoadRef.current = false
-  }, [selectedTrail, params.gid, map, zoomToTrail])
+    lastDirectionsCloseRequestIdRef.current = closeRequestId
+  }, [selectedTrail, params.gid, map, zoomToTrail, closeRequestId])
 
   // Extract trail ID from URL params - using primitive value as dependency
   // to avoid re-running effect when trail object reference changes
@@ -174,7 +179,7 @@ export function TrailsPanel(_props: TrailsPanelProps) {
         currentTrailRef.current = null
       }
     }
-  }, [selectedTrailId, map])
+  }, [selectedTrailId, map, closeRequestId])
 
   // Clear highlight when component unmounts
   useEffect(() => {

@@ -7,6 +7,7 @@ import { useParksData } from '../../hooks/useParksData'
 import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
 import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
 import { useMap } from '../../contexts/MapContext'
+import { useDirections } from '../../contexts/DirectionsContext'
 import { zoomToFeature, highlightParkBoundary, clearParkHighlight, fadeOutParkHighlight, getBoundingBoxFromGeometry, clearAttractionMarker } from '../../lib/mapUtils'
 import { useURLState } from '../../hooks/useURLState'
 import type { Reservation } from '../../types/api'
@@ -21,6 +22,7 @@ export function ParksPanel(_props: ParksPanelProps) {
   const { data: boundaries } = useReservationBoundaries()
   const { params, setParams } = useURLState()
   const { map } = useMap()
+  const { closeRequestId } = useDirections()
   const sidebarAwarePadding = useSidebarAwarePadding(120)
 
   // Track whether we should zoom (only on user click, not URL restoration)
@@ -31,6 +33,7 @@ export function ParksPanel(_props: ParksPanelProps) {
   const [focusParkItemKey, setFocusParkItemKey] = useState<string | null>(null)
   // Track if this is the initial load (to zoom to park from URL on page load)
   const isInitialLoadRef = useRef(true)
+  const lastDirectionsCloseRequestIdRef = useRef(closeRequestId)
 
   // Create a map of park names to boundaries for quick lookup
   const boundariesByParkName = useMemo(() => {
@@ -104,9 +107,10 @@ export function ParksPanel(_props: ParksPanelProps) {
 
     const parkId = params.gid ?? null
     const alreadyZoomed = parkId === zoomedParkIdRef.current
+    const didCloseDirections = closeRequestId > lastDirectionsCloseRequestIdRef.current
 
     // Zoom if: user clicked (shouldZoomRef) OR initial load with park in URL
-    if ((shouldZoomRef.current || isInitialLoadRef.current) && !alreadyZoomed) {
+    if ((shouldZoomRef.current || isInitialLoadRef.current || didCloseDirections) && (!alreadyZoomed || didCloseDirections)) {
       zoomToPark(selectedPark)
       zoomedParkIdRef.current = parkId
     }
@@ -114,7 +118,8 @@ export function ParksPanel(_props: ParksPanelProps) {
     // Clear flags after processing
     shouldZoomRef.current = false
     isInitialLoadRef.current = false
-  }, [selectedPark, params.gid, map, zoomToPark])
+    lastDirectionsCloseRequestIdRef.current = closeRequestId
+  }, [selectedPark, params.gid, map, zoomToPark, closeRequestId])
 
   // Clear highlight when component unmounts
   useEffect(() => {
