@@ -109,6 +109,15 @@ interface TrailGeometryResponse {
 }
 
 /**
+ * Trail profile API response (elevation profile)
+ */
+interface TrailProfileResponse {
+  data: {
+    elevation_profile: Array<{ x: number; y: number }>
+  }
+}
+
+/**
  * Fetch trail geometry from the API
  * @param trailId - The ID of the trail
  * @returns Parsed GeoJSON geometry (LineString or MultiLineString)
@@ -122,6 +131,25 @@ export async function getTrailGeometry(trailId: number): Promise<GeoJSON.LineStr
     return null
   } catch (error) {
     console.error('Error fetching trail geometry:', error)
+    return null
+  }
+}
+
+/**
+ * Fetch trail elevation profile from the API
+ * @param trailId - The ID of the trail
+ * @returns Array of { x: distance in feet, y: elevation in feet } or null
+ */
+export async function getTrailProfile(trailId: number): Promise<Array<{ x: number; y: number }> | null> {
+  try {
+    const response = await apiClient.get<TrailProfileResponse>(`trail_profiles/${trailId}`)
+    const profile = response.data.data?.elevation_profile
+    if (profile && Array.isArray(profile) && profile.length >= 2) {
+      return profile
+    }
+    return null
+  } catch (error) {
+    console.error('Error fetching trail profile:', error)
     return null
   }
 }

@@ -1,5 +1,6 @@
 import { Box, Text, Button, Divider } from '@mantine/core'
 import type { DirectionsResult } from '../../types/api'
+import { ElevationProfileChart } from '../charts/ElevationProfileChart'
 
 interface DirectionsResultDisplayProps {
   result: DirectionsResult
@@ -22,6 +23,17 @@ export function DirectionsResultDisplay({ result, onClear }: DirectionsResultDis
           </Text>
         )}
       </Box>
+
+      {/* Elevation profile (trail directions only) */}
+      {result.elevationprofile &&
+        result.elevationprofile.length >= 2 && (
+          <>
+            <Text size="sm" weight={600} mt="sm">
+              Elevation Profile
+            </Text>
+            <ElevationProfileChart data={result.elevationprofile} height={160} />
+          </>
+        )}
 
       {/* Turn-by-turn steps */}
       <Box

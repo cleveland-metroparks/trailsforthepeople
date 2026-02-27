@@ -104,6 +104,18 @@ export async function setupMockApi(page: Page) {
     })
   )
 
+  await page.route('**/api/v1/trail_profiles/**', (route) =>
+    fulfillJson(route, {
+      data: {
+        elevation_profile: [
+          { x: 0, y: 600 },
+          { x: 2640, y: 650 },
+          { x: 5280, y: 620 },
+        ],
+      },
+    })
+  )
+
   await page.route('**/api/v1/geocode/**', async (route) => {
     const url = route.request().url().toLowerCase()
     if (url.includes('unknown-place')) {
@@ -133,6 +145,11 @@ export async function setupMockApi(page: Page) {
         bounds: { west: -81.706, south: 41.399, east: -81.699, north: 41.406 },
         steps: [{ text: 'Head to destination' }],
         totals: { distance: '1 mi', duration: '5 min' },
+        elevationprofile: [
+          { x: 0, y: 600 },
+          { x: 2640, y: 650 },
+          { x: 5280, y: 620 },
+        ],
       },
     })
   )
