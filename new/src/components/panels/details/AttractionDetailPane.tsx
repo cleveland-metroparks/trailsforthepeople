@@ -1,5 +1,6 @@
 import { Text, Box, Anchor, Divider, Stack, Group } from '@mantine/core'
 import type { ReactNode } from 'react'
+import { ExternalLink } from 'tabler-icons-react'
 import { ActivityIcon } from '../../ActivityIcon'
 import { FeatureDetailLayout } from './FeatureDetailLayout'
 import { MetadataBadge } from '../../MetadataBadge'
@@ -116,8 +117,15 @@ export function AttractionDetailPane({
       {cmpHref && (
         <>
           <Box>
-            <Anchor href={cmpHref} target="_blank" size="sm">
-              More info on clevelandmetroparks.com
+            <Anchor href={cmpHref} target="_blank" rel="noreferrer" size="sm">
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                More info on clevelandmetroparks.com
+                <ExternalLink
+                  aria-hidden="true"
+                  size={14}
+                  color="#2f9e44"
+                />
+              </span>
             </Anchor>
           </Box>
           <Divider />
