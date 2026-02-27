@@ -1,4 +1,4 @@
-import { Group, Text, Popover, TextInput, ActionIcon, Box } from '@mantine/core'
+import { Text, Popover, TextInput, ActionIcon, Box, UnstyledButton } from '@mantine/core'
 import { Share, Copy, Check } from 'tabler-icons-react'
 import { useState, useEffect } from 'react'
 
@@ -29,17 +29,37 @@ export function ShareButton() {
       width={280}
     >
       <Popover.Target>
-        <Group
-          spacing="xs"
-          align="center"
+        <UnstyledButton
+          type="button"
           onClick={() => setOpened((o) => !o)}
-          style={{ cursor: 'pointer' }}
+          aria-label="Share this location"
+          aria-expanded={opened}
+          aria-haspopup="dialog"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            cursor: 'pointer',
+            borderRadius: '4px',
+          }}
+          sx={{
+            '&:hover': {
+              opacity: 0.8,
+            },
+            '&:focus-visible': {
+              outline: '2px solid #6AB03E',
+              outlineOffset: '2px',
+            },
+          }}
         >
           <Share size={20} style={{ color: '#6AB03E', flexShrink: 0 }} />
-          <Text size="sm"
-          style={{ color: '#000000', textDecoration: 'underline', textUnderlineOffset: '2px' }}
-          >Share</Text>
-        </Group>
+          <Text
+            size="sm"
+            style={{ color: '#000000', textDecoration: 'underline', textUnderlineOffset: '2px' }}
+          >
+            Share
+          </Text>
+        </UnstyledButton>
       </Popover.Target>
       <Popover.Dropdown>
         <Box style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -54,6 +74,7 @@ export function ShareButton() {
             color={copied ? 'teal' : 'dark'}
             onClick={handleCopy}
             size="lg"
+            aria-label={copied ? 'Copied link' : 'Copy link'}
           >
             {copied ? <Check size={16} /> : <Copy size={16} />}
           </ActionIcon>

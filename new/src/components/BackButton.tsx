@@ -1,4 +1,4 @@
-import { Box, Text } from '@mantine/core'
+import { Text, UnstyledButton } from '@mantine/core'
 import { CornerUpLeft } from 'tabler-icons-react'
 
 const ICON_COLOR = '#6AB03E'
@@ -9,17 +9,23 @@ interface BackButtonProps {
 
 export function BackButton({ onClick }: BackButtonProps) {
   return (
-    <Box
+    <UnstyledButton
+      type="button"
       onClick={onClick}
       style={{
         display: 'inline-flex',
         alignItems: 'center',
         gap: '6px',
         cursor: 'pointer',
+        borderRadius: '4px',
       }}
       sx={{
         '&:hover': {
           opacity: 0.8,
+        },
+        '&:focus-visible': {
+          outline: '2px solid #6AB03E',
+          outlineOffset: '2px',
         },
       }}
     >
@@ -34,6 +40,6 @@ export function BackButton({ onClick }: BackButtonProps) {
       >
         Back
       </Text>
-    </Box>
+    </UnstyledButton>
   )
 }
