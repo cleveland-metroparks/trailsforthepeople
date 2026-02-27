@@ -1,7 +1,7 @@
-import { TextInput, Button, Stack, Text, Box, Loader, Badge, Alert, Anchor, Divider, Group } from '@mantine/core'
+import { TextInput, Button, Stack, Text, Box, Loader, Badge, Alert, Group } from '@mantine/core'
 import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
-import { Search, Clock, Phone } from 'tabler-icons-react'
+import { Search } from 'tabler-icons-react'
 import { useSearch } from '../../contexts/SearchContext'
 import { useMap } from '../../contexts/MapContext'
 import { useURLState } from '../../hooks/useURLState'
@@ -12,16 +12,15 @@ import { useActivitiesData } from '../../hooks/useActivitiesData'
 import { useParksData } from '../../hooks/useParksData'
 import { useTrailsData } from '../../hooks/useTrailsData'
 import { useCategoriesData } from '../../hooks/useCategoriesData'
-import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
-import { ActivityIcon } from '../ActivityIcon'
-import { GetDirectionsButtons } from '../GetDirectionsButtons'
-import { ShareButton } from '../ShareButton'
 import { highlightTrailLine, clearTrailHighlight, highlightParkBoundary, fadeOutParkHighlight, getBoundingBoxFromGeometry, placeAttractionMarker, clearAttractionMarker } from '../../lib/mapUtils'
 import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
 import { getTrailGeometry } from '../../lib/api'
 import type { Reservation, TransformedAttraction, TransformedTrail } from '../../types/api'
 import mapboxgl from 'mapbox-gl'
 import { useState, useRef, useEffect, useMemo } from 'react'
+import { AttractionDetailPane } from './details/AttractionDetailPane'
+import { ParkDetailPane } from './details/ParkDetailPane'
+import { TrailDetailPane } from './details/TrailDetailPane'
 
 interface SearchPanelProps {
   onClose: () => void
@@ -304,37 +303,15 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
 
   // Show detail view if a search result is selected
   if (selectedSearchResult && selectedFeature) {
-    // Attraction detail view
     if (selectedSearchResult.type === 'attraction') {
       const attraction = selectedFeature as TransformedAttraction
-      const pagethumbnail = (attraction as Record<string, unknown>).pagethumbnail as string | undefined
-      const imgProps = makeImageFromPagethumbnail(pagethumbnail, 320)
-      const descr = (attraction as Record<string, unknown>).descr as string | undefined
-      const hoursofoperation = (attraction as Record<string, unknown>).hoursofoperation as string | undefined
-      const phone = (attraction as Record<string, unknown>).phone as string | undefined
-      const cmp_url = (attraction as Record<string, unknown>).cmp_url as string | undefined
-
-      const categoryNames = attraction.categories
-        ? attraction.categories
-          .map((id) => categoriesMap[id])
-          .filter((name) => name)
-          .join(', ')
-        : null
-
-      const activityIcons = attraction.activities
-        ? attraction.activities
-          .map((activityId) => activities.find((a) => a.eventactivitytypeid === activityId))
-          .filter((activity): activity is typeof activity & { icon: string } =>
-            activity !== undefined && activity.icon !== null
-          )
-        : []
-      const sortedActivityIcons = [...activityIcons].sort((a, b) =>
-        String(a?.pagetitle ?? '').localeCompare(String(b?.pagetitle ?? ''))
-      )
 
       return (
-        <Box p="md" pr="sm" style={{ position: 'relative' }}>
-          <Stack spacing="md">
+        <AttractionDetailPane
+          attraction={attraction}
+          categoriesMap={categoriesMap}
+          activities={activities}
+          backButton={
             <Button
               variant="subtle"
               size="sm"
@@ -347,144 +324,18 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
             >
               ← Search Results
             </Button>
-
-            <Text size="lg" weight={900}>
-              {String(attraction.pagetitle)}
-            </Text>
-
-            {categoryNames && (
-              <Text size="sm" color="dimmed">
-                {categoryNames}
-              </Text>
-            )}
-
-            {activityIcons.length > 0 && (
-              <Box>
-                <Text size="sm" weight={500} mb="xs">
-                  Activities:
-                </Text>
-                <Box
-                  component="ul"
-                  style={{
-                    listStyle: 'none',
-                    margin: 0,
-                    padding: 0,
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '0.5em',
-                  }}
-                >
-                  {sortedActivityIcons.map((activity) => (
-                    <Box
-                      key={activity.eventactivitytypeid}
-                      component="li"
-                      style={{
-                        display: 'inline-block',
-                      }}
-                    >
-                      <ActivityIcon
-                        icon={activity.icon}
-                        alt={activity.pagetitle}
-                        title={activity.pagetitle}
-                        size={24}
-                      />
-                    </Box>
-                  ))}
-                </Box>
-              </Box>
-            )}
-
-            {imgProps && (
-              <Box>
-                <img
-                  src={imgProps.src}
-                  width={imgProps.width}
-                  height={imgProps.height}
-                  alt={String(attraction.pagetitle)}
-                  style={{ maxWidth: '100%', height: 'auto' }}
-                />
-              </Box>
-            )}
-
-            {descr && (
-              <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
-                {descr}
-              </Text>
-            )}
-
-            {hoursofoperation && (
-              <>
-                <Group spacing="xs" align="flex-start">
-                  <Clock size={20} style={{ color: '#6AB03E', flexShrink: 0, marginTop: 2 }} />
-                  <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
-                    {hoursofoperation}
-                  </Text>
-                </Group>
-                <Divider />
-              </>
-            )}
-
-            {phone && (
-              <>
-                <Group spacing="xs" align="center">
-                  <Phone size={20} style={{ color: '#6AB03E', flexShrink: 0 }} />
-                  <Anchor href={`tel:${phone}`} size="sm" className="phone-link">
-                    {phone}
-                  </Anchor>
-                </Group>
-              </>
-            )}
-
-            {cmp_url && (
-              <>
-                <Divider />
-                <Box>
-                  <Anchor
-                    href={cmp_url.startsWith('/') ? `https://www.clevelandmetroparks.com${cmp_url}` : cmp_url}
-                    target="_blank"
-                    size="sm"
-                  >
-                    More info on clevelandmetroparks.com
-                  </Anchor>
-                </Box>
-              </>
-            )}
-
-            {(() => {
-              const lat = (attraction as Record<string, unknown>).latitude as number | undefined
-              const lng = (attraction as Record<string, unknown>).longitude as number | undefined
-              return lat && lng ? (
-                <>
-                  <GetDirectionsButtons
-                    target={{
-                      name: String(attraction.pagetitle),
-                      lat,
-                      lng,
-                    }}
-                  />
-                  <Divider />
-                </>
-              ) : null
-            })()}
-
-            <ShareButton />
-          </Stack>
-        </Box>
+          }
+        />
       )
     }
 
-    // Park detail view
     if (selectedSearchResult.type === 'reservation' && parks) {
       const park = selectedFeature as Reservation
-      const pagethumbnail = (park as Record<string, unknown>).pagethumbnail as string | undefined
-      const imgProps = makeImageFromPagethumbnail(pagethumbnail, 320)
-      const descr = (park as Record<string, unknown>).descr as string | undefined
-      const hoursofoperation = (park as Record<string, unknown>).hoursofoperation as string | undefined
-      const phone = (park as Record<string, unknown>).phone as string | undefined
 
       return (
-        <Box p="md" pr="sm" style={{ position: 'relative' }}>
-          <Stack spacing="md">
+        <ParkDetailPane
+          park={park}
+          backButton={
             <Button
               variant="subtle"
               size="sm"
@@ -497,84 +348,18 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
             >
               ← Search Results
             </Button>
-
-            <Text size="lg" weight={900}>
-              {park.pagetitle}
-            </Text>
-
-            {imgProps && (
-              <Box>
-                <img
-                  src={imgProps.src}
-                  width={imgProps.width}
-                  height={imgProps.height}
-                  alt={park.pagetitle}
-                  style={{ maxWidth: '100%', height: 'auto' }}
-                />
-              </Box>
-            )}
-
-            {descr && (
-              <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
-                {descr}
-              </Text>
-            )}
-
-            {hoursofoperation && (
-              <>
-                <Group spacing="xs" align="flex-start">
-                  <Clock size={20} style={{ color: '#6AB03E', flexShrink: 0, marginTop: 2 }} />
-                  <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
-                    {hoursofoperation}
-                  </Text>
-                </Group>
-                <Divider />
-              </>
-            )}
-
-            {phone && (
-              <>
-                <Group spacing="xs" align="center">
-                  <Phone size={20} style={{ color: '#6AB03E', flexShrink: 0 }} />
-                  <Anchor href={`tel:${phone}`} size="sm" className="phone-link">
-                    {phone}
-                  </Anchor>
-                </Group>
-                <Divider />
-              </>
-            )}
-
-            {park.latitude && park.longitude && (
-              <>
-                <GetDirectionsButtons
-                  target={{
-                    name: park.pagetitle,
-                    lat: park.latitude,
-                    lng: park.longitude,
-                  }}
-                />
-                <Divider />
-              </>
-            )}
-
-            <ShareButton />
-          </Stack>
-        </Box>
+          }
+        />
       )
     }
 
-    // Trail detail view
     if (selectedSearchResult.type === 'trail' && trails) {
       const trail = selectedFeature as TransformedTrail
-      const distancetext = (trail as Record<string, unknown>).distancetext as string | undefined
-      const durationtext_hike = (trail as Record<string, unknown>).durationtext_hike as string | undefined
-      const durationtext_bike = (trail as Record<string, unknown>).durationtext_bike as string | undefined
-      const durationtext_bridle = (trail as Record<string, unknown>).durationtext_bridle as string | undefined
-      const description = (trail as Record<string, unknown>).description as string | undefined
 
       return (
-        <Box p="md" pr="sm" style={{ position: 'relative' }}>
-          <Stack spacing="md">
+        <TrailDetailPane
+          trail={trail}
+          backButton={
             <Button
               variant="subtle"
               size="sm"
@@ -589,71 +374,8 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
             >
               ← Search Results
             </Button>
-
-            <Text size="lg" weight={900}>
-              {String(trail.name)}
-            </Text>
-
-            <Stack spacing="xs">
-              {distancetext && (
-                <Text size="sm">
-                  <span style={{ fontWeight: 600 }}>Length:</span> {distancetext}
-                </Text>
-              )}
-
-              {trail.hike && durationtext_hike && (
-                <Text size="sm">
-                  <span style={{ fontWeight: 600 }}>Est time, walking:</span> {durationtext_hike}
-                </Text>
-              )}
-
-              {trail.bike && durationtext_bike && (
-                <Text size="sm">
-                  <span style={{ fontWeight: 600 }}>Est time, bicycle:</span> {durationtext_bike}
-                </Text>
-              )}
-
-              {trail.bridle && durationtext_bridle && (
-                <Text size="sm">
-                  <span style={{ fontWeight: 600 }}>Est time, horseback:</span> {durationtext_bridle}
-                </Text>
-              )}
-            </Stack>
-
-            {description && (
-              <>
-                <Divider />
-                <Text
-                  size="sm"
-                  style={{ whiteSpace: 'pre-wrap' }}
-                  dangerouslySetInnerHTML={{
-                    __html: description,
-                  }}
-                />
-              </>
-            )}
-
-            {(() => {
-              const lat = trail.lat as number | undefined
-              const lng = trail.lng as number | undefined
-              return lat && lng ? (
-                <>
-                  <Divider />
-                  <GetDirectionsButtons
-                    target={{
-                      name: String(trail.name),
-                      lat,
-                      lng,
-                    }}
-                  />
-                  <Divider />
-                </>
-              ) : null
-            })()}
-
-            <ShareButton />
-          </Stack>
-        </Box>
+          }
+        />
       )
     }
   }

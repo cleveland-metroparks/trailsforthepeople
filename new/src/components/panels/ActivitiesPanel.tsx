@@ -1,10 +1,7 @@
-import { Text, Box, Stack, Loader, Alert, Anchor, Divider, Group } from '@mantine/core'
-import { Clock, Phone } from 'tabler-icons-react'
+import { Text, Box, Stack, Loader, Alert } from '@mantine/core'
 import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
-import { ShareButton } from '../ShareButton'
-import { GetDirectionsButtons } from '../GetDirectionsButtons'
 import { useMemo, useEffect, useRef, useCallback } from 'react'
 import { useActivitiesData, useAttractionsByActivity } from '../../hooks/useActivitiesData'
 import { useCategoriesData } from '../../hooks/useCategoriesData'
@@ -12,10 +9,10 @@ import { useParksData } from '../../hooks/useParksData'
 import { useMap } from '../../contexts/MapContext'
 import { zoomToFeature, placeAttractionMarker, clearAttractionMarker } from '../../lib/mapUtils'
 import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
-import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
 import { ActivityIcon } from '../ActivityIcon'
 import { useURLState } from '../../hooks/useURLState'
 import type { TransformedAttraction } from '../../types/api'
+import { AttractionDetailPane } from './details/AttractionDetailPane'
 
 interface ActivitiesPanelProps {
   onClose: () => void
@@ -155,37 +152,13 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
 
   // Show attraction detail view if selected
   if (selectedAttraction) {
-    const pagethumbnail = (selectedAttraction as Record<string, unknown>).pagethumbnail as string | undefined
-    const imgProps = makeImageFromPagethumbnail(pagethumbnail, 320)
-    const descr = (selectedAttraction as Record<string, unknown>).descr as string | undefined
-    const hoursofoperation = (selectedAttraction as Record<string, unknown>).hoursofoperation as string | undefined
-    const phone = (selectedAttraction as Record<string, unknown>).phone as string | undefined
-    const cmp_url = (selectedAttraction as Record<string, unknown>).cmp_url as string | undefined
-
-    // Get category names
-    const categoryNames = selectedAttraction.categories
-      ? selectedAttraction.categories
-        .map((id) => categoriesMap[id])
-        .filter((name) => name)
-        .join(', ')
-      : null
-
-    // Get activity icons for this attraction
-    const activityIcons = selectedAttraction.activities
-      ? selectedAttraction.activities
-        .map((activityId) => activities.find((a) => a.eventactivitytypeid === activityId))
-        .filter((activity): activity is typeof activity & { icon: string } =>
-          activity !== undefined && activity.icon !== null
-        )
-      : []
-    const sortedActivityIcons = [...activityIcons].sort((a, b) =>
-      String(a?.pagetitle ?? '').localeCompare(String(b?.pagetitle ?? ''))
-    )
-
     return (
-      <Box p="md" pr="sm" style={{ position: 'relative' }}>
-        <PanelHeader title="Activities" />
-        <Stack spacing="md">
+      <AttractionDetailPane
+        panelTitle="Activities"
+        attraction={selectedAttraction}
+        categoriesMap={categoriesMap}
+        activities={activities}
+        backButton={
           <BackButton
             onClick={() => {
               // Reset zoom tracking
@@ -195,126 +168,8 @@ export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
               setParams({ type: null, gid: null }, false, true)
             }}
           />
-
-          <Text size="lg" weight={900}>
-            {String(selectedAttraction.pagetitle)}
-          </Text>
-
-          {categoryNames && (
-            <Text size="sm" color="dimmed">
-              {categoryNames}
-            </Text>
-          )}
-
-          {activityIcons.length > 0 && (
-            <Box>
-              <Text size="sm" weight={500} mb="xs">
-                Activities:
-              </Text>
-              <Box
-                component="ul"
-                style={{
-                  listStyle: 'none',
-                  margin: 0,
-                  padding: 0,
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '0.5em',
-                }}
-              >
-                {sortedActivityIcons.map((activity) => (
-                  <Box
-                    key={activity.eventactivitytypeid}
-                    component="li"
-                    style={{
-                      display: 'inline-block',
-                    }}
-                  >
-                    <ActivityIcon
-                      icon={activity.icon}
-                      alt={activity.pagetitle}
-                      title={activity.pagetitle}
-                      size={24}
-                    />
-                  </Box>
-                ))}
-              </Box>
-            </Box>
-          )}
-
-          {imgProps && (
-            <Box>
-              <img
-                src={imgProps.src}
-                width={imgProps.width}
-                height={imgProps.height}
-                alt={String(selectedAttraction.pagetitle)}
-                style={{ maxWidth: '100%', height: 'auto' }}
-              />
-            </Box>
-          )}
-
-          {descr && (
-            <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
-              {descr}
-            </Text>
-          )}
-
-          {hoursofoperation && (
-            <>
-              <Group spacing="xs" align="flex-start">
-                <Clock size={20} style={{ color: '#6AB03E', flexShrink: 0, marginTop: 2 }} />
-                <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
-                  {hoursofoperation}
-                </Text>
-              </Group>
-              <Divider />
-            </>
-          )}
-
-          {phone && (
-            <>
-              <Group spacing="xs" align="center">
-                <Phone size={20} style={{ color: '#6AB03E', flexShrink: 0 }} />
-                <Anchor href={`tel:${phone}`} size="sm" className="phone-link">
-                  {phone}
-                </Anchor>
-              </Group>
-              <Divider />
-            </>
-          )}
-
-          {cmp_url && (
-            <>
-              <Box>
-                <Anchor href={cmp_url.startsWith('/') ? `https://www.clevelandmetroparks.com${cmp_url}` : cmp_url} target="_blank" size="sm">
-                  More info on clevelandmetroparks.com
-                </Anchor>
-              </Box>
-              <Divider />
-            </>
-          )}
-
-          {(() => {
-            const lat = (selectedAttraction as Record<string, unknown>).latitude as number | undefined
-            const lng = (selectedAttraction as Record<string, unknown>).longitude as number | undefined
-            return lat && lng ? (
-              <>
-                <GetDirectionsButtons
-                  target={{
-                    name: String(selectedAttraction.pagetitle),
-                    lat,
-                    lng,
-                  }}
-                />
-                <Divider />
-              </>
-            ) : null
-          })()}
-
-          <ShareButton />
-        </Stack>
-      </Box>
+        }
+      />
     )
   }
 

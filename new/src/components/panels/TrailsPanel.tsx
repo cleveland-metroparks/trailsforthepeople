@@ -1,9 +1,7 @@
-import { Text, Box, Stack, Loader, Alert, Select, Divider, Badge, Group } from '@mantine/core'
+import { Text, Box, Stack, Loader, Alert, Select, Badge, Group } from '@mantine/core'
 import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
-import { ShareButton } from '../ShareButton'
-import { GetDirectionsButtons } from '../GetDirectionsButtons'
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { useTrailsData } from '../../hooks/useTrailsData'
 import { useParksData } from '../../hooks/useParksData'
@@ -13,6 +11,7 @@ import { zoomToFeature, highlightTrailLine, clearTrailHighlight, clearAttraction
 import { getTrailGeometry } from '../../lib/api'
 import { useURLState } from '../../hooks/useURLState'
 import type { TransformedTrail } from '../../types/api'
+import { TrailDetailPane } from './details/TrailDetailPane'
 
 // Abbreviate distance units for compact display
 function abbreviateDistance(text: string): string {
@@ -182,16 +181,11 @@ export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
 
   // Show detail view if a trail is selected
   if (selectedTrail) {
-    const distancetext = (selectedTrail as Record<string, unknown>).distancetext as string | undefined
-    const durationtext_hike = (selectedTrail as Record<string, unknown>).durationtext_hike as string | undefined
-    const durationtext_bike = (selectedTrail as Record<string, unknown>).durationtext_bike as string | undefined
-    const durationtext_bridle = (selectedTrail as Record<string, unknown>).durationtext_bridle as string | undefined
-    const description = (selectedTrail as Record<string, unknown>).description as string | undefined
-
     return (
-      <Box p="md" pr="sm" style={{ position: 'relative' }}>
-        <PanelHeader title="Trails" />
-        <Stack spacing="md">
+      <TrailDetailPane
+        panelTitle="Trails"
+        trail={selectedTrail}
+        backButton={
           <BackButton
             onClick={() => {
               // Clear trail highlight
@@ -202,71 +196,8 @@ export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
               setParams({ type: null, gid: null }, false, true)
             }}
           />
-
-          <Text size="lg" weight={900}>
-            {String(selectedTrail.name)}
-          </Text>
-
-          <Stack spacing="xs">
-            {distancetext && (
-              <Text size="sm">
-                <span style={{ fontWeight: 600 }}>Length:</span> {distancetext}
-              </Text>
-            )}
-
-            {selectedTrail.hike && durationtext_hike && (
-              <Text size="sm">
-                <span style={{ fontWeight: 600 }}>Est time, walking:</span> {durationtext_hike}
-              </Text>
-            )}
-
-            {selectedTrail.bike && durationtext_bike && (
-              <Text size="sm">
-                <span style={{ fontWeight: 600 }}>Est time, bicycle:</span> {durationtext_bike}
-              </Text>
-            )}
-
-            {selectedTrail.bridle && durationtext_bridle && (
-              <Text size="sm">
-                <span style={{ fontWeight: 600 }}>Est time, horseback:</span> {durationtext_bridle}
-              </Text>
-            )}
-          </Stack>
-
-          {description && (
-            <>
-              <Divider />
-              <Text
-                size="sm"
-                style={{ whiteSpace: 'pre-wrap' }}
-                dangerouslySetInnerHTML={{
-                  __html: description,
-                }}
-              />
-            </>
-          )}
-
-          {(() => {
-            const lat = selectedTrail.lat as number | undefined
-            const lng = selectedTrail.lng as number | undefined
-            return lat && lng ? (
-              <>
-                <Divider />
-                <GetDirectionsButtons
-                  target={{
-                    name: String(selectedTrail.name),
-                    lat,
-                    lng,
-                  }}
-                />
-                <Divider />
-              </>
-            ) : null
-          })()}
-
-          <ShareButton />
-        </Stack>
-      </Box>
+        }
+      />
     )
   }
 

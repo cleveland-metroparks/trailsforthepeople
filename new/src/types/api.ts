@@ -15,6 +15,10 @@ export interface Reservation {
   longitude: number
   drivingdestinationlatitude?: number | null
   drivingdestinationlongitude?: number | null
+  pagethumbnail?: string | null
+  descr?: string | null
+  hoursofoperation?: string | null
+  phone?: string | null
   [key: string]: unknown // Allow for additional fields
 }
 
@@ -29,11 +33,26 @@ export interface Attraction {
   drivingdestinationlongitude?: number | null
   categories?: string | number[] | null // Can be pipe-delimited string or array after transformation
   activities?: string | number[] | null // Can be pipe-delimited string or array after transformation
+  pagethumbnail?: string | null
+  descr?: string | null
+  hoursofoperation?: string | null
+  phone?: string | null
+  cmp_url?: string | null
   [key: string]: unknown // Allow for additional fields
 }
 
 // Transformed Attraction (after processing)
+// Note: fields from Attraction are re-declared here because Omit<T, K> on a type
+// with [key: string]: unknown loses specific property types (TypeScript limitation).
 export interface TransformedAttraction extends Omit<Attraction, 'categories' | 'activities'> {
+  pagetitle: string
+  latitude: number
+  longitude: number
+  pagethumbnail?: string | null
+  descr?: string | null
+  hoursofoperation?: string | null
+  phone?: string | null
+  cmp_url?: string | null
   categories: number[] | null
   activities: number[] | null
 }
@@ -61,6 +80,11 @@ export interface Trail {
   hike?: string | boolean
   bridle?: string | boolean
   mountainbike?: string | boolean
+  distancetext?: string | null
+  durationtext_hike?: string | null
+  durationtext_bike?: string | null
+  durationtext_bridle?: string | null
+  description?: string | null
   [key: string]: unknown // Allow for additional fields
 }
 
@@ -72,7 +96,17 @@ export interface Category {
 }
 
 // Transformed Trail (after processing)
+// Note: fields from Trail are re-declared here because Omit<T, K> on a type
+// with [key: string]: unknown loses specific property types (TypeScript limitation).
 export interface TransformedTrail extends Omit<Trail, 'bike' | 'hike' | 'bridle' | 'mountainbike'> {
+  lat: number
+  lng: number
+  name: string
+  distancetext?: string | null
+  durationtext_hike?: string | null
+  durationtext_bike?: string | null
+  durationtext_bridle?: string | null
+  description?: string | null
   bike: boolean
   hike: boolean
   bridle: boolean

@@ -1,4 +1,4 @@
-import { Box, Text, Divider } from '@mantine/core'
+import { Box, Text } from '@mantine/core'
 import { useDirections, type DirectionsTarget } from '../contexts/DirectionsContext'
 import { ViaModeSelector } from './ViaModeSelector'
 

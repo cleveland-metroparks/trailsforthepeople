@@ -1,19 +1,16 @@
-import { Text, Box, Stack, Loader, Alert, Anchor, Divider, Group } from '@mantine/core'
-import { Clock, Phone } from 'tabler-icons-react'
+import { Text, Box, Stack, Loader, Alert } from '@mantine/core'
 import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
-import { ShareButton } from '../ShareButton'
-import { GetDirectionsButtons } from '../GetDirectionsButtons'
 import { useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParksData } from '../../hooks/useParksData'
 import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
 import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
-import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
 import { useMap } from '../../contexts/MapContext'
 import { zoomToFeature, highlightParkBoundary, clearParkHighlight, fadeOutParkHighlight, getBoundingBoxFromGeometry, clearAttractionMarker } from '../../lib/mapUtils'
 import { useURLState } from '../../hooks/useURLState'
 import type { Reservation } from '../../types/api'
+import { ParkDetailPane } from './details/ParkDetailPane'
 
 interface ParksPanelProps {
   onClose: () => void
@@ -134,16 +131,11 @@ export function ParksPanel({ onClose: _onClose }: ParksPanelProps) {
 
   // Show detail view if a park is selected
   if (selectedPark) {
-    const pagethumbnail = (selectedPark as Record<string, unknown>).pagethumbnail as string | undefined
-    const imgProps = makeImageFromPagethumbnail(pagethumbnail, 320)
-    const descr = (selectedPark as Record<string, unknown>).descr as string | undefined
-    const hoursofoperation = (selectedPark as Record<string, unknown>).hoursofoperation as string | undefined
-    const phone = (selectedPark as Record<string, unknown>).phone as string | undefined
-
     return (
-      <Box p="md" pr="sm" style={{ position: 'relative' }}>
-        <PanelHeader title="Parks" />
-        <Stack spacing="md">
+      <ParkDetailPane
+        panelTitle="Parks"
+        park={selectedPark}
+        backButton={
           <BackButton
             onClick={() => {
               // Reset zoom tracking
@@ -152,69 +144,8 @@ export function ParksPanel({ onClose: _onClose }: ParksPanelProps) {
               setParams({ type: null, gid: null }, false, true)
             }}
           />
-
-          <Text size="lg" weight={900}>
-            {selectedPark.pagetitle}
-          </Text>
-
-          {imgProps && (
-            <Box>
-              <img
-                src={imgProps.src}
-                width={imgProps.width}
-                height={imgProps.height}
-                alt={selectedPark.pagetitle}
-                style={{ maxWidth: '100%', height: 'auto' }}
-              />
-            </Box>
-          )}
-
-          {descr && (
-            <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
-              {descr}
-            </Text>
-          )}
-
-          {hoursofoperation && (
-            <>
-              <Group spacing="xs" align="flex-start">
-                <Clock size={20} style={{ color: '#6AB03E', flexShrink: 0, marginTop: 2 }} />
-                <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
-                  {hoursofoperation}
-                </Text>
-              </Group>
-              <Divider />
-            </>
-          )}
-
-          {phone && (
-            <>
-              <Group spacing="xs" align="center">
-                <Phone size={20} style={{ color: '#6AB03E', flexShrink: 0 }} />
-                <Anchor href={`tel:${phone}`} size="sm" className="phone-link">
-                  {phone}
-                </Anchor>
-              </Group>
-              <Divider />
-            </>
-          )}
-
-          {selectedPark.latitude && selectedPark.longitude && (
-            <>
-              <GetDirectionsButtons
-                target={{
-                  name: selectedPark.pagetitle,
-                  lat: selectedPark.latitude,
-                  lng: selectedPark.longitude,
-                }}
-              />
-              <Divider />
-            </>
-          )}
-
-          <ShareButton />
-        </Stack>
-      </Box>
+        }
+      />
     )
   }
 
