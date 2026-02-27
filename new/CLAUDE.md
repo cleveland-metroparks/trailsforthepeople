@@ -10,6 +10,13 @@ npm run build        # tsc + vite build → dist/
 npm run lint         # ESLint (zero warnings enforced)
 npm run type-check   # tsc --noEmit (no emit, type errors only)
 npm run test:a11y    # Playwright keyboard + axe accessibility smoke checks
+npm run test:a11y:headed # Same suite with browser UI
+```
+
+If Playwright browsers are missing:
+
+```bash
+npx playwright install chromium
 ```
 
 ## Environment Variables
@@ -182,3 +189,4 @@ src/
 - **Activity icons**: SVGs in `/public/images/activities/`. Mapping is in `dataTransform.ts:getActivityIcon()`.
 - **Trail status**: Trails with `status === 0` are unpublished and filtered out in `api.ts:getTrails()`.
 - **Accessibility patterns**: See `ACCESSIBILITY.md` for canonical keyboard/focus/ARIA contracts.
+- **Playwright structure**: Use `e2e/smoke/` for PR-fast checks and `e2e/regression/` for broader scenarios; shared fixtures/mocks live in `e2e/helpers/mockApi.ts`.

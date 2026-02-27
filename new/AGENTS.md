@@ -29,6 +29,7 @@ Read these files first, in this order:
 - Lint: `npm run lint`
 - Type check: `npm run type-check`
 - Accessibility gate: `npm run test:a11y`
+- Headed accessibility gate: `npm run test:a11y:headed`
 - Build: `npm run build`
 
 ## Architecture Invariants (Do Not Break)
@@ -93,6 +94,14 @@ For map visuals (highlight/route/marker):
 2. Ensure cleanup in `useEffect` return paths.
 3. Guard for map/style readiness (`map`, `map.isStyleLoaded()`).
 
+For Playwright tests:
+
+1. Put fast checks in `e2e/smoke/` and broader checks in `e2e/regression/`.
+2. Reuse `e2e/helpers/mockApi.ts` to keep tests deterministic.
+3. Tag tests in titles (e.g. `@smoke`, `@regression`, `@a11y`, `@url`, `@search`).
+4. Use `test.fixme` only for explicitly documented runtime blockers (currently map-style/layer assertions).
+5. Keep selectors role-first (`getByRole`) and avoid brittle class-only selectors where possible.
+
 ## Guardrails For Safe Edits
 
 - Prefer extending existing patterns over introducing new state frameworks.
@@ -118,6 +127,10 @@ Run before handing off:
 2. `npm run type-check`
 3. `npm run test:a11y` for accessibility-impacting UI changes
 4. If build-related changes: `npm run build`
+
+If Playwright was just installed/updated:
+
+1. `npx playwright install chromium`
 
 Manual sanity checks for map-related changes:
 

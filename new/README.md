@@ -51,7 +51,18 @@ App available at **http://localhost:3001**
 | `npm run lint` | ESLint (zero warnings enforced) |
 | `npm run type-check` | TypeScript check (no emit) |
 | `npm run test:a11y` | Playwright keyboard + axe accessibility smoke checks |
+| `npm run test:a11y:headed` | Run Playwright accessibility suite in headed mode |
 | `npm run preview` | Preview production build locally |
+
+## Playwright Testing
+
+- Install browser binaries once after dependency install:
+  - `npx playwright install chromium`
+- Test config: `playwright.config.ts`
+- Test folders:
+  - `e2e/smoke/` fast high-value checks
+  - `e2e/regression/` broader coverage, including `fixme` map-style-dependent tests
+- Shared deterministic API mocks live in `e2e/helpers/mockApi.ts`.
 
 ## Project Structure
 

@@ -231,6 +231,18 @@ Shared detail layout/components are in:
 - Sidebar panels are lazy-loaded.
 - `MapView` is lazy-loaded from `App.tsx`.
 
+## Testing Architecture
+
+- Accessibility and keyboard regression checks are enforced with Playwright:
+  - Command: `npm run test:a11y`
+  - Config: `playwright.config.ts`
+- Suites are organized by intent:
+  - `e2e/smoke/` = fast, high-signal PR checks
+  - `e2e/regression/` = broader behavioral coverage
+- Deterministic API fixtures are centralized in:
+  - `e2e/helpers/mockApi.ts`
+- Some map-style/layer assertions currently require real Mapbox style rendering and are documented as `test.fixme` in regression specs until that runtime path is added.
+
 ## Directory Roles
 
 - `src/components/` UI, map surface, sidebar/panels

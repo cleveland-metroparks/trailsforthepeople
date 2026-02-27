@@ -77,4 +77,11 @@ Accessibility is required product behavior. Any new interactive feature must be 
 
 ## Scope Notes
 
-- This document defines behavior contracts. Automated enforcement (lint/a11y tests/CI gates) is tracked separately.
+- These standards are now enforced by automated gates:
+  - ESLint with `jsx-a11y` rules (`npm run lint`)
+  - Playwright accessibility suite (`npm run test:a11y`)
+- Playwright coverage includes:
+  - keyboard/focus smoke checks
+  - URL/history/search accessibility-adjacent regressions
+  - axe critical scans for active sidebar panels
+- Remaining map-style/layer-specific assertions are tracked as explicit `test.fixme` cases in `e2e/regression/`.
