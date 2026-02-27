@@ -209,13 +209,13 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
               gap: isNavExpanded ? '12px' : '0',
               padding: isNavExpanded ? '8px 12px' : '8px',
               minHeight: '36px',
-              backgroundColor: isActive ? '#222124' : 'transparent',
               borderRadius: '6px',
               transition: 'background-color 0.15s ease',
             }}
             sx={{
+              backgroundColor: isActive ? '#222124' : 'transparent',
               '&:hover': {
-                backgroundColor: isActive ? '#222124' : 'rgba(255, 255, 255, 0.1)',
+                backgroundColor: isActive ? '#222124' : '#1a1a1a',
               },
             }}
           >
@@ -248,13 +248,13 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           padding: isNavExpanded ? '8px 16px' : '8px',
           minHeight: '36px',
           cursor: 'pointer',
-          backgroundColor: isActive ? colors.activeBackground : 'transparent',
           borderLeft: isActive ? `3px solid ${colors.icon}` : '3px solid transparent',
           transition: 'background-color 0.15s ease',
         }}
         sx={{
+          backgroundColor: isActive ? colors.activeBackground : 'transparent',
           '&:hover': {
-            backgroundColor: isActive ? colors.activeBackground : 'rgba(255, 255, 255, 0.1)',
+            backgroundColor: colors.activeBackground,
           },
         }}
       >
