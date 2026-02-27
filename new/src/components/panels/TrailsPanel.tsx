@@ -22,7 +22,7 @@ interface TrailsPanelProps {
   onClose: () => void
 }
 
-export function TrailsPanel({ onClose: _onClose }: TrailsPanelProps) {
+export function TrailsPanel(_props: TrailsPanelProps) {
   const { data: trails, isLoading: trailsLoading, isError: trailsError, error: trailsErrorObj } = useTrailsData()
   const { data: parks, isLoading: parksLoading, isError: parksError, error: parksErrorObj } = useParksData()
   const { params, setParams } = useURLState()

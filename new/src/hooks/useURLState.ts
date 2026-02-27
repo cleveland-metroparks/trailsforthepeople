@@ -68,7 +68,7 @@ export function useURLState() {
    * @param pushState - If true, adds to history stack (back button works). If false, replaces current entry.
    */
   const setParams = useCallback(
-    (newParams: Partial<URLStateParams>, reset: boolean = false, pushState: boolean = false) => {
+    (newParams: Partial<URLStateParams>, reset = false, pushState = false) => {
       setSearchParams(() => {
         // Read from the real URL, not React Router's internal state, because
         // map-position params (lat, lng, zoom, base) are set via replaceState

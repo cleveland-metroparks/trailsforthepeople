@@ -66,14 +66,12 @@ function formatFeature(feature: MapboxGeoJSONFeature) {
   }
 }
 
-export function DebugPanel({ onClose: _onClose }: DebugPanelProps) {
+export function DebugPanel(_props: DebugPanelProps) {
   const { hoverInfo } = useMapHover()
 
-  const features = hoverInfo?.features ?? []
-
   const formattedFeatures = useMemo(() => {
-    return features.map((feature) => formatFeature(feature))
-  }, [features])
+    return (hoverInfo?.features ?? []).map((feature) => formatFeature(feature))
+  }, [hoverInfo?.features])
 
   const cursorLocation = hoverInfo?.lngLat
     ? `${hoverInfo.lngLat.lat.toFixed(5)}, ${hoverInfo.lngLat.lng.toFixed(5)}`

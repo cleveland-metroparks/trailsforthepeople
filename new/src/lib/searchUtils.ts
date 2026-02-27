@@ -15,8 +15,8 @@ export function strToLngLat(text: string): mapboxgl.LngLat | null {
 
   // Simplest format is decimal numbers and minus signs and that's about it.
   // One of them must be negative, which means it's the longitude here in North America
-  if (trimmed.match(/^[\d\.\-\,\s]+$/)) {
-    const coords = trimmed.split(/[\s\,]+/)
+  if (trimmed.match(/^[\d.\-,\s]+$/)) {
+    const coords = trimmed.split(/[\s,]+/)
     if (coords.length === 2) {
       const coord1 = parseFloat(coords[0])
       const coord2 = parseFloat(coords[1])

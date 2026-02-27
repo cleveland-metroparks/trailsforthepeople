@@ -13,7 +13,7 @@ import { useSidebar } from '../contexts/SidebarContext'
  * zoomToFeature(map, feature, { padding })
  * ```
  */
-export function useSidebarAwarePadding(basePadding: number = 120): { top: number; bottom: number; left: number; right: number } {
+export function useSidebarAwarePadding(basePadding = 120): { top: number; bottom: number; left: number; right: number } {
   const { isSidebarCollapsed } = useSidebar()
   const isLargeScreen = useMediaQuery('(min-width: 992px)') // Mantine's lg breakpoint
 

@@ -7,7 +7,7 @@ interface SharePanelProps {
   onClose: () => void
 }
 
-export function SharePanel({ onClose: _onClose }: SharePanelProps) {
+export function SharePanel(_props: SharePanelProps) {
   const [shareUrl, setShareUrl] = useState(() => window.location.href)
 
   // Keep displayed URL in sync (map/selection update URL via replaceState)

@@ -22,7 +22,7 @@ interface DirectionsPanelProps {
   onClose: () => void
 }
 
-export function DirectionsPanel({ onClose: _onClose }: DirectionsPanelProps) {
+export function DirectionsPanel(_props: DirectionsPanelProps) {
   const { target, via, setVia, closeDirections } = useDirections()
   const { map } = useMap()
   const sidebarAwarePadding = useSidebarAwarePadding(120)

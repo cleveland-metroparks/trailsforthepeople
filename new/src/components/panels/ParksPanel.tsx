@@ -16,9 +16,9 @@ interface ParksPanelProps {
   onClose: () => void
 }
 
-export function ParksPanel({ onClose: _onClose }: ParksPanelProps) {
+export function ParksPanel(_props: ParksPanelProps) {
   const { data: parks, isLoading, isError, error } = useParksData()
-  const { data: boundaries, isLoading: _boundariesLoading } = useReservationBoundaries()
+  const { data: boundaries } = useReservationBoundaries()
   const { params, setParams } = useURLState()
   const { map } = useMap()
   const sidebarAwarePadding = useSidebarAwarePadding(120)

@@ -151,12 +151,13 @@ export function filterAttractionsByActivity(
   const numericIds = ids.map(Number)
 
   return attractions.filter((attraction) => {
-    if (!attraction.activities || attraction.activities.length === 0) {
+    const { activities } = attraction
+    if (!activities || activities.length === 0) {
       return false
     }
 
     // Check if ALL searched-for activities are in this attraction's list
-    return numericIds.every((id) => attraction.activities!.includes(id))
+    return numericIds.every((id) => activities.includes(id))
   })
 }
 

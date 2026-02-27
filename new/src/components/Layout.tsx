@@ -1,6 +1,7 @@
 import { AppShell, Navbar } from '@mantine/core'
 import { useState, useRef } from 'react'
-import { Sidebar, SidebarRef, NAV_WIDTH_EXPANDED, NAV_WIDTH_COLLAPSED } from './Sidebar'
+import { Sidebar, SidebarRef } from './Sidebar'
+import { NAV_WIDTH_EXPANDED, NAV_WIDTH_COLLAPSED } from './sidebarConstants'
 import { SearchProvider } from '../contexts/SearchContext'
 import { SidebarProvider } from '../contexts/SidebarContext'
 import { MapProvider } from '../contexts/MapContext'

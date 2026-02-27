@@ -113,7 +113,7 @@ export function MapView() {
 
 
   useEffect(() => {
-    if (map.current || !isContainerReady) return
+    if (map.current || !isContainerReady || !mapContainer.current) return
 
     if (!mapConfig.accessToken) {
       setError('Mapbox access token is missing. Please check your environment variables.')
@@ -137,7 +137,7 @@ export function MapView() {
         : mapConfig.styleLayer
 
       map.current = new mapboxgl.Map({
-        container: mapContainer.current!,
+        container: mapContainer.current,
         style: initialStyle,
         center: initialCenter,
         zoom: initialZoom,
@@ -357,7 +357,7 @@ export function MapView() {
       mapFromContext.getCanvas().style.cursor = ''
       setHoverInfo(null)
     }
-  }, [allowedLayerIds, attractionGroupLayerIds, mapFromContext, setHoverInfo, setParams, validGisIdSet])
+  }, [allowedLayerIds, attractionGroupLayerIds, bumpSelectionTick, mapFromContext, setHoverInfo, setParams, validGisIdSet])
 
 
   if (error) {

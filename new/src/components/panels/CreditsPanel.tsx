@@ -5,7 +5,7 @@ interface CreditsPanelProps {
   onClose: () => void
 }
 
-export function CreditsPanel({ onClose: _onClose }: CreditsPanelProps) {
+export function CreditsPanel(_props: CreditsPanelProps) {
   return (
     <Box p="md" pr="sm" style={{ position: 'relative' }}>
       <PanelHeader title="Credits" />

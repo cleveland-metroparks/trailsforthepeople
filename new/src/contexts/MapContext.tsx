@@ -17,6 +17,7 @@ export function MapProvider({ children }: MapProviderProps) {
   return <MapContext.Provider value={{ map, setMap }}>{children}</MapContext.Provider>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useMap() {
   const context = useContext(MapContext)
   if (context === undefined) {

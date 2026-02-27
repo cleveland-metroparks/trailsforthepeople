@@ -26,7 +26,18 @@ interface SearchPanelProps {
   onClose: () => void
 }
 
-export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
+const urlToSearchType: Record<string, string> = {
+  attraction: 'attraction',
+  park: 'reservation',
+  trail: 'trail',
+}
+const searchToUrlType: Record<string, string> = {
+  attraction: 'attraction',
+  reservation: 'park',
+  trail: 'trail',
+}
+
+export function SearchPanel(_props: SearchPanelProps) {
   const {
     searchTerm,
     setSearchTerm,
@@ -57,18 +68,6 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
 
   // Check if any required data is still loading
   const isDataLoading = activitiesLoading || parksLoading || trailsLoading
-
-  // Type mappings
-  const urlToSearchType: Record<string, string> = {
-    attraction: 'attraction',
-    park: 'reservation',
-    trail: 'trail',
-  }
-  const searchToUrlType: Record<string, string> = {
-    attraction: 'attraction',
-    reservation: 'park',
-    trail: 'trail',
-  }
 
   // SINGLE SOURCE OF TRUTH: Derive selectedSearchResult from URL params when fromSearch=true
   // This matches the pattern used in other panels and prevents flashing
@@ -210,7 +209,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
 
     // Clear flag after processing
     shouldZoomRef.current = false
-  }, [selectedFeature, selectedSearchResult, map, sidebarAwarePadding, boundariesByParkName])
+  }, [selectedFeature, selectedSearchResult, map, sidebarAwarePadding, boundariesByParkName, parks, trails])
 
   // Clear highlights when component unmounts or selection changes
   useEffect(() => {

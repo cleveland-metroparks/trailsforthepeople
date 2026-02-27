@@ -18,7 +18,7 @@ interface ActivitiesPanelProps {
   onClose: () => void
 }
 
-export function ActivitiesPanel({ onClose: _onClose }: ActivitiesPanelProps) {
+export function ActivitiesPanel(_props: ActivitiesPanelProps) {
   const { activities, attractions, isLoading, isError, error } = useActivitiesData()
   const { params, setParams } = useURLState()
   const sidebarAwarePadding = useSidebarAwarePadding(120)

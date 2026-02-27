@@ -26,6 +26,7 @@ export function SidebarProvider({
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSidebar() {
   const context = useContext(SidebarContext)
   if (context === undefined) {

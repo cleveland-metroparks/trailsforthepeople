@@ -70,7 +70,7 @@ export function useSearchIndex() {
           lng: Number(attraction.longitude),
           gid: String(attraction.gis_id || attraction.record_id || ''),
         }
-        searchIndex.add(item as any)
+        searchIndex.add(item as unknown as Record<string, unknown>)
       }
     })
 
@@ -90,7 +90,7 @@ export function useSearchIndex() {
             e: reservation.boxe ? Number(reservation.boxe) : undefined,
             n: reservation.boxn ? Number(reservation.boxn) : undefined,
           }
-          searchIndex.add(item as any)
+          searchIndex.add(item as unknown as Record<string, unknown>)
         }
       })
     }
@@ -111,7 +111,7 @@ export function useSearchIndex() {
             e: trail.boxe ? Number(trail.boxe) : undefined,
             n: trail.boxn ? Number(trail.boxn) : undefined,
           }
-          searchIndex.add(item as any)
+          searchIndex.add(item as unknown as Record<string, unknown>)
         }
       })
     }
@@ -127,7 +127,7 @@ export function useSearchIndex() {
    * @returns Array of search results
    */
   const search = useMemo(
-    () => (query: string, limit: number = 50): SearchResult[] => {
+    () => (query: string, limit = 50): SearchResult[] => {
       if (!query.trim() || !index) {
         return []
       }
@@ -177,14 +177,14 @@ export function useSearchIndex() {
    * @returns Array of search results
    */
   const autocomplete = useMemo(
-    () => (query: string, limit: number = 8): SearchResult[] => {
+    () => (query: string, limit = 8): SearchResult[] => {
       if (!query.trim() || query.length < 2 || !index) {
         return []
       }
 
       return search(query, limit)
     },
-    [search]
+    [search, index]
   )
 
   return {

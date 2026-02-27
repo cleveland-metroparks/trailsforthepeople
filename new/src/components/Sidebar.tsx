@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useImperativeHandle, forwardRef, Suspense,
 import { useURLState } from '../hooks/useURLState'
 import { useMapSelection } from '../contexts/MapSelectionContext'
 import { useDirections } from '../contexts/DirectionsContext'
+import { NAV_WIDTH_EXPANDED, NAV_WIDTH_COLLAPSED } from './sidebarConstants'
 
 // Lazy load all panels
 const SearchPanel = lazy(() => import('./panels/SearchPanel').then(m => ({ default: m.SearchPanel })))
@@ -15,10 +16,6 @@ const ActivitiesPanel = lazy(() => import('./panels/ActivitiesPanel').then(m => 
 const TrailsPanel = lazy(() => import('./panels/TrailsPanel').then(m => ({ default: m.TrailsPanel })))
 const DebugPanel = lazy(() => import('./panels/DebugPanel').then(m => ({ default: m.DebugPanel })))
 const DirectionsPanel = lazy(() => import('./panels/DirectionsPanel').then(m => ({ default: m.DirectionsPanel })))
-
-// Nav widths
-const NAV_WIDTH_EXPANDED = 200
-const NAV_WIDTH_COLLAPSED = 76
 
 // Sidebar color scheme
 const SIDEBAR_COLORS = {
@@ -51,8 +48,6 @@ interface SidebarProps {
 export interface SidebarRef {
   activateSearchTab: () => void
 }
-
-export { NAV_WIDTH_EXPANDED, NAV_WIDTH_COLLAPSED }
 
 /**
  * Map URL feature types to sidebar tab names
@@ -98,12 +93,12 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
 
   // Expose showDebugPanel to the console for developers
   useEffect(() => {
-    (window as any).showDebugPanel = () => {
+    (window as Window & { showDebugPanel?: () => void }).showDebugPanel = () => {
       setShowDebugTab(true)
       setActiveTab('debug')
     }
     return () => {
-      delete (window as any).showDebugPanel
+      delete (window as Window & { showDebugPanel?: () => void }).showDebugPanel
     }
   }, [])
 

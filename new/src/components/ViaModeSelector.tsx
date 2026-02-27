@@ -5,7 +5,7 @@ import type { ViaMode } from '../contexts/DirectionsContext'
 const ICON_SIZE = 28
 const ICON_COLOR = '#373535'
 
-export const VIA_MODES = [
+const VIA_MODES = [
   { via: 'hike' as const, icon: Walk, label: 'Walking' },
   { via: 'bike' as const, icon: Bike, label: 'Bicycling' },
   { via: 'car' as const, icon: Car, label: 'Driving' },

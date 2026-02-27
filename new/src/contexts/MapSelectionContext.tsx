@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
 
 interface MapSelectionContextType {
   selectionTick: number
@@ -10,9 +10,9 @@ const MapSelectionContext = createContext<MapSelectionContextType | undefined>(u
 export function MapSelectionProvider({ children }: { children: ReactNode }) {
   const [selectionTick, setSelectionTick] = useState(0)
 
-  const bumpSelectionTick = () => {
+  const bumpSelectionTick = useCallback(() => {
     setSelectionTick((prev) => prev + 1)
-  }
+  }, [])
 
   return (
     <MapSelectionContext.Provider value={{ selectionTick, bumpSelectionTick }}>
@@ -21,6 +21,7 @@ export function MapSelectionProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useMapSelection() {
   const context = useContext(MapSelectionContext)
   if (context === undefined) {

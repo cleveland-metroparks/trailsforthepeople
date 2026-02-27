@@ -351,8 +351,8 @@ export function clearParkHighlight(map: mapboxgl.Map | null): void {
  */
 export function fadeOutParkHighlight(
   map: mapboxgl.Map | null,
-  duration: number = 1000,
-  delay: number = 0
+  duration = 1000,
+  delay = 0
 ): void {
   if (!map) {
     return
