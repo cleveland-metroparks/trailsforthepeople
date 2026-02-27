@@ -5,12 +5,16 @@ const ICON_COLOR = '#6AB03E'
 
 interface BackButtonProps {
   onClick: () => void
+  autoFocus?: boolean
 }
 
-export function BackButton({ onClick }: BackButtonProps) {
+export function BackButton({ onClick, autoFocus = false }: BackButtonProps) {
   return (
     <UnstyledButton
       type="button"
+      autoFocus={autoFocus}
+      data-primary-focus="true"
+      aria-label="Back"
       onClick={onClick}
       style={{
         display: 'inline-flex',

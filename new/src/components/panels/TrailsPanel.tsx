@@ -34,6 +34,8 @@ export function TrailsPanel(_props: TrailsPanelProps) {
   const shouldZoomRef = useRef(false)
   // Track the trail ID we've zoomed to (to avoid duplicate zooms)
   const zoomedTrailIdRef = useRef<string | null>(null)
+  const lastSelectedTrailIdRef = useRef<string | null>(null)
+  const [focusTrailItemKey, setFocusTrailItemKey] = useState<string | null>(null)
   // Track if this is the initial load (to zoom to trail from URL on page load)
   const isInitialLoadRef = useRef(true)
 
@@ -193,11 +195,13 @@ export function TrailsPanel(_props: TrailsPanelProps) {
         parkName={selectedTrailParkName}
         backButton={
           <BackButton
+            autoFocus
             onClick={() => {
               // Clear trail highlight
               clearTrailHighlight(map)
               // Reset zoom tracking
               zoomedTrailIdRef.current = null
+              setFocusTrailItemKey(lastSelectedTrailIdRef.current)
               // Clear trail from URL (this will clear selectedTrail via derived state)
               setParams({ type: null, gid: null }, false, true)
             }}
@@ -242,6 +246,7 @@ export function TrailsPanel(_props: TrailsPanelProps) {
               onClick={(trail) => {
                 // Mark that we want to zoom (user initiated)
                 shouldZoomRef.current = true
+                lastSelectedTrailIdRef.current = String(trail.id)
                 // Update URL with trail selection (pushState for back button)
                 // This will update selectedTrail via derived state
                 setParams(
@@ -253,6 +258,9 @@ export function TrailsPanel(_props: TrailsPanelProps) {
                   true
                 )
               }}
+              getItemAriaLabel={(trail) => `View trail details for ${trail.name}`}
+              focusItemKey={focusTrailItemKey}
+              onFocusItemApplied={() => setFocusTrailItemKey(null)}
               renderItem={(trail) => {
                 const trailData = trail as Record<string, unknown>
                 const trailRes = trailData.res as string | undefined

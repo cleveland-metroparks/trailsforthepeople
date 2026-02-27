@@ -2,7 +2,7 @@ import { Text, Box, Stack, Loader, Alert } from '@mantine/core'
 import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
-import { useEffect, useMemo, useRef, useCallback } from 'react'
+import { useEffect, useMemo, useRef, useCallback, useState } from 'react'
 import { useParksData } from '../../hooks/useParksData'
 import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
 import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
@@ -27,6 +27,8 @@ export function ParksPanel(_props: ParksPanelProps) {
   const shouldZoomRef = useRef(false)
   // Track the park ID we've zoomed to (to avoid duplicate zooms)
   const zoomedParkIdRef = useRef<string | null>(null)
+  const lastSelectedParkIdRef = useRef<string | null>(null)
+  const [focusParkItemKey, setFocusParkItemKey] = useState<string | null>(null)
   // Track if this is the initial load (to zoom to park from URL on page load)
   const isInitialLoadRef = useRef(true)
 
@@ -137,9 +139,11 @@ export function ParksPanel(_props: ParksPanelProps) {
         park={selectedPark}
         backButton={
           <BackButton
+            autoFocus
             onClick={() => {
               // Reset zoom tracking
               zoomedParkIdRef.current = null
+              setFocusParkItemKey(lastSelectedParkIdRef.current)
               // Clear park from URL (this will clear selectedPark via derived state)
               setParams({ type: null, gid: null }, false, true)
             }}
@@ -174,6 +178,7 @@ export function ParksPanel(_props: ParksPanelProps) {
             onClick={(park) => {
               // Mark that we want to zoom (user initiated)
               shouldZoomRef.current = true
+              lastSelectedParkIdRef.current = String(park.record_id)
               // Update URL with park selection (pushState for back button)
               // This will update selectedPark via derived state
               setParams(
@@ -196,6 +201,18 @@ export function ParksPanel(_props: ParksPanelProps) {
               // Clear highlight when mouse leaves
               clearParkHighlight(map)
             }}
+            onFocus={(park) => {
+              const parkGeometry = boundariesByParkName.get(park.pagetitle)
+              if (parkGeometry) {
+                highlightParkBoundary(map, parkGeometry)
+              }
+            }}
+            onBlur={() => {
+              clearParkHighlight(map)
+            }}
+            getItemAriaLabel={(park) => `View details for ${park.pagetitle}`}
+            focusItemKey={focusParkItemKey}
+            onFocusItemApplied={() => setFocusParkItemKey(null)}
             renderItem={(park) => (
               <Text size="sm" weight={500}>
                 {park.pagetitle}

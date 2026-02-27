@@ -84,3 +84,8 @@ body {
 .mapboxgl-ctrl-group button.mapboxgl-ctrl-icon:hover svg {
   color: #000;
 }
+
+.mapboxgl-ctrl-group button.mapboxgl-ctrl-icon:focus-visible {
+  outline: 3px solid #6AB03E;
+  outline-offset: 2px;
+}

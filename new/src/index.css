@@ -52,7 +52,7 @@
   }
   button:focus,
   button:focus-visible {
-    outline: 4px auto -webkit-focus-ring-color;
+    outline: none;
   }
 
   @media (prefers-color-scheme: light) {
@@ -66,4 +66,18 @@
     button {
       background-color: #f9f9f9;
     }
+  }
+
+  :where(
+    button,
+    [href],
+    input,
+    select,
+    textarea,
+    [role="button"],
+    [role="tab"],
+    [role="combobox"]
+  ):focus-visible {
+    outline: 3px solid #6AB03E;
+    outline-offset: 2px;
   }

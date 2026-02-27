@@ -1,5 +1,5 @@
 import { Box, Text, TextInput, Badge, Stack, Group } from '@mantine/core'
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef, useEffect, useMemo, useId } from 'react'
 import { useSearchIndex } from '../../hooks/useSearchIndex'
 import { useActivitiesData } from '../../hooks/useActivitiesData'
 import { useParksData } from '../../hooks/useParksData'
@@ -34,6 +34,8 @@ interface FeatureAutocompleteInputProps {
   onSelect: (suggestion: FeatureAutocompleteSuggestion) => void
   placeholder?: string
   rightSection?: React.ReactNode
+  inputId?: string
+  isPrimaryFocusTarget?: boolean
 }
 
 export function FeatureAutocompleteInput({
@@ -43,6 +45,8 @@ export function FeatureAutocompleteInput({
   onSelect,
   placeholder = 'Address, place, or coordinates',
   rightSection,
+  inputId,
+  isPrimaryFocusTarget = false,
 }: FeatureAutocompleteInputProps) {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [suggestions, setSuggestions] = useState<Array<{ id: string; title: string; type: string; parkName?: string; lat?: number; lng?: number }>>([])
@@ -50,6 +54,7 @@ export function FeatureAutocompleteInput({
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const dropdownId = useId()
 
   const { autocomplete, isReady } = useSearchIndex()
   const { attractions } = useActivitiesData()
@@ -169,7 +174,9 @@ export function FeatureAutocompleteInput({
   return (
     <Box style={{ position: 'relative' }}>
       <TextInput
+        id={inputId}
         ref={inputRef}
+        data-primary-focus={isPrimaryFocusTarget ? 'true' : undefined}
         label={label}
         placeholder={placeholder}
         value={value}
@@ -180,15 +187,29 @@ export function FeatureAutocompleteInput({
           }
         }}
         onKeyDown={handleKeyDown}
+        role="combobox"
+        aria-haspopup="listbox"
+        aria-expanded={shouldShowDropdown}
+        aria-controls={dropdownId}
+        aria-activedescendant={
+          selectedIndex >= 0 && suggestions[selectedIndex]
+            ? `${dropdownId}-option-${suggestions[selectedIndex].id}`
+            : undefined
+        }
+        autoComplete="off"
         rightSection={rightSection}
       />
 
       {shouldShowDropdown && (
-        <Box ref={dropdownRef} style={DROPDOWN_STYLES}>
+        <Box ref={dropdownRef} id={dropdownId} role="listbox" style={DROPDOWN_STYLES}>
           <Stack spacing={0}>
             {suggestions.map((s, idx) => (
               <Box
                 key={s.id}
+                id={`${dropdownId}-option-${s.id}`}
+                role="option"
+                aria-selected={selectedIndex === idx}
+                tabIndex={-1}
                 p="sm"
                 style={{
                   cursor: 'pointer',

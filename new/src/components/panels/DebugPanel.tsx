@@ -68,7 +68,7 @@ function formatFeature(feature: MapboxGeoJSONFeature) {
 
 export function DebugPanel(_props: DebugPanelProps) {
   const { hoverInfo } = useMapHover()
-  const features = hoverInfo?.features ?? []
+  const features = useMemo(() => hoverInfo?.features ?? [], [hoverInfo?.features])
 
   const formattedFeatures = useMemo(() => {
     return features.map((feature) => formatFeature(feature))

@@ -2,7 +2,7 @@ import { Text, Box, Stack, Loader, Alert } from '@mantine/core'
 import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
-import { useMemo, useEffect, useRef, useCallback } from 'react'
+import { useMemo, useEffect, useRef, useCallback, useState } from 'react'
 import { useActivitiesData, useAttractionsByActivity } from '../../hooks/useActivitiesData'
 import { useCategoriesData } from '../../hooks/useCategoriesData'
 import { useParksData } from '../../hooks/useParksData'
@@ -27,6 +27,10 @@ export function ActivitiesPanel(_props: ActivitiesPanelProps) {
   const shouldZoomRef = useRef(false)
   // Track the attraction ID we've zoomed to (to avoid duplicate zooms)
   const zoomedAttractionIdRef = useRef<string | null>(null)
+  const lastSelectedActivityIdRef = useRef<string | null>(null)
+  const [focusActivityItemKey, setFocusActivityItemKey] = useState<string | null>(null)
+  const lastSelectedAttractionIdRef = useRef<string | null>(null)
+  const [focusAttractionItemKey, setFocusAttractionItemKey] = useState<string | null>(null)
   // Track if this is the initial load (to zoom to attraction from URL on page load)
   const isInitialLoadRef = useRef(true)
 
@@ -169,9 +173,11 @@ export function ActivitiesPanel(_props: ActivitiesPanelProps) {
         parkName={selectedAttractionParkName}
         backButton={
           <BackButton
+            autoFocus
             onClick={() => {
               // Reset zoom tracking
               zoomedAttractionIdRef.current = null
+              setFocusAttractionItemKey(lastSelectedAttractionIdRef.current)
               // Clear attraction from URL, keep activity if present
               // This will clear selectedAttraction via derived state
               setParams({ type: null, gid: null }, false, true)
@@ -207,6 +213,7 @@ export function ActivitiesPanel(_props: ActivitiesPanelProps) {
                 countLabel={{ singular: 'activity', plural: 'activities' }}
                 emptyMessage="No activities found."
                 onClick={(activity) => {
+                  lastSelectedActivityIdRef.current = String(activity.eventactivitytypeid)
                   // Update URL with activity selection (pushState for back button)
                   // This will update selectedActivityId via derived state
                   setParams(
@@ -219,6 +226,10 @@ export function ActivitiesPanel(_props: ActivitiesPanelProps) {
                     true
                   )
                 }}
+                getItemAriaLabel={(activity) => `Show attractions for ${activity.pagetitle}`}
+                activeItemKey={selectedActivityId ? String(selectedActivityId) : null}
+                focusItemKey={focusActivityItemKey}
+                onFocusItemApplied={() => setFocusActivityItemKey(null)}
                 renderItem={(activity) => (
                   <Box style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     {activity.icon && (
@@ -238,7 +249,9 @@ export function ActivitiesPanel(_props: ActivitiesPanelProps) {
             ) : (
               <>
                 <BackButton
+                  autoFocus
                   onClick={() => {
+                    setFocusActivityItemKey(lastSelectedActivityIdRef.current)
                     // Clear activity from URL (this will clear selectedActivityId via derived state)
                     setParams({ activityId: null }, false, true)
                   }}
@@ -256,6 +269,7 @@ export function ActivitiesPanel(_props: ActivitiesPanelProps) {
                   onClick={(attraction) => {
                     // Mark that we want to zoom (user initiated)
                     shouldZoomRef.current = true
+                    lastSelectedAttractionIdRef.current = String(attraction.gis_id || attraction.record_id)
                     // Update URL with attraction selection (pushState for back button)
                     // This will update selectedAttraction via derived state
                     setParams(
@@ -268,6 +282,9 @@ export function ActivitiesPanel(_props: ActivitiesPanelProps) {
                       true
                     )
                   }}
+                  getItemAriaLabel={(attraction) => `View attraction details for ${attraction.pagetitle}`}
+                  focusItemKey={focusAttractionItemKey}
+                  onFocusItemApplied={() => setFocusAttractionItemKey(null)}
                   renderItem={(attraction) => {
                     const attractionData = attraction as Record<string, unknown>
                     const reservationId = attractionData.reservation as number | string | undefined

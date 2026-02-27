@@ -58,6 +58,28 @@ function isAttractionGroupFeature(
   return layerId ? attractionGroupLayerIds.has(layerId) : false
 }
 
+function annotateMapControlButtons(mapInstance: mapboxgl.Map) {
+  const container = mapInstance.getContainer()
+  const buttons = container.querySelectorAll<HTMLButtonElement>('.mapboxgl-ctrl-group button')
+
+  buttons.forEach((button) => {
+    if (button.getAttribute('aria-label')) return
+
+    const className = button.className
+    if (className.includes('mapboxgl-ctrl-zoom-in')) {
+      button.setAttribute('aria-label', 'Zoom in')
+    } else if (className.includes('mapboxgl-ctrl-zoom-out')) {
+      button.setAttribute('aria-label', 'Zoom out')
+    } else if (className.includes('mapboxgl-ctrl-compass')) {
+      button.setAttribute('aria-label', 'Reset north')
+    } else if (className.includes('mapboxgl-ctrl-geolocate')) {
+      button.setAttribute('aria-label', 'Show current location')
+    } else {
+      button.setAttribute('aria-label', 'Map control')
+    }
+  })
+}
+
 export function MapView() {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
@@ -166,12 +188,16 @@ export function MapView() {
         }),
         'top-right'
       )
+      annotateMapControlButtons(map.current)
 
       let loadTimeoutId: ReturnType<typeof setTimeout> | null = null
       let hasLoaded = false
 
       map.current.on('style.load', () => {
         hasLoaded = true
+        if (map.current) {
+          annotateMapControlButtons(map.current)
+        }
         if (loadTimeoutId) {
           clearTimeout(loadTimeoutId)
           loadTimeoutId = null
@@ -373,8 +399,28 @@ export function MapView() {
   return (
     <Box className="map-container" style={{ width: '100%', height: '100%', position: 'relative' }}>
       <FloatingSearch />
+      <Box
+        id="map-keyboard-instructions"
+        style={{
+          position: 'absolute',
+          width: 1,
+          height: 1,
+          padding: 0,
+          margin: -1,
+          overflow: 'hidden',
+          clip: 'rect(0, 0, 0, 0)',
+          whiteSpace: 'nowrap',
+          border: 0,
+        }}
+      >
+        Interactive map of Cleveland Metroparks. Use Tab to reach map controls for zoom, location, and reset.
+      </Box>
       <div
         ref={mapContainer}
+        role="region"
+        aria-label="Interactive Cleveland Metroparks map"
+        aria-describedby="map-keyboard-instructions"
+        tabIndex={0}
         style={{
           width: '100%',
           height: '100%',

@@ -18,7 +18,7 @@ import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
 import { getTrailGeometry } from '../../lib/api'
 import type { Reservation, TransformedAttraction, TransformedTrail } from '../../types/api'
 import mapboxgl from 'mapbox-gl'
-import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
+import { useState, useRef, useEffect, useMemo, useCallback, useId } from 'react'
 import { AttractionDetailPane } from './details/AttractionDetailPane'
 import { ParkDetailPane } from './details/ParkDetailPane'
 import { TrailDetailPane } from './details/TrailDetailPane'
@@ -59,6 +59,9 @@ export function SearchPanel(_props: SearchPanelProps) {
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const inputRef = useRef<HTMLInputElement>(null)
   const autocompleteRef = useRef<HTMLDivElement>(null)
+  const autocompleteListId = useId()
+  const [focusResultItemKey, setFocusResultItemKey] = useState<string | null>(null)
+  const lastSelectedResultIdRef = useRef<string | null>(null)
 
   // Fetch full feature data
   const { attractions, activities, isLoading: activitiesLoading } = useActivitiesData()
@@ -281,6 +284,7 @@ export function SearchPanel(_props: SearchPanelProps) {
     }
     currentTrailRef.current = null
     zoomedFeatureIdRef.current = null
+    setFocusResultItemKey(lastSelectedResultIdRef.current)
     // Clear URL params - selectedSearchResult will be null automatically
     setParams({ type: null, gid: null, fromSearch: null }, false, true)
   }, [map, setParams])
@@ -292,7 +296,7 @@ export function SearchPanel(_props: SearchPanelProps) {
     return (
       <Box p="md" pr="sm" style={{ position: 'relative' }}>
         <Stack spacing="md">
-          <BackButton onClick={handleBackToSearchResults} />
+          <BackButton autoFocus onClick={handleBackToSearchResults} />
           <Box style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
             <Loader size="sm" />
           </Box>
@@ -312,7 +316,7 @@ export function SearchPanel(_props: SearchPanelProps) {
           categoriesMap={categoriesMap}
           activities={activities}
           parkName={getParkName('attraction', selectedSearchResult.gid)}
-          backButton={<BackButton onClick={handleBackToSearchResults} />}
+          backButton={<BackButton autoFocus onClick={handleBackToSearchResults} />}
         />
       )
     }
@@ -323,7 +327,7 @@ export function SearchPanel(_props: SearchPanelProps) {
       return (
         <ParkDetailPane
           park={park}
-          backButton={<BackButton onClick={handleBackToSearchResults} />}
+          backButton={<BackButton autoFocus onClick={handleBackToSearchResults} />}
         />
       )
     }
@@ -335,7 +339,7 @@ export function SearchPanel(_props: SearchPanelProps) {
         <TrailDetailPane
           trail={trail}
           parkName={getParkName('trail', selectedSearchResult.gid)}
-          backButton={<BackButton onClick={handleBackToSearchResults} />}
+          backButton={<BackButton autoFocus onClick={handleBackToSearchResults} />}
         />
       )
     }
@@ -422,6 +426,7 @@ export function SearchPanel(_props: SearchPanelProps) {
 
     // Mark that we want to zoom (user initiated)
     shouldZoomRef.current = true
+    lastSelectedResultIdRef.current = result.id
 
     // Update URL params with fromSearch flag to prevent tab switching
     // The selectedSearchResult will be derived from URL params (single source of truth)
@@ -446,10 +451,22 @@ export function SearchPanel(_props: SearchPanelProps) {
         <Box style={{ position: 'relative' }}>
           <TextInput
             ref={inputRef}
+            id="search-panel-input"
+            data-primary-focus="true"
             placeholder="Search parks, trails, attractions..."
             value={searchTerm}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
+            role="combobox"
+            aria-haspopup="listbox"
+            aria-expanded={showAutocomplete && autocompleteSuggestions.length > 0}
+            aria-controls={autocompleteListId}
+            aria-activedescendant={
+              selectedIndex >= 0 && autocompleteSuggestions[selectedIndex]
+                ? `${autocompleteListId}-option-${autocompleteSuggestions[selectedIndex].id}`
+                : undefined
+            }
+            autoComplete="off"
             onFocus={() => {
               if (searchTerm.length >= 2 && autocompleteSuggestions.length > 0) {
                 setShowAutocomplete(true)
@@ -468,6 +485,8 @@ export function SearchPanel(_props: SearchPanelProps) {
           {showAutocomplete && autocompleteSuggestions.length > 0 && (
             <Box
               ref={autocompleteRef}
+              id={autocompleteListId}
+              role="listbox"
               style={{
                 position: 'absolute',
                 top: '100%',
@@ -487,6 +506,10 @@ export function SearchPanel(_props: SearchPanelProps) {
                 {autocompleteSuggestions.map((suggestion, idx) => (
                   <Box
                     key={suggestion.id}
+                    id={`${autocompleteListId}-option-${suggestion.id}`}
+                    role="option"
+                    aria-selected={selectedIndex === idx}
+                    tabIndex={-1}
                     p="sm"
                     style={{
                       cursor: 'pointer',
@@ -557,6 +580,10 @@ export function SearchPanel(_props: SearchPanelProps) {
               items={searchResults}
               keyExtractor={(result) => result.id}
               onClick={(result) => handleResultClick(result)}
+              getItemAriaLabel={(result) => `View details for ${result.title}`}
+              activeItemKey={selectedSearchResult ? selectedSearchResult.id : null}
+              focusItemKey={focusResultItemKey}
+              onFocusItemApplied={() => setFocusResultItemKey(null)}
               renderItem={(result) => (
                 <>
                   <Text size="sm" weight={500}>

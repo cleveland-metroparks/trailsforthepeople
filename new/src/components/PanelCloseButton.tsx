@@ -12,6 +12,8 @@ export function PanelCloseButton({ onClick, variant = 'light' }: PanelCloseButto
   return (
     <ActionIcon
       onClick={onClick}
+      aria-label="Close panel"
+      data-skip-auto-focus="true"
       size="sm"
       variant="transparent"
       style={{

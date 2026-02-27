@@ -161,6 +161,8 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
         <ViaModeSelector value={via} onChange={setVia} variant="full" />
 
         <FeatureAutocompleteInput
+          inputId="directions-from-input"
+          isPrimaryFocusTarget
           label="From"
           value={sourceText}
           onChange={handleSourceChange}

@@ -1,6 +1,6 @@
 import { TextInput, Box, Stack, Text, Badge, Group } from '@mantine/core'
 import { Search } from 'tabler-icons-react'
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef, useEffect, useMemo, useId } from 'react'
 import { useSearch } from '../contexts/SearchContext'
 import { useSidebar } from '../contexts/SidebarContext'
 import { useURLState } from '../hooks/useURLState'
@@ -30,6 +30,7 @@ export function FloatingSearch() {
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const inputRef = useRef<HTMLInputElement>(null)
   const autocompleteRef = useRef<HTMLDivElement>(null)
+  const autocompleteListId = useId()
 
   // Park name lookup for suggestions
   const getParkName = useMemo(() => {
@@ -152,6 +153,16 @@ export function FloatingSearch() {
           value={searchTerm}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
+          role="combobox"
+          aria-haspopup="listbox"
+          aria-expanded={showAutocomplete && autocompleteSuggestions.length > 0}
+          aria-controls={autocompleteListId}
+          aria-activedescendant={
+            selectedIndex >= 0 && autocompleteSuggestions[selectedIndex]
+              ? `${autocompleteListId}-option-${autocompleteSuggestions[selectedIndex].id}`
+              : undefined
+          }
+          autoComplete="off"
           onFocus={() => {
             if (searchTerm.length >= 2 && autocompleteSuggestions.length > 0) {
               setShowAutocomplete(true)
@@ -172,6 +183,8 @@ export function FloatingSearch() {
         {/* Autocomplete dropdown */}
         {showAutocomplete && autocompleteSuggestions.length > 0 && (
           <Box
+            id={autocompleteListId}
+            role="listbox"
             style={{
               position: 'absolute',
               top: '100%',
@@ -191,6 +204,10 @@ export function FloatingSearch() {
               {autocompleteSuggestions.map((suggestion, idx) => (
                 <Box
                   key={suggestion.id}
+                  id={`${autocompleteListId}-option-${suggestion.id}`}
+                  role="option"
+                  aria-selected={selectedIndex === idx}
+                  tabIndex={-1}
                   p="sm"
                   style={{
                     cursor: 'pointer',

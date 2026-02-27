@@ -1,4 +1,4 @@
-import { Tabs, Loader, Center, ActionIcon, Box, Text, Divider } from '@mantine/core'
+import { Tabs, Loader, Center, ActionIcon, Box, Text, Divider, UnstyledButton } from '@mantine/core'
 import { Search, Share, InfoCircle, Tree, Walk, Flag3, Bug, ChevronLeft, Menu2, Route } from 'tabler-icons-react'
 import { PanelCloseButton } from './PanelCloseButton'
 import { useState, useEffect, useRef, useImperativeHandle, forwardRef, Suspense, lazy } from 'react'
@@ -75,6 +75,9 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   const { openRequestId, closeRequestId } = useDirections()
   const prevOpenRequestId = useRef(0)
   const prevCloseRequestId = useRef(0)
+  const lastFocusedNavTabRef = useRef<HTMLButtonElement | null>(null)
+  const panelRootRef = useRef<HTMLDivElement | null>(null)
+  const openFromNavRef = useRef(false)
 
   // Track activeTab in a ref so the URL-sync effect can read it without depending on it.
   // This breaks the feedback loop: user tab changes don't re-trigger the URL-sync effect.
@@ -142,6 +145,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
 
   useImperativeHandle(ref, () => ({
     activateSearchTab: () => {
+      openFromNavRef.current = true
       setActiveTab('search')
     },
   }))
@@ -158,7 +162,11 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
 
   const handleClosePanel = () => {
     setActiveTab(null)
+    openFromNavRef.current = false
     clearFeatureParams()
+    requestAnimationFrame(() => {
+      lastFocusedNavTabRef.current?.focus()
+    })
   }
 
   const handleTabChange = (value: string | null) => {
@@ -167,10 +175,40 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
       return
     }
     if (value) {
+      openFromNavRef.current = true
       clearFeatureParams()
       setActiveTab(value)
     }
   }
+
+  useEffect(() => {
+    if (!activeTab || !openFromNavRef.current) return
+    openFromNavRef.current = false
+
+    requestAnimationFrame(() => {
+      const root = panelRootRef.current
+      if (!root) return
+
+      const primaryByTab =
+        activeTab === 'search'
+          ? '#search-panel-input'
+          : activeTab === 'directions'
+            ? '#directions-from-input'
+            : '[data-primary-focus="true"]'
+
+      const primaryTarget = root.querySelector<HTMLElement>(primaryByTab)
+      if (primaryTarget) {
+        primaryTarget.focus()
+        return
+      }
+
+      const fallbackTarget = root.querySelector<HTMLElement>(
+        'input, button:not([data-skip-auto-focus="true"]), [href], select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+
+      fallbackTarget?.focus()
+    })
+  }, [activeTab])
 
   // Tab item component for consistent rendering
   const TabItem = ({
@@ -187,17 +225,40 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     const colors = section === 'top' ? SIDEBAR_COLORS.topSection : SIDEBAR_COLORS.bottomSection
     const isActive = activeTab === value
     const isTopSection = section === 'top'
+    const tabId = `sidebar-tab-${value}`
+    const panelId = `sidebar-panel-${value}`
 
     // Top section: rounded highlight, not full width, no left border
     // Bottom section: full width with left border
     if (isTopSection) {
       return (
-        <Box
-          onClick={() => handleTabChange(value)}
+        <UnstyledButton
+          type="button"
+          role="tab"
+          tabIndex={0}
+          id={tabId}
+          aria-selected={isActive}
+          aria-controls={panelId}
+          onClick={(event) => {
+            lastFocusedNavTabRef.current = event.currentTarget
+            handleTabChange(value)
+          }}
+          onFocus={(event) => {
+            lastFocusedNavTabRef.current = event.currentTarget
+          }}
           title={isNavExpanded ? undefined : label}
           style={{
             padding: isNavExpanded ? '2px 8px' : '2px 6px',
             cursor: 'pointer',
+            display: 'block',
+            width: '100%',
+            borderRadius: '6px',
+          }}
+          sx={{
+            '&:focus-visible': {
+              outline: '2px solid #6AB03E',
+              outlineOffset: '-2px',
+            },
           }}
         >
           <Box
@@ -230,14 +291,26 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
               </Text>
             )}
           </Box>
-        </Box>
+        </UnstyledButton>
       )
     }
 
     // Bottom section: original styling
     return (
-      <Box
-        onClick={() => handleTabChange(value)}
+      <UnstyledButton
+        type="button"
+        role="tab"
+        tabIndex={0}
+        id={tabId}
+        aria-selected={isActive}
+        aria-controls={panelId}
+        onClick={(event) => {
+          lastFocusedNavTabRef.current = event.currentTarget
+          handleTabChange(value)
+        }}
+        onFocus={(event) => {
+          lastFocusedNavTabRef.current = event.currentTarget
+        }}
         title={isNavExpanded ? undefined : label}
         style={{
           display: 'flex',
@@ -256,6 +329,10 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           '&:hover': {
             backgroundColor: colors.activeBackground,
           },
+          '&:focus-visible': {
+            outline: '2px solid #6AB03E',
+            outlineOffset: '-2px',
+          },
         }}
       >
         {icon}
@@ -268,7 +345,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
             {label}
           </Text>
         )}
-      </Box>
+      </UnstyledButton>
     )
   }
 
@@ -312,7 +389,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
         },
       })}
     >
-      <Tabs.List>
+      <Tabs.List role="tablist" aria-label="Sidebar navigation">
         {/* Header - Image when expanded, hamburger when collapsed */}
         <Box
           style={{
@@ -339,6 +416,8 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
               {/* Collapse button */}
               <ActionIcon
                 onClick={toggleNavExpanded}
+                aria-label="Collapse navigation"
+                aria-expanded={isNavExpanded}
                 size="sm"
                 variant="transparent"
                 style={{
@@ -355,6 +434,8 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           ) : (
             <ActionIcon
               onClick={toggleNavExpanded}
+              aria-label="Expand navigation"
+              aria-expanded={isNavExpanded}
               size="lg"
               variant="transparent"
               style={{
@@ -464,63 +545,98 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
 
       {activeTab && (
         <>
-          <Tabs.Panel value="search" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+          <Tabs.Panel value="search" id="sidebar-panel-search" aria-labelledby="sidebar-tab-search" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
             <PanelCloseButton onClick={handleClosePanel} />
-            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+            <Box
+              ref={(node) => {
+                if (activeTab === 'search') panelRootRef.current = node
+              }}
+              style={{ position: 'relative', height: '100%', overflow: 'auto' }}
+            >
               <Suspense fallback={<PanelLoader />}>
                 <SearchPanel onClose={handleClosePanel} />
               </Suspense>
             </Box>
           </Tabs.Panel>
 
-          <Tabs.Panel value="parks" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+          <Tabs.Panel value="parks" id="sidebar-panel-parks" aria-labelledby="sidebar-tab-parks" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
             <PanelCloseButton onClick={handleClosePanel} />
-            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+            <Box
+              ref={(node) => {
+                if (activeTab === 'parks') panelRootRef.current = node
+              }}
+              style={{ position: 'relative', height: '100%', overflow: 'auto' }}
+            >
               <Suspense fallback={<PanelLoader />}>
                 <ParksPanel onClose={handleClosePanel} />
               </Suspense>
             </Box>
           </Tabs.Panel>
 
-          <Tabs.Panel value="activities" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+          <Tabs.Panel value="activities" id="sidebar-panel-activities" aria-labelledby="sidebar-tab-activities" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
             <PanelCloseButton onClick={handleClosePanel} />
-            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+            <Box
+              ref={(node) => {
+                if (activeTab === 'activities') panelRootRef.current = node
+              }}
+              style={{ position: 'relative', height: '100%', overflow: 'auto' }}
+            >
               <Suspense fallback={<PanelLoader />}>
                 <ActivitiesPanel onClose={handleClosePanel} />
               </Suspense>
             </Box>
           </Tabs.Panel>
 
-          <Tabs.Panel value="trails" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+          <Tabs.Panel value="trails" id="sidebar-panel-trails" aria-labelledby="sidebar-tab-trails" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
             <PanelCloseButton onClick={handleClosePanel} />
-            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+            <Box
+              ref={(node) => {
+                if (activeTab === 'trails') panelRootRef.current = node
+              }}
+              style={{ position: 'relative', height: '100%', overflow: 'auto' }}
+            >
               <Suspense fallback={<PanelLoader />}>
                 <TrailsPanel onClose={handleClosePanel} />
               </Suspense>
             </Box>
           </Tabs.Panel>
 
-          <Tabs.Panel value="share" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+          <Tabs.Panel value="share" id="sidebar-panel-share" aria-labelledby="sidebar-tab-share" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
             <PanelCloseButton onClick={handleClosePanel} />
-            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+            <Box
+              ref={(node) => {
+                if (activeTab === 'share') panelRootRef.current = node
+              }}
+              style={{ position: 'relative', height: '100%', overflow: 'auto' }}
+            >
               <Suspense fallback={<PanelLoader />}>
                 <SharePanel onClose={handleClosePanel} />
               </Suspense>
             </Box>
           </Tabs.Panel>
 
-          <Tabs.Panel value="directions" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+          <Tabs.Panel value="directions" id="sidebar-panel-directions" aria-labelledby="sidebar-tab-directions" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
             <PanelCloseButton onClick={handleClosePanel} />
-            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+            <Box
+              ref={(node) => {
+                if (activeTab === 'directions') panelRootRef.current = node
+              }}
+              style={{ position: 'relative', height: '100%', overflow: 'auto' }}
+            >
               <Suspense fallback={<PanelLoader />}>
                 <DirectionsPanel onClose={handleClosePanel} />
               </Suspense>
             </Box>
           </Tabs.Panel>
 
-          <Tabs.Panel value="info" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+          <Tabs.Panel value="info" id="sidebar-panel-info" aria-labelledby="sidebar-tab-info" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
             <PanelCloseButton onClick={handleClosePanel} />
-            <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+            <Box
+              ref={(node) => {
+                if (activeTab === 'info') panelRootRef.current = node
+              }}
+              style={{ position: 'relative', height: '100%', overflow: 'auto' }}
+            >
               <Suspense fallback={<PanelLoader />}>
                 <CreditsPanel onClose={handleClosePanel} />
               </Suspense>
@@ -528,9 +644,14 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           </Tabs.Panel>
 
           {showDebugTab && (
-            <Tabs.Panel value="debug" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
+            <Tabs.Panel value="debug" id="sidebar-panel-debug" aria-labelledby="sidebar-tab-debug" style={{ flex: 1, overflow: 'visible', position: 'relative' }}>
               <PanelCloseButton onClick={handleClosePanel} variant="dark" />
-              <Box style={{ position: 'relative', height: '100%', overflow: 'auto' }}>
+              <Box
+                ref={(node) => {
+                  if (activeTab === 'debug') panelRootRef.current = node
+                }}
+                style={{ position: 'relative', height: '100%', overflow: 'auto' }}
+              >
                 <Suspense fallback={<PanelLoader />}>
                   <DebugPanel onClose={handleClosePanel} />
                 </Suspense>
