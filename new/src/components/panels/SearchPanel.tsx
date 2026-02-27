@@ -14,6 +14,8 @@ import { useTrailsData } from '../../hooks/useTrailsData'
 import { useCategoriesData } from '../../hooks/useCategoriesData'
 import { makeImageFromPagethumbnail } from '../../lib/dataTransform'
 import { ActivityIcon } from '../ActivityIcon'
+import { GetDirectionsButtons } from '../GetDirectionsButtons'
+import { ShareButton } from '../ShareButton'
 import { highlightTrailLine, clearTrailHighlight, highlightParkBoundary, fadeOutParkHighlight, getBoundingBoxFromGeometry, placeAttractionMarker, clearAttractionMarker } from '../../lib/mapUtils'
 import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
 import { getTrailGeometry } from '../../lib/api'
@@ -447,6 +449,25 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
                 </Box>
               </>
             )}
+
+            {(() => {
+              const lat = (attraction as Record<string, unknown>).latitude as number | undefined
+              const lng = (attraction as Record<string, unknown>).longitude as number | undefined
+              return lat && lng ? (
+                <>
+                  <GetDirectionsButtons
+                    target={{
+                      name: String(attraction.pagetitle),
+                      lat,
+                      lng,
+                    }}
+                  />
+                  <Divider />
+                </>
+              ) : null
+            })()}
+
+            <ShareButton />
           </Stack>
         </Box>
       )
@@ -522,6 +543,21 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
                 <Divider />
               </>
             )}
+
+            {park.latitude && park.longitude && (
+              <>
+                <GetDirectionsButtons
+                  target={{
+                    name: park.pagetitle,
+                    lat: park.latitude,
+                    lng: park.longitude,
+                  }}
+                />
+                <Divider />
+              </>
+            )}
+
+            <ShareButton />
           </Stack>
         </Box>
       )
@@ -596,6 +632,26 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
                 />
               </>
             )}
+
+            {(() => {
+              const lat = trail.lat as number | undefined
+              const lng = trail.lng as number | undefined
+              return lat && lng ? (
+                <>
+                  <Divider />
+                  <GetDirectionsButtons
+                    target={{
+                      name: String(trail.name),
+                      lat,
+                      lng,
+                    }}
+                  />
+                  <Divider />
+                </>
+              ) : null
+            })()}
+
+            <ShareButton />
           </Stack>
         </Box>
       )
