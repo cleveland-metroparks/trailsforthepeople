@@ -37,6 +37,27 @@ Layout.tsx                   ← 6 context providers + Mantine AppShell
     └── CreditsPanel / DebugPanel
 ```
 
+## Accessibility Requirements
+
+- Accessibility is a behavior contract, not optional polish.
+- Do not introduce click-only non-semantic controls.
+  - If it is interactive, implement it as a semantic interactive element.
+- Keyboard operability is required for all interactions:
+  - Tab reachable
+  - Enter/Space activation where appropriate
+  - Escape dismisses relevant overlays/lists
+- Maintain visible `:focus-visible` outlines for keyboard users.
+- Keep established focus management patterns:
+  - Opening a panel should focus its primary control
+  - Closing a panel should restore focus to the triggering sidebar tab
+  - Back from detail should restore focus to the prior list item
+- Follow existing composite patterns:
+  - Sidebar navigation: `tablist`/`tab`/`tabpanel`
+  - Autocomplete: `combobox` + `listbox` + `option` + `aria-activedescendant`
+- Use ARIA deliberately; do not add ARIA that does not match behavior.
+- Icon-only controls must include an `aria-label`.
+- Keep map controls keyboard reachable and map region labeled.
+
 ### Context Providers (nesting order in Layout.tsx)
 1. `MapProvider` — holds `mapboxgl.Map` instance; shared to child components
 2. `MapSelectionProvider` — `selectionTick` counter to trigger feature selection effects
@@ -159,3 +180,4 @@ src/
 - **Image paths**: Thumbnails from the API use `~/getmedia/...` format (main site relative). Use `makeImageFromPagethumbnail()` from `dataTransform.ts` to convert to absolute URLs with retina scaling.
 - **Activity icons**: SVGs in `/public/images/activities/`. Mapping is in `dataTransform.ts:getActivityIcon()`.
 - **Trail status**: Trails with `status === 0` are unpublished and filtered out in `api.ts:getTrails()`.
+- **Accessibility patterns**: See `ACCESSIBILITY.md` for canonical keyboard/focus/ARIA contracts.

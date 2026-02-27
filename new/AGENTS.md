@@ -46,6 +46,29 @@ Read these files first, in this order:
   - Normalize in `src/lib/dataTransform.ts`
   - Define types in `src/types/api.ts`
 
+## Accessibility Invariants (Do Not Break)
+
+- Treat accessibility as a functional requirement, not a cosmetic enhancement.
+- All interactive UI must use semantic interactive elements:
+  - Use `button`/`UnstyledButton`/`ActionIcon` for actions
+  - Use `a`/`Anchor` for navigation
+  - Do not use click-only `div`/`Box` as primary controls
+- Every interactive control must be keyboard operable:
+  - Reachable via Tab
+  - Activates with Enter/Space where applicable
+  - Supports Escape for dismissible popovers/overlays/autocomplete lists
+- Keep visible focus indicators for keyboard users (`:focus-visible`) across controls.
+- Preserve focus flow contracts:
+  - Opening a panel should move focus to a meaningful first control
+  - Closing a panel should restore focus to the triggering nav control
+  - Returning from detail to list should restore focus to the previously selected list row
+- Composite widgets must follow expected ARIA behavior:
+  - Sidebar tab strip uses tab/tablist/tabpanel semantics
+  - Autocomplete uses combobox/listbox/option semantics with active descendant tracking
+- Use ARIA only when semantics require it; no placeholder ARIA.
+- For icon-only buttons, provide explicit `aria-label`.
+- Map work must preserve keyboard access to map controls and the map region label/description.
+
 ## Change Patterns
 
 For a new API-backed feature:
@@ -79,6 +102,12 @@ For map visuals (highlight/route/marker):
   - Sidebar collapse/expand behavior
   - Back button behavior for feature details
   - Search autocomplete and search-result selection behavior
+- Reuse existing accessibility primitives and contracts:
+  - `PanelList` for interactive list rows
+  - `BackButton` for return actions
+  - Sidebar focus-management behavior in `Sidebar.tsx`
+  - Combobox/listbox behavior in search/autocomplete components
+- Reference `ACCESSIBILITY.md` before introducing new interactive patterns.
 
 ## Pre-Submit Checklist
 
@@ -96,6 +125,28 @@ Manual sanity checks for map-related changes:
 4. Use browser back button through feature selections.
 5. Confirm highlights/markers/routes clear when expected.
 
+Manual sanity checks for accessibility-sensitive changes:
+
+1. Keyboard-only pass: navigate sidebar tabs, panel controls, list items, and map controls using Tab/Shift+Tab.
+2. Verify visible focus ring appears on every interactive control.
+3. Verify list/detail focus restoration:
+   - Select a list item, open detail
+   - Activate Back
+   - Focus returns to the previously selected list row
+4. Verify panel open/close focus restoration:
+   - Open panel from sidebar nav
+   - Close panel
+   - Focus returns to the same nav control
+5. Verify autocomplete behavior:
+   - Arrow keys move active option
+   - Enter selects active option
+   - Escape closes list
+   - Tab moves to next control (no keyboard trap)
+
+## Accessibility Reference
+
+- See `ACCESSIBILITY.md` for canonical keyboard and ARIA patterns used in this app.
+
 ## Debugging Notes
 
 - Debug panel can be enabled in browser console with `showDebugPanel()`.
@@ -103,4 +154,3 @@ Manual sanity checks for map-related changes:
   - `params` from `useURLState`
   - `selectionTick` from `MapSelectionContext`
   - `openRequestId` / `closeRequestId` from `DirectionsContext`
-

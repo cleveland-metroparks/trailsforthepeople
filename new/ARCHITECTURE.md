@@ -58,6 +58,39 @@ Do not merge these systems; this split is required for performance and correct h
 - Tab switches and close actions clear feature params (`type`, `gid`, `activityId`, `fromSearch`) but preserve map params.
 - Directions panel transitions are request-counter based (`openRequestId` / `closeRequestId`) via `DirectionsContext`.
 
+## Accessibility Architecture
+
+### Keyboard Model
+
+- Sidebar nav is a semantic tab interface (`tablist`/`tab`/`tabpanel`).
+- Panel list rows use semantic buttons through shared `PanelList`.
+- Search and autocomplete use combobox/listbox patterns:
+  - Input is the tabbable control
+  - Options are active-descendant driven, not individual tab stops
+- Map region is labeled and map controls remain keyboard reachable.
+
+### Focus Management Contracts
+
+- Panel open:
+  - Focus moves to the panel's primary input/control.
+- Panel close:
+  - Focus restores to the sidebar tab that opened the panel.
+- List → detail:
+  - Detail Back button receives focus.
+- Detail → list:
+  - Focus restores to the previously selected list row.
+
+### Accessibility Primitives
+
+- `src/components/PanelList.tsx`:
+  - Canonical interactive list-row behavior (semantic button, focus-visible, focus restore hooks)
+- `src/components/Sidebar.tsx`:
+  - Canonical sidebar tab semantics and panel focus transitions
+- `src/components/BackButton.tsx`:
+  - Canonical "return/back" control behavior
+- Search/autocomplete components (`SearchPanel`, `FloatingSearch`, `FeatureAutocompleteInput`):
+  - Canonical combobox/listbox behavior
+
 ## Data And API Layer
 
 ## API Client
@@ -222,4 +255,12 @@ For new panel capabilities:
 2. Use `mapUtils` for map overlays/zoom.
 3. Ensure cleanup in `useEffect` returns.
 4. Lazy-load in `Sidebar.tsx`.
+5. Preserve keyboard/focus contracts:
+   - semantic controls only
+   - visible focus styling
+   - correct focus restoration behavior
+   - ARIA patterns matching behavior
 
+## Accessibility Reference
+
+- See `ACCESSIBILITY.md` for practical implementation rules and acceptance checks.
