@@ -52,6 +52,22 @@ export function DetailImage({ pagethumbnail, alt }: DetailImageProps) {
   )
 }
 
+const EMPTY_LINE = /^(\s|&nbsp;|\u00A0)*$/i
+const EMPTY_P_TAG = /<p(?:\s[^>]*)?>(\s|&nbsp;|\u00A0)*<\/p>/gi
+
+function removeEmptyLines(text: string): string {
+  return text
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .split('\n')
+    .filter((line) => !EMPTY_LINE.test(line))
+    .join('\n')
+}
+
+function cleanHtmlDescription(html: string): string {
+  return removeEmptyLines(html).replace(EMPTY_P_TAG, '').trim()
+}
+
 interface DetailDescriptionProps {
   text?: string
 }
@@ -59,11 +75,7 @@ interface DetailDescriptionProps {
 export function DetailDescription({ text }: DetailDescriptionProps) {
   if (!text) return null
 
-  return (
-    <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
-      {text}
-    </Text>
-  )
+  return <Text size="sm">{removeEmptyLines(text)}</Text>
 }
 
 interface DetailHtmlDescriptionProps {
@@ -74,13 +86,7 @@ export function DetailHtmlDescription({ html }: DetailHtmlDescriptionProps) {
   if (!html) return null
 
   return (
-    <Text
-      size="sm"
-      style={{ whiteSpace: 'pre-wrap' }}
-      dangerouslySetInnerHTML={{
-        __html: html,
-      }}
-    />
+    <Text size="sm" dangerouslySetInnerHTML={{ __html: cleanHtmlDescription(html) }} />
   )
 }
 
