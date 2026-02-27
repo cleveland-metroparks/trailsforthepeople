@@ -25,7 +25,7 @@ export function TrailDetailPane({ trail, parkName, backButton, panelTitle }: Tra
         <DetailParkSection parkName={parkName} />
       </Stack>
 
-      <Stack spacing="xs">
+      <Stack spacing={0}>
         {trail.distancetext && (
           <Text size="sm">
             <span style={{ fontWeight: 600 }}>Length:</span> {trail.distancetext}

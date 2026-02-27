@@ -65,6 +65,17 @@ body {
   background-color: rgba(106, 176, 62, 0.1);
 }
 
+/* Remove double margin around description sections (Stack spacing + p margin) */
+.detail-description {
+  margin: 0;
+}
+.detail-description p:first-child {
+  margin-top: 0;
+}
+.detail-description p:last-child {
+  margin-bottom: 0;
+}
+
 /* Ensure the map container takes full space */
 .mantine-AppShell-main > .map-container {
   height: 100% !important;

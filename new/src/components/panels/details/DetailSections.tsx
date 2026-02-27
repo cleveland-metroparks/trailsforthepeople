@@ -75,7 +75,11 @@ interface DetailDescriptionProps {
 export function DetailDescription({ text }: DetailDescriptionProps) {
   if (!text) return null
 
-  return <Text size="sm">{removeEmptyLines(text)}</Text>
+  return (
+    <Text size="sm" className="detail-description" style={{ margin: 0 }}>
+      {removeEmptyLines(text)}
+    </Text>
+  )
 }
 
 interface DetailHtmlDescriptionProps {
@@ -86,7 +90,12 @@ export function DetailHtmlDescription({ html }: DetailHtmlDescriptionProps) {
   if (!html) return null
 
   return (
-    <Text size="sm" dangerouslySetInnerHTML={{ __html: cleanHtmlDescription(html) }} />
+    <Text
+      size="sm"
+      className="detail-description"
+      style={{ margin: 0 }}
+      dangerouslySetInnerHTML={{ __html: cleanHtmlDescription(html) }}
+    />
   )
 }
 
