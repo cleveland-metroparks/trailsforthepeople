@@ -8,7 +8,9 @@
         "build": "tsc && vite build",
         "preview": "vite preview",
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-        "type-check": "tsc --noEmit"
+        "type-check": "tsc --noEmit",
+        "test:a11y": "playwright test",
+        "test:a11y:headed": "playwright test --headed"
     },
     "dependencies": {
         "@mantine/core": "^6.0.19",
@@ -28,6 +30,8 @@
         "tabler-icons-react": "^1.48.1"
     },
     "devDependencies": {
+        "@axe-core/playwright": "^4.11.1",
+        "@playwright/test": "^1.58.2",
         "@types/mapbox__mapbox-gl-draw": "^1.3.1",
         "@types/node": "^24.2.0",
         "@types/react": "^18.2.0",
@@ -36,8 +40,11 @@
         "@typescript-eslint/parser": "^5.57.1",
         "@vitejs/plugin-react": "^4.0.0",
         "eslint": "^8.38.0",
+        "eslint-plugin-jsx-a11y": "^6.10.2",
+        "eslint-plugin-react": "^7.37.5",
         "eslint-plugin-react-hooks": "^4.6.0",
         "eslint-plugin-react-refresh": "^0.3.4",
+        "start-server-and-test": "^2.1.5",
         "typescript": "^5.0.2",
         "vite": "^4.3.2"
     },

@@ -420,7 +420,6 @@ export function MapView() {
         role="region"
         aria-label="Interactive Cleveland Metroparks map"
         aria-describedby="map-keyboard-instructions"
-        tabIndex={0}
         style={{
           width: '100%',
           height: '100%',

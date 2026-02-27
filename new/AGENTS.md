@@ -28,6 +28,7 @@ Read these files first, in this order:
 - Dev server: `npm run dev` (port `3001`)
 - Lint: `npm run lint`
 - Type check: `npm run type-check`
+- Accessibility gate: `npm run test:a11y`
 - Build: `npm run build`
 
 ## Architecture Invariants (Do Not Break)
@@ -115,7 +116,8 @@ Run before handing off:
 
 1. `npm run lint`
 2. `npm run type-check`
-3. If build-related changes: `npm run build`
+3. `npm run test:a11y` for accessibility-impacting UI changes
+4. If build-related changes: `npm run build`
 
 Manual sanity checks for map-related changes:
 

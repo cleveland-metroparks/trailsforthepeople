@@ -226,7 +226,6 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     const isActive = activeTab === value
     const isTopSection = section === 'top'
     const tabId = `sidebar-tab-${value}`
-    const panelId = `sidebar-panel-${value}`
 
     // Top section: rounded highlight, not full width, no left border
     // Bottom section: full width with left border
@@ -238,7 +237,6 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           tabIndex={0}
           id={tabId}
           aria-selected={isActive}
-          aria-controls={panelId}
           onClick={(event) => {
             lastFocusedNavTabRef.current = event.currentTarget
             handleTabChange(value)
@@ -303,7 +301,6 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
         tabIndex={0}
         id={tabId}
         aria-selected={isActive}
-        aria-controls={panelId}
         onClick={(event) => {
           lastFocusedNavTabRef.current = event.currentTarget
           handleTabChange(value)
@@ -389,7 +386,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
         },
       })}
     >
-      <Tabs.List role="tablist" aria-label="Sidebar navigation">
+      <Tabs.List aria-label="Sidebar navigation">
         {/* Header - Image when expanded, hamburger when collapsed */}
         <Box
           style={{

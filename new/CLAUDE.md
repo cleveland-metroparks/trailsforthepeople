@@ -9,6 +9,7 @@ npm run dev          # Start dev server at http://localhost:3001
 npm run build        # tsc + vite build → dist/
 npm run lint         # ESLint (zero warnings enforced)
 npm run type-check   # tsc --noEmit (no emit, type errors only)
+npm run test:a11y    # Playwright keyboard + axe accessibility smoke checks
 ```
 
 ## Environment Variables

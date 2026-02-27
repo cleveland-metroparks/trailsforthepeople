@@ -50,6 +50,7 @@ App available at **http://localhost:3001**
 | `npm run build` | Production build → `dist/` |
 | `npm run lint` | ESLint (zero warnings enforced) |
 | `npm run type-check` | TypeScript check (no emit) |
+| `npm run test:a11y` | Playwright keyboard + axe accessibility smoke checks |
 | `npm run preview` | Preview production build locally |
 
 ## Project Structure
