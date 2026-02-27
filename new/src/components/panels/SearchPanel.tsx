@@ -1,6 +1,7 @@
 import { TextInput, Button, Stack, Text, Box, Loader, Badge, Alert, Group } from '@mantine/core'
 import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
+import { BackButton } from '../BackButton'
 import { Search } from 'tabler-icons-react'
 import { useSearch } from '../../contexts/SearchContext'
 import { useMap } from '../../contexts/MapContext'
@@ -17,7 +18,7 @@ import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
 import { getTrailGeometry } from '../../lib/api'
 import type { Reservation, TransformedAttraction, TransformedTrail } from '../../types/api'
 import mapboxgl from 'mapbox-gl'
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { AttractionDetailPane } from './details/AttractionDetailPane'
 import { ParkDetailPane } from './details/ParkDetailPane'
 import { TrailDetailPane } from './details/TrailDetailPane'
@@ -274,6 +275,16 @@ export function SearchPanel(_props: SearchPanelProps) {
     }
   }, [coordinates, map, setSearchTerm])
 
+  const handleBackToSearchResults = useCallback(() => {
+    if (map) {
+      clearTrailHighlight(map)
+    }
+    currentTrailRef.current = null
+    zoomedFeatureIdRef.current = null
+    // Clear URL params - selectedSearchResult will be null automatically
+    setParams({ type: null, gid: null, fromSearch: null }, false, true)
+  }, [map, setParams])
+
   // Show loading state only if data is actually still loading
   // This prevents the flash when clicking results - if data is loaded, selectedFeature
   // will be found synchronously via useMemo
@@ -281,17 +292,7 @@ export function SearchPanel(_props: SearchPanelProps) {
     return (
       <Box p="md" pr="sm" style={{ position: 'relative' }}>
         <Stack spacing="md">
-          <Button
-            variant="subtle"
-            size="sm"
-            onClick={() => {
-              // Clear URL params - selectedSearchResult will be null automatically
-              setParams({ type: null, gid: null, fromSearch: null }, false, true)
-            }}
-            style={{ alignSelf: 'flex-start' }}
-          >
-            ← Search Results
-          </Button>
+          <BackButton onClick={handleBackToSearchResults} />
           <Box style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
             <Loader size="sm" />
           </Box>
@@ -311,20 +312,7 @@ export function SearchPanel(_props: SearchPanelProps) {
           categoriesMap={categoriesMap}
           activities={activities}
           parkName={getParkName('attraction', selectedSearchResult.gid)}
-          backButton={
-            <Button
-              variant="subtle"
-              size="sm"
-              onClick={() => {
-                zoomedFeatureIdRef.current = null
-                // Clear URL params - selectedSearchResult will be null automatically
-                setParams({ type: null, gid: null, fromSearch: null }, false, true)
-              }}
-              style={{ alignSelf: 'flex-start' }}
-            >
-              ← Search Results
-            </Button>
-          }
+          backButton={<BackButton onClick={handleBackToSearchResults} />}
         />
       )
     }
@@ -335,20 +323,7 @@ export function SearchPanel(_props: SearchPanelProps) {
       return (
         <ParkDetailPane
           park={park}
-          backButton={
-            <Button
-              variant="subtle"
-              size="sm"
-              onClick={() => {
-                zoomedFeatureIdRef.current = null
-                // Clear URL params - selectedSearchResult will be null automatically
-                setParams({ type: null, gid: null, fromSearch: null }, false, true)
-              }}
-              style={{ alignSelf: 'flex-start' }}
-            >
-              ← Search Results
-            </Button>
-          }
+          backButton={<BackButton onClick={handleBackToSearchResults} />}
         />
       )
     }
@@ -360,22 +335,7 @@ export function SearchPanel(_props: SearchPanelProps) {
         <TrailDetailPane
           trail={trail}
           parkName={getParkName('trail', selectedSearchResult.gid)}
-          backButton={
-            <Button
-              variant="subtle"
-              size="sm"
-              onClick={() => {
-                clearTrailHighlight(map)
-                currentTrailRef.current = null
-                zoomedFeatureIdRef.current = null
-                // Clear URL params - selectedSearchResult will be null automatically
-                setParams({ type: null, gid: null, fromSearch: null }, false, true)
-              }}
-              style={{ alignSelf: 'flex-start' }}
-            >
-              ← Search Results
-            </Button>
-          }
+          backButton={<BackButton onClick={handleBackToSearchResults} />}
         />
       )
     }
