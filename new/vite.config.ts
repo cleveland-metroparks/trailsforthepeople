@@ -41,6 +41,11 @@ export default defineConfig({
             if (id.includes('@turf')) {
               return 'turf-vendor'
             }
+            // Recharts has internal circular deps (Layer.js); keep it in its own chunk
+            // to avoid "Cannot access 'E' before initialization" in production builds
+            if (id.includes('recharts')) {
+              return 'recharts'
+            }
             // Group other vendor libraries
             return 'vendor'
           }
