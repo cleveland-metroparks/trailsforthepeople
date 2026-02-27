@@ -16,6 +16,20 @@ export function DetailTitle({ title }: DetailTitleProps) {
   )
 }
 
+interface DetailParkSectionProps {
+  parkName?: string | null
+}
+
+export function DetailParkSection({ parkName }: DetailParkSectionProps) {
+  if (!parkName) return null
+
+  return (
+    <Text size="sm" color="dimmed">
+      {parkName}
+    </Text>
+  )
+}
+
 interface DetailImageProps {
   pagethumbnail?: string
   alt: string

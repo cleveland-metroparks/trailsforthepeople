@@ -125,9 +125,17 @@ export function ActivitiesPanel(_props: ActivitiesPanelProps) {
     const map = new Map<number | string, string>()
     parks.forEach((park) => {
       map.set(park.record_id, park.pagetitle)
+      map.set(String(park.record_id), park.pagetitle)
     })
     return map
   }, [parks])
+
+  const selectedAttractionParkName = useMemo(() => {
+    if (!selectedAttraction) return null
+    const reservationId = (selectedAttraction as { reservation?: number | string }).reservation
+    if (!reservationId) return null
+    return parksMap.get(reservationId) ?? parksMap.get(String(reservationId)) ?? null
+  }, [selectedAttraction, parksMap])
 
   // Filter activities to only show those with icons and associated attractions
   const activitiesWithAttractions = activities.filter((activity) => {
@@ -158,6 +166,7 @@ export function ActivitiesPanel(_props: ActivitiesPanelProps) {
         attraction={selectedAttraction}
         categoriesMap={categoriesMap}
         activities={activities}
+        parkName={selectedAttractionParkName}
         backButton={
           <BackButton
             onClick={() => {

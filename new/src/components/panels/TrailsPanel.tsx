@@ -49,6 +49,11 @@ export function TrailsPanel(_props: TrailsPanelProps) {
     return trails.find((t) => String(t.id) === params.gid) || null
   }, [trails, params.type, params.gid])
 
+  const selectedTrailParkName = useMemo(() => {
+    if (!selectedTrail) return null
+    return ((selectedTrail as { res?: string }).res ?? null)
+  }, [selectedTrail])
+
   // Filter trails by selected reservation
   const filteredTrails = useMemo(() => {
     if (!trails) return []
@@ -185,6 +190,7 @@ export function TrailsPanel(_props: TrailsPanelProps) {
       <TrailDetailPane
         panelTitle="Trails"
         trail={selectedTrail}
+        parkName={selectedTrailParkName}
         backButton={
           <BackButton
             onClick={() => {

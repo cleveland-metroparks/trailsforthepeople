@@ -4,6 +4,7 @@ import { FeatureDetailLayout } from './FeatureDetailLayout'
 import type { TransformedTrail } from '../../../types/api'
 import {
   DetailTitle,
+  DetailParkSection,
   DetailHtmlDescription,
   DetailDirectionsSection,
   DetailShareSection,
@@ -11,14 +12,18 @@ import {
 
 interface TrailDetailPaneProps {
   trail: TransformedTrail
+  parkName?: string | null
   backButton: ReactNode
   panelTitle?: string
 }
 
-export function TrailDetailPane({ trail, backButton, panelTitle }: TrailDetailPaneProps) {
+export function TrailDetailPane({ trail, parkName, backButton, panelTitle }: TrailDetailPaneProps) {
   return (
     <FeatureDetailLayout panelTitle={panelTitle} backButton={backButton}>
-      <DetailTitle title={String(trail.name)} />
+      <Stack spacing={2}>
+        <DetailTitle title={String(trail.name)} />
+        <DetailParkSection parkName={parkName} />
+      </Stack>
 
       <Stack spacing="xs">
         {trail.distancetext && (

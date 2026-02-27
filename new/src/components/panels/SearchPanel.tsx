@@ -310,6 +310,7 @@ export function SearchPanel(_props: SearchPanelProps) {
           attraction={attraction}
           categoriesMap={categoriesMap}
           activities={activities}
+          parkName={getParkName('attraction', selectedSearchResult.gid)}
           backButton={
             <Button
               variant="subtle"
@@ -358,6 +359,7 @@ export function SearchPanel(_props: SearchPanelProps) {
       return (
         <TrailDetailPane
           trail={trail}
+          parkName={getParkName('trail', selectedSearchResult.gid)}
           backButton={
             <Button
               variant="subtle"

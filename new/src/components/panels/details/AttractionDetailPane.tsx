@@ -1,10 +1,11 @@
-import { Text, Box, Anchor, Divider } from '@mantine/core'
+import { Text, Box, Anchor, Divider, Stack } from '@mantine/core'
 import type { ReactNode } from 'react'
 import { ActivityIcon } from '../../ActivityIcon'
 import { FeatureDetailLayout } from './FeatureDetailLayout'
 import type { Activity, TransformedAttraction } from '../../../types/api'
 import {
   DetailTitle,
+  DetailParkSection,
   DetailImage,
   DetailDescription,
   DetailHoursSection,
@@ -17,6 +18,7 @@ interface AttractionDetailPaneProps {
   attraction: TransformedAttraction
   categoriesMap: Record<number, string>
   activities: Array<Activity & { icon?: string | null }>
+  parkName?: string | null
   backButton: ReactNode
   panelTitle?: string
 }
@@ -25,6 +27,7 @@ export function AttractionDetailPane({
   attraction,
   categoriesMap,
   activities,
+  parkName,
   backButton,
   panelTitle,
 }: AttractionDetailPaneProps) {
@@ -54,7 +57,10 @@ export function AttractionDetailPane({
 
   return (
     <FeatureDetailLayout panelTitle={panelTitle} backButton={backButton}>
-      <DetailTitle title={String(attraction.pagetitle)} />
+      <Stack spacing={2}>
+        <DetailTitle title={String(attraction.pagetitle)} />
+        <DetailParkSection parkName={parkName} />
+      </Stack>
 
       {categoryNames && (
         <Text size="sm" color="dimmed">
@@ -64,7 +70,7 @@ export function AttractionDetailPane({
 
       {sortedActivityIcons.length > 0 && (
         <Box>
-          <Text size="sm" weight={500} mb="xs">
+          <Text size="sm" weight={500} mb={4}>
             Activities:
           </Text>
           <Box
