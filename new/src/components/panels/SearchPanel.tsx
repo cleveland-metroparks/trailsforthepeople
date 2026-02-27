@@ -1,4 +1,4 @@
-import { TextInput, Button, Stack, Text, Box, Loader, Badge, Alert, Group } from '@mantine/core'
+import { TextInput, Button, Stack, Text, Box, Loader, Alert, Group } from '@mantine/core'
 import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
@@ -20,6 +20,7 @@ import type { Reservation, TransformedAttraction, TransformedTrail } from '../..
 import mapboxgl from 'mapbox-gl'
 import { useState, useRef, useEffect, useMemo, useCallback, useId } from 'react'
 import { AttractionDetailPane } from './details/AttractionDetailPane'
+import { MetadataBadge } from '../MetadataBadge'
 import { ParkDetailPane } from './details/ParkDetailPane'
 import { TrailDetailPane } from './details/TrailDetailPane'
 
@@ -536,9 +537,9 @@ export function SearchPanel(_props: SearchPanelProps) {
                           {getParkName(suggestion.type, suggestion.gid)}
                         </Text>
                       )}
-                      <Badge size="xs" variant="light">
+                      <MetadataBadge>
                         {getResultTypeLabel(suggestion.type)}
-                      </Badge>
+                      </MetadataBadge>
                     </Group>
                   </Box>
                 ))}
@@ -595,9 +596,9 @@ export function SearchPanel(_props: SearchPanelProps) {
                         {getParkName(result.type, result.gid)}
                       </Text>
                     )}
-                    <Badge size="xs" variant="light">
+                    <MetadataBadge>
                       {getResultTypeLabel(result.type)}
-                    </Badge>
+                    </MetadataBadge>
                   </Group>
                 </>
               )}

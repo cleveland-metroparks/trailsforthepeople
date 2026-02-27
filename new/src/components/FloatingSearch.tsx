@@ -1,4 +1,4 @@
-import { TextInput, Box, Stack, Text, Badge, Group } from '@mantine/core'
+import { TextInput, Box, Stack, Text, Group } from '@mantine/core'
 import { Search } from 'tabler-icons-react'
 import { useState, useRef, useEffect, useMemo, useId } from 'react'
 import { useSearch } from '../contexts/SearchContext'
@@ -8,6 +8,7 @@ import { useActivitiesData } from '../hooks/useActivitiesData'
 import { useParksData } from '../hooks/useParksData'
 import { useTrailsData } from '../hooks/useTrailsData'
 import { getResultTypeLabel } from '../lib/searchUtils'
+import { MetadataBadge } from './MetadataBadge'
 
 // Panel content width (matches Layout.tsx PANEL_WIDTH minus padding)
 const PANEL_CONTENT_WIDTH = 288 // 320px panel - 32px padding
@@ -234,9 +235,9 @@ export function FloatingSearch() {
                         {getParkName(suggestion.type, suggestion.gid)}
                       </Text>
                     )}
-                    <Badge size="xs" variant="light">
+                    <MetadataBadge>
                       {getResultTypeLabel(suggestion.type)}
-                    </Badge>
+                    </MetadataBadge>
                   </Group>
                 </Box>
               ))}

@@ -1,7 +1,8 @@
-import { Text, Box, Anchor, Divider, Stack } from '@mantine/core'
+import { Text, Box, Anchor, Divider, Stack, Group } from '@mantine/core'
 import type { ReactNode } from 'react'
 import { ActivityIcon } from '../../ActivityIcon'
 import { FeatureDetailLayout } from './FeatureDetailLayout'
+import { MetadataBadge } from '../../MetadataBadge'
 import type { Activity, TransformedAttraction } from '../../../types/api'
 import {
   DetailTitle,
@@ -35,7 +36,6 @@ export function AttractionDetailPane({
     ? attraction.categories
         .map((id) => categoriesMap[id])
         .filter((name): name is string => Boolean(name))
-        .join(', ')
     : null
 
   const activityIcons = attraction.activities
@@ -62,10 +62,14 @@ export function AttractionDetailPane({
         <DetailParkSection parkName={parkName} />
       </Stack>
 
-      {categoryNames && (
-        <Text size="sm" color="dimmed">
-          {categoryNames}
-        </Text>
+      {categoryNames && categoryNames.length > 0 && (
+        <Group spacing="xs">
+          {categoryNames.map((categoryName, index) => (
+            <MetadataBadge key={`${categoryName}-${index}`}>
+              {categoryName}
+            </MetadataBadge>
+          ))}
+        </Group>
       )}
 
       {sortedActivityIcons.length > 0 && (

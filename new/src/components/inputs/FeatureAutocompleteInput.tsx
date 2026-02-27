@@ -1,10 +1,11 @@
-import { Box, Text, TextInput, Badge, Stack, Group } from '@mantine/core'
+import { Box, Text, TextInput, Stack, Group } from '@mantine/core'
 import { useState, useRef, useEffect, useMemo, useId } from 'react'
 import { useSearchIndex } from '../../hooks/useSearchIndex'
 import { useActivitiesData } from '../../hooks/useActivitiesData'
 import { useParksData } from '../../hooks/useParksData'
 import { useTrailsData } from '../../hooks/useTrailsData'
 import { getResultTypeLabel } from '../../lib/searchUtils'
+import { MetadataBadge } from '../MetadataBadge'
 
 const DROPDOWN_STYLES = {
   position: 'absolute' as const,
@@ -236,9 +237,9 @@ export function FeatureAutocompleteInput({
                       {s.parkName}
                     </Text>
                   )}
-                  <Badge size="xs" variant="light">
+                  <MetadataBadge>
                     {getResultTypeLabel(s.type)}
-                  </Badge>
+                  </MetadataBadge>
                 </Group>
               </Box>
             ))}
