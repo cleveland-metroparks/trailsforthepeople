@@ -188,6 +188,10 @@ const PARK_HIGHLIGHT_LAYER_ID = 'park-highlight-layer'
 // Constants for trail highlight layer
 const TRAIL_HIGHLIGHT_SOURCE_ID = 'trail-highlight-source'
 const TRAIL_HIGHLIGHT_LAYER_ID = 'trail-highlight-layer'
+const TRAIL_START_SOURCE_ID = 'trail-start-source'
+const TRAIL_START_LAYER_ID = 'trail-start-layer'
+const TRAIL_END_SOURCE_ID = 'trail-end-source'
+const TRAIL_END_LAYER_ID = 'trail-end-layer'
 
 // Constants for attraction marker layer
 const ATTRACTION_MARKER_SOURCE_ID = 'attraction-marker-source'
@@ -512,13 +516,7 @@ export function highlightTrailLine(
  */
 function addTrailHighlightLayer(map: mapboxgl.Map, geojson: GeoJSON.FeatureCollection): boolean {
   try {
-    // Remove existing layer and source if they exist
-    if (map.getLayer(TRAIL_HIGHLIGHT_LAYER_ID)) {
-      map.removeLayer(TRAIL_HIGHLIGHT_LAYER_ID)
-    }
-    if (map.getSource(TRAIL_HIGHLIGHT_SOURCE_ID)) {
-      map.removeSource(TRAIL_HIGHLIGHT_SOURCE_ID)
-    }
+    clearTrailHighlightLayers(map)
 
     // Add the source
     map.addSource(TRAIL_HIGHLIGHT_SOURCE_ID, {
@@ -541,10 +539,106 @@ function addTrailHighlightLayer(map: mapboxgl.Map, geojson: GeoJSON.FeatureColle
         'line-opacity': 0.75,
       },
     })
+
+    const endpoints = getTrailEndpoints(geojson.features[0]?.geometry)
+    if (endpoints) {
+      // Start marker (green)
+      map.addSource(TRAIL_START_SOURCE_ID, {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: endpoints.start },
+          properties: {},
+        },
+      })
+      map.addLayer({
+        id: TRAIL_START_LAYER_ID,
+        type: 'circle',
+        source: TRAIL_START_SOURCE_ID,
+        paint: {
+          'circle-radius': 9,
+          'circle-color': '#22b14c',
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#fff',
+        },
+      })
+
+      // End marker (red)
+      map.addSource(TRAIL_END_SOURCE_ID, {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: endpoints.end },
+          properties: {},
+        },
+      })
+      map.addLayer({
+        id: TRAIL_END_LAYER_ID,
+        type: 'circle',
+        source: TRAIL_END_SOURCE_ID,
+        paint: {
+          'circle-radius': 9,
+          'circle-color': '#ed1c24',
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#fff',
+        },
+      })
+    }
     
     return !!map.getLayer(TRAIL_HIGHLIGHT_LAYER_ID)
   } catch {
     return false
+  }
+}
+
+function getTrailEndpoints(
+  geometry: GeoJSON.Geometry | undefined
+): { start: [number, number]; end: [number, number] } | null {
+  if (!geometry) return null
+
+  let start: [number, number] | null = null
+  let end: [number, number] | null = null
+
+  if (geometry.type === 'LineString') {
+    const coordinates = geometry.coordinates
+    if (coordinates.length >= 2) {
+      start = asLngLat(coordinates[0])
+      end = asLngLat(coordinates[coordinates.length - 1])
+    }
+  } else if (geometry.type === 'MultiLineString') {
+    const nonEmptyLines = geometry.coordinates.filter((line) => line.length > 0)
+    if (nonEmptyLines.length >= 1) {
+      start = asLngLat(nonEmptyLines[0][0])
+      const lastLine = nonEmptyLines[nonEmptyLines.length - 1]
+      end = asLngLat(lastLine[lastLine.length - 1])
+    }
+  }
+
+  if (!start || !end) return null
+  return { start, end }
+}
+
+function asLngLat(coords: GeoJSON.Position): [number, number] | null {
+  const [lng, lat] = coords
+  if (typeof lng !== 'number' || typeof lat !== 'number') return null
+  if (!isValidCoordinate(lat, lng)) return null
+  return [lng, lat]
+}
+
+function clearTrailHighlightLayers(map: mapboxgl.Map): void {
+  const layersAndSources = [
+    { layer: TRAIL_HIGHLIGHT_LAYER_ID, source: TRAIL_HIGHLIGHT_SOURCE_ID },
+    { layer: TRAIL_START_LAYER_ID, source: TRAIL_START_SOURCE_ID },
+    { layer: TRAIL_END_LAYER_ID, source: TRAIL_END_SOURCE_ID },
+  ]
+
+  for (const { layer, source } of layersAndSources) {
+    if (map.getLayer(layer)) {
+      map.removeLayer(layer)
+    }
+    if (map.getSource(source)) {
+      map.removeSource(source)
+    }
   }
 }
 
@@ -564,14 +658,7 @@ export function clearTrailHighlight(map: mapboxgl.Map | null): void {
 
   // Remove layer (check if it exists first)
   try {
-    if (map.getLayer(TRAIL_HIGHLIGHT_LAYER_ID)) {
-      map.removeLayer(TRAIL_HIGHLIGHT_LAYER_ID)
-    }
-
-    // Remove source
-    if (map.getSource(TRAIL_HIGHLIGHT_SOURCE_ID)) {
-      map.removeSource(TRAIL_HIGHLIGHT_SOURCE_ID)
-    }
+    clearTrailHighlightLayers(map)
   } catch {
     // Map might be in a state where layers can't be accessed
   }
