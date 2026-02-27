@@ -36,6 +36,7 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
     error,
     coordinates,
     submitSearch,
+    selectFromSuggestion,
   } = useSearch()
 
   const { map } = useMap()
@@ -638,12 +639,22 @@ export function SearchPanel({ onClose: _onClose }: SearchPanelProps) {
   }
 
   const handleSuggestionClick = (suggestion: typeof autocompleteSuggestions[0]) => {
+    if (!suggestion.location) return
+    selectFromSuggestion(suggestion)
     setSearchTerm(suggestion.title)
     setShowAutocomplete(false)
-    // Perform search with the selected suggestion
-    setTimeout(() => {
-      submitSearch()
-    }, 0)
+    setSelectedIndex(-1)
+    shouldZoomRef.current = true
+    const urlType = searchToUrlType[suggestion.type] || suggestion.type
+    setParams(
+      {
+        type: urlType,
+        gid: String(suggestion.gid),
+        fromSearch: 'true',
+      },
+      false,
+      true
+    )
   }
 
   const handleResultClick = (result: typeof searchResults[0]) => {

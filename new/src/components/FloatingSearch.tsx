@@ -3,6 +3,7 @@ import { Search } from 'tabler-icons-react'
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { useSearch } from '../contexts/SearchContext'
 import { useSidebar } from '../contexts/SidebarContext'
+import { useURLState } from '../hooks/useURLState'
 import { useActivitiesData } from '../hooks/useActivitiesData'
 import { useParksData } from '../hooks/useParksData'
 import { useTrailsData } from '../hooks/useTrailsData'
@@ -11,9 +12,16 @@ import { getResultTypeLabel } from '../lib/searchUtils'
 // Panel content width (matches Layout.tsx PANEL_WIDTH minus padding)
 const PANEL_CONTENT_WIDTH = 288 // 320px panel - 32px padding
 
+const searchToUrlType: Record<string, string> = {
+  attraction: 'attraction',
+  reservation: 'park',
+  trail: 'trail',
+}
+
 export function FloatingSearch() {
   const { isSidebarCollapsed, navWidth, onSearchSubmit } = useSidebar()
-  const { searchTerm, setSearchTerm, submitSearch, autocompleteSuggestions } = useSearch()
+  const { searchTerm, setSearchTerm, submitSearch, selectFromSuggestion, autocompleteSuggestions } = useSearch()
+  const { setParams } = useURLState()
   const { attractions } = useActivitiesData()
   const { data: parks } = useParksData()
   const { data: trails } = useTrailsData()
@@ -105,12 +113,22 @@ export function FloatingSearch() {
   }
 
   const handleSuggestionClick = (suggestion: (typeof autocompleteSuggestions)[0]) => {
+    if (!suggestion.location) return
+    selectFromSuggestion(suggestion)
     setSearchTerm(suggestion.title)
     setShowAutocomplete(false)
-    setTimeout(() => {
-      submitSearch()
-      onSearchSubmit()
-    }, 0)
+    setSelectedIndex(-1)
+    const urlType = searchToUrlType[suggestion.type] || suggestion.type
+    setParams(
+      {
+        type: urlType,
+        gid: String(suggestion.gid),
+        fromSearch: 'true',
+      },
+      false,
+      true
+    )
+    onSearchSubmit()
   }
 
   return (

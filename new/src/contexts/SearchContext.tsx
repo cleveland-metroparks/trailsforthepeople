@@ -24,6 +24,7 @@ interface SearchContextType {
   selectedSearchResult: SearchResultWithLocation | null
   setSearchTerm: (term: string) => void
   submitSearch: () => void
+  selectFromSuggestion: (suggestion: SearchResultWithLocation) => void
   clearSearch: () => void
   selectSearchResult: (result: SearchResultWithLocation) => void
   clearSelectedResult: () => void
@@ -174,6 +175,16 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   }, [searchTerm, search, enhanceResult])
 
   /**
+   * Select directly from autocomplete suggestion (skip search results pane)
+   */
+  const selectFromSuggestion = useCallback((suggestion: SearchResultWithLocation) => {
+    setSearchResults([suggestion])
+    setAutocompleteSuggestions([])
+    setError(null)
+    setCoordinates(null)
+  }, [])
+
+  /**
    * Clear search
    */
   const clearSearch = useCallback(() => {
@@ -220,6 +231,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
         selectedSearchResult,
         setSearchTerm,
         submitSearch,
+        selectFromSuggestion,
         clearSearch,
         selectSearchResult,
         clearSelectedResult,
