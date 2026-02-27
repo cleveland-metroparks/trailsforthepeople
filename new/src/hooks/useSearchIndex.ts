@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Document } from 'flexsearch'
+import { Document, type DocumentData } from 'flexsearch'
 import { useActivitiesData } from './useActivitiesData'
 import { useParksData } from './useParksData'
 import { useTrailsData } from './useTrailsData'
@@ -20,7 +20,6 @@ export interface SearchItem {
   s?: number | null
   e?: number | null
   n?: number | null
-  [key: string]: unknown // Index signature for FlexSearch compatibility
 }
 
 /**
@@ -39,6 +38,11 @@ export function useSearchIndex() {
   const { attractions } = useActivitiesData()
   const { data: reservations } = useParksData()
   const { data: trails } = useTrailsData()
+
+  const toDocumentData = (item: SearchItem): DocumentData => {
+    // FlexSearch documents cannot include undefined values.
+    return Object.fromEntries(Object.entries(item).filter(([, value]) => value !== undefined))
+  }
 
   // Build unified search index
   const index = useMemo(() => {
@@ -70,7 +74,7 @@ export function useSearchIndex() {
           lng: Number(attraction.longitude),
           gid: String(attraction.gis_id || attraction.record_id || ''),
         }
-        searchIndex.add(item as unknown as Record<string, unknown>)
+        searchIndex.add(toDocumentData(item))
       }
     })
 
@@ -90,7 +94,7 @@ export function useSearchIndex() {
             e: reservation.boxe ? Number(reservation.boxe) : undefined,
             n: reservation.boxn ? Number(reservation.boxn) : undefined,
           }
-          searchIndex.add(item as unknown as Record<string, unknown>)
+          searchIndex.add(toDocumentData(item))
         }
       })
     }
@@ -111,7 +115,7 @@ export function useSearchIndex() {
             e: trail.boxe ? Number(trail.boxe) : undefined,
             n: trail.boxn ? Number(trail.boxn) : undefined,
           }
-          searchIndex.add(item as unknown as Record<string, unknown>)
+          searchIndex.add(toDocumentData(item))
         }
       })
     }
