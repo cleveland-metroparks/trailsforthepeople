@@ -1,4 +1,3 @@
-import { useMediaQuery } from '@mantine/hooks'
 import { useSidebar } from '../contexts/SidebarContext'
 
 /**
@@ -14,13 +13,7 @@ import { useSidebar } from '../contexts/SidebarContext'
  * ```
  */
 export function useSidebarAwarePadding(basePadding = 120): { top: number; bottom: number; left: number; right: number } {
-  const { isSidebarCollapsed } = useSidebar()
-  const isLargeScreen = useMediaQuery('(min-width: 992px)') // Mantine's lg breakpoint
-
-  // Calculate sidebar width: 400px (lg) or 300px (sm) when open, 80px when collapsed
-  const sidebarWidth = isSidebarCollapsed
-    ? 80
-    : (isLargeScreen ? 400 : 300)
+  const { sidebarWidth } = useSidebar()
 
   return {
     top: basePadding,

@@ -1,16 +1,13 @@
 import { AppShell, Navbar } from '@mantine/core'
 import { useState, useRef } from 'react'
 import { Sidebar, SidebarRef } from './Sidebar'
-import { NAV_WIDTH_EXPANDED, NAV_WIDTH_COLLAPSED } from './sidebarConstants'
+import { NAV_WIDTH_EXPANDED, NAV_WIDTH_COLLAPSED, PANEL_WIDTH } from './sidebarConstants'
 import { SearchProvider } from '../contexts/SearchContext'
 import { SidebarProvider } from '../contexts/SidebarContext'
 import { MapProvider } from '../contexts/MapContext'
 import { MapHoverProvider } from '../contexts/MapHoverContext'
 import { MapSelectionProvider } from '../contexts/MapSelectionContext'
 import { DirectionsProvider } from '../contexts/DirectionsContext'
-
-// Panel width when content is shown
-const PANEL_WIDTH = 320
 
 interface LayoutProps {
   children: React.ReactNode
@@ -40,6 +37,7 @@ export function Layout({ children }: LayoutProps) {
             <SidebarProvider
               isSidebarCollapsed={!hasActivePanel}
               navWidth={navWidth}
+              sidebarWidth={totalWidth}
               onSearchSubmit={handleSearchSubmit}
             >
         <AppShell

@@ -166,6 +166,7 @@ export function zoomToFeature(
     const flyToOptions: Parameters<mapboxgl.Map['flyTo']>[0] = {
       center: [feature.lng, feature.lat],
       zoom,
+      padding,
     }
 
     if (duration !== undefined) {

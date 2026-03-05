@@ -3,6 +3,7 @@ import { createContext, useContext, ReactNode } from 'react'
 interface SidebarContextType {
   isSidebarCollapsed: boolean
   navWidth: number
+  sidebarWidth: number
   onSearchSubmit: () => void
 }
 
@@ -12,15 +13,17 @@ export function SidebarProvider({
   children,
   isSidebarCollapsed,
   navWidth,
+  sidebarWidth,
   onSearchSubmit,
 }: {
   children: ReactNode
   isSidebarCollapsed: boolean
   navWidth: number
+  sidebarWidth: number
   onSearchSubmit: () => void
 }) {
   return (
-    <SidebarContext.Provider value={{ isSidebarCollapsed, navWidth, onSearchSubmit }}>
+    <SidebarContext.Provider value={{ isSidebarCollapsed, navWidth, sidebarWidth, onSearchSubmit }}>
       {children}
     </SidebarContext.Provider>
   )
