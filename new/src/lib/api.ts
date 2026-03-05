@@ -249,8 +249,15 @@ export async function getDirections(
       break
   }
 
-  const response = await apiClient.get<DirectionsApiResponse>(endpoint, { params })
-  return response.data.data
+  try {
+    const response = await apiClient.get<DirectionsApiResponse>(endpoint, { params })
+    return response.data.data
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data && typeof error.response.data === 'object' && 'message' in error.response.data && typeof (error.response.data as { message?: unknown }).message === 'string') {
+      throw new Error((error.response.data as { message: string }).message)
+    }
+    throw error
+  }
 }
 
 export { apiClient }
