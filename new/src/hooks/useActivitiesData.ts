@@ -3,6 +3,9 @@ import { getActivities, getAttractions } from '../lib/api'
 import type { Activity, TransformedAttraction } from '../types/api'
 import { filterAttractionsByActivity } from '../lib/dataTransform'
 
+const EMPTY_ACTIVITIES: (Activity & { icon: string | null })[] = []
+const EMPTY_ATTRACTIONS: TransformedAttraction[] = []
+
 export function useActivitiesData() {
   const activitiesQuery = useQuery<(Activity & { icon: string | null })[], Error>({
     queryKey: ['activities'],
@@ -17,8 +20,8 @@ export function useActivitiesData() {
   })
 
   return {
-    activities: activitiesQuery.data ?? [],
-    attractions: attractionsQuery.data ?? [],
+    activities: activitiesQuery.data ?? EMPTY_ACTIVITIES,
+    attractions: attractionsQuery.data ?? EMPTY_ATTRACTIONS,
     isLoading: activitiesQuery.isLoading || attractionsQuery.isLoading,
     isError: activitiesQuery.isError || attractionsQuery.isError,
     error: activitiesQuery.error || attractionsQuery.error,

@@ -80,6 +80,15 @@ export function FeatureAutocompleteInput({
     }
   }, [attractions, parks, trails])
 
+  // Keep refs to latest autocomplete/getParkName to avoid re-triggering the
+  // debounce effect when only these function references change.
+  const autocompleteRef = useRef(autocomplete)
+  const getParkNameRef = useRef(getParkName)
+  useEffect(() => {
+    autocompleteRef.current = autocomplete
+    getParkNameRef.current = getParkName
+  }, [autocomplete, getParkName])
+
   // Update suggestions when value changes (debounced)
   useEffect(() => {
     if (debounceRef.current) {
@@ -87,12 +96,12 @@ export function FeatureAutocompleteInput({
     }
 
     if (!value.trim() || value.length < 2 || !isReady) {
-      setSuggestions([])
+      setSuggestions((prev) => (prev.length === 0 ? prev : []))
       return
     }
 
     debounceRef.current = setTimeout(() => {
-      const results = autocomplete(value, 8)
+      const results = autocompleteRef.current(value, 8)
       setSuggestions(
         results
           .filter((r) => r.lat != null && r.lng != null)
@@ -100,7 +109,7 @@ export function FeatureAutocompleteInput({
             id: r.id,
             title: r.title,
             type: r.type,
-            parkName: getParkName(r.type, r.gid),
+            parkName: getParkNameRef.current(r.type, r.gid),
             lat: r.lat,
             lng: r.lng,
           }))
@@ -112,7 +121,7 @@ export function FeatureAutocompleteInput({
         clearTimeout(debounceRef.current)
       }
     }
-  }, [value, isReady, autocomplete, getParkName])
+  }, [value, isReady])
 
   // Show dropdown when we have suggestions and user has typed enough
   const shouldShowDropdown = showSuggestions && suggestions.length > 0 && value.length >= 2
