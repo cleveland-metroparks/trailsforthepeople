@@ -206,6 +206,7 @@ const DIRECTIONS_START_SOURCE_ID = 'directions-start-source'
 const DIRECTIONS_START_LAYER_ID = 'directions-start-layer'
 const DIRECTIONS_END_SOURCE_ID = 'directions-end-source'
 const DIRECTIONS_END_LAYER_ID = 'directions-end-layer'
+const DIRECTIONS_PREVIEW_MAX_ZOOM = DEFAULT_POI_ZOOM
 
 // Version counter to invalidate stale highlight operations (handles race conditions
 // when user clicks trails faster than style.load can complete)
@@ -812,29 +813,7 @@ export function drawDirectionsLine(
         paint: { 'line-color': '#0000FF', 'line-width': 6, 'line-opacity': 0.5 },
       })
 
-      // Start marker (green)
-      map.addSource(DIRECTIONS_START_SOURCE_ID, {
-        type: 'geojson',
-        data: { type: 'Feature', geometry: { type: 'Point', coordinates: [from.lng, from.lat] }, properties: {} },
-      })
-      map.addLayer({
-        id: DIRECTIONS_START_LAYER_ID,
-        type: 'circle',
-        source: DIRECTIONS_START_SOURCE_ID,
-        paint: { 'circle-radius': 9, 'circle-color': '#22b14c', 'circle-stroke-width': 2, 'circle-stroke-color': '#fff' },
-      })
-
-      // End marker (red)
-      map.addSource(DIRECTIONS_END_SOURCE_ID, {
-        type: 'geojson',
-        data: { type: 'Feature', geometry: { type: 'Point', coordinates: [to.lng, to.lat] }, properties: {} },
-      })
-      map.addLayer({
-        id: DIRECTIONS_END_LAYER_ID,
-        type: 'circle',
-        source: DIRECTIONS_END_SOURCE_ID,
-        paint: { 'circle-radius': 9, 'circle-color': '#ed1c24', 'circle-stroke-width': 2, 'circle-stroke-color': '#fff' },
-      })
+      addDirectionsEndpointMarkers(map, from, to)
     } catch (error) {
       console.warn('drawDirectionsLine: Error adding layers', error)
     }
@@ -861,11 +840,71 @@ export function clearDirectionsLine(map: mapboxgl.Map | null): void {
 
   try {
     for (const { layer, source } of layersAndSources) {
-      if (map.getLayer(layer)) map.removeLayer(layer)
-      if (map.getSource(source)) map.removeSource(source)
+      removeLayerAndSource(map, layer, source)
     }
   } catch {
     // Map might be in a transitional state
+  }
+}
+
+/**
+ * Draw only directions start/end markers before route geometry is available.
+ */
+export function drawDirectionsEndpoints(
+  map: mapboxgl.Map | null,
+  from: { lat: number; lng: number },
+  to: { lat: number; lng: number }
+): void {
+  if (!map) return
+  if (!isValidCoordinate(from.lat, from.lng) || !isValidCoordinate(to.lat, to.lng)) {
+    console.warn('drawDirectionsEndpoints: Invalid coordinates', { from, to })
+    return
+  }
+
+  const addLayers = () => {
+    try {
+      // Ensure stale route geometry is gone while keeping endpoint markers.
+      removeLayerAndSource(map, DIRECTIONS_LINE_LAYER_ID, DIRECTIONS_LINE_SOURCE_ID)
+      addDirectionsEndpointMarkers(map, from, to)
+    } catch (error) {
+      console.warn('drawDirectionsEndpoints: Error adding endpoint markers', error)
+    }
+  }
+
+  if (!map.isStyleLoaded()) {
+    map.once('style.load', addLayers)
+  } else {
+    addLayers()
+  }
+}
+
+/**
+ * Zoom map to the extent of origin/destination points while route is loading.
+ */
+export function zoomToDirectionsEndpoints(
+  map: mapboxgl.Map | null,
+  from: { lat: number; lng: number },
+  to: { lat: number; lng: number },
+  padding: number | { top?: number; bottom?: number; left?: number; right?: number } = 60
+): void {
+  if (!map) return
+  if (!isValidCoordinate(from.lat, from.lng) || !isValidCoordinate(to.lat, to.lng)) {
+    console.warn('zoomToDirectionsEndpoints: Invalid coordinates', { from, to })
+    return
+  }
+
+  try {
+    const start = new mapboxgl.LngLat(from.lng, from.lat)
+    const end = new mapboxgl.LngLat(to.lng, to.lat)
+    const bounds = new mapboxgl.LngLatBounds(start, start)
+    bounds.extend(end)
+
+    map.fitBounds(bounds, {
+      padding,
+      maxZoom: DIRECTIONS_PREVIEW_MAX_ZOOM,
+    })
+  } catch (error) {
+    console.warn('zoomToDirectionsEndpoints: Error fitting bounds', error)
   }
 }
 
@@ -887,4 +926,40 @@ export function zoomToDirectionsBounds(
   } catch (error) {
     console.warn('zoomToDirectionsBounds: Error fitting bounds', error)
   }
+}
+
+function addDirectionsEndpointMarkers(
+  map: mapboxgl.Map,
+  from: { lat: number; lng: number },
+  to: { lat: number; lng: number }
+): void {
+  removeLayerAndSource(map, DIRECTIONS_START_LAYER_ID, DIRECTIONS_START_SOURCE_ID)
+  removeLayerAndSource(map, DIRECTIONS_END_LAYER_ID, DIRECTIONS_END_SOURCE_ID)
+
+  map.addSource(DIRECTIONS_START_SOURCE_ID, {
+    type: 'geojson',
+    data: { type: 'Feature', geometry: { type: 'Point', coordinates: [from.lng, from.lat] }, properties: {} },
+  })
+  map.addLayer({
+    id: DIRECTIONS_START_LAYER_ID,
+    type: 'circle',
+    source: DIRECTIONS_START_SOURCE_ID,
+    paint: { 'circle-radius': 9, 'circle-color': '#22b14c', 'circle-stroke-width': 2, 'circle-stroke-color': '#fff' },
+  })
+
+  map.addSource(DIRECTIONS_END_SOURCE_ID, {
+    type: 'geojson',
+    data: { type: 'Feature', geometry: { type: 'Point', coordinates: [to.lng, to.lat] }, properties: {} },
+  })
+  map.addLayer({
+    id: DIRECTIONS_END_LAYER_ID,
+    type: 'circle',
+    source: DIRECTIONS_END_SOURCE_ID,
+    paint: { 'circle-radius': 9, 'circle-color': '#ed1c24', 'circle-stroke-width': 2, 'circle-stroke-color': '#fff' },
+  })
+}
+
+function removeLayerAndSource(map: mapboxgl.Map, layerId: string, sourceId: string): void {
+  if (map.getLayer(layerId)) map.removeLayer(layerId)
+  if (map.getSource(sourceId)) map.removeSource(sourceId)
 }

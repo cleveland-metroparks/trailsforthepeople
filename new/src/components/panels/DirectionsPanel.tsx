@@ -14,10 +14,12 @@ import { getDirections as fetchDirections } from '../../lib/api'
 import { wktToGeoJSON } from '../../lib/wktUtils'
 import {
   drawDirectionsLine,
+  drawDirectionsEndpoints,
   clearAttractionMarker,
   clearDirectionsLine,
   clearParkHighlight,
   clearTrailHighlight,
+  zoomToDirectionsEndpoints,
   zoomToDirectionsBounds,
 } from '../../lib/mapUtils'
 import { FeatureAutocompleteInput } from '../inputs/FeatureAutocompleteInput'
@@ -129,6 +131,11 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
         return
       }
       setTargetLngLat(destination)
+
+      if (map) {
+        drawDirectionsEndpoints(map, source, destination)
+        zoomToDirectionsEndpoints(map, source, destination, sidebarAwarePadding)
+      }
 
       const directions = await fetchDirections(
         source.lat,
