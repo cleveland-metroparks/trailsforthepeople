@@ -355,6 +355,9 @@ export function SearchPanel(_props: SearchPanelProps) {
     if (e.key === 'Escape') {
       setShowAutocomplete(false)
       setSelectedIndex(-1)
+    } else if (e.key === 'Tab') {
+      setShowAutocomplete(false)
+      setSelectedIndex(-1)
     } else if (showAutocomplete && autocompleteSuggestions.length > 0) {
       if (e.key === 'ArrowDown') {
         e.preventDefault()
@@ -473,6 +476,10 @@ export function SearchPanel(_props: SearchPanelProps) {
                 setShowAutocomplete(true)
               }
             }}
+            onBlur={() => {
+              setShowAutocomplete(false)
+              setSelectedIndex(-1)
+            }}
             rightSection={<Search size={16} />}
             size="lg"
             styles={{
@@ -524,6 +531,10 @@ export function SearchPanel(_props: SearchPanelProps) {
                       '&:last-child': {
                         borderBottom: 'none',
                       },
+                    }}
+                    onMouseDown={(e) => {
+                      // Keep focus on the input long enough for click to fire.
+                      e.preventDefault()
                     }}
                     onClick={() => handleSuggestionClick(suggestion)}
                     onMouseEnter={() => setSelectedIndex(idx)}
