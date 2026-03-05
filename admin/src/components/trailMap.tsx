@@ -69,7 +69,9 @@ export function TrailMap(props: TrailMapProps) {
   // if (props.trailGeom == null) {
   //   props.trailGeom = '{"type":"MultiLineString","coordinates":[]}';
   // }
+  const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapRef>(null);
+  const mapContainerWidthRef = useRef<number | null>(null);
 
   const [currentTab, setCurrentTab] = useState(props.activeTab);
 
@@ -164,6 +166,30 @@ export function TrailMap(props: TrailMapProps) {
       setPopoverPosition({ x: point.x, y: point.y });
     }
   }, [vertexInfo, popoverOpened]);
+
+  // Trigger map resize when container width changes (e.g., navbar collapse)
+  useEffect(() => {
+    if (!mapContainerRef.current) {
+      return;
+    }
+
+    const observer = new ResizeObserver(() => {
+      const width = mapContainerRef.current?.getBoundingClientRect().width;
+      if (!width || width === mapContainerWidthRef.current) {
+        return;
+      }
+
+      mapContainerWidthRef.current = width;
+      mapRef.current?.resize();
+      updatePopoverPosition();
+    });
+
+    observer.observe(mapContainerRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [updatePopoverPosition]);
 
   // Update popover position when map height changes (after resize completes)
   useEffect(() => {
@@ -545,7 +571,7 @@ export function TrailMap(props: TrailMapProps) {
 
   return (
     <>
-      <Box className={styles.mapContainer}>
+      <Box className={styles.mapContainer} ref={mapContainerRef}>
         <ReactMapGl.Map
           // "reuseMaps" bypasses initialization when a map is removed and re-added
           // (switching screens, tabs, etc.) in order to avoid MapBox
