@@ -5,12 +5,17 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import { useMapConfig } from '../hooks/useMapConfig'
 import { FloatingSearch } from './FloatingSearch'
 import { useActivitiesData } from '../hooks/useActivitiesData'
+import { useParksData } from '../hooks/useParksData'
+import { useReservationBoundaries } from '../hooks/useReservationBoundaries'
+import { useSidebarAwarePadding } from '../hooks/useSidebarAwarePadding'
 import { useMap } from '../contexts/MapContext'
 import { useMapHover } from '../contexts/MapHoverContext'
 import { useMapSelection } from '../contexts/MapSelectionContext'
 import { useURLState } from '../hooks/useURLState'
 import { useMapURLSync, getInitialMapStateFromURL } from '../hooks/useMapURLSync'
 import { ResetMapControl } from './ResetMapControl'
+import { clearParkHighlight, fadeOutParkHighlight, getBoundingBoxFromGeometry, highlightParkBoundary, zoomToFeature } from '../lib/mapUtils'
+import type { Reservation } from '../types/api'
 
 function normalizeGisId(value: unknown): string | null {
   if (value === null || value === undefined) return null
@@ -39,23 +44,61 @@ function isClickableFeature(
   return isValidGisId(props.gis_id, validIds)
 }
 
-function getFilteredFeatures(
-  map: mapboxgl.Map,
-  point: mapboxgl.PointLike,
-  allowedLayerIds: Set<string>
-): mapboxgl.MapboxGeoJSONFeature[] {
-  return map.queryRenderedFeatures(point).filter((feature) => {
-    const layerId = feature.layer?.id
-    return layerId ? allowedLayerIds.has(layerId) : false
-  })
-}
-
 function isAttractionGroupFeature(
   feature: mapboxgl.MapboxGeoJSONFeature,
   attractionGroupLayerIds: Set<string>
 ): boolean {
   const layerId = feature.layer?.id
   return layerId ? attractionGroupLayerIds.has(layerId) : false
+}
+
+function normalizeParkName(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const normalized = value.trim().toLowerCase()
+  return normalized.length > 0 ? normalized : null
+}
+
+function getParkLabelNamesAtPoint(
+  features: mapboxgl.MapboxGeoJSONFeature[],
+  parkLabelLayerIds: Set<string>
+): string[] {
+  const names: string[] = []
+  const seen = new Set<string>()
+
+  features.forEach((feature) => {
+    const layerId = feature.layer?.id
+    if (!layerId || !parkLabelLayerIds.has(layerId)) return
+
+    const props = (feature.properties ?? {}) as Record<string, unknown>
+    const normalizedName = normalizeParkName(props.pagetitle)
+    if (!normalizedName || seen.has(normalizedName)) return
+
+    seen.add(normalizedName)
+    names.push(normalizedName)
+  })
+
+  return names
+}
+
+function filterFeaturesByLayerIds(
+  features: mapboxgl.MapboxGeoJSONFeature[],
+  layerIds: Set<string>
+): mapboxgl.MapboxGeoJSONFeature[] {
+  return features.filter((feature) => {
+    const layerId = feature.layer?.id
+    return layerId ? layerIds.has(layerId) : false
+  })
+}
+
+function safeQueryRenderedFeatures(
+  mapInstance: mapboxgl.Map,
+  point: mapboxgl.PointLike
+): mapboxgl.MapboxGeoJSONFeature[] {
+  try {
+    return mapInstance.queryRenderedFeatures(point)
+  } catch {
+    return []
+  }
 }
 
 function annotateMapControlButtons(mapInstance: mapboxgl.Map) {
@@ -80,15 +123,30 @@ function annotateMapControlButtons(mapInstance: mapboxgl.Map) {
   })
 }
 
+function setMapCanvasCursor(mapInstance: mapboxgl.Map, cursor: string): void {
+  try {
+    const canvas = mapInstance.getCanvas()
+    if (canvas) {
+      canvas.style.cursor = cursor
+    }
+  } catch {
+    // Map may already be torn down; ignore cursor updates.
+  }
+}
+
 export function MapView() {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
   const { attractions, isLoading: isAttractionsLoading } = useActivitiesData()
+  const { data: parks } = useParksData()
+  const { data: reservationBoundaries } = useReservationBoundaries()
   const { map: mapFromContext, setMap } = useMap()
   const { setHoverInfo } = useMapHover()
   const { bumpSelectionTick } = useMapSelection()
   const { setParams } = useURLState()
   const popupRef = useRef<mapboxgl.Popup | null>(null)
+  const labelHoveredParkNameRef = useRef<string | null>(null)
+  const sidebarAwarePadding = useSidebarAwarePadding(120)
   const { mapConfig } = useMapConfig()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -116,6 +174,46 @@ export function MapView() {
     })
     return set
   }, [attractions, isAttractionsLoading])
+  const parkLabelLayerIds = useMemo(
+    () => new Set(['Park Labels 9', 'Park Labels 10-12']),
+    []
+  )
+  const debugInteractiveLayerIds = useMemo(
+    () => new Set([...allowedLayerIds, ...parkLabelLayerIds]),
+    [allowedLayerIds, parkLabelLayerIds]
+  )
+  const debugExcludedLayerIds = useMemo(
+    () => new Set(['park-highlight-layer', 'park-highlight-layer-outline']),
+    []
+  )
+  const boundariesByParkName = useMemo(() => {
+    if (!reservationBoundaries) return new Map<string, GeoJSON.Polygon | GeoJSON.MultiPolygon>()
+
+    const boundaryMap = new Map<string, GeoJSON.Polygon | GeoJSON.MultiPolygon>()
+    reservationBoundaries.forEach((boundary) => {
+      const normalizedName = normalizeParkName(boundary.res)
+      if (!normalizedName) return
+
+      try {
+        const geometry = JSON.parse(boundary.geom_geojson) as GeoJSON.Polygon | GeoJSON.MultiPolygon
+        if (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') {
+          boundaryMap.set(normalizedName, geometry)
+        }
+      } catch (error) {
+        console.error('Failed to parse reservation boundary geometry', error)
+      }
+    })
+    return boundaryMap
+  }, [reservationBoundaries])
+  const parksByName = useMemo(() => {
+    const parkMap = new Map<string, Reservation>()
+    parks?.forEach((park) => {
+      const normalizedName = normalizeParkName(park.pagetitle)
+      if (!normalizedName) return
+      parkMap.set(normalizedName, park)
+    })
+    return parkMap
+  }, [parks])
 
   // Sync map position to URL
   useMapURLSync(mapFromContext)
@@ -254,18 +352,40 @@ export function MapView() {
     if (!mapFromContext) return
 
     const handleMouseMove = (event: mapboxgl.MapMouseEvent) => {
-      const features = getFilteredFeatures(mapFromContext, event.point, allowedLayerIds)
-      const allFeatures = mapFromContext.queryRenderedFeatures(event.point)
+      const rawAllFeatures = safeQueryRenderedFeatures(mapFromContext, event.point)
+      const allFeatures = rawAllFeatures.filter((feature) => {
+        const layerId = feature.layer?.id
+        return layerId ? !debugExcludedLayerIds.has(layerId) : true
+      })
+      const features = filterFeaturesByLayerIds(allFeatures, allowedLayerIds)
+      const debugFeatures = filterFeaturesByLayerIds(allFeatures, debugInteractiveLayerIds)
 
+      // Keep debug payload updates resilient even if hover-specific logic fails.
       setHoverInfo({
         lngLat: { lng: event.lngLat.lng, lat: event.lngLat.lat },
         point: { x: event.point.x, y: event.point.y },
-        features,
+        features: debugFeatures,
         allFeatures,
       })
 
-      if (features.length === 0) {
-        mapFromContext.getCanvas().style.cursor = ''
+      const parkLabelNames = getParkLabelNamesAtPoint(allFeatures, parkLabelLayerIds)
+      const clickableParkLabelName = parkLabelNames.find((name) => parksByName.has(name)) ?? null
+      const highlightParkLabelName = parkLabelNames.find((name) => boundariesByParkName.has(name)) ?? null
+      const hoveredParkGeometry = highlightParkLabelName
+        ? boundariesByParkName.get(highlightParkLabelName) ?? null
+        : null
+      const hasClickableParkLabelHover = Boolean(clickableParkLabelName)
+
+      if (hoveredParkGeometry && highlightParkLabelName && labelHoveredParkNameRef.current !== highlightParkLabelName) {
+        highlightParkBoundary(mapFromContext, hoveredParkGeometry)
+        labelHoveredParkNameRef.current = highlightParkLabelName
+      } else if (!hoveredParkGeometry && labelHoveredParkNameRef.current) {
+        clearParkHighlight(mapFromContext)
+        labelHoveredParkNameRef.current = null
+      }
+
+      if (features.length === 0 && !hasClickableParkLabelHover) {
+        setMapCanvasCursor(mapFromContext, '')
         popupRef.current?.remove()
         return
       }
@@ -278,14 +398,21 @@ export function MapView() {
       )
 
       if (clickableFeature) {
-        mapFromContext.getCanvas().style.cursor = 'pointer'
+        setMapCanvasCursor(mapFromContext, 'pointer')
+      } else if (hasClickableParkLabelHover) {
+        setMapCanvasCursor(mapFromContext, 'pointer')
       } else if (attractionGroupFeature) {
-        mapFromContext.getCanvas().style.cursor = 'zoom-in'
+        setMapCanvasCursor(mapFromContext, 'zoom-in')
       } else {
-        mapFromContext.getCanvas().style.cursor = ''
+        setMapCanvasCursor(mapFromContext, '')
       }
 
       if (clickableFeature || attractionGroupFeature) {
+        popupRef.current?.remove()
+        return
+      }
+
+      if (features.length === 0) {
         popupRef.current?.remove()
         return
       }
@@ -326,13 +453,18 @@ export function MapView() {
     }
 
     const handleMouseOut = () => {
-      mapFromContext.getCanvas().style.cursor = ''
+      setMapCanvasCursor(mapFromContext, '')
       popupRef.current?.remove()
+      if (labelHoveredParkNameRef.current) {
+        clearParkHighlight(mapFromContext)
+        labelHoveredParkNameRef.current = null
+      }
       setHoverInfo(null)
     }
 
     const handleClick = (event: mapboxgl.MapMouseEvent) => {
-      const features = getFilteredFeatures(mapFromContext, event.point, allowedLayerIds)
+      const allFeatures = safeQueryRenderedFeatures(mapFromContext, event.point)
+      const features = filterFeaturesByLayerIds(allFeatures, allowedLayerIds)
 
       const clickableFeature = features.find((candidate) =>
         isClickableFeature(candidate, validGisIdSet)
@@ -346,6 +478,65 @@ export function MapView() {
           center: [event.lngLat.lng, event.lngLat.lat],
           zoom: 16.5,
         })
+        return
+      }
+
+      if (!clickableFeature) {
+        const parkLabelNames = getParkLabelNamesAtPoint(allFeatures, parkLabelLayerIds)
+        const normalizedParkName = parkLabelNames.find((name) => parksByName.has(name)) ?? null
+        const park = normalizedParkName ? parksByName.get(normalizedParkName) : null
+        const parkGeometry = normalizedParkName
+          ? boundariesByParkName.get(normalizedParkName) ?? null
+          : null
+
+        if (!park) {
+          return
+        }
+
+        let didZoom = false
+
+        if (parkGeometry) {
+          const boundingBox = getBoundingBoxFromGeometry(parkGeometry)
+          if (boundingBox) {
+            zoomToFeature(mapFromContext, boundingBox, { padding: sidebarAwarePadding })
+            highlightParkBoundary(mapFromContext, parkGeometry)
+            fadeOutParkHighlight(mapFromContext, 1000, 2000)
+            didZoom = true
+          }
+        }
+
+        if (!didZoom && park.boxw && park.boxs && park.boxe && park.boxn) {
+          zoomToFeature(mapFromContext, {
+            w: park.boxw,
+            s: park.boxs,
+            e: park.boxe,
+            n: park.boxn,
+          }, {
+            padding: sidebarAwarePadding,
+          })
+          didZoom = true
+        }
+
+        if (!didZoom && park.latitude && park.longitude) {
+          zoomToFeature(mapFromContext, {
+            lat: park.latitude,
+            lng: park.longitude,
+          }, {
+            padding: sidebarAwarePadding,
+          })
+        }
+
+        bumpSelectionTick()
+        setParams(
+          {
+            type: 'park',
+            gid: String(park.record_id),
+            activityId: null,
+            fromSearch: null,
+          },
+          false,
+          true
+        )
         return
       }
 
@@ -382,10 +573,28 @@ export function MapView() {
       mapFromContext.off('click', handleClick)
       popupRef.current?.remove()
       popupRef.current = null
-      mapFromContext.getCanvas().style.cursor = ''
+      if (labelHoveredParkNameRef.current) {
+        clearParkHighlight(mapFromContext)
+        labelHoveredParkNameRef.current = null
+      }
+      setMapCanvasCursor(mapFromContext, '')
       setHoverInfo(null)
     }
-  }, [allowedLayerIds, attractionGroupLayerIds, bumpSelectionTick, mapFromContext, setHoverInfo, setParams, validGisIdSet])
+  }, [
+    allowedLayerIds,
+    attractionGroupLayerIds,
+    boundariesByParkName,
+    bumpSelectionTick,
+    debugExcludedLayerIds,
+    debugInteractiveLayerIds,
+    mapFromContext,
+    parkLabelLayerIds,
+    parksByName,
+    sidebarAwarePadding,
+    setHoverInfo,
+    setParams,
+    validGisIdSet,
+  ])
 
 
   if (error) {
