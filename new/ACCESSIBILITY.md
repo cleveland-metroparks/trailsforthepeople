@@ -44,6 +44,15 @@ Accessibility is required product behavior. Any new interactive feature must be 
 - Icon-only buttons require `aria-label`.
 - Avoid decorative or misleading ARIA.
 
+### Combobox Keyboard Contract
+
+- Keep DOM focus on the combobox input while suggestions are open.
+- Suggestion options should not be tab stops when using `aria-activedescendant` (`tabIndex={-1}` on options).
+- Arrow keys move active suggestion; Enter commits active suggestion.
+- Escape closes the suggestion list and clears active suggestion state.
+- Tab and Shift+Tab move focus out of the field and must close the suggestion list.
+- Input blur must close the suggestion list and clear active suggestion state.
+
 ## Existing Canonical Components
 
 - `src/components/PanelList.tsx`:
@@ -70,7 +79,8 @@ Accessibility is required product behavior. Any new interactive feature must be 
    - Arrow keys move option
    - Enter selects
    - Escape closes list
-   - Tab exits naturally
+   - Tab/Shift+Tab exits naturally and closes list
+   - Blur closes list and clears active option
 5. Map checks:
    - Map region has accessible name/description
    - Map controls are tabbable and operable.

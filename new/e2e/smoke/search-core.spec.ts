@@ -20,6 +20,25 @@ test.describe('@smoke @search core search behavior', () => {
     await expect(page.getByRole('button', { name: 'Back' })).toBeVisible()
   })
 
+  test('@smoke @search @keyboard search panel Tab exits and closes autocomplete', async ({ page }) => {
+    await page.getByRole('tab', { name: 'Search' }).click()
+
+    const input = page.locator('#search-panel-input')
+    await expect(input).toBeVisible()
+    await input.fill('Al')
+
+    const listboxId = await input.getAttribute('aria-controls')
+    expect(listboxId).toBeTruthy()
+    const listbox = page.locator(`[id="${listboxId}"]`)
+
+    await expect(listbox.getByRole('option').first()).toBeVisible()
+    await input.press('Tab')
+
+    await expect(page.getByRole('button', { name: 'Search' })).toBeFocused()
+    await expect(listbox).toBeHidden()
+    await expect(input).toHaveAttribute('aria-expanded', 'false')
+  })
+
   test('@smoke @search selecting autocomplete option opens detail with fromSearch=true', async ({ page }) => {
     await page.getByRole('tab', { name: 'Search' }).click()
     const input = page.locator('#search-panel-input')
