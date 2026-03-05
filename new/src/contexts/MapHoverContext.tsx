@@ -5,6 +5,8 @@ export interface HoverInfo {
   lngLat: { lng: number; lat: number } | null
   point: { x: number; y: number } | null
   features: MapboxGeoJSONFeature[]
+  /** All features under cursor (unfiltered), for debug panel "show all layers" */
+  allFeatures?: MapboxGeoJSONFeature[]
 }
 
 interface MapHoverContextType {

@@ -1,6 +1,6 @@
-import { Box, Divider, Stack, Text, Title } from '@mantine/core'
+import { Box, Divider, Stack, Switch, Text, Title } from '@mantine/core'
 import type { MapboxGeoJSONFeature } from 'mapbox-gl'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useMapHover } from '../../contexts/MapHoverContext'
 
 interface DebugPanelProps {
@@ -68,7 +68,12 @@ function formatFeature(feature: MapboxGeoJSONFeature) {
 
 export function DebugPanel(_props: DebugPanelProps) {
   const { hoverInfo } = useMapHover()
-  const features = useMemo(() => hoverInfo?.features ?? [], [hoverInfo?.features])
+  const [showAllLayers, setShowAllLayers] = useState(false)
+  const features = useMemo(
+    () =>
+      showAllLayers ? (hoverInfo?.allFeatures ?? []) : (hoverInfo?.features ?? []),
+    [showAllLayers, hoverInfo?.features, hoverInfo?.allFeatures]
+  )
 
   const formattedFeatures = useMemo(() => {
     return features.map((feature) => formatFeature(feature))
@@ -88,6 +93,17 @@ export function DebugPanel(_props: DebugPanelProps) {
           Hover over map features to inspect Mapbox data.
         </Text>
         <Divider />
+        <Switch
+          label="Show all layers"
+          description={
+            showAllLayers
+              ? 'Showing every rendered layer under the cursor'
+              : 'Showing only interactive layers (attractions, groups)'
+          }
+          checked={showAllLayers}
+          onChange={(event) => setShowAllLayers(event.currentTarget.checked)}
+          aria-label="Toggle between filtered layers and all layers under cursor"
+        />
         <Text size="sm">Cursor: {cursorLocation}</Text>
         <Text size="sm">Features under cursor: {features.length}</Text>
 

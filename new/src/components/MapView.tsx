@@ -255,11 +255,13 @@ export function MapView() {
 
     const handleMouseMove = (event: mapboxgl.MapMouseEvent) => {
       const features = getFilteredFeatures(mapFromContext, event.point, allowedLayerIds)
+      const allFeatures = mapFromContext.queryRenderedFeatures(event.point)
 
       setHoverInfo({
         lngLat: { lng: event.lngLat.lng, lat: event.lngLat.lat },
         point: { x: event.point.x, y: event.point.y },
         features,
+        allFeatures,
       })
 
       if (features.length === 0) {
