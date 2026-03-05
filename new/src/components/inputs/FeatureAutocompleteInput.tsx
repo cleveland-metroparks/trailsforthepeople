@@ -167,6 +167,9 @@ export function FeatureAutocompleteInput({
     if (e.key === 'Escape') {
       setShowSuggestions(false)
       setSelectedIndex(-1)
+    } else if (e.key === 'Tab') {
+      setShowSuggestions(false)
+      setSelectedIndex(-1)
     } else if (shouldShowDropdown && suggestions.length > 0) {
       if (e.key === 'ArrowDown') {
         e.preventDefault()
@@ -195,6 +198,10 @@ export function FeatureAutocompleteInput({
           if (value.length >= 2 && suggestions.length > 0) {
             setShowSuggestions(true)
           }
+        }}
+        onBlur={() => {
+          setShowSuggestions(false)
+          setSelectedIndex(-1)
         }}
         onKeyDown={handleKeyDown}
         role="combobox"
@@ -233,6 +240,10 @@ export function FeatureAutocompleteInput({
                   '&:last-child': {
                     borderBottom: 'none',
                   },
+                }}
+                onMouseDown={(e) => {
+                  // Keep focus on the input long enough for click to fire.
+                  e.preventDefault()
                 }}
                 onClick={() => handleSuggestionClick(s)}
                 onMouseEnter={() => setSelectedIndex(idx)}
