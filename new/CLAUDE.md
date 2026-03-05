@@ -28,6 +28,10 @@ VITE_MAPBOX_TOKEN=<required>         # Mapbox GL access token
 VITE_MAPBOX_STYLE_URL=<optional>     # Override default map style URL
 VITE_MAPS_API_BASE_URL=<optional>    # Default: https://maps-api.clevelandmetroparks.com
 VITE_MAPS_API_BASE_PATH=<optional>   # Default: api/v1
+
+# Feature flags (all default to false — set to 'true' to enable)
+VITE_ENABLE_TRANSIT_DIRECTIONS=true      # Show Transit (bus) in directions via-mode selector
+VITE_ENABLE_TRAIL_ENDPOINT_MARKERS=true  # Draw start/end markers at trail endpoints
 ```
 
 ## Architecture

@@ -1,5 +1,6 @@
 import mapboxgl from 'mapbox-gl'
 import bbox from '@turf/bbox'
+import { featureFlags } from './featureFlags'
 
 // Default zoom level for points of interest (matches old DEFAULT_POI_ZOOM)
 export const DEFAULT_POI_ZOOM = 15
@@ -192,7 +193,7 @@ const TRAIL_START_SOURCE_ID = 'trail-start-source'
 const TRAIL_START_LAYER_ID = 'trail-start-layer'
 const TRAIL_END_SOURCE_ID = 'trail-end-source'
 const TRAIL_END_LAYER_ID = 'trail-end-layer'
-const ENABLE_TRAIL_ENDPOINT_MARKERS = import.meta.env.VITE_ENABLE_TRAIL_ENDPOINT_MARKERS === 'true'
+const ENABLE_TRAIL_ENDPOINT_MARKERS = featureFlags.trailEndpointMarkers
 
 // Constants for attraction marker layer
 const ATTRACTION_MARKER_SOURCE_ID = 'attraction-marker-source'
