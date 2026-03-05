@@ -22,11 +22,34 @@ interface ElevationProfileChartProps {
   ariaLabel?: string
 }
 
+/**
+ * Normalize and transform elevation profile data for charting.
+ * Handles:
+ * - String values from API (parse to numbers)
+ * - Swapped x/y (some APIs return elevation in x, distance in y)
+ * - Unsorted data (must be ordered by distance for correct line)
+ */
 function transformData(data: ElevationProfilePoint[]) {
-  return data.map((p) => ({
-    x: p.x / FEET_TO_MILES,
-    y: p.y,
-  }))
+  if (!data || data.length < 2) return []
+
+  const parsed = data
+    .map((p) => ({ x: Number(p.x), y: Number(p.y) }))
+    .filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y))
+
+  if (parsed.length < 2) return []
+
+  const xRange = Math.max(...parsed.map((p) => p.x)) - Math.min(...parsed.map((p) => p.x))
+  const yRange = Math.max(...parsed.map((p) => p.y)) - Math.min(...parsed.map((p) => p.y))
+
+  // Some APIs return { x: elevation, y: distance } instead of { x: distance, y: elevation }.
+  // Distance in feet (e.g. 0–40k) has much larger range than elevation (e.g. 200–1500).
+  const swapped = yRange > xRange
+
+  const normalized = swapped
+    ? parsed.map((p) => ({ dist: p.y / FEET_TO_MILES, elev: p.x }))
+    : parsed.map((p) => ({ dist: p.x / FEET_TO_MILES, elev: p.y }))
+
+  return normalized.sort((a, b) => a.dist - b.dist).map((p) => ({ x: p.dist, y: p.elev }))
 }
 
 function formatDistance(value: number): string {
@@ -44,9 +67,15 @@ export function ElevationProfileChart({
 }: ElevationProfileChartProps) {
   const chartData = transformData(data)
 
-  const minElev = Math.min(...data.map((p) => p.y))
-  const maxElev = Math.max(...data.map((p) => p.y))
-  const totalMiles = data.length > 0 ? data[data.length - 1].x / FEET_TO_MILES : 0
+  if (chartData.length < 2) return null
+
+  const minElev = Math.min(...chartData.map((p) => p.y))
+  const maxElev = Math.max(...chartData.map((p) => p.y))
+  const totalMiles = chartData[chartData.length - 1].x
+
+  // Add padding so the curve doesn't touch the chart edges
+  const elevPadding = Math.max((maxElev - minElev) * 0.05, 10)
+  const yDomain: [number, number] = [minElev - elevPadding, maxElev + elevPadding]
 
   return (
     <Box
@@ -93,7 +122,7 @@ export function ElevationProfileChart({
           <YAxis
             dataKey="y"
             type="number"
-            domain={['dataMin', 'dataMax']}
+            domain={yDomain}
             tickFormatter={formatElevation}
             tick={{ fontSize: 11 }}
             label={{
