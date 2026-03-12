@@ -269,10 +269,10 @@ export async function getMapboxDirections(
   sourceLng: number,
   targetLat: number,
   targetLng: number,
-  via: 'hike' | 'bike',
+  via: 'hike' | 'bike' | 'car',
   token: string
 ): Promise<DirectionsResult> {
-  const profile = via === 'bike' ? 'cycling' : 'walking'
+  const profile = via === 'bike' ? 'cycling' : via === 'car' ? 'driving' : 'walking'
   const url = `https://api.mapbox.com/directions/v5/mapbox/${profile}/${sourceLng},${sourceLat};${targetLng},${targetLat}?geometries=geojson&steps=true&access_token=${token}`
 
   const response = await axios.get<{

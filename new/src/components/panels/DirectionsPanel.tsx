@@ -62,6 +62,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [result, setResult] = useState<DirectionsResult | null>(null)
+  const [isMapboxRouted, setIsMapboxRouted] = useState(false)
 
   const prevTargetRef = useRef(target)
   const prevOpenRequestIdRef = useRef(openRequestId)
@@ -72,6 +73,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
       setSourceLngLat(null)
       setSourceReservationId(null)
       setResult(null)
+      setIsMapboxRouted(false)
       setErrorMsg(null)
     }
     prevOpenRequestIdRef.current = openRequestId
@@ -126,6 +128,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
 
     setErrorMsg(null)
     setResult(null)
+    setIsMapboxRouted(false)
     clearDirectionsLine(map)
     clearAttractionMarker(map)
     clearTrailHighlight(map)
@@ -186,8 +189,15 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
             directions = await nativePromise
           } catch {
             directions = await mapboxPromise
+            setIsMapboxRouted(true)
           }
         }
+      } else if (via === 'car') {
+        directions = await getMapboxDirections(
+          source.lat, source.lng, destination.lat, destination.lng, via,
+          mapConfig.accessToken
+        )
+        setIsMapboxRouted(true)
       } else {
         directions = await fetchDirections(
           source.lat, source.lng, destination.lat, destination.lng, via
@@ -246,6 +256,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
 
   const handleClearRoute = () => {
     setResult(null)
+    setIsMapboxRouted(false)
     clearDirectionsLine(map)
   }
 
@@ -340,7 +351,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
           </Box>
         )}
 
-        {result && <DirectionsResultDisplay result={result} onClear={handleClearRoute} />}
+        {result && <DirectionsResultDisplay result={result} onClear={handleClearRoute} isMapboxRouted={isMapboxRouted} />}
       </Stack>
     </Box>
   )
