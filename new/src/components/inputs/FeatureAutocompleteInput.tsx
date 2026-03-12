@@ -243,6 +243,7 @@ export function FeatureAutocompleteInput({
         }
         autoComplete="off"
         rightSection={rightSection}
+        styles={{ label: { minHeight: 22 } }}
       />
 
       {shouldShowDropdown && (

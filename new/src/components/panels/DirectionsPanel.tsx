@@ -2,7 +2,7 @@ import {
   Box, Stack, Button, Loader,
   ActionIcon, Tooltip, Alert,
 } from '@mantine/core'
-import { CurrentLocation } from 'tabler-icons-react'
+import { CurrentLocation, ArrowsExchange } from 'tabler-icons-react'
 import { useState, useRef, useEffect } from 'react'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
@@ -63,6 +63,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [result, setResult] = useState<DirectionsResult | null>(null)
   const [isMapboxRouted, setIsMapboxRouted] = useState(false)
+  const [reverseButtonFocused, setReverseButtonFocused] = useState(false)
 
   const prevTargetRef = useRef(target)
   const prevOpenRequestIdRef = useRef(openRequestId)
@@ -260,6 +261,32 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
     clearDirectionsLine(map)
   }
 
+  const handleFlip = () => {
+    const flippedSource = { text: targetText, lngLat: targetLngLat, resId: targetReservationId }
+    const flippedTarget = { text: sourceText, lngLat: sourceLngLat, resId: sourceReservationId }
+
+    setSourceText(flippedSource.text)
+    setSourceLngLat(flippedSource.lngLat)
+    setSourceReservationId(flippedSource.resId)
+    setTargetText(flippedTarget.text)
+    setTargetLngLat(flippedTarget.lngLat)
+    setTargetReservationId(flippedTarget.resId)
+
+    if (result) {
+      void handleGetDirections({
+        sourceText: flippedSource.text,
+        sourceLngLat: flippedSource.lngLat,
+        sourceReservationId: flippedSource.resId,
+        targetText: flippedTarget.text,
+        targetLngLat: flippedTarget.lngLat,
+        targetReservationId: flippedTarget.resId,
+      })
+    } else {
+      setResult(null)
+      clearDirectionsLine(map)
+    }
+  }
+
   return (
     <Box p="md" pr="sm" style={{ position: 'relative' }}>
       <PanelHeader title="Directions" />
@@ -268,64 +295,108 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
 
         <ViaModeSelector value={via} onChange={setVia} variant="full" />
 
-        <FeatureAutocompleteInput
-          inputId="directions-from-input"
-          isPrimaryFocusTarget
-          label="From"
-          value={sourceText}
-          onChange={handleSourceChange}
-          onSelect={(s) => {
-            const nextSourceText = s.text
-            const nextSourceLngLat = { lat: s.lat, lng: s.lng }
-            const nextSourceResId = s.reservationId ?? null
-            setSourceText(nextSourceText)
-            setSourceLngLat(nextSourceLngLat)
-            setSourceReservationId(nextSourceResId)
-            setResult(null)
-            maybeAutoGetDirections({
-              sourceText: nextSourceText,
-              sourceLngLat: nextSourceLngLat,
-              targetText,
-              targetLngLat,
-              sourceReservationId: nextSourceResId,
-              targetReservationId,
-            })
-          }}
-          rightSection={
-            <Tooltip label="Use my location" withArrow>
-              <ActionIcon size="sm" onClick={handleGeolocate}>
-                <CurrentLocation size={16} color="#6AB03E" />
-              </ActionIcon>
-            </Tooltip>
-          }
-        />
+        {/*
+          Layout note: the Reverse button is position:absolute, floating between the two
+          input boxes without affecting document flow.
+          —
+          Vertical centering trick: each input wrapper gets [22px label][~36px input]
+          [22px paddingBottom], making each exactly 80px tall and the two-input Stack
+          exactly 160px. The Reverse button is pinned at top:50% of that 160px Stack so
+          its center lands precisely between the two input boxes regardless of label text.
+          The To wrapper's trailing 22px is cancelled by marginTop:-22 on Get Directions.
+          —
+          Tab-order note: the visual button has tabIndex={-1} (mouse/touch only).
+          A visually-hidden duplicate after Get Directions carries the keyboard interaction,
+          giving tab order: From → geolocate → To → Get Directions → Reverse.
+        */}
+        <Box style={{ position: 'relative' }}>
+          <Stack spacing={0}>
+            <Box style={{ paddingBottom: 22 }}>
+              <FeatureAutocompleteInput
+                inputId="directions-from-input"
+                isPrimaryFocusTarget
+                label="From"
+                value={sourceText}
+                onChange={handleSourceChange}
+                onSelect={(s) => {
+                  const nextSourceText = s.text
+                  const nextSourceLngLat = { lat: s.lat, lng: s.lng }
+                  const nextSourceResId = s.reservationId ?? null
+                  setSourceText(nextSourceText)
+                  setSourceLngLat(nextSourceLngLat)
+                  setSourceReservationId(nextSourceResId)
+                  setResult(null)
+                  maybeAutoGetDirections({
+                    sourceText: nextSourceText,
+                    sourceLngLat: nextSourceLngLat,
+                    targetText,
+                    targetLngLat,
+                    sourceReservationId: nextSourceResId,
+                    targetReservationId,
+                  })
+                }}
+                rightSection={
+                  <Tooltip label="Use my location" withArrow>
+                    <ActionIcon size="sm" onClick={handleGeolocate}>
+                      <CurrentLocation size={16} color="#6AB03E" />
+                    </ActionIcon>
+                  </Tooltip>
+                }
+              />
+            </Box>
 
-        <FeatureAutocompleteInput
-          label="To"
-          value={targetText}
-          onChange={handleTargetChange}
-          onSelect={(s) => {
-            const nextTargetText = s.text
-            const nextTargetLngLat = { lat: s.lat, lng: s.lng }
-            const nextTargetResId = s.reservationId ?? null
-            setTargetText(nextTargetText)
-            setTargetLngLat(nextTargetLngLat)
-            setTargetReservationId(nextTargetResId)
-            setResult(null)
-            maybeAutoGetDirections({
-              sourceText,
-              sourceLngLat,
-              targetText: nextTargetText,
-              targetLngLat: nextTargetLngLat,
-              sourceReservationId,
-              targetReservationId: nextTargetResId,
-            })
-          }}
-        />
+            <Box style={{ paddingBottom: 22 }}>
+              <FeatureAutocompleteInput
+                label="To"
+                value={targetText}
+                onChange={handleTargetChange}
+                onSelect={(s) => {
+                  const nextTargetText = s.text
+                  const nextTargetLngLat = { lat: s.lat, lng: s.lng }
+                  const nextTargetResId = s.reservationId ?? null
+                  setTargetText(nextTargetText)
+                  setTargetLngLat(nextTargetLngLat)
+                  setTargetReservationId(nextTargetResId)
+                  setResult(null)
+                  maybeAutoGetDirections({
+                    sourceText,
+                    sourceLngLat,
+                    targetText: nextTargetText,
+                    targetLngLat: nextTargetLngLat,
+                    sourceReservationId,
+                    targetReservationId: nextTargetResId,
+                  })
+                }}
+              />
+            </Box>
+          </Stack>
+
+          {/* Visual-only: tabIndex={-1} keeps it out of tab order.
+              reverseButtonFocused mirrors focus from the hidden keyboard button below. */}
+          <Tooltip label="Reverse directions" withArrow>
+            <ActionIcon
+              aria-hidden
+              tabIndex={-1}
+              size="sm"
+              onClick={handleFlip}
+              disabled={isLoading}
+              style={{ position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)' }}
+              sx={{
+                color: reverseButtonFocused ? '#373535' : '#ced4da',
+                border: reverseButtonFocused ? '1px solid #373535' : '1px solid #ced4da',
+                backgroundColor: reverseButtonFocused ? '#f0f9e8' : undefined,
+                '&:hover': { backgroundColor: '#f0f9e8', borderColor: '#373535', color: '#373535' },
+              }}
+            >
+              <ArrowsExchange size={16} color="currentColor" />
+            </ActionIcon>
+          </Tooltip>
+        </Box>
 
         <Button
           fullWidth
           loading={isLoading}
+          style={{ marginTop: -22 }}
           onClick={() => {
             void handleGetDirections()
           }}
@@ -338,6 +409,29 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
         >
           Get Directions
         </Button>
+
+        {/* Keyboard-accessible Reverse button. Visually hidden; tab order puts it here,
+            after Get Directions, matching the logical form sequence.
+            onFocus/onBlur drive reverseButtonFocused so the visual button above shows
+            the same highlight treatment on keyboard focus as it does on hover. */}
+        <button
+          aria-label="Reverse directions"
+          onClick={handleFlip}
+          disabled={isLoading}
+          onFocus={() => setReverseButtonFocused(true)}
+          onBlur={() => setReverseButtonFocused(false)}
+          style={{
+            position: 'absolute',
+            width: 1,
+            height: 1,
+            padding: 0,
+            margin: -1,
+            overflow: 'hidden',
+            clip: 'rect(0,0,0,0)',
+            whiteSpace: 'nowrap',
+            border: 0,
+          }}
+        />
 
         {errorMsg && (
           <Alert color="red" title="Directions Error" withCloseButton onClose={() => setErrorMsg(null)}>
