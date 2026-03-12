@@ -118,7 +118,7 @@ export function AttractionDetailPane({
         <>
           <Box>
             <Anchor href={cmpHref} target="_blank" rel="noreferrer" size="sm">
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', textDecoration: 'underline', textUnderlineOffset: '2px' }}>
                 More info on clevelandmetroparks.com
                 <ExternalLink
                   aria-hidden="true"
