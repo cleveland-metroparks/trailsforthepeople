@@ -136,6 +136,7 @@ export function AttractionDetailPane({
         targetName={String(attraction.pagetitle)}
         lat={attraction.latitude}
         lng={attraction.longitude}
+        reservationId={(attraction as { reservation?: number | string }).reservation}
       />
       <DetailShareSection />
     </FeatureDetailLayout>

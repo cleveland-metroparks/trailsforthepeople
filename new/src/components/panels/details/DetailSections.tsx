@@ -143,9 +143,10 @@ interface DetailDirectionsSectionProps {
   targetName: string
   lat?: number
   lng?: number
+  reservationId?: string | number
 }
 
-export function DetailDirectionsSection({ targetName, lat, lng }: DetailDirectionsSectionProps) {
+export function DetailDirectionsSection({ targetName, lat, lng, reservationId }: DetailDirectionsSectionProps) {
   const hasCoordinates =
     typeof lat === 'number' &&
     Number.isFinite(lat) &&
@@ -161,6 +162,7 @@ export function DetailDirectionsSection({ targetName, lat, lng }: DetailDirectio
           name: targetName,
           lat,
           lng,
+          reservationId,
         }}
       />
       <Divider />

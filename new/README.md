@@ -47,15 +47,15 @@ App available at **http://localhost:3001**
 
 ## Scripts
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start dev server |
-| `npm run build` | Production build → `dist/` |
-| `npm run lint` | ESLint (zero warnings enforced) |
-| `npm run type-check` | TypeScript check (no emit) |
-| `npm run test:a11y` | Playwright keyboard + axe accessibility smoke checks |
-| `npm run test:a11y:headed` | Run Playwright accessibility suite in headed mode |
-| `npm run preview` | Preview production build locally |
+| Command                    | Description                                          |
+| -------------------------- | ---------------------------------------------------- |
+| `npm run dev`              | Start dev server                                     |
+| `npm run build`            | Production build → `dist/`                           |
+| `npm run lint`             | ESLint (zero warnings enforced)                      |
+| `npm run type-check`       | TypeScript check (no emit)                           |
+| `npm run test:a11y`        | Playwright keyboard + axe accessibility smoke checks |
+| `npm run test:a11y:headed` | Run Playwright accessibility suite in headed mode    |
+| `npm run preview`          | Preview production build locally                     |
 
 ## Playwright Testing
 
@@ -122,7 +122,19 @@ A shared URL (copy/paste) restores both the exact map view and the selected feat
 
 ### Directions
 
-Four transport modes: `hike`, `bike` (internal trail routing), `car` (Bing driving), `bus` (Bing transit). Directions can be initiated from any feature detail pane.
+Four transport modes: `hike`, `bike`, `car` (Bing driving), `bus` (Bing transit). Directions can be initiated from any feature detail pane.
+
+**Routing logic for `hike` and `bike`:**
+
+Features selected from the autocomplete or pre-filled from a detail pane carry a `reservationId` identifying which park they belong to. Manually typed or geocoded addresses are treated as outside the park system.
+
+| Scenario                                         | Behavior                                                                                                         |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Both endpoints in the **same park**              | Native trail routing only (`directions_trails`)                                                                  |
+| Both endpoints **outside** the park system       | Error: "Both To and From are non-Metroparks locations"                                                           |
+| One inside + one outside, or **different parks** | Native and Mapbox called in parallel; native result used if it succeeds, Mapbox walking/cycling used as fallback |
+
+`car` and `bus` modes always use their respective Bing endpoints regardless of park association.
 
 ## Developer Notes
 

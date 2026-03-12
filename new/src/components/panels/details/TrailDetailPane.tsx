@@ -12,6 +12,7 @@ import {
 } from './DetailSections'
 import { getTrailProfile } from '../../../lib/api'
 import { ElevationProfileChart } from '../../charts/ElevationProfileChart'
+import { useParksData } from '../../../hooks/useParksData'
 
 interface TrailDetailPaneProps {
   trail: TransformedTrail
@@ -22,6 +23,9 @@ interface TrailDetailPaneProps {
 
 export function TrailDetailPane({ trail, parkName, backButton, panelTitle }: TrailDetailPaneProps) {
   const trailId = Number(trail.id)
+  const { data: parks } = useParksData()
+  const reservationId = parks?.find((p) => p.pagetitle === (trail as { res?: string }).res)?.record_id
+
   const {
     data: elevationProfile,
     isLoading: profileLoading,
@@ -87,6 +91,7 @@ export function TrailDetailPane({ trail, parkName, backButton, panelTitle }: Tra
         targetName={String(trail.name)}
         lat={trail.lat}
         lng={trail.lng}
+        reservationId={reservationId}
       />
       <DetailShareSection />
     </FeatureDetailLayout>

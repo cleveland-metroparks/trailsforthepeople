@@ -260,4 +260,91 @@ export async function getDirections(
   }
 }
 
+/**
+ * Get walking or cycling directions from Mapbox Directions API.
+ * Used as fallback when native trail routing fails or endpoints span parks.
+ */
+export async function getMapboxDirections(
+  sourceLat: number,
+  sourceLng: number,
+  targetLat: number,
+  targetLng: number,
+  via: 'hike' | 'bike',
+  token: string
+): Promise<DirectionsResult> {
+  const profile = via === 'bike' ? 'cycling' : 'walking'
+  const url = `https://api.mapbox.com/directions/v5/mapbox/${profile}/${sourceLng},${sourceLat};${targetLng},${targetLat}?geometries=geojson&steps=true&access_token=${token}`
+
+  const response = await axios.get<{
+    routes: Array<{
+      distance: number
+      duration: number
+      geometry: { coordinates: Array<[number, number]> }
+      legs: Array<{
+        steps: Array<{
+          maneuver: { instruction: string }
+          distance: number
+          duration: number
+        }>
+      }>
+    }>
+    waypoints: Array<{ location: [number, number] }>
+  }>(url)
+
+  const route = response.data.routes[0]
+  const waypoints = response.data.waypoints
+  const coords = route.geometry.coordinates
+
+  // Build WKT LINESTRING
+  const wkt = `LINESTRING (${coords.map(([lng, lat]) => `${lng} ${lat}`).join(', ')})`
+
+  // Compute bounds from coordinates
+  let west = Infinity, south = Infinity, east = -Infinity, north = -Infinity
+  for (const [lng, lat] of coords) {
+    if (lng < west) west = lng
+    if (lat < south) south = lat
+    if (lng > east) east = lng
+    if (lat > north) north = lat
+  }
+
+  const startWp = waypoints[0].location
+  const endWp = waypoints[1].location
+
+  // Format steps
+  const steps = route.legs[0].steps.map((step) => {
+    const distMiles = step.distance * 0.000621371
+    const distText = distMiles < 0.1
+      ? `${Math.round(step.distance * 3.28084)} ft`
+      : `${distMiles.toFixed(1)} mi`
+    const durMin = Math.round(step.duration / 60)
+    const durText = durMin < 1 ? 'Less than 1 min' : `${durMin} min`
+    return {
+      text: step.maneuver.instruction,
+      distance: distText,
+      duration: durText,
+    }
+  })
+
+  // Format totals
+  const totalMiles = route.distance * 0.000621371
+  const totalDistText = totalMiles < 0.1
+    ? `${Math.round(route.distance * 3.28084)} ft`
+    : `${totalMiles.toFixed(1)} mi`
+  const totalSecs = Math.round(route.duration)
+  const totalHours = Math.floor(totalSecs / 3600)
+  const totalMins = Math.round((totalSecs % 3600) / 60)
+  const totalDurText = totalHours > 0
+    ? `${totalHours}:${String(totalMins).padStart(2, '0')}`
+    : `${totalMins} min`
+
+  return {
+    start: { lat: startWp[1], lng: startWp[0] },
+    end: { lat: endWp[1], lng: endWp[0] },
+    wkt,
+    bounds: { west, south, east, north },
+    steps,
+    totals: { distance: totalDistText, duration: totalDurText },
+  }
+}
+
 export { apiClient }

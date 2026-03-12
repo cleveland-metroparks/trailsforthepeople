@@ -26,6 +26,7 @@ export interface FeatureAutocompleteSuggestion {
   text: string
   lat: number
   lng: number
+  reservationId?: string | number
 }
 
 interface FeatureAutocompleteInputProps {
@@ -50,7 +51,7 @@ export function FeatureAutocompleteInput({
   isPrimaryFocusTarget = false,
 }: FeatureAutocompleteInputProps) {
   const [showSuggestions, setShowSuggestions] = useState(false)
-  const [suggestions, setSuggestions] = useState<Array<{ id: string; title: string; type: string; parkName?: string; lat?: number; lng?: number }>>([])
+  const [suggestions, setSuggestions] = useState<Array<{ id: string; title: string; type: string; parkName?: string; reservationId?: string | number; lat?: number; lng?: number }>>([])
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -80,14 +81,40 @@ export function FeatureAutocompleteInput({
     }
   }, [attractions, parks, trails])
 
+  // Reservation ID lookup for routing decisions
+  const getReservationId = useMemo(() => {
+    const parksMap = new Map<number | string, string | number>()
+    parks?.forEach((p) => parksMap.set(p.record_id, p.record_id))
+    const parksPagetitleMap = new Map<string, string | number>()
+    parks?.forEach((p) => parksPagetitleMap.set(String(p.pagetitle), p.record_id))
+    return (type: string, gid: string | number): string | number | undefined => {
+      if (type === 'park') {
+        return parksMap.get(gid)
+      }
+      if (type === 'attraction') {
+        const att = attractions.find((a) => String(a.gis_id || a.record_id) === String(gid))
+        const resId = (att as { reservation?: number | string } | undefined)?.reservation
+        return resId != null ? resId : undefined
+      }
+      if (type === 'trail') {
+        const trail = trails?.find((t) => String(t.id) === String(gid))
+        const res = (trail as { res?: string } | undefined)?.res
+        return res ? parksPagetitleMap.get(res) : undefined
+      }
+      return undefined
+    }
+  }, [attractions, parks, trails])
+
   // Keep refs to latest autocomplete/getParkName to avoid re-triggering the
   // debounce effect when only these function references change.
   const autocompleteRef = useRef(autocomplete)
   const getParkNameRef = useRef(getParkName)
+  const getReservationIdRef = useRef(getReservationId)
   useEffect(() => {
     autocompleteRef.current = autocomplete
     getParkNameRef.current = getParkName
-  }, [autocomplete, getParkName])
+    getReservationIdRef.current = getReservationId
+  }, [autocomplete, getParkName, getReservationId])
 
   // Update suggestions when value changes (debounced)
   useEffect(() => {
@@ -110,6 +137,7 @@ export function FeatureAutocompleteInput({
             title: r.title,
             type: r.type,
             parkName: getParkNameRef.current(r.type, r.gid),
+            reservationId: getReservationIdRef.current(r.type, r.gid),
             lat: r.lat,
             lng: r.lng,
           }))
@@ -157,7 +185,7 @@ export function FeatureAutocompleteInput({
 
   const handleSuggestionClick = (s: (typeof suggestions)[0]) => {
     if (s.lat != null && s.lng != null) {
-      onSelect({ text: s.title, lat: s.lat, lng: s.lng })
+      onSelect({ text: s.title, lat: s.lat, lng: s.lng, reservationId: s.reservationId })
       setShowSuggestions(false)
       setSuggestions([])
     }

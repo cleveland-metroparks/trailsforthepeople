@@ -10,7 +10,8 @@ import { useDirections } from '../../contexts/DirectionsContext'
 import { useMap } from '../../contexts/MapContext'
 import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
 import { useResolveLocation } from '../../hooks/useResolveLocation'
-import { getDirections as fetchDirections } from '../../lib/api'
+import { getDirections as fetchDirections, getMapboxDirections } from '../../lib/api'
+import { useMapConfig } from '../../hooks/useMapConfig'
 import { wktToGeoJSON } from '../../lib/wktUtils'
 import {
   drawDirectionsLine,
@@ -36,11 +37,14 @@ interface DirectionsInputs {
   targetText: string
   sourceLngLat: { lat: number; lng: number } | null
   targetLngLat: { lat: number; lng: number } | null
+  sourceReservationId?: string | number | null
+  targetReservationId?: string | number | null
 }
 
 export function DirectionsPanel(_props: DirectionsPanelProps) {
   const { target, via, setVia, closeDirections, openRequestId } = useDirections()
   const { map } = useMap()
+  const { mapConfig } = useMapConfig()
   const sidebarAwarePadding = useSidebarAwarePadding(120)
   const resolveLocation = useResolveLocation()
 
@@ -49,6 +53,10 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
   const [sourceLngLat, setSourceLngLat] = useState<{ lat: number; lng: number } | null>(null)
   const [targetLngLat, setTargetLngLat] = useState<{ lat: number; lng: number } | null>(
     target ? { lat: target.lat, lng: target.lng } : null
+  )
+  const [sourceReservationId, setSourceReservationId] = useState<string | number | null>(null)
+  const [targetReservationId, setTargetReservationId] = useState<string | number | null>(
+    target?.reservationId ?? null
   )
 
   const [isLoading, setIsLoading] = useState(false)
@@ -62,6 +70,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
     if (openRequestId > prevOpenRequestIdRef.current) {
       setSourceText('')
       setSourceLngLat(null)
+      setSourceReservationId(null)
       setResult(null)
       setErrorMsg(null)
     }
@@ -72,6 +81,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
     if (target && target !== prevTargetRef.current) {
       setTargetText(target.name)
       setTargetLngLat({ lat: target.lat, lng: target.lng })
+      setTargetReservationId(target.reservationId ?? null)
       setResult(null)
       setErrorMsg(null)
     }
@@ -94,6 +104,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
         const { latitude, longitude } = position.coords
         setSourceText(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`)
         setSourceLngLat({ lat: latitude, lng: longitude })
+        setSourceReservationId(null)
       },
       () => {
         setErrorMsg('Unable to retrieve your location.')
@@ -106,6 +117,12 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
     const targetTextValue = overrides?.targetText ?? targetText
     const sourceLngLatValue = overrides?.sourceLngLat ?? sourceLngLat
     const targetLngLatValue = overrides?.targetLngLat ?? targetLngLat
+    const srcResId = overrides?.sourceReservationId !== undefined
+      ? overrides.sourceReservationId
+      : sourceReservationId
+    const tgtResId = overrides?.targetReservationId !== undefined
+      ? overrides.targetReservationId
+      : targetReservationId
 
     setErrorMsg(null)
     setResult(null)
@@ -137,13 +154,45 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
         zoomToDirectionsEndpoints(map, source, destination, sidebarAwarePadding)
       }
 
-      const directions = await fetchDirections(
-        source.lat,
-        source.lng,
-        destination.lat,
-        destination.lng,
-        via
-      )
+      let directions: DirectionsResult
+
+      const isTrailMode = via === 'hike' || via === 'bike'
+      if (isTrailMode) {
+        const srcInPark = srcResId != null
+        const tgtInPark = tgtResId != null
+
+        if (!srcInPark && !tgtInPark) {
+          setErrorMsg('Both To and From are non-Metroparks locations.')
+          setIsLoading(false)
+          return
+        }
+
+        const samePark =
+          srcInPark && tgtInPark && String(srcResId) === String(tgtResId)
+
+        if (samePark) {
+          directions = await fetchDirections(
+            source.lat, source.lng, destination.lat, destination.lng, via
+          )
+        } else {
+          const nativePromise = fetchDirections(
+            source.lat, source.lng, destination.lat, destination.lng, via
+          )
+          const mapboxPromise = getMapboxDirections(
+            source.lat, source.lng, destination.lat, destination.lng, via,
+            mapConfig.accessToken
+          )
+          try {
+            directions = await nativePromise
+          } catch {
+            directions = await mapboxPromise
+          }
+        }
+      } else {
+        directions = await fetchDirections(
+          source.lat, source.lng, destination.lat, destination.lng, via
+        )
+      }
 
       if (!directions || !directions.wkt) {
         let msg = 'Could not find directions for this start and endpoint.'
@@ -184,12 +233,14 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
   const handleSourceChange = (val: string) => {
     setSourceText(val)
     setSourceLngLat(null)
+    setSourceReservationId(null)
     setResult(null)
   }
 
   const handleTargetChange = (val: string) => {
     setTargetText(val)
     setTargetLngLat(null)
+    setTargetReservationId(null)
     setResult(null)
   }
 
@@ -215,14 +266,18 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
           onSelect={(s) => {
             const nextSourceText = s.text
             const nextSourceLngLat = { lat: s.lat, lng: s.lng }
+            const nextSourceResId = s.reservationId ?? null
             setSourceText(nextSourceText)
             setSourceLngLat(nextSourceLngLat)
+            setSourceReservationId(nextSourceResId)
             setResult(null)
             maybeAutoGetDirections({
               sourceText: nextSourceText,
               sourceLngLat: nextSourceLngLat,
               targetText,
               targetLngLat,
+              sourceReservationId: nextSourceResId,
+              targetReservationId,
             })
           }}
           rightSection={
@@ -241,14 +296,18 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
           onSelect={(s) => {
             const nextTargetText = s.text
             const nextTargetLngLat = { lat: s.lat, lng: s.lng }
+            const nextTargetResId = s.reservationId ?? null
             setTargetText(nextTargetText)
             setTargetLngLat(nextTargetLngLat)
+            setTargetReservationId(nextTargetResId)
             setResult(null)
             maybeAutoGetDirections({
               sourceText,
               sourceLngLat,
               targetText: nextTargetText,
               targetLngLat: nextTargetLngLat,
+              sourceReservationId,
+              targetReservationId: nextTargetResId,
             })
           }}
         />

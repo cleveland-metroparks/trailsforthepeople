@@ -6,6 +6,7 @@ export interface DirectionsTarget {
   name: string
   lat: number
   lng: number
+  reservationId?: string | number
 }
 
 interface DirectionsContextType {
