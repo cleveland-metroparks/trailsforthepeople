@@ -100,3 +100,11 @@ body {
   outline: 3px solid #6AB03E;
   outline-offset: 2px;
 }
+
+/* On mobile, move map controls to bottom-right (above the bottom bar) */
+@media (max-width: 767px) {
+  .mapboxgl-ctrl-top-right {
+    top: auto;
+    bottom: 72px; /* 64px bottom bar + 8px margin */
+  }
+}

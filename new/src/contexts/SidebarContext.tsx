@@ -4,6 +4,7 @@ interface SidebarContextType {
   isSidebarCollapsed: boolean
   navWidth: number
   sidebarWidth: number
+  isMobile: boolean
   onSearchSubmit: () => void
 }
 
@@ -14,16 +15,18 @@ export function SidebarProvider({
   isSidebarCollapsed,
   navWidth,
   sidebarWidth,
+  isMobile,
   onSearchSubmit,
 }: {
   children: ReactNode
   isSidebarCollapsed: boolean
   navWidth: number
   sidebarWidth: number
+  isMobile: boolean
   onSearchSubmit: () => void
 }) {
   return (
-    <SidebarContext.Provider value={{ isSidebarCollapsed, navWidth, sidebarWidth, onSearchSubmit }}>
+    <SidebarContext.Provider value={{ isSidebarCollapsed, navWidth, sidebarWidth, isMobile, onSearchSubmit }}>
       {children}
     </SidebarContext.Provider>
   )
