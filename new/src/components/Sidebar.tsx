@@ -1,12 +1,12 @@
 import { Tabs, Loader, Center, ActionIcon, Box, Text, Divider, UnstyledButton } from '@mantine/core'
-import { Search, Share, InfoCircle, Tree, Walk, Flag3, Bug, ChevronLeft, Menu2, Route, X } from 'tabler-icons-react'
+import { Search, Share, InfoCircle, Tree, Walk, Flag3, Bug, ChevronLeft, Menu2, Route } from 'tabler-icons-react'
 import { PanelCloseButton } from './PanelCloseButton'
 import { useState, useEffect, useRef, useImperativeHandle, forwardRef, Suspense, lazy } from 'react'
 import { useURLState } from '../hooks/useURLState'
 import { useMapSelection } from '../contexts/MapSelectionContext'
 import { useDirections } from '../contexts/DirectionsContext'
 import { useSidebar } from '../contexts/SidebarContext'
-import { NAV_WIDTH_EXPANDED, NAV_WIDTH_COLLAPSED, MOBILE_BOTTOM_BAR_HEIGHT } from './sidebarConstants'
+import { NAV_WIDTH_EXPANDED, NAV_WIDTH_COLLAPSED, MOBILE_BOTTOM_BAR_HEIGHT, MOBILE_SHEET_EXPANDED_TOP } from './sidebarConstants'
 
 // Lazy load all panels
 const SearchPanel = lazy(() => import('./panels/SearchPanel').then(m => ({ default: m.SearchPanel })))
@@ -83,6 +83,8 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   const panelRootRef = useRef<HTMLDivElement | null>(null)
   const openFromNavRef = useRef(false)
   const startY = useRef(0)
+  const lastActiveTab = useRef<string>('parks')
+  const isDragGesture = useRef(false)
 
   // Track activeTab in a ref so the URL-sync effect can read it without depending on it.
   // This breaks the feedback loop: user tab changes don't re-trigger the URL-sync effect.
@@ -166,6 +168,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   }
 
   const handleClosePanel = () => {
+    if (activeTab) lastActiveTab.current = activeTab
     setActiveTab(null)
     setDragOffset(0)
     openFromNavRef.current = false
@@ -374,12 +377,12 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
         style={{
           width: 44,
           height: 44,
-          borderRadius: '50%',
+          borderRadius: '8px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: isActive ? '#222124' : 'transparent',
-          color: isActive ? '#A6CE39' : '#9E9E9E',
+          color: '#A6CE39',
           border: isActive ? '1.5px solid #A6CE39' : '1.5px solid rgba(255,255,255,0.25)',
           flexShrink: 0,
         }}
@@ -396,135 +399,156 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
 
   // ── Mobile layout ──────────────────────────────────────────────────────────
   if (isMobile) {
+    const PANEL_TITLES: Record<string, string> = {
+      parks: 'Parks', activities: 'Activities', trails: 'Trails',
+      search: 'Search', directions: 'Directions', share: 'Share',
+      info: 'Credits', debug: 'Debug',
+    }
+
+    const isExpanded = activeTab !== null
+    const baseTranslate = isExpanded
+      ? `${MOBILE_SHEET_EXPANDED_TOP}px`
+      : `calc(100vh - ${MOBILE_BOTTOM_BAR_HEIGHT}px)`
+    const sheetTransform = `translateY(calc(${baseTranslate} + ${dragOffset}px))`
+
+    const handleSheetTouchStart = (e: React.TouchEvent) => {
+      startY.current = e.touches[0].clientY
+      isDragGesture.current = false
+    }
+
+    const handleSheetTouchMove = (e: React.TouchEvent) => {
+      const dy = e.touches[0].clientY - startY.current
+      if (Math.abs(dy) > 8) isDragGesture.current = true
+      if (isExpanded) {
+        setIsDragging(true)
+        setDragOffset(Math.max(0, dy))
+      } else {
+        setIsDragging(true)
+        setDragOffset(Math.min(0, dy))
+      }
+    }
+
+    const handleSheetTouchEnd = () => {
+      setIsDragging(false)
+      if (isDragGesture.current) {
+        if (!isExpanded && dragOffset < -80) {
+          openFromNavRef.current = true
+          setActiveTab(lastActiveTab.current || 'parks')
+        } else if (isExpanded && dragOffset > 80) {
+          handleClosePanel()
+        } else {
+          setDragOffset(0)
+        }
+      } else {
+        setDragOffset(0)
+      }
+    }
+
     return (
-      <>
-        {/* Bottom sheet — rendered above the bottom bar when a tab is open */}
-        {activeTab !== null && (
-          <div
-            role="tabpanel"
-            id={`sidebar-panel-${activeTab}`}
-            aria-labelledby={`sidebar-tab-${activeTab}`}
-            style={{
-              position: 'fixed',
-              top: 72,
-              bottom: MOBILE_BOTTOM_BAR_HEIGHT,
-              left: 0,
-              right: 0,
-              backgroundColor: '#fff',
-              borderRadius: '20px 20px 0 0',
-              overflow: 'hidden',
-              boxShadow: '0 -4px 24px rgba(0,0,0,0.22)',
-              transform: `translateY(${dragOffset}px)`,
-              transition: isDragging ? 'none' : 'transform 0.3s ease',
-              zIndex: 199,
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            {/* Drag handle row */}
-            <div
-              role="button"
-              aria-label="Drag to collapse panel"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') handleClosePanel()
-              }}
-              onTouchStart={(e) => {
-                startY.current = e.touches[0].clientY
-              }}
-              onTouchMove={(e) => {
-                const dy = e.touches[0].clientY - startY.current
-                if (dy > 0) {
-                  setIsDragging(true)
-                  setDragOffset(dy)
-                }
-              }}
-              onTouchEnd={() => {
-                setIsDragging(false)
-                if (dragOffset > 80) {
-                  handleClosePanel()
-                } else {
-                  setDragOffset(0)
-                }
-              }}
-              style={{
-                height: 40,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative',
-                flexShrink: 0,
-                cursor: 'pointer',
-              }}
-            >
-              {/* Pill */}
-              <div
-                style={{
-                  width: 40,
-                  height: 4,
-                  borderRadius: 2,
-                  backgroundColor: '#ccc',
-                }}
-              />
-              {/* X close button */}
-              <ActionIcon
-                onClick={handleClosePanel}
-                aria-label="Close panel"
-                style={{ position: 'absolute', top: 8, right: 12 }}
-              >
-                <X size={16} />
-              </ActionIcon>
-            </div>
-
-            {/* Scrollable panel content */}
-            <div
-              ref={(node) => {
-                panelRootRef.current = node
-              }}
-              style={{ flex: 1, overflow: 'auto' }}
-            >
-              <Suspense fallback={<PanelLoader />}>
-                {activeTab === 'search' && <SearchPanel onClose={handleClosePanel} />}
-                {activeTab === 'parks' && <ParksPanel onClose={handleClosePanel} />}
-                {activeTab === 'activities' && <ActivitiesPanel onClose={handleClosePanel} />}
-                {activeTab === 'trails' && <TrailsPanel onClose={handleClosePanel} />}
-                {activeTab === 'share' && <SharePanel onClose={handleClosePanel} />}
-                {activeTab === 'directions' && <DirectionsPanel onClose={handleClosePanel} />}
-                {activeTab === 'info' && <CreditsPanel onClose={handleClosePanel} />}
-                {showDebugTab && activeTab === 'debug' && <DebugPanel onClose={handleClosePanel} />}
-              </Suspense>
-            </div>
-          </div>
-        )}
-
-        {/* Mobile bottom bar — always visible */}
+      <div
+        role="dialog"
+        aria-label="Sidebar"
+        style={{
+          position: 'fixed',
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          borderRadius: '20px 20px 0 0',
+          overflow: 'hidden',
+          boxShadow: '0 -4px 24px rgba(0,0,0,0.22)',
+          transform: sheetTransform,
+          transition: isDragging ? 'none' : 'transform 0.3s ease',
+          zIndex: 199,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Sheet header — always visible, black background */}
         <div
+          onTouchStart={handleSheetTouchStart}
+          onTouchMove={handleSheetTouchMove}
+          onTouchEnd={handleSheetTouchEnd}
           style={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 200,
             backgroundColor: '#000',
-            padding: '12px 16px',
-            height: MOBILE_BOTTOM_BAR_HEIGHT,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            flexShrink: 0,
+            borderRadius: '20px 20px 0 0',
           }}
         >
-          <img
-            src="/images/misc/your-time-your-place-398x127.png"
-            alt="Your Time, Your Place"
-            style={{ height: 40, width: 'auto' }}
-          />
-          <div role="tablist" aria-label="Sidebar navigation" style={{ display: 'flex', gap: 8 }}>
-            <MobileTabIcon value="parks" icon={<Tree size={20} />} label="Parks" />
-            <MobileTabIcon value="activities" icon={<Flag3 size={20} />} label="Activities" />
-            <MobileTabIcon value="trails" icon={<Walk size={20} />} label="Trails" />
+          {/* Drag pill row */}
+          <div
+            style={{
+              height: 14,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <div
+              style={{
+                width: 40,
+                height: 4,
+                borderRadius: 2,
+                backgroundColor: '#fff',
+              }}
+            />
+          </div>
+
+          {/* Nav row */}
+          <div
+            style={{
+              height: 50,
+              padding: '0 16px 12px',
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            {/* Left: logo or panel title */}
+            {activeTab === null ? (
+              <img
+                src="/images/misc/your-time-your-place-398x127.png"
+                alt="Your Time, Your Place"
+                style={{ height: 36, width: 'auto' }}
+              />
+            ) : (
+              <Text color="#fff" weight={600} size="md">
+                {PANEL_TITLES[activeTab] ?? ''}
+              </Text>
+            )}
+
+            {/* Right: tab buttons */}
+            <div role="tablist" aria-label="Sidebar navigation" style={{ display: 'flex', gap: 8 }}>
+              <MobileTabIcon value="parks" icon={<Tree size={20} />} label="Parks" />
+              <MobileTabIcon value="activities" icon={<Flag3 size={20} />} label="Activities" />
+              <MobileTabIcon value="trails" icon={<Walk size={20} />} label="Trails" />
+            </div>
           </div>
         </div>
-      </>
+
+        {/* Panel content */}
+        <div
+          ref={(node) => { panelRootRef.current = node }}
+          role={activeTab ? 'tabpanel' : undefined}
+          id={activeTab ? `sidebar-panel-${activeTab}` : undefined}
+          aria-labelledby={activeTab ? `sidebar-tab-${activeTab}` : undefined}
+          style={{ flex: 1, overflow: 'auto', backgroundColor: '#fff' }}
+        >
+          {activeTab !== null && (
+            <Suspense fallback={<PanelLoader />}>
+              {activeTab === 'search' && <SearchPanel onClose={handleClosePanel} />}
+              {activeTab === 'parks' && <ParksPanel onClose={handleClosePanel} />}
+              {activeTab === 'activities' && <ActivitiesPanel onClose={handleClosePanel} />}
+              {activeTab === 'trails' && <TrailsPanel onClose={handleClosePanel} />}
+              {activeTab === 'share' && <SharePanel onClose={handleClosePanel} />}
+              {activeTab === 'directions' && <DirectionsPanel onClose={handleClosePanel} />}
+              {activeTab === 'info' && <CreditsPanel onClose={handleClosePanel} />}
+              {showDebugTab && activeTab === 'debug' && <DebugPanel onClose={handleClosePanel} />}
+            </Suspense>
+          )}
+        </div>
+      </div>
     )
   }
 

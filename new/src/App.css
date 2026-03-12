@@ -101,10 +101,10 @@ body {
   outline-offset: 2px;
 }
 
-/* On mobile, move map controls to bottom-right (above the bottom bar) */
+/* On mobile, move map controls to bottom-right (above the collapsed sheet header) */
 @media (max-width: 767px) {
   .mapboxgl-ctrl-top-right {
-    top: auto;
-    bottom: 72px; /* 64px bottom bar + 8px margin */
+    top: auto !important;
+    bottom: 92px !important; /* above 76px collapsed header + 16px margin */
   }
 }
