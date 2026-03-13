@@ -1,8 +1,8 @@
-import { TextInput, Button, Stack, Text, Box, Loader, Alert, Group } from '@mantine/core'
+import { TextInput, Button, Stack, Text, Box, Loader, Alert, Group, ActionIcon } from '@mantine/core'
 import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
-import { Search } from 'tabler-icons-react'
+import { Search, X } from 'tabler-icons-react'
 import { useSearch } from '../../contexts/SearchContext'
 import { useMap } from '../../contexts/MapContext'
 import { useURLState } from '../../hooks/useURLState'
@@ -387,6 +387,13 @@ export function SearchPanel(_props: SearchPanelProps) {
     setShowAutocomplete(e.target.value.length >= 2)
   }
 
+  const handleClear = () => {
+    setSearchTerm('')
+    setShowAutocomplete(false)
+    setSelectedIndex(-1)
+    inputRef.current?.focus()
+  }
+
   const handleSuggestionClick = (suggestion: typeof autocompleteSuggestions[0]) => {
     if (!suggestion.location) return
     selectFromSuggestion(suggestion)
@@ -482,7 +489,23 @@ export function SearchPanel(_props: SearchPanelProps) {
               setShowAutocomplete(false)
               setSelectedIndex(-1)
             }}
-            rightSection={<Search size={16} />}
+            rightSection={
+              <Group spacing={10} noWrap style={{ width: '100%', justifyContent: 'flex-end', paddingRight: 16 }}>
+                {searchTerm && (
+                  <ActionIcon
+                    size="sm"
+                    variant="transparent"
+                    aria-label="Clear search"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={handleClear}
+                  >
+                    <X size={14} />
+                  </ActionIcon>
+                )}
+                <Search size={16} />
+              </Group>
+            }
+            rightSectionWidth={68}
             size="lg"
             styles={{
               input: {

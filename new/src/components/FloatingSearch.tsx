@@ -1,5 +1,5 @@
-import { TextInput, Box, Stack, Text, Group } from '@mantine/core'
-import { Search } from 'tabler-icons-react'
+import { TextInput, Box, Stack, Text, Group, ActionIcon } from '@mantine/core'
+import { Search, X } from 'tabler-icons-react'
 import { useState, useRef, useEffect, useMemo, useId } from 'react'
 import { useSearch } from '../contexts/SearchContext'
 import { useSidebar } from '../contexts/SidebarContext'
@@ -117,6 +117,13 @@ export function FloatingSearch() {
     setShowAutocomplete(val.length >= 2)
   }
 
+  const handleClear = () => {
+    setSearchTerm('')
+    setShowAutocomplete(false)
+    setSelectedIndex(-1)
+    inputRef.current?.focus()
+  }
+
   const handleSuggestionClick = (suggestion: (typeof autocompleteSuggestions)[0]) => {
     if (!suggestion.location) return
     selectFromSuggestion(suggestion)
@@ -178,7 +185,23 @@ export function FloatingSearch() {
             setShowAutocomplete(false)
             setSelectedIndex(-1)
           }}
-          rightSection={<Search size={16} />}
+          rightSection={
+            <Group spacing={10} noWrap style={{ width: '100%', justifyContent: 'flex-end', paddingRight: 16 }}>
+              {searchTerm && (
+                <ActionIcon
+                  size="sm"
+                  variant="transparent"
+                  aria-label="Clear search"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={handleClear}
+                >
+                  <X size={14} />
+                </ActionIcon>
+              )}
+              <Search size={16} />
+            </Group>
+          }
+          rightSectionWidth={68}
           size="lg"
           styles={{
             input: {
