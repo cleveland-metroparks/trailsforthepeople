@@ -180,9 +180,13 @@ export function DetailShareSection() {
 interface DetailShowOnMapSectionProps {
   lat?: number
   lng?: number
+  boxw?: number | null
+  boxs?: number | null
+  boxe?: number | null
+  boxn?: number | null
 }
 
-export function DetailShowOnMapSection({ lat, lng }: DetailShowOnMapSectionProps) {
+export function DetailShowOnMapSection({ lat, lng, boxw, boxs, boxe, boxn }: DetailShowOnMapSectionProps) {
   const { isMobile, onClosePanel } = useSidebar()
   const { map } = useMap()
 
@@ -190,7 +194,16 @@ export function DetailShowOnMapSection({ lat, lng }: DetailShowOnMapSectionProps
   if (typeof lat !== 'number' || typeof lng !== 'number') return null
 
   const handleShowOnMap = () => {
-    zoomToFeature(map, { lat, lng })
+    const hasBbox =
+      typeof boxw === 'number' &&
+      typeof boxs === 'number' &&
+      typeof boxe === 'number' &&
+      typeof boxn === 'number'
+    if (hasBbox) {
+      zoomToFeature(map, { w: boxw!, s: boxs!, e: boxe!, n: boxn! }, { padding: 40 })
+    } else {
+      zoomToFeature(map, { lat, lng })
+    }
     onClosePanel()
   }
 
@@ -208,7 +221,7 @@ export function DetailShowOnMapSection({ lat, lng }: DetailShowOnMapSectionProps
         },
       }}
     >
-      Show on the Map
+      Show on the map
     </Button>
   )
 }

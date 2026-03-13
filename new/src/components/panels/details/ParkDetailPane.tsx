@@ -26,7 +26,7 @@ export function ParkDetailPane({ park, backButton, panelTitle }: ParkDetailPaneP
       <DetailDescription text={park.descr ?? undefined} />
       <DetailHoursSection hours={park.hoursofoperation ?? undefined} />
       <DetailPhoneSection phone={park.phone ?? undefined} />
-      <DetailShowOnMapSection lat={park.latitude} lng={park.longitude} />
+      <DetailShowOnMapSection lat={park.latitude} lng={park.longitude} boxw={park.boxw} boxs={park.boxs} boxe={park.boxe} boxn={park.boxn} />
       <DetailDirectionsSection targetName={park.pagetitle} lat={park.latitude} lng={park.longitude} reservationId={park.record_id} />
       <DetailShareSection />
     </FeatureDetailLayout>
