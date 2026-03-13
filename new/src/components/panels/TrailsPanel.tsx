@@ -2,6 +2,7 @@ import { Text, Box, Stack, Loader, Alert, Select, Badge, Group } from '@mantine/
 import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
+import { HomeButton } from '../HomeButton'
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { useTrailsData } from '../../hooks/useTrailsData'
 import { useParksData } from '../../hooks/useParksData'
@@ -11,6 +12,7 @@ import { useDirections } from '../../contexts/DirectionsContext'
 import { zoomToFeature, highlightTrailLine, clearTrailHighlight, clearAttractionMarker } from '../../lib/mapUtils'
 import { getTrailGeometry } from '../../lib/api'
 import { useURLState } from '../../hooks/useURLState'
+import { useSidebar } from '../../contexts/SidebarContext'
 import type { TransformedTrail } from '../../types/api'
 import { TrailDetailPane } from './details/TrailDetailPane'
 
@@ -21,9 +23,11 @@ function abbreviateDistance(text: string): string {
 
 interface TrailsPanelProps {
   onClose: () => void
+  onGoHome?: () => void
 }
 
-export function TrailsPanel(_props: TrailsPanelProps) {
+export function TrailsPanel({ onGoHome }: TrailsPanelProps) {
+  const { isMobile } = useSidebar()
   const { data: trails, isLoading: trailsLoading, isError: trailsError, error: trailsErrorObj } = useTrailsData()
   const { data: parks, isLoading: parksLoading, isError: parksError, error: parksErrorObj } = useParksData()
   const { params, setParams } = useURLState()
@@ -220,6 +224,7 @@ export function TrailsPanel(_props: TrailsPanelProps) {
     <Box p="md" pr="sm" style={{ position: 'relative' }}>
       <PanelHeader title="Trails" />
       <Stack spacing="md">
+        {isMobile && onGoHome && <HomeButton onClick={onGoHome} />}
         {isLoading && (
           <Box style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
             <Loader size="sm" />

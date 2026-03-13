@@ -199,8 +199,8 @@ export function DetailShowOnMapSection({ lat, lng, boxw, boxs, boxe, boxn }: Det
       typeof boxs === 'number' &&
       typeof boxe === 'number' &&
       typeof boxn === 'number'
-    if (hasBbox) {
-      zoomToFeature(map, { w: boxw!, s: boxs!, e: boxe!, n: boxn! }, { padding: 40 })
+    if (hasBbox && typeof boxw === 'number' && typeof boxs === 'number' && typeof boxe === 'number' && typeof boxn === 'number') {
+      zoomToFeature(map, { w: boxw, s: boxs, e: boxe, n: boxn }, { padding: 40 })
     } else {
       zoomToFeature(map, { lat, lng })
     }

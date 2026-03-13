@@ -2,6 +2,7 @@ import { Text, Box, Stack, Loader, Alert } from '@mantine/core'
 import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
+import { HomeButton } from '../HomeButton'
 import { useEffect, useMemo, useRef, useCallback, useState } from 'react'
 import { useParksData } from '../../hooks/useParksData'
 import { useReservationBoundaries } from '../../hooks/useReservationBoundaries'
@@ -10,14 +11,17 @@ import { useMap } from '../../contexts/MapContext'
 import { useDirections } from '../../contexts/DirectionsContext'
 import { zoomToFeature, highlightParkBoundary, clearParkHighlight, fadeOutParkHighlight, getBoundingBoxFromGeometry, clearAttractionMarker } from '../../lib/mapUtils'
 import { useURLState } from '../../hooks/useURLState'
+import { useSidebar } from '../../contexts/SidebarContext'
 import type { Reservation } from '../../types/api'
 import { ParkDetailPane } from './details/ParkDetailPane'
 
 interface ParksPanelProps {
   onClose: () => void
+  onGoHome?: () => void
 }
 
-export function ParksPanel(_props: ParksPanelProps) {
+export function ParksPanel({ onGoHome }: ParksPanelProps) {
+  const { isMobile } = useSidebar()
   const { data: parks, isLoading, isError, error } = useParksData()
   const { data: boundaries } = useReservationBoundaries()
   const { params, setParams } = useURLState()
@@ -162,6 +166,7 @@ export function ParksPanel(_props: ParksPanelProps) {
     <Box p="md" pr="sm" style={{ position: 'relative' }}>
       <PanelHeader title="Parks" />
       <Stack spacing="md">
+        {isMobile && onGoHome && <HomeButton onClick={onGoHome} />}
         {isLoading && (
           <Box style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
             <Loader size="sm" />

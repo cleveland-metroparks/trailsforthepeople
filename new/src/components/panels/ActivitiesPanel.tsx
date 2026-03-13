@@ -2,6 +2,7 @@ import { Text, Box, Stack, Loader, Alert } from '@mantine/core'
 import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
+import { HomeButton } from '../HomeButton'
 import { useMemo, useEffect, useRef, useCallback, useState } from 'react'
 import { useActivitiesData, useAttractionsByActivity } from '../../hooks/useActivitiesData'
 import { useCategoriesData } from '../../hooks/useCategoriesData'
@@ -12,14 +13,17 @@ import { zoomToFeature, placeAttractionMarker, clearAttractionMarker } from '../
 import { useSidebarAwarePadding } from '../../hooks/useSidebarAwarePadding'
 import { ActivityIcon } from '../ActivityIcon'
 import { useURLState } from '../../hooks/useURLState'
+import { useSidebar } from '../../contexts/SidebarContext'
 import type { TransformedAttraction } from '../../types/api'
 import { AttractionDetailPane } from './details/AttractionDetailPane'
 
 interface ActivitiesPanelProps {
   onClose: () => void
+  onGoHome?: () => void
 }
 
-export function ActivitiesPanel(_props: ActivitiesPanelProps) {
+export function ActivitiesPanel({ onGoHome }: ActivitiesPanelProps) {
+  const { isMobile } = useSidebar()
   const { activities, attractions, isLoading, isError, error } = useActivitiesData()
   const { params, setParams } = useURLState()
   const sidebarAwarePadding = useSidebarAwarePadding(120)
@@ -197,6 +201,7 @@ export function ActivitiesPanel(_props: ActivitiesPanelProps) {
     <Box p="md" pr="sm" style={{ position: 'relative' }}>
       <PanelHeader title="Activities" />
       <Stack spacing="md">
+        {isMobile && onGoHome && selectedActivityId === null && <HomeButton onClick={onGoHome} />}
         {isLoading && (
           <Box style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
             <Loader size="sm" />

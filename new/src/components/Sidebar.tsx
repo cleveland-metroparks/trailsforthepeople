@@ -184,6 +184,12 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     )
   }
 
+  const handleGoHome = () => {
+    if (activeTab) lastActiveTab.current = activeTab
+    setActiveTab(null)
+    clearFeatureParams()
+  }
+
   const handleClosePanel = () => {
     if (activeTab) lastActiveTab.current = activeTab
     setActiveTab(null)
@@ -594,9 +600,9 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           {activeTab !== null && (
             <Suspense fallback={<PanelLoader />}>
               {activeTab === 'search' && <SearchPanel onClose={handleClosePanel} />}
-              {activeTab === 'parks' && <ParksPanel onClose={handleClosePanel} />}
-              {activeTab === 'activities' && <ActivitiesPanel onClose={handleClosePanel} />}
-              {activeTab === 'trails' && <TrailsPanel onClose={handleClosePanel} />}
+              {activeTab === 'parks' && <ParksPanel onClose={handleClosePanel} onGoHome={handleGoHome} />}
+              {activeTab === 'activities' && <ActivitiesPanel onClose={handleClosePanel} onGoHome={handleGoHome} />}
+              {activeTab === 'trails' && <TrailsPanel onClose={handleClosePanel} onGoHome={handleGoHome} />}
               {activeTab === 'share' && <SharePanel onClose={handleClosePanel} />}
               {activeTab === 'directions' && <DirectionsPanel onClose={handleClosePanel} />}
               {activeTab === 'info' && <CreditsPanel onClose={handleClosePanel} />}
