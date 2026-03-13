@@ -1,4 +1,4 @@
-import { TextInput, Box, Stack, Text, Group, ActionIcon } from '@mantine/core'
+import { TextInput, Box, Stack, Text, Group, ActionIcon, Tooltip } from '@mantine/core'
 import { Search, X } from 'tabler-icons-react'
 import { useState, useRef, useEffect, useMemo, useId } from 'react'
 import { useSearch } from '../contexts/SearchContext'
@@ -188,15 +188,17 @@ export function FloatingSearch() {
           rightSection={
             <Group spacing={10} noWrap style={{ width: '100%', justifyContent: 'flex-end', paddingRight: 16 }}>
               {searchTerm && (
-                <ActionIcon
-                  size="sm"
-                  variant="transparent"
-                  aria-label="Clear search"
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={handleClear}
-                >
-                  <X size={14} />
-                </ActionIcon>
+                <Tooltip label="Clear" withArrow>
+                  <ActionIcon
+                    size="sm"
+                    variant="transparent"
+                    aria-label="Clear search"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={handleClear}
+                  >
+                    <X size={14} />
+                  </ActionIcon>
+                </Tooltip>
               )}
               <Search size={16} />
             </Group>

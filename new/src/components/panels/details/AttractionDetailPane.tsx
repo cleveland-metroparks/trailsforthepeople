@@ -68,6 +68,8 @@ export function AttractionDetailPane({
         <DetailParkSection parkName={parkName} />
       </Stack>
 
+      <DetailShowOnMapSection lat={attraction.latitude} lng={attraction.longitude} />
+
       {categoryNames && categoryNames.length > 0 && (
         <Group spacing="xs">
           {categoryNames.map((categoryName, index) => (
@@ -137,7 +139,6 @@ export function AttractionDetailPane({
         </>
       )}
 
-      <DetailShowOnMapSection lat={attraction.latitude} lng={attraction.longitude} />
       <DetailDirectionsSection
         targetName={String(attraction.pagetitle)}
         lat={attraction.latitude}

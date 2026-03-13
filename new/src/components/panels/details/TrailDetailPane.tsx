@@ -43,6 +43,8 @@ export function TrailDetailPane({ trail, parkName, backButton, panelTitle }: Tra
         <DetailParkSection parkName={parkName} />
       </Stack>
 
+      <DetailShowOnMapSection lat={trail.lat} lng={trail.lng} />
+
       <Stack spacing={0}>
         {trail.distancetext && (
           <Text size="sm">
@@ -87,8 +89,6 @@ export function TrailDetailPane({ trail, parkName, backButton, panelTitle }: Tra
       {trail.description && <Divider />}
       <DetailHtmlDescription html={trail.description ?? undefined} />
 
-      <Divider />
-      <DetailShowOnMapSection lat={trail.lat} lng={trail.lng} />
       <DetailDirectionsSection
         targetName={String(trail.name)}
         lat={trail.lat}

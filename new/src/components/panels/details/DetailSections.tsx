@@ -221,7 +221,7 @@ export function DetailShowOnMapSection({ lat, lng, boxw, boxs, boxe, boxn }: Det
         },
       }}
     >
-      Show on the map
+      Show on map
     </Button>
   )
 }

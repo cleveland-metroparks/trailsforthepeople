@@ -1,4 +1,4 @@
-import { TextInput, Button, Stack, Text, Box, Loader, Alert, Group, ActionIcon } from '@mantine/core'
+import { TextInput, Button, Stack, Text, Box, Loader, Alert, Group, ActionIcon, Tooltip } from '@mantine/core'
 import { PanelList } from '../PanelList'
 import { PanelHeader } from '../PanelHeader'
 import { BackButton } from '../BackButton'
@@ -492,15 +492,17 @@ export function SearchPanel(_props: SearchPanelProps) {
             rightSection={
               <Group spacing={10} noWrap style={{ width: '100%', justifyContent: 'flex-end', paddingRight: 16 }}>
                 {searchTerm && (
-                  <ActionIcon
-                    size="sm"
-                    variant="transparent"
-                    aria-label="Clear search"
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={handleClear}
-                  >
-                    <X size={14} />
-                  </ActionIcon>
+                  <Tooltip label="Clear" withArrow>
+                    <ActionIcon
+                      size="sm"
+                      variant="transparent"
+                      aria-label="Clear search"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={handleClear}
+                    >
+                      <X size={14} />
+                    </ActionIcon>
+                  </Tooltip>
                 )}
                 <Search size={16} />
               </Group>
