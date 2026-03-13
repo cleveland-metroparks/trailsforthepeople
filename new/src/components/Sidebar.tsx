@@ -2,6 +2,7 @@ import { Tabs, Loader, Center, ActionIcon, Box, Text, Divider, UnstyledButton } 
 import { Search, Share, InfoCircle, Tree, Walk, Flag3, Bug, ChevronLeft, Menu2, Route } from 'tabler-icons-react'
 import { PanelCloseButton } from './PanelCloseButton'
 import { useState, useEffect, useRef, useImperativeHandle, forwardRef, Suspense, lazy } from 'react'
+import { createPortal } from 'react-dom'
 import { useURLState } from '../hooks/useURLState'
 import { useMapSelection } from '../contexts/MapSelectionContext'
 import { useDirections } from '../contexts/DirectionsContext'
@@ -452,6 +453,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
       if (isDragGesture.current) {
         if (!isExpanded && dragOffset < -80) {
           setIsSheetExpanded(true)
+          setDragOffset(0)
         } else if (isExpanded && dragOffset > 80) {
           handleClosePanel()
         } else {
@@ -477,7 +479,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
       }
     }
 
-    return (
+    return createPortal(
       <div
         role="dialog"
         aria-label="Sidebar"
@@ -610,7 +612,8 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
             </Suspense>
           )}
         </div>
-      </div>
+      </div>,
+      document.body
     )
   }
 
