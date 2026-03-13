@@ -490,6 +490,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
             backgroundColor: '#000',
             flexShrink: 0,
             borderRadius: '20px 20px 0 0',
+            userSelect: 'none',
           }}
         >
           {/* Drag pill row */}
