@@ -88,6 +88,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   const startY = useRef(0)
   const lastActiveTab = useRef<string>('parks')
   const isDragGesture = useRef(false)
+  const lastTapTime = useRef(0)
 
   // Track activeTab in a ref so the URL-sync effect can read it without depending on it.
   // This breaks the feedback loop: user tab changes don't re-trigger the URL-sync effect.
@@ -443,7 +444,23 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           setDragOffset(0)
         }
       } else {
+        const now = Date.now()
+        if (now - lastTapTime.current < 300) {
+          lastTapTime.current = 0
+          handleSheetToggle()
+        } else {
+          lastTapTime.current = now
+        }
         setDragOffset(0)
+      }
+    }
+
+    const handleSheetToggle = () => {
+      if (isExpanded) {
+        handleClosePanel()
+      } else {
+        openFromNavRef.current = true
+        setActiveTab(lastActiveTab.current || 'parks')
       }
     }
 
@@ -472,6 +489,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           onTouchStart={handleSheetTouchStart}
           onTouchMove={handleSheetTouchMove}
           onTouchEnd={handleSheetTouchEnd}
+          onDoubleClick={handleSheetToggle}
           style={{
             backgroundColor: '#000',
             flexShrink: 0,
