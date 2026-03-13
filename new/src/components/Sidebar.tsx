@@ -421,7 +421,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     const isExpanded = isSheetExpanded
     const baseTranslate = isExpanded
       ? `${MOBILE_SHEET_EXPANDED_TOP}px`
-      : `calc(100vh - ${MOBILE_BOTTOM_BAR_HEIGHT}px)`
+      : `calc(100dvh - ${MOBILE_BOTTOM_BAR_HEIGHT}px)`
     const sheetTransform = `translateY(calc(${baseTranslate} + ${dragOffset}px))`
 
     const handleSheetTouchStart = (e: React.TouchEvent) => {

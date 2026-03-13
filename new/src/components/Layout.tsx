@@ -53,11 +53,11 @@ export function Layout({ children }: LayoutProps) {
                       main: {
                         backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
                         padding: 0,
-                        height: '100vh',
+                        height: '100dvh',
                         position: 'relative',
                       },
                       root: {
-                        height: '100vh',
+                        height: '100dvh',
                       },
                     })}
                   >
