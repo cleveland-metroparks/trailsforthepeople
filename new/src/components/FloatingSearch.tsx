@@ -20,7 +20,7 @@ const searchToUrlType: Record<string, string> = {
 }
 
 export function FloatingSearch() {
-  const { isSidebarCollapsed, navWidth, onSearchSubmit } = useSidebar()
+  const { isSidebarCollapsed, navWidth, isMobile, activePanel, onSearchSubmit } = useSidebar()
   const { searchTerm, setSearchTerm, submitSearch, selectFromSuggestion, autocompleteSuggestions } = useSearch()
   const { setParams } = useURLState()
   const { attractions } = useActivitiesData()
@@ -135,6 +135,8 @@ export function FloatingSearch() {
     )
     onSearchSubmit()
   }
+
+  if (isMobile && activePanel === 'search') return null
 
   return (
     <Box

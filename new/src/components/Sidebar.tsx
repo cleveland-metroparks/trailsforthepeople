@@ -47,6 +47,7 @@ const SIDEBAR_COLORS = {
 interface SidebarProps {
   onPanelStateChange?: (hasActivePanel: boolean) => void
   onNavExpandedChange?: (isExpanded: boolean) => void
+  onActivePanelChange?: (activePanel: string | null) => void
 }
 
 export interface SidebarRef {
@@ -70,7 +71,7 @@ const PanelLoader = () => (
   </Center>
 )
 
-export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChange, onNavExpandedChange }, ref) => {
+export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChange, onNavExpandedChange, onActivePanelChange }, ref) => {
   const [activeTab, setActiveTab] = useState<string | null>(null)
   const [showDebugTab, setShowDebugTab] = useState(false)
   const [isNavExpanded, setIsNavExpanded] = useState(true)
@@ -99,7 +100,8 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
 
   useEffect(() => {
     onPanelStateChange?.(activeTab !== null)
-  }, [activeTab, onPanelStateChange])
+    onActivePanelChange?.(activeTab)
+  }, [activeTab, onPanelStateChange, onActivePanelChange])
 
   useEffect(() => {
     onNavExpandedChange?.(isNavExpanded)

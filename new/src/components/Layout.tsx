@@ -17,6 +17,7 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const [hasActivePanel, setHasActivePanel] = useState(false)
   const [isNavExpanded, setIsNavExpanded] = useState(true)
+  const [activePanel, setActivePanel] = useState<string | null>(null)
   const sidebarRef = useRef<SidebarRef>(null)
   const isMobile = useIsMobile()
 
@@ -41,6 +42,7 @@ export function Layout({ children }: LayoutProps) {
                 navWidth={navWidth}
                 sidebarWidth={totalWidth}
                 isMobile={isMobile}
+                activePanel={activePanel}
                 onSearchSubmit={handleSearchSubmit}
               >
                 {isMobile ? (
@@ -63,6 +65,7 @@ export function Layout({ children }: LayoutProps) {
                       ref={sidebarRef}
                       onPanelStateChange={setHasActivePanel}
                       onNavExpandedChange={setIsNavExpanded}
+                      onActivePanelChange={setActivePanel}
                     />
                   </AppShell>
                 ) : (
