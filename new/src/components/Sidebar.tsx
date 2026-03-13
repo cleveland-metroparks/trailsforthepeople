@@ -76,6 +76,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   const [activeTab, setActiveTab] = useState<string | null>(null)
   const [showDebugTab, setShowDebugTab] = useState(false)
   const [isNavExpanded, setIsNavExpanded] = useState(true)
+  const [isSheetExpanded, setIsSheetExpanded] = useState(false)
   const [dragOffset, setDragOffset] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const { params, setParams } = useURLState()
@@ -112,12 +113,17 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   useEffect(() => {
     (window as Window & { showDebugPanel?: () => void }).showDebugPanel = () => {
       setShowDebugTab(true)
-      setActiveTab('debug')
+      openTab('debug')
     }
     return () => {
       delete (window as Window & { showDebugPanel?: () => void }).showDebugPanel
     }
   }, [])
+
+  const openTab = (tab: string) => {
+    setActiveTab(tab)
+    setIsSheetExpanded(true)
+  }
 
   const toggleNavExpanded = () => {
     setIsNavExpanded(!isNavExpanded)
@@ -136,7 +142,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
 
     const tabForFeature = getTabForFeatureType(params.type, params.activityId)
     if (tabForFeature) {
-      setActiveTab(tabForFeature)
+      openTab(tabForFeature)
     }
   }, [params.type, params.activityId, params.fromSearch, selectionTick])
 
@@ -144,7 +150,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   useEffect(() => {
     if (openRequestId > prevOpenRequestId.current) {
       prevOpenRequestId.current = openRequestId
-      setActiveTab('directions')
+      openTab('directions')
     }
   }, [openRequestId])
 
@@ -153,14 +159,15 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     if (closeRequestId > prevCloseRequestId.current) {
       prevCloseRequestId.current = closeRequestId
       const tab = getTabForFeatureType(params.type, params.activityId)
-      setActiveTab(tab)
+      if (tab) openTab(tab)
+      else setActiveTab(null)
     }
   }, [closeRequestId, params.type, params.activityId])
 
   useImperativeHandle(ref, () => ({
     activateSearchTab: () => {
       openFromNavRef.current = true
-      setActiveTab('search')
+      openTab('search')
     },
     closePanel: () => {
       handleClosePanel()
@@ -180,6 +187,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   const handleClosePanel = () => {
     if (activeTab) lastActiveTab.current = activeTab
     setActiveTab(null)
+    setIsSheetExpanded(false)
     setDragOffset(0)
     openFromNavRef.current = false
     clearFeatureParams()
@@ -196,6 +204,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     if (value) {
       openFromNavRef.current = true
       clearFeatureParams()
+      setIsSheetExpanded(true)
       setActiveTab(value)
     }
   }
@@ -409,7 +418,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
 
   // ── Mobile layout ──────────────────────────────────────────────────────────
   if (isMobile) {
-    const isExpanded = activeTab !== null
+    const isExpanded = isSheetExpanded
     const baseTranslate = isExpanded
       ? `${MOBILE_SHEET_EXPANDED_TOP}px`
       : `calc(100vh - ${MOBILE_BOTTOM_BAR_HEIGHT}px)`
@@ -436,8 +445,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
       setIsDragging(false)
       if (isDragGesture.current) {
         if (!isExpanded && dragOffset < -80) {
-          openFromNavRef.current = true
-          setActiveTab(lastActiveTab.current || 'parks')
+          setIsSheetExpanded(true)
         } else if (isExpanded && dragOffset > 80) {
           handleClosePanel()
         } else {
@@ -459,8 +467,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
       if (isExpanded) {
         handleClosePanel()
       } else {
-        openFromNavRef.current = true
-        setActiveTab(lastActiveTab.current || 'parks')
+        setIsSheetExpanded(true)
       }
     }
 
@@ -552,6 +559,38 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           className={DARK_MODE_MOBILE ? 'dark-panel-content' : undefined}
           style={{ flex: 1, overflow: 'auto', backgroundColor: DARK_MODE_MOBILE ? '#111111' : '#fff' }}
         >
+          {activeTab === null && (
+            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {([
+                { value: 'parks', icon: <Tree size={24} color="#A6CE39" />, label: 'Parks' },
+                { value: 'activities', icon: <Flag3 size={24} color="#A6CE39" />, label: 'Activities' },
+                { value: 'trails', icon: <Walk size={24} color="#A6CE39" />, label: 'Trails' },
+              ] as const).map(({ value, icon, label }) => (
+                <UnstyledButton
+                  key={value}
+                  type="button"
+                  onClick={() => handleTabChange(value)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 14,
+                    padding: '14px 16px',
+                    borderRadius: 10,
+                    backgroundColor: '#222124',
+                    border: '1.5px solid rgba(255,255,255,0.12)',
+                    color: '#fff',
+                  }}
+                  sx={{
+                    '&:hover': { backgroundColor: '#2d2b30', borderColor: 'rgba(166,206,57,0.4)' },
+                    '&:focus-visible': { outline: '2px solid #6AB03E' },
+                  }}
+                >
+                  {icon}
+                  <Text size="md" weight={600} style={{ color: '#fff' }}>{label}</Text>
+                </UnstyledButton>
+              ))}
+            </div>
+          )}
           {activeTab !== null && (
             <Suspense fallback={<PanelLoader />}>
               {activeTab === 'search' && <SearchPanel onClose={handleClosePanel} />}
