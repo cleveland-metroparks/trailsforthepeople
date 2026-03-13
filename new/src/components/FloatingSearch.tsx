@@ -195,12 +195,28 @@ export function FloatingSearch() {
                     aria-label="Clear search"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={handleClear}
+                    sx={{ '&:focus-visible': { color: 'black' } }}
                   >
                     <X size={14} />
                   </ActionIcon>
                 </Tooltip>
               )}
-              <Search size={16} />
+              <Tooltip label="Search" withArrow>
+                <ActionIcon
+                  size="sm"
+                  variant="transparent"
+                  aria-label="Submit search"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    setShowAutocomplete(false)
+                    submitSearch()
+                    onSearchSubmit()
+                  }}
+                  style={{ color: 'inherit' }}
+                >
+                  <Search size={16} />
+                </ActionIcon>
+              </Tooltip>
             </Group>
           }
           rightSectionWidth={68}
