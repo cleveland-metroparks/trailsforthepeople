@@ -1,5 +1,6 @@
 import { Text, UnstyledButton } from '@mantine/core'
 import { CornerUpLeft } from 'tabler-icons-react'
+import { useDarkMode } from '../hooks/useDarkMode'
 
 const ICON_COLOR = '#6AB03E'
 
@@ -9,6 +10,8 @@ interface BackButtonProps {
 }
 
 export function BackButton({ onClick, autoFocus = false }: BackButtonProps) {
+  const isDarkMode = useDarkMode()
+
   return (
     <UnstyledButton
       type="button"
@@ -37,7 +40,7 @@ export function BackButton({ onClick, autoFocus = false }: BackButtonProps) {
       <Text
         size="sm"
         style={{
-          color: '#000000',
+          color: isDarkMode ? '#FFFFFF' : '#000000',
           textDecoration: 'underline',
           textUnderlineOffset: '2px',
         }}

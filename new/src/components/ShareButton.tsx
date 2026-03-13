@@ -1,8 +1,10 @@
 import { Text, Popover, TextInput, ActionIcon, Box, UnstyledButton } from '@mantine/core'
 import { Share, Copy, Check } from 'tabler-icons-react'
 import { useState, useEffect } from 'react'
+import { useDarkMode } from '../hooks/useDarkMode'
 
 export function ShareButton() {
+  const isDarkMode = useDarkMode()
   const [opened, setOpened] = useState(false)
   const [copied, setCopied] = useState(false)
   const [shareUrl, setShareUrl] = useState(() => window.location.href)
@@ -55,7 +57,7 @@ export function ShareButton() {
           <Share size={20} style={{ color: '#6AB03E', flexShrink: 0 }} />
           <Text
             size="sm"
-            style={{ color: '#000000', textDecoration: 'underline', textUnderlineOffset: '2px' }}
+            style={{ color: isDarkMode ? '#FFFFFF' : '#000000', textDecoration: 'underline', textUnderlineOffset: '2px' }}
           >
             Share
           </Text>

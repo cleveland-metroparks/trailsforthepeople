@@ -1,8 +1,11 @@
 import { Box, Stack, Text, UnstyledButton } from '@mantine/core'
 import { ReactNode, useEffect, useRef } from 'react'
+import { useDarkMode } from '../hooks/useDarkMode'
 
 const HOVER_COLOR = '#F2F8E1'
 const BORDER_COLOR = '#e0e0e0'
+const DARK_HOVER_COLOR = 'rgba(106, 176, 62, 0.15)'
+const DARK_BORDER_COLOR = 'rgba(255, 255, 255, 0.1)'
 
 interface PanelListItemProps {
   children: ReactNode
@@ -31,9 +34,13 @@ export function PanelListItem({
   isActive = false,
   itemRef,
 }: PanelListItemProps) {
+  const isDarkMode = useDarkMode()
+  const hoverColor = isDarkMode ? DARK_HOVER_COLOR : HOVER_COLOR
+  const borderColor = isDarkMode ? DARK_BORDER_COLOR : BORDER_COLOR
+
   const commonStyles = {
-    borderTop: isFirst ? 'none' : `1px solid ${BORDER_COLOR}`,
-    borderBottom: isLast ? `1px solid ${BORDER_COLOR}` : 'none',
+    borderTop: isFirst ? 'none' : `1px solid ${borderColor}`,
+    borderBottom: isLast ? `1px solid ${borderColor}` : 'none',
     marginLeft: -16,
     marginRight: -16,
   }
@@ -60,12 +67,12 @@ export function PanelListItem({
         }}
         sx={{
           '&:hover': {
-            backgroundColor: HOVER_COLOR,
+            backgroundColor: hoverColor,
           },
           '&:focus-visible': {
             outline: '2px solid #6AB03E',
             outlineOffset: '-2px',
-            backgroundColor: HOVER_COLOR,
+            backgroundColor: hoverColor,
           },
         }}
       >

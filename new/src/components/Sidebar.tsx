@@ -8,6 +8,9 @@ import { useDirections } from '../contexts/DirectionsContext'
 import { useSidebar } from '../contexts/SidebarContext'
 import { NAV_WIDTH_EXPANDED, NAV_WIDTH_COLLAPSED, MOBILE_BOTTOM_BAR_HEIGHT, MOBILE_SHEET_EXPANDED_TOP } from './sidebarConstants'
 
+const DARK_MODE_MOBILE = import.meta.env.VITE_DARK_MODE_MOBILE === 'true'
+const DARK_MODE_DESKTOP = import.meta.env.VITE_DARK_MODE_DESKTOP === 'true'
+
 // Lazy load all panels
 const SearchPanel = lazy(() => import('./panels/SearchPanel').then(m => ({ default: m.SearchPanel })))
 const SharePanel = lazy(() => import('./panels/SharePanel').then(m => ({ default: m.SharePanel })))
@@ -33,7 +36,7 @@ const SIDEBAR_COLORS = {
     activeBackground: '#333235',
   },
   panel: {
-    background: '#FFFFFF',
+    background: DARK_MODE_DESKTOP ? '#111111' : '#FFFFFF',
     heading: '#000000',
     text: '#000000',
     button: '#6AB03E',
@@ -533,7 +536,8 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           role={activeTab ? 'tabpanel' : undefined}
           id={activeTab ? `sidebar-panel-${activeTab}` : undefined}
           aria-labelledby={activeTab ? `sidebar-tab-${activeTab}` : undefined}
-          style={{ flex: 1, overflow: 'auto', backgroundColor: '#fff' }}
+          className={DARK_MODE_MOBILE ? 'dark-panel-content' : undefined}
+          style={{ flex: 1, overflow: 'auto', backgroundColor: DARK_MODE_MOBILE ? '#111111' : '#fff' }}
         >
           {activeTab !== null && (
             <Suspense fallback={<PanelLoader />}>

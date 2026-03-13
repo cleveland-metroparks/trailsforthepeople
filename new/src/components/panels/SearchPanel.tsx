@@ -19,6 +19,7 @@ import { getTrailGeometry } from '../../lib/api'
 import type { Reservation, TransformedAttraction, TransformedTrail } from '../../types/api'
 import mapboxgl from 'mapbox-gl'
 import { useState, useRef, useEffect, useMemo, useCallback, useId } from 'react'
+import { useDarkMode } from '../../hooks/useDarkMode'
 import { AttractionDetailPane } from './details/AttractionDetailPane'
 import { MetadataBadge } from '../MetadataBadge'
 import { ParkDetailPane } from './details/ParkDetailPane'
@@ -54,6 +55,7 @@ export function SearchPanel(_props: SearchPanelProps) {
   } = useSearch()
 
   const { map } = useMap()
+  const isDarkMode = useDarkMode()
   const { params, setParams } = useURLState()
   const sidebarAwarePadding = useSidebarAwarePadding(120)
   const [showAutocomplete, setShowAutocomplete] = useState(false)
@@ -501,8 +503,8 @@ export function SearchPanel(_props: SearchPanelProps) {
                 left: 0,
                 right: 0,
                 zIndex: 1000,
-                backgroundColor: 'white',
-                border: '1px solid #e0e0e0',
+                backgroundColor: isDarkMode ? '#1a1a1a' : 'white',
+                border: isDarkMode ? '1px solid rgba(255,255,255,0.15)' : '1px solid #e0e0e0',
                 borderRadius: '4px',
                 marginTop: '4px',
                 maxHeight: '300px',
@@ -521,12 +523,12 @@ export function SearchPanel(_props: SearchPanelProps) {
                     p="sm"
                     style={{
                       cursor: 'pointer',
-                      borderBottom: '1px solid #f0f0f0',
+                      borderBottom: isDarkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid #f0f0f0',
                     }}
                     sx={{
-                      backgroundColor: selectedIndex === idx ? '#F2F8E1' : undefined,
+                      backgroundColor: selectedIndex === idx ? (isDarkMode ? 'rgba(106, 176, 62, 0.15)' : '#F2F8E1') : undefined,
                       '&:hover': {
-                        backgroundColor: '#F2F8E1',
+                        backgroundColor: isDarkMode ? 'rgba(106, 176, 62, 0.15)' : '#F2F8E1',
                       },
                       '&:last-child': {
                         borderBottom: 'none',

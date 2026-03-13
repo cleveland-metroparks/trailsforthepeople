@@ -1,6 +1,7 @@
 import { Text, Box, Anchor, Divider, Stack, Group } from '@mantine/core'
 import type { ReactNode } from 'react'
 import { ExternalLink } from 'tabler-icons-react'
+import { useDarkMode } from '../../../hooks/useDarkMode'
 import { ActivityIcon } from '../../ActivityIcon'
 import { FeatureDetailLayout } from './FeatureDetailLayout'
 import { MetadataBadge } from '../../MetadataBadge'
@@ -33,6 +34,9 @@ export function AttractionDetailPane({
   backButton,
   panelTitle,
 }: AttractionDetailPaneProps) {
+  const isDarkMode = useDarkMode()
+  const externalLinkColor = isDarkMode ? '#6AB03E' : '#2f9e44'
+
   const categoryNames = attraction.categories
     ? attraction.categories
         .map((id) => categoriesMap[id])
@@ -123,7 +127,7 @@ export function AttractionDetailPane({
                 <ExternalLink
                   aria-hidden="true"
                   size={14}
-                  color="#2f9e44"
+                  color={externalLinkColor}
                 />
               </span>
             </Anchor>

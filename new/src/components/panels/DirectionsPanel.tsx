@@ -25,6 +25,7 @@ import {
 } from '../../lib/mapUtils'
 import { FeatureAutocompleteInput } from '../inputs/FeatureAutocompleteInput'
 import { ViaModeSelector } from '../ViaModeSelector'
+import { useDarkMode } from '../../hooks/useDarkMode'
 import { DirectionsResultDisplay } from './DirectionsResultDisplay'
 import type { DirectionsResult } from '../../types/api'
 
@@ -44,6 +45,7 @@ interface DirectionsInputs {
 export function DirectionsPanel(_props: DirectionsPanelProps) {
   const { target, via, setVia, closeDirections, openRequestId } = useDirections()
   const { map } = useMap()
+  const isDarkMode = useDarkMode()
   const { mapConfig } = useMapConfig()
   const sidebarAwarePadding = useSidebarAwarePadding(120)
   const resolveLocation = useResolveLocation()
@@ -382,10 +384,18 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
               disabled={isLoading}
               style={{ position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)' }}
               sx={{
-                color: reverseButtonFocused ? '#373535' : '#ced4da',
-                border: reverseButtonFocused ? '1px solid #373535' : '1px solid #ced4da',
-                backgroundColor: reverseButtonFocused ? '#f0f9e8' : undefined,
-                '&:hover': { backgroundColor: '#f0f9e8', borderColor: '#373535', color: '#373535' },
+                color: isDarkMode
+                  ? (reverseButtonFocused ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.4)')
+                  : (reverseButtonFocused ? '#373535' : '#ced4da'),
+                border: isDarkMode
+                  ? (reverseButtonFocused ? '1px solid rgba(255,255,255,0.8)' : '1px solid rgba(255,255,255,0.4)')
+                  : (reverseButtonFocused ? '1px solid #373535' : '1px solid #ced4da'),
+                backgroundColor: reverseButtonFocused ? (isDarkMode ? 'rgba(106, 176, 62, 0.2)' : '#f0f9e8') : undefined,
+                '&:hover': {
+                  backgroundColor: isDarkMode ? 'rgba(106, 176, 62, 0.2)' : '#f0f9e8',
+                  borderColor: isDarkMode ? 'rgba(255,255,255,0.8)' : '#373535',
+                  color: isDarkMode ? 'rgba(255,255,255,0.8)' : '#373535',
+                },
               }}
             >
               <ArrowsExchange size={16} color="currentColor" />

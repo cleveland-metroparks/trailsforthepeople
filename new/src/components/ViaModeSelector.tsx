@@ -2,9 +2,10 @@ import { Box, ActionIcon, Tooltip } from '@mantine/core'
 import { Walk, Bike, Car, Bus } from 'tabler-icons-react'
 import type { ViaMode } from '../contexts/DirectionsContext'
 import { featureFlags } from '../lib/featureFlags'
+import { useDarkMode } from '../hooks/useDarkMode'
 
 const ICON_SIZE = 28
-const ICON_COLOR = '#373535'
+const ICON_COLOR_LIGHT = '#373535'
 
 const ALL_VIA_MODES = [
   { via: 'hike' as const, icon: Walk, label: 'Walking' },
@@ -27,6 +28,11 @@ interface ViaModeSelectorProps {
 }
 
 export function ViaModeSelector({ value, onChange, variant = 'full' }: ViaModeSelectorProps) {
+  const isDarkMode = useDarkMode()
+  const iconColor = isDarkMode ? '#ffffff' : ICON_COLOR_LIGHT
+  const borderColor = isDarkMode ? 'rgba(255, 255, 255, 0.3)' : '#ddd'
+  const hoverBg = isDarkMode ? 'rgba(106, 176, 62, 0.15)' : '#f0f9e8'
+
   return (
     <Box style={{ display: 'flex', gap: variant === 'compact' ? '8px' : '6px' }}>
       {VIA_MODES.map(({ via, icon: Icon, label }) => {
@@ -41,15 +47,15 @@ export function ViaModeSelector({ value, onChange, variant = 'full' }: ViaModeSe
               radius="sm"
               onClick={() => onChange(via)}
               sx={{
-                backgroundColor: showActiveState ? ICON_COLOR : undefined,
-                borderColor: showActiveState ? ICON_COLOR : '#ddd',
+                backgroundColor: showActiveState ? ICON_COLOR_LIGHT : undefined,
+                borderColor: showActiveState ? ICON_COLOR_LIGHT : borderColor,
                 '&:hover': {
-                  backgroundColor: showActiveState ? '#5a9a34' : '#f0f9e8',
-                  borderColor: ICON_COLOR,
+                  backgroundColor: showActiveState ? '#5a9a34' : hoverBg,
+                  borderColor: ICON_COLOR_LIGHT,
                 },
               }}
             >
-              <Icon size={ICON_SIZE} color={showActiveState ? '#fff' : ICON_COLOR} />
+              <Icon size={ICON_SIZE} color={showActiveState ? '#fff' : iconColor} />
             </ActionIcon>
           </Tooltip>
         )

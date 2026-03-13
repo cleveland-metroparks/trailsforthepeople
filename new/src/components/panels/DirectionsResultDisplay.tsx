@@ -2,6 +2,7 @@ import { Box, Text, Button, Divider, Anchor } from '@mantine/core'
 import { ExternalLink } from 'tabler-icons-react'
 import type { DirectionsResult } from '../../types/api'
 import { ElevationProfileChart } from '../charts/ElevationProfileChart'
+import { useDarkMode } from '../../hooks/useDarkMode'
 
 interface DirectionsResultDisplayProps {
   result: DirectionsResult
@@ -10,6 +11,9 @@ interface DirectionsResultDisplayProps {
 }
 
 export function DirectionsResultDisplay({ result, onClear, isMapboxRouted }: DirectionsResultDisplayProps) {
+  const isDarkMode = useDarkMode()
+  const externalLinkColor = isDarkMode ? '#6AB03E' : '#2f9e44'
+
   return (
     <>
       <Divider />
@@ -67,7 +71,7 @@ export function DirectionsResultDisplay({ result, onClear, isMapboxRouted }: Dir
           <Anchor href="https://www.mapbox.com/" target="_blank" rel="noreferrer" size="xs">
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
               Mapbox
-              <ExternalLink aria-hidden="true" size={12} color="#2f9e44" />
+              <ExternalLink aria-hidden="true" size={12} color={externalLinkColor} />
             </span>
           </Anchor>
           .
