@@ -54,6 +54,7 @@ interface SidebarProps {
 export interface SidebarRef {
   activateSearchTab: () => void
   closePanel: () => void
+  collapseSheet: () => void
 }
 
 /**
@@ -173,6 +174,9 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     closePanel: () => {
       handleClosePanel()
     },
+    collapseSheet: () => {
+      handleCollapseSheet()
+    },
   }))
 
   // Clear feature-selection URL params so the URL-sync effect doesn't reopen a panel.
@@ -203,17 +207,30 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     })
   }
 
+  const handleCollapseSheet = () => {
+    setIsSheetExpanded(false)
+    setDragOffset(0)
+    // intentionally does NOT clear activeTab or URL params
+  }
+
   const handleTabChange = (value: string | null) => {
+    if (!value) return
+    if (!isSheetExpanded) {
+      // Sheet is collapsed — always expand to the tapped tab
+      openFromNavRef.current = true
+      setIsSheetExpanded(true)
+      setActiveTab(value)
+      return
+    }
     if (value === activeTab) {
+      // Sheet is expanded and user taps the active tab — close fully
       handleClosePanel()
       return
     }
-    if (value) {
-      openFromNavRef.current = true
-      clearFeatureParams()
-      setIsSheetExpanded(true)
-      setActiveTab(value)
-    }
+    openFromNavRef.current = true
+    clearFeatureParams()
+    setIsSheetExpanded(true)
+    setActiveTab(value)
   }
 
   useEffect(() => {
@@ -455,7 +472,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           setIsSheetExpanded(true)
           setDragOffset(0)
         } else if (isExpanded && dragOffset > 80) {
-          handleClosePanel()
+          handleCollapseSheet()
         } else {
           setDragOffset(0)
         }
@@ -473,7 +490,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
 
     const handleSheetToggle = () => {
       if (isExpanded) {
-        handleClosePanel()
+        handleCollapseSheet()
       } else {
         setIsSheetExpanded(true)
       }

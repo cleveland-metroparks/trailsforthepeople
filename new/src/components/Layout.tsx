@@ -45,6 +45,7 @@ export function Layout({ children }: LayoutProps) {
                 activePanel={activePanel}
                 onSearchSubmit={handleSearchSubmit}
                 onClosePanel={() => sidebarRef.current?.closePanel()}
+                onCollapseSheet={() => sidebarRef.current?.collapseSheet()}
               >
                 {isMobile ? (
                   <AppShell

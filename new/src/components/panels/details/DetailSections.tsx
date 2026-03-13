@@ -187,7 +187,7 @@ interface DetailShowOnMapSectionProps {
 }
 
 export function DetailShowOnMapSection({ lat, lng, boxw, boxs, boxe, boxn }: DetailShowOnMapSectionProps) {
-  const { isMobile, onClosePanel } = useSidebar()
+  const { isMobile, onCollapseSheet } = useSidebar()
   const { map } = useMap()
 
   if (!isMobile) return null
@@ -204,7 +204,7 @@ export function DetailShowOnMapSection({ lat, lng, boxw, boxs, boxe, boxn }: Det
     } else {
       zoomToFeature(map, { lat, lng })
     }
-    onClosePanel()
+    onCollapseSheet()
   }
 
   return (

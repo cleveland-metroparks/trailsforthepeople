@@ -8,6 +8,7 @@ interface SidebarContextType {
   activePanel: string | null
   onSearchSubmit: () => void
   onClosePanel: () => void
+  onCollapseSheet: () => void
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined)
@@ -21,6 +22,7 @@ export function SidebarProvider({
   activePanel,
   onSearchSubmit,
   onClosePanel,
+  onCollapseSheet,
 }: {
   children: ReactNode
   isSidebarCollapsed: boolean
@@ -30,9 +32,10 @@ export function SidebarProvider({
   activePanel: string | null
   onSearchSubmit: () => void
   onClosePanel: () => void
+  onCollapseSheet: () => void
 }) {
   return (
-    <SidebarContext.Provider value={{ isSidebarCollapsed, navWidth, sidebarWidth, isMobile, activePanel, onSearchSubmit, onClosePanel }}>
+    <SidebarContext.Provider value={{ isSidebarCollapsed, navWidth, sidebarWidth, isMobile, activePanel, onSearchSubmit, onClosePanel, onCollapseSheet }}>
       {children}
     </SidebarContext.Provider>
   )
