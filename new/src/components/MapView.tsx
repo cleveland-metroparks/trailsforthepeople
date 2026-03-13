@@ -11,6 +11,7 @@ import { useMapSelection } from '../contexts/MapSelectionContext'
 import { useURLState } from '../hooks/useURLState'
 import { useMapURLSync, getInitialMapStateFromURL } from '../hooks/useMapURLSync'
 import { ResetMapControl } from './ResetMapControl'
+import { useSidebar } from '../contexts/SidebarContext'
 
 function normalizeGisId(value: unknown): string | null {
   if (value === null || value === undefined) return null
@@ -90,6 +91,7 @@ export function MapView() {
   const { setParams } = useURLState()
   const popupRef = useRef<mapboxgl.Popup | null>(null)
   const { mapConfig } = useMapConfig()
+  const { isMobile, activePanel, onClosePanel } = useSidebar()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isContainerReady, setIsContainerReady] = useState(false)
@@ -350,6 +352,7 @@ export function MapView() {
       }
 
       if (!clickableFeature) {
+        if (isMobile && activePanel !== null) onClosePanel()
         return
       }
 
@@ -385,7 +388,7 @@ export function MapView() {
       mapFromContext.getCanvas().style.cursor = ''
       setHoverInfo(null)
     }
-  }, [allowedLayerIds, attractionGroupLayerIds, bumpSelectionTick, mapFromContext, setHoverInfo, setParams, validGisIdSet])
+  }, [activePanel, allowedLayerIds, attractionGroupLayerIds, bumpSelectionTick, isMobile, mapFromContext, onClosePanel, setHoverInfo, setParams, validGisIdSet])
 
 
   if (error) {

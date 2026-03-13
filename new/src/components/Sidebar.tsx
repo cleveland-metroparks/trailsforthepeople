@@ -52,6 +52,7 @@ interface SidebarProps {
 
 export interface SidebarRef {
   activateSearchTab: () => void
+  closePanel: () => void
 }
 
 /**
@@ -160,6 +161,9 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     activateSearchTab: () => {
       openFromNavRef.current = true
       setActiveTab('search')
+    },
+    closePanel: () => {
+      handleClosePanel()
     },
   }))
 

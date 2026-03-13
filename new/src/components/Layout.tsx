@@ -44,6 +44,7 @@ export function Layout({ children }: LayoutProps) {
                 isMobile={isMobile}
                 activePanel={activePanel}
                 onSearchSubmit={handleSearchSubmit}
+                onClosePanel={() => sidebarRef.current?.closePanel()}
               >
                 {isMobile ? (
                   <AppShell
