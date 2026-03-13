@@ -405,12 +405,6 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
 
   // ── Mobile layout ──────────────────────────────────────────────────────────
   if (isMobile) {
-    const PANEL_TITLES: Record<string, string> = {
-      parks: 'Parks', activities: 'Activities', trails: 'Trails',
-      search: 'Search', directions: 'Directions', share: 'Share',
-      info: 'Credits', debug: 'Debug',
-    }
-
     const isExpanded = activeTab !== null
     const baseTranslate = isExpanded
       ? `${MOBILE_SHEET_EXPANDED_TOP}px`
@@ -528,18 +522,12 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
               justifyContent: 'space-between',
             }}
           >
-            {/* Left: logo or panel title */}
-            {activeTab === null ? (
-              <img
-                src="/images/misc/your-time-your-place-398x127.png"
-                alt="Your Time, Your Place"
-                style={{ height: 36, width: 'auto' }}
-              />
-            ) : (
-              <Text color="#fff" weight={600} size="md">
-                {PANEL_TITLES[activeTab] ?? ''}
-              </Text>
-            )}
+            {/* Left: logo */}
+            <img
+              src="/images/misc/your-time-your-place-398x127.png"
+              alt="Your Time, Your Place"
+              style={{ height: 36, width: 'auto' }}
+            />
 
             {/* Right: tab buttons */}
             <div role="tablist" aria-label="Sidebar navigation" style={{ display: 'flex', gap: 8 }}>

@@ -1,4 +1,5 @@
 import { Box, Text } from '@mantine/core'
+import { useSidebar } from '../contexts/SidebarContext'
 
 const HEADER_BG = '#222124'
 const HEADER_TEXT = '#FFFFFF'
@@ -8,6 +9,9 @@ interface PanelHeaderProps {
 }
 
 export function PanelHeader({ title }: PanelHeaderProps) {
+  const { isMobile } = useSidebar()
+  if (isMobile) return null
+
   return (
     <Box
       px="md"
