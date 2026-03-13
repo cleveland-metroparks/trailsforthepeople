@@ -565,7 +565,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           id={activeTab ? `sidebar-panel-${activeTab}` : undefined}
           aria-labelledby={activeTab ? `sidebar-tab-${activeTab}` : undefined}
           className={DARK_MODE_MOBILE ? 'dark-panel-content' : undefined}
-          style={{ flex: 1, overflow: 'auto', backgroundColor: DARK_MODE_MOBILE ? '#111111' : '#fff' }}
+          style={{ flex: 1, overflow: 'auto', overscrollBehavior: 'contain', backgroundColor: DARK_MODE_MOBILE ? '#111111' : '#fff' }}
         >
           {activeTab === null && (
             <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
