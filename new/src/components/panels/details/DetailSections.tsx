@@ -1,8 +1,11 @@
-import { Text, Box, Anchor, Divider, Group } from '@mantine/core'
-import { Clock, Phone } from 'tabler-icons-react'
+import { Text, Box, Anchor, Divider, Group, Button } from '@mantine/core'
+import { Clock, Phone, Map } from 'tabler-icons-react'
 import { makeImageFromPagethumbnail } from '../../../lib/dataTransform'
 import { GetDirectionsButtons } from '../../GetDirectionsButtons'
 import { ShareButton } from '../../ShareButton'
+import { useSidebar } from '../../../contexts/SidebarContext'
+import { useMap } from '../../../contexts/MapContext'
+import { zoomToFeature } from '../../../lib/mapUtils'
 
 interface DetailTitleProps {
   title: string
@@ -172,4 +175,40 @@ export function DetailDirectionsSection({ targetName, lat, lng, reservationId }:
 
 export function DetailShareSection() {
   return <ShareButton />
+}
+
+interface DetailShowOnMapSectionProps {
+  lat?: number
+  lng?: number
+}
+
+export function DetailShowOnMapSection({ lat, lng }: DetailShowOnMapSectionProps) {
+  const { isMobile, onClosePanel } = useSidebar()
+  const { map } = useMap()
+
+  if (!isMobile) return null
+  if (typeof lat !== 'number' || typeof lng !== 'number') return null
+
+  const handleShowOnMap = () => {
+    zoomToFeature(map, { lat, lng })
+    onClosePanel()
+  }
+
+  return (
+    <Button
+      fullWidth
+      variant="outline"
+      leftIcon={<Map size={16} />}
+      onClick={handleShowOnMap}
+      styles={{
+        root: {
+          borderColor: '#6AB03E',
+          color: '#6AB03E',
+          '&:hover': { backgroundColor: '#f0f9e8', borderColor: '#5a9a34', color: '#5a9a34' },
+        },
+      }}
+    >
+      Show on the Map
+    </Button>
+  )
 }

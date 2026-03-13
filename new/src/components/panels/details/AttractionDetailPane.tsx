@@ -15,6 +15,7 @@ import {
   DetailPhoneSection,
   DetailDirectionsSection,
   DetailShareSection,
+  DetailShowOnMapSection,
 } from './DetailSections'
 
 interface AttractionDetailPaneProps {
@@ -136,6 +137,7 @@ export function AttractionDetailPane({
         </>
       )}
 
+      <DetailShowOnMapSection lat={attraction.latitude} lng={attraction.longitude} />
       <DetailDirectionsSection
         targetName={String(attraction.pagetitle)}
         lat={attraction.latitude}

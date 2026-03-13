@@ -9,6 +9,7 @@ import {
   DetailHtmlDescription,
   DetailDirectionsSection,
   DetailShareSection,
+  DetailShowOnMapSection,
 } from './DetailSections'
 import { getTrailProfile } from '../../../lib/api'
 import { ElevationProfileChart } from '../../charts/ElevationProfileChart'
@@ -87,6 +88,7 @@ export function TrailDetailPane({ trail, parkName, backButton, panelTitle }: Tra
       <DetailHtmlDescription html={trail.description ?? undefined} />
 
       <Divider />
+      <DetailShowOnMapSection lat={trail.lat} lng={trail.lng} />
       <DetailDirectionsSection
         targetName={String(trail.name)}
         lat={trail.lat}
