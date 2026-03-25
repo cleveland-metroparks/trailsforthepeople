@@ -47,7 +47,6 @@ export function SearchPanel(_props: SearchPanelProps) {
     searchResults,
     autocompleteSuggestions,
     isLoading,
-    isGeocoding,
     error,
     coordinates,
     submitSearch,
@@ -414,23 +413,6 @@ export function SearchPanel(_props: SearchPanelProps) {
   }
 
   const handleResultClick = (result: typeof searchResults[0]) => {
-    // Handle geocode result - just zoom, no detail view
-    if (result.id === 'geocode-result') {
-      if (result.location && map) {
-        const feature: { lat: number; lng: number; w?: number; s?: number; e?: number; n?: number } = {
-          lat: result.location.lat,
-          lng: result.location.lng,
-        }
-        if (result.w && result.s && result.e && result.n) {
-          feature.w = result.w
-          feature.s = result.s
-          feature.e = result.e
-          feature.n = result.n
-        }
-        zoomToFeature(map, feature, { padding: sidebarAwarePadding })
-      }
-      return
-    }
 
     // Handle regular search results
     if (!result.location) {
@@ -596,17 +578,9 @@ export function SearchPanel(_props: SearchPanelProps) {
           </Alert>
         )}
 
-        {isLoading && !isGeocoding && (
+        {isLoading && (
           <Box style={{ display: 'flex', justifyContent: 'center', padding: '1rem' }}>
             <Loader size="sm" />
-          </Box>
-        )}
-
-        {isGeocoding && (
-          <Box style={{ display: 'flex', justifyContent: 'center', padding: '1rem' }}>
-            <Text size="sm" color="dimmed">
-              No Cleveland Metroparks results found. Trying an address search...
-            </Text>
           </Box>
         )}
 

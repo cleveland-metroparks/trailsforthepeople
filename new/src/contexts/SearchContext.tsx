@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react'
 import { useSearchIndex, type SearchResult } from '../hooks/useSearchIndex'
 import { strToLngLat } from '../lib/searchUtils'
-import { geocodeAddress } from '../lib/api'
 
 /**
  * Search result with location info
@@ -18,7 +17,6 @@ interface SearchContextType {
   searchResults: SearchResultWithLocation[]
   autocompleteSuggestions: SearchResultWithLocation[]
   isLoading: boolean
-  isGeocoding: boolean
   error: string | null
   coordinates: { lat: number; lng: number } | null // For coordinate searches (not shown as result)
   selectedSearchResult: SearchResultWithLocation | null
@@ -38,7 +36,6 @@ export function SearchProvider({ children }: { children: ReactNode }) {
   const [searchResults, setSearchResults] = useState<SearchResultWithLocation[]>([])
   const [autocompleteSuggestions, setAutocompleteSuggestions] = useState<SearchResultWithLocation[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [isGeocoding, setIsGeocoding] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null)
   const [selectedSearchResult, setSelectedSearchResult] = useState<SearchResultWithLocation | null>(null)
@@ -133,34 +130,8 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       const enhancedResults = results.map(enhanceResult)
 
       if (enhancedResults.length === 0) {
-        // No matches - try address geocoding
-        setIsGeocoding(true)
-        try {
-          const geocodeResult = await geocodeAddress(query)
-          setSearchResults([
-            {
-              id: 'geocode-result',
-              title: geocodeResult.title,
-              type: 'attraction' as const,
-              lat: geocodeResult.lat,
-              lng: geocodeResult.lng,
-              gid: 'geocode',
-              w: geocodeResult.w ?? undefined,
-              s: geocodeResult.s ?? undefined,
-              e: geocodeResult.e ?? undefined,
-              n: geocodeResult.n ?? undefined,
-              location: { lat: geocodeResult.lat, lng: geocodeResult.lng },
-            },
-          ])
-          setError(null)
-        } catch (geocodeError) {
-          const errorMessage =
-            geocodeError instanceof Error ? geocodeError.message : 'Failed to geocode address'
-          setError(errorMessage)
-          setSearchResults([])
-        } finally {
-          setIsGeocoding(false)
-        }
+        setSearchResults([])
+        setError(null)
       } else {
         setSearchResults(enhancedResults)
         setError(null)
@@ -224,8 +195,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
         searchTerm,
         searchResults,
         autocompleteSuggestions,
-        isLoading: isLoading || isGeocoding,
-        isGeocoding,
+        isLoading,
         error,
         coordinates,
         selectedSearchResult,
