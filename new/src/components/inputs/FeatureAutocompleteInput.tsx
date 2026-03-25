@@ -131,7 +131,13 @@ export function FeatureAutocompleteInput({
       const results = autocompleteRef.current(value, 8)
       setSuggestions(
         results
-          .filter((r) => r.lat != null && r.lng != null)
+          .filter((r) => {
+            const valid = r.lat != null && r.lng != null && !isNaN(r.lat) && !isNaN(r.lng) && (r.lat !== 0 || r.lng !== 0)
+            if (!valid) {
+              console.log(`[missing coords] autocomplete filtered ${r.type} id=${r.gid} "${r.title}" lat=${r.lat} lng=${r.lng}`)
+            }
+            return valid
+          })
           .map((r) => ({
             id: r.id,
             title: r.title,

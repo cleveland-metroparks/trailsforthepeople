@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { Box, Alert } from '@mantine/core'
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
+import { Box, Alert, Loader } from '@mantine/core'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { useMapConfig } from '../hooks/useMapConfig'
@@ -12,6 +12,7 @@ import { useURLState } from '../hooks/useURLState'
 import { useMapURLSync, getInitialMapStateFromURL } from '../hooks/useMapURLSync'
 import { ResetMapControl } from './ResetMapControl'
 import { useSidebar } from '../contexts/SidebarContext'
+import { useDirections } from '../contexts/DirectionsContext'
 
 function normalizeGisId(value: unknown): string | null {
   if (value === null || value === undefined) return null
@@ -92,6 +93,8 @@ export function MapView() {
   const popupRef = useRef<mapboxgl.Popup | null>(null)
   const { mapConfig } = useMapConfig()
   const { isMobile, activePanel, onClosePanel } = useSidebar()
+  const { isDirectionsLoading, directionsEndpoints } = useDirections()
+  const [spinnerPos, setSpinnerPos] = useState<{ x: number; y: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isContainerReady, setIsContainerReady] = useState(false)
@@ -121,6 +124,27 @@ export function MapView() {
 
   // Sync map position to URL
   useMapURLSync(mapFromContext)
+
+  // Track midpoint screen position of directions from/to while loading
+  const computeSpinnerPos = useCallback(() => {
+    if (!mapFromContext || !directionsEndpoints) {
+      setSpinnerPos(null)
+      return
+    }
+    const fromPx = mapFromContext.project([directionsEndpoints.from.lng, directionsEndpoints.from.lat])
+    const toPx = mapFromContext.project([directionsEndpoints.to.lng, directionsEndpoints.to.lat])
+    setSpinnerPos({ x: (fromPx.x + toPx.x) / 2, y: (fromPx.y + toPx.y) / 2 })
+  }, [mapFromContext, directionsEndpoints])
+
+  useEffect(() => {
+    if (!isDirectionsLoading || !mapFromContext) {
+      setSpinnerPos(null)
+      return
+    }
+    computeSpinnerPos()
+    mapFromContext.on('move', computeSpinnerPos)
+    return () => { mapFromContext.off('move', computeSpinnerPos) }
+  }, [isDirectionsLoading, mapFromContext, computeSpinnerPos])
 
   // Check if container is ready
   useEffect(() => {
@@ -469,6 +493,40 @@ export function MapView() {
           }}
         >
           Loading map...
+        </Box>
+      )}
+      {isDirectionsLoading && (
+        <Box
+          aria-live="polite"
+          aria-label="Getting directions"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 500,
+            backgroundColor: 'rgba(0, 0, 0, 0.25)',
+            pointerEvents: 'all',
+          }}
+        >
+          <Box
+            style={{
+              position: 'absolute',
+              left: spinnerPos ? spinnerPos.x : '50%',
+              top: spinnerPos ? spinnerPos.y : '50%',
+              transform: 'translate(-50%, -50%)',
+              backgroundColor: 'rgba(255, 255, 255, 0.92)',
+              padding: '0.5rem 1rem',
+              borderRadius: '2rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              pointerEvents: 'none',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <Loader size="xs" color="green" />
+            <span style={{ fontSize: '0.875rem', color: '#333' }}>Getting directions...</span>
+          </Box>
         </Box>
       )}
     </Box>

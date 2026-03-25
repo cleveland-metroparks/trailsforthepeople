@@ -9,6 +9,11 @@ export interface DirectionsTarget {
   reservationId?: string | number
 }
 
+export interface DirectionsEndpoints {
+  from: { lat: number; lng: number }
+  to: { lat: number; lng: number }
+}
+
 interface DirectionsContextType {
   target: DirectionsTarget | null
   via: ViaMode
@@ -16,6 +21,11 @@ interface DirectionsContextType {
   openRequestId: number
   /** Increments each time closeDirections is called; Sidebar watches this to switch back */
   closeRequestId: number
+  isDirectionsLoading: boolean
+  setDirectionsLoading: (loading: boolean) => void
+  /** Set once from/to coords are resolved; cleared when loading ends */
+  directionsEndpoints: DirectionsEndpoints | null
+  setDirectionsEndpoints: (endpoints: DirectionsEndpoints | null) => void
   openDirections: (target: DirectionsTarget, via: ViaMode) => void
   setVia: (via: ViaMode) => void
   closeDirections: () => void
@@ -28,6 +38,8 @@ export function DirectionsProvider({ children }: { children: ReactNode }) {
   const [via, setVia] = useState<ViaMode>('hike')
   const [openRequestId, setOpenRequestId] = useState(0)
   const [closeRequestId, setCloseRequestId] = useState(0)
+  const [isDirectionsLoading, setDirectionsLoading] = useState(false)
+  const [directionsEndpoints, setDirectionsEndpoints] = useState<DirectionsEndpoints | null>(null)
   const openRequestIdRef = useRef(0)
   const closeRequestIdRef = useRef(0)
 
@@ -51,6 +63,10 @@ export function DirectionsProvider({ children }: { children: ReactNode }) {
         via,
         openRequestId,
         closeRequestId,
+        isDirectionsLoading,
+        setDirectionsLoading,
+        directionsEndpoints,
+        setDirectionsEndpoints,
         openDirections,
         setVia,
         closeDirections,

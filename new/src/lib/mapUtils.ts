@@ -801,18 +801,25 @@ export function drawDirectionsLine(
 
   const addLayers = () => {
     try {
-      // Route line
-      map.addSource(DIRECTIONS_LINE_SOURCE_ID, {
-        type: 'geojson',
-        data: lineFeature,
-      })
-      map.addLayer({
-        id: DIRECTIONS_LINE_LAYER_ID,
-        type: 'line',
-        source: DIRECTIONS_LINE_SOURCE_ID,
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-color': '#0000FF', 'line-width': 6, 'line-opacity': 0.5 },
-      })
+      // Route line — use setData if the source survived a failed clear, otherwise add fresh
+      const existingLineSource = map.getSource(DIRECTIONS_LINE_SOURCE_ID) as mapboxgl.GeoJSONSource | undefined
+      if (existingLineSource) {
+        existingLineSource.setData(lineFeature)
+      } else {
+        map.addSource(DIRECTIONS_LINE_SOURCE_ID, {
+          type: 'geojson',
+          data: lineFeature,
+        })
+      }
+      if (!map.getLayer(DIRECTIONS_LINE_LAYER_ID)) {
+        map.addLayer({
+          id: DIRECTIONS_LINE_LAYER_ID,
+          type: 'line',
+          source: DIRECTIONS_LINE_SOURCE_ID,
+          layout: { 'line-join': 'round', 'line-cap': 'round' },
+          paint: { 'line-color': '#0000FF', 'line-width': 6, 'line-opacity': 0.5 },
+        })
+      }
 
       addDirectionsEndpointMarkers(map, from, to)
     } catch (error) {
@@ -839,12 +846,12 @@ export function clearDirectionsLine(map: mapboxgl.Map | null): void {
     { layer: DIRECTIONS_END_LAYER_ID, source: DIRECTIONS_END_SOURCE_ID },
   ]
 
-  try {
-    for (const { layer, source } of layersAndSources) {
+  for (const { layer, source } of layersAndSources) {
+    try {
       removeLayerAndSource(map, layer, source)
+    } catch {
+      // Map might be in a transitional state; continue with remaining items
     }
-  } catch {
-    // Map might be in a transitional state
   }
 }
 

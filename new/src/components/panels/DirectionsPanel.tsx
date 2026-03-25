@@ -43,7 +43,7 @@ interface DirectionsInputs {
 }
 
 export function DirectionsPanel(_props: DirectionsPanelProps) {
-  const { target, via, setVia, closeDirections, openRequestId } = useDirections()
+  const { target, via, setVia, closeDirections, openRequestId, setDirectionsLoading, setDirectionsEndpoints } = useDirections()
   const { map } = useMap()
   const isDarkMode = useDarkMode()
   const { mapConfig } = useMapConfig()
@@ -137,11 +137,22 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
     clearTrailHighlight(map)
     clearParkHighlight(map)
     setIsLoading(true)
+    setDirectionsLoading(true)
+
+    const hasValidCoords = (lngLat: { lat: number; lng: number }) => {
+      const { lat, lng } = lngLat
+      return lat != null && lng != null && !isNaN(lat) && !isNaN(lng) && !(lat === 0 && lng === 0)
+    }
 
     try {
       const source = await resolveLocation(sourceTextValue, sourceLngLatValue)
       if (!source) {
         setErrorMsg('Please enter a starting location (From).')
+        setIsLoading(false)
+        return
+      }
+      if (!hasValidCoords(source)) {
+        setErrorMsg('Starting location does not have valid coordinates.')
         setIsLoading(false)
         return
       }
@@ -153,7 +164,13 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
         setIsLoading(false)
         return
       }
+      if (!hasValidCoords(destination)) {
+        setErrorMsg('Destination does not have valid coordinates.')
+        setIsLoading(false)
+        return
+      }
       setTargetLngLat(destination)
+      setDirectionsEndpoints({ from: source, to: destination })
 
       if (map) {
         drawDirectionsEndpoints(map, source, destination)
@@ -229,6 +246,8 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
       setErrorMsg(message)
     } finally {
       setIsLoading(false)
+      setDirectionsLoading(false)
+      setDirectionsEndpoints(null)
     }
   }
 
