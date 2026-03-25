@@ -4,7 +4,7 @@ Guidance for Codex and other coding agents working in this repository.
 
 ## Purpose
 
-This project is a React + TypeScript rewrite of the Cleveland Metroparks public map app.  
+This project is a React + TypeScript rewrite of the Cleveland Metroparks public map app.
 The primary risks are URL-state regressions, map interaction regressions, and sidebar/panel state loops.
 
 ## Fast Context Load
@@ -25,7 +25,7 @@ Read these files first, in this order:
 ## Environment And Commands
 
 - Node and npm are pinned with Volta in `package.json`.
-- Dev server: `npm run dev` (port `3001`)
+- Dev server: `npm run dev` (port `3002`)
 - Lint: `npm run lint`
 - Type check: `npm run type-check`
 - Accessibility gate: `npm run test:a11y`

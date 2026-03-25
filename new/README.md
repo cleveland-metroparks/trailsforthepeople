@@ -5,7 +5,7 @@ New React/TypeScript frontend for the Cleveland Metroparks public maps web app, 
 ## Stack
 
 - **React 18** + **TypeScript**
-- **Vite** (build tool, dev server on port 3001)
+- **Vite** (build tool, dev server on port 3002)
 - **Mantine v6** (UI components)
 - **Mapbox GL** + **react-map-gl** (mapping)
 - **TanStack React Query v4** (API data caching)
@@ -43,7 +43,7 @@ VITE_MAPBOX_TOKEN=your_mapbox_access_token
 npm run dev
 ```
 
-App available at **http://localhost:3001**
+App available at **http://localhost:3002**
 
 ## Scripts
 

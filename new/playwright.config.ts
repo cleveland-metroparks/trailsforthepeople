@@ -8,7 +8,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://127.0.0.1:3001',
+    baseURL: 'http://127.0.0.1:3002',
     trace: 'on-first-retry',
   },
   projects: [
@@ -18,8 +18,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 3001',
-    url: 'http://127.0.0.1:3001',
+    command: 'npm run dev -- --host 127.0.0.1 --port 3002',
+    url: 'http://127.0.0.1:3002',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },

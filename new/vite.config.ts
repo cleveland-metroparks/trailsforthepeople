@@ -11,7 +11,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3001, // Different from admin app
+    port: 3002, // Different from admin app
     host: true,
   },
   build: {

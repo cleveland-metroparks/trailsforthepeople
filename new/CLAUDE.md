@@ -5,7 +5,7 @@ React/TypeScript rewrite of the public-facing jQuery maps app. Replaces the lega
 ## Commands
 
 ```bash
-npm run dev          # Start dev server at http://localhost:3001
+npm run dev          # Start dev server at http://localhost:3002
 npm run build        # tsc + vite build → dist/
 npm run lint         # ESLint (zero warnings enforced)
 npm run type-check   # tsc --noEmit (no emit, type errors only)
@@ -73,6 +73,7 @@ Layout.tsx                   ← 6 context providers + Mantine AppShell
 - Keep map controls keyboard reachable and map region labeled.
 
 ### Context Providers (nesting order in Layout.tsx)
+
 1. `MapProvider` — holds `mapboxgl.Map` instance; shared to child components
 2. `MapSelectionProvider` — `selectionTick` counter to trigger feature selection effects
 3. `MapHoverProvider` — hover state (lngLat, point, features)
@@ -86,13 +87,13 @@ All context hooks throw if used outside their provider.
 
 **Do not mix these up:**
 
-| | Map Position | Feature Selection |
-|---|---|---|
-| Hook | `useMapURLSync` | `useURLState` |
-| Params | `lat`, `lng`, `zoom`, `base` | `type`, `gid`, `activityId`, `fromSearch` |
-| Mechanism | `window.history.replaceState` | React Router `setSearchParams` |
-| History | No entries (replaces) | Adds entries (back button works) |
-| Why | Map fires 60×/s during pan — can't use React Router | Discrete user actions need back button |
+|           | Map Position                                        | Feature Selection                         |
+| --------- | --------------------------------------------------- | ----------------------------------------- |
+| Hook      | `useMapURLSync`                                     | `useURLState`                             |
+| Params    | `lat`, `lng`, `zoom`, `base`                        | `type`, `gid`, `activityId`, `fromSearch` |
+| Mechanism | `window.history.replaceState`                       | React Router `setSearchParams`            |
+| History   | No entries (replaces)                               | Adds entries (back button works)          |
+| Why       | Map fires 60×/s during pan — can't use React Router | Discrete user actions need back button    |
 
 `useURLState.setParams` reads from `window.location.search` directly (not React Router's internal state) to preserve map position params when updating feature params.
 
@@ -113,19 +114,19 @@ Search fallback: if FlexSearch finds no results, geocodes via API (`geocode/{add
 
 Base: `https://maps-api.clevelandmetroparks.com/api/v1/`
 
-| Endpoint | Returns |
-|---|---|
-| `reservations` | Parks/reservations list |
-| `attractions` | Points of interest |
-| `activities` | Activity types with icons |
-| `trails` | Trails (status=0 filtered out) |
-| `categories` | Category types |
-| `reservation_boundaries` | GeoJSON park boundaries |
-| `trail_geometries/{id}` | Trail line geometry |
-| `geocode/{address}` | Geocode an address |
-| `directions_driving` | Car directions (Bing) |
-| `directions_transit` | Bus directions (Bing) |
-| `directions_trails` | Trail directions (internal, needs `via=hike\|bike`) |
+| Endpoint                 | Returns                                             |
+| ------------------------ | --------------------------------------------------- |
+| `reservations`           | Parks/reservations list                             |
+| `attractions`            | Points of interest                                  |
+| `activities`             | Activity types with icons                           |
+| `trails`                 | Trails (status=0 filtered out)                      |
+| `categories`             | Category types                                      |
+| `reservation_boundaries` | GeoJSON park boundaries                             |
+| `trail_geometries/{id}`  | Trail line geometry                                 |
+| `geocode/{address}`      | Geocode an address                                  |
+| `directions_driving`     | Car directions (Bing)                               |
+| `directions_transit`     | Bus directions (Bing)                               |
+| `directions_trails`      | Trail directions (internal, needs `via=hike\|bike`) |
 
 ### Mapbox Layer IDs (hardcoded in MapView.tsx)
 
@@ -140,6 +141,7 @@ Click/hover interactivity is scoped to specific layer IDs. Search for these befo
 `DirectionsContext` uses request ID counters (`openRequestId`, `closeRequestId`) rather than booleans to trigger Sidebar tab changes. Sidebar watches these with `useEffect` + `useRef` to detect increments.
 
 Via modes → API endpoints:
+
 - `'car'` → `directions_driving`
 - `'bus'` → `directions_transit`
 - `'hike'` | `'bike'` → `directions_trails?via=<mode>`
