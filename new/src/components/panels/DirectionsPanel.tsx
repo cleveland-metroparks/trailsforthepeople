@@ -26,11 +26,14 @@ import {
 import { FeatureAutocompleteInput } from '../inputs/FeatureAutocompleteInput'
 import { ViaModeSelector } from '../ViaModeSelector'
 import { useDarkMode } from '../../hooks/useDarkMode'
+import { useSidebar } from '../../contexts/SidebarContext'
 import { DirectionsResultDisplay } from './DirectionsResultDisplay'
 import type { DirectionsResult } from '../../types/api'
 
 interface DirectionsPanelProps {
   onClose: () => void
+  onPeekWithTitle?: (title: string) => void
+  onExpandSheet?: () => void
 }
 
 interface DirectionsInputs {
@@ -42,10 +45,11 @@ interface DirectionsInputs {
   targetReservationId?: string | number | null
 }
 
-export function DirectionsPanel(_props: DirectionsPanelProps) {
+export function DirectionsPanel({ onPeekWithTitle, onExpandSheet }: DirectionsPanelProps) {
   const { target, via, setVia, closeDirections, openRequestId, setDirectionsLoading, setDirectionsEndpoints } = useDirections()
   const { map } = useMap()
   const isDarkMode = useDarkMode()
+  const { isMobile } = useSidebar()
   const { mapConfig } = useMapConfig()
   const sidebarAwarePadding = useSidebarAwarePadding(120)
   const resolveLocation = useResolveLocation()
@@ -159,11 +163,13 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
       if (!source) {
         setErrorMsg('Please enter a starting location (From).')
         setIsLoading(false)
+        onExpandSheet?.()
         return
       }
       if (!hasValidCoords(source)) {
         setErrorMsg('Starting location does not have valid coordinates.')
         setIsLoading(false)
+        onExpandSheet?.()
         return
       }
       setSourceLngLat(source)
@@ -178,11 +184,13 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
       if (!destination) {
         setErrorMsg('Please enter a destination (To).')
         setIsLoading(false)
+        onExpandSheet?.()
         return
       }
       if (!hasValidCoords(destination)) {
         setErrorMsg('Destination does not have valid coordinates.')
         setIsLoading(false)
+        onExpandSheet?.()
         return
       }
       setTargetLngLat(destination)
@@ -203,6 +211,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
         if (!srcInPark && !tgtInPark) {
           setErrorMsg('Both To and From are non-Metroparks locations.')
           setIsLoading(false)
+          onExpandSheet?.()
           return
         }
 
@@ -247,6 +256,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
         }
         setErrorMsg(msg)
         setIsLoading(false)
+        onExpandSheet?.()
         return
       }
 
@@ -260,6 +270,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error getting directions.'
       setErrorMsg(message)
+      onExpandSheet?.()
     } finally {
       setIsLoading(false)
       setDirectionsLoading(false)
@@ -268,6 +279,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
   }
 
   const maybeAutoGetDirections = (nextInputs: DirectionsInputs) => {
+    if (isMobile) return
     if (isLoading) return
     if (!nextInputs.sourceLngLat || !nextInputs.targetLngLat) return
     void handleGetDirections(nextInputs)
@@ -449,6 +461,9 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
           loading={isLoading}
           style={{ marginTop: -22 }}
           onClick={() => {
+            if (isMobile && sourceText.trim() && targetText.trim()) {
+              onPeekWithTitle?.(`${sourceText} to ${targetText}`)
+            }
             void handleGetDirections()
           }}
           styles={{

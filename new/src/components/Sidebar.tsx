@@ -86,11 +86,12 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   const [isNavExpanded, setIsNavExpanded] = useState(true)
   type SheetState = 'collapsed' | 'peeked' | 'expanded'
   const [sheetState, setSheetState] = useState<SheetState>('collapsed')
+  const [directionsTitle, setDirectionsTitle] = useState<string | null>(null)
   const [dragOffset, setDragOffset] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const { params, setParams } = useURLState()
   const { selectionTick } = useMapSelection()
-  const { openRequestId, closeRequestId } = useDirections()
+  const { openRequestId, closeRequestId, isDirectionsLoading } = useDirections()
   const { isMobile } = useSidebar()
   const { map: mapInstance } = useMap()
   const { mapConfig } = useMapConfig()
@@ -686,17 +687,22 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
                 marginRight: 12,
               }}
             >
-              {selectedFeatureTitle ?? ''}
+              {activeTab === 'directions' ? (directionsTitle ?? '') : (selectedFeatureTitle ?? '')}
             </Text>
-            <UnstyledButton
-              type="button"
-              aria-label="Expand details"
-              onClick={() => setSheetState('expanded')}
-              style={{ flexShrink: 0, padding: 8 }}
-              sx={{ '&:focus-visible': { outline: '2px solid #6AB03E', borderRadius: 4 } }}
-            >
-              <ChevronDown size={20} color={DARK_MODE_MOBILE ? '#fff' : '#222124'} />
-            </UnstyledButton>
+            {activeTab === 'directions' && isDirectionsLoading
+              ? <Loader size="xs" color="#6AB03E" />
+              : (
+                <UnstyledButton
+                  type="button"
+                  aria-label="Expand details"
+                  onClick={() => setSheetState('expanded')}
+                  style={{ flexShrink: 0, padding: 8 }}
+                  sx={{ '&:focus-visible': { outline: '2px solid #6AB03E', borderRadius: 4 } }}
+                >
+                  <ChevronDown size={20} color={DARK_MODE_MOBILE ? '#fff' : '#222124'} />
+                </UnstyledButton>
+              )
+            }
           </div>
         )}
 
@@ -748,7 +754,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
               {activeTab === 'activities' && <ActivitiesPanel onClose={handleClosePanel} onGoHome={handleGoHome} />}
               {activeTab === 'trails' && <TrailsPanel onClose={handleClosePanel} onGoHome={handleGoHome} />}
               {activeTab === 'share' && <SharePanel onClose={handleClosePanel} />}
-              {activeTab === 'directions' && <DirectionsPanel onClose={handleClosePanel} />}
+              {activeTab === 'directions' && <DirectionsPanel onClose={handleClosePanel} onPeekWithTitle={(title) => { setDirectionsTitle(title); setSheetState('peeked') }} onExpandSheet={() => setSheetState('expanded')} />}
               {activeTab === 'info' && <CreditsPanel onClose={handleClosePanel} />}
               {showDebugTab && activeTab === 'debug' && <DebugPanel onClose={handleClosePanel} />}
             </Suspense>
