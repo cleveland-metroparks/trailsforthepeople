@@ -81,3 +81,23 @@
     outline: 3px solid #6AB03E;
     outline-offset: 2px;
   }
+
+  /* Place bottom-left controls (logo + attribution) in a row */
+  .mapboxgl-ctrl-bottom-left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  /* On mobile, lift Mapbox bottom controls above the bottom sheet (76px tall) */
+  @media (max-width: 767px) {
+    .mapboxgl-ctrl-bottom-left,
+    .mapboxgl-ctrl-bottom-right {
+      margin-bottom: 76px;
+    }
+
+    .mapboxgl-ctrl-logo {
+      margin-top: 6px !important;
+      margin-left: -15px !important;
+    }
+  }

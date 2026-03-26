@@ -189,7 +189,10 @@ export function MapView() {
         style: initialStyle,
         center: initialCenter,
         zoom: initialZoom,
+        attributionControl: false,
       })
+
+      map.current.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-left')
 
       // Update context so other components can access the map
       setMap(map.current)
