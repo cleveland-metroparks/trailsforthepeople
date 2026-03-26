@@ -63,6 +63,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
 
   const [isLoading, setIsLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [geocodeErrorField, setGeocodeErrorField] = useState<'source' | 'target' | null>(null)
   const [result, setResult] = useState<DirectionsResult | null>(null)
   const [isMapboxRouted, setIsMapboxRouted] = useState(false)
   const [reverseButtonFocused, setReverseButtonFocused] = useState(false)
@@ -78,6 +79,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
       setResult(null)
       setIsMapboxRouted(false)
       setErrorMsg(null)
+      setGeocodeErrorField(null)
     }
     prevOpenRequestIdRef.current = openRequestId
   }, [openRequestId])
@@ -89,6 +91,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
       setTargetReservationId(target.reservationId ?? null)
       setResult(null)
       setErrorMsg(null)
+      setGeocodeErrorField(null)
     }
     prevTargetRef.current = target
   }, [target])
@@ -130,6 +133,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
       : targetReservationId
 
     setErrorMsg(null)
+    setGeocodeErrorField(null)
     setResult(null)
     setIsMapboxRouted(false)
     clearDirectionsLine(map)
@@ -145,7 +149,13 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
     }
 
     try {
-      const source = await resolveLocation(sourceTextValue, sourceLngLatValue)
+      let source: { lat: number; lng: number } | null
+      try {
+        source = await resolveLocation(sourceTextValue, sourceLngLatValue)
+      } catch (err) {
+        setGeocodeErrorField('source')
+        throw err
+      }
       if (!source) {
         setErrorMsg('Please enter a starting location (From).')
         setIsLoading(false)
@@ -158,7 +168,13 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
       }
       setSourceLngLat(source)
 
-      const destination = await resolveLocation(targetTextValue, targetLngLatValue)
+      let destination: { lat: number; lng: number } | null
+      try {
+        destination = await resolveLocation(targetTextValue, targetLngLatValue)
+      } catch (err) {
+        setGeocodeErrorField('target')
+        throw err
+      }
       if (!destination) {
         setErrorMsg('Please enter a destination (To).')
         setIsLoading(false)
@@ -266,6 +282,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
     setSourceText(val)
     setSourceLngLat(null)
     setSourceReservationId(null)
+    if (geocodeErrorField === 'source') setGeocodeErrorField(null)
     setResult(null)
   }
 
@@ -273,6 +290,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
     setTargetText(val)
     setTargetLngLat(null)
     setTargetReservationId(null)
+    if (geocodeErrorField === 'target') setGeocodeErrorField(null)
     setResult(null)
   }
 
@@ -339,6 +357,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
                 label="From"
                 value={sourceText}
                 onChange={handleSourceChange}
+                error={geocodeErrorField === 'source'}
                 onSelect={(s) => {
                   const nextSourceText = s.text
                   const nextSourceLngLat = { lat: s.lat, lng: s.lng }
@@ -346,6 +365,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
                   setSourceText(nextSourceText)
                   setSourceLngLat(nextSourceLngLat)
                   setSourceReservationId(nextSourceResId)
+                  setGeocodeErrorField(null)
                   setResult(null)
                   maybeAutoGetDirections({
                     sourceText: nextSourceText,
@@ -371,6 +391,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
                 label="To"
                 value={targetText}
                 onChange={handleTargetChange}
+                error={geocodeErrorField === 'target'}
                 onSelect={(s) => {
                   const nextTargetText = s.text
                   const nextTargetLngLat = { lat: s.lat, lng: s.lng }
@@ -378,6 +399,7 @@ export function DirectionsPanel(_props: DirectionsPanelProps) {
                   setTargetText(nextTargetText)
                   setTargetLngLat(nextTargetLngLat)
                   setTargetReservationId(nextTargetResId)
+                  setGeocodeErrorField(null)
                   setResult(null)
                   maybeAutoGetDirections({
                     sourceText,

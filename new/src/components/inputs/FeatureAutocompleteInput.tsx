@@ -24,6 +24,7 @@ interface FeatureAutocompleteInputProps {
   rightSection?: React.ReactNode
   inputId?: string
   isPrimaryFocusTarget?: boolean
+  error?: boolean
 }
 
 export function FeatureAutocompleteInput({
@@ -35,6 +36,7 @@ export function FeatureAutocompleteInput({
   rightSection,
   inputId,
   isPrimaryFocusTarget = false,
+  error,
 }: FeatureAutocompleteInputProps) {
   const isDarkMode = useDarkMode()
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -229,6 +231,7 @@ export function FeatureAutocompleteInput({
         }
         autoComplete="off"
         rightSection={rightSection}
+        error={error ? true : undefined}
         styles={{ label: { minHeight: 22 } }}
       />
 
