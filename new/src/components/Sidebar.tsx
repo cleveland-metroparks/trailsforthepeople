@@ -250,6 +250,10 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   }
 
   useEffect(() => {
+    if (panelRootRef.current) panelRootRef.current.scrollTop = 0
+  }, [activeTab])
+
+  useEffect(() => {
     if (!activeTab || !openFromNavRef.current) return
     openFromNavRef.current = false
 
@@ -530,6 +534,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           zIndex: 199,
           display: 'flex',
           flexDirection: 'column',
+          paddingBottom: MOBILE_SHEET_EXPANDED_TOP,
         }}
       >
         {/* Sheet header — always visible, black background */}
@@ -598,7 +603,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
           id={activeTab ? `sidebar-panel-${activeTab}` : undefined}
           aria-labelledby={activeTab ? `sidebar-tab-${activeTab}` : undefined}
           className={DARK_MODE_MOBILE ? 'dark-panel-content' : undefined}
-          style={{ flex: 1, overflow: 'auto', overscrollBehavior: 'contain', backgroundColor: DARK_MODE_MOBILE ? '#111111' : '#fff' }}
+          style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', overscrollBehavior: 'none', backgroundColor: DARK_MODE_MOBILE ? '#111111' : '#fff', paddingBottom: 20 }}
         >
           {activeTab === null && (
             <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
