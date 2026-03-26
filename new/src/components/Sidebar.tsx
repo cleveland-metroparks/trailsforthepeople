@@ -161,7 +161,17 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   useEffect(() => {
     if (openRequestId > prevOpenRequestId.current) {
       prevOpenRequestId.current = openRequestId
+      // Set the flag so the activeTab focus effect will focus #directions-from-input.
+      openFromNavRef.current = true
       openTab('directions')
+      // If the panel is already open on 'directions', activeTab won't change so the
+      // focus effect won't fire — schedule focus directly for that case.
+      if (activeTabRef.current === 'directions') {
+        requestAnimationFrame(() => {
+          const fromField = panelRootRef.current?.querySelector<HTMLElement>('#directions-from-input')
+          fromField?.focus()
+        })
+      }
     }
   }, [openRequestId])
 
@@ -257,29 +267,55 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     if (!activeTab || !openFromNavRef.current) return
     openFromNavRef.current = false
 
-    requestAnimationFrame(() => {
-      const root = panelRootRef.current
-      if (!root) return
+    const root = panelRootRef.current
+    if (!root) return
 
-      const primaryByTab =
+    const focusPrimary = (): boolean => {
+      // 1. Tab-specific inputs (inside lazy panel — may not be in DOM yet on first open)
+      const specificEl =
         activeTab === 'search'
-          ? '#search-panel-input'
+          ? root.querySelector<HTMLElement>('#search-panel-input')
           : activeTab === 'directions'
-            ? '#directions-from-input'
-            : '[data-primary-focus="true"]'
+            ? root.querySelector<HTMLElement>('#directions-from-input')
+            : null
+      if (specificEl) { specificEl.focus(); return true }
 
-      const primaryTarget = root.querySelector<HTMLElement>(primaryByTab)
-      if (primaryTarget) {
-        primaryTarget.focus()
-        return
+      // 2. Generic primary-focus marker (e.g. BackButton in detail views)
+      const primaryEl = root.querySelector<HTMLElement>('[data-primary-focus="true"]')
+      if (primaryEl) { primaryEl.focus(); return true }
+
+      // 3. Panel close button — outside panelRootRef on desktop, so walk up to the
+      //    tabpanel boundary and search from there. Handles listing panels that have
+      //    no more specific primary target.
+      const closeEl = root.closest('[role="tabpanel"]')?.querySelector<HTMLElement>('[data-panel-close-focus="true"]')
+        ?? root.querySelector<HTMLElement>('[data-panel-close-focus="true"]')
+      if (closeEl) { closeEl.focus(); return true }
+
+      return false
+    }
+
+    // Element already in DOM (lazy chunk already cached from a prior open)
+    if (focusPrimary()) return
+
+    // Element not yet in DOM — lazy chunk is still loading. Wait for it.
+    const observer = new MutationObserver(() => {
+      if (focusPrimary()) {
+        observer.disconnect()
+        clearTimeout(timeout)
       }
-
-      const fallbackTarget = root.querySelector<HTMLElement>(
-        'input, button:not([data-skip-auto-focus="true"]), [href], select, textarea, [tabindex]:not([tabindex="-1"])'
-      )
-
-      fallbackTarget?.focus()
     })
+    observer.observe(root, { childList: true, subtree: true })
+
+    // Safety net: if the primary target never appears, fall back and give up.
+    const timeout = setTimeout(() => {
+      observer.disconnect()
+      focusFallback()
+    }, 2000)
+
+    return () => {
+      observer.disconnect()
+      clearTimeout(timeout)
+    }
   }, [activeTab])
 
   // Tab item component for consistent rendering (desktop)

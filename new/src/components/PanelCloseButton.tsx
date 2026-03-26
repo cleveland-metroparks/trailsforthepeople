@@ -14,6 +14,7 @@ export function PanelCloseButton({ onClick, variant = 'light' }: PanelCloseButto
       onClick={onClick}
       aria-label="Close panel"
       data-skip-auto-focus="true"
+      data-panel-close-focus="true"
       size="sm"
       variant="transparent"
       style={{
