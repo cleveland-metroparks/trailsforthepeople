@@ -2,7 +2,7 @@ import type * as mapboxgl from 'mapbox-gl'
 
 interface ResetMapControlOptions {
   center: [number, number]
-  zoom: number
+  getZoom: () => number
 }
 
 /**
@@ -12,11 +12,11 @@ export class ResetMapControl implements mapboxgl.IControl {
   private _map: mapboxgl.Map | undefined
   private _container: HTMLDivElement | undefined
   private _center: [number, number]
-  private _zoom: number
+  private _getZoom: () => number
 
   constructor(options: ResetMapControlOptions) {
     this._center = options.center
-    this._zoom = options.zoom
+    this._getZoom = options.getZoom
   }
 
   onAdd(map: mapboxgl.Map): HTMLElement {
@@ -76,7 +76,7 @@ l231 1 -5 472 c-11 901 -9 1170 12 1230 2 7 6 29 9 48 36 231 146 464 323 682
       if (this._map) {
         this._map.flyTo({
           center: this._center,
-          zoom: this._zoom,
+          zoom: this._getZoom(),
           duration: 1000, // Smooth 1 second animation
         })
 

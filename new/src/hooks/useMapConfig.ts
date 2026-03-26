@@ -16,6 +16,7 @@ const MAP_CONFIG = {
 
   startCenter: [-81.6730, 41.3953] as [number, number],
   startZoom: 11,
+  mobileStartZoom: 9,
 
   maxBounds: {
     sw: [-82.08504, 41.11816] as [number, number],

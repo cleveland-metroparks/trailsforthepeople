@@ -93,6 +93,8 @@ export function MapView() {
   const popupRef = useRef<mapboxgl.Popup | null>(null)
   const { mapConfig } = useMapConfig()
   const { isMobile, activePanel, onClosePanel } = useSidebar()
+  const isMobileRef = useRef(isMobile)
+  isMobileRef.current = isMobile
   const { isDirectionsLoading, directionsEndpoints } = useDirections()
   const [spinnerPos, setSpinnerPos] = useState<{ x: number; y: number } | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -201,7 +203,7 @@ export function MapView() {
       map.current.addControl(
         new ResetMapControl({
           center: mapConfig.startCenter,
-          zoom: mapConfig.startZoom,
+          getZoom: () => isMobileRef.current ? mapConfig.mobileStartZoom : mapConfig.startZoom,
         }),
         'top-right'
       )

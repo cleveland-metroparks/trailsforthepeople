@@ -7,6 +7,8 @@ import { useURLState } from '../hooks/useURLState'
 import { useMapSelection } from '../contexts/MapSelectionContext'
 import { useDirections } from '../contexts/DirectionsContext'
 import { useSidebar } from '../contexts/SidebarContext'
+import { useMap } from '../contexts/MapContext'
+import { useMapConfig } from '../hooks/useMapConfig'
 import { NAV_WIDTH_EXPANDED, NAV_WIDTH_COLLAPSED, MOBILE_BOTTOM_BAR_HEIGHT, MOBILE_SHEET_EXPANDED_TOP } from './sidebarConstants'
 
 const DARK_MODE_MOBILE = import.meta.env.VITE_DARK_MODE_MOBILE === 'true'
@@ -86,6 +88,8 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   const { selectionTick } = useMapSelection()
   const { openRequestId, closeRequestId } = useDirections()
   const { isMobile } = useSidebar()
+  const { map: mapInstance } = useMap()
+  const { mapConfig } = useMapConfig()
   const prevOpenRequestId = useRef(0)
   const prevCloseRequestId = useRef(0)
   const lastFocusedNavTabRef = useRef<HTMLButtonElement | null>(null)
@@ -198,6 +202,13 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     if (activeTab) lastActiveTab.current = activeTab
     setActiveTab(null)
     clearFeatureParams()
+    if (mapInstance) {
+      mapInstance.flyTo({
+        center: mapConfig.startCenter,
+        zoom: isMobile ? mapConfig.mobileStartZoom : mapConfig.startZoom,
+        duration: 1000,
+      })
+    }
   }
 
   const handleClosePanel = () => {
