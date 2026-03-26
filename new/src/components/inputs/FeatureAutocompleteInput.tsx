@@ -6,21 +6,7 @@ import { useParksData } from '../../hooks/useParksData'
 import { useTrailsData } from '../../hooks/useTrailsData'
 import { getResultTypeLabel } from '../../lib/searchUtils'
 import { MetadataBadge } from '../MetadataBadge'
-
-const DROPDOWN_STYLES = {
-  position: 'absolute' as const,
-  top: '100%',
-  left: 0,
-  right: 0,
-  zIndex: 1000,
-  backgroundColor: 'white',
-  border: '1px solid #e0e0e0',
-  borderRadius: '4px',
-  marginTop: '4px',
-  maxHeight: '300px',
-  overflowY: 'auto' as const,
-  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-}
+import { useDarkMode } from '../../hooks/useDarkMode'
 
 export interface FeatureAutocompleteSuggestion {
   text: string
@@ -50,6 +36,7 @@ export function FeatureAutocompleteInput({
   inputId,
   isPrimaryFocusTarget = false,
 }: FeatureAutocompleteInputProps) {
+  const isDarkMode = useDarkMode()
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [suggestions, setSuggestions] = useState<Array<{ id: string; title: string; type: string; parkName?: string; reservationId?: string | number; lat?: number; lng?: number }>>([])
   const [selectedIndex, setSelectedIndex] = useState(-1)
@@ -253,7 +240,25 @@ export function FeatureAutocompleteInput({
       />
 
       {shouldShowDropdown && (
-        <Box ref={dropdownRef} id={dropdownId} role="listbox" style={DROPDOWN_STYLES}>
+        <Box
+          ref={dropdownRef}
+          id={dropdownId}
+          role="listbox"
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            zIndex: 1000,
+            backgroundColor: isDarkMode ? '#2c2c2c' : 'white',
+            border: isDarkMode ? '1px solid #555' : '1px solid #e0e0e0',
+            borderRadius: '4px',
+            marginTop: '4px',
+            maxHeight: '300px',
+            overflowY: 'auto',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          }}
+        >
           <Stack spacing={0}>
             {suggestions.map((s, idx) => (
               <Box
@@ -265,12 +270,14 @@ export function FeatureAutocompleteInput({
                 p="sm"
                 style={{
                   cursor: 'pointer',
-                  borderBottom: '1px solid #f0f0f0',
+                  borderBottom: isDarkMode ? '1px solid #444' : '1px solid #f0f0f0',
                 }}
                 sx={{
-                  backgroundColor: selectedIndex === idx ? '#F2F8E1' : undefined,
+                  backgroundColor: selectedIndex === idx
+                    ? (isDarkMode ? 'rgba(106, 176, 62, 0.2)' : '#F2F8E1')
+                    : undefined,
                   '&:hover': {
-                    backgroundColor: '#F2F8E1',
+                    backgroundColor: isDarkMode ? 'rgba(106, 176, 62, 0.2)' : '#F2F8E1',
                   },
                   '&:last-child': {
                     borderBottom: 'none',
@@ -283,12 +290,12 @@ export function FeatureAutocompleteInput({
                 onClick={() => handleSuggestionClick(s)}
                 onMouseEnter={() => setSelectedIndex(idx)}
               >
-                <Text size="sm" weight={500}>
+                <Text size="sm" weight={500} color={isDarkMode ? 'white' : undefined}>
                   {s.title}
                 </Text>
                 <Group spacing="xs" mt={4}>
                   {s.parkName && (
-                    <Text size="xs" color="dimmed">
+                    <Text size="xs" color={isDarkMode ? 'rgba(255,255,255,0.6)' : 'dimmed'}>
                       {s.parkName}
                     </Text>
                   )}
