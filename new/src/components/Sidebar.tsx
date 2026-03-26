@@ -1,7 +1,7 @@
 import { Tabs, Loader, Center, ActionIcon, Box, Text, Divider, UnstyledButton } from '@mantine/core'
-import { Search, Share, InfoCircle, Tree, Walk, Flag3, Bug, ChevronLeft, Menu2, Route } from 'tabler-icons-react'
+import { Search, Share, InfoCircle, Tree, Walk, Flag3, Bug, ChevronLeft, Menu2, Route, ChevronDown } from 'tabler-icons-react'
 import { PanelCloseButton } from './PanelCloseButton'
-import { useState, useEffect, useRef, useImperativeHandle, forwardRef, Suspense, lazy } from 'react'
+import { useState, useEffect, useRef, useImperativeHandle, forwardRef, Suspense, lazy, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { useURLState } from '../hooks/useURLState'
 import { useMapSelection } from '../contexts/MapSelectionContext'
@@ -9,7 +9,10 @@ import { useDirections } from '../contexts/DirectionsContext'
 import { useSidebar } from '../contexts/SidebarContext'
 import { useMap } from '../contexts/MapContext'
 import { useMapConfig } from '../hooks/useMapConfig'
-import { NAV_WIDTH_EXPANDED, NAV_WIDTH_COLLAPSED, MOBILE_BOTTOM_BAR_HEIGHT, MOBILE_SHEET_EXPANDED_TOP } from './sidebarConstants'
+import { useParksData } from '../hooks/useParksData'
+import { useTrailsData } from '../hooks/useTrailsData'
+import { useActivitiesData } from '../hooks/useActivitiesData'
+import { NAV_WIDTH_EXPANDED, NAV_WIDTH_COLLAPSED, MOBILE_BOTTOM_BAR_HEIGHT, MOBILE_SHEET_EXPANDED_TOP, MOBILE_SHEET_PEEK_STRIP_HEIGHT, MOBILE_SHEET_PEEKED_HEIGHT } from './sidebarConstants'
 
 const DARK_MODE_MOBILE = import.meta.env.VITE_DARK_MODE_MOBILE === 'true'
 const DARK_MODE_DESKTOP = import.meta.env.VITE_DARK_MODE_DESKTOP === 'true'
@@ -81,7 +84,8 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   const [activeTab, setActiveTab] = useState<string | null>(null)
   const [showDebugTab, setShowDebugTab] = useState(false)
   const [isNavExpanded, setIsNavExpanded] = useState(true)
-  const [isSheetExpanded, setIsSheetExpanded] = useState(false)
+  type SheetState = 'collapsed' | 'peeked' | 'expanded'
+  const [sheetState, setSheetState] = useState<SheetState>('collapsed')
   const [dragOffset, setDragOffset] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const { params, setParams } = useURLState()
@@ -90,6 +94,9 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   const { isMobile } = useSidebar()
   const { map: mapInstance } = useMap()
   const { mapConfig } = useMapConfig()
+  const { data: parks } = useParksData()
+  const { data: trails } = useTrailsData()
+  const { attractions } = useActivitiesData()
   const prevOpenRequestId = useRef(0)
   const prevCloseRequestId = useRef(0)
   const lastFocusedNavTabRef = useRef<HTMLButtonElement | null>(null)
@@ -99,6 +106,14 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   const lastActiveTab = useRef<string>('parks')
   const isDragGesture = useRef(false)
   const lastTapTime = useRef(0)
+
+  const selectedFeatureTitle = useMemo(() => {
+    if (!params.gid) return null
+    if (params.type === 'park') return parks?.find(p => String(p.record_id) === params.gid)?.pagetitle ?? null
+    if (params.type === 'trail') return trails?.find(t => String(t.id) === params.gid)?.name ?? null
+    if (params.type === 'attraction') return attractions.find(a => String(a.gis_id) === params.gid)?.pagetitle ?? null
+    return null
+  }, [params.type, params.gid, parks, trails, attractions])
 
   // Track activeTab in a ref so the URL-sync effect can read it without depending on it.
   // This breaks the feedback loop: user tab changes don't re-trigger the URL-sync effect.
@@ -113,8 +128,8 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   }, [activeTab, onPanelStateChange, onActivePanelChange])
 
   useEffect(() => {
-    onSheetExpandedChange?.(isSheetExpanded)
-  }, [isSheetExpanded, onSheetExpandedChange])
+    onSheetExpandedChange?.(sheetState === 'expanded' || sheetState === 'peeked')
+  }, [sheetState, onSheetExpandedChange])
 
   useEffect(() => {
     onNavExpandedChange?.(isNavExpanded)
@@ -131,9 +146,9 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     }
   }, [])
 
-  const openTab = (tab: string) => {
+  const openTab = (tab: string, peek = false) => {
     setActiveTab(tab)
-    setIsSheetExpanded(true)
+    setSheetState(peek ? 'peeked' : 'expanded')
   }
 
   const toggleNavExpanded = () => {
@@ -153,9 +168,9 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
 
     const tabForFeature = getTabForFeatureType(params.type, params.activityId)
     if (tabForFeature) {
-      openTab(tabForFeature)
+      openTab(tabForFeature, !!(params.type && params.gid)) // peek only for specific features, not activity list filters
     }
-  }, [params.type, params.activityId, params.fromSearch, selectionTick])
+  }, [params.type, params.gid, params.activityId, params.fromSearch, selectionTick])
 
   // Switch to directions panel when openDirections is called
   useEffect(() => {
@@ -224,7 +239,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   const handleClosePanel = () => {
     if (activeTab) lastActiveTab.current = activeTab
     setActiveTab(null)
-    setIsSheetExpanded(false)
+    setSheetState('collapsed')
     setDragOffset(0)
     openFromNavRef.current = false
     clearFeatureParams()
@@ -234,17 +249,18 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   }
 
   const handleCollapseSheet = () => {
-    setIsSheetExpanded(false)
+    // If a feature is selected, go back to peeked rather than fully collapsed
+    setSheetState(params.type && params.gid ? 'peeked' : 'collapsed')
     setDragOffset(0)
     // intentionally does NOT clear activeTab or URL params
   }
 
   const handleTabChange = (value: string | null) => {
     if (!value) return
-    if (!isSheetExpanded) {
-      // Sheet is collapsed — always expand to the tapped tab
+    if (sheetState === 'collapsed' || sheetState === 'peeked') {
+      // Sheet is collapsed or peeked — always expand fully to the tapped tab
       openFromNavRef.current = true
-      setIsSheetExpanded(true)
+      setSheetState('expanded')
       setActiveTab(value)
       return
     }
@@ -255,7 +271,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     }
     openFromNavRef.current = true
     clearFeatureParams()
-    setIsSheetExpanded(true)
+    setSheetState('expanded')
     setActiveTab(value)
   }
 
@@ -498,10 +514,12 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
 
   // ── Mobile layout ──────────────────────────────────────────────────────────
   if (isMobile) {
-    const isExpanded = isSheetExpanded
-    const baseTranslate = isExpanded
-      ? `${MOBILE_SHEET_EXPANDED_TOP}px`
-      : `calc(100dvh - ${MOBILE_BOTTOM_BAR_HEIGHT}px)`
+    const isExpanded = sheetState === 'expanded'
+    const isPeeked = sheetState === 'peeked'
+    const baseTranslate =
+      sheetState === 'expanded' ? `${MOBILE_SHEET_EXPANDED_TOP}px` :
+      sheetState === 'peeked'   ? `calc(100dvh - ${MOBILE_SHEET_PEEKED_HEIGHT}px)` :
+                                  `calc(100dvh - ${MOBILE_BOTTOM_BAR_HEIGHT}px)`
     const sheetTransform = `translateY(calc(${baseTranslate} + ${dragOffset}px))`
 
     const handleSheetTouchStart = (e: React.TouchEvent) => {
@@ -512,11 +530,13 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     const handleSheetTouchMove = (e: React.TouchEvent) => {
       const dy = e.touches[0].clientY - startY.current
       if (Math.abs(dy) > 8) isDragGesture.current = true
+      setIsDragging(true)
       if (isExpanded) {
-        setIsDragging(true)
         setDragOffset(Math.max(0, dy))
+      } else if (isPeeked) {
+        // Allow drag both up and down from peeked state
+        setDragOffset(dy)
       } else {
-        setIsDragging(true)
         setDragOffset(Math.min(0, dy))
       }
     }
@@ -524,10 +544,16 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     const handleSheetTouchEnd = () => {
       setIsDragging(false)
       if (isDragGesture.current) {
-        if (!isExpanded && dragOffset < -80) {
-          setIsSheetExpanded(true)
+        if (sheetState === 'collapsed' && dragOffset < -80) {
+          setSheetState('expanded')
           setDragOffset(0)
-        } else if (isExpanded && dragOffset > 80) {
+        } else if (sheetState === 'peeked' && dragOffset < -80) {
+          setSheetState('expanded')
+          setDragOffset(0)
+        } else if (sheetState === 'peeked' && dragOffset > 80) {
+          setSheetState('collapsed')
+          setDragOffset(0)
+        } else if (sheetState === 'expanded' && dragOffset > 80) {
           handleCollapseSheet()
         } else {
           setDragOffset(0)
@@ -547,8 +573,10 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     const handleSheetToggle = () => {
       if (isExpanded) {
         handleCollapseSheet()
+      } else if (isPeeked) {
+        setSheetState('expanded')
       } else {
-        setIsSheetExpanded(true)
+        setSheetState('expanded')
       }
     }
 
@@ -631,6 +659,46 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
             </div>
           </div>
         </div>
+
+        {/* Peek strip — visible only when sheet is in peeked state */}
+        {isPeeked && (
+          <div
+            style={{
+              height: MOBILE_SHEET_PEEK_STRIP_HEIGHT,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '0 16px',
+              backgroundColor: DARK_MODE_MOBILE ? '#111111' : '#fff',
+              borderBottom: `1px solid ${DARK_MODE_MOBILE ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}`,
+              flexShrink: 0,
+            }}
+          >
+            <Text
+              size="sm"
+              weight={600}
+              style={{
+                color: DARK_MODE_MOBILE ? '#fff' : '#000',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                flex: 1,
+                marginRight: 12,
+              }}
+            >
+              {selectedFeatureTitle ?? ''}
+            </Text>
+            <UnstyledButton
+              type="button"
+              aria-label="Expand details"
+              onClick={() => setSheetState('expanded')}
+              style={{ flexShrink: 0, padding: 8 }}
+              sx={{ '&:focus-visible': { outline: '2px solid #6AB03E', borderRadius: 4 } }}
+            >
+              <ChevronDown size={20} color={DARK_MODE_MOBILE ? '#fff' : '#222124'} />
+            </UnstyledButton>
+          </div>
+        )}
 
         {/* Panel content */}
         <div
