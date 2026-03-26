@@ -1,4 +1,5 @@
 import { Text, Box, Anchor, Divider, Group, Button } from '@mantine/core'
+import { useEffect, useState } from 'react'
 import { Clock, Phone, Map } from 'tabler-icons-react'
 import { makeImageFromPagethumbnail } from '../../../lib/dataTransform'
 import { GetDirectionsButtons } from '../../GetDirectionsButtons'
@@ -192,6 +193,13 @@ export function DetailShowOnMapSection({ lat, lng, boxw, boxs, boxe, boxn }: Det
   const { map } = useMap()
   const padding = useSidebarAwarePadding()
 
+  // Ghost-tap guard for clicks from list items
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    const id = setTimeout(() => setReady(true), 350)
+    return () => clearTimeout(id)
+  }, [])
+
   if (!isMobile) return null
   if (typeof lat !== 'number' || typeof lng !== 'number') return null
 
@@ -215,6 +223,7 @@ export function DetailShowOnMapSection({ lat, lng, boxw, boxs, boxe, boxn }: Det
       variant="outline"
       leftIcon={<Map size={16} />}
       onClick={handleShowOnMap}
+      style={{ pointerEvents: ready ? undefined : 'none' }}
       styles={{
         root: {
           borderColor: '#6AB03E',
