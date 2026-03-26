@@ -102,6 +102,10 @@ export interface TransformedTrail extends Omit<Trail, 'bike' | 'hike' | 'bridle'
   lat: number
   lng: number
   name: string
+  boxw?: number | null
+  boxs?: number | null
+  boxe?: number | null
+  boxn?: number | null
   distancetext?: string | null
   durationtext_hike?: string | null
   durationtext_bike?: string | null

@@ -43,7 +43,7 @@ export function TrailDetailPane({ trail, parkName, backButton, panelTitle }: Tra
         <DetailParkSection parkName={parkName} />
       </Stack>
 
-      <DetailShowOnMapSection lat={trail.lat} lng={trail.lng} />
+      <DetailShowOnMapSection lat={trail.lat} lng={trail.lng} boxw={trail.boxw} boxs={trail.boxs} boxe={trail.boxe} boxn={trail.boxn} />
 
       <Stack spacing={0}>
         {trail.distancetext && (

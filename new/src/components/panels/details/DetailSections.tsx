@@ -6,6 +6,7 @@ import { ShareButton } from '../../ShareButton'
 import { useSidebar } from '../../../contexts/SidebarContext'
 import { useMap } from '../../../contexts/MapContext'
 import { zoomToFeature } from '../../../lib/mapUtils'
+import { useSidebarAwarePadding } from '../../../hooks/useSidebarAwarePadding'
 
 interface DetailTitleProps {
   title: string
@@ -189,6 +190,7 @@ interface DetailShowOnMapSectionProps {
 export function DetailShowOnMapSection({ lat, lng, boxw, boxs, boxe, boxn }: DetailShowOnMapSectionProps) {
   const { isMobile, onCollapseSheet } = useSidebar()
   const { map } = useMap()
+  const padding = useSidebarAwarePadding()
 
   if (!isMobile) return null
   if (typeof lat !== 'number' || typeof lng !== 'number') return null
@@ -199,10 +201,10 @@ export function DetailShowOnMapSection({ lat, lng, boxw, boxs, boxe, boxn }: Det
       typeof boxs === 'number' &&
       typeof boxe === 'number' &&
       typeof boxn === 'number'
-    if (hasBbox && typeof boxw === 'number' && typeof boxs === 'number' && typeof boxe === 'number' && typeof boxn === 'number') {
-      zoomToFeature(map, { w: boxw, s: boxs, e: boxe, n: boxn }, { padding: 40 })
+    if (hasBbox) {
+      zoomToFeature(map, { w: boxw as number, s: boxs as number, e: boxe as number, n: boxn as number }, { padding })
     } else {
-      zoomToFeature(map, { lat, lng })
+      zoomToFeature(map, { lat, lng }, { padding })
     }
     onCollapseSheet()
   }
