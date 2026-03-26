@@ -675,6 +675,18 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
               flexShrink: 0,
             }}
           >
+            {activeTab === 'directions' && (
+              <Route size={18} color="#A6CE39" style={{ flexShrink: 0, marginRight: 8 }} />
+            )}
+            {activeTab !== 'directions' && params.type === 'park' && (
+              <Tree size={18} color="#A6CE39" style={{ flexShrink: 0, marginRight: 8 }} />
+            )}
+            {activeTab !== 'directions' && params.type === 'trail' && (
+              <Walk size={18} color="#A6CE39" style={{ flexShrink: 0, marginRight: 8 }} />
+            )}
+            {activeTab !== 'directions' && params.type === 'attraction' && (
+              <Flag3 size={18} color="#A6CE39" style={{ flexShrink: 0, marginRight: 8 }} />
+            )}
             <Text
               size="sm"
               weight={600}
