@@ -66,7 +66,7 @@ export function ActivitiesPanel({ onGoHome }: ActivitiesPanelProps) {
       return null
     }
     return attractions.find(
-      (a) => String(a.gis_id || a.record_id) === params.gid
+      (a) => String(a.gis_id) === params.gid
     ) || null
   }, [attractions, params.type, params.gid])
 
@@ -76,7 +76,7 @@ export function ActivitiesPanel({ onGoHome }: ActivitiesPanelProps) {
     if (isLoading || !attractions) return
 
     const hasMatch = attractions.some(
-      (a) => String(a.gis_id || a.record_id) === params.gid
+      (a) => String(a.gis_id) === params.gid
     )
 
     if (!hasMatch) {
@@ -273,19 +273,19 @@ export function ActivitiesPanel({ onGoHome }: ActivitiesPanelProps) {
 
                 <PanelList
                   items={sortedAttractions}
-                  keyExtractor={(attraction, index) => String(attraction.gis_id || attraction.record_id || index)}
+                  keyExtractor={(attraction, index) => String(attraction.gis_id ?? index)}
                   countLabel={{ singular: 'attraction', plural: 'attractions' }}
                   emptyMessage="No attractions found for this activity."
                   onClick={(attraction) => {
                     // Mark that we want to zoom (user initiated)
                     shouldZoomRef.current = true
-                    lastSelectedAttractionIdRef.current = String(attraction.gis_id || attraction.record_id)
+                    lastSelectedAttractionIdRef.current = String(attraction.gis_id)
                     // Update URL with attraction selection (pushState for back button)
                     // This will update selectedAttraction via derived state
                     setParams(
                       {
                         type: 'attraction',
-                        gid: String(attraction.gis_id || attraction.record_id),
+                        gid: String(attraction.gis_id),
                         activityId: selectedActivityId ? String(selectedActivityId) : null,
                       },
                       false,

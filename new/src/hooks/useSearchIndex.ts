@@ -14,7 +14,7 @@ export interface SearchItem {
   type: 'attraction' | 'reservation' | 'trail'
   lat?: number
   lng?: number
-  gid: string | number // For URL params (gis_id, record_id, or trail id)
+  gid: string | number // For URL params (gis_id for attractions, record_id for reservations, id for trails)
   // Optional bounding box for better zooming
   w?: number | null
   s?: number | null
@@ -44,10 +44,6 @@ export function useSearchIndex() {
     return Object.fromEntries(Object.entries(item).filter(([, value]) => value !== undefined))
   }
 
-  const logMissingCoords = (type: string, id: string | number, title: string, lat: unknown, lng: unknown) => {
-    console.log(`[missing coords] ${type} id=${id} "${title}" lat=${lat} lng=${lng}`)
-  }
-
   // Build unified search index
   const index = useMemo(() => {
     // Create FlexSearch Document index with optimized config
@@ -67,21 +63,22 @@ export function useSearchIndex() {
       },
     })
 
+    const hasValidCoords = (lat: number, lng: number) =>
+      lat !== 0 && lng !== 0 && !isNaN(lat) && !isNaN(lng)
+
     // Add attractions to index
     attractions.forEach((attraction) => {
       if (attraction.pagetitle) {
         const lat = Number(attraction.latitude)
         const lng = Number(attraction.longitude)
-        if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-          logMissingCoords('attraction', `gis_id=${attraction.gis_id ?? '?'} record_id=${attraction.record_id ?? '?'}`, String(attraction.pagetitle), attraction.latitude, attraction.longitude)
-        }
+        if (!hasValidCoords(lat, lng)) return
         const item: SearchItem = {
-          id: `attraction-${attraction.gis_id || attraction.record_id}`,
+          id: `attraction-${attraction.gis_id}`,
           title: String(attraction.pagetitle),
           type: 'attraction',
           lat,
           lng,
-          gid: String(attraction.gis_id || attraction.record_id || ''),
+          gid: String(attraction.gis_id),
         }
         searchIndex.add(toDocumentData(item))
       }
@@ -93,9 +90,7 @@ export function useSearchIndex() {
         if (reservation.pagetitle) {
           const lat = Number(reservation.latitude)
           const lng = Number(reservation.longitude)
-          if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-            logMissingCoords('reservation', String(reservation.record_id ?? '?'), String(reservation.pagetitle), reservation.latitude, reservation.longitude)
-          }
+          if (!hasValidCoords(lat, lng)) return
           const item: SearchItem = {
             id: `reservation-${reservation.record_id}`,
             title: String(reservation.pagetitle),
@@ -119,9 +114,7 @@ export function useSearchIndex() {
         if (trail.name) {
           const lat = Number(trail.lat)
           const lng = Number(trail.lng)
-          if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-            logMissingCoords('trail', String(trail.id), String(trail.name), trail.lat, trail.lng)
-          }
+          if (!hasValidCoords(lat, lng)) return
           const item: SearchItem = {
             id: `trail-${trail.id}`,
             title: String(trail.name),

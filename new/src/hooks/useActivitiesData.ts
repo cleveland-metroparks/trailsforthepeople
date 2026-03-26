@@ -21,7 +21,7 @@ export function useActivitiesData() {
 
   return {
     activities: activitiesQuery.data ?? EMPTY_ACTIVITIES,
-    attractions: attractionsQuery.data ?? EMPTY_ATTRACTIONS,
+    attractions: (attractionsQuery.data ?? EMPTY_ATTRACTIONS).filter((a) => a.gis_id != null && a.gis_id !== ''),
     isLoading: activitiesQuery.isLoading || attractionsQuery.isLoading,
     isError: activitiesQuery.isError || attractionsQuery.isError,
     error: activitiesQuery.error || attractionsQuery.error,

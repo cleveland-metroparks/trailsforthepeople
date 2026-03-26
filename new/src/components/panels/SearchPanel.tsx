@@ -98,7 +98,7 @@ export function SearchPanel(_props: SearchPanelProps) {
 
     if (selectedSearchResult.type === 'attraction') {
       return attractions.find(
-        (a) => String(a.gis_id || a.record_id) === String(selectedSearchResult.gid)
+        (a) => String(a.gis_id) === String(selectedSearchResult.gid)
       ) || null
     }
 
@@ -119,7 +119,7 @@ export function SearchPanel(_props: SearchPanelProps) {
     parks?.forEach((p) => parksMap.set(p.record_id, String(p.pagetitle)))
     return (type: string, gid: string | number): string | undefined => {
       if (type === 'attraction') {
-        const att = attractions.find((a) => String(a.gis_id || a.record_id) === String(gid))
+        const att = attractions.find((a) => String(a.gis_id) === String(gid))
         const resId = (att as { reservation?: number | string } | undefined)?.reservation
         return resId ? parksMap.get(resId) : undefined
       }

@@ -56,7 +56,7 @@ export function FeatureAutocompleteInput({
     parks?.forEach((p) => parksMap.set(p.record_id, String(p.pagetitle)))
     return (type: string, gid: string | number): string | undefined => {
       if (type === 'attraction') {
-        const att = attractions.find((a) => String(a.gis_id || a.record_id) === String(gid))
+        const att = attractions.find((a) => String(a.gis_id) === String(gid))
         const resId = (att as { reservation?: number | string } | undefined)?.reservation
         return resId ? parksMap.get(resId) : undefined
       }
@@ -79,7 +79,7 @@ export function FeatureAutocompleteInput({
         return parksMap.get(gid)
       }
       if (type === 'attraction') {
-        const att = attractions.find((a) => String(a.gis_id || a.record_id) === String(gid))
+        const att = attractions.find((a) => String(a.gis_id) === String(gid))
         const resId = (att as { reservation?: number | string } | undefined)?.reservation
         return resId != null ? resId : undefined
       }
@@ -118,13 +118,6 @@ export function FeatureAutocompleteInput({
       const results = autocompleteRef.current(value, 8)
       setSuggestions(
         results
-          .filter((r) => {
-            const valid = r.lat != null && r.lng != null && !isNaN(r.lat) && !isNaN(r.lng) && (r.lat !== 0 || r.lng !== 0)
-            if (!valid) {
-              console.log(`[missing coords] autocomplete filtered ${r.type} id=${r.gid} "${r.title}" lat=${r.lat} lng=${r.lng}`)
-            }
-            return valid
-          })
           .map((r) => ({
             id: r.id,
             title: r.title,

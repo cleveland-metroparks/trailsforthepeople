@@ -116,7 +116,7 @@ export function MapView() {
     if (isAttractionsLoading) return null
     const set = new Set<string>()
     attractions.forEach((attraction) => {
-      const id = normalizeGisId(attraction.gis_id ?? attraction.record_id)
+      const id = normalizeGisId(attraction.gis_id)
       if (id) {
         set.add(id)
       }
