@@ -1,12 +1,11 @@
 import { useSidebar } from '../contexts/SidebarContext'
-import { MOBILE_BOTTOM_BAR_HEIGHT } from '../components/sidebarConstants'
+import { MOBILE_SHEET_PEEKED_HEIGHT } from '../components/sidebarConstants'
 
 /**
  * Hook to get padding options for explicit zoom operations (zoomToFeature / fitBounds / flyTo).
  *
- * On mobile, always zooms as if the sheet is collapsed — treating the map area as full screen
- * minus the 76px bottom bar. The expanded sheet may cover part of the result, but the zoom
- * level is meaningful and the user can collapse the sheet to see the feature clearly.
+ * On mobile, zooms to the area visible above the peeked sheet — feature selection always
+ * transitions to peeked state (128px), so this keeps the feature clear of the peek strip.
  *
  * On desktop, adds the sidebar width to the left so features zoom into the visible area
  * to the right of the panel.
@@ -23,10 +22,10 @@ export function useSidebarAwarePadding(basePadding = 120): { top: number; bottom
   const { sidebarWidth, isMobile } = useSidebar()
 
   if (isMobile) {
-    // Always zoom to the area visible when the sheet is collapsed (full screen minus bottom bar).
-    // We intentionally ignore isSheetExpanded — the expanded sheet may cover part of the map,
-    // but the zoom level stays meaningful and the user can collapse the sheet to see the feature.
-    return { top: 20, bottom: MOBILE_BOTTOM_BAR_HEIGHT + 20, left: 20, right: 20 }
+    // Zoom to the area above the peeked sheet. Feature selection always goes to peeked state
+    // (128px tall). Add 48px of clearance above the peek strip for line rendering, rounding,
+    // and iOS viewport variations.
+    return { top: 20, bottom: MOBILE_SHEET_PEEKED_HEIGHT + 48, left: 20, right: 20 }
   }
 
   return {
