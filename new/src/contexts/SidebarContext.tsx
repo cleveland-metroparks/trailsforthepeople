@@ -6,6 +6,7 @@ interface SidebarContextType {
   sidebarWidth: number
   isMobile: boolean
   activePanel: string | null
+  isSheetExpanded: boolean
   onSearchSubmit: () => void
   onClosePanel: () => void
   onCollapseSheet: () => void
@@ -20,6 +21,7 @@ export function SidebarProvider({
   sidebarWidth,
   isMobile,
   activePanel,
+  isSheetExpanded,
   onSearchSubmit,
   onClosePanel,
   onCollapseSheet,
@@ -30,12 +32,13 @@ export function SidebarProvider({
   sidebarWidth: number
   isMobile: boolean
   activePanel: string | null
+  isSheetExpanded: boolean
   onSearchSubmit: () => void
   onClosePanel: () => void
   onCollapseSheet: () => void
 }) {
   return (
-    <SidebarContext.Provider value={{ isSidebarCollapsed, navWidth, sidebarWidth, isMobile, activePanel, onSearchSubmit, onClosePanel, onCollapseSheet }}>
+    <SidebarContext.Provider value={{ isSidebarCollapsed, navWidth, sidebarWidth, isMobile, activePanel, isSheetExpanded, onSearchSubmit, onClosePanel, onCollapseSheet }}>
       {children}
     </SidebarContext.Provider>
   )

@@ -18,6 +18,7 @@ export function Layout({ children }: LayoutProps) {
   const [hasActivePanel, setHasActivePanel] = useState(false)
   const [isNavExpanded, setIsNavExpanded] = useState(true)
   const [activePanel, setActivePanel] = useState<string | null>(null)
+  const [isSheetExpanded, setIsSheetExpanded] = useState(false)
   const sidebarRef = useRef<SidebarRef>(null)
   const isMobile = useIsMobile()
 
@@ -43,6 +44,7 @@ export function Layout({ children }: LayoutProps) {
                 sidebarWidth={totalWidth}
                 isMobile={isMobile}
                 activePanel={activePanel}
+                isSheetExpanded={isSheetExpanded}
                 onSearchSubmit={handleSearchSubmit}
                 onClosePanel={() => sidebarRef.current?.closePanel()}
                 onCollapseSheet={() => sidebarRef.current?.collapseSheet()}
@@ -68,6 +70,7 @@ export function Layout({ children }: LayoutProps) {
                       onPanelStateChange={setHasActivePanel}
                       onNavExpandedChange={setIsNavExpanded}
                       onActivePanelChange={setActivePanel}
+                      onSheetExpandedChange={setIsSheetExpanded}
                     />
                   </AppShell>
                 ) : (

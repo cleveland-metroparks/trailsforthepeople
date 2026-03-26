@@ -20,9 +20,9 @@ const searchToUrlType: Record<string, string> = {
 }
 
 export function FloatingSearch() {
-  const { isSidebarCollapsed, navWidth, isMobile, activePanel, onSearchSubmit } = useSidebar()
+  const { isSidebarCollapsed, navWidth, isMobile, activePanel, isSheetExpanded, onSearchSubmit } = useSidebar()
   const { searchTerm, setSearchTerm, submitSearch, selectFromSuggestion, autocompleteSuggestions } = useSearch()
-  const { setParams } = useURLState()
+  const { params, setParams } = useURLState()
   const { attractions } = useActivitiesData()
   const { data: parks } = useParksData()
   const { data: trails } = useTrailsData()
@@ -143,7 +143,7 @@ export function FloatingSearch() {
     onSearchSubmit()
   }
 
-  if (isMobile && activePanel === 'search') return null
+  if (isMobile && activePanel === 'search' && isSheetExpanded && params.fromSearch !== 'true') return null
 
   return (
     <Box
