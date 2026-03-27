@@ -45,7 +45,7 @@ jobs:
           npm run build
 
   deploy-prod:
-    if: github.ref == 'refs/heads/main'
+    if: false # TODO: re-enable when ready for prod deploys
     name: Deploy Prod
     runs-on:
       - self-hosted
