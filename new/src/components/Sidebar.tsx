@@ -164,12 +164,19 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   // so there's no feedback loop where the effect fights the user's intent.
   useEffect(() => {
     if (params.fromSearch === 'true' && activeTabRef.current === 'search') {
+      // Stay on the search tab; peek when a specific feature is selected
+      if (params.type && params.gid) {
+        setSheetState('peeked')
+      }
       return
     }
 
     const tabForFeature = getTabForFeatureType(params.type, params.activityId)
     if (tabForFeature) {
       openTab(tabForFeature, !!(params.type && params.gid)) // peek only for specific features, not activity list filters
+    } else if (activeTabRef.current === 'search' && !params.type) {
+      // Feature cleared while on search tab (e.g. Back from detail) — re-expand to show results
+      setSheetState('expanded')
     }
   }, [params.type, params.gid, params.activityId, params.fromSearch, selectionTick])
 

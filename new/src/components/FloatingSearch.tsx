@@ -7,6 +7,9 @@ import { useURLState } from '../hooks/useURLState'
 import { useActivitiesData } from '../hooks/useActivitiesData'
 import { useParksData } from '../hooks/useParksData'
 import { useTrailsData } from '../hooks/useTrailsData'
+import { useMap } from '../contexts/MapContext'
+import { useSidebarAwarePadding } from '../hooks/useSidebarAwarePadding'
+import { zoomToFeature } from '../lib/mapUtils'
 import { getResultTypeLabel } from '../lib/searchUtils'
 import { MetadataBadge } from './MetadataBadge'
 
@@ -26,6 +29,8 @@ export function FloatingSearch() {
   const { attractions } = useActivitiesData()
   const { data: parks } = useParksData()
   const { data: trails } = useTrailsData()
+  const { map } = useMap()
+  const sidebarAwarePadding = useSidebarAwarePadding()
 
   const [showAutocomplete, setShowAutocomplete] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
@@ -140,7 +145,7 @@ export function FloatingSearch() {
       false,
       true
     )
-    onSearchSubmit()
+    zoomToFeature(map, { lat: suggestion.location.lat, lng: suggestion.location.lng }, { padding: sidebarAwarePadding })
   }
 
   if (isMobile && activePanel === 'search' && isSheetExpanded && params.fromSearch !== 'true') return null
