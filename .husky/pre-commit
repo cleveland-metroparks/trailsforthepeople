@@ -1,0 +1,20 @@
+#!/bin/sh
+set -e
+
+ROOT="$(git rev-parse --show-toplevel)"
+
+# new/
+if git diff --cached --name-only | grep -q '^new/'; then
+  echo "new/: Running lint..."
+  (cd "$ROOT/new" && npm run lint)
+  echo "new/: Running type-check..."
+  (cd "$ROOT/new" && npm run type-check)
+fi
+
+# admin/
+if git diff --cached --name-only | grep -q '^admin/'; then
+  echo "admin/: Running lint..."
+  (cd "$ROOT/admin" && npm run lint)
+  echo "admin/: Running type-check..."
+  (cd "$ROOT/admin" && npm run type-check)
+fi
