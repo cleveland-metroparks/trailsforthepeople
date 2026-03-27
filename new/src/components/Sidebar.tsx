@@ -330,10 +330,9 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     })
     observer.observe(root, { childList: true, subtree: true })
 
-    // Safety net: if the primary target never appears, fall back and give up.
+    // Safety net: if the primary target never appears, give up.
     const timeout = setTimeout(() => {
       observer.disconnect()
-      focusFallback()
     }, 2000)
 
     return () => {
