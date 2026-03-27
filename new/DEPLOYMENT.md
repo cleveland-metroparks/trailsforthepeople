@@ -49,8 +49,8 @@ For each environment, add:
 
 Example values:
 
-- `dev` -> `/var/www/maps/new`
-- `prod` -> `/var/www/maps/new`
+- `dev` -> `/var/www/new`
+- `prod` -> `/var/www/new`
 
 The paths do not need to match across environments, but each server must use the value configured for its environment.
 
@@ -113,6 +113,22 @@ Suggested first pass:
 4. Manually trigger the workflow with `workflow_dispatch` or push to `develop`.
 5. Verify the Actions log shows the job running on the dev runner.
 6. Confirm the built site is updated on the dev server.
+
+## Security: Self-Hosted Runners on a Public Repo
+
+GitHub warns that self-hosted runners on public repos can be exploited via forked PRs: a fork could open a PR that triggers a workflow run, executing the fork's code on your infrastructure.
+
+**This workflow is not exposed to that risk.** It only triggers on `push` to `develop`/`main` and `workflow_dispatch` — both require write access to the upstream repo. A fork author cannot push to those branches, so no runner job is spawned.
+
+### If PR triggers are added in the future
+
+If you ever add a `pull_request` trigger to run checks (lint, type-check, etc.), follow these guidelines:
+
+- **Do not run PR jobs on self-hosted runners.** Use GitHub-hosted runners for PR checks — they're free for public repos and fully isolated. Reserve self-hosted runners for deploy jobs on `develop`/`main` only.
+- If a self-hosted runner is needed for a PR job, use `pull_request_target` (not `pull_request`) so the *base branch's* workflow code runs rather than the fork's. Be aware that even then, if the workflow checks out and builds the PR's code, a malicious `package.json` postinstall script could run arbitrary commands on the server.
+- Enable fork PR approval gating: Settings → Actions → General → "Fork pull request workflows from outside collaborators" → require approval.
+
+The safest long-term pattern: GitHub-hosted runners for all PR checks, self-hosted runners for deploys only.
 
 ## Future Improvements
 
