@@ -66,7 +66,7 @@ export function TrailProfileChart(props: { trailProfile: TrailProfile }) {
     },
   };
 
-  let chartData = {
+  const chartData = {
     datasets: [
       {
         label: "Elevation Prfofile",

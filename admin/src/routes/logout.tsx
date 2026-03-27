@@ -14,7 +14,7 @@ export function Logout() {
       // Submit logout to API
       mapsApiClient
         .post<any>("/logout", {})
-        .then(function (logoutResponse: any) {
+        .then(function (_logoutResponse: any) {
           onLogout();
         })
         .catch(function (error) {

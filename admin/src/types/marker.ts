@@ -17,8 +17,8 @@ export type Marker = {
   modifier_username: string;
 };
 
-const defaultLat = parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LAT),
-  defaultLng = parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LNG),
+const defaultLat = parseFloat(import.meta.env.VITE_MAP_DEFAULT_CENTER_LAT),
+  defaultLng = parseFloat(import.meta.env.VITE_MAP_DEFAULT_CENTER_LNG),
   defaultMarkerCategory = "Events";
 
 export const emptyMarker: Marker = {

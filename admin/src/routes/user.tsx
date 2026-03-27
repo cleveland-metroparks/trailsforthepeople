@@ -34,7 +34,7 @@ import { useDocumentTitle } from "../hooks/useDocumentTitle";
 const getUserTokens = async () => {
   const response = await mapsApiClient.get<any>("/tokens");
 
-  var tokensData = response.data.tokens;
+  const tokensData = response.data.tokens;
 
   // Format token props
   tokensData.forEach((token) => {
@@ -113,15 +113,15 @@ export function UserAccount() {
         hideNotification("create-token");
         setCreatingState(false);
         // Build modal content with the token info
-        let newTokenModalContent = (
+        const newTokenModalContent = (
           <>
             <Text mb="md">
-              Your new token, "{createTokenResponse.data.name}" has been
+              Your new token, &ldquo;{createTokenResponse.data.name}&rdquo; has been
               created.
               <br />
               Make sure to record this now, as{" "}
               <Text span fw={700}>
-                you won't be able to see it again:
+                you won&apos;t be able to see it again:
               </Text>
             </Text>
             <Group>
@@ -192,7 +192,7 @@ export function UserAccount() {
     mapsApiClient
       .post<any>("/tokens/revoke", { token_id: tokenId })
 
-      .then(function (revokeTokenResponse: any) {
+      .then(function (_revokeTokenResponse: any) {
         const revokedMsg = `Token (ID: ${tokenId}) revoked`;
         updateNotification({
           id: "revoke-token",

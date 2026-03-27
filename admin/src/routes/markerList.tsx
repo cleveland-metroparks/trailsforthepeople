@@ -22,7 +22,7 @@ import { useDocumentTitle } from "../hooks/useDocumentTitle";
 // Get all markers from the API
 const getAllMarkers = async () => {
   const response = await mapsApiClient.get<any>(
-    process.env.REACT_APP_MAPS_API_BASE_PATH + "/markers"
+    import.meta.env.VITE_MAPS_API_BASE_PATH + "/markers"
   );
   return response.data.data;
 };

@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const skipLogin =
-    (process.env.REACT_APP_SKIP_LOGIN || "").toLowerCase() === "true";
+    (import.meta.env.VITE_SKIP_LOGIN || "").toLowerCase() === "true";
 
   // call this function when you want to authenticate the user
   const onLogin = useCallback(

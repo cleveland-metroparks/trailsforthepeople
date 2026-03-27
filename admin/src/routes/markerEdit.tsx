@@ -95,7 +95,7 @@ export function MarkerEdit() {
   let markerId = "",
     deleteMarkerPath = "";
 
-  let params = useParams();
+  const params = useParams();
 
   if (params.markerId) {
     if (!isNaN(parseFloat(params.markerId))) {
@@ -115,7 +115,7 @@ export function MarkerEdit() {
 
     if (id !== "new") {
       const response = await mapsApiClient.get<any>(
-        process.env.REACT_APP_MAPS_API_BASE_PATH + "/markers/" + id
+        import.meta.env.VITE_MAPS_API_BASE_PATH + "/markers/" + id
       );
 
       markerData = response.data.data;
@@ -226,17 +226,17 @@ export function MarkerEdit() {
     const response =
       markerId === "new"
         ? mapsApiClient.post<any>(
-            process.env.REACT_APP_MAPS_API_BASE_PATH + "/markers",
+            import.meta.env.VITE_MAPS_API_BASE_PATH + "/markers",
             markerSaveData
           )
         : mapsApiClient.put<any>(
-            process.env.REACT_APP_MAPS_API_BASE_PATH + "/markers/" + markerId,
+            import.meta.env.VITE_MAPS_API_BASE_PATH + "/markers/" + markerId,
             markerSaveData
           );
     response
       .then(function (response) {
         // Get new marker ID:
-        if (response.hasOwnProperty("data") && response["data"].data.id) {
+        if (Object.prototype.hasOwnProperty.call(response, "data") && response["data"].data.id) {
           markerId = response["data"].data.id;
 
           const savedMsg = `Marker "${response["data"].data.title}" (ID: ${markerId}) saved`;
@@ -408,11 +408,11 @@ export function MarkerEdit() {
                   initialViewState={{
                     latitude: markerData.lat,
                     longitude: markerData.lng,
-                    zoom: parseFloat(process.env.REACT_APP_MAP_DEFAULT_ZOOM),
+                    zoom: parseFloat(import.meta.env.VITE_MAP_DEFAULT_ZOOM),
                   }}
                   style={{ width: 800, height: 400 }}
-                  mapStyle={process.env.REACT_APP_MAPBOX_STYLE_URL}
-                  mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+                  mapStyle={import.meta.env.VITE_MAPBOX_STYLE_URL}
+                  mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
                 >
                   <MapGl.Marker
                     longitude={markerData.lng}

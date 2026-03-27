@@ -23,7 +23,7 @@ export function Login() {
   useDocumentTitle("Login");
 
   const skipLogin =
-    (process.env.REACT_APP_SKIP_LOGIN || "").toLowerCase() === "true";
+    (import.meta.env.VITE_SKIP_LOGIN || "").toLowerCase() === "true";
   const form = useForm({
     initialValues: {
       username: "",
@@ -42,7 +42,7 @@ export function Login() {
   const authLogin = async (username: string, password: string) => {
     // For Laravel Sanctum we need to get a CSRF cookie first
     mapsApiClient.get<any>("/sanctum/csrf-cookie").then(function (
-      csrfResponse: any
+      _csrfResponse: any
     ) {
       // Then we can login
       mapsApiClient
@@ -50,7 +50,7 @@ export function Login() {
           username: username,
           password: password,
         })
-        .then(function (loginResponse: any) {
+        .then(function (_loginResponse: any) {
           // Since Laravel Sanctum's SPA authentication is tokenless,
           // there's no response data to store in the browser
           // onLogin(loginResponse.data.data);
@@ -91,7 +91,7 @@ export function Login() {
         }}
       >
         <img
-          src={`${process.env.PUBLIC_URL}/cm-logo-mark_only-no_margin-364x462.png`}
+          src={`${import.meta.env.BASE_URL}/cm-logo-mark_only-no_margin-364x462.png`}
           alt="CMP Logo"
           style={{ height: "60px", width: "auto" }}
         />

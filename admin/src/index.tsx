@@ -39,8 +39,6 @@ import "./index.css";
 
 import App from "./App";
 
-let REACT_APP_ROOT_PATH = process.env.REACT_APP_ROOT_PATH;
-
 //
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -115,7 +113,7 @@ const routes = createRoutesFromElements(
 );
 
 //
-const router = createBrowserRouter(routes, { basename: REACT_APP_ROOT_PATH });
+const router = createBrowserRouter(routes, { basename: import.meta.env.VITE_ROOT_PATH || '/admin' });
 
 //
 root.render(
