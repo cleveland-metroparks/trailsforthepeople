@@ -133,6 +133,15 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   }, [sheetState, onSheetExpandedChange])
 
   useEffect(() => {
+    if (!isMobile) return
+    const bottom =
+      sheetState === 'peeked'    ? `${MOBILE_SHEET_PEEKED_HEIGHT + 16}px` :
+      sheetState === 'collapsed' ? `${MOBILE_BOTTOM_BAR_HEIGHT + 16}px`   :
+                                   `${MOBILE_SHEET_EXPANDED_TOP}px`
+    document.documentElement.style.setProperty('--mobile-ctrl-bottom', bottom)
+  }, [sheetState, isMobile])
+
+  useEffect(() => {
     onNavExpandedChange?.(isNavExpanded)
   }, [isNavExpanded, onNavExpandedChange])
 

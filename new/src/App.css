@@ -105,7 +105,7 @@ body {
 @media (max-width: 767px) {
   .mapboxgl-ctrl-top-right {
     top: auto !important;
-    bottom: 92px !important; /* above 76px collapsed header + 16px margin */
+    bottom: var(--mobile-ctrl-bottom, 92px) !important; /* dynamically set via Sidebar.tsx based on sheet state */
   }
 }
 
