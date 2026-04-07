@@ -476,8 +476,9 @@ export function MapView() {
           border: 0,
         }}
       >
-        Interactive map of Cleveland Metroparks. Use Tab to reach map controls for zoom, location, and reset. On desktop,
-        a basemap control in the lower-right corner switches between the default map and photo imagery.
+        Interactive map of Cleveland Metroparks. Use Tab to reach map controls for zoom, location, and reset. A basemap
+        control switches between the default map and photo imagery: on desktop, a Layers label and button lower-right; on
+        mobile, a button lower-left above the Mapbox logo and attribution, moving with the sheet when peeked or expanded.
       </Box>
       <div
         ref={mapContainer}
@@ -530,19 +531,28 @@ export function MapView() {
           Loading map...
         </Box>
       )}
-      {!isMobile && (
-        <Box
-          style={{
-            position: 'absolute',
-            right: 16,
-            bottom: 16,
-            zIndex: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 6,
-          }}
-        >
+      <Box
+        style={{
+          position: 'absolute',
+          zIndex: isMobile ? 10 : 2,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: isMobile ? 0 : 6,
+          ...(isMobile
+            ? {
+                left: 10,
+                bottom:
+                  'calc(var(--mobile-mapbox-bottom-left, 76px) + var(--mobile-layers-above-mapbox-bottom-left, 46px))',
+                alignItems: 'flex-start',
+              }
+            : {
+                right: 16,
+                bottom: 16,
+                alignItems: 'center',
+              }),
+        }}
+      >
+        {!isMobile && (
           <Text
             component="span"
             size="xs"
@@ -558,32 +568,32 @@ export function MapView() {
           >
             Layers
           </Text>
-          <UnstyledButton
-            type="button"
-            onClick={handleBasemapToggle}
-            aria-label={basemap === 'map' ? 'Show photo imagery' : 'Show default map'}
-            style={{
-              width: 48,
-              height: 48,
-              padding: 0,
-              border: '2px solid rgba(255, 255, 255, 0.95)',
-              borderRadius: 4,
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.35)',
-              overflow: 'hidden',
-              cursor: 'pointer',
-              background: '#fff',
-            }}
-          >
-            <img
-              src={basemap === 'map' ? '/images/misc/layer-icon-photo.png' : '/images/misc/layer-icon-default.png'}
-              alt=""
-              width={48}
-              height={48}
-              style={{ display: 'block', width: 48, height: 48, objectFit: 'cover' }}
-            />
-          </UnstyledButton>
-        </Box>
-      )}
+        )}
+        <UnstyledButton
+          type="button"
+          onClick={handleBasemapToggle}
+          aria-label={basemap === 'map' ? 'Show photo imagery' : 'Show default map'}
+          style={{
+            width: 48,
+            height: 48,
+            padding: 0,
+            border: '2px solid rgba(255, 255, 255, 0.95)',
+            borderRadius: 4,
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.35)',
+            overflow: 'hidden',
+            cursor: 'pointer',
+            background: '#fff',
+          }}
+        >
+          <img
+            src={basemap === 'map' ? '/images/misc/layer-icon-photo.png' : '/images/misc/layer-icon-default.png'}
+            alt=""
+            width={48}
+            height={48}
+            style={{ display: 'block', width: 48, height: 48, objectFit: 'cover' }}
+          />
+        </UnstyledButton>
+      </Box>
       {isDirectionsLoading && (
         <Box
           aria-live="polite"

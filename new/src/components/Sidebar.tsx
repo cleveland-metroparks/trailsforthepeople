@@ -133,12 +133,21 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   }, [sheetState, onSheetExpandedChange])
 
   useEffect(() => {
-    if (!isMobile) return
-    const bottom =
+    if (!isMobile) {
+      document.documentElement.style.removeProperty('--mobile-mapbox-bottom-left')
+      return
+    }
+    const bottomCtrl =
       sheetState === 'peeked'    ? `${MOBILE_SHEET_PEEKED_HEIGHT + 16}px` :
       sheetState === 'collapsed' ? `${MOBILE_BOTTOM_BAR_HEIGHT + 16}px`   :
                                    `${MOBILE_SHEET_EXPANDED_TOP}px`
-    document.documentElement.style.setProperty('--mobile-ctrl-bottom', bottom)
+    // Bottom-left logo/attribution: collapsed = bar only; peeked = sheet height without extra +16 (right stack keeps +16 for tap padding)
+    const bottomLeft =
+      sheetState === 'peeked'    ? `${MOBILE_SHEET_PEEKED_HEIGHT}px` :
+      sheetState === 'collapsed' ? `${MOBILE_BOTTOM_BAR_HEIGHT}px` :
+                                   `${MOBILE_SHEET_EXPANDED_TOP}px`
+    document.documentElement.style.setProperty('--mobile-ctrl-bottom', bottomCtrl)
+    document.documentElement.style.setProperty('--mobile-mapbox-bottom-left', bottomLeft)
   }, [sheetState, isMobile])
 
   useEffect(() => {

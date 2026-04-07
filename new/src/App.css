@@ -101,12 +101,26 @@ body {
   outline-offset: 2px;
 }
 
-/* On mobile, move map controls to bottom-right (above the collapsed sheet header) */
+/*
+ * Mobile: lift map controls with the bottom sheet (peeked / collapsed / expanded).
+ * --mobile-ctrl-bottom: zoom / geolocate / reset (Sidebar, +16px padding above bar when collapsed).
+ * --mobile-mapbox-bottom-left: logo + attribution (tighter when collapsed — bar height only).
+ */
 @media (max-width: 767px) {
   .mapboxgl-ctrl-top-right {
     top: auto !important;
-    bottom: var(--mobile-ctrl-bottom, 92px) !important; /* dynamically set via Sidebar.tsx based on sheet state */
+    bottom: var(--mobile-ctrl-bottom, 92px) !important;
   }
+
+  .mapboxgl-ctrl-bottom-left {
+    bottom: var(--mobile-mapbox-bottom-left, 76px) !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+/* Tight vertical gap between Layers button and Mapbox bottom-left row (MapView mobile) */
+:root {
+  --mobile-layers-above-mapbox-bottom-left: 46px;
 }
 
 /* Dark panel theme */

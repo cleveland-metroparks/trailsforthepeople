@@ -89,13 +89,8 @@
     align-items: center;
   }
 
-  /* On mobile, lift Mapbox bottom controls above the bottom sheet (76px tall) */
+  /* Logo tweaks (mobile sheet offset for bottom-left is in App.css via --mobile-ctrl-bottom) */
   @media (max-width: 767px) {
-    .mapboxgl-ctrl-bottom-left,
-    .mapboxgl-ctrl-bottom-right {
-      margin-bottom: 76px;
-    }
-
     .mapboxgl-ctrl-logo {
       margin-top: 6px !important;
       margin-left: -15px !important;
