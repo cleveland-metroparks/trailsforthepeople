@@ -35,6 +35,7 @@ VITE_ENABLE_TRANSIT_DIRECTIONS=true      # Show Transit (bus) in directions via-
 VITE_ENABLE_TRAIL_ENDPOINT_MARKERS=true  # Draw start/end markers at trail endpoints
 VITE_DARK_MODE_MOBILE=true              # Enable dark panel theme on mobile (default: false)
 VITE_DARK_MODE_DESKTOP=false            # Enable dark panel theme on desktop (default: false)
+VITE_ENABLE_PARK_LIST_HOVER_HIGHLIGHT=false  # Highlight park boundary on hover/focus in parks list (default: false)
 ```
 
 ## Architecture

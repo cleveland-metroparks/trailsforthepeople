@@ -14,6 +14,7 @@ import { useURLState } from '../../hooks/useURLState'
 import { useSidebar } from '../../contexts/SidebarContext'
 import type { Reservation } from '../../types/api'
 import { ParkDetailPane } from './details/ParkDetailPane'
+import { featureFlags } from '../../lib/featureFlags'
 
 interface ParksPanelProps {
   onClose: () => void
@@ -200,26 +201,24 @@ export function ParksPanel({ onGoHome }: ParksPanelProps) {
                 true
               )
             }}
-            onMouseEnter={(park) => {
-              // Highlight park boundary on hover using geometry if available
+            onMouseEnter={featureFlags.parkListHoverHighlight ? (park) => {
               const parkGeometry = boundariesByParkName.get(park.pagetitle)
               if (parkGeometry) {
                 highlightParkBoundary(map, parkGeometry)
               }
-            }}
-            onMouseLeave={() => {
-              // Clear highlight when mouse leaves
+            } : undefined}
+            onMouseLeave={featureFlags.parkListHoverHighlight ? () => {
               clearParkHighlight(map)
-            }}
-            onFocus={(park) => {
+            } : undefined}
+            onFocus={featureFlags.parkListHoverHighlight ? (park) => {
               const parkGeometry = boundariesByParkName.get(park.pagetitle)
               if (parkGeometry) {
                 highlightParkBoundary(map, parkGeometry)
               }
-            }}
-            onBlur={() => {
+            } : undefined}
+            onBlur={featureFlags.parkListHoverHighlight ? () => {
               clearParkHighlight(map)
-            }}
+            } : undefined}
             getItemAriaLabel={(park) => `View details for ${park.pagetitle}`}
             focusItemKey={focusParkItemKey}
             onFocusItemApplied={() => setFocusParkItemKey(null)}

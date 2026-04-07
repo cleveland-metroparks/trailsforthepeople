@@ -11,4 +11,6 @@ export const featureFlags = {
   transitDirections: import.meta.env.VITE_ENABLE_TRANSIT_DIRECTIONS === 'true',
   /** Draw start/end circle markers at trail endpoints when a trail is selected. */
   trailEndpointMarkers: import.meta.env.VITE_ENABLE_TRAIL_ENDPOINT_MARKERS === 'true',
+  /** Highlight park boundary on map when hovering/focusing a park in the parks list. */
+  parkListHoverHighlight: import.meta.env.VITE_ENABLE_PARK_LIST_HOVER_HIGHLIGHT === 'true',
 } as const
