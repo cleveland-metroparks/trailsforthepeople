@@ -53,7 +53,7 @@ export function SearchPanel(_props: SearchPanelProps) {
     selectFromSuggestion,
   } = useSearch()
 
-  const { map } = useMap()
+  const { map, styleEpoch } = useMap()
   const isDarkMode = useDarkMode()
   const { params, setParams } = useURLState()
   const sidebarAwarePadding = useSidebarAwarePadding(120)
@@ -241,7 +241,35 @@ export function SearchPanel(_props: SearchPanelProps) {
       // Clear marker when other feature types are selected or no selection
       clearAttractionMarker(map)
     }
-  }, [selectedSearchResult, selectedFeature, map])
+  }, [selectedSearchResult, selectedFeature, map, styleEpoch])
+
+  // Re-apply park / trail visuals after basemap style reload (custom layers are cleared by Mapbox)
+  useEffect(() => {
+    if (styleEpoch === 0 || !map || !selectedFeature || !selectedSearchResult) return
+
+    if (selectedSearchResult.type === 'reservation' && parks) {
+      const park = selectedFeature as Reservation
+      const parkGeometry = boundariesByParkName.get(park.pagetitle)
+      if (parkGeometry) {
+        highlightParkBoundary(map, parkGeometry)
+        fadeOutParkHighlight(map, 1000, 2000)
+      }
+    } else if (selectedSearchResult.type === 'trail' && trails) {
+      const trailId = Number(selectedSearchResult.gid)
+      if (!isNaN(trailId)) {
+        currentTrailRef.current = trailId
+        getTrailGeometry(trailId)
+          .then((geometry) => {
+            if (currentTrailRef.current === trailId && geometry && map) {
+              highlightTrailLine(map, geometry)
+            }
+          })
+          .catch((error) => {
+            console.error('Error highlighting trail:', error)
+          })
+      }
+    }
+  }, [styleEpoch, map, selectedFeature, selectedSearchResult, boundariesByParkName, parks, trails])
 
   // Reset selected index when suggestions change
   useEffect(() => {

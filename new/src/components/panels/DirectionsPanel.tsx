@@ -47,7 +47,7 @@ interface DirectionsInputs {
 
 export function DirectionsPanel({ onPeekWithTitle, onExpandSheet }: DirectionsPanelProps) {
   const { target, via, setVia, closeDirections, openRequestId, setDirectionsLoading, setDirectionsEndpoints } = useDirections()
-  const { map } = useMap()
+  const { map, styleEpoch } = useMap()
   const isDarkMode = useDarkMode()
   const { isMobile } = useSidebar()
   const { mapConfig } = useMapConfig()
@@ -105,6 +105,18 @@ export function DirectionsPanel({ onPeekWithTitle, onExpandSheet }: DirectionsPa
       clearDirectionsLine(map)
     }
   }, [map])
+
+  const resultRef = useRef(result)
+  resultRef.current = result
+
+  useEffect(() => {
+    if (styleEpoch === 0 || !map) return
+    const r = resultRef.current
+    if (!r) return
+    const geojson = wktToGeoJSON(r.wkt)
+    if (!geojson) return
+    drawDirectionsLine(map, geojson, r.start, r.end)
+  }, [map, styleEpoch])
 
   const handleGeolocate = () => {
     if (!navigator.geolocation) {

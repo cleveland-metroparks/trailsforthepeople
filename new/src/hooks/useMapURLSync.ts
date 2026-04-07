@@ -1,6 +1,55 @@
 import { useEffect, useRef } from 'react'
 import type * as mapboxgl from 'mapbox-gl'
 
+export type MapBasemapParam = 'map' | 'photo'
+
+export type MapStyleLayerUrls = { map: string; photo: string }
+
+/** Extract Mapbox hosted style id from a mapbox:// URL (e.g. `mapbox://styles/user/abc123` → `abc123`). */
+function mapboxStyleIdFromUrl(styleUrl: string): string | null {
+  const m = styleUrl.trim().match(/mapbox:\/\/styles\/[^/]+\/([^/?#]+)/i)
+  return m ? m[1] : null
+}
+
+function inferBasemapFromLoadedStyle(
+  map: mapboxgl.Map,
+  styleLayers?: MapStyleLayerUrls
+): MapBasemapParam {
+  const spec = map.getStyle()
+  if (!spec) return 'map'
+
+  const rawId = (spec as { id?: unknown }).id
+  const specId = typeof rawId === 'string' ? rawId : null
+  const specJson = JSON.stringify(spec)
+
+  if (styleLayers) {
+    const photoId = mapboxStyleIdFromUrl(styleLayers.photo)
+    const mapId = mapboxStyleIdFromUrl(styleLayers.map)
+    // Root `id` often matches the Mapbox style id, but many Studio styles omit it in `getStyle()`.
+    // The serialized spec still references the style id in sprite/glyph URLs and similar fields.
+    if (photoId && ((specId && specId === photoId) || specJson.includes(photoId))) {
+      return 'photo'
+    }
+    if (mapId && ((specId && specId === mapId) || specJson.includes(mapId))) {
+      return 'map'
+    }
+  }
+
+  const styleName = (spec.name || '').toLowerCase()
+  if (styleName.includes('photo')) return 'photo'
+  return 'map'
+}
+
+/**
+ * Update only the map basemap (`base`) query param via replaceState, preserving other params.
+ */
+export function replaceMapBasemapInURL(base: MapBasemapParam): void {
+  const urlParams = new URLSearchParams(window.location.search)
+  urlParams.set('base', base)
+  const newURL = `${window.location.pathname}${urlParams.toString() ? `?${urlParams.toString()}` : ''}`
+  window.history.replaceState(null, '', newURL)
+}
+
 /**
  * =============================================================================
  * URL STATE MANAGEMENT - MAP POSITION
@@ -35,8 +84,9 @@ import type * as mapboxgl from 'mapbox-gl'
  * Uses direct window.history.replaceState for fast, reliable URL updates.
  *
  * @param map - The mapbox map instance (can be null)
+ * @param styleLayers - When set, `base` is synced from loaded style using Mapbox style ids from these URLs (falls back to name heuristic)
  */
-export function useMapURLSync(map: mapboxgl.Map | null) {
+export function useMapURLSync(map: mapboxgl.Map | null, styleLayers?: MapStyleLayerUrls) {
   const isInitialLoadRef = useRef(true)
   const initialLoadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastUpdateTimeRef = useRef(0)
@@ -92,14 +142,15 @@ export function useMapURLSync(map: mapboxgl.Map | null) {
     const updateBasemapURL = () => {
       if (!map || isInitialLoadRef.current) return
 
-      const style = map.getStyle()
-      const styleName = style.name || ''
-      const base = styleName.toLowerCase().includes('satellite') || styleName.toLowerCase().includes('sat') ? 'photo' : 'map'
+      const inferred = inferBasemapFromLoadedStyle(map, styleLayers)
+      const urlBase = new URLSearchParams(window.location.search).get('base')
+      // Navigation / toggle sets `base=photo` before `style.load`; if inference still says vector,
+      // do not clobber the URL (Studio style names often omit "photo" and root `id` is unset).
+      if (inferred === 'map' && urlBase === 'photo') {
+        return
+      }
 
-      const urlParams = new URLSearchParams(window.location.search)
-      urlParams.set('base', base)
-      const newURL = `${window.location.pathname}${urlParams.toString() ? `?${urlParams.toString()}` : ''}`
-      window.history.replaceState(null, '', newURL)
+      replaceMapBasemapInURL(inferred)
     }
 
     // Wait a moment after map loads to avoid updating during initial positioning
@@ -128,7 +179,7 @@ export function useMapURLSync(map: mapboxgl.Map | null) {
       // Reset initial load flag for next mount
       isInitialLoadRef.current = true
     }
-  }, [map])
+  }, [map, styleLayers])
 }
 
 /**

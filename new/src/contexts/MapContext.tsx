@@ -1,9 +1,11 @@
-import { createContext, useContext, ReactNode, useState } from 'react'
+import { createContext, useContext, ReactNode, useState, useCallback } from 'react'
 import type * as mapboxgl from 'mapbox-gl'
 
 interface MapContextType {
   map: mapboxgl.Map | null
   setMap: (map: mapboxgl.Map | null) => void
+  styleEpoch: number
+  bumpStyleEpoch: () => void
 }
 
 const MapContext = createContext<MapContextType | undefined>(undefined)
@@ -14,7 +16,16 @@ interface MapProviderProps {
 
 export function MapProvider({ children }: MapProviderProps) {
   const [map, setMap] = useState<mapboxgl.Map | null>(null)
-  return <MapContext.Provider value={{ map, setMap }}>{children}</MapContext.Provider>
+  const [styleEpoch, setStyleEpoch] = useState(0)
+  const bumpStyleEpoch = useCallback(() => {
+    setStyleEpoch((e) => e + 1)
+  }, [])
+
+  return (
+    <MapContext.Provider value={{ map, setMap, styleEpoch, bumpStyleEpoch }}>
+      {children}
+    </MapContext.Provider>
+  )
 }
 
 // eslint-disable-next-line react-refresh/only-export-components

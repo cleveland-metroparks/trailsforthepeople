@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
-import { Box, Alert, Loader } from '@mantine/core'
+import { Box, Alert, Loader, UnstyledButton, Text } from '@mantine/core'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { useMapConfig } from '../hooks/useMapConfig'
@@ -8,8 +8,9 @@ import { useActivitiesData } from '../hooks/useActivitiesData'
 import { useMap } from '../contexts/MapContext'
 import { useMapHover } from '../contexts/MapHoverContext'
 import { useMapSelection } from '../contexts/MapSelectionContext'
+import { useNavigate } from 'react-router-dom'
 import { useURLState } from '../hooks/useURLState'
-import { useMapURLSync, getInitialMapStateFromURL } from '../hooks/useMapURLSync'
+import { useMapURLSync, getInitialMapStateFromURL, type MapStyleLayerUrls } from '../hooks/useMapURLSync'
 import { ResetMapControl } from './ResetMapControl'
 import { useSidebar } from '../contexts/SidebarContext'
 import { useDirections } from '../contexts/DirectionsContext'
@@ -86,12 +87,13 @@ export function MapView() {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
   const { attractions, isLoading: isAttractionsLoading } = useActivitiesData()
-  const { map: mapFromContext, setMap } = useMap()
+  const { map: mapFromContext, setMap, bumpStyleEpoch } = useMap()
   const { setHoverInfo } = useMapHover()
   const { bumpSelectionTick } = useMapSelection()
   const { setParams } = useURLState()
   const popupRef = useRef<mapboxgl.Popup | null>(null)
   const { mapConfig } = useMapConfig()
+  const navigate = useNavigate()
   const { isMobile, activePanel, onClosePanel } = useSidebar()
   const isMobileRef = useRef(isMobile)
   isMobileRef.current = isMobile
@@ -100,6 +102,10 @@ export function MapView() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isContainerReady, setIsContainerReady] = useState(false)
+  const [basemap, setBasemap] = useState<'map' | 'photo'>(() => {
+    const b = getInitialMapStateFromURL().base
+    return b === 'photo' ? 'photo' : 'map'
+  })
   const attractionLayerIds = useMemo(
     () => new Set(['Attractions 1', 'Attractions 2', 'Attractions 3', 'Park Amenities']),
     []
@@ -124,8 +130,31 @@ export function MapView() {
     return set
   }, [attractions, isAttractionsLoading])
 
+  const mapStyleLayerUrls = useMemo(
+    (): MapStyleLayerUrls => ({
+      map: mapConfig.styleLayers.map,
+      photo: mapConfig.styleLayers.photo,
+    }),
+    [mapConfig.styleLayers]
+  )
+
   // Sync map position to URL
-  useMapURLSync(mapFromContext)
+  useMapURLSync(mapFromContext, mapStyleLayerUrls)
+
+  const handleBasemapToggle = useCallback(() => {
+    if (!mapFromContext) return
+    const next: 'map' | 'photo' = basemap === 'map' ? 'photo' : 'map'
+    const params = new URLSearchParams(window.location.search)
+    params.set('base', next)
+    const qs = params.toString()
+    navigate(
+      { pathname: window.location.pathname, search: qs ? `?${qs}` : '' },
+      { replace: true }
+    )
+    setBasemap(next)
+    mapFromContext.once('style.load', bumpStyleEpoch)
+    mapFromContext.setStyle(mapConfig.styleLayers[next])
+  }, [mapFromContext, basemap, mapConfig.styleLayers, bumpStyleEpoch, navigate])
 
   // Track midpoint screen position of directions from/to while loading
   const computeSpinnerPos = useCallback(() => {
@@ -447,7 +476,8 @@ export function MapView() {
           border: 0,
         }}
       >
-        Interactive map of Cleveland Metroparks. Use Tab to reach map controls for zoom, location, and reset.
+        Interactive map of Cleveland Metroparks. Use Tab to reach map controls for zoom, location, and reset. On desktop,
+        a basemap control in the lower-right corner switches between the default map and photo imagery.
       </Box>
       <div
         ref={mapContainer}
@@ -498,6 +528,60 @@ export function MapView() {
           }}
         >
           Loading map...
+        </Box>
+      )}
+      {!isMobile && (
+        <Box
+          style={{
+            position: 'absolute',
+            right: 16,
+            bottom: 16,
+            zIndex: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          <Text
+            component="span"
+            size="xs"
+            weight={600}
+            style={{
+              color: '#333',
+              lineHeight: 1.2,
+              padding: '2px 8px',
+              borderRadius: 4,
+              backgroundColor: 'rgba(255, 252, 245, 0.92)',
+              boxShadow: '0 1px 4px rgba(0, 0, 0, 0.2)',
+            }}
+          >
+            Layers
+          </Text>
+          <UnstyledButton
+            type="button"
+            onClick={handleBasemapToggle}
+            aria-label={basemap === 'map' ? 'Show photo imagery' : 'Show default map'}
+            style={{
+              width: 48,
+              height: 48,
+              padding: 0,
+              border: '2px solid rgba(255, 255, 255, 0.95)',
+              borderRadius: 4,
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.35)',
+              overflow: 'hidden',
+              cursor: 'pointer',
+              background: '#fff',
+            }}
+          >
+            <img
+              src={basemap === 'map' ? '/images/misc/layer-icon-photo.png' : '/images/misc/layer-icon-default.png'}
+              alt=""
+              width={48}
+              height={48}
+              style={{ display: 'block', width: 48, height: 48, objectFit: 'cover' }}
+            />
+          </UnstyledButton>
         </Box>
       )}
       {isDirectionsLoading && (

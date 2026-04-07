@@ -29,7 +29,8 @@ Create `new/.env.local`:
 ```
 VITE_MAPBOX_TOKEN=your_mapbox_access_token
 # Optional overrides:
-# VITE_MAPBOX_STYLE_URL=mapbox://styles/...
+# VITE_MAPBOX_MAP_STYLE_URL=mapbox://styles/...
+# VITE_MAPBOX_PHOTO_STYLE_URL=mapbox://styles/...
 # VITE_MAPS_API_BASE_URL=https://maps-api.clevelandmetroparks.com
 # VITE_MAPS_API_BASE_PATH=api/v1
 # Feature flags (default off):

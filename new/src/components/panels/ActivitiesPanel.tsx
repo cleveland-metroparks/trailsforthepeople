@@ -56,7 +56,7 @@ export function ActivitiesPanel({ onGoHome }: ActivitiesPanelProps) {
   }, [filteredAttractions])
   const { categoriesMap } = useCategoriesData()
   const { data: parks } = useParksData()
-  const { map } = useMap()
+  const { map, styleEpoch } = useMap()
   const { closeRequestId } = useDirections()
   const lastDirectionsCloseRequestIdRef = useRef(closeRequestId)
 
@@ -130,7 +130,7 @@ export function ActivitiesPanel({ onGoHome }: ActivitiesPanelProps) {
       // Clear marker when no attraction is selected or type changes
       clearAttractionMarker(map)
     }
-  }, [selectedAttraction, params.type, map, closeRequestId])
+  }, [selectedAttraction, params.type, map, closeRequestId, styleEpoch])
 
   // Create a map of reservation ID to park name for quick lookup
   const parksMap = useMemo(() => {

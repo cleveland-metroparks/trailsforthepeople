@@ -32,7 +32,7 @@ export function TrailsPanel({ onGoHome }: TrailsPanelProps) {
   const { data: parks, isLoading: parksLoading, isError: parksError, error: parksErrorObj } = useParksData()
   const { params, setParams } = useURLState()
   const [selectedReservationId, setSelectedReservationId] = useState<string | null>(null)
-  const { map } = useMap()
+  const { map, styleEpoch } = useMap()
   const { closeRequestId } = useDirections()
   const sidebarAwarePadding = useSidebarAwarePadding(120)
 
@@ -183,7 +183,7 @@ export function TrailsPanel({ onGoHome }: TrailsPanelProps) {
         currentTrailRef.current = null
       }
     }
-  }, [selectedTrailId, map, closeRequestId])
+  }, [selectedTrailId, map, closeRequestId, styleEpoch])
 
   // Clear highlight when component unmounts
   useEffect(() => {
