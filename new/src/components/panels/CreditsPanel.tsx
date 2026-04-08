@@ -48,6 +48,10 @@ export function CreditsPanel(_props: CreditsPanelProps) {
         <Text size="sm" className="disclaimer">
           This information is for display purposes only. Cleveland Metroparks makes no warranties, expressed or implied, with respect to the accuracy of and the use of this map and mapping application for any specific purpose. Cleveland Metroparks expressly disclaims any liability that may result from the use of this map or mapping application. For more information, please contact: Tom Kraft, GIS Administrator, <Anchor href="mailto:tjk1@clevelandmetroparks.com">tjk1@clevelandmetroparks.com</Anchor>.
         </Text>
+
+        <Text size="xs" c="dimmed">
+          Version {__APP_VERSION__}
+        </Text>
       </Stack>
     </Box>
   )
