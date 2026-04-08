@@ -92,6 +92,7 @@ export function MapView() {
   const { bumpSelectionTick } = useMapSelection()
   const { setParams } = useURLState()
   const popupRef = useRef<mapboxgl.Popup | null>(null)
+  const popupModeRef = useRef<'hover' | 'tap' | null>(null)
   const { mapConfig } = useMapConfig()
   const navigate = useNavigate()
   const { isMobile, activePanel, onClosePanel } = useSidebar()
@@ -313,6 +314,41 @@ export function MapView() {
   useEffect(() => {
     if (!mapFromContext) return
 
+    const buildNoGisIDPopupContent = (properties: Record<string, unknown>) => {
+      const container = document.createElement('div')
+      container.style.fontSize = '12px'
+      container.style.lineHeight = '1.4'
+      container.style.fontFamily = 'sans-serif'
+
+      const nameValue = properties.name ?? '—'
+      const parkValue = properties.res ?? '—'
+
+      const titleRow = document.createElement('div')
+      titleRow.textContent = String(nameValue)
+      titleRow.style.fontWeight = '600'
+      titleRow.style.marginBottom = '2px'
+      container.appendChild(titleRow)
+
+      const parkRow = document.createElement('div')
+      parkRow.textContent = String(parkValue)
+      container.appendChild(parkRow)
+
+      return container
+    }
+
+    const ensurePopup = (mode: 'hover' | 'tap') => {
+      if (popupRef.current && popupModeRef.current === mode) return popupRef.current
+
+      popupRef.current?.remove()
+      popupRef.current = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: mode === 'tap',
+        offset: 12,
+      })
+      popupModeRef.current = mode
+      return popupRef.current
+    }
+
     const handleMouseMove = (event: mapboxgl.MapMouseEvent) => {
       const features = getFilteredFeatures(mapFromContext, event.point, allowedLayerIds)
       const allFeatures = mapFromContext.queryRenderedFeatures(event.point)
@@ -327,6 +363,7 @@ export function MapView() {
       if (features.length === 0) {
         mapFromContext.getCanvas().style.cursor = ''
         popupRef.current?.remove()
+        popupModeRef.current = null
         return
       }
 
@@ -347,39 +384,23 @@ export function MapView() {
 
       if (clickableFeature || attractionGroupFeature) {
         popupRef.current?.remove()
+        popupModeRef.current = null
+        return
+      }
+
+      // On mobile we show this popup on tap instead of hover.
+      if (isMobileRef.current) {
+        popupRef.current?.remove()
+        popupModeRef.current = null
         return
       }
 
       const feature = features[0]
       const properties = (feature.properties ?? {}) as Record<string, unknown>
 
-      const container = document.createElement('div')
-      container.style.fontSize = '12px'
-      container.style.lineHeight = '1.4'
-      container.style.fontFamily = 'sans-serif'
-
-      const nameValue = properties.name ?? '—'
-      const parkValue = properties.res ?? '—'
-
-      const titleRow = document.createElement('div')
-      titleRow.textContent = String(nameValue)
-      titleRow.style.fontWeight = '600'
-      titleRow.style.marginBottom = '2px'
-      container.appendChild(titleRow)
-
-      const parkRow = document.createElement('div')
-      parkRow.textContent = String(parkValue)
-      container.appendChild(parkRow)
-
-      if (!popupRef.current) {
-        popupRef.current = new mapboxgl.Popup({
-          closeButton: false,
-          closeOnClick: false,
-          offset: 12,
-        })
-      }
-
-      popupRef.current
+      const container = buildNoGisIDPopupContent(properties)
+      const popup = ensurePopup('hover')
+      popup
         .setLngLat(event.lngLat)
         .setDOMContent(container)
         .addTo(mapFromContext)
@@ -388,6 +409,7 @@ export function MapView() {
     const handleMouseOut = () => {
       mapFromContext.getCanvas().style.cursor = ''
       popupRef.current?.remove()
+      popupModeRef.current = null
       setHoverInfo(null)
     }
 
@@ -402,6 +424,8 @@ export function MapView() {
       )
 
       if (!clickableFeature && attractionGroupFeature) {
+        popupRef.current?.remove()
+        popupModeRef.current = null
         mapFromContext.flyTo({
           center: [event.lngLat.lng, event.lngLat.lat],
           zoom: 16.5,
@@ -410,6 +434,21 @@ export function MapView() {
       }
 
       if (!clickableFeature) {
+        if (features.length > 0 && !attractionGroupFeature) {
+          if (isMobile && activePanel !== null) onClosePanel()
+
+          const properties = (features[0].properties ?? {}) as Record<string, unknown>
+          const container = buildNoGisIDPopupContent(properties)
+          const popup = ensurePopup('tap')
+          popup
+            .setLngLat(event.lngLat)
+            .setDOMContent(container)
+            .addTo(mapFromContext)
+          return
+        }
+
+        popupRef.current?.remove()
+        popupModeRef.current = null
         if (isMobile && activePanel !== null) onClosePanel()
         return
       }
@@ -420,6 +459,8 @@ export function MapView() {
         return
       }
 
+      popupRef.current?.remove()
+      popupModeRef.current = null
       bumpSelectionTick()
       setParams(
         {
@@ -443,6 +484,7 @@ export function MapView() {
       mapFromContext.off('click', handleClick)
       popupRef.current?.remove()
       popupRef.current = null
+      popupModeRef.current = null
       mapFromContext.getCanvas().style.cursor = ''
       setHoverInfo(null)
     }
