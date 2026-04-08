@@ -103,22 +103,29 @@ body {
 
 /*
  * Mobile: lift map controls with the bottom sheet (peeked / collapsed / expanded).
- * --mobile-ctrl-bottom: zoom / geolocate / reset (Sidebar, +16px padding above bar when collapsed).
- * --mobile-mapbox-bottom-left: logo + attribution (tighter when collapsed — bar height only).
+ *
+ * --mobile-ctrl-bottom: plain px set by Sidebar.tsx (right-side zoom/geolocate/reset).
+ * --mobile-mapbox-bottom-left: plain px set by Sidebar.tsx (logo + attribution).
+ *
+ * env(safe-area-inset-bottom) is added HERE in CSS (not in the JS-set values) so it
+ * always resolves correctly regardless of browser support.
+ *
+ * Initial defaults (92px / 76px) match the collapsed-sheet values so controls are
+ * positioned correctly even before the first React effect runs.
  */
 @media (max-width: 767px) {
   .mapboxgl-ctrl-top-right {
     top: auto !important;
-    bottom: var(--mobile-ctrl-bottom, calc(92px + env(safe-area-inset-bottom, 0px))) !important;
+    bottom: calc(var(--mobile-ctrl-bottom, 92px) + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   .mapboxgl-ctrl-bottom-left {
-    bottom: var(--mobile-mapbox-bottom-left, calc(76px + env(safe-area-inset-bottom, 0px))) !important;
+    bottom: calc(var(--mobile-mapbox-bottom-left, 76px) + env(safe-area-inset-bottom, 0px)) !important;
     margin-bottom: 0 !important;
   }
 }
 
-/* Tight vertical gap between Layers button and Mapbox bottom-left row (MapView mobile) */
+/* Gap between Layers button and Mapbox bottom-left row (MapView mobile) */
 :root {
   --mobile-layers-above-mapbox-bottom-left: 46px;
 }

@@ -132,22 +132,22 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     onSheetExpandedChange?.(sheetState === 'expanded' || sheetState === 'peeked')
   }, [sheetState, onSheetExpandedChange])
 
+  // Set plain pixel values for mobile control offsets; env(safe-area-inset-bottom) is added
+  // in CSS at the point of use so it always resolves correctly across browsers.
   useEffect(() => {
     if (!isMobile) {
+      document.documentElement.style.removeProperty('--mobile-ctrl-bottom')
       document.documentElement.style.removeProperty('--mobile-mapbox-bottom-left')
       return
     }
-    // env(safe-area-inset-bottom) handles the home indicator on notched phones.
-    // The sheet itself accounts for it via 100dvh; controls floating outside the sheet need it explicitly.
-    const sab = 'env(safe-area-inset-bottom, 0px)'
     const bottomCtrl =
-      sheetState === 'peeked'    ? `calc(${MOBILE_SHEET_PEEKED_HEIGHT + 16}px + ${sab})` :
-      sheetState === 'collapsed' ? `calc(${MOBILE_BOTTOM_BAR_HEIGHT + 16}px + ${sab})`   :
-                                   `calc(${MOBILE_SHEET_EXPANDED_TOP}px + ${sab})`
+      sheetState === 'peeked'    ? `${MOBILE_SHEET_PEEKED_HEIGHT + 16}px` :
+      sheetState === 'collapsed' ? `${MOBILE_BOTTOM_BAR_HEIGHT + 16}px`   :
+                                   `${MOBILE_SHEET_EXPANDED_TOP}px`
     const bottomLeft =
-      sheetState === 'peeked'    ? `calc(${MOBILE_SHEET_PEEKED_HEIGHT}px + ${sab})` :
-      sheetState === 'collapsed' ? `calc(${MOBILE_BOTTOM_BAR_HEIGHT}px + ${sab})` :
-                                   `calc(${MOBILE_SHEET_EXPANDED_TOP}px + ${sab})`
+      sheetState === 'peeked'    ? `${MOBILE_SHEET_PEEKED_HEIGHT}px` :
+      sheetState === 'collapsed' ? `${MOBILE_BOTTOM_BAR_HEIGHT}px` :
+                                   `${MOBILE_SHEET_EXPANDED_TOP}px`
     document.documentElement.style.setProperty('--mobile-ctrl-bottom', bottomCtrl)
     document.documentElement.style.setProperty('--mobile-mapbox-bottom-left', bottomLeft)
   }, [sheetState, isMobile])
