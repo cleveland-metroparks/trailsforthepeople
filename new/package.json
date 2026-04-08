@@ -22,6 +22,7 @@
     "axios": "^1.4.0",
     "dayjs": "^1.11.3",
     "flexsearch": "^0.8.212",
+    "lodash": "^4.17.23",
     "mapbox-gl": "^3.14.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -39,7 +40,7 @@
     "@types/react-dom": "^18.2.0",
     "@typescript-eslint/eslint-plugin": "^8.57.2",
     "@typescript-eslint/parser": "^8.57.2",
-    "@vitejs/plugin-react": "^4.0.0",
+    "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^8.38.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
@@ -47,7 +48,7 @@
     "eslint-plugin-react-refresh": "^0.3.4",
     "start-server-and-test": "^2.1.5",
     "typescript": "^5.0.2",
-    "vite": "^4.3.2"
+    "vite": "^8.0.3"
   },
   "volta": {
     "node": "20.19.6",
