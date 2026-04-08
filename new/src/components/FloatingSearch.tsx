@@ -32,6 +32,8 @@ export function FloatingSearch() {
   const { map } = useMap()
   const sidebarAwarePadding = useSidebarAwarePadding()
 
+  const placeholderText = isMobile ? 'Search' : 'Search parks, trails, attractions...'
+
   const [showAutocomplete, setShowAutocomplete] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -167,7 +169,7 @@ export function FloatingSearch() {
       <Box style={{ position: 'relative' }}>
         <TextInput
           ref={inputRef}
-          placeholder="Search parks, trails, attractions..."
+          placeholder={placeholderText}
           value={searchTerm}
           onChange={handleChange}
           onKeyDown={handleKeyDown}

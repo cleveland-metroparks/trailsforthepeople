@@ -476,7 +476,7 @@ export function SearchPanel(_props: SearchPanelProps) {
             ref={inputRef}
             id="search-panel-input"
             data-primary-focus="true"
-            placeholder="Search parks, trails, attractions..."
+            placeholder="Search"
             value={searchTerm}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
