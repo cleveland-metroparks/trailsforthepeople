@@ -86,6 +86,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 40px !important;
+  height: 40px !important;
 }
 
 .mapboxgl-ctrl-group button.mapboxgl-ctrl-icon svg {

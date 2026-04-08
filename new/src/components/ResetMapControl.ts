@@ -33,7 +33,7 @@ export class ResetMapControl implements mapboxgl.IControl {
 
     // Add the SVG icon inline
     button.innerHTML = `
-      <svg viewBox="0 0 700 700" width="24" height="24" style="display: block; margin: auto;">
+      <svg viewBox="0 0 700 700" width="32" height="32" style="display: block; margin: auto;">
         <g transform="translate(0, 700) scale(0.1, -0.1)" fill="currentColor" stroke="none">
           <path d="M3025 6344 c-231 -173 -427 -320 -435 -327 -8 -7 -85 -64 -170 -127
 -85 -63 -175 -132 -200 -154 -25 -21 -70 -59 -100 -84 -123 -104 -473 -465
