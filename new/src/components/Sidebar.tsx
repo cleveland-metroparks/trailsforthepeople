@@ -33,13 +33,15 @@ const SIDEBAR_COLORS = {
     background: '#000000',
     text: '#FFFFFF',
     icon: '#A6CE39',
-    activeBackground: '#1a1a1a',
+    activeBackground: '#222124',
+    hoverBackground: '#1a1a1a',
   },
   bottomSection: {
     background: '#222124',
     text: '#B2B2B2',
     icon: '#B2B2B2',
     activeBackground: '#333235',
+    hoverBackground: '#333235',
   },
   panel: {
     background: DARK_MODE_DESKTOP ? '#111111' : '#FFFFFF',
@@ -375,76 +377,8 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   }) => {
     const colors = section === 'top' ? SIDEBAR_COLORS.topSection : SIDEBAR_COLORS.bottomSection
     const isActive = activeTab === value
-    const isTopSection = section === 'top'
     const tabId = `sidebar-tab-${value}`
 
-    // Top section: rounded highlight, not full width, no left border
-    // Bottom section: full width with left border
-    if (isTopSection) {
-      return (
-        <UnstyledButton
-          type="button"
-          role="tab"
-          tabIndex={0}
-          id={tabId}
-          aria-selected={isActive}
-          onClick={(event) => {
-            lastFocusedNavTabRef.current = event.currentTarget
-            handleTabChange(value)
-          }}
-          onFocus={(event) => {
-            lastFocusedNavTabRef.current = event.currentTarget
-          }}
-          title={isNavExpanded ? undefined : label}
-          style={{
-            padding: isNavExpanded ? '2px 8px' : '2px 6px',
-            cursor: 'pointer',
-            display: 'block',
-            width: '100%',
-            borderRadius: '6px',
-          }}
-          sx={{
-            '&:focus-visible': {
-              outline: '2px solid #6AB03E',
-              outlineOffset: '-2px',
-            },
-          }}
-        >
-          <Box
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: isNavExpanded ? 'flex-start' : 'center',
-              gap: isNavExpanded ? '12px' : '0',
-              padding: isNavExpanded ? '8px 12px' : '8px',
-              minHeight: '36px',
-              borderRadius: '6px',
-              transition: 'background-color 0.15s ease',
-            }}
-            sx={{
-              backgroundColor: isActive ? '#222124' : 'transparent',
-              '&:hover': {
-                backgroundColor: isActive ? '#222124' : '#1a1a1a',
-              },
-            }}
-          >
-            {icon}
-            {isNavExpanded && (
-              <Text
-                size="sm"
-                weight={isActive ? 600 : 400}
-                style={{ color: colors.text }}
-              >
-                {label}
-              </Text>
-            )}
-          </Box>
-        </UnstyledButton>
-      )
-    }
-
-    // Bottom section: original styling
     return (
       <UnstyledButton
         type="button"
@@ -461,38 +395,51 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
         }}
         title={isNavExpanded ? undefined : label}
         style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: isNavExpanded ? 'flex-start' : 'center',
-          gap: isNavExpanded ? '12px' : '0',
-          padding: isNavExpanded ? '8px 16px' : '8px',
-          minHeight: '36px',
+          padding: isNavExpanded ? '2px 8px' : '2px 6px',
           cursor: 'pointer',
-          borderLeft: isActive ? `3px solid ${colors.icon}` : '3px solid transparent',
-          transition: 'background-color 0.15s ease',
+          display: 'block',
+          width: '100%',
         }}
         sx={{
-          backgroundColor: isActive ? colors.activeBackground : 'transparent',
-          '&:hover': {
-            backgroundColor: colors.activeBackground,
-          },
           '&:focus-visible': {
             outline: '2px solid #6AB03E',
             outlineOffset: '-2px',
           },
         }}
       >
-        {icon}
-        {isNavExpanded && (
-          <Text
-            size="sm"
-            weight={isActive ? 600 : 400}
-            style={{ color: colors.text }}
-          >
-            {label}
-          </Text>
-        )}
+        <Box
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: isNavExpanded ? 'flex-start' : 'center',
+            gap: isNavExpanded ? '12px' : '0',
+            padding: isNavExpanded ? '8px 12px' : '8px',
+            minHeight: '36px',
+            borderRadius: '6px',
+            borderLeft: section === 'bottom'
+              ? (isActive ? `3px solid ${colors.icon}` : '3px solid transparent')
+              : undefined,
+            transition: 'background-color 0.15s ease',
+          }}
+          sx={{
+            backgroundColor: isActive ? colors.activeBackground : 'transparent',
+            '&:hover': {
+              backgroundColor: isActive ? colors.activeBackground : colors.hoverBackground,
+            },
+          }}
+        >
+          {icon}
+          {isNavExpanded && (
+            <Text
+              size="sm"
+              weight={isActive ? 600 : 400}
+              style={{ color: colors.text }}
+            >
+              {label}
+            </Text>
+          )}
+        </Box>
       </UnstyledButton>
     )
   }
