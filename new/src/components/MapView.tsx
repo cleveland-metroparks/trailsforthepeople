@@ -542,7 +542,7 @@ export function MapView() {
             ? {
                 left: 10,
                 bottom:
-                  'calc(var(--mobile-mapbox-bottom-left, 76px) + var(--mobile-layers-above-mapbox-bottom-left, 46px))',
+                  'calc(var(--mobile-mapbox-bottom-left, calc(76px + env(safe-area-inset-bottom, 0px))) + var(--mobile-layers-above-mapbox-bottom-left, 46px))',
                 alignItems: 'flex-start',
               }
             : {

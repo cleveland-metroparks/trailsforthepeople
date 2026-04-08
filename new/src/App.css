@@ -109,11 +109,11 @@ body {
 @media (max-width: 767px) {
   .mapboxgl-ctrl-top-right {
     top: auto !important;
-    bottom: var(--mobile-ctrl-bottom, 92px) !important;
+    bottom: var(--mobile-ctrl-bottom, calc(92px + env(safe-area-inset-bottom, 0px))) !important;
   }
 
   .mapboxgl-ctrl-bottom-left {
-    bottom: var(--mobile-mapbox-bottom-left, 76px) !important;
+    bottom: var(--mobile-mapbox-bottom-left, calc(76px + env(safe-area-inset-bottom, 0px))) !important;
     margin-bottom: 0 !important;
   }
 }
