@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react'
 
 interface MapSelectionContextType {
   selectionTick: number
@@ -14,8 +14,13 @@ export function MapSelectionProvider({ children }: { children: ReactNode }) {
     setSelectionTick((prev) => prev + 1)
   }, [])
 
+  const value = useMemo(
+    () => ({ selectionTick, bumpSelectionTick }),
+    [selectionTick, bumpSelectionTick]
+  )
+
   return (
-    <MapSelectionContext.Provider value={{ selectionTick, bumpSelectionTick }}>
+    <MapSelectionContext.Provider value={value}>
       {children}
     </MapSelectionContext.Provider>
   )

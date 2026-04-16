@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode, useState, useCallback } from 'react'
+import { createContext, useContext, ReactNode, useState, useCallback, useMemo } from 'react'
 import type * as mapboxgl from 'mapbox-gl'
 
 interface MapContextType {
@@ -21,8 +21,13 @@ export function MapProvider({ children }: MapProviderProps) {
     setStyleEpoch((e) => e + 1)
   }, [])
 
+  const value = useMemo(
+    () => ({ map, setMap, styleEpoch, bumpStyleEpoch }),
+    [map, styleEpoch, bumpStyleEpoch]
+  )
+
   return (
-    <MapContext.Provider value={{ map, setMap, styleEpoch, bumpStyleEpoch }}>
+    <MapContext.Provider value={value}>
       {children}
     </MapContext.Provider>
   )

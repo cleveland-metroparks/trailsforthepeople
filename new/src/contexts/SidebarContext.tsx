@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode } from 'react'
+import { createContext, useContext, useMemo, ReactNode } from 'react'
 
 interface SidebarContextType {
   isSidebarCollapsed: boolean
@@ -37,8 +37,13 @@ export function SidebarProvider({
   onClosePanel: () => void
   onCollapseSheet: () => void
 }) {
+  const value = useMemo(
+    () => ({ isSidebarCollapsed, navWidth, sidebarWidth, isMobile, activePanel, isSheetExpanded, onSearchSubmit, onClosePanel, onCollapseSheet }),
+    [isSidebarCollapsed, navWidth, sidebarWidth, isMobile, activePanel, isSheetExpanded, onSearchSubmit, onClosePanel, onCollapseSheet]
+  )
+
   return (
-    <SidebarContext.Provider value={{ isSidebarCollapsed, navWidth, sidebarWidth, isMobile, activePanel, isSheetExpanded, onSearchSubmit, onClosePanel, onCollapseSheet }}>
+    <SidebarContext.Provider value={value}>
       {children}
     </SidebarContext.Provider>
   )

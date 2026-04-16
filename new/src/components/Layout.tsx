@@ -1,5 +1,5 @@
 import { AppShell, Navbar } from '@mantine/core'
-import { useState, useRef } from 'react'
+import { useCallback, useState, useRef } from 'react'
 import { Sidebar, SidebarRef } from './Sidebar'
 import { NAV_WIDTH_EXPANDED, NAV_WIDTH_COLLAPSED, PANEL_WIDTH } from './sidebarConstants'
 import { SearchProvider } from '../contexts/SearchContext'
@@ -22,10 +22,22 @@ export function Layout({ children }: LayoutProps) {
   const sidebarRef = useRef<SidebarRef>(null)
   const isMobile = useIsMobile()
 
-  const handleSearchSubmit = () => {
+  // These callbacks flow through SidebarContext to consumers (e.g. MapView
+  // uses `onClosePanel` in an effect dep list). Keeping them stable avoids
+  // unnecessary effect tear-downs when Layout re-renders — which it does
+  // frequently because of mobile sheet/panel state.
+  const handleSearchSubmit = useCallback(() => {
     setHasActivePanel(true)
     sidebarRef.current?.activateSearchTab()
-  }
+  }, [])
+
+  const handleClosePanel = useCallback(() => {
+    sidebarRef.current?.closePanel()
+  }, [])
+
+  const handleCollapseSheet = useCallback(() => {
+    sidebarRef.current?.collapseSheet()
+  }, [])
 
   // Calculate navbar width based on nav expansion and panel state (desktop only)
   const navWidth = isMobile ? 0 : (isNavExpanded ? NAV_WIDTH_EXPANDED : NAV_WIDTH_COLLAPSED)
@@ -46,8 +58,8 @@ export function Layout({ children }: LayoutProps) {
                 activePanel={activePanel}
                 isSheetExpanded={isSheetExpanded}
                 onSearchSubmit={handleSearchSubmit}
-                onClosePanel={() => sidebarRef.current?.closePanel()}
-                onCollapseSheet={() => sidebarRef.current?.collapseSheet()}
+                onClosePanel={handleClosePanel}
+                onCollapseSheet={handleCollapseSheet}
               >
                 {isMobile ? (
                   <AppShell

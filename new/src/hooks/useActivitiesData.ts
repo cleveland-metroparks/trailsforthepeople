@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { getActivities, getAttractions } from '../lib/api'
 import type { Activity, TransformedAttraction } from '../types/api'
@@ -19,9 +20,19 @@ export function useActivitiesData() {
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
   })
 
+  // IMPORTANT: memoize the filtered attractions so this hook returns a stable
+  // reference across renders. Without this, consumers (e.g. MapView) get a new
+  // `attractions` array identity every render, which cascades into effect deps
+  // and can tear down and re-install map event handlers on every render — which
+  // manifests as map hover data and popups flickering or never appearing.
+  const attractions = useMemo(
+    () => (attractionsQuery.data ?? EMPTY_ATTRACTIONS).filter((a) => a.gis_id != null && a.gis_id !== ''),
+    [attractionsQuery.data]
+  )
+
   return {
     activities: activitiesQuery.data ?? EMPTY_ACTIVITIES,
-    attractions: (attractionsQuery.data ?? EMPTY_ATTRACTIONS).filter((a) => a.gis_id != null && a.gis_id !== ''),
+    attractions,
     isLoading: activitiesQuery.isLoading || attractionsQuery.isLoading,
     isError: activitiesQuery.isError || attractionsQuery.isError,
     error: activitiesQuery.error || attractionsQuery.error,

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useMemo, useState, ReactNode } from 'react'
 import type { MapboxGeoJSONFeature } from 'mapbox-gl'
 
 export interface HoverInfo {
@@ -19,8 +19,12 @@ const MapHoverContext = createContext<MapHoverContextType | undefined>(undefined
 export function MapHoverProvider({ children }: { children: ReactNode }) {
   const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null)
 
+  // Memoize the context value so consumers only re-render when hoverInfo
+  // actually changes (setHoverInfo is a stable setState setter).
+  const value = useMemo(() => ({ hoverInfo, setHoverInfo }), [hoverInfo])
+
   return (
-    <MapHoverContext.Provider value={{ hoverInfo, setHoverInfo }}>
+    <MapHoverContext.Provider value={value}>
       {children}
     </MapHoverContext.Provider>
   )
