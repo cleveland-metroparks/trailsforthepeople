@@ -35,9 +35,7 @@ export function CreditsPanel(_props: CreditsPanelProps) {
         <Text size="sm">
           Map interface developed by:<br />
           <Anchor target="_blank" href="https://www.websubstrate.com/">
-            Substrate Websoft
-          </Anchor> and <Anchor target="_blank" href="http://www.greeninfo.org/">
-            GreenInfo Network
+            Substrate
           </Anchor>
         </Text>
 
