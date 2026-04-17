@@ -114,13 +114,26 @@ body {
   .mapboxgl-ctrl-top-right {
     top: auto !important;
     bottom: calc(var(--mobile-ctrl-bottom, 92px) + env(safe-area-inset-bottom, 0px)) !important;
-    transition: bottom 0.3s ease;
+    transition: bottom 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
   }
 
   .mapboxgl-ctrl-bottom-left {
     bottom: calc(var(--mobile-mapbox-bottom-left, 76px) + env(safe-area-inset-bottom, 0px)) !important;
     margin-bottom: 0 !important;
-    transition: bottom 0.3s ease;
+    transition: bottom 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .map-layers-control {
+    transition: bottom 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  /* Sheet is covering the map — hide the now-useless controls. `visibility`
+   * (not just `opacity`) so they're not focusable or announced to AT. */
+  html[data-sheet-expanded] .mapboxgl-ctrl-top-right,
+  html[data-sheet-expanded] .mapboxgl-ctrl-bottom-left,
+  html[data-sheet-expanded] .map-layers-control {
+    opacity: 0;
+    visibility: hidden;
   }
 }
 

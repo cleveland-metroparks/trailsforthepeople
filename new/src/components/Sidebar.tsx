@@ -146,7 +146,17 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     if (!isMobile) {
       document.documentElement.style.removeProperty('--mobile-ctrl-bottom')
       document.documentElement.style.removeProperty('--mobile-mapbox-bottom-left')
+      document.documentElement.removeAttribute('data-sheet-expanded')
       return
+    }
+
+    // Hide the map controls while the sheet is expanded — the sheet covers
+    // the map so the controls aren't useful, and keeping them positioned
+    // high near the search bar makes the layout feel crowded.
+    if (sheetState === 'expanded') {
+      document.documentElement.setAttribute('data-sheet-expanded', '')
+    } else {
+      document.documentElement.removeAttribute('data-sheet-expanded')
     }
 
     const apply = () => {
@@ -185,6 +195,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
       window.removeEventListener('load', handler)
       vv?.removeEventListener('resize', handler)
       vv?.removeEventListener('scroll', handler)
+      document.documentElement.removeAttribute('data-sheet-expanded')
     }
   }, [sheetState, dragOffset, isMobile, mapInstance])
 

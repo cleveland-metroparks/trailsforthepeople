@@ -574,6 +574,7 @@ export function MapView() {
         </Box>
       )}
       <Box
+        className="map-layers-control"
         style={{
           position: 'absolute',
           zIndex: isMobile ? 10 : 2,
