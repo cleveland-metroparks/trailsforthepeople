@@ -104,26 +104,23 @@ body {
 }
 
 /*
- * Mobile: lift map controls with the bottom sheet (peeked / collapsed / expanded).
- *
- * --mobile-ctrl-bottom: plain px set by Sidebar.tsx (right-side zoom/geolocate/reset).
- * --mobile-mapbox-bottom-left: plain px set by Sidebar.tsx (logo + attribution).
- *
- * env(safe-area-inset-bottom) is added HERE in CSS (not in the JS-set values) so it
- * always resolves correctly regardless of browser support.
- *
- * Initial defaults (92px / 76px) match the collapsed-sheet values so controls are
- * positioned correctly even before the first React effect runs.
+ * Mobile: lift map controls with the bottom sheet. Sidebar.tsx measures the
+ * sheet and map on screen and writes the offsets here (see the effect there
+ * for why measuring beats viewport-unit math on iOS). 92/76 fallbacks match
+ * the collapsed state so first paint is correct before the effect runs.
+ * Transition matches the sheet's own 0.3s ease so they glide together.
  */
 @media (max-width: 767px) {
   .mapboxgl-ctrl-top-right {
     top: auto !important;
     bottom: calc(var(--mobile-ctrl-bottom, 92px) + env(safe-area-inset-bottom, 0px)) !important;
+    transition: bottom 0.3s ease;
   }
 
   .mapboxgl-ctrl-bottom-left {
     bottom: calc(var(--mobile-mapbox-bottom-left, 76px) + env(safe-area-inset-bottom, 0px)) !important;
     margin-bottom: 0 !important;
+    transition: bottom 0.3s ease;
   }
 }
 

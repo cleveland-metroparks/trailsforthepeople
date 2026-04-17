@@ -104,6 +104,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
   const prevCloseRequestId = useRef(0)
   const lastFocusedNavTabRef = useRef<HTMLButtonElement | null>(null)
   const panelRootRef = useRef<HTMLDivElement | null>(null)
+  const sheetRootRef = useRef<HTMLDivElement | null>(null)
   const openFromNavRef = useRef(false)
   const startY = useRef(0)
   const lastActiveTab = useRef<string>('parks')
@@ -134,25 +135,58 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
     onSheetExpandedChange?.(sheetState === 'expanded' || sheetState === 'peeked')
   }, [sheetState, onSheetExpandedChange])
 
-  // Set plain pixel values for mobile control offsets; env(safe-area-inset-bottom) is added
-  // in CSS at the point of use so it always resolves correctly across browsers.
+  // Align the map controls just above the sheet's top edge by measuring both
+  // elements with getBoundingClientRect. Constant-based math (sheet height +
+  // gap) was drifting on iOS Safari/Chrome because `100vh`, `100dvh`, and the
+  // `position: fixed` containing block don't agree — the drift equalled the
+  // browser chrome height (worse in iOS Chrome). Measurement sidesteps all
+  // that. `mapInstance` is a dep because Mapbox creates `.mapboxgl-map` in
+  // its own effect; re-running when it appears avoids a stale first measure.
   useEffect(() => {
     if (!isMobile) {
       document.documentElement.style.removeProperty('--mobile-ctrl-bottom')
       document.documentElement.style.removeProperty('--mobile-mapbox-bottom-left')
       return
     }
-    const bottomCtrl =
-      sheetState === 'peeked'    ? `${MOBILE_SHEET_PEEKED_HEIGHT + 16}px` :
-      sheetState === 'collapsed' ? `${MOBILE_BOTTOM_BAR_HEIGHT + 16}px`   :
-                                   `${MOBILE_SHEET_EXPANDED_TOP}px`
-    const bottomLeft =
-      sheetState === 'peeked'    ? `${MOBILE_SHEET_PEEKED_HEIGHT}px` :
-      sheetState === 'collapsed' ? `${MOBILE_BOTTOM_BAR_HEIGHT}px` :
-                                   `${MOBILE_SHEET_EXPANDED_TOP}px`
-    document.documentElement.style.setProperty('--mobile-ctrl-bottom', bottomCtrl)
-    document.documentElement.style.setProperty('--mobile-mapbox-bottom-left', bottomLeft)
-  }, [sheetState, isMobile])
+
+    const apply = () => {
+      const sheet = sheetRootRef.current
+      const mapEl = mapInstance?.getContainer() ?? null
+      if (!sheet || !mapEl) return
+      const gap = Math.max(0, mapEl.getBoundingClientRect().bottom - sheet.getBoundingClientRect().top)
+      document.documentElement.style.setProperty('--mobile-ctrl-bottom', `${gap + 16}px`)
+      document.documentElement.style.setProperty('--mobile-mapbox-bottom-left', `${gap}px`)
+    }
+
+    // Immediate + next frame + post-transition (320ms) + post-settle (1s).
+    // The 1s retry catches iOS URL-bar settling on cold loads that would
+    // otherwise leave the controls at the CSS fallback.
+    apply()
+    const raf = requestAnimationFrame(apply)
+    const afterTransition = setTimeout(apply, 320)
+    const afterSettle = setTimeout(apply, 1000)
+
+    // visualViewport fires for iOS URL-bar show/hide that plain `resize`
+    // doesn't always catch; `load` is a safety net for slow cold starts.
+    const handler = () => apply()
+    window.addEventListener('resize', handler)
+    window.addEventListener('orientationchange', handler)
+    window.addEventListener('load', handler)
+    const vv = window.visualViewport
+    vv?.addEventListener('resize', handler)
+    vv?.addEventListener('scroll', handler)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      clearTimeout(afterTransition)
+      clearTimeout(afterSettle)
+      window.removeEventListener('resize', handler)
+      window.removeEventListener('orientationchange', handler)
+      window.removeEventListener('load', handler)
+      vv?.removeEventListener('resize', handler)
+      vv?.removeEventListener('scroll', handler)
+    }
+  }, [sheetState, dragOffset, isMobile, mapInstance])
 
   useEffect(() => {
     onNavExpandedChange?.(isNavExpanded)
@@ -556,6 +590,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onPanelStateChang
 
     return createPortal(
       <div
+        ref={sheetRootRef}
         role="dialog"
         aria-label="Sidebar"
         style={{
