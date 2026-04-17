@@ -18,6 +18,7 @@ export default defineConfig({
   server: {
     port: 3002, // Different from admin app
     host: true,
+    allowedHosts: ['.ngrok-free.app', '.ngrok.app', '.ngrok.io'],
   },
   build: {
     outDir: 'dist',
