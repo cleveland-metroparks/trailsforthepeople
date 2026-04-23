@@ -11,6 +11,7 @@
     "grunt-contrib-watch": "^1.1.0",
     "grunt-sass": "^3.1.0",
     "grunt-terser": "^1.0.0",
+    "husky": "^9.1.7",
     "load-grunt-config": "^3.0.1",
     "lodash": "^4.17.21"
   },
@@ -30,5 +31,8 @@
   "volta": {
     "node": "20.19.6",
     "npm": "11.6.4"
+  },
+  "scripts": {
+    "prepare": "husky"
   }
 }

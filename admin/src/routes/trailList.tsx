@@ -25,7 +25,7 @@ import utils from "../styles/utils.module.css";
 // Get all trails from the API
 const getAllTrails = async () => {
   const response = await mapsApiClient.get<any>(
-    process.env.REACT_APP_MAPS_API_BASE_PATH + "/trails"
+    import.meta.env.VITE_MAPS_API_BASE_PATH + "/trails"
   );
   return response.data.data;
 };

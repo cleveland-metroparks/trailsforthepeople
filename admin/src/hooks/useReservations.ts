@@ -18,8 +18,8 @@ interface ReservationSelectOption {
 }
 
 interface ParkFeatureLocation {
-  coords: LngLat | {};
-  bounds: LngLatBounds | {};
+  coords: LngLat | object;
+  bounds: LngLatBounds | object;
 }
 
 export function useReservations() {
@@ -27,7 +27,7 @@ export function useReservations() {
     queryKey: ["reservations"],
     queryFn: async () => {
       const response = await mapsApiClient.get<{ data: ReservationData[] }>(
-        process.env.REACT_APP_MAPS_API_BASE_PATH + "/reservations"
+        import.meta.env.VITE_MAPS_API_BASE_PATH + "/reservations"
       );
       return response.data.data;
     },

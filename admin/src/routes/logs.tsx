@@ -22,12 +22,12 @@ export function AuditLogView() {
   //
   const getAuditLog = async (id: string) => {
     const response = await mapsApiClient.get<any>(
-      process.env.REACT_APP_MAPS_API_BASE_PATH + "/audit_logs/" + id
+      import.meta.env.VITE_MAPS_API_BASE_PATH + "/audit_logs/" + id
     );
     return response.data.data;
   };
 
-  let params = useParams();
+  const params = useParams();
 
   let logId = "";
   if (params.logId) {
@@ -104,7 +104,7 @@ export function AuditLogsList() {
       requestPath += "&skip=" + skip;
     }
     const response = await mapsApiClient.get<any>(
-      process.env.REACT_APP_MAPS_API_BASE_PATH + requestPath
+      import.meta.env.VITE_MAPS_API_BASE_PATH + requestPath
     );
     return response.data.data;
   };

@@ -1,13 +1,16 @@
 import axios from "axios";
 
 const skipLogin =
-  (process.env.REACT_APP_SKIP_LOGIN || "").toLowerCase() === "true";
+  (import.meta.env.VITE_SKIP_LOGIN || "").toLowerCase() === "true";
 
 axios.defaults.withCredentials = !skipLogin;
 
 export const mapsApiClient = axios.create({
-  baseURL: process.env.REACT_APP_MAPS_API_BASE_URL,
+  baseURL: import.meta.env.VITE_MAPS_API_BASE_URL,
   withCredentials: !skipLogin,
+  headers: {
+    Accept: "application/json",
+  },
 });
 
 // Add an interceptor to attach the CSRF token to each request
@@ -30,6 +33,22 @@ mapsApiClient.interceptors.request.use(
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add a response interceptor to handle expired sessions
+mapsApiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // If we get a 401 Unauthorized, the session has expired
+    if (error.response?.status === 401 && !skipLogin) {
+      // Clear the user from localStorage
+      window.localStorage.removeItem("user");
+      // Redirect to login page
+      const rootPath = import.meta.env.VITE_ROOT_PATH || "";
+      window.location.href = `${rootPath}/login`;
+    }
     return Promise.reject(error);
   }
 );

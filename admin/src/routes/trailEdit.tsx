@@ -100,7 +100,7 @@ export function TrailEdit() {
   let trailId = "",
     deleteTrailPath = "";
 
-  let params = useParams();
+  const params = useParams();
 
   if (params.trailId) {
     if (!isNaN(parseFloat(params.trailId))) {
@@ -328,7 +328,7 @@ export function TrailEdit() {
 
     if (id !== "new") {
       const response = await mapsApiClient.get<any>(
-        process.env.REACT_APP_MAPS_API_BASE_PATH + "/trails/" + id
+        import.meta.env.VITE_MAPS_API_BASE_PATH + "/trails/" + id
       );
 
       trailData = response.data.data;
@@ -362,7 +362,7 @@ export function TrailEdit() {
         const initialCoords = trailWaypoints.geometry.coordinates;
         if (initialCoords) {
           filteredCoords = initialCoords.filter(
-            function (coordinate, index, arr) {
+            function (coordinate, _index, _arr) {
               return coordinate[0] !== 0 && coordinate[1] !== 0;
             }
           );
@@ -388,7 +388,7 @@ export function TrailEdit() {
 
       if (response.data.data.directions) {
         // "directions" is serialized as JSON in the DB
-        let directionsJSON = JSON.parse(response.data.data.directions);
+        const directionsJSON = JSON.parse(response.data.data.directions);
         setTrailDirections(directionsJSON);
       }
     }
@@ -487,17 +487,17 @@ export function TrailEdit() {
     const response =
       trailId === "new"
         ? mapsApiClient.post<any>(
-            process.env.REACT_APP_MAPS_API_BASE_PATH + "/trails",
+            import.meta.env.VITE_MAPS_API_BASE_PATH + "/trails",
             trailSaveData
           )
         : mapsApiClient.put<any>(
-            process.env.REACT_APP_MAPS_API_BASE_PATH + "/trails/" + trailId,
+            import.meta.env.VITE_MAPS_API_BASE_PATH + "/trails/" + trailId,
             trailSaveData
           );
     response
       .then(function (response) {
         // Get new trail ID:
-        if (response.hasOwnProperty("data") && response["data"].data.id) {
+        if (Object.prototype.hasOwnProperty.call(response, "data") && response["data"].data.id) {
           trailId = response["data"].data.id;
 
           const savedMsg = `Trail "${response["data"].data.name}" (ID: ${trailId}) saved`;
@@ -541,7 +541,7 @@ export function TrailEdit() {
   const getTrailProfile = async (id: string) => {
     if (id !== "new") {
       const response = await mapsApiClient.get<any>(
-        process.env.REACT_APP_MAPS_API_BASE_PATH + "/trail_profiles/" + id
+        import.meta.env.VITE_MAPS_API_BASE_PATH + "/trail_profiles/" + id
       );
 
       setTrailElevation(response.data.data.elevation_profile);
@@ -564,18 +564,18 @@ export function TrailEdit() {
   const getTrailGeometry = async (id: string) => {
     if (id !== "new") {
       const response = await mapsApiClient.get<any>(
-        process.env.REACT_APP_MAPS_API_BASE_PATH + "/trail_geometries/" + id
+        import.meta.env.VITE_MAPS_API_BASE_PATH + "/trail_geometries/" + id
       );
       const geojson = JSON.parse(response.data.data.geom_geojson);
 
       setTrailGeometry(response.data.data.geom_geojson);
 
       if (geojson.coordinates) {
-        let trailBounds = new LngLatBounds();
+        const trailBounds = new LngLatBounds();
         coordEach(geojson, function (coord) {
           trailBounds.extend([coord[0], coord[1]]);
         });
-        setBounds((bounds) => {
+        setBounds((_bounds) => {
           return trailBounds;
         });
       }
@@ -603,7 +603,7 @@ export function TrailEdit() {
 
       await mapsApiClient
         .get<any>(
-          process.env.REACT_APP_MAPS_API_BASE_PATH + "/route_waypoints",
+          import.meta.env.VITE_MAPS_API_BASE_PATH + "/route_waypoints",
           {
             params,
           }
@@ -752,8 +752,8 @@ export function TrailEdit() {
   // Complete the trail; back to start
   const completeTrail = () => {
     // Create the new feature and append the coordinate
-    let newFeature = { ...waypointsFeature };
-    let coords = newFeature.geometry.coordinates;
+    const newFeature = { ...waypointsFeature };
+    const coords = newFeature.geometry.coordinates;
     if (coords.length > 1) {
       if (coords[0] !== coords[coords.length - 1]) {
         // Add the first coordinate to the end of the coords array
@@ -781,10 +781,10 @@ export function TrailEdit() {
 
     const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
     waypointCountRef.current = newWaypointCount;
-    setWaypointsFeature((curFeature) => {
+    setWaypointsFeature((_curFeature) => {
       return newFeature;
     });
-    setWaypointsForDraw((curFeature) => {
+    setWaypointsForDraw((_curFeature) => {
       return newFeature;
     });
 
@@ -805,7 +805,7 @@ export function TrailEdit() {
 
       const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
       waypointCountRef.current = newWaypointCount;
-      setWaypointsFeature((curFeature) => {
+      setWaypointsFeature((_curFeature) => {
         return newFeature;
       });
 
@@ -860,7 +860,7 @@ export function TrailEdit() {
       // Update ref immediately to ensure it's current for next call
       waypointCountRef.current = newWaypointCount;
 
-      setWaypointsFeature((curFeature) => {
+      setWaypointsFeature((_curFeature) => {
         return newFeature;
       });
 
@@ -871,7 +871,7 @@ export function TrailEdit() {
 
       // Update waypointsForDraw when vertex is deleted so DrawControl reflects the change
       if (e.action === "delete_vertex") {
-        setWaypointsForDraw((curFeature) => {
+        setWaypointsForDraw((_curFeature) => {
           return newFeature;
         });
       }
@@ -894,7 +894,7 @@ export function TrailEdit() {
 
       const newWaypointCount = newFeature.geometry?.coordinates?.length || 0;
       waypointCountRef.current = newWaypointCount;
-      setWaypointsFeature((curFeature) => {
+      setWaypointsFeature((_curFeature) => {
         return newFeature;
       });
 

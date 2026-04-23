@@ -1,7 +1,6 @@
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { useControl } from "react-map-gl/mapbox";
 import type { ControlPosition } from "react-map-gl/mapbox";
-import type { MapContextValue } from "@vis.gl/react-mapbox/dist/components/map";
 import { useEffect, useCallback, useRef } from "react";
 
 /**
@@ -71,14 +70,14 @@ export default function DrawControl(props: DrawControlProps) {
     }, 0);
   }, []);
 
-  let draw = useControl<MapboxDraw>(
+  const draw = useControl<MapboxDraw>(
     // useControl onCreate:
-    ({ map }: MapContextValue) => {
+    (_: { map: any }) => {
       return new MapboxDraw(props);
     },
 
     // useControl onAdd:
-    ({ map }: MapContextValue) => {
+    ({ map }: { map: any }) => {
       // Function to set draw feature (defined here to have access to draw instance)
       const setDrawFeature = (feature: any) => {
         // Delete the initial empty feature that Draw initiates with
@@ -263,7 +262,7 @@ export default function DrawControl(props: DrawControlProps) {
     },
 
     // useControl onRemove:
-    ({ map }: MapContextValue) => {
+    ({ map }: { map: any }) => {
       const handlers = (map as any)._drawControlHandlers;
       if (handlers) {
         map.off("draw.create", handlers.create);

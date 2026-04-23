@@ -37,8 +37,8 @@ interface TrailMapProps {
   trail: Trail;
   trailGeom: string;
   mapBounds: LngLatBounds;
-  waypointsFeature: Object;
-  waypointsForDraw: Object;
+  waypointsFeature: object;
+  waypointsForDraw: object;
   onDrawCreate: (e: { features: object[] }) => void;
   onDrawUpdate: (e: { features: object[]; action: string }) => void;
   onDrawDelete: (e: { features: object[] }) => void;
@@ -85,9 +85,9 @@ export function TrailMap(props: TrailMapProps) {
   });
 
   const [mapViewState, setMapViewState] = useState({
-    longitude: parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LNG),
-    latitude: parseFloat(process.env.REACT_APP_MAP_DEFAULT_CENTER_LAT),
-    zoom: parseFloat(process.env.REACT_APP_MAP_DEFAULT_ZOOM),
+    longitude: parseFloat(import.meta.env.VITE_MAP_DEFAULT_CENTER_LNG),
+    latitude: parseFloat(import.meta.env.VITE_MAP_DEFAULT_CENTER_LAT),
+    zoom: parseFloat(import.meta.env.VITE_MAP_DEFAULT_ZOOM),
   });
 
   // Trigger map resize when height changes
@@ -237,7 +237,7 @@ export function TrailMap(props: TrailMapProps) {
     updatePopoverPosition();
   };
 
-  const onMapLoad = (event: MapEvent) => {
+  const onMapLoad = (_event: MapEvent) => {
     // @TODO: Not sure why we were doing the following...
     // React is automatically putting props.trailGeom data into the <Source> data.
     // const trailSource = mapRef.current.getSource('trail-data') as GeoJSONSource;
@@ -269,10 +269,10 @@ export function TrailMap(props: TrailMapProps) {
     }
   }, [popoverOpened, props]);
 
-  const onMapRender = (event: MapEvent) => {
+  const onMapRender = (_event: MapEvent) => {
     updatePopoverPosition();
   };
-  const onMapResize = (event: MapEvent) => {
+  const onMapResize = (_event: MapEvent) => {
     updatePopoverPosition();
   };
 
@@ -588,8 +588,8 @@ export function TrailMap(props: TrailMapProps) {
           ref={mapRef}
           {...mapViewState}
           style={{ width: "100%", height: mapHeight }}
-          mapStyle={process.env.REACT_APP_MAPBOX_STYLE_URL}
-          mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+          mapStyle={import.meta.env.VITE_MAPBOX_STYLE_URL}
+          mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
           onLoad={onMapLoad}
           onMove={onMapMove}
           onRender={onMapRender}

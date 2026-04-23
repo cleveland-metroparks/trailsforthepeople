@@ -1,0 +1,132 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-new-dev:
+    if: github.ref == 'refs/heads/develop'
+    name: Deploy New (Dev)
+    runs-on:
+      - self-hosted
+      - linux
+      - dev
+    environment: dev
+    steps:
+      - name: Verify APP_DIR is configured
+        env:
+          APP_DIR: ${{ vars.APP_DIR }}
+        run: |
+          if [ -z "$APP_DIR" ]; then
+            echo "GitHub Environment variable APP_DIR is not set for the dev environment."
+            exit 1
+          fi
+
+      - name: Deploy develop to dev
+        env:
+          APP_DIR: ${{ vars.APP_DIR }}
+        run: |
+          cd "$APP_DIR"
+          git fetch origin
+          git checkout develop
+          git reset --hard origin/develop
+          npm ci
+          npm run build
+
+  deploy-admin-dev:
+    if: github.ref == 'refs/heads/develop'
+    name: Deploy Admin (Dev)
+    runs-on:
+      - self-hosted
+      - linux
+      - dev
+    environment: dev
+    steps:
+      - name: Verify ADMIN_APP_DIR is configured
+        env:
+          ADMIN_APP_DIR: ${{ vars.ADMIN_APP_DIR }}
+        run: |
+          if [ -z "$ADMIN_APP_DIR" ]; then
+            echo "GitHub Environment variable ADMIN_APP_DIR is not set for the dev environment."
+            exit 1
+          fi
+
+      - name: Deploy develop to dev
+        env:
+          ADMIN_APP_DIR: ${{ vars.ADMIN_APP_DIR }}
+        run: |
+          cd "$ADMIN_APP_DIR"
+          git fetch origin
+          git checkout develop
+          git reset --hard origin/develop
+          npm ci
+          npm run build
+
+  deploy-new-prod:
+    if: false # TODO: re-enable when ready for prod deploys
+    name: Deploy New (Prod)
+    runs-on:
+      - self-hosted
+      - linux
+      - prod
+    environment: prod
+    steps:
+      - name: Verify APP_DIR is configured
+        env:
+          APP_DIR: ${{ vars.APP_DIR }}
+        run: |
+          if [ -z "$APP_DIR" ]; then
+            echo "GitHub Environment variable APP_DIR is not set for the prod environment."
+            exit 1
+          fi
+
+      - name: Deploy main to prod
+        env:
+          APP_DIR: ${{ vars.APP_DIR }}
+        run: |
+          cd "$APP_DIR"
+          git fetch origin
+          git checkout main
+          git reset --hard origin/main
+          npm ci
+          npm run build
+
+  deploy-admin-prod:
+    if: false # TODO: re-enable when ready for prod deploys
+    name: Deploy Admin (Prod)
+    runs-on:
+      - self-hosted
+      - linux
+      - prod
+    environment: prod
+    steps:
+      - name: Verify ADMIN_APP_DIR is configured
+        env:
+          ADMIN_APP_DIR: ${{ vars.ADMIN_APP_DIR }}
+        run: |
+          if [ -z "$ADMIN_APP_DIR" ]; then
+            echo "GitHub Environment variable ADMIN_APP_DIR is not set for the prod environment."
+            exit 1
+          fi
+
+      - name: Deploy main to prod
+        env:
+          ADMIN_APP_DIR: ${{ vars.ADMIN_APP_DIR }}
+        run: |
+          cd "$ADMIN_APP_DIR"
+          git fetch origin
+          git checkout main
+          git reset --hard origin/main
+          npm ci
+          npm run build

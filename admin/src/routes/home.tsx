@@ -18,7 +18,7 @@ export function Home() {
         }}
       >
         <img
-          src={`${process.env.PUBLIC_URL}/cm-logo-mark_only-no_margin-364x462.png`}
+          src={`${import.meta.env.BASE_URL}/cm-logo-mark_only-no_margin-364x462.png`}
           alt="CMP Logo"
           style={{ height: "60px", width: "auto" }}
         />

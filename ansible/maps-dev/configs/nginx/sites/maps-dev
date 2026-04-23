@@ -27,16 +27,19 @@ server {
 		10.0.0.23
 		127.0.0.1;
 
-	root /var/www;
+	#root /var/www/;
+	root /var/www/new/dist;
 
 	index index.html;
 
 	add_header 'Access-Control-Allow-Origin' '*' always;
 	add_header Content-Security-Policy "frame-ancestors https://*.clevelandmetroparks.com https://*.cmparks.net;" always;
 
-	ssl_certificate /etc/ssl/certs/wc24-maps.pem;
-	ssl_certificate_key /etc/ssl/private/wc24-maps.key;
-	ssl_trusted_certificate /etc/ssl/certs/ov_chain.txt;
+	#ssl_certificate /etc/ssl/certs/wc24-maps.pem;
+	#ssl_certificate_key /etc/ssl/private/wc24-maps.key;
+	#ssl_trusted_certificate /etc/ssl/certs/ov_chain.txt;
+	ssl_certificate     /etc/letsencrypt/live/maps-dev.clevelandmetroparks.com/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/maps-dev.clevelandmetroparks.com/privkey.pem;
 
 	ssl_protocols TLSv1.2 TLSv1.3;
 	ssl_ciphers 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384';
@@ -71,11 +74,8 @@ server {
 	}
 
 	location /admin {
-		proxy_pass http://localhost:3000;
-		proxy_http_version 1.1;
-		proxy_set_header Upgrade $http_upgrade;
-		proxy_set_header Connection $connection_upgrade;
-		proxy_set_header Host $host;
-		proxy_cache_bypass $http_upgrade;
+		alias /var/www/admin/dist;
+		index index.html;
+		try_files $uri $uri/ /admin/index.html;
 	}
 }

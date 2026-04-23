@@ -1,0 +1,211 @@
+#root {
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Override Mantine's default body styles for full-height map */
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+/* Map container styles */
+.mapboxgl-map {
+  width: 100%;
+  height: 100%;
+}
+
+/* Sidebar styles */
+.mantine-AppShell-main {
+  padding: 0 !important;
+  height: 100vh !important;
+}
+
+/* Sidebar panel (second-level) styling */
+.mantine-Tabs-panel {
+  background-color: #FFFFFF;
+  color: #000000;
+}
+
+.mantine-Tabs-panel .mantine-Title-root {
+  color: #000000;
+}
+
+/* Links in panels use black with underline */
+.mantine-Tabs-panel .mantine-Anchor-root {
+  color: #000000;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.mantine-Tabs-panel .mantine-Anchor-root:hover {
+  color: #000000;
+  opacity: 0.8;
+}
+
+/* Phone links - no underline except on hover */
+.mantine-Tabs-panel .mantine-Anchor-root.phone-link {
+  text-decoration: none;
+}
+
+.mantine-Tabs-panel .mantine-Anchor-root.phone-link:hover {
+  text-decoration: underline;
+}
+
+/* Subtle buttons in panels use green text */
+.mantine-Tabs-panel .mantine-Button-root[data-variant="subtle"] {
+  color: #6AB03E;
+}
+
+.mantine-Tabs-panel .mantine-Button-root[data-variant="subtle"]:hover {
+  background-color: rgba(106, 176, 62, 0.1);
+}
+
+/* Remove double margin around description sections (Stack spacing + p margin) */
+.detail-description {
+  margin: 0;
+}
+.detail-description p:first-child {
+  margin-top: 0;
+}
+.detail-description p:last-child {
+  margin-bottom: 0;
+}
+
+/* Ensure the map container takes full space */
+.mantine-AppShell-main > .map-container {
+  height: 100% !important;
+}
+
+/* Reset map control button styling */
+.mapboxgl-ctrl-group button.mapboxgl-ctrl-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.mapboxgl-ctrl-group button.mapboxgl-ctrl-icon svg {
+  color: #333;
+}
+
+.mapboxgl-ctrl-group button.mapboxgl-ctrl-icon:hover svg {
+  color: #000;
+}
+
+.mapboxgl-ctrl-group button.mapboxgl-ctrl-icon:focus-visible {
+  outline: 3px solid #6AB03E;
+  outline-offset: 2px;
+}
+
+/*
+ * Mobile: lift map controls with the bottom sheet. Sidebar.tsx measures the
+ * sheet and map on screen and writes the offsets here (see the effect there
+ * for why measuring beats viewport-unit math on iOS). 92/76 fallbacks match
+ * the collapsed state so first paint is correct before the effect runs.
+ * Transition matches the sheet's own 0.3s ease so they glide together.
+ */
+@media (max-width: 767px) {
+  .mapboxgl-ctrl-top-right {
+    top: auto !important;
+    bottom: calc(var(--mobile-ctrl-bottom, 92px) + env(safe-area-inset-bottom, 0px)) !important;
+    transition: bottom 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .mapboxgl-ctrl-bottom-left {
+    bottom: calc(var(--mobile-mapbox-bottom-left, 76px) + env(safe-area-inset-bottom, 0px)) !important;
+    margin-bottom: 0 !important;
+    transition: bottom 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .map-layers-control {
+    transition: bottom 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  /* Sheet is covering the map — hide the now-useless controls. `visibility`
+   * (not just `opacity`) so they're not focusable or announced to AT. */
+  html[data-sheet-expanded] .mapboxgl-ctrl-top-right,
+  html[data-sheet-expanded] .mapboxgl-ctrl-bottom-left,
+  html[data-sheet-expanded] .map-layers-control {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Gap between Layers button and Mapbox bottom-left row (MapView mobile) */
+:root {
+  --mobile-layers-above-mapbox-bottom-left: 46px;
+}
+
+/* Dark panel theme */
+.dark-panel-content {
+  color: #ffffff;
+}
+
+.dark-panel-content .mantine-Anchor-root {
+  color: #ffffff;
+}
+
+.dark-panel-content .mantine-Anchor-root:hover {
+  color: #ffffff;
+  opacity: 0.8;
+}
+
+.dark-panel-content .mantine-Title-root {
+  color: #ffffff;
+}
+
+.dark-panel-content .mantine-Text-root {
+  color: #ffffff;
+}
+
+.dark-panel-content .mantine-Text-root[data-variant="dimmed"],
+.dark-panel-content .mantine-Text-dimmed {
+  color: #B2B2B2;
+}
+
+.dark-panel-content .mantine-Button-root[data-variant="subtle"] {
+  color: #6AB03E;
+}
+
+.dark-panel-content .mantine-Button-root[data-variant="subtle"]:hover {
+  background-color: rgba(106, 176, 62, 0.2);
+}
+
+.dark-panel-content .mantine-Input-input {
+  background-color: #222124;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark-panel-content .mantine-Input-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.dark-panel-content .mantine-Input-wrapper label,
+.dark-panel-content .mantine-InputWrapper-label {
+  color: #ffffff;
+}
+
+.dark-panel-content .mantine-Select-dropdown {
+  background-color: #1a1a1a;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark-panel-content .mantine-Select-item {
+  color: #ffffff;
+}
+
+.dark-panel-content .mantine-Select-item:hover,
+.dark-panel-content .mantine-Select-item[data-hovered] {
+  background-color: rgba(106, 176, 62, 0.15);
+}
+
+.dark-panel-content .mantine-Divider-root {
+  border-color: rgba(255, 255, 255, 0.12);
+}
