@@ -72,13 +72,12 @@ export function FeatureAutocompleteInput({
 
   // Reservation ID lookup for routing decisions
   const getReservationId = useMemo(() => {
-    const parksMap = new Map<number | string, string | number>()
-    parks?.forEach((p) => parksMap.set(p.record_id, p.record_id))
     const parksPagetitleMap = new Map<string, string | number>()
     parks?.forEach((p) => parksPagetitleMap.set(String(p.pagetitle), p.record_id))
     return (type: string, gid: string | number): string | number | undefined => {
-      if (type === 'park') {
-        return parksMap.get(gid)
+      if (type === 'reservation') {
+        // gid is already String(record_id) from the search index
+        return gid
       }
       if (type === 'attraction') {
         const att = attractions.find((a) => String(a.gis_id) === String(gid))
