@@ -43,7 +43,10 @@ export function FloatingSearch() {
   // Park name lookup for suggestions
   const getParkName = useMemo(() => {
     const parksMap = new Map<number | string, string>()
-    parks?.forEach((p) => parksMap.set(p.record_id, String(p.pagetitle)))
+    parks?.forEach((p) => {
+      parksMap.set(p.record_id, String(p.pagetitle))
+      parksMap.set(String(p.record_id), String(p.pagetitle))
+    })
     return (type: string, gid: string | number): string | undefined => {
       if (type === 'attraction') {
         const att = attractions.find((a) => String(a.gis_id) === String(gid))
