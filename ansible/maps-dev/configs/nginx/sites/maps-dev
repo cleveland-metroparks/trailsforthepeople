@@ -28,7 +28,7 @@ server {
 		127.0.0.1;
 
 	#root /var/www/;
-	root /var/www/new/dist;
+	root /var/www/frontend/dist;
 
 	index index.html;
 

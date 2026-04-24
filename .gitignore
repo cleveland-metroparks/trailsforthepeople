@@ -10,8 +10,9 @@
 *.sw?
 .env
 
-# Sublime Text
-sftp-config.json
+# Testing
+playwright-report
+test-results
 
 # Sass
 .sass-cache
@@ -19,15 +20,9 @@ sftp-config.json
 
 # Packaging
 node_modules
-
-# Grunt local config
-grunt-local-config.json
-
-# Temp
-/static/tmp/
-
-# Hint maps
-static/images/hint_maps/
+dist
+dist-ssr
+*.local
 
 # SentinelOne honeypot
 .aaa.html
@@ -35,10 +30,12 @@ static/images/hint_maps/
 .aaa.log
 .aaa.pdf
 
-# Debug logs
-/application/logs/
+# Logs
+logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+/application/logs/

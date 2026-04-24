@@ -15,9 +15,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy-new-dev:
+  deploy-frontend-dev:
     if: github.ref == 'refs/heads/develop'
-    name: Deploy New (Dev)
+    name: Deploy Frontend (Dev)
     runs-on:
       - self-hosted
       - linux
@@ -41,6 +41,7 @@ jobs:
           git fetch origin
           git checkout develop
           git reset --hard origin/develop
+          cd frontend
           npm ci
           npm run build
 
@@ -73,9 +74,9 @@ jobs:
           npm ci
           npm run build
 
-  deploy-new-prod:
+  deploy-frontend-prod:
     if: false # TODO: re-enable when ready for prod deploys
-    name: Deploy New (Prod)
+    name: Deploy Frontend (Prod)
     runs-on:
       - self-hosted
       - linux
@@ -99,6 +100,7 @@ jobs:
           git fetch origin
           git checkout main
           git reset --hard origin/main
+          cd frontend
           npm ci
           npm run build
 

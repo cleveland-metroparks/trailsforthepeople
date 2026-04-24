@@ -3,12 +3,12 @@ set -e
 
 ROOT="$(git rev-parse --show-toplevel)"
 
-# new/
-if git diff --cached --name-only | grep -q '^new/'; then
-  echo "new/: Running lint..."
-  (cd "$ROOT/new" && npm run lint)
-  echo "new/: Running type-check..."
-  (cd "$ROOT/new" && npm run type-check)
+# frontend/
+if git diff --cached --name-only | grep -q '^frontend/'; then
+  echo "frontend/: Running lint..."
+  (cd "$ROOT/frontend" && npm run lint)
+  echo "frontend/: Running type-check..."
+  (cd "$ROOT/frontend" && npm run type-check)
 fi
 
 # admin/
