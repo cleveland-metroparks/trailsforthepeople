@@ -20,7 +20,7 @@
     "@tiptap/starter-kit": "^2.1.12",
     "@turf/helpers": "^7.3.0",
     "@turf/meta": "^7.3.0",
-    "axios": "^1.13.2",
+    "axios": "^1.15.0",
     "dayjs": "^1.11.19",
     "mapbox-gl": "^3.16.0",
     "react": "^19.2.0",
