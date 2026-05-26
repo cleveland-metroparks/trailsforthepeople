@@ -41,7 +41,6 @@ jobs:
           git fetch origin
           git checkout develop
           git reset --hard origin/develop
-          cd frontend
           npm ci
           npm run build
 
@@ -100,7 +99,6 @@ jobs:
           git fetch origin
           git checkout main
           git reset --hard origin/main
-          cd frontend
           npm ci
           npm run build
 

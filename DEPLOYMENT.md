@@ -34,13 +34,13 @@ Create these GitHub Environments in repository settings:
 
 For each environment, add:
 
-- `APP_DIR`: absolute path to the repo checkout used for public frontend deploys
+- `APP_DIR`: absolute path to the public frontend checkout directory
 - `ADMIN_APP_DIR`: absolute path to the admin frontend checkout directory
 
 Example values:
 
-- `dev` -> `APP_DIR=/var/www/maps` and `ADMIN_APP_DIR=/var/www/maps/admin`
-- `prod` -> `APP_DIR=/var/www/maps` and `ADMIN_APP_DIR=/var/www/maps/admin`
+- `dev` -> `APP_DIR=/var/www/frontend` and `ADMIN_APP_DIR=/var/www/admin`
+- `prod` -> `APP_DIR=/var/www/frontend` and `ADMIN_APP_DIR=/var/www/admin`
 
 The paths do not need to match across environments, but each server must use the values configured for its environment.
 
@@ -60,7 +60,7 @@ The workflow uses those labels to route jobs to the right machine.
 On each VM:
 
 1. Ensure outbound HTTPS connectivity to GitHub.
-2. Clone the repository into the intended deployment directory (or clone separate checkouts for `APP_DIR` and `ADMIN_APP_DIR` if desired).
+2. Clone each app into the intended deployment directory (`APP_DIR` for public frontend, `ADMIN_APP_DIR` for admin frontend).
 3. Install Node and npm versions compatible with each app's `package.json`.
 4. Install and start the GitHub Actions self-hosted runner.
 5. Ensure required server-side environment configuration exists before first automated build.
@@ -76,7 +76,6 @@ cd "$APP_DIR"
 git fetch origin
 git checkout <branch>
 git reset --hard origin/<branch>
-cd frontend
 npm ci
 npm run build
 ```
