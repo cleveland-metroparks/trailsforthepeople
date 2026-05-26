@@ -60,8 +60,6 @@ export default defineConfig({
     },
   },
   define: {
-    // Make environment variables available
-    'process.env': process.env,
     __APP_VERSION__: JSON.stringify(pkg.version ?? '0.0.0'),
   },
 })
