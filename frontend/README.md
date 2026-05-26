@@ -60,7 +60,7 @@ App available at **http://localhost:3002**
 
 ## Deployment
 
-- Deployment strategy and setup notes live in `DEPLOYMENT.md`.
+- Deployment strategy and setup notes live in `../DEPLOYMENT.md`.
 - Automated deploys are handled by GitHub Actions with self-hosted runners on the target VMs.
 - Branch mapping:
   - `develop` -> `dev`
