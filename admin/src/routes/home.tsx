@@ -2,6 +2,7 @@ import { Flex, Title, Text, Anchor, Divider } from "@mantine/core";
 
 import { NavButtons, UserLinks } from "../components/navLinks";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { version } from "../../package.json";
 
 export function Home() {
   useDocumentTitle("Home");
@@ -48,6 +49,10 @@ export function Home() {
       <Divider my="sm" variant="dotted" />
 
       <UserLinks />
+
+      <Text size="xs" c="dimmed" mt="xs" pl="xs">
+        v{version}
+      </Text>
     </>
   );
 }

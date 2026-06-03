@@ -7,9 +7,11 @@ import {
   AppShell,
   Burger,
   Divider,
+  Text,
   useMantineTheme,
   useMantineColorScheme,
 } from "@mantine/core";
+import { version } from "../package.json";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 
@@ -43,6 +45,11 @@ function App() {
         <NavLinks showLabels={!isNavCollapsed} />
         <Divider my="sm" variant="dotted" />
         <UserLinks showLabels={!isNavCollapsed} />
+        {!isNavCollapsed && (
+          <Text size="xs" c="dimmed" mt="xs" pl="xs">
+            v{version}
+          </Text>
+        )}
         {!isMobile && (
           <div style={{ marginTop: "auto" }}>
             <ActionIcon
