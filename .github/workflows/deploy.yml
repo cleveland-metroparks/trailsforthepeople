@@ -74,7 +74,7 @@ jobs:
           npm run build
 
   deploy-frontend-prod:
-    if: false # TODO: re-enable when ready for prod deploys
+    if: github.ref == 'refs/heads/main'
     name: Deploy Frontend (Prod)
     runs-on:
       - self-hosted
@@ -103,7 +103,7 @@ jobs:
           npm run build
 
   deploy-admin-prod:
-    if: false # TODO: re-enable when ready for prod deploys
+    if: github.ref == 'refs/heads/main'
     name: Deploy Admin (Prod)
     runs-on:
       - self-hosted
