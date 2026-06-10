@@ -17,7 +17,10 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    // Don't publish source maps with the production build — they expose the
+    // full original TypeScript source to anyone who opens devtools on the
+    // live admin. Use `vite build --sourcemap` locally when you need them.
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks(id) {
