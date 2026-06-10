@@ -1,5 +1,13 @@
 import axios from "axios";
 
+// Allow individual requests to opt out of the 401 auto-redirect below
+// (e.g. the boot-time "who am I" session check, where a 401 is expected).
+declare module "axios" {
+  export interface AxiosRequestConfig {
+    skipAuthRedirect?: boolean;
+  }
+}
+
 const skipLogin =
   (import.meta.env.VITE_SKIP_LOGIN || "").toLowerCase() === "true";
 
@@ -41,11 +49,14 @@ mapsApiClient.interceptors.request.use(
 mapsApiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    // If we get a 401 Unauthorized, the session has expired
-    if (error.response?.status === 401 && !skipLogin) {
-      // Clear the user from localStorage
-      window.localStorage.removeItem("user");
-      // Redirect to login page
+    // If we get a 401 Unauthorized mid-session, the session has expired.
+    // Redirect to login — unless the caller opted out (the boot-time session
+    // check handles its own 401 via routing rather than a page reload).
+    if (
+      error.response?.status === 401 &&
+      !skipLogin &&
+      !error.config?.skipAuthRedirect
+    ) {
       const rootPath = import.meta.env.VITE_ROOT_PATH || "";
       window.location.href = `${rootPath}/login`;
     }

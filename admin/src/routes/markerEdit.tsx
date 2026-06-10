@@ -217,9 +217,9 @@ export function MarkerEdit() {
       creator_username: markerData.creator_username
         ? markerData.creator_username
         : markerId === "new"
-          ? user
+          ? user?.username
           : null,
-      modifier_username: user,
+      modifier_username: user?.username,
     };
 
     // Saving a new marker

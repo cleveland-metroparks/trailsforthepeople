@@ -478,9 +478,9 @@ export function TrailEdit() {
       creator_username: trailData.creator_username
         ? trailData.creator_username
         : trailId === "new"
-          ? user
+          ? user?.username
           : null,
-      modifier_username: user,
+      modifier_username: user?.username,
     };
 
     // Saving a new trail

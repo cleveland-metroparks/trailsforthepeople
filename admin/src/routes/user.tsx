@@ -66,7 +66,7 @@ const getUserTokens = async () => {
 export function UserAccount() {
   const { user } = useAuth();
 
-  useDocumentTitle(user ? `${user}` : "Users");
+  useDocumentTitle(user ? user.name : "User");
 
   const [openedModal, { open: openModal, close: closeModal }] =
     useDisclosure(false);
@@ -231,7 +231,7 @@ export function UserAccount() {
   return (
     <>
       <Title order={2} mb="md">
-        User: {user}
+        User: {user?.name}
       </Title>
 
       {tokensIsLoading && <div>Loading...</div>}

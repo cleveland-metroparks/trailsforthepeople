@@ -57,7 +57,14 @@ const root = ReactDOM.createRoot(
 const routes = createRoutesFromElements(
   <>
     <Route element={<AuthLayout />}>
-      <Route index element={<Home />} />
+      <Route
+        index
+        element={
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="home"
         element={
@@ -68,7 +75,15 @@ const routes = createRoutesFromElements(
       />
       <Route path="login" element={<Login />} />
       <Route path="logout" element={<Logout />} />
-      <Route path="/" element={<App />} errorElement={<ErrorScreen />}>
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <App />
+          </ProtectedRoute>
+        }
+        errorElement={<ErrorScreen />}
+      >
         <Route errorElement={<ErrorScreen />}>
           <Route path="trails">
             <Route

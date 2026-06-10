@@ -15,6 +15,7 @@ import { showNotification } from "@mantine/notifications";
 import { mapsApiClient } from "../components/mapsApi";
 import { useAuth } from "../hooks/useAuth";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import type { User } from "../types/user";
 
 /**
  * Login screen
@@ -40,43 +41,35 @@ export function Login() {
 
   // Submit login to API
   const authLogin = async (username: string, password: string) => {
-    // For Laravel Sanctum we need to get a CSRF cookie first
-    mapsApiClient.get<any>("/sanctum/csrf-cookie").then(function (
-      _csrfResponse: any
-    ) {
-      // Then we can login
-      mapsApiClient
-        .post<any>("/login", {
-          username: username,
-          password: password,
-        })
-        .then(function (_loginResponse: any) {
-          // Since Laravel Sanctum's SPA authentication is tokenless,
-          // there's no response data to store in the browser
-          // onLogin(loginResponse.data.data);
-          onLogin(username);
-        })
-        .catch(function (error) {
-          console.error("API auth login error:", error);
+    try {
+      // For Laravel Sanctum we need a CSRF cookie first, then we can log in.
+      // Sanctum's SPA auth is tokenless (the session lives in an HttpOnly
+      // cookie), so the login response itself carries nothing to store.
+      await mapsApiClient.get<any>("/sanctum/csrf-cookie");
+      await mapsApiClient.post<any>("/login", { username, password });
 
-          let msg = error.code + ": " + error.message;
-          if (
-            error.response &&
-            error.response.data &&
-            error.response.data.message
-          ) {
-            msg += ": " + error.response.data.message;
-          }
+      // Fetch the authenticated user so we store the real user object — the
+      // server, not the typed-in username, is the source of truth.
+      const userResponse = await mapsApiClient.get<User>(
+        import.meta.env.VITE_MAPS_API_BASE_PATH + "/user"
+      );
+      onLogin(userResponse.data);
+    } catch (error: any) {
+      console.error("API auth login error:", error);
 
-          showNotification({
-            id: "login-error",
-            title: "Login Error",
-            message: msg,
-            autoClose: false,
-            color: "red",
-          });
-        });
-    });
+      let msg = error.code + ": " + error.message;
+      if (error.response && error.response.data && error.response.data.message) {
+        msg += ": " + error.response.data.message;
+      }
+
+      showNotification({
+        id: "login-error",
+        title: "Login Error",
+        message: msg,
+        autoClose: false,
+        color: "red",
+      });
+    }
   };
 
   return (

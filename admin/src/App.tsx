@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
-import { Link, Outlet, Navigate } from "react-router";
+import { Link, Outlet } from "react-router";
 import {
   Anchor,
   ActionIcon,
@@ -15,7 +15,6 @@ import { version } from "../package.json";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 
-import { useAuth } from "./hooks/useAuth";
 import { NavLinks, UserLinks } from "./components/navLinks";
 
 function App() {
@@ -23,13 +22,8 @@ function App() {
   const { colorScheme } = useMantineColorScheme();
   const [opened, setOpened] = useState(false);
   const [navCollapsed, setNavCollapsed] = useState(false);
-  const { user } = useAuth();
   const isMobile = !useMediaQuery("(min-width: 768px)");
   const isNavCollapsed = navCollapsed && !isMobile;
-
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
 
   return (
     <AppShell

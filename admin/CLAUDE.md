@@ -50,15 +50,26 @@ React Router v7 with a protected-route pattern. All authenticated routes are nes
 
 ### API Client (`src/components/mapsApi.tsx`)
 
-Axios instance with two interceptors:
+Axios instance (`withCredentials: true`, so the Sanctum session cookie is sent) with two interceptors:
 1. **Request** — reads `XSRF-TOKEN` cookie and injects it as `X-XSRF-TOKEN` header
-2. **Response** — on 401, clears the auth context and redirects to `/login`
+2. **Response** — on a mid-session 401, redirects to `/login`. Requests can opt out with the
+   `skipAuthRedirect` config flag (used by the boot-time session check, where a 401 is expected)
 
 Base URL is `REACT_APP_MAPS_API_BASE_URL + /api/v1`.
 
 ### Auth (`src/hooks/useAuth.tsx`)
 
-Auth state (user object) is stored in localStorage via `useLocalStorage`. The `AuthLayout` component provides the context; `protectedRoute.tsx` gates access.
+**Laravel Sanctum SPA (cookie-session) authentication** — not JWT. The real auth state is an
+HttpOnly session cookie managed by the server; the browser holds no token. Login flow
+(`routes/login.tsx`): `GET /sanctum/csrf-cookie` → `POST /login` → `GET {API_BASE_PATH}/user` to
+fetch the authenticated user object.
+
+The **server is the single source of truth**. `AuthProvider` keeps the user object in React state
+(no localStorage) and exposes a three-state `status`: `loading | authenticated | anonymous`. On
+mount it runs a boot-time session check (`GET {API_BASE_PATH}/user`) — 200 → authenticated with the
+real user; 401/error → anonymous. `VITE_SKIP_LOGIN=true` bypasses the check with a synthetic dev
+user. `protectedRoute.tsx` is the single gate: it shows a spinner while `loading` and redirects to
+`/login` when `anonymous`. Session *lifetime* is controlled server-side (Laravel `SESSION_LIFETIME`).
 
 ### Map Editing (`src/components/trailMap.tsx`)
 
