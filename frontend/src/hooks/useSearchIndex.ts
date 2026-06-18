@@ -69,9 +69,20 @@ export function useSearchIndex() {
     // Add attractions to index
     attractions.forEach((attraction) => {
       if (attraction.pagetitle) {
-        const lat = Number(attraction.latitude)
-        const lng = Number(attraction.longitude)
-        if (!hasValidCoords(lat, lng)) return
+        const usingFallbackCoords = attraction.latitude == null || attraction.longitude == null
+        const lat = Number(attraction.latitude ?? attraction.drivingdestinationlatitude)
+        const lng = Number(attraction.longitude ?? attraction.drivingdestinationlongitude)
+        if (!hasValidCoords(lat, lng)) {
+          console.warn(
+            `[Search] Skipping attraction "${attraction.pagetitle}" (gis_id=${attraction.gis_id}): no valid coordinates`
+          )
+          return
+        }
+        if (usingFallbackCoords) {
+          console.warn(
+            `[Search] Attraction "${attraction.pagetitle}" (gis_id=${attraction.gis_id}): missing lat/lng, using driving destination coords`
+          )
+        }
         const item: SearchItem = {
           id: `attraction-${attraction.gis_id}`,
           title: String(attraction.pagetitle),

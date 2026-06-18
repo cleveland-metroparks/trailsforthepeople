@@ -27,8 +27,8 @@ export interface Attraction {
   gis_id?: string | number | null
   record_id?: string | number | null
   pagetitle: string
-  latitude: number
-  longitude: number
+  latitude: number | null
+  longitude: number | null
   drivingdestinationlatitude?: number | null
   drivingdestinationlongitude?: number | null
   categories?: string | number[] | null // Can be pipe-delimited string or array after transformation
@@ -46,8 +46,8 @@ export interface Attraction {
 // with [key: string]: unknown loses specific property types (TypeScript limitation).
 export interface TransformedAttraction extends Omit<Attraction, 'categories' | 'activities'> {
   pagetitle: string
-  latitude: number
-  longitude: number
+  latitude: number | null
+  longitude: number | null
   pagethumbnail?: string | null
   descr?: string | null
   hoursofoperation?: string | null

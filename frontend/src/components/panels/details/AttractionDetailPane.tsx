@@ -68,7 +68,7 @@ export function AttractionDetailPane({
         <DetailParkSection parkName={parkName} />
       </Stack>
 
-      <DetailShowOnMapSection lat={attraction.latitude} lng={attraction.longitude} />
+      <DetailShowOnMapSection lat={attraction.latitude ?? undefined} lng={attraction.longitude ?? undefined} />
 
       {categoryNames && categoryNames.length > 0 && (
         <Group spacing="xs">
@@ -141,8 +141,8 @@ export function AttractionDetailPane({
 
       <DetailDirectionsSection
         targetName={String(attraction.pagetitle)}
-        lat={attraction.latitude}
-        lng={attraction.longitude}
+        lat={attraction.latitude ?? undefined}
+        lng={attraction.longitude ?? undefined}
         reservationId={(attraction as { reservation?: number | string }).reservation}
       />
       <DetailShareSection />
