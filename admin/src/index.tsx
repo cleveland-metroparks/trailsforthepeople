@@ -35,6 +35,8 @@ import { action as deleteMarkerAction } from "./routes/markerDelete";
 
 import { AuditLogsList, AuditLogView } from "./routes/logs";
 
+import { FulcrumSyncList, FulcrumSyncDetail } from "./routes/fulcrumSync";
+
 import "./index.css";
 
 import App from "./App";
@@ -109,6 +111,10 @@ const routes = createRoutesFromElements(
           <Route path="logs">
             <Route index element={<AuditLogsList />} />
             <Route path=":logId" element={<AuditLogView />} />
+          </Route>
+          <Route path="sync">
+            <Route index element={<FulcrumSyncList />} />
+            <Route path=":runId" element={<FulcrumSyncDetail />} />
           </Route>
           <Route path="user">
             <Route index element={<UserAccount />} />

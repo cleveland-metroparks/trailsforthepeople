@@ -4,6 +4,7 @@ import {
   IconRoute,
   IconMapPin,
   IconFileText,
+  IconRefresh,
   IconUser,
   IconLogout,
 } from "@tabler/icons-react";
@@ -30,6 +31,12 @@ const navLinksData = [
   { icon: <IconRoute />, color: "blue", label: "Trails", urlPath: "trails" },
   { icon: <IconMapPin />, color: "teal", label: "Markers", urlPath: "markers" },
   { icon: <IconFileText />, color: "grape", label: "Logs", urlPath: "logs" },
+  {
+    icon: <IconRefresh />,
+    color: "orange",
+    label: "Fulcrum",
+    urlPath: "sync",
+  },
 ];
 
 const userLinksData = [
