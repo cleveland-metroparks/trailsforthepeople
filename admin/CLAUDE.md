@@ -45,7 +45,7 @@ React Router v7 with a protected-route pattern. All authenticated routes are nes
   /:markerId          → MarkerEdit
   /:markerId/delete   → MarkerDelete
 /logs, /logs/:logId   → Audit log viewer
-/sync                 → FulcrumSyncList (status widget + run history)
+/fulcrum              → FulcrumSyncList (status widget + run history)
   /:runId             → FulcrumSyncDetail (per-table rows)
 /user                 → Account settings
 ```

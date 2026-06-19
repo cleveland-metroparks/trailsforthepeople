@@ -322,7 +322,7 @@ export function FulcrumSyncList() {
             runs.map((run) => (
               <Table.Tr key={run.id}>
                 <Table.Td>
-                  <Anchor component={Link} to={`/sync/${run.id}`}>
+                  <Anchor component={Link} to={`/fulcrum/${run.id}`}>
                     {formatET(run.started_at)}
                   </Anchor>
                 </Table.Td>
@@ -459,7 +459,7 @@ export function FulcrumSyncDetail() {
 
   return (
     <div>
-      <Anchor component={Link} to="/sync">
+      <Anchor component={Link} to="/fulcrum">
         « Fulcrum Sync
       </Anchor>
 

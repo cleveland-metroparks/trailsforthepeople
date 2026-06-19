@@ -112,7 +112,7 @@ const routes = createRoutesFromElements(
             <Route index element={<AuditLogsList />} />
             <Route path=":logId" element={<AuditLogView />} />
           </Route>
-          <Route path="sync">
+          <Route path="fulcrum">
             <Route index element={<FulcrumSyncList />} />
             <Route path=":runId" element={<FulcrumSyncDetail />} />
           </Route>

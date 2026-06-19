@@ -35,7 +35,7 @@ const navLinksData = [
     icon: <IconRefresh />,
     color: "orange",
     label: "Fulcrum",
-    urlPath: "sync",
+    urlPath: "fulcrum",
   },
 ];
 
