@@ -41,6 +41,19 @@ export function describeRunType(cliArgs: string | null | undefined): string {
   return cliArgs?.trim() === NIGHTLY_CLI_ARGS ? "Nightly" : "Manual";
 }
 
+export function RunTypeBadge({
+  cliArgs,
+}: {
+  cliArgs: string | null | undefined;
+}) {
+  const label = describeRunType(cliArgs);
+  return (
+    <Badge color={label === "Nightly" ? "dark" : "orange"} variant="light">
+      {label}
+    </Badge>
+  );
+}
+
 const RUN_STATUS_COLOR: Record<ComputedStatus, string> = {
   success: "green",
   failure: "red",

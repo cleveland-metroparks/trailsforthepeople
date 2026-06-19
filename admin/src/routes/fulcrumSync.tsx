@@ -30,6 +30,7 @@ import { sortTableData, Th } from "../components/tablesort";
 import {
   SyncStatusBadge,
   TableStatusBadge,
+  RunTypeBadge,
   formatDuration,
   formatET,
   describeRunType,
@@ -331,7 +332,7 @@ export function FulcrumSyncList() {
                 </Table.Td>
                 <Table.Td>{formatDuration(run.duration_secs)}</Table.Td>
                 <Table.Td>
-                  <Text size="sm">{describeRunType(run.cli_args)}</Text>
+                  <RunTypeBadge cliArgs={run.cli_args} />
                 </Table.Td>
                 <Table.Td>
                   <TablesRollup
