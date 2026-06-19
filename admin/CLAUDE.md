@@ -51,7 +51,7 @@ React Router v7 with a protected-route pattern. All authenticated routes are nes
 ```
 
 The Fulcrum Sync section is read-only and consumes the `/fulcrum_sync_runs` API
-(health, list, detail). See `maps-admin-sync-runs.md` for the endpoint contract.
+(health, list, detail, table_summary, table_history).
 
 ### API Client (`src/components/mapsApi.tsx`)
 

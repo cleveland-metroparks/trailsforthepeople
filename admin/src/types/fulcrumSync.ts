@@ -64,6 +64,15 @@ export interface SyncRunListResponse {
 // table_summary sort options (handled server-side).
 export type TableSummarySort = "name" | "last_synced_at" | "rows";
 
+// One record from GET /fulcrum_sync_runs/table_history.
+export interface SyncTableHistory {
+  started_at: string;
+  status: TableStatus;
+  duration_secs: number | null;
+  rows_before: number | null;
+  rows_after: number | null;
+}
+
 // One record from GET /fulcrum_sync_runs/table_summary.
 export interface SyncTableSummary {
   fulcrum_name: string;

@@ -8,6 +8,7 @@ import {
   Box,
   Code,
   Collapse,
+  Drawer,
   Group,
   Loader,
   Pagination,
@@ -21,6 +22,7 @@ import {
   TextInput,
   Title,
   Tooltip,
+  UnstyledButton,
 } from "@mantine/core";
 import {
   IconAlertTriangle,
@@ -40,15 +42,34 @@ import {
   formatET,
   describeRunType,
 } from "../components/syncFormat";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip as ChartTooltip,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+
 import type {
   SyncHealth,
   SyncRunListResponse,
   SyncRunDetail,
   SyncRunStatus,
   SyncTable,
+  SyncTableHistory,
   SyncTableSummary,
   TableSummarySort,
 } from "../types/fulcrumSync";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ChartTooltip
+);
 
 const API_BASE = import.meta.env.VITE_MAPS_API_BASE_PATH;
 const PER_PAGE = 20;
@@ -372,6 +393,193 @@ const TABLE_TYPE_COLOR: Record<string, string> = {
   photo: "violet",
 };
 
+//
+// Drawer showing row-count trend + run history for a single Fulcrum table.
+//
+function TableHistoryDrawer({
+  table,
+  onClose,
+}: {
+  table: SyncTableSummary | null;
+  onClose: () => void;
+}) {
+  const getHistory = async () => {
+    const params = new URLSearchParams({
+      fulcrum_name: table!.fulcrum_name,
+      limit: "30",
+    });
+    const response = await mapsApiClient.get<{ data: SyncTableHistory[] }>(
+      `${API_BASE}/fulcrum_sync_runs/table_history?${params.toString()}`
+    );
+    return response.data.data;
+  };
+
+  const { isLoading, isError, data, error } = useQuery<
+    SyncTableHistory[],
+    Error
+  >({
+    queryKey: ["fulcrum_table_history", table?.fulcrum_name],
+    queryFn: getHistory,
+    enabled: !!table,
+  });
+
+  // API returns newest-first; chart wants oldest-first.
+  const chartRows = (data ?? [])
+    .filter((r) => r.rows_after !== null)
+    .slice()
+    .reverse();
+
+  const chartData = {
+    labels: chartRows.map((r) => formatET(r.started_at)),
+    datasets: [
+      {
+        label: "Rows",
+        data: chartRows.map((r) => r.rows_after),
+        borderColor: "rgba(34, 139, 230, 1)",
+        backgroundColor: "rgba(34, 139, 230, 0.1)",
+        pointRadius: 3,
+        fill: true,
+        tension: 0.2,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { maxRotation: 45, font: { size: 10 } } },
+      y: { beginAtZero: false, title: { display: true, text: "Row count" } },
+    },
+  } as const;
+
+  const historyRows = data ?? [];
+
+  return (
+    <Drawer
+      opened={!!table}
+      onClose={onClose}
+      title={
+        table ? (
+          <Stack gap={2}>
+            <Text fw={700}>{table.fulcrum_name}</Text>
+            <Group gap="xs">
+              <Badge
+                color={TABLE_TYPE_COLOR[table.table_type] ?? "gray"}
+                variant="light"
+                size="sm"
+              >
+                {table.table_type}
+              </Badge>
+              <Text size="xs" c="dimmed" ff="monospace">
+                {table.postgres_schema}.{table.postgres_table}
+              </Text>
+            </Group>
+          </Stack>
+        ) : null
+      }
+      position="right"
+      size="xl"
+      padding="md"
+    >
+      {isLoading && (
+        <Group gap="xs" mt="md">
+          <Loader size="sm" />
+          <Text>Loading history…</Text>
+        </Group>
+      )}
+
+      {isError && (
+        <Alert color="red" icon={<IconAlertTriangle />} mt="md">
+          Could not load table history — {error.message}
+        </Alert>
+      )}
+
+      {data && (
+        <Stack gap="lg" mt="xs">
+          {chartRows.length > 1 ? (
+            <div>
+              <Text size="sm" fw={600} mb="xs">
+                Row count over time
+              </Text>
+              <Line data={chartData} options={chartOptions} height={80} />
+            </div>
+          ) : (
+            <Text size="sm" c="dimmed">
+              Not enough successful runs to show a trend yet.
+            </Text>
+          )}
+
+          <div>
+            <Text size="sm" fw={600} mb="xs">
+              Run history (last {historyRows.length})
+            </Text>
+            <Table striped>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Date</Table.Th>
+                  <Table.Th>Status</Table.Th>
+                  <Table.Th>Duration</Table.Th>
+                  <Table.Th>Rows before</Table.Th>
+                  <Table.Th>Rows after</Table.Th>
+                  <Table.Th>Change</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {historyRows.map((r, i) => {
+                  const delta =
+                    r.rows_before !== null && r.rows_after !== null
+                      ? r.rows_after - r.rows_before
+                      : null;
+                  const deltaColor =
+                    delta === null
+                      ? undefined
+                      : delta < -50
+                        ? "red"
+                        : delta > 0
+                          ? "green"
+                          : undefined;
+                  return (
+                    <Table.Tr key={i}>
+                      <Table.Td>
+                        <Text size="sm">{formatET(r.started_at)}</Text>
+                      </Table.Td>
+                      <Table.Td>
+                        <TableStatusBadge status={r.status} />
+                      </Table.Td>
+                      <Table.Td>{formatDuration(r.duration_secs)}</Table.Td>
+                      <Table.Td>
+                        {r.rows_before !== null
+                          ? r.rows_before.toLocaleString()
+                          : "—"}
+                      </Table.Td>
+                      <Table.Td>
+                        {r.rows_after !== null
+                          ? r.rows_after.toLocaleString()
+                          : "—"}
+                      </Table.Td>
+                      <Table.Td>
+                        {delta !== null ? (
+                          <Text size="sm" c={deltaColor} fw={delta !== 0 ? 600 : undefined}>
+                            {delta > 0 ? "+" : ""}
+                            {delta.toLocaleString()}
+                          </Text>
+                        ) : (
+                          "—"
+                        )}
+                      </Table.Td>
+                    </Table.Tr>
+                  );
+                })}
+              </Table.Tbody>
+            </Table>
+          </div>
+        </Stack>
+      )}
+    </Drawer>
+  );
+}
+
 type TableType = "standard" | "photo";
 
 //
@@ -383,6 +591,9 @@ function SyncTablesTab() {
   const [reversed, setReversed] = useState(false);
   const [tableType, setTableType] = useState<TableType | null>(null);
   const [search, setSearch] = useState("");
+  const [selectedTable, setSelectedTable] = useState<SyncTableSummary | null>(
+    null
+  );
 
   const getTables = async () => {
     const response = await mapsApiClient.get<{ data: SyncTableSummary[] }>(
@@ -422,6 +633,11 @@ function SyncTablesTab() {
 
   return (
     <div>
+      <TableHistoryDrawer
+        table={selectedTable}
+        onClose={() => setSelectedTable(null)}
+      />
+
       <Group mb="md" align="flex-end">
         <TextInput
           label="Search"
@@ -475,7 +691,14 @@ function SyncTablesTab() {
           {tables.length > 0 ? (
             tables.map((t) => (
               <Table.Tr key={t.fulcrum_name}>
-                <Table.Td>{t.fulcrum_name}</Table.Td>
+                <Table.Td>
+                  <UnstyledButton
+                    onClick={() => setSelectedTable(t)}
+                    style={{ color: "var(--mantine-color-anchor)", cursor: "pointer" }}
+                  >
+                    {t.fulcrum_name}
+                  </UnstyledButton>
+                </Table.Td>
                 <Table.Td>
                   <Tooltip
                     label={
