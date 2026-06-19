@@ -13,6 +13,9 @@
 
 # misc
 .DS_Store
+
+# local dev TLS certs (mkcert) for the same-site dev hostname
+/certs
 .env.local
 .env.development.local
 .env.test.local

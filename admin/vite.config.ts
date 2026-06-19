@@ -1,6 +1,21 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
+import fs from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
+
+// Local-dev hostname used to serve the admin as a same-site subdomain of the
+// API (both under clevelandmetroparks.com), so Sanctum's session/XSRF cookies
+// are first-party. Add this host to /etc/hosts (→ 127.0.0.1) and generate a
+// trusted cert into ./certs with mkcert (see README/setup notes).
+const LOCAL_HOST = 'maps-admin-local.clevelandmetroparks.com'
+const certPath = fileURLToPath(new URL(`./certs/${LOCAL_HOST}.pem`, import.meta.url))
+const keyPath = fileURLToPath(new URL(`./certs/${LOCAL_HOST}-key.pem`, import.meta.url))
+// HTTPS is enabled only when the cert pair exists, so a missing cert never
+// breaks `npm start` for anyone who hasn't run the mkcert setup.
+const localHttps =
+  fs.existsSync(certPath) && fs.existsSync(keyPath)
+    ? { cert: fs.readFileSync(certPath), key: fs.readFileSync(keyPath) }
+    : undefined
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
@@ -27,6 +42,10 @@ export default defineConfig(({ command, mode }) => {
     server: {
       port: 3001,
       host: true,
+      // Allow the custom same-site dev hostname (Vite blocks unknown hosts by
+      // default). localhost still works for the proxy-less default flow.
+      allowedHosts: [LOCAL_HOST],
+      ...(localHttps ? { https: localHttps } : {}),
     },
     build: {
       outDir: 'dist',

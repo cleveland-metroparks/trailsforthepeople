@@ -45,8 +45,13 @@ React Router v7 with a protected-route pattern. All authenticated routes are nes
   /:markerId          → MarkerEdit
   /:markerId/delete   → MarkerDelete
 /logs, /logs/:logId   → Audit log viewer
+/sync                 → FulcrumSyncList (status widget + run history)
+  /:runId             → FulcrumSyncDetail (per-table rows)
 /user                 → Account settings
 ```
+
+The Fulcrum Sync section is read-only and consumes the `/fulcrum_sync_runs` API
+(health, list, detail). See `maps-admin-sync-runs.md` for the endpoint contract.
 
 ### API Client (`src/components/mapsApi.tsx`)
 

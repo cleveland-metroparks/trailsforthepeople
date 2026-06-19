@@ -41,7 +41,55 @@ App URL:
 Notes:
 
 - Router basename defaults to `VITE_ROOT_PATH` (normally `/admin`).
-- Set `VITE_SKIP_LOGIN=true` for local UI development without API auth.
+- Set `VITE_SKIP_LOGIN=true` for local UI development without API auth. Note this
+  also disables Axios `withCredentials`, so no session cookie is sent — any
+  endpoint that requires authentication will return `401`. Use it only for
+  UI/layout work, not against protected endpoints (see below).
+
+## Local development with API authentication
+
+Two ways to run locally against a real (Sanctum-protected) API:
+
+### Option A — Skip auth (UI work only)
+
+Set `VITE_SKIP_LOGIN=true`. A synthetic dev user is injected and login is
+bypassed. Because this turns off `withCredentials`, protected endpoints (e.g.
+`fulcrum_sync_runs`) return `401`. Fine for layout/UI work against open endpoints.
+
+### Option B — Same-site subdomain over HTTPS (real auth)
+
+Sanctum SPA auth is cookie-based, so the admin and API must be **same-site**.
+Serve the admin from a `clevelandmetroparks.com` subdomain that resolves to your
+machine, over HTTPS:
+
+1. Map the hostname to localhost:
+   ```bash
+   echo "127.0.0.1 maps-admin-local.clevelandmetroparks.com" | sudo tee -a /etc/hosts
+   ```
+2. Generate a locally-trusted cert into `./certs/` (gitignored):
+   ```bash
+   brew install mkcert nss          # nss only needed for Firefox
+   mkcert -install
+   mkdir -p certs && cd certs
+   mkcert maps-admin-local.clevelandmetroparks.com
+   cd ..
+   ```
+   `vite.config.ts` auto-enables HTTPS once
+   `certs/maps-admin-local.clevelandmetroparks.com.pem` (+ `-key.pem`) exist.
+3. In `.env.local`: set `VITE_SKIP_LOGIN=false` and point `VITE_MAPS_API_BASE_URL`
+   at the API (e.g. `https://maps-api-dev.clevelandmetroparks.com`).
+4. `npm run dev`, then open
+   `https://maps-admin-local.clevelandmetroparks.com:3001/admin` and log in.
+
+The **API environment** must also trust this origin:
+
+- `SESSION_DOMAIN=.clevelandmetroparks.com` — so the `XSRF-TOKEN` cookie is
+  readable by the admin subdomain. Without it you get **419 CSRF token mismatch**.
+- `SANCTUM_STATEFUL_DOMAINS` includes `maps-admin-local.clevelandmetroparks.com:3001`.
+- CORS allows that origin with `supports_credentials: true`.
+
+If you can't change the API config, a Vite dev proxy (forward `/api`, `/sanctum`,
+`/login`, `/logout` with `cookieDomainRewrite`) is a server-change-free fallback.
 
 ## Project Structure
 
@@ -118,6 +166,7 @@ Key routes are defined in `src/index.tsx`:
 | `/markers`               | Marker list            |
 | `/markers/:markerId`     | Marker editor          |
 | `/logs` / `/logs/:logId` | Audit logs             |
+| `/sync` / `/sync/:runId` | Fulcrum sync history   |
 | `/user`                  | User/account page      |
 | `/loops/*`               | Redirects to `/trails` |
 
