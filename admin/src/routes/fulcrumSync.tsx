@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { Link, useParams } from "react-router";
+import { Link, useParams, useSearchParams } from "react-router";
 import {
   Alert,
   Anchor,
+  Badge,
   Box,
   Code,
   Collapse,
@@ -15,13 +16,17 @@ import {
   SimpleGrid,
   Stack,
   Table,
+  Tabs,
   Text,
+  TextInput,
   Title,
+  Tooltip,
 } from "@mantine/core";
 import {
   IconAlertTriangle,
   IconClockExclamation,
   IconInfoCircle,
+  IconSearch,
 } from "@tabler/icons-react";
 
 import { mapsApiClient } from "../components/mapsApi";
@@ -41,6 +46,8 @@ import type {
   SyncRunDetail,
   SyncRunStatus,
   SyncTable,
+  SyncTableSummary,
+  TableSummarySort,
 } from "../types/fulcrumSync";
 
 const API_BASE = import.meta.env.VITE_MAPS_API_BASE_PATH;
@@ -246,11 +253,9 @@ function TablesRollup({
 }
 
 //
-// Run history list
+// Run history tab
 //
-export function FulcrumSyncList() {
-  useDocumentTitle("Fulcrum Sync");
-
+function SyncLogTab() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<SyncRunStatus | null>(null);
 
@@ -284,12 +289,6 @@ export function FulcrumSyncList() {
 
   return (
     <div>
-      <Title order={2} mb="md">
-        Fulcrum Sync
-      </Title>
-
-      <SyncHealthWidget />
-
       <Group mb="md">
         <Select
           label="Status"
@@ -364,6 +363,210 @@ export function FulcrumSyncList() {
           <Pagination value={page} onChange={setPage} total={totalPages} />
         </Box>
       )}
+    </div>
+  );
+}
+
+const TABLE_TYPE_COLOR: Record<string, string> = {
+  standard: "blue",
+  photo: "violet",
+};
+
+type TableType = "standard" | "photo";
+
+//
+// Sync Tables tab — lists all Fulcrum tables with latest row count and last sync.
+// The API handles the sort field; direction and type filtering are client-side.
+//
+function SyncTablesTab() {
+  const [sort, setSort] = useState<TableSummarySort>("name");
+  const [reversed, setReversed] = useState(false);
+  const [tableType, setTableType] = useState<TableType | null>(null);
+  const [search, setSearch] = useState("");
+
+  const getTables = async () => {
+    const response = await mapsApiClient.get<{ data: SyncTableSummary[] }>(
+      `${API_BASE}/fulcrum_sync_runs/table_summary?sort=${sort}`
+    );
+    return response.data.data;
+  };
+
+  const { isLoading, isError, data, error } = useQuery<
+    SyncTableSummary[],
+    Error
+  >({
+    queryKey: ["fulcrum_sync_table_summary", sort],
+    queryFn: getTables,
+  });
+
+  const handleSort = (field: TableSummarySort) => {
+    if (field === sort) {
+      setReversed((r) => !r);
+    } else {
+      setSort(field);
+      setReversed(false);
+    }
+  };
+
+  let tables = data ?? [];
+  if (search.trim()) {
+    const q = search.toLowerCase();
+    tables = tables.filter((t) => t.fulcrum_name.toLowerCase().includes(q));
+  }
+  if (tableType) {
+    tables = tables.filter((t) => t.table_type === tableType);
+  }
+  if (reversed) {
+    tables = [...tables].reverse();
+  }
+
+  return (
+    <div>
+      <Group mb="md" align="flex-end">
+        <TextInput
+          label="Search"
+          placeholder="Filter by table name"
+          leftSection={<IconSearch size="0.9rem" stroke={1.5} />}
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+        />
+        <Select
+          label="Table Type"
+          placeholder="All"
+          clearable
+          data={[
+            { value: "standard", label: "Standard" },
+            { value: "photo", label: "Photo" },
+          ]}
+          value={tableType}
+          onChange={(value) => setTableType(value as TableType | null)}
+        />
+      </Group>
+
+      <Table striped highlightOnHover>
+        <Table.Thead>
+          <Table.Tr>
+            <Th
+              sorted={sort === "name"}
+              reversed={sort === "name" ? reversed : false}
+              onSort={() => handleSort("name")}
+            >
+              Table
+            </Th>
+            <Table.Th>Type</Table.Th>
+            <Table.Th>DB location</Table.Th>
+            <Th
+              sorted={sort === "rows"}
+              reversed={sort === "rows" ? reversed : false}
+              onSort={() => handleSort("rows")}
+            >
+              Rows
+            </Th>
+            <Th
+              sorted={sort === "last_synced_at"}
+              reversed={sort === "last_synced_at" ? reversed : false}
+              onSort={() => handleSort("last_synced_at")}
+            >
+              Last synced
+            </Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {tables.length > 0 ? (
+            tables.map((t) => (
+              <Table.Tr key={t.fulcrum_name}>
+                <Table.Td>{t.fulcrum_name}</Table.Td>
+                <Table.Td>
+                  <Tooltip
+                    label={
+                      t.table_type === "photo"
+                        ? "Photo metadata table"
+                        : "Form data table"
+                    }
+                  >
+                    <Badge
+                      color={TABLE_TYPE_COLOR[t.table_type] ?? "gray"}
+                      variant="light"
+                    >
+                      {t.table_type}
+                    </Badge>
+                  </Tooltip>
+                </Table.Td>
+                <Table.Td>
+                  <Text size="sm" c="dimmed" ff="monospace">
+                    {t.postgres_schema}.{t.postgres_table}
+                  </Text>
+                </Table.Td>
+                <Table.Td>
+                  {t.rows_after !== null ? t.rows_after.toLocaleString() : "—"}
+                </Table.Td>
+                <Table.Td>{formatET(t.last_synced_at)}</Table.Td>
+              </Table.Tr>
+            ))
+          ) : (
+            <Table.Tr>
+              <Table.Td colSpan={5}>
+                <Text fw={500} ta="center" my="md">
+                  {isError
+                    ? `There was a problem fetching tables — ${error.message}`
+                    : isLoading
+                      ? "Loading…"
+                      : "No tables found"}
+                </Text>
+              </Table.Td>
+            </Table.Tr>
+          )}
+        </Table.Tbody>
+      </Table>
+    </div>
+  );
+}
+
+const VALID_TABS = ["log", "tables"] as const;
+type TabValue = (typeof VALID_TABS)[number];
+
+//
+// Fulcrum Sync page — health widget + tabbed view (Sync Log / Sync Tables).
+// Active tab is reflected in the URL as ?tab=log or ?tab=tables.
+//
+export function FulcrumSyncList() {
+  useDocumentTitle("Fulcrum Sync");
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const rawTab = searchParams.get("tab");
+  const activeTab: TabValue =
+    rawTab && (VALID_TABS as readonly string[]).includes(rawTab)
+      ? (rawTab as TabValue)
+      : "log";
+
+  const handleTabChange = (value: string | null) => {
+    if (value && (VALID_TABS as readonly string[]).includes(value)) {
+      setSearchParams({ tab: value }, { replace: true });
+    }
+  };
+
+  return (
+    <div>
+      <Title order={2} mb="md">
+        Fulcrum Sync
+      </Title>
+
+      <SyncHealthWidget />
+
+      <Tabs value={activeTab} onChange={handleTabChange}>
+        <Tabs.List mb="md">
+          <Tabs.Tab value="log">Fulcrum Sync Log</Tabs.Tab>
+          <Tabs.Tab value="tables">Fulcrum Sync Tables</Tabs.Tab>
+        </Tabs.List>
+
+        <Tabs.Panel value="log">
+          <SyncLogTab />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="tables">
+          <SyncTablesTab />
+        </Tabs.Panel>
+      </Tabs>
     </div>
   );
 }

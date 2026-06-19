@@ -61,6 +61,19 @@ export interface SyncRunListResponse {
   page: number;
 }
 
+// table_summary sort options (handled server-side).
+export type TableSummarySort = "name" | "last_synced_at" | "rows";
+
+// One record from GET /fulcrum_sync_runs/table_summary.
+export interface SyncTableSummary {
+  fulcrum_name: string;
+  postgres_schema: string;
+  postgres_table: string;
+  table_type: TableType;
+  rows_after: number | null;
+  last_synced_at: string | null;
+}
+
 // Dashboard summary response `data`.
 export interface SyncHealth {
   last_run: SyncRunSummary | null;
