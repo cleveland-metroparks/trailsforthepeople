@@ -83,6 +83,35 @@ export interface SyncTableSummary {
   last_synced_at: string | null;
 }
 
+// Types for the sync-trigger API (/api/v1/fulcrum_sync_jobs). Enqueuing is
+// fire-and-forget: it creates a job row that a poller on postgis-prod picks
+// up, which then sets run_id once the run actually starts.
+
+export type FulcrumSyncJobStatus = "pending" | "started" | "rejected";
+
+export type FulcrumSyncJobTables = "standard" | "photos" | "both";
+
+// POST /fulcrum_sync_jobs body. Omit `tables`/`single_table` for a full sync
+// of both table sets. `requested_by` is set server-side from the session user.
+export interface EnqueueSyncJobRequest {
+  tables?: FulcrumSyncJobTables;
+  single_table?: string;
+  with_assoc_photos?: boolean;
+  aggregate_photo_tables?: boolean;
+}
+
+// A job row, returned by POST /fulcrum_sync_jobs and GET /fulcrum_sync_jobs/{id}.
+export interface FulcrumSyncJob {
+  id: number;
+  status: FulcrumSyncJobStatus;
+  run_id: number | null;
+  tables: FulcrumSyncJobTables | null;
+  single_table: string | null;
+  with_assoc_photos: boolean;
+  aggregate_photo_tables: boolean;
+  error_message: string | null;
+}
+
 // Dashboard summary response `data`.
 export interface SyncHealth {
   last_run: SyncRunSummary | null;

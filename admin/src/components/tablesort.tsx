@@ -74,7 +74,7 @@ export function Th({ children, reversed, sorted, onSort }: ThProps) {
     <Table.Th className={styles.th}>
       <UnstyledButton onClick={onSort} className={styles.control}>
         <Group justify="space-between">
-          <Text fw={500} fz="sm">
+          <Text fw={700} fz="sm">
             {children}
           </Text>
           <Center className={styles.icon}>

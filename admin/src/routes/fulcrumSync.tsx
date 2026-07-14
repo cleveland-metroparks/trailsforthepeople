@@ -1,7 +1,13 @@
-import { useState } from "react";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
 import { Link, useParams, useSearchParams } from "react-router";
 import {
+  ActionIcon,
   Alert,
   Anchor,
   Badge,
@@ -24,10 +30,12 @@ import {
   Tooltip,
   UnstyledButton,
 } from "@mantine/core";
+import { showNotification } from "@mantine/notifications";
 import {
   IconAlertTriangle,
   IconClockExclamation,
   IconInfoCircle,
+  IconRefresh,
   IconSearch,
 } from "@tabler/icons-react";
 
@@ -53,6 +61,7 @@ import {
 import { Line } from "react-chartjs-2";
 
 import type {
+  FulcrumSyncJob,
   SyncHealth,
   SyncRunListResponse,
   SyncRunDetail,
@@ -73,6 +82,10 @@ ChartJS.register(
 
 const API_BASE = import.meta.env.VITE_MAPS_API_BASE_PATH;
 const PER_PAGE = 20;
+
+// A sync job is presumed stuck if it hasn't gotten a run_id (or been
+// rejected) within this long of being enqueued — the poller/DB may be down.
+const JOB_STUCK_TIMEOUT_MS = 2 * 60 * 1000;
 
 // A run is considered overdue if its most recent start is older than ~25 hours
 // — the nightly sync should have fired within the last day.
@@ -582,11 +595,159 @@ function TableHistoryDrawer({
 
 type TableType = "standard" | "photo";
 
+// Renders the "Sync" column cell for one table row. Each row gets its own
+// component instance (keyed by fulcrum_name via the parent Table.Tr), so the
+// enqueue mutation and job poll below are naturally scoped per-row — one
+// row's in-flight request can never be confused with another's.
+function TableSyncCell({
+  fulcrumName,
+  tabActive,
+}: {
+  fulcrumName: string;
+  tabActive: boolean;
+}) {
+  const queryClient = useQueryClient();
+  const [job, setJob] = useState<{ id: number; startedAt: number } | null>(
+    null
+  );
+
+  const enqueueMutation = useMutation({
+    mutationFn: async () => {
+      const response = await mapsApiClient.post<{ data: FulcrumSyncJob }>(
+        `${API_BASE}/fulcrum_sync_jobs`,
+        { single_table: fulcrumName, with_assoc_photos: false }
+      );
+      return response.data.data;
+    },
+    onSuccess: (data) => {
+      setJob({ id: data.id, startedAt: Date.now() });
+      // Seed the poll query's cache immediately so the UI doesn't have to
+      // wait for the first GET tick to show a status.
+      queryClient.setQueryData(["fulcrum_sync_job", data.id], data);
+    },
+    onError: (err) => {
+      showNotification({
+        color: "red",
+        title: `Could not queue sync for ${fulcrumName}`,
+        message: err instanceof Error ? err.message : "Unknown error",
+        autoClose: 5000,
+      });
+    },
+  });
+
+  // Polls until the job either gets a run_id or comes back rejected. Kept
+  // running (rather than stopping once "stuck") so a job that's merely slow
+  // still resolves to a run link if the backend eventually catches up; only
+  // paused while this tab isn't the active one, so an expired session isn't
+  // discovered via a surprise background redirect on an unrelated tab.
+  const { data: polledJob } = useQuery<FulcrumSyncJob, Error>({
+    queryKey: ["fulcrum_sync_job", job?.id],
+    queryFn: async () => {
+      const response = await mapsApiClient.get<{ data: FulcrumSyncJob }>(
+        `${API_BASE}/fulcrum_sync_jobs/${job!.id}`
+      );
+      return response.data.data;
+    },
+    enabled: job !== null && tabActive,
+    refetchInterval: (query) => {
+      const latest = query.state.data;
+      if (!latest) {
+        return 2000;
+      }
+      return latest.run_id != null || latest.status === "rejected"
+        ? false
+        : 2000;
+    },
+  });
+
+  // Once the job has a run, the table's row (rows/last synced) may have
+  // changed once that run finishes — refresh the list.
+  useEffect(() => {
+    if (polledJob?.run_id != null) {
+      queryClient.invalidateQueries({
+        queryKey: ["fulcrum_sync_table_summary"],
+      });
+    }
+  }, [polledJob?.run_id, queryClient]);
+
+  const onSync = () => enqueueMutation.mutate();
+
+  if (!job || !polledJob) {
+    return (
+      <Tooltip label={`Sync ${fulcrumName} now`}>
+        <ActionIcon
+          variant="light"
+          onClick={onSync}
+          loading={enqueueMutation.isPending || job !== null}
+        >
+          <IconRefresh size="1rem" stroke={1.5} />
+        </ActionIcon>
+      </Tooltip>
+    );
+  }
+
+  if (polledJob.run_id != null) {
+    return (
+      <Group gap="xs" wrap="nowrap">
+        <Anchor component={Link} to={`/fulcrum/${polledJob.run_id}`} fz="sm">
+          View run
+        </Anchor>
+        <Tooltip label={`Sync ${fulcrumName} again`}>
+          <ActionIcon
+            variant="subtle"
+            onClick={onSync}
+            loading={enqueueMutation.isPending}
+          >
+            <IconRefresh size="0.9rem" stroke={1.5} />
+          </ActionIcon>
+        </Tooltip>
+      </Group>
+    );
+  }
+
+  const stuck =
+    polledJob.status !== "rejected" &&
+    Date.now() - job.startedAt > JOB_STUCK_TIMEOUT_MS;
+
+  if (polledJob.status === "rejected" || stuck) {
+    const rejected = polledJob.status === "rejected";
+    return (
+      <Group gap="xs" wrap="nowrap">
+        <Tooltip
+          label={
+            rejected
+              ? (polledJob.error_message ?? "Sync job was rejected")
+              : "Hasn't progressed in over 2 minutes — may need attention"
+          }
+        >
+          <Badge color={rejected ? "red" : "orange"} variant="light">
+            {rejected ? "Failed" : "Stuck"}
+          </Badge>
+        </Tooltip>
+        <ActionIcon
+          variant="subtle"
+          onClick={onSync}
+          loading={enqueueMutation.isPending}
+          title="Retry"
+        >
+          <IconRefresh size="0.9rem" stroke={1.5} />
+        </ActionIcon>
+      </Group>
+    );
+  }
+
+  return (
+    <Badge color="blue" variant="light">
+      {polledJob.status === "pending" ? "Queued" : "Starting…"}
+    </Badge>
+  );
+}
+
 //
 // Sync Tables tab — lists all Fulcrum tables with latest row count and last sync.
 // The API handles the sort field; direction and type filtering are client-side.
 //
-function SyncTablesTab() {
+function SyncTablesTab({ active }: { active: boolean }) {
   const [sort, setSort] = useState<TableSummarySort>("name");
   const [reversed, setReversed] = useState(false);
   const [tableType, setTableType] = useState<TableType | null>(null);
@@ -685,6 +846,7 @@ function SyncTablesTab() {
             >
               Last synced
             </Th>
+            <Table.Th>Sync</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -724,11 +886,17 @@ function SyncTablesTab() {
                   {t.rows_after !== null ? t.rows_after.toLocaleString() : "—"}
                 </Table.Td>
                 <Table.Td>{formatET(t.last_synced_at)}</Table.Td>
+                <Table.Td>
+                  <TableSyncCell
+                    fulcrumName={t.fulcrum_name}
+                    tabActive={active}
+                  />
+                </Table.Td>
               </Table.Tr>
             ))
           ) : (
             <Table.Tr>
-              <Table.Td colSpan={5}>
+              <Table.Td colSpan={6}>
                 <Text fw={500} ta="center" my="md">
                   {isError
                     ? `There was a problem fetching tables — ${error.message}`
@@ -787,7 +955,7 @@ export function FulcrumSyncList() {
         </Tabs.Panel>
 
         <Tabs.Panel value="tables">
-          <SyncTablesTab />
+          <SyncTablesTab active={activeTab === "tables"} />
         </Tabs.Panel>
       </Tabs>
     </div>
