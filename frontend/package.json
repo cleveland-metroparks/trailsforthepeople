@@ -10,7 +10,8 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc --noEmit",
     "test:a11y": "playwright test",
-    "test:a11y:headed": "playwright test --headed"
+    "test:a11y:headed": "playwright test --headed",
+    "version": "git add package.json package-lock.json && git commit -m \"Frontend $npm_new_version\" && git tag \"frontend-$npm_new_version\""
   },
   "dependencies": {
     "@mantine/core": "^6.0.19",
