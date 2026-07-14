@@ -100,9 +100,13 @@ export interface EnqueueSyncJobRequest {
   aggregate_photo_tables?: boolean;
 }
 
-// A job row, returned by POST /fulcrum_sync_jobs and GET /fulcrum_sync_jobs/{id}.
+// A job row, returned by POST /fulcrum_sync_jobs, GET /fulcrum_sync_jobs/{id},
+// and GET /fulcrum_sync_jobs (list). This is a fixed 10-field whitelist
+// enforced server-side — it won't grow or drift silently.
 export interface FulcrumSyncJob {
   id: number;
+  requested_at: string;
+  requested_by: string;
   status: FulcrumSyncJobStatus;
   run_id: number | null;
   tables: FulcrumSyncJobTables | null;
@@ -110,6 +114,15 @@ export interface FulcrumSyncJob {
   with_assoc_photos: boolean;
   aggregate_photo_tables: boolean;
   error_message: string | null;
+}
+
+// Paginated GET /fulcrum_sync_jobs response `data`. Always ordered by
+// requested_at DESC server-side — there's no sort param.
+export interface FulcrumSyncJobListResponse {
+  data: FulcrumSyncJob[];
+  total: number;
+  per_page: number;
+  page: number;
 }
 
 // Dashboard summary response `data`.

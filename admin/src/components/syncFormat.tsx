@@ -1,6 +1,10 @@
 import { Badge, Tooltip } from "@mantine/core";
 
-import type { ComputedStatus, TableStatus } from "../types/fulcrumSync";
+import type {
+  ComputedStatus,
+  FulcrumSyncJobStatus,
+  TableStatus,
+} from "../types/fulcrumSync";
 
 // The standard nightly run's cli_args (per maps-admin-sync-runs.md). Anything
 // else was a manual/partial run.
@@ -107,4 +111,26 @@ export function TableStatusBadge({ status }: { status: TableStatus }) {
     );
   }
   return badge;
+}
+
+const JOB_STATUS_COLOR: Record<FulcrumSyncJobStatus, string> = {
+  pending: "blue",
+  started: "cyan",
+  rejected: "red",
+};
+
+const JOB_STATUS_LABEL: Record<FulcrumSyncJobStatus, string> = {
+  pending: "Pending",
+  started: "Started",
+  rejected: "Rejected",
+};
+
+// Badge for a sync-trigger job's status (POST/GET /fulcrum_sync_jobs) — not
+// to be confused with a run's status, which SyncStatusBadge covers.
+export function JobStatusBadge({ status }: { status: FulcrumSyncJobStatus }) {
+  return (
+    <Badge color={JOB_STATUS_COLOR[status]} variant="light">
+      {JOB_STATUS_LABEL[status]}
+    </Badge>
+  );
 }

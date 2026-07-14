@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   useQuery,
   useMutation,
@@ -46,6 +46,7 @@ import { sortTableData, Th } from "../components/tablesort";
 import {
   SyncStatusBadge,
   TableStatusBadge,
+  JobStatusBadge,
   RunTypeBadge,
   formatDuration,
   formatET,
@@ -63,6 +64,8 @@ import { Line } from "react-chartjs-2";
 
 import type {
   FulcrumSyncJob,
+  FulcrumSyncJobListResponse,
+  FulcrumSyncJobStatus,
   SyncHealth,
   SyncRunListResponse,
   SyncRunDetail,
@@ -402,6 +405,169 @@ function SyncLogTab() {
   );
 }
 
+// requested_by is a plain email string (server sets it from the
+// authenticated user) — show just the local part, full address on hover.
+function requesterLabel(requestedBy: string): string {
+  const at = requestedBy.indexOf("@");
+  return at > 0 ? requestedBy.slice(0, at) : requestedBy;
+}
+
+//
+// Jobs tab — history of sync-trigger requests (POST /fulcrum_sync_jobs). This
+// is distinct from the Log tab: a job is a request to sync (which may be
+// rejected before anything runs), a run is the resulting execution once the
+// poller picks a non-rejected job up.
+//
+function JobsTab() {
+  const [page, setPage] = useState(1);
+  const [status, setStatus] = useState<FulcrumSyncJobStatus | null>(null);
+  const [openErrorId, setOpenErrorId] = useState<number | null>(null);
+
+  const getJobs = async () => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      per_page: PER_PAGE.toString(),
+    });
+    if (status) {
+      params.set("status", status);
+    }
+    const response = await mapsApiClient.get<{
+      data: FulcrumSyncJobListResponse;
+    }>(`${API_BASE}/fulcrum_sync_jobs?${params.toString()}`);
+    return response.data.data;
+  };
+
+  const { isLoading, isError, data, error } = useQuery<
+    FulcrumSyncJobListResponse,
+    Error
+  >({
+    queryKey: ["fulcrum_sync_jobs", page, status],
+    queryFn: getJobs,
+    placeholderData: keepPreviousData,
+  });
+
+  const jobs = data?.data ?? [];
+  const totalPages = data
+    ? Math.max(1, Math.ceil(data.total / data.per_page))
+    : 1;
+
+  return (
+    <div>
+      <Group mb="md">
+        <Select
+          label="Status"
+          placeholder="All"
+          clearable
+          data={[
+            { value: "pending", label: "Pending" },
+            { value: "started", label: "Started" },
+            { value: "rejected", label: "Rejected" },
+          ]}
+          value={status}
+          onChange={(value) => {
+            setStatus(value as FulcrumSyncJobStatus | null);
+            setPage(1);
+          }}
+        />
+      </Group>
+
+      <Table striped highlightOnHover>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Requested</Table.Th>
+            <Table.Th>Requested by</Table.Th>
+            <Table.Th>Target</Table.Th>
+            <Table.Th>Status</Table.Th>
+            <Table.Th>Run</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {jobs.length > 0 ? (
+            jobs.map((job) => {
+              const hasError = job.status === "rejected" && !!job.error_message;
+              const open = openErrorId === job.id;
+              return (
+                <Fragment key={job.id}>
+                  <Table.Tr
+                    onClick={
+                      hasError
+                        ? () => setOpenErrorId(open ? null : job.id)
+                        : undefined
+                    }
+                    style={hasError ? { cursor: "pointer" } : undefined}
+                  >
+                    <Table.Td>{formatET(job.requested_at)}</Table.Td>
+                    <Table.Td>
+                      <Tooltip label={job.requested_by}>
+                        <Text size="sm">
+                          {requesterLabel(job.requested_by)}
+                        </Text>
+                      </Tooltip>
+                    </Table.Td>
+                    <Table.Td>
+                      <Stack gap={0}>
+                        <Text size="sm">
+                          {job.single_table ?? "All tables"}
+                        </Text>
+                        <Text size="xs" c="dimmed">
+                          {job.tables ?? "both"}
+                          {job.with_assoc_photos ? " · +photos" : ""}
+                          {job.aggregate_photo_tables ? " · aggregated" : ""}
+                        </Text>
+                      </Stack>
+                    </Table.Td>
+                    <Table.Td>
+                      <JobStatusBadge status={job.status} />
+                    </Table.Td>
+                    <Table.Td>
+                      {job.run_id != null ? (
+                        <Anchor component={Link} to={`/fulcrum/${job.run_id}`}>
+                          View run
+                        </Anchor>
+                      ) : (
+                        "—"
+                      )}
+                    </Table.Td>
+                  </Table.Tr>
+                  {hasError && (
+                    <Table.Tr>
+                      <Table.Td colSpan={5} p={0}>
+                        <Collapse in={open}>
+                          <Code block m="xs">
+                            {job.error_message}
+                          </Code>
+                        </Collapse>
+                      </Table.Td>
+                    </Table.Tr>
+                  )}
+                </Fragment>
+              );
+            })
+          ) : (
+            <Table.Tr>
+              <Table.Td colSpan={5}>
+                <Text fw={500} ta="center" my="md">
+                  {isError
+                    ? `There was a problem fetching sync jobs — ${error.message}`
+                    : isLoading
+                      ? "Loading…"
+                      : "No sync jobs found"}
+                </Text>
+              </Table.Td>
+            </Table.Tr>
+          )}
+        </Table.Tbody>
+      </Table>
+
+      {totalPages > 1 && (
+        <Box mt="md">
+          <Pagination value={page} onChange={setPage} total={totalPages} />
+        </Box>
+      )}
+    </div>
+  );
+}
+
 const TABLE_TYPE_COLOR: Record<string, string> = {
   standard: "blue",
   photo: "violet",
@@ -574,7 +740,11 @@ function TableHistoryDrawer({
                       </Table.Td>
                       <Table.Td>
                         {delta !== null ? (
-                          <Text size="sm" c={deltaColor} fw={delta !== 0 ? 600 : undefined}>
+                          <Text
+                            size="sm"
+                            c={deltaColor}
+                            fw={delta !== 0 ? 600 : undefined}
+                          >
                             {delta > 0 ? "+" : ""}
                             {delta.toLocaleString()}
                           </Text>
@@ -904,7 +1074,10 @@ function SyncTablesTab({ active }: { active: boolean }) {
                 <Table.Td>
                   <UnstyledButton
                     onClick={() => setSelectedTable(t)}
-                    style={{ color: "var(--mantine-color-anchor)", cursor: "pointer" }}
+                    style={{
+                      color: "var(--mantine-color-anchor)",
+                      cursor: "pointer",
+                    }}
                   >
                     {t.fulcrum_name}
                   </UnstyledButton>
@@ -944,7 +1117,7 @@ function SyncTablesTab({ active }: { active: boolean }) {
                     <Tooltip
                       label={
                         t.table_type === "photo"
-                          ? "Photo tables sync via their parent form's \"Also sync photos\" option"
+                          ? 'Photo tables sync via their parent form\'s "Also sync photos" option'
                           : "Sub-tables sync automatically with their parent form"
                       }
                     >
@@ -975,7 +1148,7 @@ function SyncTablesTab({ active }: { active: boolean }) {
   );
 }
 
-const VALID_TABS = ["log", "tables"] as const;
+const VALID_TABS = ["log", "tables", "jobs"] as const;
 type TabValue = (typeof VALID_TABS)[number];
 
 //
@@ -1006,10 +1179,17 @@ export function FulcrumSyncList() {
 
       <SyncHealthWidget />
 
-      <Tabs value={activeTab} onChange={handleTabChange}>
+      <Tabs value={activeTab} onChange={handleTabChange} color="orange">
         <Tabs.List mb="md">
-          <Tabs.Tab value="log">Fulcrum Sync Log</Tabs.Tab>
-          <Tabs.Tab value="tables">Fulcrum Sync Tables</Tabs.Tab>
+          <Tabs.Tab value="log" fz="md" fw={500}>
+            Sync Log
+          </Tabs.Tab>
+          <Tabs.Tab value="tables" fz="md" fw={500}>
+            Sync Tables
+          </Tabs.Tab>
+          <Tabs.Tab value="jobs" fz="md" fw={500}>
+            Sync Jobs
+          </Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="log">
@@ -1018,6 +1198,10 @@ export function FulcrumSyncList() {
 
         <Tabs.Panel value="tables">
           <SyncTablesTab active={activeTab === "tables"} />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="jobs">
+          <JobsTab />
         </Tabs.Panel>
       </Tabs>
     </div>
