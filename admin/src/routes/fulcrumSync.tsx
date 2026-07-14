@@ -12,6 +12,7 @@ import {
   Anchor,
   Badge,
   Box,
+  Checkbox,
   Code,
   Collapse,
   Drawer,
@@ -595,6 +596,15 @@ function TableHistoryDrawer({
 
 type TableType = "standard" | "photo";
 
+// single_table on POST /fulcrum_sync_jobs only accepts a parent form's own
+// name — never a photo table or a repeatable sub-table's compound
+// "ParentForm/child_name" fulcrum_name. Sub-tables always ride along when
+// their parent form syncs, and photos are opt-in via with_assoc_photos, so
+// only genuine parent-form rows get a Sync control at all.
+function isSingleSyncTarget(t: SyncTableSummary) {
+  return t.table_type === "standard" && !t.fulcrum_name.includes("/");
+}
+
 // Renders the "Sync" column cell for one table row. Each row gets its own
 // component instance (keyed by fulcrum_name via the parent Table.Tr), so the
 // enqueue mutation and job poll below are naturally scoped per-row — one
@@ -610,12 +620,17 @@ function TableSyncCell({
   const [job, setJob] = useState<{ id: number; startedAt: number } | null>(
     null
   );
+  const [withPhotos, setWithPhotos] = useState(false);
 
   const enqueueMutation = useMutation({
     mutationFn: async () => {
       const response = await mapsApiClient.post<{ data: FulcrumSyncJob }>(
         `${API_BASE}/fulcrum_sync_jobs`,
-        { single_table: fulcrumName, with_assoc_photos: false }
+        {
+          tables: "standard",
+          single_table: fulcrumName,
+          with_assoc_photos: withPhotos,
+        }
       );
       return response.data.data;
     },
@@ -672,17 +687,35 @@ function TableSyncCell({
 
   const onSync = () => enqueueMutation.mutate();
 
+  // Shared "also sync this form's photos" toggle — offered alongside every
+  // sync/retry trigger below, since there's no separate per-photo-table
+  // trigger in the API.
+  const photosToggle = (
+    <Tooltip label="Also sync this form's associated photos">
+      <Checkbox
+        size="xs"
+        label="Photos"
+        checked={withPhotos}
+        onChange={(e) => setWithPhotos(e.currentTarget.checked)}
+        disabled={enqueueMutation.isPending}
+      />
+    </Tooltip>
+  );
+
   if (!job || !polledJob) {
     return (
-      <Tooltip label={`Sync ${fulcrumName} now`}>
-        <ActionIcon
-          variant="light"
-          onClick={onSync}
-          loading={enqueueMutation.isPending || job !== null}
-        >
-          <IconRefresh size="1rem" stroke={1.5} />
-        </ActionIcon>
-      </Tooltip>
+      <Group gap="xs" wrap="nowrap">
+        <Tooltip label={`Sync ${fulcrumName} now`}>
+          <ActionIcon
+            variant="light"
+            onClick={onSync}
+            loading={enqueueMutation.isPending || job !== null}
+          >
+            <IconRefresh size="1rem" stroke={1.5} />
+          </ActionIcon>
+        </Tooltip>
+        {photosToggle}
+      </Group>
     );
   }
 
@@ -701,6 +734,7 @@ function TableSyncCell({
             <IconRefresh size="0.9rem" stroke={1.5} />
           </ActionIcon>
         </Tooltip>
+        {photosToggle}
       </Group>
     );
   }
@@ -712,27 +746,41 @@ function TableSyncCell({
   if (polledJob.status === "rejected" || stuck) {
     const rejected = polledJob.status === "rejected";
     return (
-      <Group gap="xs" wrap="nowrap">
-        <Tooltip
-          label={
-            rejected
-              ? (polledJob.error_message ?? "Sync job was rejected")
-              : "Hasn't progressed in over 2 minutes — may need attention"
-          }
-        >
-          <Badge color={rejected ? "red" : "orange"} variant="light">
-            {rejected ? "Failed" : "Stuck"}
-          </Badge>
-        </Tooltip>
-        <ActionIcon
-          variant="subtle"
-          onClick={onSync}
-          loading={enqueueMutation.isPending}
-          title="Retry"
-        >
-          <IconRefresh size="0.9rem" stroke={1.5} />
-        </ActionIcon>
-      </Group>
+      <Stack gap={2}>
+        <Group gap="xs" wrap="nowrap">
+          <Tooltip
+            label={
+              rejected
+                ? "Sync job was rejected — see message below"
+                : "Hasn't progressed in over 2 minutes — may need attention"
+            }
+          >
+            <Badge color={rejected ? "red" : "orange"} variant="light">
+              {rejected ? "Failed" : "Stuck"}
+            </Badge>
+          </Tooltip>
+          <ActionIcon
+            variant="subtle"
+            onClick={onSync}
+            loading={enqueueMutation.isPending}
+            title="Retry"
+          >
+            <IconRefresh size="0.9rem" stroke={1.5} />
+          </ActionIcon>
+          {photosToggle}
+        </Group>
+        {rejected && polledJob.error_message && (
+          <Text
+            size="xs"
+            c="red"
+            maw={280}
+            lineClamp={2}
+            title={polledJob.error_message}
+          >
+            {polledJob.error_message}
+          </Text>
+        )}
+      </Stack>
     );
   }
 
@@ -887,10 +935,24 @@ function SyncTablesTab({ active }: { active: boolean }) {
                 </Table.Td>
                 <Table.Td>{formatET(t.last_synced_at)}</Table.Td>
                 <Table.Td>
-                  <TableSyncCell
-                    fulcrumName={t.fulcrum_name}
-                    tabActive={active}
-                  />
+                  {isSingleSyncTarget(t) ? (
+                    <TableSyncCell
+                      fulcrumName={t.fulcrum_name}
+                      tabActive={active}
+                    />
+                  ) : (
+                    <Tooltip
+                      label={
+                        t.table_type === "photo"
+                          ? "Photo tables sync via their parent form's \"Also sync photos\" option"
+                          : "Sub-tables sync automatically with their parent form"
+                      }
+                    >
+                      <Text size="xs" c="dimmed">
+                        —
+                      </Text>
+                    </Tooltip>
+                  )}
                 </Table.Td>
               </Table.Tr>
             ))
