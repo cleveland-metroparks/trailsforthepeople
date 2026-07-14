@@ -412,6 +412,32 @@ function requesterLabel(requestedBy: string): string {
   return at > 0 ? requestedBy.slice(0, at) : requestedBy;
 }
 
+// A job's own status (pending/started/rejected) never reflects the outcome
+// of the run it kicked off — once started, the job is just a breadcrumb
+// pointing at run_id, and success/failure lives on the run. This looks that
+// outcome up so the Jobs tab doesn't leave "Started" looking like a dead end.
+// Shares FulcrumSyncDetail's query key so navigating there afterwards doesn't
+// refetch.
+function JobRunStatusBadge({ runId }: { runId: number }) {
+  const { data, isLoading } = useQuery<SyncRunDetail, Error>({
+    queryKey: ["fulcrum_sync_run", runId.toString()],
+    queryFn: async () => {
+      const response = await mapsApiClient.get<{ data: SyncRunDetail }>(
+        `${API_BASE}/fulcrum_sync_runs/${runId}`
+      );
+      return response.data.data;
+    },
+  });
+
+  if (isLoading) {
+    return <Loader size="xs" />;
+  }
+  if (!data) {
+    return null;
+  }
+  return <SyncStatusBadge status={data.computed_status} />;
+}
+
 //
 // Jobs tab — history of sync-trigger requests (POST /fulcrum_sync_jobs). This
 // is distinct from the Log tab: a job is a request to sync (which may be
@@ -477,8 +503,9 @@ function JobsTab() {
             <Table.Th>Requested</Table.Th>
             <Table.Th>Requested by</Table.Th>
             <Table.Th>Target</Table.Th>
-            <Table.Th>Status</Table.Th>
-            <Table.Th>Run</Table.Th>
+            <Table.Th>Job Status</Table.Th>
+            <Table.Th>Run Status</Table.Th>
+            <Table.Th>View Run</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -521,7 +548,18 @@ function JobsTab() {
                     </Table.Td>
                     <Table.Td>
                       {job.run_id != null ? (
-                        <Anchor component={Link} to={`/fulcrum/${job.run_id}`}>
+                        <JobRunStatusBadge runId={job.run_id} />
+                      ) : (
+                        "—"
+                      )}
+                    </Table.Td>
+                    <Table.Td>
+                      {job.run_id != null ? (
+                        <Anchor
+                          component={Link}
+                          to={`/fulcrum/${job.run_id}`}
+                          fz="sm"
+                        >
                           View run
                         </Anchor>
                       ) : (
@@ -531,7 +569,7 @@ function JobsTab() {
                   </Table.Tr>
                   {hasError && (
                     <Table.Tr>
-                      <Table.Td colSpan={5} p={0}>
+                      <Table.Td colSpan={6} p={0}>
                         <Collapse in={open}>
                           <Code block m="xs">
                             {job.error_message}
@@ -545,7 +583,7 @@ function JobsTab() {
             })
           ) : (
             <Table.Tr>
-              <Table.Td colSpan={5}>
+              <Table.Td colSpan={6}>
                 <Text fw={500} ta="center" my="md">
                   {isError
                     ? `There was a problem fetching sync jobs — ${error.message}`
@@ -1185,10 +1223,10 @@ export function FulcrumSyncList() {
             Sync Log
           </Tabs.Tab>
           <Tabs.Tab value="tables" fz="md" fw={500}>
-            Sync Tables
+            Fulcrum Tables
           </Tabs.Tab>
           <Tabs.Tab value="jobs" fz="md" fw={500}>
-            Sync Jobs
+            Job Queue
           </Tabs.Tab>
         </Tabs.List>
 
