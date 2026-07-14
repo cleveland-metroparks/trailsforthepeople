@@ -1007,6 +1007,7 @@ function SyncTablesTab({ active }: { active: boolean }) {
   const [sort, setSort] = useState<TableSummarySort>("name");
   const [reversed, setReversed] = useState(false);
   const [tableType, setTableType] = useState<TableType | null>(null);
+  const [syncableOnly, setSyncableOnly] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedTable, setSelectedTable] = useState<SyncTableSummary | null>(
     null
@@ -1044,6 +1045,9 @@ function SyncTablesTab({ active }: { active: boolean }) {
   if (tableType) {
     tables = tables.filter((t) => t.table_type === tableType);
   }
+  if (syncableOnly) {
+    tables = tables.filter(isSingleSyncTarget);
+  }
   if (reversed) {
     tables = [...tables].reverse();
   }
@@ -1073,6 +1077,12 @@ function SyncTablesTab({ active }: { active: boolean }) {
           ]}
           value={tableType}
           onChange={(value) => setTableType(value as TableType | null)}
+        />
+        <Checkbox
+          label="Syncable only"
+          checked={syncableOnly}
+          onChange={(e) => setSyncableOnly(e.currentTarget.checked)}
+          mb={4}
         />
       </Group>
 
