@@ -17,6 +17,38 @@ import { useAuth } from "../hooks/useAuth";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import type { User } from "../types/user";
 
+const skipAuthRedirect = { skipAuthRedirect: true };
+
+function loginErrorMessage(error: any): string {
+  const status = error?.response?.status;
+  const data = error?.response?.data;
+
+  const fieldErrors = data?.errors
+    ? Object.values(data.errors).flat().find((value) => typeof value === "string")
+    : undefined;
+  if (typeof fieldErrors === "string") {
+    return fieldErrors;
+  }
+
+  if (
+    typeof data?.message === "string" &&
+    data.message &&
+    data.message !== "Unauthenticated."
+  ) {
+    return data.message;
+  }
+
+  if (status === 401 || status === 422) {
+    return "Invalid username or password.";
+  }
+
+  if (typeof error?.message === "string" && error.message) {
+    return error.message;
+  }
+
+  return "Login failed. Please try again.";
+}
+
 /**
  * Login screen
  */
@@ -45,22 +77,26 @@ export function Login() {
       // For Laravel Sanctum we need a CSRF cookie first, then we can log in.
       // Sanctum's SPA auth is tokenless (the session lives in an HttpOnly
       // cookie), so the login response itself carries nothing to store.
-      await mapsApiClient.get<any>("/sanctum/csrf-cookie");
-      await mapsApiClient.post<any>("/login", { username, password });
+      // skipAuthRedirect: a 401 here is a failed sign-in, not a mid-session
+      // expiry — don't let the interceptor reload the page and hide the error.
+      await mapsApiClient.get<any>("/sanctum/csrf-cookie", skipAuthRedirect);
+      await mapsApiClient.post<any>(
+        "/login",
+        { username, password },
+        skipAuthRedirect
+      );
 
       // Fetch the authenticated user so we store the real user object — the
       // server, not the typed-in username, is the source of truth.
       const userResponse = await mapsApiClient.get<User>(
-        import.meta.env.VITE_MAPS_API_BASE_PATH + "/user"
+        import.meta.env.VITE_MAPS_API_BASE_PATH + "/user",
+        skipAuthRedirect
       );
       onLogin(userResponse.data);
     } catch (error: any) {
       console.error("API auth login error:", error);
 
-      let msg = error.code + ": " + error.message;
-      if (error.response && error.response.data && error.response.data.message) {
-        msg += ": " + error.response.data.message;
-      }
+      const msg = loginErrorMessage(error);
 
       showNotification({
         id: "login-error",

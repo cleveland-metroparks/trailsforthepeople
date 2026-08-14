@@ -51,14 +51,22 @@ mapsApiClient.interceptors.response.use(
   (error) => {
     // If we get a 401 Unauthorized mid-session, the session has expired.
     // Redirect to login — unless the caller opted out (the boot-time session
-    // check handles its own 401 via routing rather than a page reload).
+    // check handles its own 401 via routing rather than a page reload), or
+    // we're already on the login page (a failed sign-in is also a 401, and
+    // reloading would swallow the error the login form is about to show).
+    const rootPath = import.meta.env.VITE_ROOT_PATH || "";
+    const loginPath = `${rootPath}/login`;
+    const alreadyOnLogin =
+      window.location.pathname === loginPath ||
+      window.location.pathname.endsWith("/login");
+
     if (
       error.response?.status === 401 &&
       !skipLogin &&
-      !error.config?.skipAuthRedirect
+      !error.config?.skipAuthRedirect &&
+      !alreadyOnLogin
     ) {
-      const rootPath = import.meta.env.VITE_ROOT_PATH || "";
-      window.location.href = `${rootPath}/login`;
+      window.location.href = loginPath;
     }
     return Promise.reject(error);
   }
