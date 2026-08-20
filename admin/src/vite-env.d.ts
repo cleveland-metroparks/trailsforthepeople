@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_MAPBOX_STYLE_URL: string
   readonly VITE_MAPS_API_BASE_URL: string
   readonly VITE_MAPS_API_BASE_PATH: string
+  readonly VITE_FRONTEND_BASE_URL?: string
   readonly VITE_ROOT_PATH: string
   readonly VITE_MAP_DEFAULT_CENTER_LNG: string
   readonly VITE_MAP_DEFAULT_CENTER_LAT: string

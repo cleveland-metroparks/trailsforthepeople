@@ -26,6 +26,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import { Link as TipTapLink } from "@tiptap/extension-link";
 
+import { IconExternalLink } from "@tabler/icons-react";
 import { openConfirmModal } from "@mantine/modals";
 import { default as dayjs } from "dayjs";
 // Import timezone and utc plugins from dayjs
@@ -61,6 +62,14 @@ import { Authorship } from "../components/sidebarPanes/authorship";
 import { TrailProfileChart } from "../components/trailProfileChart";
 
 const trailsRootPath = "/trails";
+
+function getTrailViewUrl(id: string): string {
+  const base = (import.meta.env.VITE_FRONTEND_BASE_URL || "").replace(
+    /\/+$/,
+    ""
+  );
+  return `${base}/?type=trail&gid=${encodeURIComponent(id)}`;
+}
 
 const defaultTrailProfile: TrailProfile = {
   id: null,
@@ -1202,6 +1211,22 @@ export function TrailEdit() {
 
               {/* Right sidebar */}
               <Box className={styles.sidebarBox}>
+                {trailId && trailId !== "new" && form.values.status && (
+                  <Box ta="right" mb="sm" pr="md">
+                    <Anchor
+                      href={getTrailViewUrl(trailId)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="View trail on the public map (opens in a new tab)"
+                      display="inline-flex"
+                    >
+                      <Group gap={4} wrap="nowrap" component="span">
+                        View in maps frontend
+                        <IconExternalLink size={14} />
+                      </Group>
+                    </Anchor>
+                  </Box>
+                )}
                 <Accordion multiple defaultValue={["stats"]}>
                   <Accordion.Item
                     value="stats"
