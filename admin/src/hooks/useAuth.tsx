@@ -10,7 +10,7 @@ import {
 import { useNavigate } from "react-router";
 
 import { mapsApiClient } from "../components/mapsApi";
-import type { User } from "../types/user";
+import { landingPath, type User } from "../types/user";
 
 export type AuthStatus = "loading" | "authenticated" | "anonymous";
 
@@ -42,6 +42,7 @@ const DEV_USER: User = {
   updated_at: "",
   guid: null,
   domain: null,
+  role: "gis",
 };
 
 /**
@@ -95,7 +96,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     (loggedInUser: User) => {
       setUser(loggedInUser);
       setStatus("authenticated");
-      navigate("/");
+      navigate(landingPath(loggedInUser));
     },
     [navigate]
   );

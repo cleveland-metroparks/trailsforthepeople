@@ -1,11 +1,19 @@
 import { Flex, Title, Text, Anchor, Divider } from "@mantine/core";
+import { Navigate } from "react-router";
 
 import { NavButtons, UserLinks } from "../components/navLinks";
+import { useAuth } from "../hooks/useAuth";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { isGisUser } from "../types/user";
 import { version } from "../../package.json";
 
 export function Home() {
   useDocumentTitle("Home");
+  const { user } = useAuth();
+
+  if (!isGisUser(user)) {
+    return <Navigate to="/fulcrum" replace />;
+  }
 
   return (
     <>

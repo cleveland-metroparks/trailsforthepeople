@@ -11,6 +11,7 @@ import {
   RouterProvider,
   Route,
   Navigate,
+  Outlet,
   createRoutesFromElements,
   createBrowserRouter,
 } from "react-router";
@@ -87,30 +88,38 @@ const routes = createRoutesFromElements(
         errorElement={<ErrorScreen />}
       >
         <Route errorElement={<ErrorScreen />}>
-          <Route path="trails">
-            <Route
-              index
-              element={<TrailList />}
-              loader={trailListLoader(queryClient)}
-            />
-            <Route path=":trailId" element={<TrailEdit />} />
-            <Route path=":trailId/delete" action={deleteTrailAction} />
-          </Route>
-          {/* Redirect from "loops/..." to "trails" */}
-          <Route path="loops/*" element={<Navigate to="/trails" replace />} />
-          <Route path="markers">
-            <Route
-              index
-              element={<MarkerList />}
-              loader={markerListLoader(queryClient)}
-            />
-            <Route path=":markerId" element={<MarkerEdit />} />
-            {/* <Route path=":markerId/delete" action={deleteMarkerAction} element={<MarkerDelete onDelete />} /> */}
-            <Route path=":markerId/delete" action={deleteMarkerAction} />
-          </Route>
-          <Route path="logs">
-            <Route index element={<AuditLogsList />} />
-            <Route path=":logId" element={<AuditLogView />} />
+          <Route
+            element={
+              <ProtectedRoute requireGis>
+                <Outlet />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="trails">
+              <Route
+                index
+                element={<TrailList />}
+                loader={trailListLoader(queryClient)}
+              />
+              <Route path=":trailId" element={<TrailEdit />} />
+              <Route path=":trailId/delete" action={deleteTrailAction} />
+            </Route>
+            {/* Redirect from "loops/..." to "trails" */}
+            <Route path="loops/*" element={<Navigate to="/trails" replace />} />
+            <Route path="markers">
+              <Route
+                index
+                element={<MarkerList />}
+                loader={markerListLoader(queryClient)}
+              />
+              <Route path=":markerId" element={<MarkerEdit />} />
+              {/* <Route path=":markerId/delete" action={deleteMarkerAction} element={<MarkerDelete onDelete />} /> */}
+              <Route path=":markerId/delete" action={deleteMarkerAction} />
+            </Route>
+            <Route path="logs">
+              <Route index element={<AuditLogsList />} />
+              <Route path=":logId" element={<AuditLogView />} />
+            </Route>
           </Route>
           <Route path="fulcrum">
             <Route index element={<FulcrumSyncList />} />
@@ -134,7 +143,9 @@ const routes = createRoutesFromElements(
 );
 
 //
-const router = createBrowserRouter(routes, { basename: import.meta.env.VITE_ROOT_PATH || '/admin' });
+const router = createBrowserRouter(routes, {
+  basename: import.meta.env.VITE_ROOT_PATH || "/admin",
+});
 
 //
 root.render(

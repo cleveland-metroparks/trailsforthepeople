@@ -18,6 +18,8 @@ import {
 } from "@mantine/core";
 import { Link } from "react-router";
 import styles from "./navLinks.module.css";
+import { useAuth } from "../hooks/useAuth";
+import { isGisUser } from "../types/user";
 
 interface NavLinkProps {
   icon: React.ReactNode;
@@ -43,6 +45,15 @@ const userLinksData = [
   { icon: <IconUser />, color: "gray", label: "User", urlPath: "user" },
   { icon: <IconLogout />, color: "gray", label: "Logout", urlPath: "logout" },
 ];
+
+const GIS_ONLY_PATHS = new Set(["trails", "markers", "logs"]);
+
+function visibleNavLinks(isGis: boolean) {
+  if (isGis) {
+    return navLinksData;
+  }
+  return navLinksData.filter((link) => !GIS_ONLY_PATHS.has(link.urlPath));
+}
 
 // For the sidebar menu link buttons
 function NavLink({
@@ -105,7 +116,8 @@ function NavButton({ icon, color, label, urlPath }: NavLinkProps) {
 
 // Sidebar menu link buttons
 export function NavLinks({ showLabels = true }: { showLabels?: boolean }) {
-  const links = navLinksData.map((link) => (
+  const { user } = useAuth();
+  const links = visibleNavLinks(isGisUser(user)).map((link) => (
     <NavLink {...link} key={link.label} showLabel={showLabels} />
   ));
   return <>{links}</>;
@@ -121,7 +133,8 @@ export function UserLinks({ showLabels = true }: { showLabels?: boolean }) {
 
 // Home page buttons
 export function NavButtons() {
-  const links = navLinksData.map((link) => (
+  const { user } = useAuth();
+  const links = visibleNavLinks(isGisUser(user)).map((link) => (
     <NavButton {...link} key={link.label} />
   ));
   return <>{links}</>;

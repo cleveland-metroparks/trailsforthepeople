@@ -15,7 +15,7 @@ import { showNotification } from "@mantine/notifications";
 import { mapsApiClient } from "../components/mapsApi";
 import { useAuth } from "../hooks/useAuth";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
-import type { User } from "../types/user";
+import { landingPath, type User } from "../types/user";
 
 const skipAuthRedirect = { skipAuthRedirect: true };
 
@@ -24,7 +24,9 @@ function loginErrorMessage(error: any): string {
   const data = error?.response?.data;
 
   const fieldErrors = data?.errors
-    ? Object.values(data.errors).flat().find((value) => typeof value === "string")
+    ? Object.values(data.errors)
+        .flat()
+        .find((value) => typeof value === "string")
     : undefined;
   if (typeof fieldErrors === "string") {
     return fieldErrors;
@@ -68,7 +70,7 @@ export function Login() {
   const { user, onLogin } = useAuth();
 
   if (user || skipLogin) {
-    return <Navigate to="/" />;
+    return <Navigate to={landingPath(user)} replace />;
   }
 
   // Submit login to API

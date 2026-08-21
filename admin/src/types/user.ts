@@ -1,6 +1,8 @@
 // Shape returned by GET {VITE_MAPS_API_BASE_PATH}/user — the authenticated
 // Sanctum User model, returned at the top level (no {success, data, message}
 // envelope). Keys are snake_case, matching the DB columns.
+export type UserRole = "gis" | "fulcrum";
+
 export type User = {
   id: number;
   name: string;
@@ -11,7 +13,17 @@ export type User = {
   updated_at: string;
   guid: string | null;
   domain: string | null;
+  role: UserRole;
 };
+
+/** GIS users have full admin access. Only an explicit fulcrum role is restricted. */
+export function isGisUser(user: User | null | undefined): boolean {
+  return user != null && user.role !== "fulcrum";
+}
+
+export function landingPath(user: User | null | undefined): string {
+  return isGisUser(user) ? "/" : "/fulcrum";
+}
 
 export type ApiAccessToken = {
   id: number;
