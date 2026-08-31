@@ -60,8 +60,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     skipLogin ? "authenticated" : "loading"
   );
 
-  // Boot-time session check: ask the server who we are. A 401 (or network
-  // failure) simply means we're anonymous — a normal, expected outcome.
+  // Boot-time session check: ask the server who we are. GET /user returns
+  // 200 with the user object or 200 with null (anonymous) — not a 401 —
+  // so loading /login doesn't log an Unauthorized error in the console.
   useEffect(() => {
     if (skipLogin) {
       return;
@@ -70,15 +71,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let cancelled = false;
 
     mapsApiClient
-      .get<User>(import.meta.env.VITE_MAPS_API_BASE_PATH + "/user", {
-        // Don't let the 401 response interceptor hard-redirect on this probe;
-        // an unauthenticated boot is handled by routing, not a page reload.
+      .get<User | null>(import.meta.env.VITE_MAPS_API_BASE_PATH + "/user", {
+        // Defense in depth: if this ever 401s, don't let the interceptor
+        // hard-redirect; an unauthenticated boot is handled by routing.
         skipAuthRedirect: true,
       })
       .then((response) => {
         if (cancelled) return;
-        setUser(response.data);
-        setStatus("authenticated");
+        const currentUser = response.data;
+        if (currentUser && currentUser.id != null) {
+          setUser(currentUser);
+          setStatus("authenticated");
+        } else {
+          setUser(null);
+          setStatus("anonymous");
+        }
       })
       .catch(() => {
         if (cancelled) return;

@@ -91,10 +91,13 @@ export function Login() {
 
       // Fetch the authenticated user so we store the real user object — the
       // server, not the typed-in username, is the source of truth.
-      const userResponse = await mapsApiClient.get<User>(
+      const userResponse = await mapsApiClient.get<User | null>(
         import.meta.env.VITE_MAPS_API_BASE_PATH + "/user",
         skipAuthRedirect
       );
+      if (!userResponse.data?.id) {
+        throw new Error("Login succeeded but the server did not return a user.");
+      }
       onLogin(userResponse.data);
     } catch (error: any) {
       console.error("API auth login error:", error);

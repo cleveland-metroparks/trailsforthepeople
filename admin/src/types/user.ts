@@ -1,6 +1,7 @@
 // Shape returned by GET {VITE_MAPS_API_BASE_PATH}/user — the authenticated
 // Sanctum User model, returned at the top level (no {success, data, message}
-// envelope). Keys are snake_case, matching the DB columns.
+// envelope). Unauthenticated callers get 200 with a JSON null. Keys are
+// snake_case, matching the DB columns.
 export type UserRole = "gis" | "fulcrum";
 
 export type User = {
