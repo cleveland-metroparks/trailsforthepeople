@@ -125,13 +125,9 @@ export function NavLinks({ showLabels = true }: { showLabels?: boolean }) {
 
 // Sidebar menu link buttons
 export function UserLinks({ showLabels = true }: { showLabels?: boolean }) {
-  const { user } = useAuth();
-  const isGis = isGisUser(user);
-  const links = userLinksData
-    .filter((link) => isGis || link.urlPath !== "user")
-    .map((link) => (
-      <NavLink {...link} key={link.label} showLabel={showLabels} />
-    ));
+  const links = userLinksData.map((link) => (
+    <NavLink {...link} key={link.label} showLabel={showLabels} />
+  ));
   return <>{links}</>;
 }
 

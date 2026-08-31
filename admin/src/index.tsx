@@ -125,14 +125,7 @@ const routes = createRoutesFromElements(
             <Route index element={<FulcrumSyncList />} />
             <Route path=":runId" element={<FulcrumSyncDetail />} />
           </Route>
-          <Route
-            path="user"
-            element={
-              <ProtectedRoute requireGis>
-                <Outlet />
-              </ProtectedRoute>
-            }
-          >
+          <Route path="user">
             <Route index element={<UserAccount />} />
           </Route>
           {/* <Route

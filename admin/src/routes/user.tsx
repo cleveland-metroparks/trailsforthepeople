@@ -8,6 +8,7 @@ import {
   CopyButton,
   Group,
   Modal,
+  Stack,
   Table,
   Title,
   Text,
@@ -27,8 +28,14 @@ import { default as dayjs } from "dayjs";
 
 import { mapsApiClient } from "../components/mapsApi";
 import type { ApiAccessToken } from "../types/user";
+import { isGisUser } from "../types/user";
 import utils from "../styles/utils.module.css";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+
+const ROLE_LABELS = {
+  gis: "GIS (full admin)",
+  fulcrum: "Fulcrum sync",
+} as const;
 
 // Get all tokens
 const getUserTokens = async () => {
@@ -60,14 +67,7 @@ const getUserTokens = async () => {
   return tokensData;
 };
 
-/**
- * User Account component
- */
-export function UserAccount() {
-  const { user } = useAuth();
-
-  useDocumentTitle(user ? user.name : "User");
-
+function ApiAccessTokens() {
   const [openedModal, { open: openModal, close: closeModal }] =
     useDisclosure(false);
 
@@ -77,7 +77,6 @@ export function UserAccount() {
 
   const {
     isLoading: tokensIsLoading,
-    // isSuccess: tokensIsSuccess,
     isError: tokensIsError,
     data: tokensData,
     error: tokensError,
@@ -230,10 +229,6 @@ export function UserAccount() {
 
   return (
     <>
-      <Title order={2} mb="md">
-        User: {user?.name}
-      </Title>
-
       {tokensIsLoading && <div>Loading...</div>}
 
       {tokensIsError && (
@@ -307,6 +302,44 @@ export function UserAccount() {
       >
         {tokenCreatedContent}
       </Modal>
+    </>
+  );
+}
+
+/**
+ * User Account component
+ */
+export function UserAccount() {
+  const { user } = useAuth();
+
+  useDocumentTitle(user ? user.name : "User");
+
+  return (
+    <>
+      <Title order={2} mb="md">
+        User: {user?.name}
+      </Title>
+
+      <Stack gap="xs" mb="xl">
+        {user?.username && (
+          <Text>
+            <Text span fw={600}>
+              Username:
+            </Text>{" "}
+            {user.username}
+          </Text>
+        )}
+        {user?.role && (
+          <Text>
+            <Text span fw={600}>
+              Role:
+            </Text>{" "}
+            {ROLE_LABELS[user.role]}
+          </Text>
+        )}
+      </Stack>
+
+      {isGisUser(user) && <ApiAccessTokens />}
     </>
   );
 }
