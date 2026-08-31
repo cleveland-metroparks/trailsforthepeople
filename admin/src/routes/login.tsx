@@ -16,6 +16,7 @@ import { mapsApiClient } from "../components/mapsApi";
 import { useAuth } from "../hooks/useAuth";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { landingPath, type User } from "../types/user";
+import { version } from "../../package.json";
 
 const skipAuthRedirect = { skipAuthRedirect: true };
 
@@ -171,6 +172,10 @@ export function Login() {
           </Group>
         </form>
       </Container>
+
+      <Text size="xs" c="dimmed" ta="center" mt="xl">
+        v{version}
+      </Text>
     </>
   );
 }
