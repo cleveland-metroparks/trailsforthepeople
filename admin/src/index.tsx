@@ -37,6 +37,7 @@ import { action as deleteMarkerAction } from "./routes/markerDelete";
 import { AuditLogsList, AuditLogView } from "./routes/logs";
 
 import { FulcrumSyncList, FulcrumSyncDetail } from "./routes/fulcrumSync";
+import { ParcelsSyncList, ParcelsSyncDetail } from "./routes/parcelsSync";
 
 import "./index.css";
 
@@ -119,6 +120,10 @@ const routes = createRoutesFromElements(
             <Route path="logs">
               <Route index element={<AuditLogsList />} />
               <Route path=":logId" element={<AuditLogView />} />
+            </Route>
+            <Route path="parcels">
+              <Route index element={<ParcelsSyncList />} />
+              <Route path=":runId" element={<ParcelsSyncDetail />} />
             </Route>
           </Route>
           <Route path="fulcrum">

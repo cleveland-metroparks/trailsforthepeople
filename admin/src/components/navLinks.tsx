@@ -5,6 +5,7 @@ import {
   IconMapPin,
   IconFileText,
   IconRefresh,
+  IconMap,
   IconUser,
   IconLogout,
 } from "@tabler/icons-react";
@@ -34,6 +35,12 @@ const navLinksData = [
   { icon: <IconMapPin />, color: "teal", label: "Markers", urlPath: "markers" },
   { icon: <IconFileText />, color: "grape", label: "Logs", urlPath: "logs" },
   {
+    icon: <IconMap />,
+    color: "green",
+    label: "Parcels",
+    urlPath: "parcels",
+  },
+  {
     icon: <IconRefresh />,
     color: "orange",
     label: "Fulcrum",
@@ -46,7 +53,7 @@ const userLinksData = [
   { icon: <IconLogout />, color: "gray", label: "Logout", urlPath: "logout" },
 ];
 
-const GIS_ONLY_PATHS = new Set(["trails", "markers", "logs"]);
+const GIS_ONLY_PATHS = new Set(["trails", "markers", "logs", "parcels"]);
 
 function visibleNavLinks(isGis: boolean) {
   if (isGis) {
