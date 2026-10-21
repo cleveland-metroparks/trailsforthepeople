@@ -1,4 +1,5 @@
-# Ansible playbook for setting up the maps-dev server
+# Setup steps for the maps-dev server, in Ansible playbook format.
+# Ansible is not installed or run; these steps are applied manually.
 # (Ubuntu 22.04)
 
 - name: Set up maps-dev
