@@ -193,6 +193,26 @@ Current state:
 
 - There is no `npm test` script in this app today.
 
+## Versioning
+
+Bump the app version from this directory with `npm version`:
+
+```bash
+cd admin
+npm version patch   # or minor / major
+```
+
+That updates `package.json` and `package-lock.json`, then the `version` script commits and tags:
+
+- Commit message: `Admin <new-version>`
+- Tag: `admin-<new-version>`
+
+Working tree must be clean. Push the commit and tag afterward:
+
+```bash
+git push && git push --tags
+```
+
 ## Deployment
 
 Deployment setup for both frontend apps is documented in the repo-level guide:

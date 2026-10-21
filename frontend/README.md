@@ -58,6 +58,26 @@ App available at **http://localhost:3002**
 | `npm run test:a11y:headed` | Run Playwright accessibility suite in headed mode    |
 | `npm run preview`          | Preview production build locally                     |
 
+## Versioning
+
+Bump the app version from this directory with `npm version`:
+
+```bash
+cd frontend
+npm version patch   # or minor / major
+```
+
+That updates `package.json` and `package-lock.json`, then the `version` script commits and tags:
+
+- Commit message: `Frontend <new-version>`
+- Tag: `frontend-<new-version>`
+
+Working tree must be clean. Push the commit and tag afterward:
+
+```bash
+git push && git push --tags
+```
+
 ## Deployment
 
 - Deployment strategy and setup notes live in `../DEPLOYMENT.md`.
