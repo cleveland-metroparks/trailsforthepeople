@@ -491,6 +491,11 @@ export function MarkerEdit() {
                       creator_username={markerData.creator_username}
                       date_modified={markerData.date_modified}
                       modifier_username={markerData.modifier_username}
+                      activitySubject={
+                        markerId && markerId !== "new"
+                          ? { type: "marker", id: markerId }
+                          : undefined
+                      }
                     />
                   </Accordion.Panel>
                 </Accordion.Item>

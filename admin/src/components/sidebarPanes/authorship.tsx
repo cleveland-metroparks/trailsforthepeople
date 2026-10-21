@@ -1,4 +1,5 @@
-import { Text, Space } from "@mantine/core";
+import { Anchor, Text, Space } from "@mantine/core";
+import { Link } from "react-router";
 import { default as dayjs } from "dayjs";
 
 interface AuthorshipProps {
@@ -6,6 +7,7 @@ interface AuthorshipProps {
   creator_username?: string;
   date_modified?: string;
   modifier_username?: string;
+  activitySubject?: { type: "trail" | "marker"; id: string | number };
 }
 
 export function Authorship({
@@ -13,6 +15,7 @@ export function Authorship({
   creator_username,
   date_modified,
   modifier_username,
+  activitySubject,
 }: AuthorshipProps) {
   return (
     <>
@@ -50,6 +53,17 @@ export function Authorship({
           <Text span c="dimmed">
             {modifier_username}
           </Text>
+        </Text>
+      )}
+
+      {activitySubject && (
+        <Text fz="sm" mt="xs">
+          <Anchor
+            component={Link}
+            to={`/logs?subject_type=${activitySubject.type}&subject_id=${activitySubject.id}`}
+          >
+            View activity
+          </Anchor>
         </Text>
       )}
     </>

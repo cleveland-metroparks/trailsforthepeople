@@ -1280,6 +1280,11 @@ export function TrailEdit() {
                         creator_username={trailData.creator_username}
                         date_modified={trailData.date_modified}
                         modifier_username={trailData.modifier_username}
+                        activitySubject={
+                          trailId && trailId !== "new"
+                            ? { type: "trail", id: trailId }
+                            : undefined
+                        }
                       />
                     </Accordion.Panel>
                   </Accordion.Item>
