@@ -26,25 +26,36 @@
       state: present
       update_cache: true
 
-  - name: Add repo for NodeJS 16.x
+  - name: Remove old NodeJS 16.x repo
     apt_repository:
       repo: deb https://deb.nodesource.com/node_16.x jammy main
-      state: present
+      state: absent
       filename: nodesource.list
-      update_cache: yes
 
-  - name: Add repo key
-    apt_key:
-      url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+  - name: Create apt keyrings directory
+    file:
+      path: /etc/apt/keyrings
+      state: directory
+      mode: '0755'
+
+  - name: Add NodeSource repo key
+    get_url:
+      url: https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key
+      dest: /etc/apt/keyrings/nodesource.asc
+      mode: '0644'
+
+  - name: Add repo for NodeJS 24.x
+    apt_repository:
+      repo: deb [signed-by=/etc/apt/keyrings/nodesource.asc] https://deb.nodesource.com/node_24.x nodistro main
       state: present
+      filename: nodesource
       update_cache: yes
 
+  # NodeSource's nodejs package includes npm
   - name: Install NodeJS
     apt:
-      name:
-        - nodejs
-        - npm
-      state: present
+      name: nodejs
+      state: latest
       update_cache: yes
 
   - name: Copy nginx main config

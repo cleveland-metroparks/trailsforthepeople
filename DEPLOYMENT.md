@@ -61,7 +61,7 @@ On each VM:
 
 1. Ensure outbound HTTPS connectivity to GitHub.
 2. Clone each app into the intended deployment directory (`APP_DIR` for public frontend, `ADMIN_APP_DIR` for admin frontend).
-3. Install Node and npm versions compatible with each app's `package.json`.
+3. Install Node 24 LTS (see `.nvmrc` and each app's `package.json` `engines`). Install from NodeSource as recorded in `ansible/maps-dev/setup.yml` (a record of server setup, applied manually; Ansible isn't run).
 4. Install and start the GitHub Actions self-hosted runner.
 5. Ensure required server-side environment configuration exists before first automated build.
 

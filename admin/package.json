@@ -80,5 +80,8 @@
   "allowScripts": {
     "fsevents@2.3.3": true,
     "esbuild@0.25.12": true
+  },
+  "engines": {
+    "node": ">=24"
   }
 }
