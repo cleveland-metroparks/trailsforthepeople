@@ -405,11 +405,39 @@ function SyncLogTab() {
   );
 }
 
-// requested_by is a plain email string (server sets it from the
-// authenticated user) — show just the local part, full address on hover.
+// requested_by is set server-side from the session user. New rows use the
+// same "username · Display Name" shape as /admin/logs; older rows may still
+// be an email, bare username, or numeric id.
 function requesterLabel(requestedBy: string): string {
   const at = requestedBy.indexOf("@");
   return at > 0 ? requestedBy.slice(0, at) : requestedBy;
+}
+
+// Match Logs Actor: username, then dimmed " · display name" when present.
+function RequesterCell({ requestedBy }: { requestedBy: string }) {
+  const sep = " · ";
+  const idx = requestedBy.indexOf(sep);
+  if (idx > 0) {
+    const username = requestedBy.slice(0, idx);
+    const name = requestedBy.slice(idx + sep.length);
+    return (
+      <Tooltip label={requestedBy}>
+        <Text size="sm" component="span">
+          {username}
+          <Text span c="dimmed" size="sm">
+            {" "}
+            · {name}
+          </Text>
+        </Text>
+      </Tooltip>
+    );
+  }
+
+  return (
+    <Tooltip label={requestedBy}>
+      <Text size="sm">{requesterLabel(requestedBy)}</Text>
+    </Tooltip>
+  );
 }
 
 // A job's own status (pending/started/rejected) never reflects the outcome
@@ -525,11 +553,7 @@ function JobsTab() {
                   >
                     <Table.Td>{formatET(job.requested_at)}</Table.Td>
                     <Table.Td>
-                      <Tooltip label={job.requested_by}>
-                        <Text size="sm">
-                          {requesterLabel(job.requested_by)}
-                        </Text>
-                      </Tooltip>
+                      <RequesterCell requestedBy={job.requested_by} />
                     </Table.Td>
                     <Table.Td>
                       <Stack gap={0}>

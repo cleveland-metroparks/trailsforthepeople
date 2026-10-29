@@ -92,7 +92,7 @@ export type FulcrumSyncJobStatus = "pending" | "started" | "rejected";
 export type FulcrumSyncJobTables = "standard" | "photos" | "both";
 
 // POST /fulcrum_sync_jobs body. Omit `tables`/`single_table` for a full sync
-// of both table sets. `requested_by` is set server-side from the session user.
+// of both table sets. `requested_by` is set server-side (username · name).
 export interface EnqueueSyncJobRequest {
   tables?: FulcrumSyncJobTables;
   single_table?: string;
@@ -106,6 +106,7 @@ export interface EnqueueSyncJobRequest {
 export interface FulcrumSyncJob {
   id: number;
   requested_at: string;
+  /** Actor label from the session user, e.g. "jer · John E. Reinier". */
   requested_by: string;
   status: FulcrumSyncJobStatus;
   run_id: number | null;
