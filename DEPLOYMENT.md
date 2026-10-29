@@ -5,7 +5,8 @@ Canonical deployment guide for this repository (public frontend + admin frontend
 ## Strategy
 
 - Push to `develop` deploys to the `dev` environment.
-- Push to `main` deploys to the `prod` environment (currently disabled in workflow with `if: false`).
+- Push to `main` deploys to the `prod` environment.
+- Deploys are per branch, not per app: a push runs both the frontend and admin jobs for that environment.
 - Each environment has its own Linux VM inside the CMP network.
 - GitHub does not connect inbound to the servers or need VPN access.
 - Each VM runs a self-hosted GitHub Actions runner that keeps an outbound HTTPS connection to GitHub and waits for jobs.
@@ -18,8 +19,35 @@ Current jobs:
 
 - `deploy-frontend-dev`
 - `deploy-admin-dev`
-- `deploy-frontend-prod` (currently disabled)
-- `deploy-admin-prod` (currently disabled)
+- `deploy-frontend-prod`
+- `deploy-admin-prod`
+
+## Releasing
+
+Each app is versioned and tagged independently. Releases are cut on `main`; pushing `main` is what deploys to prod.
+
+1. Make sure `main` is up to date and contains everything that should ship (including any changes for the *other* app, since a push to `main` deploys both).
+2. Make sure nothing else is staged. The release commit includes everything in the index, not just the version files.
+3. Bump the version in the app's directory (`admin/` or `frontend/`):
+
+   ```bash
+   cd admin
+   npm version patch --no-git-tag-version   # or minor / major
+   ```
+
+   Each app's `version` script in `package.json` then stages `package.json` and `package-lock.json`, commits them as `Admin X.Y.Z` / `Frontend X.Y.Z` (running the husky pre-commit lint and type-check), and tags the commit `admin-X.Y.Z` / `frontend-X.Y.Z`. `--no-git-tag-version` only disables npm's built-in commit and `vX.Y.Z` tag, so the app-prefixed tag is the only one created.
+4. Push the branch and the tag:
+
+   ```bash
+   git push origin main
+   git push origin admin-1.6.4
+   ```
+
+5. Watch the **Deploy** workflow in the repo's Actions tab and confirm the prod job succeeded.
+
+When releasing both apps together, run `npm version` in each app directory, then push `main` and both tags once.
+
+Versioning is bookkeeping only: the workflow deploys on any push to `main`/`develop` and does not check versions or tags, and pushing a tag alone does not deploy.
 
 ## GitHub Setup
 
@@ -140,7 +168,6 @@ Safest long-term split: GitHub-hosted runners for PR checks, self-hosted runners
 
 ## Future Improvements
 
-- Re-enable prod jobs when ready.
 - Add `lint` and `type-check` gates before deploy.
 - Add post-build sync/reload steps if required by runtime hosting layout.
 - Move runners to dedicated deploy users.
