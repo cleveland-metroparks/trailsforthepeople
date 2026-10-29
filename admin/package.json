@@ -74,8 +74,8 @@
     "vite": "^6.0.0"
   },
   "volta": {
-    "node": "20.19.6",
-    "npm": "11.6.4"
+    "node": "24.22.2",
+    "npm": "11.19.1"
   },
   "allowScripts": {
     "fsevents@2.3.3": true,

@@ -14,7 +14,7 @@ React + TypeScript admin frontend for managing Cleveland Metroparks maps content
 
 ## Prerequisites
 
-- Node and npm versions compatible with `admin/package.json` (Volta pins Node `20.19.6`, npm `11.6.4`)
+- Node 24 LTS and a matching npm (exact versions are pinned via Volta in `admin/package.json`)
 - A valid Mapbox token
 - Access to the maps API environment used for login and data APIs
 
